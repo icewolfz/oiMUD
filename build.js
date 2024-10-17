@@ -9,6 +9,7 @@ let args = {
     core: process.argv.indexOf('--core') !== -1 || process.argv.indexOf('-core') !== -1,
     interface: process.argv.indexOf('-i') !== -1 || process.argv.indexOf('--interface') !== -1 || process.argv.indexOf('-interface') !== -1,
     tinymce: process.argv.indexOf('-te') !== -1 || process.argv.indexOf('--tinymce') !== -1 || process.argv.indexOf('-tinymce') !== -1,
+    test: process.argv.indexOf('-t') !== -1 || process.argv.indexOf('--test') !== -1 || process.argv.indexOf('-test') !== -1,
 }
 
 let config = {
@@ -19,8 +20,8 @@ let config = {
     },
     external: ['moment']
 }
-let release = Object.assign({}, config, { minify: true, sourcemap: true, define: { DEBUG: 'false', TINYMCE: args.all || args.tinymce ? 'true' : 'false' } });
-let debug = Object.assign({}, config, { minify: false, sourcemap: false, define: { DEBUG: 'true', TINYMCE: args.all || args.tinymce ? 'true' : 'false' } });
+let release = Object.assign({}, config, { minify: true, sourcemap: true, define: { TEST: args.test ? 'true' : 'false', DEBUG: 'false', TINYMCE: args.all || args.tinymce ? 'true' : 'false' } });
+let debug = Object.assign({}, config, { minify: false, sourcemap: false, define: { TEST: 'true', DEBUG: 'true', TINYMCE: args.all || args.tinymce ? 'true' : 'false' } });
 
 if (args.all || args.release) {
     //core

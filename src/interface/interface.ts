@@ -64,6 +64,7 @@ export function initializeInterface() {
             editorDialog.on('canceled', () => {
                 client.setOption('windows.editor', editorDialog.windowState);
             });
+            editorDialog.on('focus', () => editor.focus());
             const textarea = document.createElement('textarea');
             textarea.classList.add('form-control', 'form-control-sm');
             textarea.id = 'adv-editor-txt';
@@ -74,6 +75,7 @@ export function initializeInterface() {
                 editorDialog.close();
             });
             editor.on('editor-init', () => editor.focus());
+            editor.on('click', () => editorDialog.focus());
             editorDialog.dialog.editor = editor;
             if (TINYMCE && tinymce)
                 editorDialog.header.querySelector('#adv-editor-max').insertAdjacentHTML('afterend', '<button type="button" class="btn btn-light float-end" id="adv-editor-switch" title="Switch to advanced" style="padding: 0 4px;margin-top: -1px;"><i class="bi-shuffle"></i></button>');
@@ -124,7 +126,8 @@ export function initializeInterface() {
                 editorDialog.hideFooter();
         }
         editorDialog.show();
-        editor.focus();
+        if (editor.isSimple)
+            editor.focus();
     });
     //restore advanced editor
     options = client.getOption('windows.editor');
@@ -143,13 +146,61 @@ export function initializeInterface() {
     updateCommandInput();
     if (client.getOption('commandAutoSize') || client.getOption('commandScrollbars'))
         resizeCommandInput();
-    window.addEventListener('hashchange', e => {
-        switch (window.location.hash) {
-            case '#editor':
+    window.addEventListener('hashchange', hashChange, false);
+    window.addEventListener('load', hashChange);
+}
+
+function hashChange() {
+    if (!window.location.hash || window.location.hash.length < 2) return;
+    var dialogs = window.location.hash.substring(1).split(',');
+    for (let d = dialogs.length - 1; d >= 0; d--)
+        switch (dialogs[d].trim()) {
+            case 'about':
+                loadDialog(new Dialog(({ title: '<i class="bi-info-circle"></i> About', noFooter: true, resizable: false, center: true, maximizable: false })), dialogs[d].trim(), 1, true).catch(e => {
+                    client.error(e);
+                });
+                break;
+            case 'editor':
                 document.getElementById('btn-adv-editor').click();
                 break;
         }
-    }, false);
+}
+
+function loadDialog(dialog: Dialog, path, show?, showError?) {
+    return new Promise((resolve, reject) => {
+        var subpath = path.split('/');
+        if ($('#empty-page').css('visibility') !== 'visible')
+            $('.page').removeClass('show');
+        $.ajax({
+            url: 'dialogs/' + subpath[0] + '.htm',
+            cache: false,
+            type: 'GET',
+        })
+            .done(function (data) {
+                dialog.dialog.dataset.path = subpath[0];
+                dialog.dialog.dataset.fullPath = path;
+                dialog.dialog.dataset.hash = window.location.hash;
+                dialog.body.innerHTML = data;
+                const scripts: HTMLScriptElement[] = dialog.body.querySelectorAll('script');
+                for (let s = 0, sl = scripts.length; s < sl; s++) {
+                    /*jslint evil: true */
+                    let script = new Function('body', 'client', scripts[s].textContent);
+                    script.apply(client, [dialog.body, client]);
+                }
+                if (show == 1)
+                    dialog.show();
+                else if (show === 2)
+                    dialog.showModal();
+                resolve(data);
+            })
+            .fail(function (err) {
+                if (showError && client.enableDebug)
+                    dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path[0]}</h1> ${err.statusText}`;
+                else if (showError)
+                    dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path[0]}</h1>`;
+                reject(path[0] + ': ' + err.statusText);
+            });
+    });
 }
 
 function resizeCommandInput() {

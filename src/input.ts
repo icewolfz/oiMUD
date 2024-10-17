@@ -7698,12 +7698,12 @@ export class Input extends EventEmitter {
                 case 2:
                     if ((this.client.getOption('echo') & 2) === 2)
                         this.client.echo(alias.value, -7, -8, true, true);
-                    /*jslint evil: true */
                     const named = this.GetNamedArguments(alias.params, args);
                     if (named)
                         ret = Object.keys(named).map(v => `let ${v} = this.input.stack.named["${v}"];`).join('') + '\n';
                     else
                         ret = '';
+                    /*jslint evil: true */
                     const f = new Function('try { ' + ret + alias.value + '\n} catch (e) { if(this.getOption(\'showScriptErrors\')) this.error(e);}');
                     this._stack.push({ loops: [], args: args, named: named, append: alias.append, used: 0 });
                     try {
@@ -8415,6 +8415,7 @@ export class Input extends EventEmitter {
                         this.client.echo(trigger.value, -7, -8, true, true);
                     //do not cache temp triggers
                     if (trigger.temp) {
+                        /*jslint evil: true */
                         ret = new Function('try { ' + trigger.value + '\n} catch (e) { if(this.getOption(\'showScriptErrors\')) this.error(e);}');
                         ret = ret.apply(this.client, args);
                     }

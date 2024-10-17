@@ -9,6 +9,7 @@ export class AdvEditor extends EventEmitter {
     private _simple = true;
     private _colors;
     private _ColorTable;
+    private _init = false;
     //private _colorCodes;
     private colorNames = {
         'No color': 'Default',
@@ -1666,7 +1667,11 @@ export class AdvEditor extends EventEmitter {
                     tinymce.activeEditor.settings.formats['flash'] = { inline: 'span', 'classes': client.getOption('flashing') ? 'flash' : 'noflash', links: true, remove_similar: true };
                 this.loadColors();
                 this.setFormatted(this.value);
+                editor.on('click', e => {
+                    this.emit('click', e);
+                })
                 this.emit('editor-init');
+                this._init = true;
             },
             paste_data_images: false,
             paste_webkit_styles: 'color background background-color text-decoration',
@@ -1681,7 +1686,7 @@ export class AdvEditor extends EventEmitter {
     public focus() {
         if (this.isSimple)
             this._element.focus();
-        else if (TINYMCE && tinymce.activeEditor)
+        else if (this._init && TINYMCE && tinymce.activeEditor)
             tinymce.activeEditor.focus();
     }
 }

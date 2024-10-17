@@ -1143,7 +1143,6 @@
           this._dialog.open = true;
           this._state.show = 2;
           this._dialog.dataset.show = "" + this._state.show;
-          this._dialog.focus();
           if (!this._dialog._keydown) {
             this._dialog._keydown = (e) => {
               if (e.key === "Escape" && e.srcElement.tagName !== "TEXTAREA" && e.srcElement.tagName !== "INPUT" && e.srcElement.tagName !== "SELECT")
@@ -1189,8 +1188,6 @@
           }
           this._dialog.parentNode.insertBefore(this._dialog.backdrop_, this._dialog.nextSibling);
           window.document.addEventListener("keydown", this._dialog._keydown);
-          this.getMaxZIndex();
-          this._dialog.backdrop_.style.zIndex = "" + ++this._state.zIndex;
         };
       }
       if (typeof this._dialog.show !== "function") {
@@ -1201,7 +1198,6 @@
           this._dialog.open = true;
           this._state.show = 1;
           this._dialog.dataset.show = "" + this._state.show;
-          this._dialog.focus();
         };
       }
       if (typeof this._dialog.close !== "function") {
@@ -1428,8 +1424,7 @@
       }
       if (this.moveable) {
         this._dialog.addEventListener("mousedown", () => {
-          this.getMaxZIndex();
-          this._dialog.style.zIndex = "" + ++this._state.zIndex;
+          this.focus();
         });
         this._header.addEventListener("mousedown", this.dragMouseDown);
         this._header.addEventListener("touchstart", this.dragTouchStart, { passive: true });
@@ -1539,26 +1534,30 @@
     showModal() {
       if (!this._dialog.parentElement)
         document.body.appendChild(this._dialog);
-      if (this._dialog.open) return;
+      if (this._dialog.open) {
+        this.focus();
+        return;
+      }
       this._dialog.showModal();
       this._state.show = 2;
       this._dialog.dataset.show = "" + this._state.show;
       window.addEventListener("resize", this._windowResize);
       this.emit("shown", true);
-      this.getMaxZIndex();
-      this._dialog.style.zIndex = "" + ++this._state.zIndex;
+      this.focus();
     }
     show() {
       if (!this._dialog.parentElement)
         document.body.appendChild(this._dialog);
-      if (this._dialog.open) return;
+      if (this._dialog.open) {
+        this.focus();
+        return;
+      }
       this._dialog.show();
       this._state.show = 1;
       this._dialog.dataset.show = "" + this._state.show;
       window.addEventListener("resize", this._windowResize);
       this.emit("shown", false);
-      this.getMaxZIndex();
-      this._dialog.style.zIndex = "" + ++this._state.zIndex;
+      this.focus();
     }
     get opened() {
       return this._dialog.open;
@@ -1689,6 +1688,12 @@
     hideFooter() {
       this._footer.style.display = "none";
       this._body.style.bottom = "0";
+    }
+    focus() {
+      this._dialog.focus();
+      this.getMaxZIndex();
+      this._dialog.style.zIndex = "" + ++this._state.zIndex;
+      this.emit("focus");
     }
   };
 
@@ -1919,6 +1924,7 @@
     constructor(element, enabledAdvanced) {
       super();
       this._simple = true;
+      this._init = false;
       //private _colorCodes;
       this.colorNames = {
         "No color": "Default",
@@ -3446,7 +3452,11 @@
             tinymce.activeEditor.settings.formats["flash"] = { inline: "span", "classes": client.getOption("flashing") ? "flash" : "noflash", links: true, remove_similar: true };
           this.loadColors();
           this.setFormatted(this.value);
+          editor2.on("click", (e) => {
+            this.emit("click", e);
+          });
           this.emit("editor-init");
+          this._init = true;
         },
         paste_data_images: false,
         paste_webkit_styles: "color background background-color text-decoration",
@@ -3460,7 +3470,7 @@
     focus() {
       if (this.isSimple)
         this._element.focus();
-      else if (tinymce.activeEditor)
+      else if (this._init && true && tinymce.activeEditor)
         tinymce.activeEditor.focus();
     }
   };
@@ -3514,6 +3524,7 @@
         editorDialog.on("canceled", () => {
           client.setOption("windows.editor", editorDialog.windowState);
         });
+        editorDialog.on("focus", () => editor.focus());
         const textarea = document.createElement("textarea");
         textarea.classList.add("form-control", "form-control-sm");
         textarea.id = "adv-editor-txt";
@@ -3524,6 +3535,7 @@
           editorDialog.close();
         });
         editor.on("editor-init", () => editor.focus());
+        editor.on("click", () => editorDialog.focus());
         editorDialog.dialog.editor = editor;
         if (tinymce)
           editorDialog.header.querySelector("#adv-editor-max").insertAdjacentHTML("afterend", '<button type="button" class="btn btn-light float-end" id="adv-editor-switch" title="Switch to advanced" style="padding: 0 4px;margin-top: -1px;"><i class="bi-shuffle"></i></button>');
@@ -3571,7 +3583,8 @@
           editorDialog.hideFooter();
       }
       editorDialog.show();
-      editor.focus();
+      if (editor.isSimple)
+        editor.focus();
     });
     options = client.getOption("windows.editor");
     if (options && options.show)
@@ -3588,13 +3601,56 @@
     updateCommandInput();
     if (client.getOption("commandAutoSize") || client.getOption("commandScrollbars"))
       resizeCommandInput();
-    window.addEventListener("hashchange", (e) => {
-      switch (window.location.hash) {
-        case "#editor":
+    window.addEventListener("hashchange", hashChange, false);
+    window.addEventListener("load", hashChange);
+  }
+  function hashChange() {
+    if (!window.location.hash || window.location.hash.length < 2) return;
+    var dialogs = window.location.hash.substring(1).split(",");
+    for (let d = dialogs.length - 1; d >= 0; d--)
+      switch (dialogs[d].trim()) {
+        case "about":
+          loadDialog(new Dialog({ title: '<i class="bi-info-circle"></i> About', noFooter: true, resizable: false, center: true, maximizable: false }), dialogs[d].trim(), 1, true).catch((e) => {
+            client.error(e);
+          });
+          break;
+        case "editor":
           document.getElementById("btn-adv-editor").click();
           break;
       }
-    }, false);
+  }
+  function loadDialog(dialog, path, show, showError) {
+    return new Promise((resolve, reject) => {
+      var subpath = path.split("/");
+      if ($("#empty-page").css("visibility") !== "visible")
+        $(".page").removeClass("show");
+      $.ajax({
+        url: "dialogs/" + subpath[0] + ".htm",
+        cache: false,
+        type: "GET"
+      }).done(function(data) {
+        dialog.dialog.dataset.path = subpath[0];
+        dialog.dialog.dataset.fullPath = path;
+        dialog.dialog.dataset.hash = window.location.hash;
+        dialog.body.innerHTML = data;
+        const scripts = dialog.body.querySelectorAll("script");
+        for (let s = 0, sl = scripts.length; s < sl; s++) {
+          let script = new Function("body", "client", scripts[s].textContent);
+          script.apply(client, [dialog.body, client]);
+        }
+        if (show == 1)
+          dialog.show();
+        else if (show === 2)
+          dialog.showModal();
+        resolve(data);
+      }).fail(function(err) {
+        if (showError && client.enableDebug)
+          dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path[0]}</h1> ${err.statusText}`;
+        else if (showError)
+          dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path[0]}</h1>`;
+        reject(path[0] + ": " + err.statusText);
+      });
+    });
   }
   function resizeCommandInput() {
     debounce(() => {

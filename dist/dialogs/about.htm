@@ -1,0 +1,28 @@
+<h3 class="text-center" style="position: sticky;">oiMUD <small class="text-muted" id="about-version"></small></h3>
+<h5 class="text-center" style="position: sticky;">&copy;2024 Icewolfz</h5>
+<div class="card">
+  <div class="card-body">
+    oiMUD is an online mud client that uses websockets to connect to a mud or websocket proxy, it is based on OoMUD
+    from <a href="http://shadowmud.com" target="_blank">shadowmud.com</a>.
+    <br><small class="text-center">Name credited to Thor and Newt</small>
+  </div>
+</div>
+<br>
+<div class="card">
+  <div class="card-header">
+    Change log
+  </div>
+  <div>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item">
+        v0.0.1
+        <ul>
+          <li>Initial release</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</div>
+<script>
+  body.querySelector('#about-version').textContent = 'v' + client.version;
+</script>

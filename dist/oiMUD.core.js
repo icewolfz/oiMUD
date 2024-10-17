@@ -20827,7 +20827,7 @@
   };
 
   // package.json
-  var version = "0.0.1";
+  var version = "0.0.1-alpha";
 
   // src/plugins/msp.ts
   var buzz = __toESM(require_buzz());

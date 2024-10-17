@@ -1,0 +1,78 @@
+@import url(ansi.css);
+@import url(display.css);
+@import url(dialog.css);
+/*@import url(interface.css);*/
+
+table {
+    border-spacing: 0;
+}
+
+pre, code, kbd, samp, tt {
+    font-family: monospace,monospace;
+    font-size: 1em;
+}
+
+* {
+    overflow: none;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    position:absolute;
+}
+
+html {
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    text-align: center;
+    overflow: hidden;
+}
+
+textarea {
+    resize: vertical;
+    max-height: 400px;
+    min-height: 200px;
+} /* none|horizontal|vertical|both */
+
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+       supported by Chrome and Opera */
+}
+
+#commandInput {
+    outline: none;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.2;
+    min-height: 16px;
+    border-color: #6c757d;
+}
+
+#commandInput:focus {
+    outline: none;
+}
+
+#commandMeasure {
+    white-space: pre;
+    position: absolute;
+    z-index: 1000;
+    max-height: 50%;
+    visibility: hidden;
+    line-height: 1.2;
+    min-height: 26px;
+}
+
+#commandMeasure::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}

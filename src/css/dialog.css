@@ -1,0 +1,276 @@
+.dialog,
+dialog {
+  border: 1px solid black;
+  box-shadow: 3px 3px 5px #535353;
+  overflow: visible;
+}
+
+.dialog-header {
+  background-color: #f5f5f5;
+  box-shadow: inset 0 -1px 0 #ddd;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 5px;
+  border-bottom: 1px solid #fff;
+  text-align: left;
+  cursor: default;
+}
+
+.dialog-header .btn,
+.dialog-header .btn-group {
+  margin: 0px;
+  padding: 3px;
+  min-width: 16px;
+}
+
+.dialog-header .btn.float-end {
+  margin-left: 4px;
+}
+
+.dialog-header .btn.float-start {
+  margin-right: 4px;
+}
+
+.dialog-header .btn-group .btn {
+  margin: 0px;
+}
+
+.dialog-footer {
+  background-color: #f5f5f5;
+  box-shadow: inset 0 1px 0 #fff;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 5px;
+  border-top: 1px solid #ddd;
+  min-height: 49px;
+}
+
+.dialog-footer .btn-group .btn {
+  margin: 0px;
+}
+
+.dialog-footer .btn.float-end {
+  margin-left: 4px;
+}
+
+.dialog-footer .btn.float-start {
+  margin-right: 4px;
+}
+
+.dialog-body {
+  left: 0;
+  right: 0;
+  bottom: 49px;
+  top: 32px;
+  position: absolute;
+  background-color: white;
+  overflow: auto;
+}
+
+@media (orientation: landscape) and (max-width: 641px),
+  (orientation: landscape) and (max-height: 480px),
+  (orientation: portrait) and (max-width: 480px),
+  (orientation: portrait) and (max-height: 641px) {
+  /* smartphones, iPhone, portrait 480x320 phones */
+  .dialog.adaptive {
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    min-width: 100% !important;
+    min-height: 100% !important;
+    margin: 0 !important;
+  }
+
+  .dialog .maximize {
+    display: none;
+  }
+
+  .dialog.resizable .resizer-nw,
+  .dialog.resizable .resizer-sw,
+  .dialog.resizable .resizer-se,
+  .dialog.resizable .resizer-ne,
+  .dialog.resizable .resizer-left,
+  .dialog.resizable .resizer-right,
+  .dialog.resizable .resizer-bottom,
+  .dialog.resizable .resizer-top,
+  .dialog-header {
+    pointer-events: none;
+    cursor: default;
+    margin: 0;
+    font-weight: bold;
+  }
+
+  .dialog-header button {
+    pointer-events: auto;
+  }
+}
+
+/*Resizeable*/
+
+.dialog.resizable .resizer-left {
+  width: 5px;
+  height: 100%;
+  background: transparent;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  cursor: w-resize;
+}
+
+.dialog.resizable .resizer-right {
+  width: 5px;
+  height: 100%;
+  background: transparent;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  cursor: e-resize;
+}
+
+.dialog.resizable .resizer-top {
+  width: 100%;
+  height: 5px;
+  background: transparent;
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: n-resize;
+}
+
+.dialog.resizable .resizer-bottom {
+  width: 100%;
+  height: 5px;
+  background: transparent;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  cursor: s-resize;
+}
+
+.dialog.resizable .resizer-se {
+  width: 5px;
+  height: 5px;
+  background: transparent;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  cursor: se-resize;
+  z-index: 10;
+}
+
+.dialog.resizable .resizer-ne {
+  width: 5px;
+  height: 5px;
+  background: transparent;
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: ne-resize;
+  z-index: 10;
+}
+
+.dialog.resizable .resizer-sw {
+  width: 5px;
+  height: 5px;
+  background: transparent;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  cursor: sw-resize;
+  z-index: 10;
+}
+
+.dialog.resizable .resizer-nw {
+  width: 5px;
+  height: 5px;
+  background: transparent;
+  position: absolute;
+  left: 0;
+  top: 0;
+  cursor: se-resize;
+  z-index: 10;
+}
+
+.dialog.maximized {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+.dialog.maximized .resizer-nw,
+.dialog.maximized .resizer-sw,
+.dialog.maximized .resizer-se,
+.dialog.maximized .resizer-ne,
+.dialog.maximized .resizer-left,
+.dialog.maximized .resizer-right,
+.dialog.maximized .resizer-bottom,
+.dialog.maximized .resizer-top {
+  pointer-events: none;
+  cursor: default;
+}
+
+.dialog.resizable {
+  position: fixed;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.dialog.resizable * {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+.dialog-body {
+  -webkit-touch-callout: auto; /* iOS Safari */
+  -webkit-user-select: auto; /* Safari */
+  -khtml-user-select: auto; /* Konqueror HTML */
+  -moz-user-select: auto; /* Firefox */
+  -ms-user-select: auto; /* Internet Explorer/Edge */
+  user-select: auto; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 75%);
+}
+
+.backdrop {
+  background: rgb(0 0 0 / 75%);
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: auto !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  margin: 0 !important;
+}
+
+div.dialog {
+  display: none;
+  visibility: hidden;
+}

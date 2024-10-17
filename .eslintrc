@@ -1,0 +1,28 @@
+{
+	"parserOptions": { "ecmaVersion": 8 },
+	"env": {
+		"node": true,
+		"es6": true,
+		"jquery": true,
+		"browser": true
+	},
+	"rules": {
+		"no-console": 0,
+		"no-cond-assign": 0,
+		"no-unused-vars": 1,
+		"no-extra-semi": "error",
+		"semi": "error",
+		"no-global-assign": 0,
+		"no-delete-var": "off",
+		"no-trailing-spaces": "warn",
+		"quotes": ["error", "single"],
+		"@typescript-eslint/switch-exhaustiveness-check": "warn"
+	},
+	"extends": "eslint:recommended",
+	"plugins": [
+		"html"
+	],
+	"globals": {
+		"window": true
+	}
+}

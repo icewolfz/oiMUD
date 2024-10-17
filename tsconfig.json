@@ -1,0 +1,29 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "resolveJsonModule": true,
+        "incremental": true,
+        "target": "ES2019",
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "sourceMap": false,
+        "noImplicitAny": false,
+        "allowJs": false,
+        "outDir": "./out",
+        "rootDirs": [
+            "./src"
+        ],
+        "newLine": "LF",
+        "checkJs": false
+    },
+    "exclude": [
+        "./node_modules",
+        "./src/**/*.js",
+        "./src/lib/*.js",
+        "./lib/**/*.js",
+        "./out/**/*.js",
+    ],
+    "include": [
+        "./src/**/*.ts"
+    ]
+}

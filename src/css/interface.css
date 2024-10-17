@@ -1,0 +1,55 @@
+div.offcanvas-body > ul > li > hr {
+  border-top: 1px solid;
+  margin: 2px;
+}
+
+.nav-item .fas,
+.nav-item .fa-stack {
+  width: 20px;
+  text-align: center;
+  margin-right: 2px;
+}
+
+.nav-item .fa-stack {
+  width: 20px;
+  text-align: center;
+  margin: 0;
+}
+
+.nav-item svg {
+  width: 20px !important;
+  text-align: center;
+  margin-right: 2px;
+}
+
+.nav-item a:hover {
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  background-color: #9f9f9f;
+}
+
+.nav-link {
+  padding-left: 3px;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, border-radius 0.15s;
+}
+
+#adv-editor .dialog-body textarea {
+  position: relative;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  resize: none;
+  margin: 0;
+  outline: 0;
+  overflow: auto;
+  max-height: none;
+  min-height: none;
+}

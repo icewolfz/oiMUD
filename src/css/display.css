@@ -1,0 +1,54 @@
+a.MXPLink:link,
+a.MXPLink:link span {
+    font-weight: normal;
+    color: inherit;
+    text-decoration: underline;
+}
+
+a.MXPLink:visited,
+a.MXPLink:visited span {
+    text-decoration: underline;
+}
+
+a.MXPLink:active,
+a.MXPLink:active span {
+    text-decoration: underline;
+}
+
+a.MXPLink:hover,
+a.MXPLink:hover span {
+    text-decoration: underline;
+}
+
+.view {
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    overflow-y: scroll;
+    overflow-x: auto;
+    text-align: left;
+    white-space: pre;
+    background-color: black;
+    text-shadow: none;
+    padding: 2px;
+    position: absolute;
+    z-index: 0;
+}
+
+#display {
+    bottom: 32px;
+    top: 0;
+    left: 0;
+    right: 0;
+    font-family: 'Courier New', Courier, monospace;
+    overflow: hidden;
+    text-align: left;
+    font-size: 1em;
+    white-space: pre;
+    background-color: black;
+    text-shadow: none;
+    padding: 2px;
+    position: absolute;
+    z-index: 0;
+}

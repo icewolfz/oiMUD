@@ -24071,6 +24071,29 @@ Devanagari
       closeMenu();
       document.getElementById("btn-adv-edit").click();
     });
+    document.querySelector("#menu-fullscreen a").addEventListener("click", (e) => {
+      var doc = window.document;
+      var docEl = doc.documentElement;
+      var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+      var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+      let el = document.getElementById("menu-fullscreen");
+      let icon = document.querySelector("#menu-fullscreen svg") || document.querySelector("#menu-fullscreen i");
+      let text = document.querySelector("#menu-fullscreen a span");
+      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        el.title = "Exit fullscreen";
+        text.textContent = "Exit fullscreen";
+        requestFullScreen.call(docEl);
+        icon.classList.add("fa-minimize");
+        icon.classList.remove("fa-maximize");
+      } else {
+        el.title = "Enter fullscreen";
+        text.textContent = "Enter fullscreen";
+        cancelFullScreen.call(doc);
+        icon.classList.add("fa-maximize");
+        icon.classList.remove("fa-minimize");
+      }
+      closeMenu();
+    });
     updateScrollLock();
   }
   function updateScrollLock() {

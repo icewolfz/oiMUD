@@ -2,11 +2,11 @@ declare let client;
 declare let bootstrap;
 
 export function closeMenu() {
-    bootstrap.Offcanvas.getInstance(document.getElementById('clientMenu')).hide();        
+    bootstrap.Offcanvas.getInstance(document.getElementById('clientMenu')).hide();
 }
 
 export function showMenu() {
-    bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('clientMenu')).show();        
+    bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('clientMenu')).show();
 }
 
 export function initMenu() {
@@ -29,7 +29,7 @@ export function initMenu() {
         el.classList.remove('active');
         text.textContent = 'Connect';
         icon.classList.remove('fa-plug-circle-xmark');
-        icon.classList.add('fa-plug');        
+        icon.classList.add('fa-plug');
     })
     client.on('scroll-lock', updateScrollLock);
     document.querySelector('#menu-connect a').addEventListener('click', e => {
@@ -50,8 +50,33 @@ export function initMenu() {
     });
     document.querySelector('#menu-editor a').addEventListener('click', e => {
         closeMenu();
-        document.getElementById('btn-adv-edit').click();        
-    });        
+        document.getElementById('btn-adv-edit').click();
+    });
+    document.querySelector('#menu-fullscreen a').addEventListener('click', e => {
+        var doc: any = window.document;
+        var docEl: any = doc.documentElement;
+
+        var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+        var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+        let el = document.getElementById('menu-fullscreen');
+        let icon = document.querySelector('#menu-fullscreen svg') || document.querySelector('#menu-fullscreen i');
+        let text = document.querySelector('#menu-fullscreen a span');
+        if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+            el.title = 'Exit fullscreen';
+            text.textContent = 'Exit fullscreen';
+            requestFullScreen.call(docEl);
+            icon.classList.add('fa-minimize');
+            icon.classList.remove('fa-maximize');
+        }
+        else {
+            el.title = 'Enter fullscreen';
+            text.textContent = 'Enter fullscreen';
+            cancelFullScreen.call(doc);
+            icon.classList.add('fa-maximize');
+            icon.classList.remove('fa-minimize');            
+        }
+        closeMenu();
+    });
     updateScrollLock();
 }
 

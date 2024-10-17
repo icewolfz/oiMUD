@@ -267,8 +267,8 @@ export class Dialog extends EventEmitter {
                 this._dialog.style.visibility = 'visible';
                 this._dialog.open = true;
                 this._state.show = 2;
+                this._dialog.dataset.show = '' + this._state.show;
                 this._dialog.focus();
-                this.emit('shown', false);
                 if (!this._dialog._keydown) {
                     this._dialog._keydown = e => {
                         if (e.key === 'Escape' && e.srcElement.tagName !== 'TEXTAREA' && e.srcElement.tagName !== 'INPUT' && e.srcElement.tagName !== 'SELECT')
@@ -303,7 +303,6 @@ export class Dialog extends EventEmitter {
                 window.document.addEventListener('keydown', this._dialog._keydown);
                 this.getMaxZIndex();
                 this._dialog.backdrop_.style.zIndex = '' + ++this._state.zIndex;
-                this._dialog.style.zIndex = '' + ++this._state.zIndex;
             };
         }
         //poly fill functions if not found to fake dialog
@@ -314,8 +313,8 @@ export class Dialog extends EventEmitter {
                 this._dialog.style.visibility = 'visible';
                 this._dialog.open = true;
                 this._state.show = 1;
+                this._dialog.dataset.show = '' + this._state.show;
                 this._dialog.focus();
-                this.emit('shown', false);
             };
         }
         if (typeof this._dialog.close !== "function") {
@@ -324,6 +323,7 @@ export class Dialog extends EventEmitter {
                 this._dialog.style.visibility = '';
                 this._dialog.open = false;
                 this._state.show = 0;
+                this._dialog.dataset.show = '' + this._state.show;
                 window.removeEventListener('resize', this._windowResize);
                 this.emit('closed');
             };
@@ -414,6 +414,7 @@ export class Dialog extends EventEmitter {
             }
             document.body.removeChild(this._dialog);
             this._state.show = 0;
+            this._dialog.dataset.show = '' + this._state.show;
             if (this._dialog.backdrop_)
                 this._dialog.parentNode.removeChild(this._dialog.backdrop_);
             if (this._dialog._keydown)
@@ -441,6 +442,7 @@ export class Dialog extends EventEmitter {
             this._dialog.open = false;
             document.body.removeChild(this._dialog);
             this._state.show = 0;
+            this._dialog.dataset.show = '' + this._state.show;
             if (this._dialog.backdrop_)
                 this._dialog.parentNode.removeChild(this._dialog.backdrop_);
             if (this._dialog._keydown)
@@ -627,8 +629,11 @@ export class Dialog extends EventEmitter {
         if (this._dialog.open) return;
         this._dialog.showModal();
         this._state.show = 2;
+        this._dialog.dataset.show = '' + this._state.show;
         window.addEventListener('resize', this._windowResize);
         this.emit('shown', true);
+        this.getMaxZIndex();
+        this._dialog.style.zIndex = '' + ++this._state.zIndex;
     }
 
     public show() {
@@ -637,8 +642,11 @@ export class Dialog extends EventEmitter {
         if (this._dialog.open) return;
         this._dialog.show();
         this._state.show = 1;
+        this._dialog.dataset.show = '' + this._state.show;
         window.addEventListener('resize', this._windowResize);
         this.emit('shown', false);
+        this.getMaxZIndex();
+        this._dialog.style.zIndex = '' + ++this._state.zIndex;
     }
 
     public get opened() {
@@ -763,15 +771,19 @@ export class Dialog extends EventEmitter {
             let z = parseInt(dialogs[d].style.zIndex, 10);
             if (z > i)
                 i = z;
-            order.push({ z: z, idx: d });
+            order.push({ z: z, idx: d, show: parseInt(dialogs[d].dataset.show || '', 10) || 0 });
         }
         this._state.zIndex = i;
         if (forceReset || this._state.zIndex > 1000) {
             this._state.zIndex = 100;
             d = 0;
-            order.sort((a, b) => ((a.z < b.z) ? -1 : (a.z > b.z ? 1 : 0)))
-            for (; d < dl; d++)
+            //show by show type then old z-index, we do this to ensure modal style dialogs are on top
+            order.sort((a, b) => ((a.show > b.show) ? 1 : (a.z < b.z) ? -1 : (a.z > b.z ? 1 : 0)))
+            for (; d < dl; d++) {
+                if ((<any>dialogs[order[d]]).backdrop_)
+                    (<any>dialogs[order[d]]).backdrop_.style.zIndex = '' + (this._state.zIndex++);
                 dialogs[order[d].idx].style.zIndex = '' + (this._state.zIndex++);
+            }
         }
     }
 

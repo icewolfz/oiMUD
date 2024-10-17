@@ -98,8 +98,8 @@ export function initializeInterface() {
                     editor.value = value;
                     editorDialog.showFooter();
                     editorDialog.header.querySelector('#adv-editor-switch').title = 'Switch to advanced';
+                    setTimeout(() => editor.focus(), 100);
                 }
-                setTimeout(() => editor.focus(), 100);
                 //editor.setFormatted(value);
             });
             document.getElementById('btn-adv-edit-append').addEventListener('click', () => {

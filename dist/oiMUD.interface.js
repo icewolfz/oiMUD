@@ -3345,6 +3345,7 @@
       if (this.isSimple) return;
       this.initPlugins();
       tinymce.init({
+        license_key: "gpl",
         custom_colors: false,
         selector: `textarea#${this._element.id}`,
         height: 500,
@@ -3415,7 +3416,7 @@
         },
         paste_data_images: false,
         paste_webkit_styles: "color background background-color text-decoration",
-        valid_elements: "strong/b,em/i,u,span[style],strike/s,br",
+        valid_elements: "strong/b,em/i,u,span[style],span[class],strike/s,br",
         valid_styles: {
           "*": "color,background,background-color,text-decoration,font-weight"
         },
@@ -3510,8 +3511,8 @@
             editor.value = value;
             editorDialog.showFooter();
             editorDialog.header.querySelector("#adv-editor-switch").title = "Switch to advanced";
+            setTimeout(() => editor.focus(), 100);
           }
-          setTimeout(() => editor.focus(), 100);
         });
         document.getElementById("btn-adv-edit-append").addEventListener("click", () => {
           openFileDialog("Append file", false).then((files) => {

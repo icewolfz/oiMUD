@@ -32,7 +32,7 @@
                 title="Command input" style="padding:1px;margin:0px;height: 100%;outline: none;min-height: 100%;"
                 data-role="none" autocapitalize="off" autocorrect="off" aria-live="polite" spellcheck="true" wrap="off"
                 cols="20" rows="20"></textarea>
-            <button class="btn btn-outline-secondary" type="button" id="btn-adv-edit"
+            <button class="btn btn-outline-secondary" type="button" id="btn-adv-editor"
                 style="padding-top: 0;padding-bottom: 0;" title="Show editor"><i class="fas fa-edit"></i></button>
             <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="btn-command-history"
                 style="padding-top: 0;padding-bottom: 0;" data-bs-toggle="dropdown" aria-expanded="false"
@@ -84,8 +84,8 @@
                         <i class="fas fa-lock"></i><span>Lock display</span></a>
                 </li>
                 <li id="menu-fullscreen" class="nav-item" title="Enter fullscreen">
-                    <a class="nav-link" href="javascript:void(0)"><i
-                            class="fas fa-maximize"></i><span>Enter fullscreen</span></a>
+                    <a class="nav-link" href="javascript:void(0)"><i class="fas fa-maximize"></i><span>Enter
+                            fullscreen</span></a>
                 </li>
                 <!--                
                 <li id="navButtons" class="nav-item" title="Show buttons">
@@ -95,9 +95,8 @@
                 <li>
                     <hr class="dropdown-divider">
                 </li>
-                <li class="nav-item" title="Manage settings">
-                    <a class="nav-link" href="#settings" onclick="showPage('settings', true);"><i
-                            class=" fas fa-cogs"></i>Manage settings</a>
+                <li id="menu-settings" class="nav-item" title="Manage settings">
+                    <a class="nav-link" href="#settings"><i class=" fas fa-cogs"></i>Manage settings</a>
                 </li>
                 <li class="nav-item" title="Manage profiles">
                     <a class="nav-link" href="#profiles"><i class="fas fa-users"></i>Manage profiles</a>

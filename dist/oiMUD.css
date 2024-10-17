@@ -488,11 +488,11 @@ div.offcanvas-body > ul > li > hr {
   max-height: none;
   min-height: none;
 }
-
-/* src/css/tinymce.css */
-#txt-adv-editor {
+#adv-editor-txt {
   resize: none;
 }
+
+/* src/css/tinymce.css */
 .mce-tinymce,
 .mce-container-body,
 #code_ifr {

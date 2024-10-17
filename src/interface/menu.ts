@@ -50,7 +50,7 @@ export function initMenu() {
     });
     document.querySelector('#menu-editor a').addEventListener('click', e => {
         closeMenu();
-        document.getElementById('btn-adv-edit').click();
+        document.getElementById('btn-adv-editor').click();
     });
     document.querySelector('#menu-fullscreen a').addEventListener('click', e => {
         var doc: any = window.document;

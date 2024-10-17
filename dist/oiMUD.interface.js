@@ -47,7 +47,7 @@
     });
     document.querySelector("#menu-editor a").addEventListener("click", (e) => {
       closeMenu();
-      document.getElementById("btn-adv-edit").click();
+      document.getElementById("btn-adv-editor").click();
     });
     document.querySelector("#menu-fullscreen a").addEventListener("click", (e) => {
       var doc = window.document;
@@ -3483,7 +3483,7 @@
       if (client.getOption("commandAutoSize") || client.getOption("commandScrollbars"))
         resizeCommandInput();
     });
-    document.getElementById("btn-adv-edit").addEventListener("click", (e) => {
+    document.getElementById("btn-adv-editor").addEventListener("click", (e) => {
       if (!editorDialog) {
         editorDialog = new Dialog(Object.assign({}, client.getOption("windows.editor") || { center: true }, { title: '<i class="fas fa-edit"></i> Advanced editor', id: "adv-editor" }));
         editorDialog.on("resized", (e2) => {
@@ -3516,7 +3516,7 @@
         });
         const textarea = document.createElement("textarea");
         textarea.classList.add("form-control", "form-control-sm");
-        textarea.id = "txt-adv-editor";
+        textarea.id = "adv-editor-txt";
         editorDialog.body.appendChild(textarea);
         editorDialog.body.style.overflow = "hidden";
         if (!editor) editor = new AdvEditor(textarea, !client.getOption("simpleEditor"));
@@ -3527,9 +3527,9 @@
         editorDialog.dialog.editor = editor;
         if (tinymce)
           editorDialog.header.querySelector("#adv-editor-max").insertAdjacentHTML("afterend", '<button type="button" class="btn btn-light float-end" id="adv-editor-switch" title="Switch to advanced" style="padding: 0 4px;margin-top: -1px;"><i class="bi-shuffle"></i></button>');
-        editorDialog.footer.innerHTML = `<button id="btn-adv-edit-clear" type="button" class="float-start btn btn-light" title="Clear editor">Clear</button>
-                <button id="btn-adv-edit-append" type="button" class="float-start btn btn-light" title="Append file...">Append file...</button>
-                <button id="btn-adv-edit-send" type="button" class="float-end btn btn-primary" title="Send">Send</button>`;
+        editorDialog.footer.innerHTML = `<button id="btn-adv-editor-clear" type="button" class="float-start btn btn-light" title="Clear editor">Clear</button>
+                <button id="btn-adv-editor-append" type="button" class="float-start btn btn-light" title="Append file...">Append file...</button>
+                <button id="btn-adv-editor-send" type="button" class="float-end btn btn-primary" title="Send">Send</button>`;
         if (!editor.isSimple)
           editorDialog.header.querySelector("#adv-editor-switch").title = "Switch to simple";
         editorDialog.header.querySelector("#adv-editor-switch").addEventListener("click", () => {
@@ -3548,7 +3548,7 @@
             setTimeout(() => editor.focus(), 100);
           }
         });
-        document.getElementById("btn-adv-edit-append").addEventListener("click", () => {
+        document.getElementById("btn-adv-editor-append").addEventListener("click", () => {
           openFileDialog("Append file", false).then((files) => {
             readFile(files[0]).then((contents) => {
               editor.insert(contents);
@@ -3556,14 +3556,14 @@
           }).catch(() => {
           });
         });
-        document.getElementById("btn-adv-edit-send").addEventListener("click", () => {
+        document.getElementById("btn-adv-editor-send").addEventListener("click", () => {
           client.sendCommand(editor.value());
           if (client.getOption("editorClearOnSend"))
             editor.clear();
           if (client.getOption("editorCloseOnSend"))
             editorDialog.close();
         });
-        document.getElementById("btn-adv-edit-clear").addEventListener("click", () => {
+        document.getElementById("btn-adv-editor-clear").addEventListener("click", () => {
           editor.clear();
           editor.focus();
         });
@@ -3575,7 +3575,7 @@
     });
     options = client.getOption("windows.editor");
     if (options && options.show)
-      document.getElementById("btn-adv-edit").click();
+      document.getElementById("btn-adv-editor").click();
     document.getElementById("btn-command-history").addEventListener("show.bs.dropdown", function() {
       document.body.appendChild(document.getElementById("command-history-menu"));
     });
@@ -3591,7 +3591,7 @@
     window.addEventListener("hashchange", (e) => {
       switch (window.location.hash) {
         case "#editor":
-          document.getElementById("btn-adv-edit").click();
+          document.getElementById("btn-adv-editor").click();
           break;
       }
     }, false);

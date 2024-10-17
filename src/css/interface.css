@@ -53,3 +53,7 @@ div.offcanvas-body > ul > li > hr {
   max-height: none;
   min-height: none;
 }
+
+#adv-editor-txt {
+  resize: none;
+}

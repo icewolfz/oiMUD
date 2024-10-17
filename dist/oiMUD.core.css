@@ -409,6 +409,24 @@ textarea {
   -ms-user-select: none;
   user-select: none;
 }
+#client-container {
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  z-index: 0;
+}
+#command-input-container {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+  z-index: 0;
+}
 #commandInput {
   outline: none;
   resize: none;

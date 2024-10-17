@@ -20,34 +20,38 @@
 </head>
 
 <body>
-    <div id="display" aria-live="polite" role="log" title="Main Display"></div>
-    <nav class="noselect fixed-bottom navbar-dark bg-dark" style="z-index:1;min-height: 32px;">
-        <div id="commandMeasure" class="input-group input-group-sm dropup"></div>
-        <div class="input-group input-group-sm dropup"
-            style="position:absolute;left:2px;right:2px;top:3px;bottom:3px;width: auto;">
-            <button id="btn-menu" class="btn btn-outline-secondary" type="button" aria-controls="clientMenu"
-                style="padding-top: 0;padding-bottom: 0;" title="Show menu"><span class="navbar-toggler-icon"></span>
-            </button>
-            <textarea type="text" class="form-control form-control-sm" type="text" id="commandInput" aria-live="polite"
-                title="Command input" style="padding:1px;margin:0px;height: 100%;outline: none;min-height: 100%;"
-                data-role="none" autocapitalize="off" autocorrect="off" aria-live="polite" spellcheck="true" wrap="off"
-                cols="20" rows="20"></textarea>
-            <button class="btn btn-outline-secondary" type="button" id="btn-adv-editor"
-                style="padding-top: 0;padding-bottom: 0;" title="Show editor"><i class="fas fa-edit"></i></button>
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="btn-command-history"
-                style="padding-top: 0;padding-bottom: 0;" data-bs-toggle="dropdown" aria-expanded="false"
-                title="Command history"></button>
-            <ul class="dropdown-menu dropdown-menu-end" id="command-history-menu">
-                <li><a class="dropdown-item" href="#">Action</a></li>
-                <li><a class="dropdown-item" href="#">Another action</a></li>
-                <li><a class="dropdown-item" href="#">Something else here</a></li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item" href="#">Separated link</a></li>
-            </ul>
-        </div>
-    </nav>
+    <div id="client-container">
+        <div id="display" aria-live="polite" role="log" title="Main Display"></div>
+        <nav id="command-input-container" class="noselect navbar-dark bg-dark" style="z-index:1;min-height: 32px;">
+            <div id="commandMeasure" class="input-group input-group-sm dropup"></div>
+            <div class="input-group input-group-sm dropup"
+                style="position:absolute;left:2px;right:2px;top:3px;bottom:3px;width: auto;">
+                <button id="btn-menu" class="btn btn-outline-secondary" type="button" aria-controls="clientMenu"
+                    style="padding-top: 0;padding-bottom: 0;" title="Show menu"><span
+                        class="navbar-toggler-icon"></span>
+                </button>
+                <textarea type="text" class="form-control form-control-sm" type="text" id="commandInput"
+                    aria-live="polite" title="Command input"
+                    style="padding:1px;margin:0px;height: 100%;outline: none;min-height: 100%;" data-role="none"
+                    autocapitalize="off" autocorrect="off" aria-live="polite" spellcheck="true" wrap="off" cols="20"
+                    rows="20"></textarea>
+                <button class="btn btn-outline-secondary" type="button" id="btn-adv-editor"
+                    style="padding-top: 0;padding-bottom: 0;" title="Show editor"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="btn-command-history"
+                    style="padding-top: 0;padding-bottom: 0;" data-bs-toggle="dropdown" aria-expanded="false"
+                    title="Command history"></button>
+                <ul class="dropdown-menu dropdown-menu-end" id="command-history-menu">
+                    <li><a class="dropdown-item" href="#">Action</a></li>
+                    <li><a class="dropdown-item" href="#">Another action</a></li>
+                    <li><a class="dropdown-item" href="#">Something else here</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="#">Separated link</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
     <button id="buttons-measure" style="right: -99px;visibility: hidden;" class="navButton"></button>
     <div id="buttons" class="noselect"></div>
     <div class="offcanvas offcanvas-start text-bg-dark" id="clientMenu">
@@ -87,7 +91,7 @@
                     <a class="nav-link" href="javascript:void(0)"><i class="fas fa-maximize"></i><span>Enter
                             fullscreen</span></a>
                 </li>
-                <!--                
+                <!--
                 <li id="navButtons" class="nav-item" title="Show buttons">
                     <a class="nav-link" href="javascript:void(0)" onclick="toggleButtons()"><i
                             class="fas fa-gamepad"></i><span>Show buttons</span></a>
@@ -119,7 +123,8 @@
                 </li>
                 <li class="nav-item" title="Help">
                     <a class="nav-link" href="#help"><i class="fas fa-question-circle"></i>oiMUD Help</a>
-                </li-->
+                </li>
+                -->
                 <li id="menu-about" class="nav-item" title="About">
                     <a class="nav-link" href="#about"><i class="bi-info-circle"></i> About</a>
                 </li>

@@ -1609,7 +1609,7 @@ export class AdvEditor extends EventEmitter {
             color_picker_caption: 'More&hellip;',
             textcolor_rows: '3',
             textcolor_cols: '8',
-            toolbar: 'send | append | undo redo | copy copyformatted | clear | pinkfishforecolor pinkfishbackcolor | italic underline strikethrough overline dblunderline flash reverse | insertdatetime',
+            toolbar: 'send | append | undo redo | pinkfishforecolor pinkfishbackcolor | italic underline strikethrough overline dblunderline flash reverse | clear | copy copyformatted | insertdatetime',
             toolbar_mode: 'sliding',
             content_css: 'css/tinymce.content.min.css',
             formats: {

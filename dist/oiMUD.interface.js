@@ -3496,7 +3496,7 @@
         });
         editor.on("editor-init", () => editor.focus());
         editorDialog.dialog.editor = editor;
-        editorDialog.header.querySelector("#adv-editor-max").insertAdjacentHTML("afterend", '<button type="button" class="btn btn-light float-end maximize" id="adv-editor-switch" title="Switch to advanced" style="padding: 0 4px;margin-top: -1px;"><i class="bi-shuffle"></i></button>');
+        editorDialog.header.querySelector("#adv-editor-max").insertAdjacentHTML("afterend", '<button type="button" class="btn btn-light float-end" id="adv-editor-switch" title="Switch to advanced" style="padding: 0 4px;margin-top: -1px;"><i class="bi-shuffle"></i></button>');
         editorDialog.footer.innerHTML = `<button id="btn-adv-edit-clear" type="button" class="float-start btn btn-light" title="Clear editor">Clear</button>
                 <button id="btn-adv-edit-append" type="button" class="float-start btn btn-light" title="Append file...">Append file...</button>
                 <button id="btn-adv-edit-send" type="button" class="float-end btn btn-primary" title="Send">Send</button>`;

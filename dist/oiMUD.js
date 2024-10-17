@@ -24023,9 +24023,11 @@ Devanagari
 
   // src/interface/menu.ts
   function closeMenu() {
+    if (!document.getElementById("clientMenu")) return;
     bootstrap.Offcanvas.getInstance(document.getElementById("clientMenu")).hide();
   }
   function showMenu() {
+    if (!document.getElementById("clientMenu")) return;
     bootstrap.Offcanvas.getOrCreateInstance(document.getElementById("clientMenu")).show();
   }
   function initMenu() {
@@ -24070,6 +24072,10 @@ Devanagari
     document.querySelector("#menu-editor a").addEventListener("click", (e) => {
       closeMenu();
       document.getElementById("btn-adv-editor").click();
+    });
+    document.querySelector("#menu-about a").addEventListener("click", (e) => {
+      showDialog("about");
+      closeMenu();
     });
     document.querySelector("#menu-fullscreen a").addEventListener("click", (e) => {
       var doc = window.document;
@@ -26555,14 +26561,27 @@ Devanagari
     for (let d = dialogs.length - 1; d >= 0; d--)
       switch (dialogs[d].trim()) {
         case "about":
-          loadDialog(new Dialog({ title: '<i class="bi-info-circle"></i> About', noFooter: true, resizable: false, center: true, maximizable: false }), dialogs[d].trim(), 1, true).catch((e) => {
-            client.error(e);
-          });
+          showDialog("about");
           break;
         case "editor":
           document.getElementById("btn-adv-editor").click();
           break;
       }
+  }
+  var _dialogs = {};
+  function showDialog(name2) {
+    switch (name2) {
+      case "about":
+        if (!_dialogs.about) {
+          _dialogs.about = new Dialog({ title: '<i class="bi-info-circle"></i> About', noFooter: true, resizable: false, center: true, maximizable: false });
+          _dialogs.about.on("closed", () => delete _dialogs.about);
+          _dialogs.about.on("canceled", () => delete _dialogs.about);
+        }
+        loadDialog(_dialogs.about, name2, 1, true).catch((e) => {
+          client.error(e);
+        });
+        break;
+    }
   }
   function loadDialog(dialog, path, show, showError) {
     return new Promise((resolve, reject) => {

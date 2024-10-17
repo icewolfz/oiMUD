@@ -1,6 +1,6 @@
 
 import "../css/interface.css";
-import { initMenu } from './menu';
+import { initMenu, closeMenu } from './menu';
 import { Client } from '../client';
 import { Dialog } from "../dialog";
 import { openFileDialog, readFile, debounce, getParameterByName } from '../library';
@@ -156,9 +156,7 @@ function hashChange() {
     for (let d = dialogs.length - 1; d >= 0; d--)
         switch (dialogs[d].trim()) {
             case 'about':
-                loadDialog(new Dialog(({ title: '<i class="bi-info-circle"></i> About', noFooter: true, resizable: false, center: true, maximizable: false })), dialogs[d].trim(), 1, true).catch(e => {
-                    client.error(e);
-                });
+                showDialog('about');
                 break;
             case 'editor':
                 document.getElementById('btn-adv-editor').click();
@@ -166,7 +164,23 @@ function hashChange() {
         }
 }
 
-function loadDialog(dialog: Dialog, path, show?, showError?) {
+let _dialogs: any = {};
+export function showDialog(name) {
+    switch (name) {
+        case 'about':
+            if (!_dialogs.about) {
+                _dialogs.about = new Dialog(({ title: '<i class="bi-info-circle"></i> About', noFooter: true, resizable: false, center: true, maximizable: false }));
+                _dialogs.about.on('closed', () => delete _dialogs.about);
+                _dialogs.about.on('canceled', () => delete _dialogs.about);
+            }
+            loadDialog(_dialogs.about, name, 1, true).catch(e => {
+                client.error(e);
+            });
+            break;
+    }
+}
+
+export function loadDialog(dialog: Dialog, path, show?, showError?) {
     return new Promise((resolve, reject) => {
         var subpath = path.split('/');
         if ($('#empty-page').css('visibility') !== 'visible')

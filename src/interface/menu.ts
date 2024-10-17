@@ -1,8 +1,12 @@
 declare let client;
 declare let bootstrap;
 
+import { showDialog } from "./interface";
+
 export function closeMenu() {
-    bootstrap.Offcanvas.getInstance(document.getElementById('clientMenu')).hide();
+    const instance = bootstrap.Offcanvas.getInstance(document.getElementById('clientMenu'));
+    if (!instance) return
+    instance.hide();
 }
 
 export function showMenu() {
@@ -52,6 +56,10 @@ export function initMenu() {
         closeMenu();
         document.getElementById('btn-adv-editor').click();
     });
+    document.querySelector('#menu-about a').addEventListener('click', e => {
+        showDialog('about');
+        closeMenu();
+    });
     document.querySelector('#menu-fullscreen a').addEventListener('click', e => {
         var doc: any = window.document;
         var docEl: any = doc.documentElement;
@@ -73,7 +81,7 @@ export function initMenu() {
             text.textContent = 'Enter fullscreen';
             cancelFullScreen.call(doc);
             icon.classList.add('fa-maximize');
-            icon.classList.remove('fa-minimize');            
+            icon.classList.remove('fa-minimize');
         }
         closeMenu();
     });

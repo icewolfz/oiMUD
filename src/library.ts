@@ -2499,7 +2499,7 @@ export function getScrollbarWidth() {
 
 }
 
-export function openFileDialog(title?: string, multiple?: boolean, accept?:string) {
+export function openFileDialog(title?: string, multiple?: boolean, accept?: string) {
     return new Promise<FileList>((resolve, reject) => {
         let dialog = document.createElement('dialog');
         if (typeof dialog.showModal !== "function") {
@@ -2510,7 +2510,7 @@ export function openFileDialog(title?: string, multiple?: boolean, accept?:strin
         dialog.style.zIndex = '2000';
         dialog.style.height = '155px';
         dialog.style.width = '350px';
-        dialog.innerHTML = `<div class="dialog-header" style="font-weight: bold"><button type="button" class="btn btn-close float-end btn-danger" data-dismiss="modal" onclick="document.getElementById('openFileDialog').close();"></button><div>${title || 'Open file...'}</div></div><div class="dialog-body"><div class="m-3"><input class="form-control" type="file" id="openFileDialog-files"${multiple ? ' multiple' : ''} required${accept && accept.length ? (' accept="'+accept+'"') :''}></div></div><div class="dialog-footer"><button id="openFileDialog-cancel" style="float: right" type="button" class="btn btn-default" onclick="document.getElementById('openFileDialog').close();">Cancel</button><button id="openFileDialog-ok" style="float: right" type="button" class="btn btn-primary">Ok</button></div>`;
+        dialog.innerHTML = `<div class="dialog-header" style="font-weight: bold"><button type="button" class="btn btn-close float-end btn-danger" data-dismiss="modal" onclick="document.getElementById('openFileDialog').close();"></button><div>${title || 'Open file...'}</div></div><div class="dialog-body"><div class="m-3"><input class="form-control" type="file" id="openFileDialog-files"${multiple ? ' multiple' : ''} required${accept && accept.length ? (' accept="' + accept + '"') : ''}></div></div><div class="dialog-footer"><button id="openFileDialog-cancel" style="float: right" type="button" class="btn btn-default" onclick="document.getElementById('openFileDialog').close();">Cancel</button><button id="openFileDialog-ok" style="float: right" type="button" class="btn btn-primary">Ok</button></div>`;
         document.body.appendChild(dialog);
         //dialog.addEventListener('open', onOpen);
         dialog.addEventListener('close', e => {
@@ -2562,4 +2562,23 @@ export function debounce(mainFunction, delay, key?) {
         mainFunction();
         delete _timers[key];
     }, delay);
+}
+
+export function markdownParser(text) {
+    const toHTML = text
+        .replace(/`(.*)`/gim, '<span class="markdown-code" style="display: inline-block;background-color: #ececec">$1</span>') // code block
+        .replace(/^---/gim, '<hr>')
+        .replace(/\[(.*)\]\((.*)\)/gim, '<a href="$2">$1</a>')
+        .replace(/^##### (.*$)/gim, '<h5>$1</h5>') // h3 tag
+        .replace(/^##### (.*$)/gim, '<h5>$1</h5>') // h3 tag
+        .replace(/^#### (.*$)/gim, '<h4>$1</h4>') // h3 tag
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>') // h3 tag
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>') // h2 tag
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>') // h1 tag
+        .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>') // bold text
+        .replace(/\*(.*)\*/gim, '<i>$1</i>') // italic text
+        .replace(/_(.*)_/gim, '<i>$1</i>') // italic text
+        .replace(/\\$/gim, '$')
+        .replace(/\\{/gim, '\\');        
+    return toHTML.trim(); // using trim method to remove whitespace
 }

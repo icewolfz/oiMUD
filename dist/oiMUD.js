@@ -1849,7 +1849,7 @@
               stack.push('<span style="border: inherit;text-decoration:inherit;color: #' + _colorCodes["BOLD%^%^WHITE"] + '">');
               codes.push("</span>");
             }
-            stack.push('<span style=border: inherit;text-decoration:inherit;"background-color: #' + _colorCodes[text[t]] + '">');
+            stack.push('<span style="border: inherit;text-decoration:inherit;background-color: #' + _colorCodes[text[t]] + '">');
             codes.push("</span>");
             bold = false;
             continue;
@@ -25284,8 +25284,7 @@ Devanagari
         this._colors["B" + _bold[b]] = this._colors[this.nearestHex("#" + _bold[b]).substr(1)].toUpperCase();
       }
       this._colors["BFFFFFF"] = "RGB555";
-      tinymce.activeEditor.settings.textcolor_map = this._ColorTable;
-      tinymce.activeEditor.settings.color_map = this._ColorTable;
+      tinymce.activeEditor.options.set("color_map", this._ColorTable);
     }
     initPlugins() {
       if (false) return;
@@ -25340,6 +25339,12 @@ Devanagari
           editor3.addCommand("mceRemoveTextcolor", (format) => {
             removeFormat(editor3, format);
           });
+          editor3.addCommand("mceSetTextcolor", (name2, color) => {
+            if (_lastButton) {
+              setIconColor(_lastButton, name2 === "forecolor" ? "pinkfishforecolor" : name2, color);
+              (name2 === "forecolor" ? _forecolor : _backcolor).set(color);
+            }
+          });
         };
         const getAdditionalColors = (hasCustom) => {
           const type = "choiceitem";
@@ -25389,12 +25394,6 @@ Devanagari
         const setIconColor = (splitButtonApi, name2, newColor) => {
           const id = name2 === "pinkfishforecolor" ? "tox-icon-text-color__color" : "tox-icon-highlight-bg-color__color";
           splitButtonApi.setIconFill(id, newColor);
-        };
-        this.setColor = function(name2, color) {
-          if (_lastButton) {
-            setIconColor(_lastButton, name2 === "forecolor" ? "pinkfishforecolor" : name2, color);
-            (name2 === "forecolor" ? _forecolor : _backcolor).set(color);
-          }
         };
         const registerTextColorButton = (editor3, name2, format, tooltip, lastColor) => {
           editor3.ui.registry.addSplitButton(name2, {
@@ -25459,7 +25458,7 @@ Devanagari
         registerTextColorMenuItem(editor2, "pinkfishbackcolor", "hilitecolor", "Background color");
       });
       tinymce.PluginManager.add("pinkfish", function(editor2) {
-        this.applyFormat = function(format, value) {
+        editor2.addCommand("mceApplyFormat", (format, value) => {
           editor2.undoManager.transact(() => {
             editor2.focus();
             _editor.clearReverse($(".reverse", $(editor2.getDoc()).contents()));
@@ -25470,8 +25469,8 @@ Devanagari
             _editor.addReverse($(".reverse", $(editor2.getDoc()).contents()));
             editor2.nodeChanged();
           });
-        };
-        this.removeFormat = function(format) {
+        });
+        editor2.addCommand("mceRemoveFormat", (format) => {
           editor2.undoManager.transact(() => {
             editor2.focus();
             _editor.clearReverse($(".reverse", $(editor2.getDoc()).contents()));
@@ -25479,7 +25478,7 @@ Devanagari
             _editor.addReverse($(".reverse", $(editor2.getDoc()).contents()));
             editor2.nodeChanged();
           });
-        };
+        });
         function buttonPostRender(buttonApi, format) {
           editor2.on("init", () => {
             editor2.formatter.formatChanged(format, function(state) {
@@ -25933,10 +25932,10 @@ Devanagari
           cells[c].addEventListener("click", (e) => {
             color = e.currentTarget.dataset.mceColor;
             if (color === "transparent")
-              tinymce.activeEditor.plugins["pinkfish"].removeFormat(this._colorDialog.dialog.dataset.type);
+              tinymce.activeEditor.execCommand("mceRemoveFormat", this._colorDialog.dialog.dataset.type);
             else
-              tinymce.activeEditor.plugins["pinkfish"].applyFormat(this._colorDialog.dialog.dataset.type, "#" + color);
-            tinymce.activeEditor.plugins["pinkfishtextcolor"].setColor(this._colorDialog.dialog.dataset.type, "#" + color);
+              tinymce.activeEditor.execCommand("mceApplyFormat", this._colorDialog.dialog.dataset.type, "#" + color);
+            tinymce.activeEditor.execCommand("mceSetTextcolor", this._colorDialog.dialog.dataset.type, "#" + color);
             this._colorDialog.close();
           });
       }
@@ -26301,12 +26300,8 @@ Devanagari
         statusbar: false,
         nowrap: true,
         force_br_newlines: true,
-        force_p_newlines: false,
         forced_root_block: "div",
-        plugins: [
-          //contextmenu
-          "paste pinkfish insertdatetime pinkfishtextcolor nonbreaking"
-        ],
+        plugins: "pinkfish insertdatetime pinkfishtextcolor nonbreaking",
         color_picker_callback: (editor2, color, format) => {
           this.openColorDialog(format, color || "");
         },
@@ -26314,6 +26309,7 @@ Devanagari
         textcolor_rows: "3",
         textcolor_cols: "8",
         toolbar: "send | append | undo redo | copy copyformatted | clear | pinkfishforecolor pinkfishbackcolor | italic underline strikethrough overline dblunderline flash reverse | insertdatetime",
+        toolbar_mode: "sliding",
         content_css: "css/tinymce.content.min.css",
         formats: {
           bold: { inline: "strong", exact: true, links: true, remove_similar: true },
@@ -26363,9 +26359,7 @@ Devanagari
           this.emit("editor-init");
         },
         paste_data_images: false,
-        paste_word_valid_elements: "b,strong,i,em,u,s,span,strike",
         paste_webkit_styles: "color background background-color text-decoration",
-        paste_retain_style_properties: "color background background-color text-decoration font-weight",
         valid_elements: "strong/b,em/i,u,span[style],strike/s,br",
         valid_styles: {
           "*": "color,background,background-color,text-decoration,font-weight"

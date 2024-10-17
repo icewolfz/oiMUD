@@ -491,8 +491,7 @@ export class AdvEditor extends EventEmitter {
             this._colors['B' + _bold[b]] = this._colors[this.nearestHex('#' + _bold[b]).substr(1)].toUpperCase();
         }
         this._colors['BFFFFFF'] = 'RGB555';
-        tinymce.activeEditor.settings.textcolor_map = this._ColorTable;
-        tinymce.activeEditor.settings.color_map = this._ColorTable;
+        tinymce.activeEditor.options.set('color_map', this._ColorTable);
     }
 
     private initPlugins() {
@@ -569,6 +568,13 @@ export class AdvEditor extends EventEmitter {
                 editor.addCommand('mceRemoveTextcolor', (format) => {
                     removeFormat(editor, format);
                 });
+
+                editor.addCommand('mceSetTextcolor', (name, color) => {
+                    if (_lastButton) {
+                        setIconColor(_lastButton, name === 'forecolor' ? 'pinkfishforecolor' : name, color);
+                        (name === 'forecolor' ? _forecolor : _backcolor).set(color);
+                    }
+                });
             };
 
             const getAdditionalColors = (hasCustom: boolean) => {
@@ -627,13 +633,6 @@ export class AdvEditor extends EventEmitter {
                 const id = name === 'pinkfishforecolor' ? 'tox-icon-text-color__color' : 'tox-icon-highlight-bg-color__color';
                 splitButtonApi.setIconFill(id, newColor);
             };
-
-            this.setColor = function (name, color) {
-                if (_lastButton) {
-                    setIconColor(_lastButton, name === 'forecolor' ? 'pinkfishforecolor' : name, color);
-                    (name === 'forecolor' ? _forecolor : _backcolor).set(color);
-                }
-            }
 
             const registerTextColorButton = (editor, name: string, format: ColorFormat, tooltip: string, lastColor) => {
                 editor.ui.registry.addSplitButton(name, {
@@ -702,7 +701,8 @@ export class AdvEditor extends EventEmitter {
             registerTextColorMenuItem(editor, 'pinkfishbackcolor', 'hilitecolor', 'Background color');
         });
         tinymce.PluginManager.add('pinkfish', function (editor) {
-            this.applyFormat = function (format, value) {
+
+            editor.addCommand('mceApplyFormat', (format, value) => {
                 editor.undoManager.transact(() => {
                     editor.focus();
                     _editor.clearReverse($('.reverse', $(editor.getDoc()).contents()));
@@ -713,9 +713,9 @@ export class AdvEditor extends EventEmitter {
                     _editor.addReverse($('.reverse', $(editor.getDoc()).contents()));
                     editor.nodeChanged();
                 });
-            };
+            });
 
-            this.removeFormat = function (format) {
+            editor.addCommand('mceRemoveFormat', (format) => {
                 editor.undoManager.transact(() => {
                     editor.focus();
                     _editor.clearReverse($('.reverse', $(editor.getDoc()).contents()));
@@ -723,7 +723,7 @@ export class AdvEditor extends EventEmitter {
                     _editor.addReverse($('.reverse', $(editor.getDoc()).contents()));
                     editor.nodeChanged();
                 });
-            };
+            });
 
             function buttonPostRender(buttonApi, format) {
                 editor.on('init', () => {
@@ -1195,11 +1195,10 @@ export class AdvEditor extends EventEmitter {
                 cells[c].addEventListener('click', e => {
                     color = (e.currentTarget as HTMLElement).dataset.mceColor;
                     if (color === 'transparent')
-                        tinymce.activeEditor.plugins['pinkfish'].removeFormat(this._colorDialog.dialog.dataset.type);
+                        tinymce.activeEditor.execCommand('mceRemoveFormat', this._colorDialog.dialog.dataset.type);
                     else
-                        tinymce.activeEditor.plugins['pinkfish'].applyFormat(this._colorDialog.dialog.dataset.type, '#' + color);
-                    tinymce.activeEditor.plugins['pinkfishtextcolor'].setColor(this._colorDialog.dialog.dataset.type, '#' + color);
-
+                        tinymce.activeEditor.execCommand('mceApplyFormat', this._colorDialog.dialog.dataset.type, '#' + color);
+                    tinymce.activeEditor.execCommand('mceSetTextcolor', this._colorDialog.dialog.dataset.type, '#' + color);
                     this._colorDialog.close();
                 });
         }
@@ -1604,17 +1603,14 @@ export class AdvEditor extends EventEmitter {
             statusbar: false,
             nowrap: true,
             force_br_newlines: true,
-            force_p_newlines: false,
             forced_root_block: 'div',
-            plugins: [
-                //contextmenu
-                'paste pinkfish insertdatetime pinkfishtextcolor nonbreaking'
-            ],
+            plugins: 'pinkfish insertdatetime pinkfishtextcolor nonbreaking',
             color_picker_callback: (editor, color, format) => { this.openColorDialog(format, color || ''); },
             color_picker_caption: 'More&hellip;',
             textcolor_rows: '3',
             textcolor_cols: '8',
             toolbar: 'send | append | undo redo | copy copyformatted | clear | pinkfishforecolor pinkfishbackcolor | italic underline strikethrough overline dblunderline flash reverse | insertdatetime',
+            toolbar_mode: 'sliding',
             content_css: 'css/tinymce.content.min.css',
             formats: {
                 bold: { inline: 'strong', exact: true, links: true, remove_similar: true },
@@ -1672,9 +1668,7 @@ export class AdvEditor extends EventEmitter {
                 this.emit('editor-init');
             },
             paste_data_images: false,
-            paste_word_valid_elements: 'b,strong,i,em,u,s,span,strike',
             paste_webkit_styles: 'color background background-color text-decoration',
-            paste_retain_style_properties: 'color background background-color text-decoration font-weight',
             valid_elements: 'strong/b,em/i,u,span[style],strike/s,br',
             valid_styles: {
                 '*': 'color,background,background-color,text-decoration,font-weight'

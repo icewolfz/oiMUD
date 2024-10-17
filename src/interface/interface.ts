@@ -3,7 +3,7 @@ import "../css/interface.css";
 import { initMenu } from './menu';
 import { Client } from '../client';
 import { Dialog } from "../dialog";
-import { openFileDialog, readFile, debounce } from '../library';
+import { openFileDialog, readFile, debounce, getParameterByName } from '../library';
 import { AdvEditor } from './adv.editor';
 
 declare global {
@@ -143,6 +143,13 @@ export function initializeInterface() {
     updateCommandInput();
     if (client.getOption('commandAutoSize') || client.getOption('commandScrollbars'))
         resizeCommandInput();
+    window.addEventListener('hashchange', e => {
+        switch (window.location.hash) {
+            case '#editor':
+                document.getElementById('btn-adv-edit').click();
+                break;
+        }
+    }, false);
 }
 
 function resizeCommandInput() {

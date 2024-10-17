@@ -3588,6 +3588,13 @@
     updateCommandInput();
     if (client.getOption("commandAutoSize") || client.getOption("commandScrollbars"))
       resizeCommandInput();
+    window.addEventListener("hashchange", (e) => {
+      switch (window.location.hash) {
+        case "#editor":
+          document.getElementById("btn-adv-edit").click();
+          break;
+      }
+    }, false);
   }
   function resizeCommandInput() {
     debounce(() => {

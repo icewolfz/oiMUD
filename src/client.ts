@@ -933,7 +933,7 @@ export class Client extends EventEmitter {
             else
                 this.error('Unknown telnet error.');
             if (this.getOption('autoConnect') && !this._telnet.connected)
-                setTimeout(() => { this.connect(); }, 600);
+                setTimeout(() => { this.connect(); }, client.getOption('autoConnectDelay'));
         });
         this.telnet.on('connecting', () => {
             this.connecting = true;
@@ -1088,7 +1088,7 @@ export class Client extends EventEmitter {
         if (DEBUG || TEST)
             this.addPlugin(new Test(this));
         if (this.options.autoConnect)
-            setTimeout(() => { this.connect(); }, 600);
+            setTimeout(() => { this.connect(); }, client.getOption('autoConnectDelay'));
         this.emit('initialized');
     }
 
@@ -1150,7 +1150,7 @@ export class Client extends EventEmitter {
     public UpdateFonts() {
         //can only update if display has been setup
         if (!this.display) return;
-        this.display.updateFont(this._options.font, this._options.fontSize);
+        this.display.updateFont(this._options.font + ', monospace', this._options.fontSize);
         this._commandInput.style.fontSize = this._options.cmdfontSize;
         this._commandInput.style.fontFamily = this._options.cmdfont + ', monospace';
     }

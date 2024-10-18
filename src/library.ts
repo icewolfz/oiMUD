@@ -826,7 +826,6 @@ if (!String.prototype.replaceAll) {
     };
 }
 
-
 if (typeof Uint8Array.prototype.charAt != 'function') {
     Uint8Array.prototype.charAt = function (this: Uint8Array, idx: number) {
         return String.fromCharCode(this[idx]);
@@ -2020,7 +2019,6 @@ export function insertValue(input, value) {
     if (active && active != input)
         active.focus();
 }
-
 
 if (!Array.isArray) {
     (<any>Array.isArray) = function (arg) {

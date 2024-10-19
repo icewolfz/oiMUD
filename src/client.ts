@@ -25,7 +25,7 @@ declare global {
     }
 }
 declare let moment;
-//declare let localforage;
+declare let localforage;
 
 interface ClientOptions {
     display: HTMLInputElement | JQuery | string;
@@ -878,10 +878,9 @@ export class Client extends EventEmitter {
         });
         this.display.on('set-title', (title, type) => {
             if (typeof title === 'undefined' || title == null || title.length === 0)
-                window.document.title = this.getOption('defaultTitle');
+                this.emit('set-title', this.getOption('title').replace('$t', this.defaultTitle) || this.defaultTitle);
             else if (type !== 1)
-                window.document.title = this.getOption('title').replace('$t', title);
-
+                this.emit('set-title', this.getOption('title').replace('$t', title) || '')
         });
         this.display.on('music', (data) => {
             this.emit('music', data);
@@ -1087,14 +1086,13 @@ export class Client extends EventEmitter {
         this.addPlugin(new MSP(this));
         if (DEBUG || TEST)
             this.addPlugin(new Test(this));
-        if (this.options.autoConnect)
+        if (this.getOption('autoConnect'))
             setTimeout(() => { this.connect(); }, client.getOption('autoConnectDelay'));
         this.emit('initialized');
     }
 
     public loadOptions() {
         this._options = new Settings();
-        this.loadProfiles();
 
         this.enableDebug = this._options.enableDebug;
         this.display.maxLines = this._options.bufferSize;
@@ -1105,6 +1103,13 @@ export class Client extends EventEmitter {
         this.display.enableMSP = this._options.enableMSP;
         this.display.enableColors = this._options['display.enableColors'];
         this.display.enableBackgroundColors = this._options['display.enableBackgroundColors'];
+
+        this.display.wordWrap = this._options['display.wordWrap'];
+        this.display.wrapAt = this._options['display.wrapAt'];
+        this.display.indent = this._options['display.indent'];
+        this.display.showTimestamp = this._options['display.showTimestamp'];
+        this.display.tabWidth = this._options['display.tabWidth'];
+        this.display.timestampFormat = this._options['display.timestampFormat'];
 
         if (this._options.colors && this._options.colors?.length > 0) {
             var clrs = this._options.colors;
@@ -1130,6 +1135,7 @@ export class Client extends EventEmitter {
 
         if (this.UpdateFonts) this.UpdateFonts();
         this.display.scrollDisplay();
+        this.loadProfiles();
         this.emit('options-loaded');
     }
 
@@ -1199,11 +1205,9 @@ export class Client extends EventEmitter {
             }
             window.console.log(new Date().toLocaleString());
             window.console.log(msg);
-            /*
             localforage.getItem('oiMUDErrorLog', function (err, value) {
                 localforage.setItem('oiMUDErrorLog', value = (value || '') + new Date().toLocaleString() + '\n' + msg + '\n');
             });
-            */
         }
         if (err === 'Error: ECONNRESET - read ECONNRESET.' && this.telnet.connected)
             this.close();

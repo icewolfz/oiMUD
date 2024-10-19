@@ -1,0 +1,39 @@
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="enableMCCP">
+    <label class="form-check-label" for="enableMCCP">MUD Compression Protocol (MCCP)</label>
+    <small class="form-text text-muted alert alert-info" style="padding: 2px">
+        If you experience performance issues try disabling MCCP then reconnect.
+    </small>
+</div>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="enableUTF8">
+    <label class="form-check-label" for="enableUTF8">UTF-8</label>
+</div>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="enableMXP">
+    <label class="form-check-label" for="enableMXP">MUD eXtension Protocol (MXP)</label>
+</div>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="enableEcho">
+    <label class="form-check-label" for="enableEcho">Echo</label>
+</div>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="enableMSP">
+    <label class="form-check-label" for="enableMSP">MUD Sound Protocol (MSP)</label>
+</div>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="notifyMSPPlay">
+    <label class="form-check-label" for="notifyMSPPlay">Display Notification on MSP Play</label>
+</div>
+<div class="mb-3">
+    <label for="mspMaxRetriesOnError" class="form-label">MSP: max retries on error</label>
+    <input type="number" class="form-control" id="mspMaxRetriesOnError" min="0" max="100">
+</div>
+<div class="alert alert-info" role="alert">
+    If you experience corruption of text try disabling MCCP, UTF-8, or MXP then reconnect.
+</div>

@@ -9,6 +9,17 @@
 </div>
 <br>
 <div class="card">
+  <div class="card-header">Error log</div>
+  <div class="card">
+    <div class="card-body">
+      <button id="error-view" type="button" class="btn btn-light" title="View error log">View</button>
+      <button id="error-export" type="button" class="btn btn-light" title="Export error log">Export</button>
+      <button id="error-clear" type="button" class="btn btn-light" title="Clear error log">Clear</button>
+    </div>
+  </div>
+</div>
+<br>
+<div class="card">
   <div class="card-header">
     Change log
   </div>
@@ -25,4 +36,31 @@
 </div>
 <script>
   body.querySelector('#about-version').textContent = 'v' + client.version;
+  body.querySelector('#error-view').addEventListener('click', () => {
+    localforage.getItem('oiMUDErrorLog', function (err, value) {
+      if (!value || value.length === 0)
+        alert_box('No log', 'No error log.', 2);
+      else {
+        const d = new Dialog({ title: 'Error log', keepCentered: true, center: true, noFooter: true });
+        d.body.innerHTML = `<pre style="margin: 0;position: absolute;left: 0;right: 0;bottom: 0;top: 0;">${value}</pre>`;
+        d.showModal();
+      }
+    });
+  });
+  body.querySelector('#error-export').addEventListener('click', () => {
+    localforage.getItem('oiMUDErrorLog', function (err, value) {
+      if (value)
+        fileSaveAs.show(value, 'oiMUD.error.txt', 'text/plain');
+      else
+        alert_box('No log', 'No error log.', 2);
+    });
+  });
+  body.querySelector('#error-clear').addEventListener('click', () => {
+    confirm_box('Clear log', 'Clear error log?').then((value) => {
+        if (value.button === 4) {
+          localforage.setItem('oiMUDErrorLog', '');
+          alert_box('Cleared', 'Error log cleared', 2);
+        }
+    });
+  });  
 </script>

@@ -60,6 +60,10 @@ export function initMenu() {
         showDialog('about');
         closeMenu();
     });
+    document.querySelector('#menu-settings a').addEventListener('click', e => {
+        showDialog('settings');
+        closeMenu();
+    });
     document.querySelector('#menu-fullscreen a').addEventListener('click', e => {
         var doc: any = window.document;
         var docEl: any = doc.documentElement;
@@ -86,6 +90,50 @@ export function initMenu() {
         closeMenu();
     });
     updateScrollLock();
+
+    let pl = client.plugins.length;
+    let s;
+    let sl;
+    const list = document.querySelector('#clientMenu ul')
+    for (let p = 0; p < pl; p++) {
+        if (!client.plugins[p].settings) continue;
+        if (client.plugins[p].settings.length) {
+            sl = client.plugins[p].settings.length;
+            for (s = 0; s < sl; s++) {
+                let item = client.plugins[p].settings[s];
+                let code;
+                let id = 'menu-' + (item.name || '').toLowerCase().replace(/ /g, '-');
+                if(item.name === '-')
+                    code = '<li><hr class="dropdown-divider"></li>';
+                else if (typeof item.action === 'string')
+                    code = `<li id="menu-${id}" class="nav-item" title="${item.name || ''}"><a class="nav-link" href="#${item.action}">${item.icon || ''}${item.name || ''}</i><span>${item.name || ''}</span></a></li>`;
+                else
+                    code = `<li id="menu-${id}" class="nav-item" title="${item.name || ''}"><a class="nav-link" href="javascript:void(0)">${item.icon || ''}${item.name || ''}<span>${item.name || ''}</span></a></li>`;
+                if ('position' in item) {
+                    if (typeof item.position === 'string') {
+                        if (list.querySelector(item.position)) {
+                            list.querySelector(item.position).insertAdjacentHTML('afterend', code);
+                            continue;
+                        }
+                    }
+                    else if (item.position >= 0 && item.position < list.children.length) {
+                        list.children[item.position].insertAdjacentHTML('afterend', code);
+                        continue;
+                    }
+                }
+                list.insertAdjacentHTML('beforeend', code);
+                if(item.name === '-') continue;
+                if (typeof item.action === 'function')
+                    document.querySelector(`#${id} a`).addEventListener('click', e => {
+                        const ie = { client: client, preventDefault: false };
+                        item.action(ie);
+                        if (ie.preventDefault) return;
+                        closeMenu();
+                    });
+            }
+        }
+    }
+
 }
 
 function updateScrollLock() {

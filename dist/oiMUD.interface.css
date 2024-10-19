@@ -54,6 +54,12 @@ div.offcanvas-body > ul > li > hr {
 #adv-editor-txt {
   resize: none;
 }
+.breadcrumb {
+  margin: 0;
+}
+.form-check-input {
+  clear: left;
+}
 
 /* src/css/tinymce.css */
 .mce-tinymce,

@@ -184,7 +184,7 @@ dialog {
   left: 0;
   right: 0;
   bottom: 49px;
-  top: 32px;
+  top: 35px;
   position: absolute;
   background-color: white;
   overflow: auto;
@@ -221,8 +221,16 @@ dialog {
     margin: 0;
     font-weight: bold;
   }
-  .dialog-header button {
+  .dialog-header button,
+  .dialog-header .breadcrumb-item a {
     pointer-events: auto;
+  }
+  .settings-menu {
+    display: none !important;
+    visibility: hidden;
+  }
+  .dialog .dialog-body {
+    left: 0 !important;
   }
 }
 .dialog.resizable .resizer-left {
@@ -364,6 +372,16 @@ dialog::backdrop {
 div.dialog {
   display: none;
   visibility: hidden;
+}
+.settings-menu {
+  left: 0;
+  top: 35px;
+  bottom: 49px;
+  width: 200px;
+  right: auto;
+  border-right: 1px solid var(--bs-list-group-border-color);
+  position: absolute;
+  display: block;
 }
 
 /* src/css/client.css */
@@ -507,6 +525,12 @@ div.offcanvas-body > ul > li > hr {
 }
 #adv-editor-txt {
   resize: none;
+}
+.breadcrumb {
+  margin: 0;
+}
+.form-check-input {
+  clear: left;
 }
 
 /* src/css/tinymce.css */

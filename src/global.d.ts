@@ -64,6 +64,8 @@ interface Window {
 	webkitSaveAs;
 	mozSaveAs;
 	msSaveAs;
+	confirm_box;
+	alert_box;
 }
 
 interface Navigator {

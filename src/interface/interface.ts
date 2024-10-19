@@ -1,10 +1,11 @@
 
 import "../css/interface.css";
-import { initMenu, closeMenu } from './menu';
+import { initMenu } from './menu';
 import { Client } from '../client';
 import { Dialog } from "../dialog";
 import { openFileDialog, readFile, debounce, getParameterByName } from '../library';
 import { AdvEditor } from './adv.editor';
+import { SettingsDialog } from './settingsdialog';
 
 declare global {
     interface Window {
@@ -31,6 +32,11 @@ export function initializeInterface() {
         updateCommandInput();
         if (client.getOption('commandAutoSize') || client.getOption('commandScrollbars'))
             resizeCommandInput();
+        if (editorDialog)
+            editorDialog.resetState(client.getOption('windows.editor') || { center: true });
+    });
+    client.on('set-title', title => {
+        window.document.title = title;
     });
     //setup advanced editor footer button
     document.getElementById('btn-adv-editor').addEventListener('click', e => {
@@ -57,12 +63,14 @@ export function initializeInterface() {
             });
             editorDialog.on('closed', () => {
                 client.setOption('windows.editor', editorDialog.windowState);
+                removeHash('editor');
             });
             editorDialog.on('canceling', () => {
                 editor.remove();
             });
             editorDialog.on('canceled', () => {
                 client.setOption('windows.editor', editorDialog.windowState);
+                removeHash('editor');
             });
             editorDialog.on('focus', () => editor.focus());
             const textarea = document.createElement('textarea');
@@ -150,41 +158,85 @@ export function initializeInterface() {
     window.addEventListener('load', hashChange);
 }
 
+export function removeHash(string) {
+    if (!string || string.length === 0) return;
+    string = string.trim();
+    if (string.startsWith('#'))
+        string = string.substring(1);
+    var hashes = decodeURI(window.location.hash.substring(1)).split(',').filter(s => s.trim() !== string);
+    window.location.hash = hashes.join(',');
+}
+
 function hashChange() {
     if (!window.location.hash || window.location.hash.length < 2) return;
-    var dialogs = window.location.hash.substring(1).split(',');
+    var dialogs = decodeURI(window.location.hash.substring(1)).split(',').map(s => s.trim());
     for (let d = dialogs.length - 1; d >= 0; d--)
-        switch (dialogs[d].trim()) {
+        switch (dialogs[d]) {
             case 'about':
                 showDialog('about');
                 break;
             case 'editor':
                 document.getElementById('btn-adv-editor').click();
                 break;
+            default:
+                if (dialogs[d].startsWith('settings'))
+                    showDialog(dialogs[d]);
+                break;
         }
 }
 
 let _dialogs: any = {};
-export function showDialog(name) {
+export function showDialog(name: string) {
     switch (name) {
         case 'about':
             if (!_dialogs.about) {
                 _dialogs.about = new Dialog(({ title: '<i class="bi-info-circle"></i> About', noFooter: true, resizable: false, center: true, maximizable: false }));
-                _dialogs.about.on('closed', () => delete _dialogs.about);
-                _dialogs.about.on('canceled', () => delete _dialogs.about);
+                _dialogs.about.on('closed', () => {
+                    delete _dialogs.about;
+                    removeHash(name);
+                });
+                _dialogs.about.on('canceled', () => {
+                    delete _dialogs.about;
+                    removeHash(name);
+                });
             }
             loadDialog(_dialogs.about, name, 1, true).catch(e => {
                 client.error(e);
             });
-            break;
+            return _dialogs.about;
+    }
+    if (name.startsWith('settings')) {
+        if (!_dialogs.settings) {
+            _dialogs.settings = new SettingsDialog();
+            _dialogs.settings.on('closed', () => {
+                delete _dialogs.settings;
+                removeHash(name);
+            });
+            _dialogs.settings.on('canceled', () => {
+                delete _dialogs.settings;
+                removeHash(name);
+            });
+        }
+        if (name === 'settings') {
+            _dialogs.settings.dialog.dataset.path = name;
+            _dialogs.settings.dialog.dataset.fullPath = name;
+            _dialogs.settings.dialog.dataset.hash = window.location.hash;
+            _dialogs.settings.setPage(name);
+            _dialogs.settings.showModal();
+        }
+        else
+            loadDialog(_dialogs.settings, name, 2, false).then(() => {
+                _dialogs.settings.setPage(name);
+            }).catch(e => {
+                client.error(e);
+            });
+        return _dialogs.settings;
     }
 }
 
 export function loadDialog(dialog: Dialog, path, show?, showError?) {
     return new Promise((resolve, reject) => {
         var subpath = path.split('/');
-        if ($('#empty-page').css('visibility') !== 'visible')
-            $('.page').removeClass('show');
         $.ajax({
             url: 'dialogs/' + subpath[0] + '.htm',
             cache: false,
@@ -198,8 +250,8 @@ export function loadDialog(dialog: Dialog, path, show?, showError?) {
                 const scripts: HTMLScriptElement[] = dialog.body.querySelectorAll('script');
                 for (let s = 0, sl = scripts.length; s < sl; s++) {
                     /*jslint evil: true */
-                    let script = new Function('body', 'client', scripts[s].textContent);
-                    script.apply(client, [dialog.body, client]);
+                    let script = new Function('body', 'client', 'dialog', scripts[s].textContent);
+                    script.apply(client, [dialog.body, client, dialog]);
                 }
                 if (show == 1)
                     dialog.show();
@@ -209,10 +261,12 @@ export function loadDialog(dialog: Dialog, path, show?, showError?) {
             })
             .fail(function (err) {
                 if (showError && client.enableDebug)
-                    dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path[0]}</h1> ${err.statusText}`;
+                    dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path}</h1> ${err.statusText}`;
                 else if (showError)
-                    dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path[0]}</h1>`;
-                reject(path[0] + ': ' + err.statusText);
+                    dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path}</h1>`;
+                else
+                    dialog.body.innerHTML = '';
+                reject(path + ': ' + subpath.statusText);
             });
     });
 }

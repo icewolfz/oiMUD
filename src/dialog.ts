@@ -10,7 +10,7 @@ export interface DialogOptions {
     x?: string | number;
     y?: string | number;
     id?: string;
-    buttons?: boolean;
+    buttons?: DialogButtons;
     resizable?: boolean;
     moveable?: boolean;
     maximizable?: boolean;
@@ -19,6 +19,7 @@ export interface DialogOptions {
     showModal?: boolean;
     show?: boolean | number;
     center?: boolean;
+    keepCentered?: boolean;
     noFooter?: boolean;
     position?: Position;
 }
@@ -41,6 +42,23 @@ enum Position {
     Center = Position.CenterHorizontal | Position.CenterVertical
 }
 
+export enum DialogButtons {
+    None = 0,
+    Ok = 1 << 0,
+    Cancel = 1 << 1,
+    Yes = 1 << 2,
+    No = 1 << 3,
+    YesNo = Yes | No,
+    Standard = Ok | Cancel
+}
+
+export enum DialogIcon {
+    question = 1,
+    info = 2,
+    error = 3,
+    exclamation = 4
+}
+
 export class Dialog extends EventEmitter {
     private _dialog;
     private _body;
@@ -54,16 +72,12 @@ export class Dialog extends EventEmitter {
     private _windowResize = () => {
         //if window resized ensure top left corner is visible
         debounce(() => {
-            const styles = document.defaultView.getComputedStyle(this._dialog);
-            if (this._state.x > window.innerWidth - 16) {
-                this._state.x = (window.innerWidth - 16);
-                this._dialog.style.left = this._state.x + "px";
-            }
-            if (this._state.y > window.innerHeight - 16) {
-                this._state.y = (window.innerHeight - 16);
-                this._dialog.style.top = this._state.y + "px";
-            }
-            this.emit('moved', this._state);
+            if (this.keepCentered || (this._state.show === 2 && !this.moveable))
+                this.center();
+            else
+                this.makeVisible();
+            if (this._footer.style.display !== 'none')
+                this._body.style.bottom = this._body.style.bottom = (this._footer.clientHeight + 1) + 'px'; + 'px';
         }, 250, this._id + 'dialogResize');
     };
 
@@ -229,6 +243,7 @@ export class Dialog extends EventEmitter {
         this.emit('moved', this._state);
     };
 
+    public keepCentered: boolean = false;
     public moveable: boolean = true;
     public resizable: boolean = true;
     private _maximizable: boolean = true;
@@ -381,9 +396,14 @@ export class Dialog extends EventEmitter {
         else
             this._dialog.style.left = '0';
         let footer = '';
-        if (options?.buttons)
-            footer += `<button id="${this._id}-cancel" type="button" class="float-end btn btn-light" title="Cancel dialog">Cancel</button>
-            <button id="${this._id}-ok" type="button" class="float-end btn btn-primary" title="Confirm dialog">Ok</button>`;
+        if (options && (options.buttons & DialogButtons.Cancel) === DialogButtons.Cancel)
+            footer += `<button id="${this._id}-cancel" type="button" class="float-end btn btn-light" title="Cancel dialog">Cancel</button>`
+        if (options && (options.buttons & DialogButtons.Ok) === DialogButtons.Ok)
+            footer += `<button id="${this._id}-ok" type="button" class="float-end btn btn-primary" title="Confirm dialog">Ok</button>`;
+        if (options && (options.buttons & DialogButtons.No) === DialogButtons.No)
+            footer += `<button id="${this._id}-no" type="button" class="float-end btn btn-light" title="No">No</button>`
+        if (options && (options.buttons & DialogButtons.Yes) === DialogButtons.Yes)
+            footer += `<button id="${this._id}-yes" type="button" class="float-end btn btn-primary" title="Yes">Yes</button>`;
         this._dialog.innerHTML = `<div class="dialog-header">
         <button id="${this._id}-header-close" style="padding: 4px;" type="button" class="btn btn-close float-end btn-danger" data-dismiss="modal" title="Close window"></button>
         <button type="button" class="btn btn-light float-end maximize" id="${this._id}-max" title="Maximize window" style="padding: 0 4px;margin-top: -1px;"><i class="bi-arrows-fullscreen"></i></button>
@@ -416,7 +436,7 @@ export class Dialog extends EventEmitter {
             if (this._dialog._keydown)
                 window.document.removeEventListener('keydown', this._dialog._keydown);
             window.removeEventListener('resize', this._windowResize);
-            this.emit('closed');
+            this.emit('closed', this._dialog.returnValue);
         });
         this._dialog.addEventListener('cancel', e => {
             if (e.target !== this._dialog) return;
@@ -453,18 +473,38 @@ export class Dialog extends EventEmitter {
             this._dialog.querySelector(`#${this._id}-max`).style.display = '';
         else
             this._dialog.querySelector(`#${this._id}-max`).style.display = 'none';
-        if (options?.buttons) {
+        if (options && (options.buttons & DialogButtons.Cancel) === DialogButtons.Cancel)
             this._dialog.querySelector(`#${this._id}-cancel`).addEventListener('click', () => {
+                const e = { preventDefault: false, button: DialogButtons.Cancel };
+                this.emit('button-click', e);
+                if (e.preventDefault) return;
+                this._dialog.returnValue = 'cancel';
                 this.close();
             });
+        if (options && (options.buttons & DialogButtons.No) === DialogButtons.No)
+            this._dialog.querySelector(`#${this._id}-no`).addEventListener('click', () => {
+                const e = { preventDefault: false, button: DialogButtons.No };
+                this.emit('button-click', e);
+                if (e.preventDefault) return;
+                this._dialog.returnValue = 'no';
+                this.close();
+            });
+        if (options && (options.buttons & DialogButtons.Ok) === DialogButtons.Ok)
             this._dialog.querySelector(`#${this._id}-ok`).addEventListener('click', () => {
-                const e = { preventDefault: false };
-                this.emit('ok', e);
+                const e = { preventDefault: false, button: DialogButtons.Ok };
+                this.emit('button-click', e);
                 if (e.preventDefault) return;
                 this._dialog.returnValue = 'ok';
                 this._dialog.close();
             });
-        }
+        if (options && (options.buttons & DialogButtons.Yes) === DialogButtons.Yes)
+            this._dialog.querySelector(`#${this._id}-yes`).addEventListener('click', () => {
+                const e = { preventDefault: false, button: DialogButtons.Yes };
+                this.emit('button-click', e);
+                if (e.preventDefault) return;
+                this._dialog.returnValue = 'yes';
+                this._dialog.close();
+            });
         this._body = this._dialog.querySelector('[class="dialog-body"]');
         this._title = this._dialog.querySelector('[class="dialog-header"] div');
         this._footer = this._dialog.querySelector('[class="dialog-footer"]');
@@ -534,7 +574,6 @@ export class Dialog extends EventEmitter {
         this._state.width = this._resize.width = parseInt(styles.width, 10);
         this._state.y = this._resize.y = parseInt(styles.top, 10);;
         this._state.height = this._resize.height = parseInt(styles.height, 10);
-
         if (options && 'noFooter' in options && options.noFooter)
             this.hideFooter();
         if (options && 'maximized' in options && options.maximized)
@@ -547,10 +586,13 @@ export class Dialog extends EventEmitter {
             else
                 this.show();
         }
-        if (options && 'center' in options && options.center)
+        if ((options && 'keepCentered' in options && options.keepCentered))
+            this.keepCentered = options.keepCentered;
+        if (this.keepCentered || (options && 'center' in options && options.center))
             this.center();
         if (options && 'position' in options && options.position > 0)
             this.position(options.position);
+        this._windowResize();
     }
 
     private initResize(e, type) {
@@ -621,6 +663,7 @@ export class Dialog extends EventEmitter {
     public showModal() {
         if (!this._dialog.parentElement)
             document.body.appendChild(this._dialog);
+        this.makeVisible(true);
         if (this._dialog.open) {
             this.focus();
             return;
@@ -636,6 +679,7 @@ export class Dialog extends EventEmitter {
     public show() {
         if (!this._dialog.parentElement)
             document.body.appendChild(this._dialog);
+        this.makeVisible(true);
         if (this._dialog.open) {
             this.focus();
             return;
@@ -788,7 +832,7 @@ export class Dialog extends EventEmitter {
 
     public showFooter() {
         this._footer.style.display = '';
-        this._body.bottom = '';
+        this._body.style.bottom = (this._footer.clientHeight + 1) + 'px';
     }
 
     public hideFooter() {
@@ -802,4 +846,137 @@ export class Dialog extends EventEmitter {
         this._dialog.style.zIndex = '' + ++this._state.zIndex;
         this.emit('focus');
     }
+
+    public makeVisible(full?, silent?) {
+        if (full) {
+            if (this._state.x + this._state.width > window.innerWidth) {
+                this._state.x = window.innerWidth - this._state.width - 16;
+                if (this._state.x < 0) this._state.x = 0;
+                this._dialog.style.left = this._state.x + "px";
+            }
+            if (this._state.y + this._state.height > window.innerHeight - 16) {
+                this._state.y = window.innerHeight - this._state.height - 16;
+                if (this._state.y < 0) this._state.y = 0;
+                this._dialog.style.top = this._state.y + "px";
+            }
+        }
+        else {
+            if (this._state.x > window.innerWidth - 16) {
+                this._state.x = (window.innerWidth - 16);
+                this._dialog.style.left = this._state.x + "px";
+            }
+            if (this._state.y > window.innerHeight - 16) {
+                this._state.y = (window.innerHeight - 16);
+                this._dialog.style.top = this._state.y + "px";
+            }
+        }
+        if (!silent)
+            this.emit('moved', this._state);
+    }
+
+    public resetState(options: DialogOptions) {
+        if (typeof options?.height === 'number')
+            this._dialog.style.height = options.height + 'px';
+        else if (options?.height && options?.height.length > 0)
+            this._dialog.style.height = options.height;
+        else
+            this._dialog.style.height = '480px';
+
+        if (typeof options?.minHeight === 'number')
+            this._dialog.style.minHeight = options.minHeight + 'px';
+        else if (options?.minHeight && options?.minHeight.length > 0)
+            this._dialog.style.minHeight = options.minHeight;
+        else
+            this._dialog.style.minHeight = '150px';
+
+        if (typeof options?.minWidth === 'number')
+            this._dialog.style.minWidth = options.minWidth + 'px';
+        else if (options?.minWidth && options?.minWidth.length > 0)
+            this._dialog.style.minWidth = options.minWidth;
+        else
+            this._dialog.style.minWidth = '300px';
+
+        if (typeof options?.width === 'number')
+            this._dialog.style.width = options.width + 'px';
+        else if (options?.width && options?.width.length > 0)
+            this._dialog.style.width = options.width;
+        else
+            this._dialog.style.width = '640px';
+        if (typeof options?.y === 'number')
+            this._dialog.style.top = options.y + 'px';
+        else if (options?.y && options?.y.length > 0)
+            this._dialog.style.top = options.y;
+        else
+            this._dialog.style.top = '0';
+        if (typeof options?.x === 'number')
+            this._dialog.style.left = options.x + 'px';
+        else if (options?.x && options?.x.length > 0)
+            this._dialog.style.left = options.x;
+        else
+            this._dialog.style.left = '0';
+
+        const styles = document.defaultView.getComputedStyle(this._dialog);
+        this._state.x = this._resize.x = parseInt(styles.left, 10);;
+        this._state.width = this._resize.width = parseInt(styles.width, 10);
+        this._state.y = this._resize.y = parseInt(styles.top, 10);;
+        this._state.height = this._resize.height = parseInt(styles.height, 10);
+        if (options && 'maximized' in options && options.maximized)
+            this.maximize();
+        else
+            this.restore();
+        if (this.keepCentered || (options && 'center' in options && options.center))
+            this.center();
+        if (options && 'position' in options && options.position > 0)
+            this.position(options.position);
+        this._windowResize();
+    }
 }
+
+export class AlertDialog extends Dialog {
+    constructor(title: string | DialogOptions, message?, icon?: string | DialogIcon) {
+        super(typeof title === 'string' ? { title: getIcon(icon || DialogIcon.exclamation) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: DialogButtons.Ok } : title);
+        this.body.classList.add('d-flex', 'justify-content-center', 'talign-content-center', 'align-items-center');
+        if (message)
+            this.body.innerHTML = `<div class="text-center" style="width: 64px;height:64px;font-size: 40px;">${getIcon(icon || DialogIcon.exclamation)}</div><div class="ms-3 align-self-center flex-fill">${message}</div></div>`;
+    }
+}
+
+
+export class ConfirmDialog extends Dialog {
+    constructor(title: string | DialogOptions, message?, icon?: string | DialogIcon) {
+        super(typeof title === 'string' ? { title: getIcon(icon || DialogIcon.question) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: DialogButtons.YesNo } : title);
+        this.body.classList.add('d-flex', 'justify-content-center', 'align-content-center', 'align-items-center');
+        if (message)
+            this.body.innerHTML = `<div class="text-center" style="width: 64px;height:64px;font-size: 40px;">${getIcon(icon || DialogIcon.question)}</div><div class="ms-3 align-self-center flex-fill">${message}</div></div>`;
+    }
+}
+
+function getIcon(icon: string | DialogIcon) {
+    if (typeof icon === 'string')
+        return icon + ' ';
+    switch (icon) {
+        case DialogIcon.error:
+            return '<i class="fa-regular fa-circle-xmark"></i> ';
+        case DialogIcon.exclamation:
+            return '<i class="fa-solid fa-circle-exclamation"></i> ';
+        case DialogIcon.question:
+            return '<i class="fa-regular fa-circle-question"></i> '
+    }
+    return '<i class="fa-solid fa-circle-info"></i> ';
+}
+
+window.confirm_box = (title, message?, icon?) => {
+    return new Promise((resolve, reject) => {
+        const confirm = new ConfirmDialog(title, message, icon);
+        confirm.showModal();
+        confirm.on('button-click', e => resolve(e));
+        confirm.on('canceled', () => reject(null));
+        confirm.on('closed', reason => reason === 'Yes' ? 0 : reject(null));
+    });
+
+}
+window.alert_box = (title, message?, icon?) => {
+    new AlertDialog(title, message, icon).showModal();
+}
+
+window.Dialog = Dialog;

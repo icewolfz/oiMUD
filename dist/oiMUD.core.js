@@ -1112,16 +1112,16 @@
   // src/events.ts
   var EventEmitter = class {
     #events = {};
-    bind(type, listener) {
+    bind(type, listener, caller) {
       if (!Array.isArray(this.#events[type]) || typeof this.#events[type] === "undefined")
         this.#events[type] = [];
-      this.#events[type].push(listener);
+      this.#events[type].push({ listener, caller });
     }
-    on(type, listener) {
-      this.bind(type, listener);
+    on(type, listener, caller) {
+      this.bind(type, listener, caller);
     }
-    addEventListener(type, listener) {
-      this.bind(type, listener);
+    addEventListener(type, listener, caller) {
+      this.bind(type, listener, caller);
     }
     fire(type, args, caller) {
       if (!type || typeof type !== "string")
@@ -1133,8 +1133,9 @@
         args = [args];
       caller = caller || this;
       var events = this.#events[type];
-      for (var i = 0, len = events.length; i < len; i++)
-        events[i].apply(caller, args);
+      for (var i = 0, len = events.length; i < len; i++) {
+        events[i].listener.apply(events[i].caller || caller, args);
+      }
     }
     emit(type, ...args) {
       this.fire(type, args);
@@ -1146,8 +1147,8 @@
       if (!type || !listener) return;
       if (!Array.isArray(this.#events[type])) return;
       const events = this.#events[type];
-      for (let i = 0, len = events.length; i < len; i++) {
-        if (events[i] === listener) {
+      for (let i = events.length - 1; i >= 0; i--) {
+        if (events[i].listener === listener) {
           events.splice(i, 1);
           break;
         }
@@ -1169,6 +1170,28 @@
       }
       if (!Array.isArray(this.#events[type])) return;
       delete this.#events[type];
+    }
+    removeListenersFromCaller(caller, type) {
+      if (!type) {
+        Object.keys(this.#events).forEach((key) => {
+          const events2 = this.#events[key];
+          for (let i = events2.length - 1; i >= 0; i--) {
+            if (events2[i].caller === caller) {
+              events2.splice(i, 1);
+              break;
+            }
+          }
+        });
+        return;
+      }
+      if (!Array.isArray(this.#events[type])) return;
+      const events = this.#events[type];
+      for (let i = 0, len = events.length; i < len; i++) {
+        if (events[i].caller === caller) {
+          events.splice(i, 1);
+          break;
+        }
+      }
     }
     listeners(type) {
       if (!type) return this.#events;
@@ -5172,6 +5195,19 @@
       }
       return null;
     }
+    save() {
+      for (var prop in this) {
+        if (!this.hasOwnProperty(prop)) continue;
+        _Settings.setValue(prop, this[prop]);
+      }
+    }
+    reset() {
+      for (var s = 0, sl = SettingList.length; s < sl; s++) {
+        if (SettingList[s][2] === 4 /* Custom */) continue;
+        this[SettingList[s][0]] = _Settings.defaultValue(SettingList[s][0]);
+      }
+      this.colors = [];
+    }
   };
 
   // src/profile.ts
@@ -6475,7 +6511,7 @@
       return true;
     }
   };
-  function convertPattern(pattern, client) {
+  function convertPattern(pattern, client2) {
     if (!pattern || !pattern.length) return "";
     let convertPatternState;
     ((convertPatternState2) => {
@@ -6638,11 +6674,11 @@
           else if (c === "}" || !(i >= 48 && i <= 57 || i >= 65 && i <= 90 || i >= 97 && i <= 122 || i === 95 || i === 36)) {
             if (!isValidIdentifier(arg))
               throw new Error("Invalid variable name");
-            if (client) {
-              if (client.variables[arg] instanceof Variable)
-                stringBuilder.push(client.variables[arg].value || "");
+            if (client2) {
+              if (client2.variables[arg] instanceof Variable)
+                stringBuilder.push(client2.variables[arg].value || "");
               else
-                stringBuilder.push(client.variables[arg] || "");
+                stringBuilder.push(client2.variables[arg] || "");
             }
             if (c !== "}")
               idx--;
@@ -6709,11 +6745,11 @@
       case 10 /* Variable */:
         if (!isValidIdentifier(arg))
           throw new Error("Invalid variable name");
-        if (client) {
-          if (client.variables[arg] instanceof Variable)
-            stringBuilder.push(client.variables[arg].getValue() || "");
+        if (client2) {
+          if (client2.variables[arg] instanceof Variable)
+            stringBuilder.push(client2.variables[arg].getValue() || "");
           else
-            stringBuilder.push(client.variables[arg] || "");
+            stringBuilder.push(client2.variables[arg] || "");
         }
         break;
     }
@@ -6743,7 +6779,7 @@
     return 0;
   }
   var Input = class extends EventEmitter {
-    constructor(client) {
+    constructor(client2) {
       super();
       this._historyIdx = -1;
       this._tabIdx = -1;
@@ -6773,9 +6809,9 @@
       this.client = null;
       this.enableParsing = true;
       this.enableTriggers = true;
-      if (!client)
+      if (!client2)
         throw new Error("Invalid client!");
-      this.client = client;
+      this.client = client2;
       mathjs = () => {
         if (_mathjs) return _mathjs;
         this.initMathJS();
@@ -19302,7 +19338,7 @@
       if (this._model)
         this._model.removeAllListeners();
       this._model = value;
-      this._model.on("debug", this.debug);
+      this._model.on("debug", this.debug, this);
       this._model.on("bell", () => {
         this.emit("bell");
       });
@@ -20844,9 +20880,9 @@
       this.#client = value;
       this.initialize();
     }
-    constructor(client) {
+    constructor(client2) {
       super();
-      this.#client = client;
+      this.#client = client2;
     }
   };
 
@@ -21037,29 +21073,19 @@
     }
     remove() {
       if (!this.client) return;
-      this.client.off("connecting", this.reset);
-      this.client.off("close", this.reset);
-      this.client.off("received-option", this.processOption);
-      this.client.off("received-GMCP", this.processGMCP);
-      this.client.off("music", this.music);
-      this.client.off("sound", this.sound);
-      this.client.off("options-loaded", this.loadOptions);
-      this.client.off("option-loaded", this.setOption);
-      this.client.off("function", this.processFunction);
-      this.off("error", this.client.error);
-      this.off("debug", this.client.debug);
+      this.client.removeListenersFromCaller(this);
     }
     initialize() {
       if (!this.client) return;
-      this.client.on("connecting", this.reset);
-      this.client.on("close", this.reset);
-      this.client.on("received-option", this.processOption);
-      this.client.on("received-GMCP", this.processGMCP);
-      this.client.on("music", this.music);
-      this.client.on("sound", this.sound);
-      this.client.on("options-loaded", this.loadOptions);
-      this.client.on("option-loaded", this.setOption);
-      this.client.on("function", this.processFunction);
+      this.client.on("connecting", () => this.reset(), this);
+      this.client.on("close", () => this.reset(), this);
+      this.client.on("received-option", this.processOption, this);
+      this.client.on("received-GMCP", this.processGMCP, this);
+      this.client.on("music", this.music, this);
+      this.client.on("sound", this.sound, this);
+      this.client.on("options-loaded", this.loadOptions, this);
+      this.client.on("option-loaded", this.setOption, this);
+      this.client.on("function", this.processFunction, this);
       this.on("playing", (data) => {
         if (!this.client) return;
         this.debug("MSP " + (data.type ? "Music" : "Sound") + " Playing " + data.file + " for " + data.duration);
@@ -21067,11 +21093,14 @@
         if (!this.client.getOption("notifyMSPPlay")) return;
         this.client.echo((data.type ? "Music" : "Sound") + " Playing " + data.file + " for " + data.duration, -7 /* InfoText */, -8 /* InfoBackground */, true, true);
       });
-      this.on("debug", this.client.debug);
-      this.on("error", this.client.error);
+      this.on("debug", (e) => this.client.debug(e), this);
+      this.on("error", (e) => this.client.error(e), this);
       this.loadOptions();
     }
     get menu() {
+      return [];
+    }
+    get settings() {
       return [];
     }
     loadOptions() {
@@ -21540,8 +21569,8 @@
 
   // src/plugins/test.ts
   var Test = class extends Plugin {
-    constructor(client) {
-      super(client);
+    constructor(client2) {
+      super(client2);
       /**
        * Contains a list of functions
        * @type {object}
@@ -22449,6 +22478,16 @@ Devanagari
 `;
         this.client.print(sample, true);
       };
+      this.functions["testscreen"] = () => {
+        let sample = "Window innerWidth: " + window.innerWidth;
+        sample += "\nWindow innerHeight: " + window.innerHeight;
+        sample += "\nDocument clientWidth: " + document.body.clientWidth;
+        sample += "\nDocument clientHeight: " + document.body.clientHeight;
+        sample += "\nDisplay clientWidth: " + this.client.display.container.clientWidth;
+        sample += "\nDisplay clientHeight: " + this.client.display.container.clientHeight;
+        sample += "\nScreen orientation: " + screen?.orientation?.type;
+        this.client.print(sample, true);
+      };
     }
     remove() {
       if (!this.client) return;
@@ -22459,6 +22498,9 @@ Devanagari
       this.client.on("function", this._event);
     }
     get menu() {
+      return [];
+    }
+    get settings() {
       return [];
     }
     /**
@@ -22572,9 +22614,9 @@ Devanagari
       });
       this.display.on("set-title", (title, type) => {
         if (typeof title === "undefined" || title == null || title.length === 0)
-          window.document.title = this.getOption("defaultTitle");
+          this.emit("set-title", this.getOption("title").replace("$t", this.defaultTitle) || this.defaultTitle);
         else if (type !== 1)
-          window.document.title = this.getOption("title").replace("$t", title);
+          this.emit("set-title", this.getOption("title").replace("$t", title) || "");
       });
       this.display.on("music", (data) => {
         this.emit("music", data);
@@ -22622,7 +22664,7 @@ Devanagari
         if (this.getOption("autoConnect") && !this._telnet.connected)
           setTimeout(() => {
             this.connect();
-          }, 600);
+          }, client.getOption("autoConnectDelay"));
       });
       this.telnet.on("connecting", () => {
         this.connecting = true;
@@ -22767,10 +22809,10 @@ Devanagari
       this.addPlugin(new MSP(this));
       if (true)
         this.addPlugin(new Test(this));
-      if (this.options.autoConnect)
+      if (this.getOption("autoConnect"))
         setTimeout(() => {
           this.connect();
-        }, 600);
+        }, client.getOption("autoConnectDelay"));
       this.emit("initialized");
     }
     //#endregion
@@ -23101,8 +23143,8 @@ Devanagari
         clearInterval(this._alarm);
         this._alarm = null;
       } else if (al && !this._alarm)
-        this._alarm = setInterval((client) => {
-          client.process_alarms();
+        this._alarm = setInterval((client2) => {
+          client2.process_alarms();
         }, 1e3, this);
     }
     setAlarmState(idx, state) {
@@ -23429,7 +23471,6 @@ Devanagari
     }
     loadOptions() {
       this._options = new Settings();
-      this.loadProfiles();
       this.enableDebug = this._options.enableDebug;
       this.display.maxLines = this._options.bufferSize;
       this.display.enableFlashing = this._options.flashing;
@@ -23439,6 +23480,12 @@ Devanagari
       this.display.enableMSP = this._options.enableMSP;
       this.display.enableColors = this._options["display.enableColors"];
       this.display.enableBackgroundColors = this._options["display.enableBackgroundColors"];
+      this.display.wordWrap = this._options["display.wordWrap"];
+      this.display.wrapAt = this._options["display.wrapAt"];
+      this.display.indent = this._options["display.indent"];
+      this.display.showTimestamp = this._options["display.showTimestamp"];
+      this.display.tabWidth = this._options["display.tabWidth"];
+      this.display.timestampFormat = this._options["display.timestampFormat"];
       if (this._options.colors && this._options.colors?.length > 0) {
         var clrs = this._options.colors;
         for (var c = 0, cl = clrs.length; c < cl; c++) {
@@ -23461,6 +23508,7 @@ Devanagari
       this.display.hideTrailingEmptyLine = this._options["display.hideTrailingEmptyLine"];
       if (this.UpdateFonts) this.UpdateFonts();
       this.display.scrollDisplay();
+      this.loadProfiles();
       this.emit("options-loaded");
     }
     setOption(name2, value) {
@@ -23477,7 +23525,7 @@ Devanagari
     }
     UpdateFonts() {
       if (!this.display) return;
-      this.display.updateFont(this._options.font, this._options.fontSize);
+      this.display.updateFont(this._options.font + ", monospace", this._options.fontSize);
       this._commandInput.style.fontSize = this._options.cmdfontSize;
       this._commandInput.style.fontFamily = this._options.cmdfont + ", monospace";
     }
@@ -23520,6 +23568,9 @@ Devanagari
         }
         window.console.log((/* @__PURE__ */ new Date()).toLocaleString());
         window.console.log(msg);
+        localforage.getItem("oiMUDErrorLog", function(err2, value) {
+          localforage.setItem("oiMUDErrorLog", value = (value || "") + (/* @__PURE__ */ new Date()).toLocaleString() + "\n" + msg + "\n");
+        });
       }
       if (err === "Error: ECONNRESET - read ECONNRESET." && this.telnet.connected)
         this.close();

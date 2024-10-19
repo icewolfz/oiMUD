@@ -1686,7 +1686,7 @@ export class AdvEditor extends EventEmitter {
     public focus() {
         if (this.isSimple)
             this._element.focus();
-        else if (this._init && TINYMCE && tinymce.activeEditor)
+        else if (this._init && TINYMCE && tinymce.activeEditor && tinymce.activeEditor.initialized)
             tinymce.activeEditor.focus();
     }
 }

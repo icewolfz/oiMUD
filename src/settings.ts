@@ -732,4 +732,19 @@ export class Settings {
         }
         return null;
     }
+
+    public save() {
+        for (var prop in this) {
+            if (!this.hasOwnProperty(prop)) continue;
+            Settings.setValue(prop, this[prop]);
+        }
+    }
+
+    public reset() {
+        for (var s = 0, sl = SettingList.length; s < sl; s++) {
+            if (SettingList[s][2] === SettingType.Custom) continue;
+            this[SettingList[s][0]] = Settings.defaultValue(SettingList[s][0]);
+        }
+        this.colors = [];
+    }
 }

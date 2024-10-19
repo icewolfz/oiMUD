@@ -1,0 +1,47 @@
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="enableTabCompletion">
+    <label class="form-check-label" for="enableTabCompletion">Enable tab completion</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="ignoreCaseTabCompletion">
+    <label class="form-check-label" for="ignoreCaseTabCompletion">ignoreCaseTabCompletion</label>
+</div>
+
+<div class="mb-3">
+    <label for="tabCompletionBufferLimit" class="form-label">Tab completion buffer limit</label>
+    <input type="number" class="form-control" id="tabCompletionBufferLimit" min="1" max="1000000">
+</div>
+<div class="mb-3">
+    <label for="tabCompletionReplaceCasing" class="form-label">Tab completion replace casing</label>
+    <select id="tabCompletionReplaceCasing" class="form-select">
+        <option value="0">Original</option>
+        <option value="1">Lower case</option>
+        <option value="2">Upper case</option>
+    </select>
+</div>
+<div class="mb-3">
+    <label class="control-label">Tab completion lookup type</label>
+    <div class="form-check ms-4">
+        <input type="radio" class="form-check-input" name="tabCompletionLookupType" id="tabCompletionLookupType-1" value="1">
+        <label class="form-check-label" for="tabCompletionLookupType-1">Prepend list to buffer</label>
+    </div>
+    <div class="form-check ms-4">
+        <input type="radio" class="form-check-input" name="tabCompletionLookupType" id="tabCompletionLookupType-2" value="2">
+        <label class="form-check-label" for="tabCompletionLookupType-2">Append list to buffer</label>
+    </div>
+    <div class="form-check ms-4">
+        <input type="radio" class="form-check-input" name="tabCompletionLookupType" id="tabCompletionLookupType-4" value="4">
+        <label class="form-check-label" for="tabCompletionLookupType-4">Buffer only</label>
+    </div>
+    <div class="form-check ms-4">
+        <input type="radio" class="form-check-input" name="tabCompletionLookupType" id="tabCompletionLookupType-8" value="8">
+        <label class="form-check-label" for="tabCompletionLookupType-8">List only</label>
+    </div>
+    <div class="mb-3">
+        <label for="tabCompletionList" class="form-label">Tab completion list</label>
+        <textarea class="form-control" id="tabCompletionList" rows="6"></textarea>
+        <small class="form-text text-muted" style="margin-top:3px;padding: 2px">
+            Separate each with a space or newline, for example: test1 test2
+        </small><br>
+      </div>
+</div>

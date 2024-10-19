@@ -20,4 +20,5 @@ export abstract class Plugin extends EventEmitter {
     public abstract remove(): void;
     public abstract initialize(): void;
     abstract get menu(): MenuItem[];
+    abstract get settings(): MenuItem[];
 }

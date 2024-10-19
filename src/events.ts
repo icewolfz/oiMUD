@@ -5,18 +5,18 @@
 export class EventEmitter {
     #events = {};
 
-    public bind(type: string, listener: Function) {
+    public bind(type: string, listener: Function, caller?) {
         if (!Array.isArray(this.#events[type]) || typeof this.#events[type] === 'undefined')
             this.#events[type] = [];
-        this.#events[type].push(listener);
+        this.#events[type].push({ listener: listener, caller: caller });
     }
 
-    public on(type: string, listener: Function) {
-        this.bind(type, listener);
+    public on(type: string, listener: Function, caller?) {
+        this.bind(type, listener, caller);
     }
 
-    public addEventListener(type: string, listener: Function) {
-        this.bind(type, listener);
+    public addEventListener(type: string, listener: Function, caller?) {
+        this.bind(type, listener, caller);
     }
 
     public fire(type, args?, caller?) {
@@ -30,15 +30,16 @@ export class EventEmitter {
 
         caller = caller || this;
         var events = this.#events[type];
-        for (var i = 0, len = events.length; i < len; i++)
-            events[i].apply(caller, args);
+        for (var i = 0, len = events.length; i < len; i++) {
+            events[i].listener.apply(events[i].caller || caller, args);
+        }
     }
 
     public emit(type, ...args) {
         this.fire(type, args);
     }
 
-    public dispatchEvent(type:string, args?, caller?) {
+    public dispatchEvent(type: string, args?, caller?) {
         this.fire(type, args, caller);
     }
 
@@ -46,8 +47,8 @@ export class EventEmitter {
         if (!type || !listener) return;
         if (!Array.isArray(this.#events[type])) return;
         const events = this.#events[type];
-        for (let i = 0, len = events.length; i < len; i++) {
-            if (events[i] === listener) {
+        for (let i = events.length - 1; i >= 0; i--) {
+            if (events[i].listener === listener) {
                 events.splice(i, 1);
                 break;
             }
@@ -67,7 +68,7 @@ export class EventEmitter {
     }
 
     public removeAllListeners(type?) {
-        if(!type) {
+        if (!type) {
             this.#events = [];
             return;
         }
@@ -75,8 +76,31 @@ export class EventEmitter {
         delete this.#events[type];
     }
 
+    public removeListenersFromCaller(caller, type?) {
+        if (!type) {
+            Object.keys(this.#events).forEach(key => {
+                const events = this.#events[key];
+                for (let i = events.length - 1; i >= 0; i--) {
+                    if (events[i].caller === caller) {
+                        events.splice(i, 1);
+                        break;
+                    }
+                }
+            });
+            return;
+        }
+        if (!Array.isArray(this.#events[type])) return;
+        const events = this.#events[type];
+        for (let i = 0, len = events.length; i < len; i++) {
+            if (events[i].caller === caller) {
+                events.splice(i, 1);
+                break;
+            }
+        }
+    }
+
     public listeners(type?) {
-        if(!type) return this.#events;
+        if (!type) return this.#events;
         return this.#events[type] || [];
     }
 }

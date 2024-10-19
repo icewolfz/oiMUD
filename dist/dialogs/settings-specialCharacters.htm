@@ -1,0 +1,102 @@
+<div class="mb-3">
+    <label for="commandStacking" class="form-label">Command Stacking</label>
+    <div class="input-group">
+        <input type="text" class="form-control" id="commandStackingChar" maxlength="1">
+        <span class="input-group-text">
+            <input type="checkbox" id="commandStacking">&nbsp;Enable
+        </span>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label for="enableSpeedpaths" class="form-label">Speedpath</label>
+    <div class="input-group">
+        <input type="text" class="form-control" id="speedpathsChar" maxlength="1">
+        <div class="input-group-text">
+            <input type="checkbox" id="enableSpeedpaths">&nbsp;Enable
+        </div>
+        <div class="input-group-text">
+            <input type="checkbox" id="parseSpeedpaths">&nbsp;Parse
+        </div>
+        <div class="input-group-text">
+            <input type="checkbox" id="echoSpeedpaths">&nbsp;Echo
+        </div>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label for="enableCommands" class="form-label">Command</label>
+    <div class="input-group">
+        <input type="text" class="form-control" id="commandChar" maxlength="1">
+        <span class="input-group-text">
+            <input type="checkbox" id="enableCommands">&nbsp;Enable
+        </span>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label for="allowEscape" class="form-label">Escape</label>
+    <div class="input-group">
+        <input type="text" class="form-control" id="escapeChar" maxlength="1">
+        <span class="input-group-text">
+            <input type="checkbox" id="allowEscape">&nbsp;Enable
+        </span>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label for="enableVerbatim" class="form-label">Verbatim</label>
+    <div class="input-group">
+        <input type="text" class="form-control" id="verbatimChar" maxlength="1">
+        <span class="input-group-text">
+            <input type="checkbox" id="enableVerbatim">&nbsp;Enable
+        </span>
+    </div>
+</div>
+
+
+<div class="mb-3">
+    <label for="enableParameters" class="form-label">Parameters</label>
+    <div class="input-group">
+        <input type="text" class="form-control" id="parametersChar" maxlength="1">
+        <span class="input-group-text">
+            <input type="checkbox" id="enableParameters">&nbsp;Enable
+        </span>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label for="enableNParameters" class="form-label">N Parameters</label>
+    <div class="input-group">
+        <input type="text" class="form-control" id="nParametersChar" maxlength="1">
+        <span class="input-group-text">
+            <input type="checkbox" id="enableNParameters">&nbsp;Enable
+        </span>
+    </div>
+</div>
+<small class="form-text text-muted alert alert-warning" style="margin-top:3px;padding: 2px;">
+    WARNING: Disabling parameters or n parameters could break triggers, aliases, and other items that uses argument
+    access
+</small>
+<div class="mb-3 mt-3">
+    <label for="enableParameters" class="form-label">Inline Comment</label>
+    <div class="input-group">
+        <input type="text" class="form-control" id="inlineCommentString" maxlength="2">
+        <span class="input-group-text">
+            <input type="checkbox" id="enableInlineComments">&nbsp;Enable
+        </span>
+    </div>
+</div>
+
+<div class="mb-2">
+    <label for="enableParameters" class="form-label">Block Comment</label>
+    <div class="input-group">
+        <input type="text" class="form-control" id="blockCommentString" maxlength="2">
+        <span class="input-group-text">
+            <input type="checkbox" id="enableBlockComments">&nbsp;Enable
+        </span>
+    </div>
+    <small class="form-text text-muted alert alert-warning" style="margin-top:3px;padding: 2px;">
+        Close block comment is reverse of block comment
+    </small>
+</div>

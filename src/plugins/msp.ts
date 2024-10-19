@@ -31,7 +31,7 @@ import { TelnetOption } from './../telnet.js';
 import { Client } from './../client.js';
 import { Plugin } from '../plugin.js';
 import { AnsiColorCode } from '../ansi.js';
-import { FunctionEvent } from '../types.js';
+import { FunctionEvent, MenuItem } from '../types.js';
 
 enum ParseMode {
     default = 0,
@@ -275,30 +275,20 @@ export class MSP extends Plugin {
 
     public remove() {
         if (!this.client) return;
-        this.client.off('connecting', this.reset);
-        this.client.off('close', this.reset);
-        this.client.off('received-option', this.processOption);
-        this.client.off('received-GMCP', this.processGMCP);
-        this.client.off('music', this.music);
-        this.client.off('sound', this.sound);
-        this.client.off('options-loaded', this.loadOptions);
-        this.client.off('option-loaded', this.setOption);
-        this.client.off('function', this.processFunction);
-        this.off('error', this.client.error);
-        this.off('debug', this.client.debug);
+        this.client.removeListenersFromCaller(this);
     }
 
     public initialize() {
         if (!this.client) return;
-        this.client.on('connecting', this.reset);
-        this.client.on('close', this.reset);
-        this.client.on('received-option', this.processOption);
-        this.client.on('received-GMCP', this.processGMCP);
-        this.client.on('music', this.music);
-        this.client.on('sound', this.sound);
-        this.client.on('options-loaded', this.loadOptions);
-        this.client.on('option-loaded', this.setOption);
-        this.client.on('function', this.processFunction);
+        this.client.on('connecting', () => this.reset(), this);
+        this.client.on('close', () => this.reset(), this);
+        this.client.on('received-option', this.processOption, this);
+        this.client.on('received-GMCP', this.processGMCP, this);
+        this.client.on('music', this.music, this);
+        this.client.on('sound', this.sound, this);
+        this.client.on('options-loaded', this.loadOptions, this);
+        this.client.on('option-loaded', this.setOption, this);
+        this.client.on('function', this.processFunction, this);
         this.on('playing', (data) => {
             if (!this.client) return;
             this.debug('MSP ' + (data.type ? 'Music' : 'Sound') + ' Playing ' + data.file + ' for ' + data.duration);
@@ -306,12 +296,16 @@ export class MSP extends Plugin {
             if (!this.client.getOption('notifyMSPPlay')) return;
             this.client.echo((data.type ? 'Music' : 'Sound') + ' Playing ' + data.file + ' for ' + data.duration, AnsiColorCode.InfoText, AnsiColorCode.InfoBackground, true, true);
         });
-        this.on('debug', this.client.debug);
-        this.on('error', this.client.error);
+        this.on('debug', e => this.client.debug(e), this);
+        this.on('error', e => this.client.error(e), this);
         this.loadOptions();
     }
 
     public get menu() {
+        return [];
+    }
+
+    public get settings(): MenuItem[] {
         return [];
     }
 

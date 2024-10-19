@@ -1,0 +1,44 @@
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="autoConnect">
+    <label class="form-check-label" for="autoConnect">Auto connect onload</label>
+</div>
+<div class="mb-3">
+    <label for="autoConnectDelay" class="form-label">Auto connect delay</label>
+    <div class="input-group">
+        <input type="number" class="form-control" id="autoConnectDelay" min="0" max="10000">
+        <span class="input-group-text" id="basic-addon2">ms</span>
+    </div>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="simpleEditor">
+    <label class="form-check-label" for="simpleEditor">Simple editor</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="editorClearOnSend">
+    <label class="form-check-label" for="editorClearOnSend">Clear editor on send</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="editorCloseOnSend">
+    <label class="form-check-label" for="editorCloseOnSend">Close editor on send</label>
+</div>
+
+<button id="reset-editor" type="button" class="btn btn-light" title="Reset editor window state">Reset editor window
+    state</button>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="showButtons">
+    <label class="form-check-label" for="showButtons">Show buttons</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="enableParsing">
+    <label class="form-check-label" for="enableParsing">Enable parsing</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="enableTriggers">
+    <label class="form-check-label" for="enableTriggers">Enable triggers</label>
+</div>
+<script>
+    body.querySelector('#reset-editor').addEventListener('click', () => {
+        dialog.settings['windows.editor'] = null;
+    });
+</script>

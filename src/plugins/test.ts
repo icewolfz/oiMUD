@@ -827,6 +827,17 @@ Devanagari
                 sample += `Line: ${h}, LineID: ${id + h}\n`;
             this.client.print(sample, true);
         };
+
+        this.functions['testscreen'] = () => {
+            let sample = 'Window innerWidth: ' + window.innerWidth;
+            sample += '\nWindow innerHeight: ' + window.innerHeight;
+            sample += '\nDocument clientWidth: ' + document.body.clientWidth;
+            sample += '\nDocument clientHeight: ' + document.body.clientHeight;
+            sample += '\nDisplay clientWidth: ' + this.client.display.container.clientWidth;
+            sample += '\nDisplay clientHeight: ' + this.client.display.container.clientHeight;
+            sample += '\nScreen orientation: ' + screen?.orientation?.type;
+            this.client.print(sample, true);
+        }
     }
 
     public remove(): void {
@@ -839,6 +850,10 @@ Devanagari
         this.client.on('function', this._event);
     }
     get menu(): MenuItem[] {
+        return [];
+    }
+
+    public get settings(): MenuItem[] {
         return [];
     }
 

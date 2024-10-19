@@ -1,0 +1,77 @@
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="allowEval">
+    <label class="form-check-label" for="allowEval">Allow evaluate</label>
+</div>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="showScriptErrors">
+    <label class="form-check-label" for="showScriptErrors">Show Script Errors</label>
+</div>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="disableTriggerOnError">
+    <label class="form-check-label" for="disableTriggerOnError">Disable trigger on error</label>
+</div>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="parseSingleQuotes">
+    <label class="form-check-label" for="parseSingleQuotes">Parse single quotes as string</label>
+</div>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="parseDoubleQuotes">
+    <label class="form-check-label" for="parseDoubleQuotes">Parse double quotes as string</label>
+</div>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="prependTriggeredLine">
+    <label class="form-check-label" for="prependTriggeredLine">Prepend triggered line</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="enableDoubleParameterEscaping">
+    <label class="form-check-label" for="enableDoubleParameterEscaping">Enable Double Parameter Escaping</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="ignoreEvalUndefined">
+    <label class="form-check-label" for="ignoreEvalUndefined">Ignore Eval Undefined</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="allowCommentsFromCommand">
+    <label class="form-check-label" for="allowCommentsFromCommand">Allow Comments From Command</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="ignoreInputLeadingWhitespace">
+    <label class="form-check-label" for="ignoreInputLeadingWhitespace">Ignore leading whitespace</label>
+</div>
+<div class="mb-3">
+    <label for="pathDelay" class="form-label">Delay between path commands</label>
+    <div class="input-group">
+        <input type="number" class="form-control" id="pathDelay" min="0">
+        <span class="input-group-text">ms</span>
+    </div>
+</div>
+<div class="mb-3">
+    <label for="pathDelayCount" class="form-label">Amount of path commands to send</label>
+    <input type="number" class="form-control" id="pathDelayCount" min="1">
+</div>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="initializeScriptEngineOnLoad">
+    <label class="form-check-label" for="initializeScriptEngineOnLoad">Initialize expression engine on load</label>
+</div>
+
+<div class="mb-3">
+    <label class="control-label">Echo</label>
+    <div class="form-check ms-4">
+        <input type="checkbox" class="form-check-input" name="echo" id="echo-8" value="8" data-enum="true">
+        <label class="form-check-label" for="echo-8">Triggers</label>
+    </div>
+    <div class="form-check ms-4">
+        <input type="checkbox" class="form-check-input" name="echo" id="echo-2" value="2" data-enum="true">
+        <label class="form-check-label" for="echo-2">Scripts</label>
+    </div>
+    <div class="form-check ms-4">
+        <input type="checkbox" class="form-check-input" name="echo" id="echo-4" value="4" data-enum="true">
+        <label class="form-check-label" for="echo-4">Commands</label>
+    </div>
+</div>

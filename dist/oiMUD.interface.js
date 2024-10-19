@@ -1,11 +1,11 @@
 (() => {
   // src/interface/menu.ts
   function closeMenu() {
-    if (!document.getElementById("clientMenu")) return;
-    bootstrap.Offcanvas.getInstance(document.getElementById("clientMenu")).hide();
+    const instance = bootstrap.Offcanvas.getInstance(document.getElementById("clientMenu"));
+    if (!instance) return;
+    instance.hide();
   }
   function showMenu() {
-    if (!document.getElementById("clientMenu")) return;
     bootstrap.Offcanvas.getOrCreateInstance(document.getElementById("clientMenu")).show();
   }
   function initMenu() {
@@ -55,6 +55,10 @@
       showDialog("about");
       closeMenu();
     });
+    document.querySelector("#menu-settings a").addEventListener("click", (e) => {
+      showDialog("settings");
+      closeMenu();
+    });
     document.querySelector("#menu-fullscreen a").addEventListener("click", (e) => {
       var doc = window.document;
       var docEl = doc.documentElement;
@@ -79,6 +83,47 @@
       closeMenu();
     });
     updateScrollLock();
+    let pl = client.plugins.length;
+    let s;
+    let sl;
+    const list = document.querySelector("#clientMenu ul");
+    for (let p = 0; p < pl; p++) {
+      if (!client.plugins[p].settings) continue;
+      if (client.plugins[p].settings.length) {
+        sl = client.plugins[p].settings.length;
+        for (s = 0; s < sl; s++) {
+          let item = client.plugins[p].settings[s];
+          let code;
+          let id = "menu-" + (item.name || "").toLowerCase().replace(/ /g, "-");
+          if (item.name === "-")
+            code = '<li><hr class="dropdown-divider"></li>';
+          else if (typeof item.action === "string")
+            code = `<li id="menu-${id}" class="nav-item" title="${item.name || ""}"><a class="nav-link" href="#${item.action}">${item.icon || ""}${item.name || ""}</i><span>${item.name || ""}</span></a></li>`;
+          else
+            code = `<li id="menu-${id}" class="nav-item" title="${item.name || ""}"><a class="nav-link" href="javascript:void(0)">${item.icon || ""}${item.name || ""}<span>${item.name || ""}</span></a></li>`;
+          if ("position" in item) {
+            if (typeof item.position === "string") {
+              if (list.querySelector(item.position)) {
+                list.querySelector(item.position).insertAdjacentHTML("afterend", code);
+                continue;
+              }
+            } else if (item.position >= 0 && item.position < list.children.length) {
+              list.children[item.position].insertAdjacentHTML("afterend", code);
+              continue;
+            }
+          }
+          list.insertAdjacentHTML("beforeend", code);
+          if (item.name === "-") continue;
+          if (typeof item.action === "function")
+            document.querySelector(`#${id} a`).addEventListener("click", (e) => {
+              const ie = { client, preventDefault: false };
+              item.action(ie);
+              if (ie.preventDefault) return;
+              closeMenu();
+            });
+        }
+      }
+    }
   }
   function updateScrollLock() {
     let el = document.getElementById("menu-lock");
@@ -102,16 +147,16 @@
   // src/events.ts
   var EventEmitter = class {
     #events = {};
-    bind(type, listener) {
+    bind(type, listener, caller) {
       if (!Array.isArray(this.#events[type]) || typeof this.#events[type] === "undefined")
         this.#events[type] = [];
-      this.#events[type].push(listener);
+      this.#events[type].push({ listener, caller });
     }
-    on(type, listener) {
-      this.bind(type, listener);
+    on(type, listener, caller) {
+      this.bind(type, listener, caller);
     }
-    addEventListener(type, listener) {
-      this.bind(type, listener);
+    addEventListener(type, listener, caller) {
+      this.bind(type, listener, caller);
     }
     fire(type, args, caller) {
       if (!type || typeof type !== "string")
@@ -123,8 +168,9 @@
         args = [args];
       caller = caller || this;
       var events = this.#events[type];
-      for (var i = 0, len = events.length; i < len; i++)
-        events[i].apply(caller, args);
+      for (var i = 0, len = events.length; i < len; i++) {
+        events[i].listener.apply(events[i].caller || caller, args);
+      }
     }
     emit(type, ...args) {
       this.fire(type, args);
@@ -136,8 +182,8 @@
       if (!type || !listener) return;
       if (!Array.isArray(this.#events[type])) return;
       const events = this.#events[type];
-      for (let i = 0, len = events.length; i < len; i++) {
-        if (events[i] === listener) {
+      for (let i = events.length - 1; i >= 0; i--) {
+        if (events[i].listener === listener) {
           events.splice(i, 1);
           break;
         }
@@ -159,6 +205,28 @@
       }
       if (!Array.isArray(this.#events[type])) return;
       delete this.#events[type];
+    }
+    removeListenersFromCaller(caller, type) {
+      if (!type) {
+        Object.keys(this.#events).forEach((key) => {
+          const events2 = this.#events[key];
+          for (let i = events2.length - 1; i >= 0; i--) {
+            if (events2[i].caller === caller) {
+              events2.splice(i, 1);
+              break;
+            }
+          }
+        });
+        return;
+      }
+      if (!Array.isArray(this.#events[type])) return;
+      const events = this.#events[type];
+      for (let i = 0, len = events.length; i < len; i++) {
+        if (events[i].caller === caller) {
+          events.splice(i, 1);
+          break;
+        }
+      }
     }
     listeners(type) {
       if (!type) return this.#events;
@@ -244,6 +312,9 @@
       return $2(this)[0].scrollWidth > $2(this).innerWidth();
     };
   })(jQuery);
+  function clone(obj, replacer) {
+    return JSON.parse(JSON.stringify(obj, replacer));
+  }
   CanvasRenderingContext2D.prototype.fillRoundedRect = function(x, y, w, h, r) {
     this.beginPath();
     this.moveTo(x + r, y);
@@ -403,6 +474,25 @@
       str.push(this.substr(pS, s - pS));
     return str;
   };
+  function capitalize(s, first) {
+    if (!s) return "";
+    s = s.split(" ");
+    let c;
+    let i;
+    let p;
+    const il = first ? 1 : s.length;
+    for (i = 0; i < il; i++) {
+      const pl = s[i].length;
+      for (p = 0; p < pl; p++) {
+        c = s[i].charAt(p);
+        if (c >= "a" && c <= "z" || c >= "A" && c <= "Z") {
+          s[i] = s[i].substr(0, p) + c.toUpperCase() + s[i].substr(p + 1).toLowerCase();
+          break;
+        }
+      }
+    }
+    return s.join(" ");
+  }
   var _colorCodes;
   function pinkfishToHTML(text) {
     text = text || "";
@@ -963,16 +1053,13 @@
       this._dragPosition = { x: 0, y: 0 };
       this._windowResize = () => {
         debounce(() => {
-          const styles = document.defaultView.getComputedStyle(this._dialog);
-          if (this._state.x > window.innerWidth - 16) {
-            this._state.x = window.innerWidth - 16;
-            this._dialog.style.left = this._state.x + "px";
-          }
-          if (this._state.y > window.innerHeight - 16) {
-            this._state.y = window.innerHeight - 16;
-            this._dialog.style.top = this._state.y + "px";
-          }
-          this.emit("moved", this._state);
+          if (this.keepCentered || this._state.show === 2 && !this.moveable)
+            this.center();
+          else
+            this.makeVisible();
+          if (this._footer.style.display !== "none")
+            this._body.style.bottom = this._body.style.bottom = this._footer.clientHeight + 1 + "px";
+          +"px";
         }, 250, this._id + "dialogResize");
       };
       this.resizeDoDrag = (e) => {
@@ -1133,6 +1220,7 @@
         this._state.height = parseInt(styles.height, 10);
         this.emit("moved", this._state);
       };
+      this.keepCentered = false;
       this.moveable = true;
       this.resizable = true;
       this._maximizable = true;
@@ -1271,9 +1359,14 @@
       else
         this._dialog.style.left = "0";
       let footer = "";
-      if (options?.buttons)
-        footer += `<button id="${this._id}-cancel" type="button" class="float-end btn btn-light" title="Cancel dialog">Cancel</button>
-            <button id="${this._id}-ok" type="button" class="float-end btn btn-primary" title="Confirm dialog">Ok</button>`;
+      if (options && (options.buttons & 2 /* Cancel */) === 2 /* Cancel */)
+        footer += `<button id="${this._id}-cancel" type="button" class="float-end btn btn-light" title="Cancel dialog">Cancel</button>`;
+      if (options && (options.buttons & 1 /* Ok */) === 1 /* Ok */)
+        footer += `<button id="${this._id}-ok" type="button" class="float-end btn btn-primary" title="Confirm dialog">Ok</button>`;
+      if (options && (options.buttons & 8 /* No */) === 8 /* No */)
+        footer += `<button id="${this._id}-no" type="button" class="float-end btn btn-light" title="No">No</button>`;
+      if (options && (options.buttons & 4 /* Yes */) === 4 /* Yes */)
+        footer += `<button id="${this._id}-yes" type="button" class="float-end btn btn-primary" title="Yes">Yes</button>`;
       this._dialog.innerHTML = `<div class="dialog-header">
         <button id="${this._id}-header-close" style="padding: 4px;" type="button" class="btn btn-close float-end btn-danger" data-dismiss="modal" title="Close window"></button>
         <button type="button" class="btn btn-light float-end maximize" id="${this._id}-max" title="Maximize window" style="padding: 0 4px;margin-top: -1px;"><i class="bi-arrows-fullscreen"></i></button>
@@ -1306,7 +1399,7 @@
         if (this._dialog._keydown)
           window.document.removeEventListener("keydown", this._dialog._keydown);
         window.removeEventListener("resize", this._windowResize);
-        this.emit("closed");
+        this.emit("closed", this._dialog.returnValue);
       });
       this._dialog.addEventListener("cancel", (e) => {
         if (e.target !== this._dialog) return;
@@ -1337,18 +1430,38 @@
         this._dialog.querySelector(`#${this._id}-max`).style.display = "";
       else
         this._dialog.querySelector(`#${this._id}-max`).style.display = "none";
-      if (options?.buttons) {
+      if (options && (options.buttons & 2 /* Cancel */) === 2 /* Cancel */)
         this._dialog.querySelector(`#${this._id}-cancel`).addEventListener("click", () => {
+          const e = { preventDefault: false, button: 2 /* Cancel */ };
+          this.emit("button-click", e);
+          if (e.preventDefault) return;
+          this._dialog.returnValue = "cancel";
           this.close();
         });
+      if (options && (options.buttons & 8 /* No */) === 8 /* No */)
+        this._dialog.querySelector(`#${this._id}-no`).addEventListener("click", () => {
+          const e = { preventDefault: false, button: 8 /* No */ };
+          this.emit("button-click", e);
+          if (e.preventDefault) return;
+          this._dialog.returnValue = "no";
+          this.close();
+        });
+      if (options && (options.buttons & 1 /* Ok */) === 1 /* Ok */)
         this._dialog.querySelector(`#${this._id}-ok`).addEventListener("click", () => {
-          const e = { preventDefault: false };
-          this.emit("ok", e);
+          const e = { preventDefault: false, button: 1 /* Ok */ };
+          this.emit("button-click", e);
           if (e.preventDefault) return;
           this._dialog.returnValue = "ok";
           this._dialog.close();
         });
-      }
+      if (options && (options.buttons & 4 /* Yes */) === 4 /* Yes */)
+        this._dialog.querySelector(`#${this._id}-yes`).addEventListener("click", () => {
+          const e = { preventDefault: false, button: 4 /* Yes */ };
+          this.emit("button-click", e);
+          if (e.preventDefault) return;
+          this._dialog.returnValue = "yes";
+          this._dialog.close();
+        });
       this._body = this._dialog.querySelector('[class="dialog-body"]');
       this._title = this._dialog.querySelector('[class="dialog-header"] div');
       this._footer = this._dialog.querySelector('[class="dialog-footer"]');
@@ -1454,10 +1567,13 @@
         else
           this.show();
       }
-      if (options && "center" in options && options.center)
+      if (options && "keepCentered" in options && options.keepCentered)
+        this.keepCentered = options.keepCentered;
+      if (this.keepCentered || options && "center" in options && options.center)
         this.center();
       if (options && "position" in options && options.position > 0)
         this.position(options.position);
+      this._windowResize();
     }
     get maximizable() {
       return this._maximizable;
@@ -1540,6 +1656,7 @@
     showModal() {
       if (!this._dialog.parentElement)
         document.body.appendChild(this._dialog);
+      this.makeVisible(true);
       if (this._dialog.open) {
         this.focus();
         return;
@@ -1554,6 +1671,7 @@
     show() {
       if (!this._dialog.parentElement)
         document.body.appendChild(this._dialog);
+      this.makeVisible(true);
       if (this._dialog.open) {
         this.focus();
         return;
@@ -1689,7 +1807,7 @@
     }
     showFooter() {
       this._footer.style.display = "";
-      this._body.bottom = "";
+      this._body.style.bottom = this._footer.clientHeight + 1 + "px";
     }
     hideFooter() {
       this._footer.style.display = "none";
@@ -1701,7 +1819,128 @@
       this._dialog.style.zIndex = "" + ++this._state.zIndex;
       this.emit("focus");
     }
+    makeVisible(full, silent) {
+      if (full) {
+        if (this._state.x + this._state.width > window.innerWidth) {
+          this._state.x = window.innerWidth - this._state.width - 16;
+          if (this._state.x < 0) this._state.x = 0;
+          this._dialog.style.left = this._state.x + "px";
+        }
+        if (this._state.y + this._state.height > window.innerHeight - 16) {
+          this._state.y = window.innerHeight - this._state.height - 16;
+          if (this._state.y < 0) this._state.y = 0;
+          this._dialog.style.top = this._state.y + "px";
+        }
+      } else {
+        if (this._state.x > window.innerWidth - 16) {
+          this._state.x = window.innerWidth - 16;
+          this._dialog.style.left = this._state.x + "px";
+        }
+        if (this._state.y > window.innerHeight - 16) {
+          this._state.y = window.innerHeight - 16;
+          this._dialog.style.top = this._state.y + "px";
+        }
+      }
+      if (!silent)
+        this.emit("moved", this._state);
+    }
+    resetState(options) {
+      if (typeof options?.height === "number")
+        this._dialog.style.height = options.height + "px";
+      else if (options?.height && options?.height.length > 0)
+        this._dialog.style.height = options.height;
+      else
+        this._dialog.style.height = "480px";
+      if (typeof options?.minHeight === "number")
+        this._dialog.style.minHeight = options.minHeight + "px";
+      else if (options?.minHeight && options?.minHeight.length > 0)
+        this._dialog.style.minHeight = options.minHeight;
+      else
+        this._dialog.style.minHeight = "150px";
+      if (typeof options?.minWidth === "number")
+        this._dialog.style.minWidth = options.minWidth + "px";
+      else if (options?.minWidth && options?.minWidth.length > 0)
+        this._dialog.style.minWidth = options.minWidth;
+      else
+        this._dialog.style.minWidth = "300px";
+      if (typeof options?.width === "number")
+        this._dialog.style.width = options.width + "px";
+      else if (options?.width && options?.width.length > 0)
+        this._dialog.style.width = options.width;
+      else
+        this._dialog.style.width = "640px";
+      if (typeof options?.y === "number")
+        this._dialog.style.top = options.y + "px";
+      else if (options?.y && options?.y.length > 0)
+        this._dialog.style.top = options.y;
+      else
+        this._dialog.style.top = "0";
+      if (typeof options?.x === "number")
+        this._dialog.style.left = options.x + "px";
+      else if (options?.x && options?.x.length > 0)
+        this._dialog.style.left = options.x;
+      else
+        this._dialog.style.left = "0";
+      const styles = document.defaultView.getComputedStyle(this._dialog);
+      this._state.x = this._resize.x = parseInt(styles.left, 10);
+      ;
+      this._state.width = this._resize.width = parseInt(styles.width, 10);
+      this._state.y = this._resize.y = parseInt(styles.top, 10);
+      ;
+      this._state.height = this._resize.height = parseInt(styles.height, 10);
+      if (options && "maximized" in options && options.maximized)
+        this.maximize();
+      else
+        this.restore();
+      if (this.keepCentered || options && "center" in options && options.center)
+        this.center();
+      if (options && "position" in options && options.position > 0)
+        this.position(options.position);
+      this._windowResize();
+    }
   };
+  var AlertDialog = class extends Dialog {
+    constructor(title, message, icon) {
+      super(typeof title === "string" ? { title: getIcon(icon || 4 /* exclamation */) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: 1 /* Ok */ } : title);
+      this.body.classList.add("d-flex", "justify-content-center", "talign-content-center", "align-items-center");
+      if (message)
+        this.body.innerHTML = `<div class="text-center" style="width: 64px;height:64px;font-size: 40px;">${getIcon(icon || 4 /* exclamation */)}</div><div class="ms-3 align-self-center flex-fill">${message}</div></div>`;
+    }
+  };
+  var ConfirmDialog = class extends Dialog {
+    constructor(title, message, icon) {
+      super(typeof title === "string" ? { title: getIcon(icon || 1 /* question */) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: 12 /* YesNo */ } : title);
+      this.body.classList.add("d-flex", "justify-content-center", "align-content-center", "align-items-center");
+      if (message)
+        this.body.innerHTML = `<div class="text-center" style="width: 64px;height:64px;font-size: 40px;">${getIcon(icon || 1 /* question */)}</div><div class="ms-3 align-self-center flex-fill">${message}</div></div>`;
+    }
+  };
+  function getIcon(icon) {
+    if (typeof icon === "string")
+      return icon + " ";
+    switch (icon) {
+      case 3 /* error */:
+        return '<i class="fa-regular fa-circle-xmark"></i> ';
+      case 4 /* exclamation */:
+        return '<i class="fa-solid fa-circle-exclamation"></i> ';
+      case 1 /* question */:
+        return '<i class="fa-regular fa-circle-question"></i> ';
+    }
+    return '<i class="fa-solid fa-circle-info"></i> ';
+  }
+  window.confirm_box = (title, message, icon) => {
+    return new Promise((resolve, reject) => {
+      const confirm = new ConfirmDialog(title, message, icon);
+      confirm.showModal();
+      confirm.on("button-click", (e) => resolve(e));
+      confirm.on("canceled", () => reject(null));
+      confirm.on("closed", (reason) => reason === "Yes" ? 0 : reject(null));
+    });
+  };
+  window.alert_box = (title, message, icon) => {
+    new AlertDialog(title, message, icon).showModal();
+  };
+  window.Dialog = Dialog;
 
   // src/lib/rgbcolor.js
   function RGBColor(color_string) {
@@ -3476,8 +3715,1272 @@
     focus() {
       if (this.isSimple)
         this._element.focus();
-      else if (this._init && true && tinymce.activeEditor)
+      else if (this._init && true && tinymce.activeEditor && tinymce.activeEditor.initialized)
         tinymce.activeEditor.focus();
+    }
+  };
+
+  // src/settings.ts
+  var SettingList = [
+    ["bufferSize", 0, 2, 500],
+    ["commandDelay", 0, 2, 500],
+    ["commandDelayCount", 0, 2, 5],
+    ["commandHistorySize", 0, 2, 20],
+    ["fontSize", 0, 0, "1em", 0],
+    ["cmdfontSize", 0, 0, "1em", 0],
+    ["commandEcho", 0, 1, true],
+    ["flashing", 0, 1, false],
+    ["autoConnect", 0, 1, true],
+    ["enableAliases", -1, 1, true],
+    ["enableTriggers", -1, 1, true],
+    ["enableMacros", -1, 1, true],
+    ["showScriptErrors", 0, 1, false],
+    ["commandStacking", 0, 1, true],
+    ["commandStackingChar", 0, 0, ";", 1],
+    ["htmlLog", 0, 1, true],
+    ["keepLastCommand", 0, 1, true],
+    ["enableMCCP", 0, 1, true],
+    ["enableUTF8", 0, 1, true],
+    ["font", 0, 5, "'Courier New', Courier, monospace", 0],
+    ["cmdfont", 0, 5, "'Courier New', Courier, monospace", 0],
+    ["aliases", -1, 4],
+    ["macros", -1, 4],
+    ["triggers", -1, 4],
+    ["mapFollow", "mapper.follow", 1, true],
+    ["mapEnabled", "mapper.enabled", 1, true],
+    ["MapperSplitArea", "mapper.split", 1, false],
+    ["MapperFillWalls", "mapper.fill", 1, false],
+    ["MapperOpen", "showMapper", 1, false],
+    ["fullScreen", -1, 3, false],
+    ["enableMXP", 0, 1, true],
+    ["enableMSP", 0, 1, true],
+    ["parseCommands", 0, 3, true],
+    ["lagMeter", 0, 1, false],
+    ["enablePing", 0, 1, false],
+    ["enableEcho", 0, 1, true],
+    ["enableSpeedpaths", 0, 1, true],
+    ["speedpathsChar", 0, 0, "!", 1],
+    ["parseSpeedpaths", 0, 1, true],
+    ["profile", -1, 0, "Default", 1],
+    ["parseSingleQuotes", 0, 1, false],
+    ["parseDoubleQuotes", 0, 1, true],
+    ["logEnabled", 0, 1, false],
+    ["logPrepend", 0, 1, false],
+    ["logOffline", 0, 1, false],
+    ["logUniqueOnConnect", 0, 1, true],
+    ["enableURLDetection", 0, 1, true],
+    ["colors", 0, 4],
+    ["notifyMSPPlay", 0, 1, false],
+    ["CommandonClick", 0, 1, true],
+    ["allowEval", 0, 1, true],
+    ["allowEscape", 0, 1, true],
+    ["AutoCopySelectedToClipboard", 0, 1, false],
+    ["enableDebug", 0, 1, false],
+    ["editorPersistent", 0, 1, false],
+    ["askonclose", 0, 1, true],
+    ["dev", 0, 1, false],
+    //New settings
+    ["chat.captureLines", 0, 1, false],
+    ["chat.captureAllLines", 0, 1, false],
+    ["chat.captureReviews", 0, 1, false],
+    ["chat.captureTells", 0, 1, false],
+    ["chat.captureTalk", 0, 1, false],
+    ["chat.gag", 0, 1, false],
+    ["chat.CaptureOnlyOpen", 0, 1, false],
+    ["checkForUpdates", 0, 1, false],
+    ["autoCreateCharacter", 0, 1, false],
+    ["askonchildren", 0, 1, true],
+    ["mapper.legend", 0, 1, false],
+    ["mapper.room", 0, 1, false],
+    ["mapper.importType", 0, 2, 1],
+    ["mapper.vscroll", 0, 2, 0],
+    ["mapper.hscroll", 0, 2, 0],
+    ["mapper.scale", 0, 2, 1],
+    ["mapper.alwaysOnTop", 0, 1, false],
+    ["mapper.alwaysOnTopClient", 0, 1, true],
+    ["mapper.memory", 0, 1, false],
+    ["mapper.memorySavePeriod", 0, 2, 9e5],
+    ["mapper.active.ID", 0, 0, null],
+    ["mapper.active.x", 0, 2, 0],
+    ["mapper.active.y", 0, 2, 0],
+    ["mapper.active.z", 0, 2, 0],
+    ["mapper.active.area", 0, 0, null],
+    ["mapper.active.zone", 0, 2, 0],
+    ["mapper.persistent", 0, 1, true],
+    ["profiles.split", 0, 2, -1],
+    ["profiles.askoncancel", 0, 1, true],
+    ["profiles.triggersAdvanced", 0, 1, false],
+    ["profiles.aliasesAdvanced", 0, 1, false],
+    ["profiles.buttonsAdvanced", 0, 1, false],
+    ["profiles.macrosAdvanced", 0, 1, false],
+    ["profiles.contextsAdvanced", 0, 1, false],
+    ["profiles.codeEditor", 0, 1, true],
+    ["profiles.watchFiles", 0, 1, true],
+    ["chat.alwaysOnTop", 0, 1, false],
+    ["chat.alwaysOnTopClient", 0, 1, true],
+    ["chat.log", 0, 1, false],
+    ["chat.persistent", 0, 1, false],
+    ["chat.zoom", 0, 2, 1],
+    ["chat.font", 0, 5, "'Courier New', Courier, monospace"],
+    ["chat.fontSize", 0, 0, "1em"],
+    ["title", 0, 0, "$t"],
+    ["logGagged", 0, 1, false],
+    ["logTimeFormat", 0, 0, "YYYYMMDD-HHmmss"],
+    ["autoConnectDelay", 0, 2, 600],
+    ["autoLogin", 0, 1, true],
+    ["onDisconnect", 0, 2, 2 /* ReconnectDialog */],
+    ["enableKeepAlive", 0, 1, false],
+    ["keepAliveDelay", 0, 2, 0],
+    ["newlineShortcut", 0, 2, 1 /* Ctrl */],
+    ["logWhat", 0, 2, 1 /* Html */],
+    ["logErrors", 0, 1, true],
+    ["showErrorsExtended", 0, 1, false],
+    ["reportCrashes", 0, 1, false],
+    ["enableCommands", 0, 1, true],
+    ["commandChar", 0, 0, "#", 1],
+    ["escapeChar", 0, 0, "\\", 1],
+    ["enableVerbatim", 0, 1, true],
+    ["verbatimChar", 0, 0, "`"],
+    ["soundPath", 0, 0, ""],
+    ["logPath", 0, 0, ""],
+    ["theme", 0, 0, ""],
+    ["gamepads", 0, 1, false],
+    ["buttons.connect", 0, 1, true],
+    ["buttons.characters", 0, 1, true],
+    ["buttons.preferences", 0, 1, true],
+    ["buttons.log", 0, 1, true],
+    ["buttons.clear", 0, 1, true],
+    ["buttons.lock", 0, 1, true],
+    ["buttons.map", 0, 1, true],
+    ["buttons.user", 0, 1, true],
+    ["buttons.mail", 0, 1, false],
+    ["buttons.compose", 0, 1, false],
+    ["buttons.immortal", 0, 1, true],
+    ["buttons.codeEditor", 0, 1, false],
+    ["find.case", 0, 1, false],
+    ["find.word", 0, 1, false],
+    ["find.reverse", 0, 1, false],
+    ["find.regex", 0, 1, false],
+    ["find.selection", 0, 1, false],
+    ["find.show", 0, 1, false],
+    ["display.split", 0, 1, false],
+    ["display.splitHeight", 0, 2, -1],
+    ["display.splitLive", 0, 1, true],
+    ["display.roundedOverlays", 0, 1, true],
+    ["backupLoad", 0, 2, 30 /* All */],
+    ["backupSave", 0, 2, 30 /* All */],
+    ["backupAllProfiles", 0, 1, true],
+    ["scrollLocked", 0, 1, false],
+    ["showStatus", 0, 1, true],
+    ["showCharacterManager", 0, 1, false],
+    ["showChat", 0, 1, false],
+    ["showEditor", 0, 1, false],
+    ["showArmor", 0, 1, false],
+    ["showStatusWeather", 0, 1, true],
+    ["showStatusLimbs", 0, 1, true],
+    ["showStatusHealth", 0, 1, true],
+    ["showStatusExperience", 0, 1, true],
+    ["showStatusPartyHealth", 0, 1, true],
+    ["showStatusCombatHealth", 0, 1, true],
+    ["showButtonBar", 0, 1, true],
+    ["allowNegativeNumberNeeded", 0, 1, false],
+    ["spellchecking", 0, 1, true],
+    ["hideOnMinimize", 0, 1, false],
+    ["showTrayIcon", 0, 1, false],
+    ["statusExperienceNeededProgressbar", 0, 1, false],
+    ["trayClick", 0, 2, 0],
+    ["trayDblClick", 0, 2, 0],
+    ["pasteSpecialPrefix", 0, 0, ""],
+    ["pasteSpecialPostfix", 0, 0, ""],
+    ["pasteSpecialReplace", 0, 0, ""],
+    ["pasteSpecialPrefixEnabled", 0, 1, true],
+    ["pasteSpecialPostfixEnabled", 0, 1, true],
+    ["pasteSpecialReplaceEnabled", 0, 1, true],
+    ["display.showSplitButton", 0, 1, true],
+    ["chat.split", 0, 1, false],
+    ["chat.splitHeight", 0, 2, -1],
+    ["chat.splitLive", 0, 1, true],
+    ["chat.roundedOverlays", 0, 1, true],
+    ["chat.showSplitButton", 0, 1, true],
+    ["chat.bufferSize", 0, 2, 500],
+    ["chat.flashing", 0, 1, false],
+    ["display.hideTrailingEmptyLine", 0, 1, true],
+    ["display.enableColors", 0, 1, true],
+    ["display.enableBackgroundColors", 0, 1, true],
+    ["enableSound", 0, 1, true],
+    ["allowHalfOpen", 0, 1, true],
+    ["editorClearOnSend", 0, 1, true],
+    ["editorCloseOnSend", 0, 1, true],
+    ["askOnCloseAll", 0, 1, true],
+    ["askonloadCharacter", 0, 1, true],
+    ["mapper.roomWidth", 0, 2, 200],
+    ["mapper.roomGroups", 0, 2, 1 | 2 | 4],
+    ["mapper.showInTaskBar", 0, 1, false],
+    ["profiles.enabled", 0, 4, []],
+    ["profiles.sortOrder", 0, 2, 4 /* Priority */ | 8 /* Index */],
+    ["profiles.sortDirection", 0, 2, 1],
+    ["profiles.showInTaskBar", 0, 1, false],
+    ["profiles.profileSelected", 0, 0, "default"],
+    ["profiles.profileExpandSelected", 0, 1, true],
+    ["chat.lines", 0, 4, []],
+    ["chat.showInTaskBar", 0, 1, false],
+    ["chat.showTimestamp", 0, 1, false],
+    ["chat.timestampFormat", 0, 0, "[[]MM-DD HH:mm:ss.SSS[]] "],
+    ["chat.tabWidth", 0, 2, 8],
+    ["chat.displayControlCodes", 0, 1, false],
+    ["chat.emulateTerminal", 0, 1, false],
+    ["chat.emulateControlCodes", 0, 1, true],
+    ["chat.wordWrap", 0, 1, false],
+    ["chat.wrapAt", 0, 2, 0],
+    ["chat.indent", 0, 2, 4],
+    ["chat.scrollLocked", 0, 1, false],
+    ["chat.find.case", 0, 1, false],
+    ["chat.find.word", 0, 1, false],
+    ["chat.find.reverse", 0, 1, false],
+    ["chat.find.regex", 0, 1, false],
+    ["chat.find.selection", 0, 1, false],
+    ["chat.find.show", 0, 1, false],
+    ["chat.find.highlight", 0, 1, false],
+    ["chat.find.location", 0, 4, [5, 20]],
+    ["codeEditor.showInTaskBar", 0, 1, false],
+    ["codeEditor.persistent", 0, 1, false],
+    ["codeEditor.alwaysOnTop", 0, 1, false],
+    ["codeEditor.alwaysOnTopClient", 0, 1, true],
+    ["autoTakeoverLogin", 0, 1, false],
+    ["fixHiddenWindows", 0, 1, true],
+    ["maxReconnectDelay", 0, 2, 3600],
+    ["enableBackgroundThrottling", 0, 1, true],
+    ["enableBackgroundThrottlingClients", 0, 1, false],
+    ["showInTaskBar", 0, 1, true],
+    ["showLagInTitle", 0, 1, false],
+    ["mspMaxRetriesOnError", 0, 2, 0],
+    ["logTimestamp", 0, 1, false],
+    ["logTimestampFormat", 0, 0, "[[]MM-DD HH:mm:ss.SSS[]] "],
+    ["disableTriggerOnError", 0, 1, true],
+    ["prependTriggeredLine", 0, 1, true],
+    ["enableParameters", 0, 1, true],
+    ["parametersChar", 0, 0, "%", 1],
+    ["enableNParameters", 0, 1, true],
+    ["nParametersChar", 0, 0, "$", 1],
+    ["enableParsing", 0, 1, true],
+    ["externalWho", 0, 1, true],
+    ["externalHelp", 0, 1, true],
+    ["watchForProfilesChanges", 0, 1, false],
+    ["onProfileChange", 0, 2, 0 /* Nothing */],
+    ["onProfileDeleted", 0, 2, 0 /* Nothing */],
+    ["enableDoubleParameterEscaping", 0, 1, false],
+    ["ignoreEvalUndefined", 0, 1, true],
+    ["enableInlineComments", 0, 1, true],
+    ["enableBlockComments", 0, 1, true],
+    ["inlineCommentString", 0, 0, "//"],
+    ["blockCommentString", 0, 0, "/*"],
+    ["allowCommentsFromCommand", 0, 1, false],
+    ["saveTriggerStateChanges", 0, 1, true],
+    ["groupProfileSaves", 0, 1, false],
+    ["groupProfileSaveDelay", 0, 2, 2e4],
+    ["returnNewlineOnEmptyValue", 0, 1, false],
+    ["pathDelay", 0, 2, 0],
+    ["pathDelayCount", 0, 2, 1],
+    ["echoSpeedpaths", 0, 1, false],
+    ["alwaysShowTabs", 0, 1, false],
+    ["scriptEngineType", 0, 2 /* Number */, 4 /* Simple */],
+    ["initializeScriptEngineOnLoad", 0, 1 /* Boolean */, false],
+    ["find.highlight", 0, 1 /* Boolean */, false],
+    ["find.location", 0, 4 /* Custom */, [5, 20]],
+    ["display.showInvalidMXPTags", 0, 1 /* Boolean */, false],
+    ["display.showTimestamp", 0, 1 /* Boolean */, false],
+    ["display.timestampFormat", 0, 0 /* String */, "[[]MM-DD HH:mm:ss.SSS[]] "],
+    ["display.displayControlCodes", 0, 1 /* Boolean */, false],
+    ["display.emulateTerminal", 0, 1 /* Boolean */, false],
+    ["display.emulateControlCodes", 0, 1 /* Boolean */, true],
+    ["display.wordWrap", 0, 1 /* Boolean */, false],
+    ["display.tabWidth", 0, 2 /* Number */, 8],
+    ["display.wrapAt", 0, 2 /* Number */, 0],
+    ["display.indent", 0, 2 /* Number */, 4],
+    ["statusWidth", 0, 2 /* Number */, -1],
+    ["showEditorInTaskBar", 0, 1 /* Boolean */, true],
+    ["trayMenu", 0, 2 /* Number */, 0],
+    ["lockLayout", 0, 1 /* Boolean */, false],
+    ["loadLayout", 0, 0 /* String */, ""],
+    ["useSingleInstance", 0, 1 /* Boolean */, true],
+    ["onSecondInstance", 0, 2 /* Number */, 0],
+    ["characterManagerDblClick", 0, 2 /* Number */, 0],
+    ["enableTabCompletion", 1 /* Boolean */, true],
+    ["ignoreCaseTabCompletion", 0, 1 /* Boolean */, false],
+    ["tabCompletionBufferLimit", 0, 2 /* Number */, 100],
+    ["enableNotifications", 0, 1 /* Boolean */, true],
+    ["echo", 0, 2 /* Number */, 0 /* None */],
+    ["commandAutoSize", 0, 1 /* Boolean */, false],
+    ["commandWordWrap", 0, 1 /* Boolean */, false],
+    ["commandScrollbars", 0, 1 /* Boolean */, false],
+    ["tabCompletionList", 0, 0 /* String */, ""],
+    ["tabCompletionLookupType", 0, 2 /* Number */, 1 /* PrependBuffer */],
+    ["tabCompletionReplaceCasing", 0, 2 /* Number */, 0],
+    ["characterManagerAddButtonAction", 0, 2 /* Number */, 0],
+    ["enableCrashReporting", 0, 1 /* Boolean */, false],
+    ["characterManagerPanelWidth", 0, 2 /* Number */, 0],
+    ["ignoreInputLeadingWhitespace", 0, 1 /* Boolean */, false],
+    ["profiles.find.case", 0, 1, false],
+    ["profiles.find.word", 0, 1, false],
+    ["profiles.find.reverse", 0, 1, false],
+    ["profiles.find.regex", 0, 1, false],
+    ["profiles.find.selection", 0, 1, false],
+    ["profiles.find.show", 0, 1, false],
+    ["profiles.find.value", 0, 1, false],
+    ["skipMore", 0, 1, false],
+    ["skipMoreDelay", 0, 2 /* Number */, 5e3],
+    ["commandMinLines", 0, 2 /* Number */, 1],
+    ["backupReplaceCharacters", 0, 1 /* Boolean */, true],
+    ["simpleAlarms", 0, 1 /* Boolean */, false],
+    ["simpleEditor", 0, 1 /* Boolean */, false]
+  ];
+  var Settings = class _Settings {
+    constructor() {
+      for (var s = 0, sl = SettingList.length; s < sl; s++) {
+        if (SettingList[s][2] === 4 /* Custom */) continue;
+        this[SettingList[s][0]] = _Settings.getValue(SettingList[s][0]);
+      }
+      this.colors = _Settings.getValue("colors");
+    }
+    static {
+      this.settingError = false;
+    }
+    static getValue(setting, defaultValue) {
+      var tmp;
+      if (_Settings.settingError) {
+        if (defaultValue === null || typeof defaultValue == "undefined")
+          return _Settings.defaultValue(setting);
+        return defaultValue;
+      }
+      try {
+        tmp = $.jStorage.get(setting);
+        if (typeof tmp == "undefined" || tmp === null) {
+          if (defaultValue === null || typeof defaultValue == "undefined")
+            return _Settings.defaultValue(setting);
+          return defaultValue;
+        }
+        switch (setting) {
+          case "showChat":
+          case "showStatus":
+          case "showButtons":
+          case "enableCommands":
+          case "enableVerbatim":
+          case "allowEscape":
+          case "autoConnect":
+          case "mapFollow":
+          case "mapEnabled":
+          case "flashing":
+          case "commandEcho":
+          case "enableAliases":
+          case "enableTriggers":
+          case "enableButtons":
+          case "enableMacros":
+          case "commandStacking":
+          case "htmlLog":
+          case "keepLastCommand":
+          case "fullScreen":
+          case "enableMXP":
+          case "enableURLDetection":
+          case "enableMCCP":
+          case "enableUTF8":
+          case "parseCommands":
+          case "lagMeter":
+          case "showScriptErrors":
+          case "enablePing":
+          case "enableEcho":
+          case "enableSpeedpaths":
+          case "parseSpeedpaths":
+          case "MapperSplitArea":
+          case "parseSingleQuotes":
+          case "parseDoubleQuotes":
+          case "logEnabled":
+          case "logOffline":
+          case "logPrepend":
+          case "logUniqueOnConnect":
+          case "toolsPinned":
+          case "notifyMSPPlay":
+          case "CommandonClick":
+          case "allowEval":
+          case "disableTriggerOnError":
+          case "prependTriggeredLine":
+          case "chat.captureLines":
+          case "chat.captureAllLines":
+          case "chat.captureReviews":
+          case "chat.captureTells":
+          case "chat.captureTalk":
+          case "chat.gag":
+          case "chat.CaptureOnlyOpen":
+          case "simpleAlarms":
+          case "simpleEditor":
+            if (tmp == 1)
+              return true;
+            return false;
+          case "colors":
+          case "chat.lines":
+            if (tmp === null || typeof tmp == "undefined" || tmp.length === 0)
+              return [];
+            return JSON.parse(tmp);
+        }
+        return tmp;
+      } catch (err) {
+        if (!_Settings.settingError) {
+          alert("Unable to save to localStorage so reverting to default,\n\nError description: " + err.message);
+          _Settings.settingError = true;
+        }
+        if (defaultValue === null || typeof defaultValue == "undefined")
+          return _Settings.defaultValue(defaultValue);
+        return defaultValue;
+      }
+    }
+    static setValue(setting, value) {
+      switch (setting) {
+        case "colors":
+        case "chat.lines":
+          if (value === null || typeof value == "undefined" || value.length === 0)
+            $.jStorage.deleteKey(setting);
+          else
+            $.jStorage.set(setting, JSON.stringify(value));
+          break;
+        default:
+          if (typeof value == "boolean") {
+            if (value)
+              $.jStorage.set(setting, 1);
+            else
+              $.jStorage.set(setting, 0);
+          } else
+            $.jStorage.set(setting, value);
+          break;
+      }
+    }
+    static clearValue(setting) {
+      $.jStorage.deleteKey(setting);
+    }
+    static defaultValue(setting) {
+      switch (setting) {
+        case "bufferSize":
+          return 500;
+        case "commandDelay":
+          return 500;
+        case "commandDelayCount":
+          return 5;
+        case "commandHistorySize":
+          return 20;
+        case "fontSize":
+          return "1em";
+        case "cmdfontSize":
+          return "1em";
+        case "commandEcho":
+          return true;
+        case "flashing":
+          return false;
+        case "autoConnect":
+          return true;
+        case "enableAliases":
+          return true;
+        case "enableTriggers":
+          return true;
+        case "enableMacros":
+          return true;
+        case "showScriptErrors":
+          return false;
+        case "commandStacking":
+          return true;
+        case "commandStackingChar":
+          return ";";
+        case "htmlLog":
+          return true;
+        case "keepLastCommand":
+          return true;
+        case "enableMCCP":
+          return true;
+        case "enableUTF8":
+          return true;
+        case "font":
+          return "'Courier New', Courier, monospace";
+        case "cmdfont":
+          return "'Courier New', Courier, monospace";
+        case "mapFollow":
+        case "mapper.follow":
+          return true;
+        case "mapEnabled":
+        case "mapper.enabled":
+          return true;
+        case "MapperSplitArea":
+        case "mapper.split":
+          return false;
+        case "MapperFillWalls":
+        case "mapper.fill":
+          return false;
+        case "MapperOpen":
+        case "showMapper":
+          return false;
+        case "fullScreen":
+          return false;
+        case "enableMXP":
+          return true;
+        case "enableMSP":
+          return true;
+        case "parseCommands":
+          return true;
+        case "lagMeter":
+          return false;
+        case "enablePing":
+          return false;
+        case "enableEcho":
+          return true;
+        case "enableSpeedpaths":
+          return true;
+        case "speedpathsChar":
+          return "!";
+        case "parseSpeedpaths":
+          return true;
+        case "profile":
+          return "Default";
+        case "parseSingleQuotes":
+          return false;
+        case "parseDoubleQuotes":
+          return true;
+        case "logEnabled":
+          return false;
+        case "logPrepend":
+          return false;
+        case "logOffline":
+          return false;
+        case "logUniqueOnConnect":
+          return true;
+        case "enableURLDetection":
+          return true;
+        case "notifyMSPPlay":
+          return false;
+        case "CommandonClick":
+          return true;
+        case "allowEval":
+          return true;
+        case "allowEscape":
+          return true;
+        case "AutoCopySelectedToClipboard":
+          return false;
+        case "enableDebug":
+          return false;
+        case "editorPersistent":
+          return false;
+        case "askonclose":
+          return true;
+        case "dev":
+          return false;
+        //New settings
+        case "chat.captureLines":
+          return false;
+        case "chat.captureAllLines":
+          return false;
+        case "chat.captureReviews":
+          return false;
+        case "chat.captureTells":
+          return false;
+        case "chat.captureTalk":
+          return false;
+        case "chat.gag":
+          return false;
+        case "chat.CaptureOnlyOpen":
+          return false;
+        case "checkForUpdates":
+          return false;
+        case "autoCreateCharacter":
+          return false;
+        case "askonchildren":
+          return true;
+        case "mapper.legend":
+          return false;
+        case "mapper.room":
+          return false;
+        case "mapper.importType":
+          return 1;
+        case "mapper.vscroll":
+          return 0;
+        case "mapper.hscroll":
+          return 0;
+        case "mapper.scale":
+          return 1;
+        case "mapper.active":
+          return {
+            ID: null,
+            x: 0,
+            y: 0,
+            z: 0,
+            area: null,
+            zone: 0
+          };
+        case "mapper.active.ID":
+          return null;
+        case "mapper.active.x":
+          return 0;
+        case "mapper.active.y":
+          return 0;
+        case "mapper.active.z":
+          return 0;
+        case "mapper.active.area":
+          return null;
+        case "mapper.active.zone":
+          return 0;
+        case "profiles.split":
+          return -1;
+        case "profiles.askoncancel":
+          return true;
+        case "profiles.triggersAdvanced":
+          return false;
+        case "profiles.aliasesAdvanced":
+          return false;
+        case "profiles.buttonsAdvanced":
+          return false;
+        case "profiles.macrosAdvanced":
+          return false;
+        case "profiles.contextsAdvanced":
+          return false;
+        case "profiles.codeEditor":
+          return true;
+        case "chat.log":
+          return false;
+        case "chat.zoom":
+          return 1;
+        case "chat.font":
+          return "'Courier New', Courier, monospace";
+        case "chat.fontSize":
+          return "1em";
+        case "title":
+          return "$t";
+        case "logGagged":
+          return false;
+        case "logTimeFormat":
+          return "YYYYMMDD-HHmmss";
+        case "autoConnectDelay":
+          return 600;
+        case "autoLogin":
+          return true;
+        case "onDisconnect":
+          return 2 /* ReconnectDialog */;
+        case "enableKeepAlive":
+          return false;
+        case "keepAliveDelay":
+          return 0;
+        case "newlineShortcut":
+          return 1 /* Ctrl */;
+        case "logWhat":
+          return 1 /* Html */;
+        case "logErrors":
+          return true;
+        case "showErrorsExtended":
+          return false;
+        case "reportCrashes":
+          return false;
+        case "enableCommands":
+          return true;
+        case "commandChar":
+          return "#";
+        case "escapeChar":
+          return "\\";
+        case "enableVerbatim":
+          return true;
+        case "verbatimChar":
+          return "`";
+        case "soundPath":
+          return "";
+        case "logPath":
+          return "";
+        case "theme":
+          return "";
+        case "gamepads":
+          return false;
+        case "backupLoad":
+          return 30 /* All */;
+        case "backupSave":
+          return 30 /* All */;
+        case "backupAllProfiles":
+          return true;
+        case "backupReplaceCharacters":
+          return true;
+        case "scrollLocked":
+          return false;
+        case "showStatus":
+          return true;
+        case "showChat":
+          return false;
+        case "showEditor":
+          return false;
+        case "showArmor":
+          return false;
+        case "showStatusWeather":
+          return true;
+        case "showStatusLimbs":
+          return true;
+        case "showStatusHealth":
+          return true;
+        case "showStatusExperience":
+          return true;
+        case "showStatusPartyHealth":
+          return true;
+        case "showStatusCombatHealth":
+          return true;
+        case "allowNegativeNumberNeeded":
+          return false;
+        case "spellchecking":
+          return true;
+        case "statusExperienceNeededProgressbar":
+          return false;
+        case "pasteSpecialPrefix":
+          return "";
+        case "pasteSpecialPostfix":
+          return "";
+        case "pasteSpecialReplace":
+          return "";
+        case "pasteSpecialPrefixEnabled":
+          return true;
+        case "pasteSpecialPostfixEnabled":
+          return true;
+        case "pasteSpecialReplaceEnabled":
+          return true;
+        case "display.showSplitButton":
+          return true;
+        case "chat.bufferSize":
+          return 500;
+        case "chat.flashing":
+          return false;
+        case "display.hideTrailingEmptyLine":
+          return true;
+        case "display.enableColors":
+          return true;
+        case "display.enableBackgroundColors":
+          return true;
+        case "enableSound":
+          return true;
+        case "editorClearOnSend":
+          return true;
+        case "editorCloseOnSend":
+          return true;
+        case "askOnCloseAll":
+          return true;
+        case "askonloadCharacter":
+          return true;
+        case "mapper.roomWidth":
+          return 200;
+        case "mapper.roomGroups":
+          return 1 | 2 | 4;
+        case "mapper.showInTaskBar":
+          return false;
+        case "profiles.enabled":
+          return [];
+        case "profiles.sortOrder":
+          return 4 /* Priority */ | 8 /* Index */;
+        case "profiles.sortDirection":
+          return 1;
+        case "profiles.profileSelected":
+          return "default";
+        case "profiles.profileExpandSelected":
+          return true;
+        case "chat.lines":
+          return [];
+        case "chat.showTimestamp":
+          return false;
+        case "chat.timestampFormat":
+          return "[[]MM-DD HH:mm:ss.SSS[]] ";
+        case "chat.tabWidth":
+          return 8;
+        case "chat.displayControlCodes":
+          return false;
+        case "chat.emulateTerminal":
+          return false;
+        case "chat.emulateControlCodes":
+          return true;
+        case "chat.wordWrap":
+          return false;
+        case "chat.wrapAt":
+          return 0;
+        case "chat.indent":
+          return 4;
+        case "autoTakeoverLogin":
+          return false;
+        case "maxReconnectDelay":
+          return 3600;
+        case "showLagInTitle":
+          return false;
+        case "mspMaxRetriesOnError":
+          return 0;
+        case "logTimestamp":
+          return false;
+        case "logTimestampFormat":
+          return "[[]MM-DD HH:mm:ss.SSS[]] ";
+        case "disableTriggerOnError":
+          return true;
+        case "prependTriggeredLine":
+          return true;
+        case "enableParameters":
+          return true;
+        case "parametersChar":
+          return "%";
+        case "enableNParameters":
+          return true;
+        case "nParametersChar":
+          return "$";
+        case "enableParsing":
+          return true;
+        case "onProfileChange":
+          return 0 /* Nothing */;
+        case "onProfileDeleted":
+          return 0 /* Nothing */;
+        case "enableDoubleParameterEscaping":
+          return false;
+        case "ignoreEvalUndefined":
+          return true;
+        case "enableInlineComments":
+          return true;
+        case "enableBlockComments":
+          return true;
+        case "inlineCommentString":
+          return "//";
+        case "blockCommentString":
+          return "/*";
+        case "allowCommentsFromCommand":
+          return false;
+        case "saveTriggerStateChanges":
+          return true;
+        case "groupProfileSaves":
+          return false;
+        case "groupProfileSaveDelay":
+          return 2e4;
+        case "returnNewlineOnEmptyValue":
+          return false;
+        case "pathDelay":
+          return 0;
+        case "pathDelayCount":
+          return 1;
+        case "echoSpeedpaths":
+          return false;
+        case "scriptEngineType":
+          return 4 /* Simple */;
+        case "initializeScriptEngineOnLoad":
+          return false;
+        case "display.showInvalidMXPTags":
+          return false;
+        case "display.showTimestamp":
+          return false;
+        case "display.timestampFormat":
+          return "[[]MM-DD HH:mm:ss.SSS[]] ";
+        case "display.displayControlCodes":
+          return false;
+        case "display.emulateTerminal":
+          return false;
+        case "display.emulateControlCodes":
+          return true;
+        case "display.wordWrap":
+          return false;
+        case "display.tabWidth":
+          return 8;
+        case "display.wrapAt":
+          return 0;
+        case "display.indent":
+          return 4;
+        case "statusWidth":
+          return -1;
+        case "extensions":
+          return {};
+        case "warnAdvancedSettings":
+          return true;
+        case "showAdvancedSettings":
+          return false;
+        case "enableTabCompletion":
+          return true;
+        case "ignoreCaseTabCompletion":
+          return false;
+        case "tabCompletionBufferLimit":
+          return 100;
+        case "enableNotifications":
+          return true;
+        case "echo":
+          return 0 /* None */;
+        case "commandAutoSize":
+          return false;
+        case "commandWordWrap":
+          return false;
+        case "commandMinLines":
+          return 1;
+        case "tabCompletionLookupType":
+          return 1 /* PrependBuffer */;
+        case "tabCompletionList":
+          return "";
+        case "tabCompletionReplaceCasing":
+          return 0;
+        case "ignoreInputLeadingWhitespace":
+          return false;
+        case "skipMore":
+          return false;
+        case "skipMoreDelay":
+          return 5e3;
+        case "simpleAlarms":
+          return false;
+        case "simpleEditor":
+          return false;
+      }
+      return null;
+    }
+    save() {
+      for (var prop in this) {
+        if (!this.hasOwnProperty(prop)) continue;
+        _Settings.setValue(prop, this[prop]);
+      }
+    }
+    reset() {
+      for (var s = 0, sl = SettingList.length; s < sl; s++) {
+        if (SettingList[s][2] === 4 /* Custom */) continue;
+        this[SettingList[s][0]] = _Settings.defaultValue(SettingList[s][0]);
+      }
+      this.colors = [];
+    }
+  };
+
+  // src/interface/settingsdialog.ts
+  var SettingsDialog = class _SettingsDialog extends Dialog {
+    constructor() {
+      super({ title: '<i class="fas fa-cogs"></i> Settings', keepCentered: true, resizable: false, moveable: false, center: true, maximizable: false });
+      this.body.style.padding = "10px";
+      this.buildMenu();
+      let footer = "";
+      footer += `<button id="${this.id}-cancel" type="button" class="float-end btn btn-light" title="Cancel dialog">Cancel</button>`;
+      footer += `<button id="${this.id}-save" type="button" class="float-end btn btn-primary" title="Confirm dialog">Save</button>`;
+      footer += `<button id="${this.id}-reset" type="button" class="float-start btn btn-light" title="Reset settings">Reset</button>`;
+      footer += `<button id="${this.id}-reset-all" type="button" class="float-start btn btn-light" title="Reset All settings">Reset All</button>`;
+      footer += '<div class="vr float-start" style="margin-right: 4px;height: 37px;"></div>';
+      footer += `<button id="${this.id}-export" type="button" class="float-start btn btn-light" title="Export settings">Export</button>`;
+      footer += `<button id="${this.id}-import" type="button" class="float-start btn btn-light" title="Import settings">Import</button>`;
+      this.footer.innerHTML = footer;
+      this.footer.querySelector(`#${this.id}-cancel`).addEventListener("click", () => {
+        removeHash(this._page);
+        this.close();
+      });
+      this.footer.querySelector(`#${this.id}-export`).addEventListener("click", () => {
+        var data = clone(this.settings);
+        data.version = 2;
+        fileSaveAs.show(JSON.stringify(data), "oiMUD.settings.txt", "text/plain");
+      });
+      this.footer.querySelector(`#${this.id}-import`).addEventListener("click", () => {
+        openFileDialog("Import settings").then((files) => {
+          readFile(files[0]).then((contents) => {
+            try {
+              var data = JSON.parse(contents);
+              var s, sl;
+              if (data.version === 1) {
+                for (s = 0, sl = SettingList.length; s < sl; s++) {
+                  this.settings[SettingList[s][0]] = data[SettingList[s][0]];
+                }
+                this.emit("import-rooms", data.rooms);
+              } else if (data.version === 2 && !data.profiles) {
+                for (s = 0, sl = SettingList.length; s < sl; s++) {
+                  this.settings[SettingList[s][0]] = data[SettingList[s][0]];
+                }
+              } else
+                setTimeout(function() {
+                  new AlertDialog("Invalid file", "Unable to import file, not a valid settings file", 4 /* exclamation */).showModal();
+                }, 50);
+              this.loadSettings();
+            } catch (err) {
+              setTimeout(function() {
+                new AlertDialog("Error importing", "Error importing file.", 3 /* error */).showModal();
+              }, 50);
+              client.error(err);
+            }
+          }).catch(client.error);
+        }).catch(() => {
+        });
+      });
+      this.footer.querySelector(`#${this.id}-reset`).addEventListener("click", () => {
+        if (this._page === "settings-colors") {
+          const confirm = new ConfirmDialog("Reset colors", "Reset colors?");
+          confirm.on("button-click", (e) => {
+            if (e.button === 4 /* Yes */) {
+              var c;
+              var colors = this.settings.colors = [];
+              for (c = 0; c < 16; c++)
+                this.setColor("color" + c, colors[c] || this.getDefaultColor(c));
+              for (c = 256; c < 280; c++)
+                this.setColor("color" + c, colors[c] || this.getDefaultColor(c));
+              this.body.querySelector(`#colorScheme`).value = 0;
+            }
+          });
+          confirm.showModal();
+        } else if (this._page && this._page !== "settings" && this._page.length) {
+          const pages = this._page.split("-");
+          let title = capitalize(pages[pages.length - 1].match(/([A-Z]|^[a-z])[a-z]+/g).join(" "));
+          const confirm = new ConfirmDialog(`Reset ${title} settings`, `Reset ${title} settings?`);
+          confirm.on("button-click", (e) => {
+            if (e.button === 4 /* Yes */) {
+              const forms = this.body.querySelectorAll("input,select,textarea");
+              for (let f = 0, fl = forms.length; f < fl; f++) {
+                this.settings[forms[f].id] = Settings.defaultValue(forms[f].id);
+                if (forms[f].type === "checkbox")
+                  forms[f].checked = this.settings[forms[f].id];
+                else
+                  forms[f].value = this.settings[forms[f].id];
+              }
+            }
+          });
+          confirm.showModal();
+        } else {
+          const confirm = new ConfirmDialog("Reset all settings", "Reset all settings?");
+          confirm.on("button-click", (e) => {
+            if (e.button === 4 /* Yes */)
+              this.settings.reset();
+          });
+          confirm.showModal();
+        }
+      });
+      this.footer.querySelector(`#${this.id}-reset-all`).addEventListener("click", () => {
+        const confirm = new ConfirmDialog("Reset all settings", "Reset all settings?");
+        confirm.on("button-click", (e) => {
+          if (e.button === 4 /* Yes */)
+            this.settings.reset();
+        });
+        confirm.showModal();
+      });
+      this.footer.querySelector(`#${this.id}-save`).addEventListener("click", () => {
+        removeHash(this._page);
+        for (var s in this.settings) {
+          if (!this.settings.hasOwnProperty(s)) continue;
+          Settings.setValue(s, this.settings[s]);
+        }
+        client.clearCache();
+        client.loadOptions();
+        this.close();
+      });
+      this.settings = new Settings();
+    }
+    setPage(page) {
+      this._page = page;
+      const pages = page.split("-");
+      let breadcrumb = "";
+      let last = pages.length - 1;
+      for (let p = 0, pl = pages.length; p < pl; p++) {
+        let title = capitalize(pages[p].match(/([A-Z]|^[a-z])[a-z]+/g).join(" "));
+        if (p === last)
+          breadcrumb += '<li class="breadcrumb-item">' + title + "</li>";
+        else
+          breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p + 1).join("-") + '">' + title + "</a></li>";
+      }
+      this.title = '<i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i> <ol class="float-start breadcrumb">' + breadcrumb + "</ol>";
+      if (page === "settings") {
+        if (this._menu)
+          this._menu.style.display = "none";
+        this.body.style.left = "";
+        if (this.footer.querySelector(`#${this.id}-reset`))
+          this.footer.querySelector(`#${this.id}-reset`).style.display = "none";
+        this.body.innerHTML = _SettingsDialog.menuTemplate;
+        _SettingsDialog.addPlugins(this.body.querySelector("div.contents"));
+      } else {
+        if (this._menu)
+          this._menu.style.display = "";
+        if (this.footer.querySelector(`#${this.id}-reset`))
+          this.footer.querySelector(`#${this.id}-reset`).style.display = "";
+        this.body.style.left = "200px";
+      }
+      this.loadSettings();
+    }
+    buildMenu() {
+      this.dialog.insertAdjacentHTML("beforeend", _SettingsDialog.menuTemplate.replace(' style="top:0;position: absolute;left:0;bottom:49px;right:0;"', ""));
+      this._menu = this.dialog.querySelector(".contents");
+      this._menu.classList.add("settings-menu");
+      _SettingsDialog.addPlugins(this._menu);
+      if (this._page === "settings")
+        this._menu.style.display = "none";
+      this.body.style.left = "200px";
+    }
+    loadSettings() {
+      const forms = this.body.querySelectorAll("input,select,textarea");
+      if (this._page === "settings-colors") {
+        var c;
+        var colors = this.settings.colors || [];
+        for (c = 0; c < 16; c++)
+          this.setColor("color" + c, colors[c] || this.getDefaultColor(c));
+        for (c = 256; c < 280; c++)
+          this.setColor("color" + c, colors[c] || this.getDefaultColor(c));
+        for (let f = 0, fl = forms.length; f < fl; f++) {
+          forms[f].addEventListener("change", (e) => {
+            const target = e.currentTarget || e.target;
+            let value = target.value;
+            let id = parseInt(target.id.substring(5), 10);
+            var colors2 = this.settings.colors || [];
+            if (!colors2[id] || colors2[id].length === 0) {
+              if (this.getDefaultColor(id) !== value)
+                colors2[id] = value;
+            } else if (this.getDefaultColor(id) !== value)
+              delete colors2[id];
+            else
+              colors2[id] = value;
+            this.settings.colors = colors2;
+          });
+          forms[f].addEventListener("input", (e) => {
+            const target = e.currentTarget || e.target;
+            let value = target.value;
+            let id = parseInt(target.id.substring(5), 10);
+            if (!this.settings.colors[id] || this.settings.colors[id].length === 0) {
+              if (this.getDefaultColor(id) !== value)
+                this.settings.colors[id] = value;
+            } else if (this.getDefaultColor(id) !== value)
+              delete this.settings.colors[id];
+            else
+              this.settings.colors[id] = value;
+          });
+        }
+      } else {
+        for (let f = 0, fl = forms.length; f < fl; f++) {
+          if (forms[f].type === "radio") {
+            forms[f].checked = "" + this.settings[forms[f].name] === forms[f].value;
+            forms[f].addEventListener("change", (e) => {
+              const target = e.currentTarget || e.target;
+              if (target.checked)
+                this.settings[target.name] = this.convertType(target.value, typeof this.settings[target.name]);
+            });
+          } else if (forms[f].type === "checkbox") {
+            if (forms[f].dataset.enum === "true") {
+              const name = forms[f].name || forms[f].id.substring(0, forms[f].id.lastIndexOf("-"));
+              const value = +forms[f].id.substring(forms[f].id.lastIndexOf("-") + 1);
+              if ((this.settings[name] & value) === value)
+                forms[f].checked = true;
+            } else
+              forms[f].checked = this.settings[forms[f].id];
+            forms[f].addEventListener("change", (e) => {
+              const target = e.currentTarget || e.target;
+              if (target.dataset.enum === "true") {
+                const name = target.name || target.id.substring(0, target.id.lastIndexOf("-"));
+                const enums = this.body.querySelectorAll(`[name=${name}]`);
+                let value = 0;
+                for (let e2 = 0, el = enums.length; e2 < el; e2++) {
+                  if (enums[e2].checked)
+                    value |= +enums[e2].value;
+                }
+                this.settings[name] = value;
+              } else
+                this.settings[target.id] = target.checked || false;
+            });
+          } else {
+            forms[f].value = this.settings[forms[f].id];
+            forms[f].addEventListener("change", (e) => {
+              const target = e.currentTarget || e.target;
+              this.setValue(target.id, target.value);
+            });
+            forms[f].addEventListener("input", (e) => {
+              const target = e.currentTarget || e.target;
+              this.setValue(target.id, target.value);
+            });
+          }
+        }
+      }
+    }
+    setColor(id, color) {
+      if (!color || typeof color === "undefined" || color.length === 0)
+        this.body.querySelector("#" + id).value = "";
+      else
+        this.body.querySelector("#" + id).value = this.colorHex(color);
+    }
+    colorHex(color) {
+      if (!color) return false;
+      color = new RGBColor(color);
+      if (!color.ok)
+        return "";
+      return color.toHex();
+    }
+    getDefaultColor(code) {
+      if (code === 0) return "rgb(0,0,0)";
+      if (code === 1) return "rgb(128, 0, 0)";
+      if (code === 2) return "rgb(0, 128, 0)";
+      if (code === 3) return "rgb(128, 128, 0)";
+      if (code === 4) return "rgb(0, 0, 128)";
+      if (code === 5) return "rgb(128, 0, 128)";
+      if (code === 6) return "rgb(0, 128, 128)";
+      if (code === 7) return "rgb(192, 192, 192)";
+      if (code === 8) return "rgb(128, 128, 128)";
+      if (code === 9) return "rgb(255, 0, 0)";
+      if (code === 10) return "rgb(0, 255, 0)";
+      if (code === 11) return "rgb(255, 255, 0)";
+      if (code === 12) return "rgb(0, 0, 255)";
+      if (code === 13) return "rgb(255, 0, 255)";
+      if (code === 14) return "rgb(0, 255, 255)";
+      if (code === 15) return "rgb(255, 255, 255)";
+      if (code === 256) return "rgb(0, 0, 0)";
+      if (code === 257) return "rgb(118, 0, 0)";
+      if (code === 258) return "rgb(0, 108, 0)";
+      if (code === 259) return "rgb(145, 136, 0)";
+      if (code === 260) return "rgb(0, 0, 108)";
+      if (code === 261) return "rgb(108, 0, 108)";
+      if (code === 262) return "rgb(0, 108, 108)";
+      if (code === 263) return "rgb(160, 160, 160)";
+      if (code === 264) return "rgb(0, 0, 0)";
+      if (code === 265) return "rgb(128, 0, 0)";
+      if (code === 266) return "rgb(0, 128, 0)";
+      if (code === 267) return "rgb(128, 128, 0)";
+      if (code === 268) return "rgb(0, 0, 128)";
+      if (code === 269) return "rgb(128, 0, 128)";
+      if (code === 270) return "rgb(0, 128, 128)";
+      if (code === 271) return "rgb(192, 192, 192)";
+      if (code === 272) return "rgb(0,0,0)";
+      if (code === 273) return "rgb(0, 255, 255)";
+      if (code === 274) return "rgb(0,0,0)";
+      if (code === 275) return "rgb(255, 255, 0)";
+      if (code === 276) return "rgb(0, 0, 0)";
+      if (code === 277) return "rgb(192, 192, 192)";
+      if (code === 278) return "rgb(128, 0, 0)";
+      if (code === 279) return "rgb(192, 192, 192)";
+      if (code === 280) return "rgb(255,255,255)";
+      return "";
+    }
+    setValue(option, value) {
+      if (value == "false") value = false;
+      if (value == "true") value = true;
+      if (value == "null") value = null;
+      if (value == "undefined") value = void 0;
+      if (typeof value == "string" && parseFloat(value).toString() == value)
+        value = parseFloat(value);
+      this.settings[option] = this.convertType(value, this.settings[option]);
+    }
+    convertType(value, type) {
+      if (typeof value === type)
+        return value;
+      switch (type) {
+        case "number":
+          if (typeof value == "string" && parseFloat(value).toString() == value)
+            return parseFloat(value);
+          return Number(value);
+        case "boolean":
+          return Boolean(value);
+      }
+      return value;
+    }
+    static addPlugins(menu) {
+      let pl = client.plugins.length;
+      let s;
+      let sl;
+      for (let p = 0; p < pl; p++) {
+        if (!client.plugins[p].settings) continue;
+        if (client.plugins[p].settings.length) {
+          sl = client.plugins[p].settings.length;
+          for (s = 0; s < sl; s++) {
+            let item = client.plugins[p].settings[s];
+            if (typeof item.action !== "string") continue;
+            let code = `<a href="#${item.action}" class="list-group-item list-group-item-action">${item.icon || ""}${item.name || ""}</a>`;
+            if ("position" in item) {
+              if (typeof item.position === "string") {
+                if (menu.querySelector(item.position)) {
+                  menu.querySelector(item.position).insertAdjacentHTML("afterend", code);
+                  continue;
+                }
+              } else if (item.position >= 0 && item.position < menu.children.length) {
+                menu.children[item.position].insertAdjacentHTML("afterend", code);
+                continue;
+              }
+            }
+            menu.insertAdjacentHTML("beforeend", code);
+          }
+        }
+      }
+    }
+    static get menuTemplate() {
+      return `<div class="contents list-group list-group-flush" style="top:0;position: absolute;left:0;bottom:49px;right:0;"><a href="#settings-general" class="list-group-item list-group-item-action"><i class="fas fa-cogs"></i> General</a><a href="#settings-display" class="list-group-item list-group-item-action"><i class="fas fa-display"></i> Display</a><a href="#settings-colors" class="list-group-item list-group-item-action"><i class="fas fa-palette"></i> Colors</a><a href="#settings-commandLine" class="list-group-item list-group-item-action"><i class="fas fa-terminal"></i> Command line</a><a href="#settings-tabCompletion" class="list-group-item list-group-item-action"><i class="fa-solid fa-arrow-right-to-bracket"></i> Tab completion</a><a href="#settings-telnet" class="list-group-item list-group-item-action"><i class="fas fa-network-wired"></i> Telnet</a><a href="#settings-scripting" class="list-group-item list-group-item-action"><i class="fas fa-code"></i> Scripting</a><a href="#settings-specialCharacters" class="list-group-item list-group-item-action"><i class="fa-regular fa-file-code"></i> Special characters</a><a href="#settings-advanced" class="list-group-item list-group-item-action"><i class="fa-solid fa-sliders"></i> Advanced</a></div>`;
     }
   };
 
@@ -3498,6 +5001,11 @@
       updateCommandInput();
       if (client.getOption("commandAutoSize") || client.getOption("commandScrollbars"))
         resizeCommandInput();
+      if (editorDialog)
+        editorDialog.resetState(client.getOption("windows.editor") || { center: true });
+    });
+    client.on("set-title", (title) => {
+      window.document.title = title;
     });
     document.getElementById("btn-adv-editor").addEventListener("click", (e) => {
       if (!editorDialog) {
@@ -3523,12 +5031,14 @@
         });
         editorDialog.on("closed", () => {
           client.setOption("windows.editor", editorDialog.windowState);
+          removeHash("editor");
         });
         editorDialog.on("canceling", () => {
           editor.remove();
         });
         editorDialog.on("canceled", () => {
           client.setOption("windows.editor", editorDialog.windowState);
+          removeHash("editor");
         });
         editorDialog.on("focus", () => editor.focus());
         const textarea = document.createElement("textarea");
@@ -3610,16 +5120,28 @@
     window.addEventListener("hashchange", hashChange, false);
     window.addEventListener("load", hashChange);
   }
+  function removeHash(string) {
+    if (!string || string.length === 0) return;
+    string = string.trim();
+    if (string.startsWith("#"))
+      string = string.substring(1);
+    var hashes = decodeURI(window.location.hash.substring(1)).split(",").filter((s) => s.trim() !== string);
+    window.location.hash = hashes.join(",");
+  }
   function hashChange() {
     if (!window.location.hash || window.location.hash.length < 2) return;
-    var dialogs = window.location.hash.substring(1).split(",");
+    var dialogs = decodeURI(window.location.hash.substring(1)).split(",").map((s) => s.trim());
     for (let d = dialogs.length - 1; d >= 0; d--)
-      switch (dialogs[d].trim()) {
+      switch (dialogs[d]) {
         case "about":
           showDialog("about");
           break;
         case "editor":
           document.getElementById("btn-adv-editor").click();
+          break;
+        default:
+          if (dialogs[d].startsWith("settings"))
+            showDialog(dialogs[d]);
           break;
       }
   }
@@ -3629,20 +5151,50 @@
       case "about":
         if (!_dialogs.about) {
           _dialogs.about = new Dialog({ title: '<i class="bi-info-circle"></i> About', noFooter: true, resizable: false, center: true, maximizable: false });
-          _dialogs.about.on("closed", () => delete _dialogs.about);
-          _dialogs.about.on("canceled", () => delete _dialogs.about);
+          _dialogs.about.on("closed", () => {
+            delete _dialogs.about;
+            removeHash(name);
+          });
+          _dialogs.about.on("canceled", () => {
+            delete _dialogs.about;
+            removeHash(name);
+          });
         }
         loadDialog(_dialogs.about, name, 1, true).catch((e) => {
           client.error(e);
         });
-        break;
+        return _dialogs.about;
+    }
+    if (name.startsWith("settings")) {
+      if (!_dialogs.settings) {
+        _dialogs.settings = new SettingsDialog();
+        _dialogs.settings.on("closed", () => {
+          delete _dialogs.settings;
+          removeHash(name);
+        });
+        _dialogs.settings.on("canceled", () => {
+          delete _dialogs.settings;
+          removeHash(name);
+        });
+      }
+      if (name === "settings") {
+        _dialogs.settings.dialog.dataset.path = name;
+        _dialogs.settings.dialog.dataset.fullPath = name;
+        _dialogs.settings.dialog.dataset.hash = window.location.hash;
+        _dialogs.settings.setPage(name);
+        _dialogs.settings.showModal();
+      } else
+        loadDialog(_dialogs.settings, name, 2, false).then(() => {
+          _dialogs.settings.setPage(name);
+        }).catch((e) => {
+          client.error(e);
+        });
+      return _dialogs.settings;
     }
   }
   function loadDialog(dialog, path, show, showError) {
     return new Promise((resolve, reject) => {
       var subpath = path.split("/");
-      if ($("#empty-page").css("visibility") !== "visible")
-        $(".page").removeClass("show");
       $.ajax({
         url: "dialogs/" + subpath[0] + ".htm",
         cache: false,
@@ -3654,8 +5206,8 @@
         dialog.body.innerHTML = data;
         const scripts = dialog.body.querySelectorAll("script");
         for (let s = 0, sl = scripts.length; s < sl; s++) {
-          let script = new Function("body", "client", scripts[s].textContent);
-          script.apply(client, [dialog.body, client]);
+          let script = new Function("body", "client", "dialog", scripts[s].textContent);
+          script.apply(client, [dialog.body, client, dialog]);
         }
         if (show == 1)
           dialog.show();
@@ -3664,10 +5216,12 @@
         resolve(data);
       }).fail(function(err) {
         if (showError && client.enableDebug)
-          dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path[0]}</h1> ${err.statusText}`;
+          dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path}</h1> ${err.statusText}`;
         else if (showError)
-          dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path[0]}</h1>`;
-        reject(path[0] + ": " + err.statusText);
+          dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path}</h1>`;
+        else
+          dialog.body.innerHTML = "";
+        reject(path + ": " + subpath.statusText);
       });
     });
   }

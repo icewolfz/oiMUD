@@ -1,0 +1,120 @@
+<div class="mb-3">
+    <label for="font" class="form-label">Font</label>
+    <div class="input-group">
+        <input id="font" type="text" class="form-control" aria-label="Text input with dropdown button">
+        <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
+            style="border: var(--bs-border-width) solid var(--bs-border-color);" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" style="height: 200px;overflow: auto;">
+            <li><a class="dropdown-item" href="javascript:void(0)">Inconsolata, 'Courier New', Courier, monospace</a>
+            </li>
+            <li><a class="dropdown-item" href="javascript:void(0)">'Courier New', Courier, monospace</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)">'Lucida Console', Monaco, monospace</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)">Georgia, serif</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)">'Palatino Linotype', 'Book Antiqua', Palatino,
+                    serif</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)">'Times New Roman', Times, serif</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)">Arial, Helvetica, sans-serif</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)">'Arial Black', Gadget, sans-serif</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)">'Comic Sans MS', cursive, sans-serif</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)">Impact, Charcoal, sans-serif</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)">'Lucida Sans Unicode', 'Lucida Grande',
+                    sans-serif</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)">Tahoma, Geneva, sans-serif</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)">'Trebuchet MS', Helvetica, sans-serif</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)">Verdana, Geneva, sans-serif</a></li>
+        </ul>
+    </div>
+    <small class="form-text text-muted" style="margin-top:3px;padding: 2px">
+        Allows any valid css font format
+    </small><br>
+    <small class="form-text text-muted alert alert-warning" style="margin-top:3px;padding: 2px;">
+        Non monospaced fonts may force shorter line widths due to uneven widths when using NAWS.
+    </small><br>
+    <small class="form-text text-muted alert alert-info" style="margin-top:3px;padding: 2px">
+        Will fall back to generic monospace font if not found on system when possible
+    </small>
+</div>
+<div class="mb-3">
+    <label for="fontSize" class="form-label">Font size</label>
+    <input class="form-control" id="fontSize">
+    <small class="form-text text-muted">
+        Accepts any valid css font-size value.
+    </small>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="commandEcho">
+    <label class="form-check-label" for="commandEcho">Echo commands</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="flashing">
+    <label class="form-check-label" for="flashing">Enable Flashing Text</label>
+    <small class="form-text text-muted alert alert-warning" style="padding: 2px">
+        May cause performance issues when enabled
+    </small>
+</div>
+<div class="mb-3">
+    <label for="bufferSize" class="form-label">Buffer size</label>
+    <input type="number" class="form-control" id="bufferSize">
+    <small class="form-text text-muted alert alert-warning" style="margin-top:3px;padding: 2px">
+        May cause performance issues when too large
+    </small>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="enableURLDetection">
+    <label class="form-check-label" for="enableURLDetection">Enable URL Detection</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="CommandonClick">
+    <label class="form-check-label" for="CommandonClick">Focus to command input on click</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="display.wordWrap">
+    <label class="form-check-label" for="display.wordWrap">Word wrap</label>
+</div>
+<div class="mb-3">
+    <label for="display.wrapAt" class="form-label">Word wrap column</label>
+    <input type="number" class="form-control" id="display.wrapAt" min="0" max="1000">
+</div>
+<div class="mb-3">
+    <label for="display.indent" class="form-label">Word wrap indent</label>
+    <input type="number" class="form-control" id="display.indent" min="0" max="500">
+</div>
+<div class="mb-3">
+    <label for="display.tabWidth" class="form-label">Tab width</label>
+    <input type="number" class="form-control" id="display.tabWidth" min="0" max="200">
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="display.showTimestamp">
+    <label class="form-check-label" for="display.showTimestamp">Show timestamp</label>
+</div>
+<div class="mb-3">
+    <label for="display.timestampFormat" class="form-label">Timestamp format</label>
+    <input class="form-control" id="display.timestampFormat">
+    <small class="form-text text-muted">
+        Supports all moment time formats if moment enabled
+    </small>
+</div>
+<script>
+    const fontEl = body.querySelector('#font')
+    let items = body.querySelectorAll('.active');
+    let i, il;
+    for (i = 0, il = items.length; i < il; i++)
+        items[i].classList.remove('active');
+    items = body.querySelectorAll('.dropdown-item');
+    for (i = 0, il = items.length; i < il; i++) {
+        items[i].addEventListener('click', function () {
+            fontEl.value = this.textContent;
+        });
+    }
+    fontEl.nextElementSibling.addEventListener('show.bs.dropdown', event => {
+        let items = body.querySelectorAll('.dropdown-item');
+        for (i = 0, il = items.length; i < il; i++) {
+            items[i].classList.remove('active');
+            if (fontEl.value === items[i].textContent)
+                items[i].classList.add('active');
+        };
+    });
+</script>

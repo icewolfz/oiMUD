@@ -296,8 +296,9 @@ export enum ProfileSaveType {
 
 export interface MenuItem {
   name: string;
-  action: Function;
+  action: Function | string;
   icon?: string;
+  position?: number | string;
 }
 
 export interface FunctionEvent {

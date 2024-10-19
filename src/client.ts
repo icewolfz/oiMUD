@@ -5,7 +5,7 @@ import { AnsiColorCode } from './ansi';
 import { SortItemArrayByPriority, selectAll, debounce, getParameterByName } from './library';
 import { Settings } from './settings';
 import { Input } from './input';
-import { ProfileCollection, Alias, Trigger, Alarm, Macro, Profile, Button, TriggerType, SubTriggerTypes } from './profile';
+import { ProfileCollection, Alias, Trigger, Alarm, Macro, Profile, Button, Context, TriggerType, SubTriggerTypes } from './profile';
 import { Display } from './display';
 import { Plugin } from './plugin';
 import { version } from '../package.json'
@@ -29,7 +29,7 @@ declare let localforage;
 
 interface ClientOptions {
     display: HTMLInputElement | JQuery | string;
-    commandInput: HTMLInputElement | JQuery | string;
+    commandInput: HTMLTextAreaElement | JQuery | string;
     host?: string;
     port?: number;
     scheme?: string;
@@ -43,6 +43,8 @@ interface ItemCache {
     aliases: Alias[];
     macros: Macro[];
     buttons: Button[];
+    contexts: Context[];
+    defaultContext: boolean;
 }
 
 /**
@@ -62,11 +64,13 @@ export class Client extends EventEmitter {
         aliases: null,
         macros: null,
         buttons: null,
+        contexts: null,
+        defaultContext: null,
         alarms: null,
         alarmPatterns: []
     }
     private _alarm;
-    private _commandInput: HTMLInputElement;
+    private _commandInput: HTMLTextAreaElement;
     private _display: Display;
     private _profiles: ProfileCollection;
     private _variables = {};
@@ -86,7 +90,7 @@ export class Client extends EventEmitter {
     //#region Public setter/getters
     public get telnet(): Telnet { return this._telnet; }
     public get variables() { return this._variables; }
-    public get commandInput(): HTMLInputElement { return this._commandInput; }
+    public get commandInput(): HTMLTextAreaElement { return this._commandInput; }
     public get display(): Display { return this._display; }
     public get profiles(): ProfileCollection { return this._profiles; }
     public get plugins(): Plugin[] { return this._plugins; }
@@ -149,6 +153,14 @@ export class Client extends EventEmitter {
 
     public get commandHistory() {
         return this._input.commandHistory;
+    }
+
+    public get indices() {
+        return this._input.indices;
+    }
+
+    public get repeatnum() {
+        return this._input.repeatnum;
     }
 
     get aliases(): Alias[] {
@@ -331,6 +343,37 @@ export class Client extends EventEmitter {
         }
         this._itemCache.buttons = tmp;
         return this._itemCache.buttons;
+    }
+
+    get contexts(): Context[] {
+        if (this._itemCache.contexts)
+            return this._itemCache.contexts;
+        const keys = this.profiles.keys;
+        const tmp = [];
+        let k = 0;
+        const kl = keys.length;
+        if (kl === 0) return [];
+        if (kl === 1) {
+            if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableContexts)
+                this._itemCache.contexts = [];
+            else
+                this._itemCache.contexts = SortItemArrayByPriority(this.profiles.items[keys[k]].contexts);
+            return this._itemCache.contexts;
+        }
+        for (; k < kl; k++) {
+            if (!this.profiles.items[keys[k]].enabled || !this.profiles.items[keys[k]].enableContexts || this.profiles.items[keys[k]].contexts.length === 0)
+                continue;
+            tmp.push.apply(tmp, SortItemArrayByPriority(this.profiles.items[keys[k]].contexts));
+        }
+        this._itemCache.contexts = tmp;
+        return this._itemCache['contexts'];
+    }
+
+    get defaultContext(): boolean {
+        if (this._itemCache.defaultContext !== null)
+            return this._itemCache.defaultContext;
+        this._itemCache.defaultContext = this.profiles.defaultContext;
+        return this._itemCache.defaultContext;
     }
 
     //#endregion    
@@ -826,6 +869,9 @@ export class Client extends EventEmitter {
             if (this.getOption('CommandonClick'))
                 this._commandInput.focus();
         });
+        this.display.on('scroll-lock', (lock) => {
+            this.scrollLock = lock;
+        });
         this.display.on('update-window', (width, height) => {
             this.telnet.updateWindow(width, height);
         });
@@ -894,14 +940,14 @@ export class Client extends EventEmitter {
         });
 
         if (typeof options.commandInput === 'string') {
-            this._commandInput = document.querySelector(options.commandInput) as HTMLInputElement;
+            this._commandInput = document.querySelector(options.commandInput) as HTMLTextAreaElement;
             if (!this._commandInput)
                 throw new Error('Invalid selector for command input.');
         }
         else if (options.commandInput instanceof $)
             this._commandInput = options.commandInput[0];
         else if (options.commandInput instanceof HTMLElement)
-            this._commandInput = options.commandInput as HTMLInputElement;
+            this._commandInput = options.commandInput as HTMLTextAreaElement;
         else
             throw new Error('Command input must be a selector, element or jquery object');
 
@@ -912,10 +958,11 @@ export class Client extends EventEmitter {
         this._telnet.GMCPSupports.push('Client.Media 1');
 
         this._telnet.on('error', (err) => {
+            if (this.enableDebug) this.debug(err);
             if (err) {
-                if (err.type == 'close' && err.code == 1006)
+                if (err.type === 'close' && err.code === 1006)
                     return;
-                var msg = [];
+                const msg = [];
                 if (err.type)
                     msg.push(err.type);
                 if (err.text)
@@ -925,7 +972,7 @@ export class Client extends EventEmitter {
                 if (err.reason)
                     msg.push(err.reason);
                 if (err.code)
-                    this.error(err.code + ' - ' + msg.join(', '));
+                    this.error(err.code + ' : ' + msg.join(', '));
                 else
                     this.error(msg.join(', '));
             }
@@ -933,6 +980,7 @@ export class Client extends EventEmitter {
                 this.error('Unknown telnet error.');
             if (this.getOption('autoConnect') && !this._telnet.connected)
                 setTimeout(() => { this.connect(); }, client.getOption('autoConnectDelay'));
+            this.emit('reconnect');
         });
         this.telnet.on('connecting', () => {
             this.connecting = true;
@@ -954,7 +1002,7 @@ export class Client extends EventEmitter {
         this.telnet.on('receive-option', data => {
             this.emit('received-option', data);
         });
-        this._telnet.on('close', () => {
+        this.telnet.on('close', () => {
             this.connecting = false;
             this.echo('Connection closed to ' + this.host + ':' + this.port, AnsiColorCode.InfoText, AnsiColorCode.InfoBackground, true, true);
             this.disconnectTime = Date.now();
@@ -967,7 +1015,7 @@ export class Client extends EventEmitter {
         this.telnet.on('received-data', data => {
             data = { value: data };
             this.emit('received-data', data);
-            if (data === null || typeof data == 'undefined' || data.value === null || typeof data.value == 'undefined')
+            if (data == null || typeof data === 'undefined' || data.value == null || typeof data.value === 'undefined')
                 return;
             this.printInternal(data.value, false, true);
             this.debug('Latency: ' + this.telnet.latency + 'ms');
@@ -1110,12 +1158,13 @@ export class Client extends EventEmitter {
         this.display.showTimestamp = this._options['display.showTimestamp'];
         this.display.tabWidth = this._options['display.tabWidth'];
         this.display.timestampFormat = this._options['display.timestampFormat'];
-
-        if (this._options.colors && this._options.colors?.length > 0) {
-            var clrs = this._options.colors;
-            for (var c = 0, cl = clrs.length; c < cl; c++) {
-                if (!clrs[c] || clrs[c].length === 0) continue;
-                this.display.SetColor(c, clrs[c]);
+        const colors = this.getOption('colors');
+        if (colors && colors.length > 0) {
+            let c;
+            const cl = colors.length;
+            for (c = 0; c < cl; c++) {
+                if (!colors[c] || colors[c].length === 0) continue;
+                this.display.SetColor(c, colors[c]);
             }
         }
 
@@ -1132,6 +1181,11 @@ export class Client extends EventEmitter {
         this._input.enableTriggers = this._options.enableTriggers;
         this.display.scrollLock = this._options.scrollLocked;
         this.display.hideTrailingEmptyLine = this._options['display.hideTrailingEmptyLine'];
+        this.display.displayControlCodes = this.getOption('display.displayControlCodes');
+        this.display.emulateTerminal = this.getOption('display.emulateTerminal');
+        this.display.emulateControlCodes = this.getOption('display.emulateControlCodes');
+
+        this._commandInput.wrap = this.getOption('commandWordWrap') ? 'on' : 'off';
 
         if (this.UpdateFonts) this.UpdateFonts();
         this.display.scrollDisplay();
@@ -1384,6 +1438,8 @@ export class Client extends EventEmitter {
             aliases: null,
             macros: null,
             buttons: null,
+            contexts: null,
+            defaultContext: null,
             alarms: null,
             alarmPatterns: []
         };

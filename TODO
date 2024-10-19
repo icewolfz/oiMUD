@@ -1,0 +1,41 @@
+create chat plugin and use on('function') event to add custom chat commnads
+
+//spell-checker:ignore chatprompt chatp
+case 'chatprompt':
+case 'chatp':
+    if ((this.client.getOption('echo') & 4) === 4)
+        this.client.echo(raw, -3, -4, true, true);
+    args = this.parseInline(args.join(' '));
+    if ((<any>this.client).sendChat)
+        (<any>this.client).sendChat(args);
+    return null;
+case 'chat':
+case 'ch':
+    if ((this.client.getOption('echo') & 4) === 4)
+        this.client.echo(raw, -3, -4, true, true);
+    args = this.parseInline(args.join(' ') + '\n');
+    if ((<any>this.client).sendChat)
+        (<any>this.client).sendChat(args);
+    return null;
+
+//Add on disconnect option and dialog
+
+//New options
+enableParsing - quick enabled triggered by interface?
+enableTriggers - quick enabled triggered by interface?
+
+display.showInvalidMXPTags
+display.displayControlCodes
+display.emulateTerminal
+display.emulateControlCodes
+
+
+
+
+
+
+
+
+
+
+

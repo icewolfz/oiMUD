@@ -82,10 +82,6 @@
     <label for="display.indent" class="form-label">Word wrap indent</label>
     <input type="number" class="form-control" id="display.indent" min="0" max="500">
 </div>
-<div class="mb-3">
-    <label for="display.tabWidth" class="form-label">Tab width</label>
-    <input type="number" class="form-control" id="display.tabWidth" min="0" max="200">
-</div>
 <div class="form-check form-switch">
     <input type="checkbox" class="form-check-input" id="display.showTimestamp">
     <label class="form-check-label" for="display.showTimestamp">Show timestamp</label>
@@ -96,6 +92,31 @@
     <small class="form-text text-muted">
         Supports all moment time formats if moment enabled
     </small>
+</div>
+
+<div class="mb-3">
+    <label for="display.tabWidth" class="form-label">Tab width</label>
+    <input type="number" class="form-control" id="display.tabWidth" min="0" max="200">
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="display.showInvalidMXPTags">
+    <label class="form-check-label" for="display.showInvalidMXPTags">Show invalid MXP tags</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="display.displayControlCodes">
+    <label class="form-check-label" for="display.displayControlCodes">Display control codes</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="display.emulateTerminal">
+    <label class="form-check-label" for="display.emulateTerminal">Emulate terminal extended characters</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="display.emulateControlCodes">
+    <label class="form-check-label" for="display.emulateControlCodes">Emulate control codes</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="display.hideTrailingEmptyLine">
+    <label class="form-check-label" for="display.hideTrailingEmptyLine">Hide trailing line</label>
 </div>
 <script>
     const fontEl = body.querySelector('#font')

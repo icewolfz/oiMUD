@@ -349,6 +349,13 @@ export class Display extends EventEmitter {
         return this._model.emulateTerminal;
     }
 
+    set emulateControlCodes(value: boolean) {
+        this._model.emulateControlCodes = value;
+    }
+    get emulateControlCodes(): boolean {
+        return this._model.emulateControlCodes;
+    }    
+
     set MXPStyleVersion(value: string) {
         this._model.MXPStyleVersion = value;
     }

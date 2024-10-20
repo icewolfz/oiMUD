@@ -27,9 +27,9 @@ export enum UpdateType {
 }
 
 export enum TimeStampStyle {
-    None,
-    Simple,
-    Format
+    None = 0,
+    Simple = 1,
+    Format = 2
 }
 
 export class Display extends EventEmitter {

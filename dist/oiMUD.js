@@ -24427,10 +24427,11 @@ Devanagari
           this._state.x = window.innerWidth - 16;
         if (this._state.y > window.innerHeight - 16)
           this._state.y = window.innerHeight - 16;
-        if (this._state.x < 16 - this._dialog.clientWidth)
-          this._state.x = 16 - this._dialog.clientWidth;
-        if (this._state.y < 16 - this._dialog.clientHeight)
-          this._state.y = 16 - this._dialog.clientHeight;
+        let size = this._size;
+        if (this._state.x < 16 - size.width)
+          this._state.x = 16 - size.width;
+        if (this._state.y < 16 - size.height)
+          this._state.y = 16 - size.height;
         this._dialog.style.left = this._state.x + "px";
         this._dialog.style.top = this._state.y + "px";
       };
@@ -24446,10 +24447,11 @@ Devanagari
           this._state.x = window.innerWidth - 16;
         if (this._state.y > window.innerHeight - 16)
           this._state.y = window.innerHeight - 16;
-        if (this._state.x < 16 - this._dialog.clientWidth)
-          this._state.x = 16 - this._dialog.clientWidth;
-        if (this._state.y < 16 - this._dialog.clientHeight)
-          this._state.y = 16 - this._dialog.clientHeight;
+        let size = this._size;
+        if (this._state.x < 16 - size.width)
+          this._state.x = 16 - size.width;
+        if (this._state.y < 16 - size.height)
+          this._state.y = 16 - size.height;
         this._dialog.style.left = this._state.x + "px";
         this._dialog.style.top = this._state.y + "px";
       };
@@ -24981,34 +24983,54 @@ Devanagari
     get windowState() {
       return this._state;
     }
-    center() {
-      this.position(48 /* Center */);
+    _width() {
+      let w = this.dialog.offsetWidth || this._dialog.clientWidth;
+      if (!w) {
+        const styles = document.defaultView.getComputedStyle(this._dialog);
+        w = w || parseInt(styles.width, 10);
+      }
+      return w;
     }
-    position(position) {
-      if (position < 1) return;
-      let w = this._dialog.clientWidth;
-      let h = this._dialog.clientHeight;
+    _height() {
+      let h = this.dialog.offsetHeight || this._dialog.clientHeight;
+      if (!h) {
+        const styles = document.defaultView.getComputedStyle(this._dialog);
+        h = h || parseInt(styles.height, 10);
+      }
+      return h;
+    }
+    get _size() {
+      let w = this.dialog.offsetWidth || this._dialog.clientWidth;
+      let h = this.dialog.offsetHeight || this._dialog.clientHeight;
       if (!w || !h) {
         const styles = document.defaultView.getComputedStyle(this._dialog);
         w = w || parseInt(styles.width, 10);
         h = h || parseInt(styles.height, 10);
       }
+      return { width: w, height: h };
+    }
+    center() {
+      this.position(48 /* Center */);
+    }
+    position(position) {
+      if (position < 1) return;
+      let size = this._size;
       if ((position & 4 /* Top */) === 4 /* Top */)
         this._state.y = 0;
       else if ((position & 8 /* Bottom */) === 8 /* Bottom */)
-        this._state.y = window.innerHeight - h;
+        this._state.y = window.innerHeight - size.height;
       else if ((position & 16 /* CenterVertical */) === 16 /* CenterVertical */)
-        this._state.y = window.innerHeight / 2 - h / 2;
+        this._state.y = window.innerHeight / 2 - size.height / 2;
       if ((position & 1 /* Left */) === 1 /* Left */)
         this._state.x = 0;
       else if ((position & 2 /* Right */) === 2 /* Right */)
-        this._state.x = window.innerWidth - w;
+        this._state.x = window.innerWidth - size.width;
       else if ((position & 32 /* CenterHorizontal */) === 32 /* CenterHorizontal */)
-        this._state.x = window.innerWidth / 2 - w / 2;
+        this._state.x = window.innerWidth / 2 - size.width / 2;
       this._dialog.style.left = this._state.x + "px";
       this._dialog.style.top = this._state.y + "px";
-      this._state.width = this._dialog.clientWidth;
-      this._state.height = this._dialog.clientHeight;
+      this._state.width = size.width;
+      this._state.height = size.height;
       this.emit("moved", this._state);
     }
     maximize() {
@@ -26789,7 +26811,7 @@ Devanagari
                 setTimeout(function() {
                   new AlertDialog("Invalid file", "Unable to import file, not a valid settings file", 4 /* exclamation */).showModal();
                 }, 50);
-              this.loadSettings();
+              this.loadPageSettings();
             } catch (err) {
               setTimeout(function() {
                 new AlertDialog("Error importing", "Error importing file.", 3 /* error */).showModal();
@@ -26889,7 +26911,8 @@ Devanagari
           this.footer.querySelector(`#${this.id}-reset`).style.display = "";
         this.body.style.left = "200px";
       }
-      this.loadSettings();
+      this.body.scrollTop = 0;
+      this.loadPageSettings();
     }
     buildMenu() {
       this.dialog.insertAdjacentHTML("beforeend", _SettingsDialog.menuTemplate.replace(' style="top:0;position: absolute;left:0;bottom:49px;right:0;"', ""));
@@ -26900,7 +26923,7 @@ Devanagari
         this._menu.style.display = "none";
       this.body.style.left = "200px";
     }
-    loadSettings() {
+    loadPageSettings() {
       const forms = this.body.querySelectorAll("input,select,textarea");
       if (this._page === "settings-colors") {
         var c;
@@ -27111,8 +27134,24 @@ Devanagari
       updateCommandInput();
       if (client.getOption("commandAutoSize") || client.getOption("commandScrollbars"))
         resizeCommandInput();
-      if (editorDialog)
+      if (editorDialog) {
         editorDialog.resetState(client.getOption("windows.editor") || { center: true });
+        if (editor.simple != client.getOption("simpleEditor")) {
+          let value = "";
+          if (!editor.isSimple)
+            value = editor.getFormattedText().replace(/(?:\r)/g, "");
+          editor.simple = client.getOption("simpleEditor");
+          if (!editor.isSimple) {
+            editorDialog.hideFooter();
+            editorDialog.header.querySelector("#adv-editor-switch").title = "Switch to simple";
+          } else {
+            editor.value = value;
+            editorDialog.showFooter();
+            editorDialog.header.querySelector("#adv-editor-switch").title = "Switch to advanced";
+            setTimeout(() => editor.focus(), 100);
+          }
+        }
+      }
     });
     client.on("set-title", (title) => {
       window.document.title = title;

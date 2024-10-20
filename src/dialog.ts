@@ -201,10 +201,11 @@ export class Dialog extends EventEmitter {
             this._state.x = window.innerWidth - 16;
         if (this._state.y > window.innerHeight - 16)
             this._state.y = window.innerHeight - 16;
-        if (this._state.x < 16 - this._dialog.clientWidth)
-            this._state.x = 16 - this._dialog.clientWidth;
-        if (this._state.y < 16 - this._dialog.clientHeight)
-            this._state.y = 16 - this._dialog.clientHeight;
+        let size = this._size;
+        if (this._state.x < 16 - size.width)
+            this._state.x = 16 - size.width;
+        if (this._state.y < 16 - size.height)
+            this._state.y = 16 - size.height;
         this._dialog.style.left = this._state.x + 'px'
         this._dialog.style.top = this._state.y + 'px'
     };
@@ -221,10 +222,11 @@ export class Dialog extends EventEmitter {
             this._state.x = window.innerWidth - 16;
         if (this._state.y > window.innerHeight - 16)
             this._state.y = window.innerHeight - 16;
-        if (this._state.x < 16 - this._dialog.clientWidth)
-            this._state.x = 16 - this._dialog.clientWidth;
-        if (this._state.y < 16 - this._dialog.clientHeight)
-            this._state.y = 16 - this._dialog.clientHeight;
+        let size = this._size;
+        if (this._state.x < 16 - size.width)
+            this._state.x = 16 - size.width;
+        if (this._state.y < 16 - size.height)
+            this._state.y = 16 - size.height;
         this._dialog.style.left = this._state.x + 'px'
         this._dialog.style.top = this._state.y + 'px'
     };
@@ -750,6 +752,35 @@ export class Dialog extends EventEmitter {
         return this._state;
     }
 
+    private _width() {
+        let w = this.dialog.offsetWidth || this._dialog.clientWidth;
+        if (!w) {
+            const styles = document.defaultView.getComputedStyle(this._dialog);
+            w = w || parseInt(styles.width, 10);
+        }
+        return w;
+    }
+
+    private _height() {
+        let h = this.dialog.offsetHeight || this._dialog.clientHeight;
+        if (!h) {
+            const styles = document.defaultView.getComputedStyle(this._dialog);
+            h = h || parseInt(styles.height, 10);
+        }
+        return h;
+    }
+
+    private get _size() {
+        let w = this.dialog.offsetWidth || this._dialog.clientWidth;
+        let h = this.dialog.offsetHeight || this._dialog.clientHeight;
+        if (!w || !h) {
+            const styles = document.defaultView.getComputedStyle(this._dialog);
+            w = w || parseInt(styles.width, 10);
+            h = h || parseInt(styles.height, 10);
+        }
+        return { width: w, height: h };
+    }
+
     public center() {
         this.position(Position.Center);
     }
@@ -757,31 +788,25 @@ export class Dialog extends EventEmitter {
     public position(position: Position) {
         if (position < 1) return;
         //styles2.width
-        let w = this._dialog.clientWidth;
-        let h = this._dialog.clientHeight;
-        if (!w || !h) {
-            const styles = document.defaultView.getComputedStyle(this._dialog);
-            w = w || parseInt(styles.width, 10);
-            h = h || parseInt(styles.height, 10);
-        }
+        let size = this._size;
         if ((position & Position.Top) === Position.Top)
             this._state.y = 0;
         else if ((position & Position.Bottom) === Position.Bottom)
-            this._state.y = window.innerHeight - h;
+            this._state.y = window.innerHeight - size.height;
         else if ((position & Position.CenterVertical) === Position.CenterVertical)
-            this._state.y = (window.innerHeight / 2 - h / 2);
+            this._state.y = (window.innerHeight / 2 - size.height / 2);
 
         if ((position & Position.Left) === Position.Left)
             this._state.x = 0;
         else if ((position & Position.Right) === Position.Right)
-            this._state.x = window.innerWidth - w;
+            this._state.x = window.innerWidth - size.width;
         else if ((position & Position.CenterHorizontal) === Position.CenterHorizontal)
-            this._state.x = (window.innerWidth / 2 - w / 2);
+            this._state.x = (window.innerWidth / 2 - size.width / 2);
 
         this._dialog.style.left = this._state.x + 'px';
         this._dialog.style.top = this._state.y + 'px';
-        this._state.width = this._dialog.clientWidth;
-        this._state.height = this._dialog.clientHeight;
+        this._state.width = size.width;
+        this._state.height = size.height;
         this.emit('moved', this._state);
     }
 

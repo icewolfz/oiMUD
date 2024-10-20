@@ -53,28 +53,16 @@
 </div>
 
 <div class="mb-3">
-    <label class="control-label">Newline shortcut</label>
-    <div class="form-check ms-4">
-        <input type="radio" class="form-check-input" name="newlineShortcut" id="newlineShortcut-0" value="0">
-        <label class="form-check-label" for="newlineShortcut-0">None</label>
-    </div>
-    <div class="form-check ms-4">
-        <input type="radio" class="form-check-input" name="newlineShortcut" id="newlineShortcut-1" value="1">
-        <label class="form-check-label" for="newlineShortcut-1">Ctrl + Enter</label>
-    </div>
-    <div class="form-check ms-4">
-        <input type="radio" class="form-check-input" name="newlineShortcut" id="newlineShortcut-2" value="2">
-        <label class="form-check-label" for="newlineShortcut-2">Shift + Enter</label>
-    </div>
-    <div class="form-check ms-4">
-        <input type="radio" class="form-check-input" name="newlineShortcut" id="newlineShortcut-4" value="4">
-        <label class="form-check-label" for="newlineShortcut-4">(Ctrl | Shift) + Enter</label>
-    </div>
-    <div class="form-check ms-4">
-        <input type="radio" class="form-check-input" name="newlineShortcut" id="newlineShortcut-8" value="8">
-        <label class="form-check-label" for="newlineShortcut-8">Ctrl + Shift + Enter</label>
-    </div>
+    <label for="newlineShortcut" class="form-label">Newline shortcut</label>
+    <select id="newlineShortcut" class="form-select">
+        <option value="0">None</option>
+        <option value="1">Ctrl + Enter</option>
+        <option value="2">Shift + Enter</option>
+        <option value="4">(Ctrl | Shift) + Enter</option>
+        <option value="8">Ctrl + Shift + Enter</option>
+    </select>
 </div>
+
 <div class="form-check form-switch">
     <input type="checkbox" class="form-check-input" id="commandAutosize">
     <label class="form-check-label" for="commandAutosize">Auto size to contents</label>

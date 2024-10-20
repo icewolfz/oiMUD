@@ -54,7 +54,7 @@ export class SettingsDialog extends Dialog {
                             setTimeout(function () {
                                 new AlertDialog('Invalid file', 'Unable to import file, not a valid settings file', DialogIcon.exclamation).showModal();
                             }, 50);
-                        this.loadSettings();
+                        this.loadPageSettings();
                     }
                     catch (err) {
                         setTimeout(function () {
@@ -160,7 +160,8 @@ export class SettingsDialog extends Dialog {
                 this.footer.querySelector(`#${this.id}-reset`).style.display = '';
             this.body.style.left = '200px';
         }
-        this.loadSettings();
+        this.body.scrollTop = 0;
+        this.loadPageSettings();
     }
 
     private buildMenu() {
@@ -173,7 +174,7 @@ export class SettingsDialog extends Dialog {
         this.body.style.left = '200px';
     }
 
-    private loadSettings() {
+    private loadPageSettings() {
         const forms: HTMLInputElement[] = this.body.querySelectorAll('input,select,textarea');
         if (this._page === 'settings-colors') {
             var c;

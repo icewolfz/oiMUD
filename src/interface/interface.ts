@@ -32,8 +32,25 @@ export function initializeInterface() {
         updateCommandInput();
         if (client.getOption('commandAutoSize') || client.getOption('commandScrollbars'))
             resizeCommandInput();
-        if (editorDialog)
+        if (editorDialog) {
             editorDialog.resetState(client.getOption('windows.editor') || { center: true });
+            if (editor.simple != client.getOption('simpleEditor')) {
+                let value = '';
+                if (!editor.isSimple)
+                    value = editor.getFormattedText().replace(/(?:\r)/g, '');
+                editor.simple = client.getOption('simpleEditor');
+                if (!editor.isSimple) {
+                    editorDialog.hideFooter();
+                    editorDialog.header.querySelector('#adv-editor-switch').title = 'Switch to simple';
+                }
+                else {
+                    editor.value = value;
+                    editorDialog.showFooter();
+                    editorDialog.header.querySelector('#adv-editor-switch').title = 'Switch to advanced';
+                    setTimeout(() => editor.focus(), 100);
+                }
+            }
+        }
     });
     client.on('set-title', title => {
         window.document.title = title;
@@ -97,8 +114,6 @@ export function initializeInterface() {
                 let value = '';
                 if (!editor.isSimple)
                     value = editor.getFormattedText().replace(/(?:\r)/g, '');
-                //else
-                //value = editor.value;
                 editor.simple = !editor.simple;
                 if (!editor.isSimple) {
                     editorDialog.hideFooter();
@@ -110,7 +125,6 @@ export function initializeInterface() {
                     editorDialog.header.querySelector('#adv-editor-switch').title = 'Switch to advanced';
                     setTimeout(() => editor.focus(), 100);
                 }
-                //editor.setFormatted(value);
             });
             document.getElementById('btn-adv-editor-append').addEventListener('click', () => {
                 openFileDialog('Append file', false).then(files => {

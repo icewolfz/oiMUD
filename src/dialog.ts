@@ -955,6 +955,17 @@ export class Dialog extends EventEmitter {
             this.position(options.position);
         this._windowResize();
     }
+
+    public setBody(contents: string, args?: any) {
+        this._body.innerHTML = contents;
+        args = args || {};
+        const scripts: HTMLScriptElement[] = this._body.querySelectorAll('script');
+        for (let s = 0, sl = scripts.length; s < sl; s++) {
+            /*jslint evil: true */
+            let script = new Function('body', 'dialog', ...Object.keys(args), scripts[s].textContent);
+            script.apply(client, [this._body, client, ...Object.values(args), this]);
+        }
+    }
 }
 
 export class AlertDialog extends Dialog {

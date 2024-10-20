@@ -25192,6 +25192,15 @@ Devanagari
         this.position(options.position);
       this._windowResize();
     }
+    setBody(contents, args) {
+      this._body.innerHTML = contents;
+      args = args || {};
+      const scripts = this._body.querySelectorAll("script");
+      for (let s = 0, sl = scripts.length; s < sl; s++) {
+        let script = new Function("body", "dialog", ...Object.keys(args), scripts[s].textContent);
+        script.apply(client, [this._body, client, ...Object.values(args), this]);
+      }
+    }
   };
   var AlertDialog = class extends Dialog {
     constructor(title, message, icon) {
@@ -26906,10 +26915,17 @@ Devanagari
         this.close();
       });
       this.settings = new Settings();
+      this.on("closed", () => {
+        removeHash(this._page);
+      });
+      this.on("canceled", () => {
+        removeHash(this._page);
+      });
     }
-    setPage(page) {
-      this._page = page;
-      const pages = page.split("-");
+    setBody(contents, args) {
+      super.setBody(this.dialog.dataset.path === "settings" ? _SettingsDialog.menuTemplate : contents, args);
+      this._page = this.dialog.dataset.path;
+      const pages = this._page.split("-");
       let breadcrumb = "";
       let last = pages.length - 1;
       for (let p = 0, pl = pages.length; p < pl; p++) {
@@ -26920,13 +26936,12 @@ Devanagari
           breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p + 1).join("-") + '">' + title + "</a></li>";
       }
       this.title = '<i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i> <ol class="float-start breadcrumb">' + breadcrumb + "</ol>";
-      if (page === "settings") {
+      if (this._page === "settings") {
         if (this._menu)
           this._menu.style.display = "none";
         this.body.style.left = "";
         if (this.footer.querySelector(`#${this.id}-reset`))
           this.footer.querySelector(`#${this.id}-reset`).style.display = "none";
-        this.body.innerHTML = _SettingsDialog.menuTemplate;
         _SettingsDialog.addPlugins(this.body.querySelector("div.contents"));
       } else {
         if (this._menu)
@@ -27343,22 +27358,19 @@ Devanagari
         _dialogs.settings = new SettingsDialog();
         _dialogs.settings.on("closed", () => {
           delete _dialogs.settings;
-          removeHash(name2);
         });
         _dialogs.settings.on("canceled", () => {
           delete _dialogs.settings;
-          removeHash(name2);
         });
       }
       if (name2 === "settings") {
         _dialogs.settings.dialog.dataset.path = name2;
         _dialogs.settings.dialog.dataset.fullPath = name2;
         _dialogs.settings.dialog.dataset.hash = window.location.hash;
-        _dialogs.settings.setPage(name2);
+        _dialogs.settings.setBody("", { client });
         _dialogs.settings.showModal();
       } else
         loadDialog(_dialogs.settings, name2, 2, false).then(() => {
-          _dialogs.settings.setPage(name2);
         }).catch((e) => {
           client.error(e);
         });
@@ -27376,12 +27388,7 @@ Devanagari
         dialog.dialog.dataset.path = subpath[0];
         dialog.dialog.dataset.fullPath = path;
         dialog.dialog.dataset.hash = window.location.hash;
-        dialog.body.innerHTML = data;
-        const scripts = dialog.body.querySelectorAll("script");
-        for (let s = 0, sl = scripts.length; s < sl; s++) {
-          let script = new Function("body", "client", "dialog", scripts[s].textContent);
-          script.apply(client, [dialog.body, client, dialog]);
-        }
+        dialog.setBody(data, { client });
         if (show == 1)
           dialog.show();
         else if (show === 2)

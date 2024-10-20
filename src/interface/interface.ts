@@ -224,23 +224,20 @@ export function showDialog(name: string) {
             _dialogs.settings = new SettingsDialog();
             _dialogs.settings.on('closed', () => {
                 delete _dialogs.settings;
-                removeHash(name);
             });
             _dialogs.settings.on('canceled', () => {
                 delete _dialogs.settings;
-                removeHash(name);
             });
         }
         if (name === 'settings') {
             _dialogs.settings.dialog.dataset.path = name;
             _dialogs.settings.dialog.dataset.fullPath = name;
             _dialogs.settings.dialog.dataset.hash = window.location.hash;
-            _dialogs.settings.setPage(name);
+            _dialogs.settings.setBody('', { client: client })
             _dialogs.settings.showModal();
         }
         else
             loadDialog(_dialogs.settings, name, 2, false).then(() => {
-                _dialogs.settings.setPage(name);
             }).catch(e => {
                 client.error(e);
             });
@@ -260,13 +257,7 @@ export function loadDialog(dialog: Dialog, path, show?, showError?) {
                 dialog.dialog.dataset.path = subpath[0];
                 dialog.dialog.dataset.fullPath = path;
                 dialog.dialog.dataset.hash = window.location.hash;
-                dialog.body.innerHTML = data;
-                const scripts: HTMLScriptElement[] = dialog.body.querySelectorAll('script');
-                for (let s = 0, sl = scripts.length; s < sl; s++) {
-                    /*jslint evil: true */
-                    let script = new Function('body', 'client', 'dialog', scripts[s].textContent);
-                    script.apply(client, [dialog.body, client, dialog]);
-                }
+                dialog.setBody(data, { client: client });
                 if (show == 1)
                     dialog.show();
                 else if (show === 2)

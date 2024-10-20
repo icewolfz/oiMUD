@@ -129,11 +129,18 @@ export class SettingsDialog extends Dialog {
             this.close();
         })
         this.settings = new Settings();
+        this.on('closed', () => {
+            removeHash(this._page);
+        });
+        this.on('canceled', () => {
+            removeHash(this._page);
+        });
     }
 
-    public setPage(page: string) {
-        this._page = page;
-        const pages = page.split('-');
+    public setBody(contents: string, args?: any) {
+        super.setBody(this.dialog.dataset.path === 'settings' ? SettingsDialog.menuTemplate : contents, args);
+        this._page = this.dialog.dataset.path;
+        const pages = this._page.split('-');
         let breadcrumb = '';
         let last = pages.length - 1;
         for (let p = 0, pl = pages.length; p < pl; p++) {
@@ -144,13 +151,12 @@ export class SettingsDialog extends Dialog {
                 breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p + 1).join('-') + '">' + title + '</a></li>';
         }
         this.title = '<i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i> <ol class="float-start breadcrumb">' + breadcrumb + '</ol>';
-        if (page === 'settings') {
+        if (this._page === 'settings') {
             if (this._menu)
                 this._menu.style.display = 'none';
             this.body.style.left = '';
             if (this.footer.querySelector(`#${this.id}-reset`))
                 this.footer.querySelector(`#${this.id}-reset`).style.display = 'none';
-            this.body.innerHTML = SettingsDialog.menuTemplate;
             SettingsDialog.addPlugins(this.body.querySelector('div.contents'));
         }
         else {

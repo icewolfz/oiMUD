@@ -7280,10 +7280,10 @@
               this._tabIdx = -1;
               this._tabWords = null;
               this._tabSearch = null;
-              event.preventDefault();
               this.client.sendCommand(null, null, this.client.getOption("allowCommentsFromCommand"));
               this.emit("history-navigate", event);
             }
+            event.preventDefault();
             break;
           case "Tab":
             if (!this.client.getOption("enableTabCompletion") || this.client.commandInput.value.length === 0) return;
@@ -19534,6 +19534,9 @@
       });
       this._view.addEventListener("click", (e) => {
         this.emit("click", e);
+      });
+      this._view.addEventListener("contextmenu", (e) => {
+        this.emit("contextmenu", e);
       });
       this._container.appendChild(this._view);
       this._charHeight = parseFloat(window.getComputedStyle(this._character).height);

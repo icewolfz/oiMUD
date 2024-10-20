@@ -435,6 +435,9 @@ export class Display extends EventEmitter {
         this._view.addEventListener('click', e => {
             this.emit('click', e);
         })
+        this._view.addEventListener('contextmenu', e => {
+            this.emit('contextmenu', e);
+        });
         this._container.appendChild(this._view);
 
         this._charHeight = parseFloat(window.getComputedStyle(this._character).height);

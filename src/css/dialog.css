@@ -125,6 +125,24 @@ dialog {
   }
 }
 
+@media (max-width: 300px) {
+  .breadcrumb-item {
+    max-width: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 28px;
+    white-space: nowrap;
+  }
+
+  .breadcrumb-item:only-child,
+  .breadcrumb-item:first-child:last-child {
+    max-width: initial !important;
+  }
+  .breadcrumb-item:last-child {
+    max-width: 150px;
+  }
+}
+
 /*Resizeable*/
 
 .dialog.resizable .resizer-left {

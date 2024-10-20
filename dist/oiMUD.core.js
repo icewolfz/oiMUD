@@ -4606,7 +4606,8 @@
     ["commandMinLines", 0, 2 /* Number */, 1],
     ["backupReplaceCharacters", 0, 1 /* Boolean */, true],
     ["simpleAlarms", 0, 1 /* Boolean */, false],
-    ["simpleEditor", 0, 1 /* Boolean */, false]
+    ["simpleEditor", 0, 1 /* Boolean */, false],
+    ["selectLastCommand", 0, 1 /* Boolean */, true]
   ];
   var Settings = class _Settings {
     constructor() {
@@ -4686,6 +4687,7 @@
           case "chat.CaptureOnlyOpen":
           case "simpleAlarms":
           case "simpleEditor":
+          case "selectLastCommand":
             if (tmp == 1)
               return true;
             return false;
@@ -5192,6 +5194,8 @@
           return false;
         case "simpleEditor":
           return false;
+        case "selectLastCommand":
+          return true;
       }
       return null;
     }
@@ -23722,9 +23726,10 @@ Devanagari
       if (data.handled || data.value == null || typeof data.value === "undefined") return;
       if (data.value.length > 0)
         this.send(data.value, !noEcho);
-      if (this.getOption("keepLastCommand"))
-        selectAll(this._commandInput);
-      else
+      if (this.getOption("keepLastCommand")) {
+        if (this.getOption("selectLastCommand"))
+          selectAll(this._commandInput);
+      } else
         this._commandInput.value = "";
     }
     sendBackground(txt, noEcho, comments) {

@@ -4054,7 +4054,8 @@
     ["commandMinLines", 0, 2 /* Number */, 1],
     ["backupReplaceCharacters", 0, 1 /* Boolean */, true],
     ["simpleAlarms", 0, 1 /* Boolean */, false],
-    ["simpleEditor", 0, 1 /* Boolean */, false]
+    ["simpleEditor", 0, 1 /* Boolean */, false],
+    ["selectLastCommand", 0, 1 /* Boolean */, true]
   ];
   var Settings = class _Settings {
     constructor() {
@@ -4134,6 +4135,7 @@
           case "chat.CaptureOnlyOpen":
           case "simpleAlarms":
           case "simpleEditor":
+          case "selectLastCommand":
             if (tmp == 1)
               return true;
             return false;
@@ -4640,6 +4642,8 @@
           return false;
         case "simpleEditor":
           return false;
+        case "selectLastCommand":
+          return true;
       }
       return null;
     }

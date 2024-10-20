@@ -2441,7 +2441,7 @@
       }
       dialog.id = "openFileDialog";
       dialog.style.zIndex = "2000";
-      dialog.style.height = "155px";
+      dialog.style.height = "158px";
       dialog.style.width = "350px";
       dialog.innerHTML = `<div class="dialog-header" style="font-weight: bold"><button type="button" class="btn btn-close float-end btn-danger" data-dismiss="modal" onclick="document.getElementById('openFileDialog').close();"></button><div>${title || "Open file..."}</div></div><div class="dialog-body"><div class="m-3"><input class="form-control" type="file" id="openFileDialog-files"${multiple ? " multiple" : ""} required${accept && accept.length ? ' accept="' + accept + '"' : ""}></div></div><div class="dialog-footer"><button id="openFileDialog-cancel" style="float: right" type="button" class="btn btn-default" onclick="document.getElementById('openFileDialog').close();">Cancel</button><button id="openFileDialog-ok" style="float: right" type="button" class="btn btn-primary">Ok</button></div>`;
       document.body.appendChild(dialog);
@@ -22033,12 +22033,6 @@
           sample += `	${this.client.getOption("commandChar") + t}
 `;
         }
-        sample += `	${this.client.getOption("commandChar")}testfile file
-`;
-        sample += `	${this.client.getOption("commandChar")}testspeedfile file
-`;
-        sample += `	${this.client.getOption("commandChar")}testspeedfiler file
-`;
         this.client.print(sample, true);
       };
       this.functions["testcolors"] = () => {

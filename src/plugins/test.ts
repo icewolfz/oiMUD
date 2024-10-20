@@ -117,9 +117,6 @@ export class Test extends Plugin {
                 if (!this.functions.hasOwnProperty(t)) continue;
                 sample += `\t${this.client.getOption('commandChar') + t}\n`;
             }
-            sample += `\t${this.client.getOption('commandChar')}testfile file\n`;
-            sample += `\t${this.client.getOption('commandChar')}testspeedfile file\n`;
-            sample += `\t${this.client.getOption('commandChar')}testspeedfiler file\n`;
             this.client.print(sample, true);
         };
 

@@ -24067,11 +24067,10 @@ Devanagari
       if (data.handled || data.value == null || typeof data.value === "undefined") return;
       if (data.value.length > 0)
         this.send(data.value, !noEcho);
-      if (this.getOption("keepLastCommand")) {
-        if (this.getOption("selectLastCommand"))
-          selectAll(this._commandInput);
-      } else
+      if (!this.getOption("keepLastCommand"))
         this._commandInput.value = "";
+      else if (this.getOption("selectLastCommand"))
+        selectAll(this._commandInput);
     }
     sendBackground(txt, noEcho, comments) {
       if (txt == null) {

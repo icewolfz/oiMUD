@@ -5069,6 +5069,12 @@
     client.on("set-title", (title) => {
       window.document.title = title;
     });
+    client.display.on("selection-done", (e) => {
+      if (client.getOption("AutoCopySelectedToClipboard") && client.display.hasSelection) {
+        copyText(client.display.selection);
+        client.display.clearSelection();
+      }
+    });
     document.getElementById("btn-adv-editor").addEventListener("click", (e) => {
       if (!editorDialog) {
         editorDialog = new Dialog(Object.assign({}, client.getOption("windows.editor") || { center: true }, { title: '<i class="fas fa-edit"></i> Advanced editor', id: "adv-editor" }));

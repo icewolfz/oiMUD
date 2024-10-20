@@ -19503,6 +19503,7 @@
       this._timestamp = 0 /* None */;
       this._timestampFormat = "[[]MM-DD HH:mm:ss.SSS[]] ";
       this._timestampWidth = (/* @__PURE__ */ new Date()).toISOString().length + 1;
+      this._mouseDown = false;
       //#endregion
       //#region Public properties
       this.scrollLock = false;
@@ -19542,6 +19543,16 @@
       this._view.addEventListener("contextmenu", (e) => {
         this.emit("contextmenu", e);
       });
+      this._view.addEventListener("mousedown", (e) => {
+        this.emit("mousedown", e);
+        this._mouseDown = true;
+      });
+      this._view.addEventListener("mouseup", (e) => {
+        this.emit("mouseup", e);
+        if (this._mouseDown)
+          this.emit("selection-done");
+        this._mouseDown = false;
+      });
       this._container.appendChild(this._view);
       this._charHeight = parseFloat(window.getComputedStyle(this._character).height);
       this._charWidth = parseFloat(window.getComputedStyle(this._character.firstElementChild).width);
@@ -19557,7 +19568,14 @@
           this.doUpdate(1 /* update */ | 16 /* updateWindow */);
         }, 250, "resize");
       };
+      this._selection = (e) => {
+        if (this._mouseDown)
+          debounce(() => {
+            this.emit("selection-changed");
+          }, 250, "selection-changed");
+      };
       window.addEventListener("resize", this._wResize.bind(this));
+      document.addEventListener("selectionchange", this._selection.bind(this));
       this._resizeObserver = new ResizeObserver((entries, observer) => {
         if (entries.length === 0) return;
         if (!entries[0].contentRect || entries[0].contentRect.width === 0 || entries[0].contentRect.height === 0)
@@ -19968,6 +19986,7 @@
       while (this._container.firstChild)
         this._view.removeChild(this._view.firstChild);
       window.removeEventListener("resize", this._wResize);
+      document.removeEventListener("selectionchange", this._selection);
     }
     update() {
       const scrollWidth = getScrollbarWidth();
@@ -20341,203 +20360,73 @@
     ResetMXPLine() {
       this._model.ResetMXPLine();
     }
-    /*
-        get hasSelection(): boolean {
-            const sel = this._currentSelection;
-            if (sel.start.x === sel.end.x && sel.start.y === sel.end.y)
-                return false;
-            return true;
+    get hasSelection() {
+      const selection = window.getSelection();
+      if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        return this._view.contains(range.commonAncestorContainer) && selection.toString().length !== 0;
+      }
+      return false;
+    }
+    get selection() {
+      if (window.getSelection) {
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0);
+          if (this._view.contains(range.startContainer) || this._view.contains(range.endContainer)) {
+            return selection.toString();
+          }
         }
-    
-        get selection(): string {
-            if (this._lines.length === 0) return '';
-            const sel = this._currentSelection;
-            let s = sel.start.x;
-            let e = sel.end.x;
-            let sL = sel.start.y;
-            let eL = sel.end.y;
-            if ((sL === -1 && eL === -1) || sL === null || eL === null)
-                return '';
-            if (sL < 0)
-                sL = 0;
-            else if (sL >= this._lines.length)
-                sL = this._lines.length - 1;
-            if (eL < 0)
-                eL = 0;
-            else if (eL >= this._lines.length)
-                eL = this._lines.length - 1;
-            //convert wrap offset to text offsets
-            s = this._lines[sL].startOffset + s;
-            e = this._lines[eL].startOffset + e;
-            //convert wrap lines to text lines
-            sL = this._model.getLineFromID(this._lines[sL].id);
-            eL = this._model.getLineFromID(this._lines[eL].id);
-            if (sL > eL) {
-                sL = sel.end.y;
-                eL = sel.start.y;
-                s = sel.end.x;
-                e = sel.start.x;
-            }
-            else if (sL < eL) {
-                sL = sel.start.y;
-                eL = sel.end.y;
-                s = sel.start.x;
-                e = sel.end.x;
-            }
-            else if (s === e) {
-                return '';
-            }
-            else if (sel.start.y > 0 && sel.start.y < this._lines.length && this._lines[sel.start.y].hr)
-                return '---';
-            else
-                return this._model.getText(sL, Math.min(s, e), Math.max(s, e));
-            const len = this._lines.length;
-    
-            if (sL < 0)
-                sL = 0;
-            if (eL >= len) {
-                eL = len - 1;
-                e = this.getLineText(eL).length;
-            }
-            if (s < 0)
-                s = 0;
-            if (e > this.getLineText(eL).length)
-                e = this.getLineText(eL).length;
-    
-            //convert wrap offset to text offsets
-            s = this._lines[sL].startOffset + s;
-            e = this._lines[eL].startOffset + e;
-            //convert wrap lines to text lines
-            sL = this._model.getLineFromID(this._lines[sL].id);
-            eL = this._model.getLineFromID(this._lines[eL].id);
-            const txt: string[] = [];
-            const lines = this._model.lines;
-            if (this.lines[sL].formats[0].hr)
-                txt.push('---');
-            else
-                txt.push(lines[sL].text.substring(s));
-            sL++;
-            while (sL < eL) {
-                if (lines[sL].formats[0].hr)
-                    txt.push('---');
-                else
-                    txt.push(lines[sL].text);
-                sL++;
-            }
-            if (lines[eL].formats[0].hr)
-                txt.push('---');
-            else
-                txt.push(lines[eL].text.substring(0, e));
-            return txt.join('\n');
+      }
+      return "";
+    }
+    get selectionAsHTML() {
+      var range;
+      if (window.getSelection) {
+        var selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+          range = selection.getRangeAt(0);
+          if (!this._view.contains(range.startContainer) && !this._view.contains(range.endContainer))
+            return "";
+          var clonedSelection = range.cloneContents();
+          var div = document.createElement("div");
+          div.appendChild(clonedSelection);
+          return div.innerHTML;
+        } else {
+          return "";
         }
-    
-        get selectionAsHTML(): string {
-            if (this._lines.length === 0) return '';
-            const sel = this._currentSelection;
-            let s = sel.start.x;
-            let e = sel.end.x;
-            let sL = sel.start.y;
-            let eL = sel.end.y;
-            if (sL < 0)
-                sL = 0;
-            else if (sL >= this._lines.length)
-                sL = this._lines.length - 1;
-            if (eL < 0)
-                eL = 0;
-            else if (eL >= this._lines.length)
-                eL = this._lines.length - 1;
-            //convert wrap offset to text offsets
-            s = this._lines[sL].startOffset + s;
-            e = this._lines[eL].startOffset + e;
-            //convert wrap lines to text lines
-            sL = this._model.getLineFromID(this._lines[sL].id);
-            eL = this._model.getLineFromID(this._lines[eL].id);
-            if (sL > eL) {
-                sL = sel.end.y;
-                eL = sel.start.y;
-                s = sel.end.x;
-                e = sel.start.x;
-            }
-            else if (sL < eL) {
-                sL = sel.start.y;
-                eL = sel.end.y;
-                s = sel.start.x;
-                e = sel.end.x;
-            }
-            else if (sel.start.x === sel.end.x) {
-                return '';
-            }
-            else {
-                sL = sel.start.y;
-                if (sL < 0) sL = 0;
-                if (sL >= this._lines.length)
-                    sL = this._lines.length - 1;
-                //convert wrap offset to text offsets
-                s = this._lines[sL].startOffset + s;
-                e = this._lines[eL].startOffset + e;
-                s = Math.min(sel.start.x, sel.end.x);
-                e = Math.max(sel.start.x, sel.end.x);
-                //convert wrap lines to text lines
-                sL = this._model.getLineFromID(this._lines[sel.start.y].id);
-                return this.getLineHTML(sL, s, e);
-            }
-            const len = this._lines.length;
-    
-            if (sL < 0)
-                sL = 0;
-            if (eL >= len) {
-                eL = len - 1;
-                e = this.getLineText(eL).length;
-            }
-            if (s < 0)
-                s = 0;
-            if (e > this.getLineText(eL).length)
-                e = this.getLineText(eL).length;
-            //convert wrap offset to text offsets
-            s = this._lines[sL].startOffset + s;
-            e = this._lines[eL].startOffset + e;
-            //convert wrap lines to text lines
-            sL = this._model.getLineFromID(this._lines[sL].id);
-            eL = this._model.getLineFromID(this._lines[eL].id);
-    
-            const txt = [this.getLineHTML(sL, s)];
-            sL++;
-            while (sL < eL) {
-                txt.push(this.getLineHTML(sL));
-                sL++;
-            }
-            txt.push(this.getLineHTML(eL, 0, e));
-            return txt.join('\n');
+      } else if (document.selection && document.selection.createRange) {
+        range = document.selection.createRange();
+        return range.htmlText;
+      } else {
+        return "";
+      }
+    }
+    selectAll() {
+      let range;
+      if (window.getSelection) {
+        if (window.getSelection().selectAllChildren)
+          window.getSelection().selectAllChildren(this._view);
+        else {
+          range = document.createRange();
+          range.selectNode(this._view);
+          window.getSelection().addRange(range);
         }
-    
-        public selectAll() {
-            let ll = this._lines.length;
-            if (ll === 0) return;
-            ll--;
-            this._currentSelection = {
-                start: { x: 0, y: 0, lineID: this._lines[0].id, lineOffset: 0 },
-                end: { x: this.getLineText(ll).length, y: ll, lineID: this._lines[ll].id, lineOffset: this._lines[ll].endOffset },
-                scrollTimer: -1,
-                drag: false
-            };
-            this.emit('selection-changed');
-            this.emit('selection-done');
-            this.updateSelection();
+      } else if (document.selection) {
+        range = document.body.createTextRange();
+        range.moveToElementText(this._view);
+        range.select();
+      }
+    }
+    clearSelection() {
+      const selection = window.getSelection();
+      if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        if (this._view.contains(range.startContainer) || this._view.contains(range.endContainer)) {
+          selection.removeAllRanges();
         }
-    
-        public clearSelection() {
-            this._currentSelection = {
-                start: { x: -1, y: -1, lineID: -1, lineOffset: 0 },
-                end: { x: -1, y: -1, lineID: -1, lineOffset: 0 },
-                scrollTimer: -1,
-                drag: false
-            };
-            this.emit('selection-changed');
-            this.emit('selection-done');
-            this.updateSelection();
-        }
-        
-        */
+      }
+    }
   };
   var DisplayModel = class extends EventEmitter {
     constructor(options) {
@@ -27198,6 +27087,12 @@ Devanagari
     });
     client.on("set-title", (title) => {
       window.document.title = title;
+    });
+    client.display.on("selection-done", (e) => {
+      if (client.getOption("AutoCopySelectedToClipboard") && client.display.hasSelection) {
+        copyText(client.display.selection);
+        client.display.clearSelection();
+      }
     });
     document.getElementById("btn-adv-editor").addEventListener("click", (e) => {
       if (!editorDialog) {

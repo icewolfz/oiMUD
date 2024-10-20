@@ -53,7 +53,6 @@ case 'ch':
 - backup plugin for shadowmud
 - profile manager
 - status plugin and related and move all lag meter to here
-- display auto copy to Clipboard, depends on clipboard api so probably more pia
 - skip more prompt
 - skip more prompt delay
 - fix hidden windows

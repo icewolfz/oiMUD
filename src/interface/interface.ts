@@ -3,7 +3,7 @@ import "../css/interface.css";
 import { initMenu } from './menu';
 import { Client } from '../client';
 import { Dialog } from "../dialog";
-import { openFileDialog, readFile, debounce, getParameterByName } from '../library';
+import { openFileDialog, readFile, debounce, copyText, getParameterByName } from '../library';
 import { AdvEditor } from './adv.editor';
 import { SettingsDialog } from './settingsdialog';
 
@@ -54,6 +54,12 @@ export function initializeInterface() {
     });
     client.on('set-title', title => {
         window.document.title = title;
+    });
+    client.display.on('selection-done', e => {
+        if (client.getOption('AutoCopySelectedToClipboard') && client.display.hasSelection) {
+            copyText(client.display.selection);
+            client.display.clearSelection();
+        }
     });
     //setup advanced editor footer button
     document.getElementById('btn-adv-editor').addEventListener('click', e => {

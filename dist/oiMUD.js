@@ -21951,6 +21951,29 @@
         }).catch(() => {
         });
       };
+      this.functions["testfiler"] = (data) => {
+        if (data && data.args && data.args.length)
+          throw new Error("Invalid syntax use " + this.client.getOption("commandChar") + "testfile");
+        openFileDialog().then((files) => {
+          console.time("testfile readFile");
+          readFile(files[0]).then((contents) => {
+            console.timeEnd("testfile readFile");
+            if (data && data.raw && (this.client.getOption("echo") & 4) === 4)
+              this.client.echo(data.raw, -3, -4, true, true);
+            let n = this.client.getOption("enableCommands");
+            this.client.setOption("enableCommands", true);
+            let i = (/* @__PURE__ */ new Date()).getTime();
+            console.time("testfiler parse");
+            this.client.telnet.receivedData(StringToUint8Array(contents), true, true);
+            console.timeEnd("testfiler parse");
+            let p = (/* @__PURE__ */ new Date()).getTime();
+            this.client.setOption("enableCommands", n);
+            this.client.print(`Time: ${p - i}
+`, true);
+          }).catch(this.client.error);
+        }).catch(() => {
+        });
+      };
       this.functions["testspeedfile"] = (data) => {
         if (data && data.args && data.args.length)
           throw new Error("Invalid syntax use " + this.client.getOption("commandChar") + "testspeedfile");

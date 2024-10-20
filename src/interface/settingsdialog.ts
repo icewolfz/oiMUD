@@ -143,6 +143,10 @@ export class SettingsDialog extends Dialog {
         const pages = this._page.split('-');
         let breadcrumb = '';
         let last = pages.length - 1;
+        if (pages.length === 1)
+            breadcrumb += '<li><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></li>';
+        else
+            breadcrumb += '<li><a href="#' + pages.slice(0, 1).join('-') + '"><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></a></li>';
         for (let p = 0, pl = pages.length; p < pl; p++) {
             let title = capitalize(pages[p].match(/([A-Z]|^[a-z])[a-z]+/g).join(' '));
             if (p === last)
@@ -150,7 +154,7 @@ export class SettingsDialog extends Dialog {
             else
                 breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p + 1).join('-') + '">' + title + '</a></li>';
         }
-        this.title = '<i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i> <ol class="float-start breadcrumb">' + breadcrumb + '</ol>';
+        this.title = '<ol class="float-start breadcrumb">' + breadcrumb + '</ol>';
         if (this._page === 'settings') {
             if (this._menu)
                 this._menu.style.display = 'none';

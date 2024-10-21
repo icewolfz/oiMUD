@@ -502,7 +502,7 @@ export class AdvEditor extends EventEmitter {
             type ColorFormat = 'forecolor' | 'hilitecolor';
 
             const fallbackColor = '#000000';
-            const _colors = ['000000', 'BLACK', '800000', 'RED', '008000', 'GREEN', '808000', 'ORANGE', '0000EE', 'BLUE', '800080', 'MAGENTA', '008080', 'CYAN', 'BBBBBB', 'WHITE', '808080', 'BOLD BLACK', 'FF0000', 'BOLD RED', '00FF00', 'BOLD GREEN', 'FFFF00', 'YELLOW', '5C5CFF', 'BOLD YELLOW', '5C5CFF', 'BOLD BLUE', 'FF00FF', 'BOLD MAGENTA', '00FFFF', 'BOLD CYAN', 'FFFFFF', 'BOLD WHITE'];
+            const _colors = ['000000', 'BLACK', '800000', 'RED', '008000', 'GREEN', '808000', 'ORANGE', '0000EE', 'BLUE', '800080', 'MAGENTA', '008080', 'CYAN', 'BBBBBB', 'WHITE', '808080', 'BOLD BLACK', 'FF0000', 'BOLD RED', '00FF00', 'BOLD GREEN', 'FFFF00', 'YELLOW', '5C5CFF', 'BOLD BLUE', 'FF00FF', 'BOLD MAGENTA', '00FFFF', 'BOLD CYAN', 'FFFFFF', 'BOLD WHITE'];
 
             let _lastButton;
 
@@ -562,15 +562,15 @@ export class AdvEditor extends EventEmitter {
             };
 
             const registerCommands = (editor) => {
-                editor.addCommand('mceApplyTextcolor', (format, value) => {
+                editor.addCommand('mceApplyPinkfishcolor', (format, value) => {
                     applyFormat(editor, format, value);
                 });
 
-                editor.addCommand('mceRemoveTextcolor', (format) => {
+                editor.addCommand('mceRemovePinkfishcolor', (format) => {
                     removeFormat(editor, format);
                 });
 
-                editor.addCommand('mceSetTextcolor', (name, color) => {
+                editor.addCommand('mceSetPinkfishcolor', (name, color) => {
                     if (_lastButton) {
                         setIconColor(_lastButton, name === 'forecolor' ? 'pinkfishforecolor' : name, color);
                         (name === 'forecolor' ? _forecolor : _backcolor).set(color);
@@ -603,10 +603,10 @@ export class AdvEditor extends EventEmitter {
                     _editor.openColorDialog(format, '');
                 } else if (value === 'remove') {
                     onChoice('');
-                    editor.execCommand('mceRemoveTextcolor', format);
+                    editor.execCommand('mceRemovePinkfishcolor', format);
                 } else {
                     onChoice(value);
-                    editor.execCommand('mceApplyTextcolor', format, value);
+                    editor.execCommand('mceApplyPinkfishcolor', format, value);
                 }
             };
 
@@ -754,7 +754,7 @@ export class AdvEditor extends EventEmitter {
             editor.ui.registry.addIcon('copyformatted', '<i class="mce-i-copyformatted"></i>');
 
             editor.ui.registry.addSplitButton('send', {
-                icon: 'arrow-right',
+                icon: 'send',
                 tooltip: 'Send to mud',
                 onAction: () => {
                     client.sendCommand(_editor.getFormattedText().replace(/(?:\r)/g, ''));
@@ -1227,7 +1227,8 @@ export class AdvEditor extends EventEmitter {
         if (this.isSimple)
             this._element.value = text;
         else {
-            tinymce.activeEditor.setContent(pinkfishToHTML(text).replace(/(\r\n|\r|\n)/g, '<br/>'), { format: 'html' });
+            tinymce.activeEditor.getBody().innerHTML = pinkfishToHTML(text).replace(/(\r\n|\r|\n)/g, '<br/>');
+            //tinymce.activeEditor.setContent(pinkfishToHTML(text).replace(/(\r\n|\r|\n)/g, '<br/>'), { format: 'html' });
         }
     }
 
@@ -1366,7 +1367,8 @@ export class AdvEditor extends EventEmitter {
     public getFormattedText() {
         if (this.isSimple)
             return this._element.value;
-        return this.formatHtml($('<html>' + this.getRaw().replace(/<\/div><div>/g, '<br>') + '</html>'));
+        return this.formatHtml($('<html>' + this.getRaw() + '</html>'));
+        //return this.formatHtml($('<html>' + this.getRaw().replace(/<\/div><div>/g, '<br>') + '</html>'));
     }
 
     public getText() {
@@ -1623,8 +1625,8 @@ export class AdvEditor extends EventEmitter {
                 reverse: { inline: 'span', 'classes': 'reverse', links: true, remove_similar: true },
                 underline: { inline: 'span', 'classes': 'underline', links: true, remove_similar: true },
                 strikethrough: { inline: 'span', 'classes': 'strikeout', links: true, remove_similar: true },
-                forecolor: { inline: 'span', styles: { textDecoration: 'inherit', border: 'inherit', color: '%value' }, exact: true, links: true, remove_similar: true },
-                hilitecolor: { inline: 'span', styles: { textDecoration: 'inherit', border: 'inherit', backgroundColor: '%value' }, exact: true, links: true, remove_similar: true }
+                //forecolor: { inline: 'span', styles: { textDecoration: 'inherit', border: 'inherit', color: '%value' }, exact: true, links: true, remove_similar: true },
+                //hilitecolor: { inline: 'span', styles: { textDecoration: 'inherit', border: 'inherit', backgroundColor: '%value' }, exact: true, links: true, remove_similar: true }
                 //forecolor: { block: 'span', attributes: { 'data-color': '%value' }, styles: { textDecoration: 'inherit', border: 'inherit', color: '%value' }, exact: true, links: true, remove_similar: true },
                 //hilitecolor: { block: 'span', attributes: { 'data-backcolor': '%value' }, styles: { textDecoration: 'inherit', border: 'inherit', backgroundColor: '%value' }, exact: true, links: true, remove_similar: true }
             },
@@ -1645,6 +1647,12 @@ export class AdvEditor extends EventEmitter {
                     e.content = e.content.replace(/<\/p>/g, '<br>');
                     e.content = e.content.replace(/<\/h[1-6]>/g, '<br>');
                     e.content = e.content.replace(/<\/li>/g, '<br>');
+                    e.content = e.content.replace(/ background: #000000;/g, '');
+                    e.content = e.content.replace(/background: #000000;/g, '');
+                    e.content = e.content.replace(/ background-color: #000000;/g, '');
+                    e.content = e.content.replace(/background-color: #000000;/g, '');                    
+                    e.content = e.content.replace(/ color: #BBBBBB;/g, '');
+                    e.content = e.content.replace(/color: #BBBBBB;/g, '');                    
                     var regex = /<pre(.*?)>((.|\s)*)<\/pre>/mgi;
                     var m;
                     while ((m = regex.exec(e.content)) !== null) {
@@ -1666,7 +1674,7 @@ export class AdvEditor extends EventEmitter {
                 else
                     tinymce.activeEditor.settings.formats['flash'] = { inline: 'span', 'classes': client.getOption('flashing') ? 'flash' : 'noflash', links: true, remove_similar: true };
                 this.loadColors();
-                this.setFormatted(this.value);
+                this.setFormatted(this._element.value);
                 editor.on('click', e => {
                     this.emit('click', e);
                 })
@@ -1675,7 +1683,7 @@ export class AdvEditor extends EventEmitter {
             },
             paste_data_images: false,
             paste_webkit_styles: 'color background background-color text-decoration',
-            valid_elements: 'strong/b,em/i,u,span[style],span[class],strike/s,br',
+            valid_elements: 'strong/b,em/i,u,span[style|class],strike/s,br',
             valid_styles: {
                 '*': 'color,background,background-color,text-decoration,font-weight'
             },

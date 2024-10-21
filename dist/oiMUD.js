@@ -1887,7 +1887,7 @@
         default:
           if (text[t].startsWith("B_")) {
             text[t] = text[t].substr(2);
-            if (bold) {
+            if (bold && !boldNest) {
               stack.push('<span style="border: inherit;text-decoration:inherit;color: #' + _colorCodes["BOLD%^%^WHITE"] + '">');
               codes.push("</span>");
             }
@@ -25601,7 +25601,7 @@ Devanagari
       const _editor = this;
       tinymce.PluginManager.add("pinkfishtextcolor", function(editor2, url) {
         const fallbackColor = "#000000";
-        const _colors = ["000000", "BLACK", "800000", "RED", "008000", "GREEN", "808000", "ORANGE", "0000EE", "BLUE", "800080", "MAGENTA", "008080", "CYAN", "BBBBBB", "WHITE", "808080", "BOLD BLACK", "FF0000", "BOLD RED", "00FF00", "BOLD GREEN", "FFFF00", "YELLOW", "5C5CFF", "BOLD YELLOW", "5C5CFF", "BOLD BLUE", "FF00FF", "BOLD MAGENTA", "00FFFF", "BOLD CYAN", "FFFFFF", "BOLD WHITE"];
+        const _colors = ["000000", "BLACK", "800000", "RED", "008000", "GREEN", "808000", "ORANGE", "0000EE", "BLUE", "800080", "MAGENTA", "008080", "CYAN", "BBBBBB", "WHITE", "808080", "BOLD BLACK", "FF0000", "BOLD RED", "00FF00", "BOLD GREEN", "FFFF00", "YELLOW", "5C5CFF", "BOLD BLUE", "FF00FF", "BOLD MAGENTA", "00FFFF", "BOLD CYAN", "FFFFFF", "BOLD WHITE"];
         let _lastButton;
         const Cell = (initial) => {
           let value = initial;
@@ -25643,13 +25643,13 @@ Devanagari
           });
         };
         const registerCommands = (editor3) => {
-          editor3.addCommand("mceApplyTextcolor", (format, value) => {
+          editor3.addCommand("mceApplyPinkfishcolor", (format, value) => {
             applyFormat(editor3, format, value);
           });
-          editor3.addCommand("mceRemoveTextcolor", (format) => {
+          editor3.addCommand("mceRemovePinkfishcolor", (format) => {
             removeFormat(editor3, format);
           });
-          editor3.addCommand("mceSetTextcolor", (name2, color) => {
+          editor3.addCommand("mceSetPinkfishcolor", (name2, color) => {
             if (_lastButton) {
               setIconColor(_lastButton, name2 === "forecolor" ? "pinkfishforecolor" : name2, color);
               (name2 === "forecolor" ? _forecolor : _backcolor).set(color);
@@ -25680,10 +25680,10 @@ Devanagari
             _editor.openColorDialog(format, "");
           } else if (value === "remove") {
             onChoice("");
-            editor3.execCommand("mceRemoveTextcolor", format);
+            editor3.execCommand("mceRemovePinkfishcolor", format);
           } else {
             onChoice(value);
-            editor3.execCommand("mceApplyTextcolor", format, value);
+            editor3.execCommand("mceApplyPinkfishcolor", format, value);
           }
         };
         const mapColors = (colorMap) => {
@@ -25813,7 +25813,7 @@ Devanagari
         editor2.ui.registry.addIcon("pasteformatted", '<i class="mce-i-pasteformatted"></i>');
         editor2.ui.registry.addIcon("copyformatted", '<i class="mce-i-copyformatted"></i>');
         editor2.ui.registry.addSplitButton("send", {
-          icon: "arrow-right",
+          icon: "send",
           tooltip: "Send to mud",
           onAction: () => {
             client.sendCommand(_editor.getFormattedText().replace(/(?:\r)/g, ""));
@@ -26271,7 +26271,7 @@ Devanagari
       if (this.isSimple)
         this._element.value = text;
       else {
-        tinymce.activeEditor.setContent(pinkfishToHTML(text).replace(/(\r\n|\r|\n)/g, "<br/>"), { format: "html" });
+        tinymce.activeEditor.getBody().innerHTML = pinkfishToHTML(text).replace(/(\r\n|\r|\n)/g, "<br/>");
       }
     }
     buildHTMLStack(els) {
@@ -26400,7 +26400,7 @@ Devanagari
     getFormattedText() {
       if (this.isSimple)
         return this._element.value;
-      return this.formatHtml($("<html>" + this.getRaw().replace(/<\/div><div>/g, "<br>") + "</html>"));
+      return this.formatHtml($("<html>" + this.getRaw() + "</html>"));
     }
     getText() {
       if (this.isSimple)
@@ -26630,9 +26630,9 @@ Devanagari
           flash: { inline: "span", "classes": "flash", links: true, remove_similar: true },
           reverse: { inline: "span", "classes": "reverse", links: true, remove_similar: true },
           underline: { inline: "span", "classes": "underline", links: true, remove_similar: true },
-          strikethrough: { inline: "span", "classes": "strikeout", links: true, remove_similar: true },
-          forecolor: { inline: "span", styles: { textDecoration: "inherit", border: "inherit", color: "%value" }, exact: true, links: true, remove_similar: true },
-          hilitecolor: { inline: "span", styles: { textDecoration: "inherit", border: "inherit", backgroundColor: "%value" }, exact: true, links: true, remove_similar: true }
+          strikethrough: { inline: "span", "classes": "strikeout", links: true, remove_similar: true }
+          //forecolor: { inline: 'span', styles: { textDecoration: 'inherit', border: 'inherit', color: '%value' }, exact: true, links: true, remove_similar: true },
+          //hilitecolor: { inline: 'span', styles: { textDecoration: 'inherit', border: 'inherit', backgroundColor: '%value' }, exact: true, links: true, remove_similar: true }
           //forecolor: { block: 'span', attributes: { 'data-color': '%value' }, styles: { textDecoration: 'inherit', border: 'inherit', color: '%value' }, exact: true, links: true, remove_similar: true },
           //hilitecolor: { block: 'span', attributes: { 'data-backcolor': '%value' }, styles: { textDecoration: 'inherit', border: 'inherit', backgroundColor: '%value' }, exact: true, links: true, remove_similar: true }
         },
@@ -26645,6 +26645,12 @@ Devanagari
             e.content = e.content.replace(/<\/p>/g, "<br>");
             e.content = e.content.replace(/<\/h[1-6]>/g, "<br>");
             e.content = e.content.replace(/<\/li>/g, "<br>");
+            e.content = e.content.replace(/ background: #000000;/g, "");
+            e.content = e.content.replace(/background: #000000;/g, "");
+            e.content = e.content.replace(/ background-color: #000000;/g, "");
+            e.content = e.content.replace(/background-color: #000000;/g, "");
+            e.content = e.content.replace(/ color: #BBBBBB;/g, "");
+            e.content = e.content.replace(/color: #BBBBBB;/g, "");
             var regex = /<pre(.*?)>((.|\s)*)<\/pre>/mgi;
             var m;
             while ((m = regex.exec(e.content)) !== null) {
@@ -26666,7 +26672,7 @@ Devanagari
           else
             tinymce.activeEditor.settings.formats["flash"] = { inline: "span", "classes": client.getOption("flashing") ? "flash" : "noflash", links: true, remove_similar: true };
           this.loadColors();
-          this.setFormatted(this.value);
+          this.setFormatted(this._element.value);
           editor2.on("click", (e) => {
             this.emit("click", e);
           });
@@ -26675,7 +26681,7 @@ Devanagari
         },
         paste_data_images: false,
         paste_webkit_styles: "color background background-color text-decoration",
-        valid_elements: "strong/b,em/i,u,span[style],span[class],strike/s,br",
+        valid_elements: "strong/b,em/i,u,span[style|class],strike/s,br",
         valid_styles: {
           "*": "color,background,background-color,text-decoration,font-weight"
         },

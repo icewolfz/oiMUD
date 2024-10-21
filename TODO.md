@@ -56,7 +56,7 @@ case 'ch':
 - skip more prompt
 - skip more prompt delay
 - fix hidden windows
-
+- recode advanced editor to not use jquery when possible
 
 
 

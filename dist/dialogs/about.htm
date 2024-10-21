@@ -10,12 +10,10 @@
 <br>
 <div class="card">
   <div class="card-header">Error log</div>
-  <div class="card">
-    <div class="card-body">
-      <button id="error-view" type="button" class="btn btn-light" title="View error log">View</button>
-      <button id="error-export" type="button" class="btn btn-light" title="Export error log">Export</button>
-      <button id="error-clear" type="button" class="btn btn-light" title="Clear error log">Clear</button>
-    </div>
+  <div class="card-body">
+    <button id="error-view" type="button" class="btn btn-light" title="View error log">View</button>
+    <button id="error-export" type="button" class="btn btn-light" title="Export error log">Export</button>
+    <button id="error-clear" type="button" class="btn btn-light" title="Clear error log">Clear</button>
   </div>
 </div>
 <br>
@@ -23,7 +21,7 @@
   <div class="card-header">
     Change log
   </div>
-  <div>
+  <div class="card-body">
     <ul class="list-group list-group-flush">
       <li class="list-group-item">
         v0.0.1
@@ -57,10 +55,10 @@
   });
   body.querySelector('#error-clear').addEventListener('click', () => {
     confirm_box('Clear log', 'Clear error log?').then((value) => {
-        if (value.button === 4) {
-          localforage.setItem('oiMUDErrorLog', '');
-          alert_box('Cleared', 'Error log cleared', 2);
-        }
+      if (value.button === 4) {
+        localforage.setItem('oiMUDErrorLog', '');
+        alert_box('Cleared', 'Error log cleared', 2);
+      }
     });
   });  
 </script>

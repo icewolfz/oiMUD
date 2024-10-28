@@ -5585,6 +5585,13 @@
     clone() {
       return new _Trigger(this);
     }
+    getState(state) {
+      if (state === 0)
+        return this;
+      state--;
+      if (state >= this.triggers.length || state < 0) return null;
+      return this.triggers[state];
+    }
   };
   var Context = class _Context extends Item {
     constructor(data, profile) {
@@ -5888,6 +5895,107 @@
         m.push(new Macro(data[d]));
       return m;
     }
+    static get DefaultButtons() {
+      const buttons = [];
+      let b;
+      b = new Button();
+      b.right = 176;
+      b.top = 14;
+      b.caption = "fa-solid fa-angle-double-up";
+      b.value = "up";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 124;
+      b.top = 14;
+      b.caption = "fa-solid fa-caret-up,rotate--45";
+      b.value = "northwest";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 72;
+      b.top = 14;
+      b.caption = "fa-solid fa-caret-up";
+      b.value = "north";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 20;
+      b.top = 14;
+      b.caption = "fa-solid fa-caret-up,rotate-45";
+      b.value = "northeast";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 176;
+      b.top = 66;
+      b.caption = "fa-solid fa-crosshairs";
+      b.value = "kill ${selected}";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 124;
+      b.top = 66;
+      b.caption = "fa-solid fa-caret-left";
+      b.value = "west";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 72;
+      b.top = 66;
+      b.caption = "fa-solid fa-magnifying-glass";
+      b.value = "look ${selected}";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 20;
+      b.top = 66;
+      b.caption = "fa-solid fa-caret-right";
+      b.value = "east";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 176;
+      b.top = 118;
+      b.caption = "fa-solid fa-angle-double-down";
+      b.value = "down";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 124;
+      b.top = 118;
+      b.caption = "fa-solid fa-caret-down,rotate-45";
+      b.value = "southwest";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 72;
+      b.top = 118;
+      b.caption = "fa-solid fa-caret-down";
+      b.value = "south";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 20;
+      b.top = 118;
+      b.caption = "fa-solid fa-caret-down,rotate--45";
+      b.value = "southeast";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      return buttons;
+    }
     static load(file) {
       let profile;
       let data;
@@ -6073,7 +6181,10 @@
         }
         return data;
       }
-      data = clone(this);
+      data = clone(this, (key, value) => {
+        if (key === "profile") return void 0;
+        return value;
+      });
       const profile = new _Profile(false);
       let prop;
       for (prop in data) {
@@ -6112,9 +6223,7 @@
       if (data.contexts && data.contexts.length > 0) {
         il = data.contexts.length;
         for (i = 0; i < il; i++) {
-          const item = data.contexts[i].clone();
-          item.profile = profile;
-          profile.contexts.push(item);
+          profile.contexts.push(new Context(data.contexts[i], profile));
         }
       }
       return profile;
@@ -6212,16 +6321,16 @@
           return -1;
         if (ap < bp)
           return 1;
+        if (a === "default")
+          return -1;
+        if (b === "default")
+          return 1;
         ap = this.items[a].name;
         bp = this.items[b].name;
-        if (ap === "default")
-          return -1;
-        if (bp === "default")
-          return 1;
         if (ap > bp)
-          return -1;
-        if (ap < bp)
           return 1;
+        if (ap < bp)
+          return -1;
         return 0;
       });
     }
@@ -6339,36 +6448,37 @@
       if (version2 === 2) {
         const profiles = {};
         for (const p in this.items)
-          profiles[this.items[p].name] = this.items[p].clone(2);
+          profiles[this.items[p].name.toLowerCase()] = this.items[p].clone(2);
         return profiles;
       }
       const pc = new _ProfileCollection();
       for (const p in this.items)
-        pc.items[this.items[p].name] = this.items[p].clone();
+        pc.items[this.items[p].name.toLowerCase()] = this.items[p].clone();
       pc.update();
       return pc;
     }
-    load(key) {
+    static load(key) {
       return new Promise((resolve, reject) => {
+        let collection = new _ProfileCollection();
         localforage.getItem(key || "OoMUDProfiles").then((value) => {
           if (typeof value === "string")
             value = JSON.parse(value);
           if (!value)
-            this.add(Profile.Default);
+            collection.add(Profile.Default);
           else {
             const keys = Object.keys(value);
             let k = 0;
             let kl = keys.length;
             for (; k < kl; k++) {
-              this.add(Profile.load(value[keys[k]]));
+              collection.add(Profile.load(value[keys[k]]));
             }
           }
-          resolve(this);
+          resolve(collection);
         }).catch(reject);
       });
     }
     save(key) {
-      localforage.setItem(key || "OoMUDProfiles", JSON.stringify(this.items, (key2, value) => {
+      return localforage.setItem(key || "OoMUDProfiles", JSON.stringify(this.items, (key2, value) => {
         if (key2 === "profile") return void 0;
         return value;
       }));
@@ -23068,15 +23178,18 @@ Devanagari
       this._input.AddCommandToHistory(txt);
     }
     loadProfiles() {
-      this._profiles = new ProfileCollection();
-      this._profiles.load().then(() => {
-        if (!this.profiles.contains("default")) {
-          this.profiles.add(Profile.Default);
-          this.saveProfiles();
-        }
-        this.clearCache();
-        this.startAlarms();
-        this.emit("profiles-loaded");
+      return new Promise((resolve, reject) => {
+        ProfileCollection.load().then((profiles) => {
+          this._profiles = profiles;
+          if (!this.profiles.contains("default")) {
+            this.profiles.add(Profile.Default);
+            this.saveProfiles();
+          }
+          this.clearCache();
+          this.startAlarms();
+          this.emit("profiles-loaded");
+          resolve(this._profiles);
+        });
       });
     }
     removeProfile(profile) {
@@ -23568,6 +23681,7 @@ Devanagari
       if (remote == null) remote = false;
       if (newline && this.display.textLength > 0 && !this.display.EndOfLine && this.display.EndOfLineLength !== 0 && !this.telnet.prompt && !this.display.parseQueueEndOfLine)
         txt = "\n" + txt;
+      this.emit("print");
       this.parseInternal(txt, remote, false, prependSplit);
     }
     send(data, echo) {
@@ -23699,6 +23813,12 @@ Devanagari
       this.emit("bell");
     }
     raise(event, args, delay) {
+      if (!this.profiles) {
+        setTimeout(() => {
+          this.raise(event, args, delay);
+        }, 100);
+        return;
+      }
       if (!delay || delay < 1)
         this._input.triggerEvent(event, args);
       else

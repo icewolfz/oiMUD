@@ -1,0 +1,545 @@
+<div class="mb-3">
+    <label for="pattern" class="form-label" style="width: 100%">Pattern
+        <div class="float-end form-check form-switch">
+            <input type="checkbox" class="form-check-input" id="enabled">
+            <label class="form-check-label" for="enabled">Enabled</label>
+        </div>
+
+    </label>
+    <div class="input-group" id="pattern-grp">
+        <input class="form-control" id="pattern">
+        <!--<input type="hidden" id="state">-->
+        <button class="btn btn-outline-secondary" type="button" id="btn-editor" data-bs-toggle="dropdown"
+            data-bs-offset="-278,2" title="Show editor"><i class="bi bi-pencil-square"></i></button>
+        <textarea id="trigger-editor-dropdown" class="form-control dropdown-menu" aria-labelledby="btn-editor"
+            style="resize:both;padding: 6px 12px;height: 200px;width:100%;"></textarea>
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            aria-expanded="false" style="display:none" id="btn-states" title="Select trigger state"></button>
+        <ul class="dropdown-menu dropdown-menu-end" id="states-menu"></ul>
+        <button class="btn btn-outline-secondary" type="button" id="btn-add-state" title="Add new trigger state"><i
+                class="bi bi-plus-lg"></i></button>
+    </div>
+</div>
+<div class="mb-3">
+    <label class="form-label" for="style">Style</label>
+    <select class="form-select" id="style">
+        <option value="0">Text</option>
+        <option value="1">Parse</option>
+        <option value="2">Script</option>
+    </select>
+</div>
+<ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" data-bs-target="#triggerValue" href="#triggerValue">Value</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#triggerTest" href="#triggerTest">Test</a>
+    </li>
+</ul>
+<div class="tab-content" style="padding-top:8px;">
+    <div role="tabpanel" class="tab-pane active" id="triggerValue">
+        <textarea class="form-control mb-3" id="value" rows="6"></textarea>
+    </div>
+    <div role="tabpanel" class="tab-pane fade in" id="triggerTest">
+        <div class="input-group mb-3">
+            <input id="testText" data-custom="true" type="text" class="form-control" placeholder="Text to test"
+                aria-label="text">
+            <button class="btn btn-outline-secondary" type="button" id="btn-test"><i class="bi bi-play"></i></button>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="test-results">Results</label>
+            <textarea data-custom="true" class="form-control" id="test-results"></textarea>
+        </div>
+    </div>
+</div>
+
+<div class="accordion" id="itemAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#advanced" aria-expanded="false" aria-controls="advanced">
+                Advanced
+            </button>
+        </h2>
+        <div id="advanced" class="accordion-collapse collapse" data-bs-parent="#itemAccordion">
+            <div class="accordion-body">
+                <div class="mb-3">
+                    <label class="form-label" for="type">Type</label>
+                    <select class="form-select" id="type">
+                        <option value="0">Regular Expression</option>
+                        <option value="1">Command Input Regular Expression</option>
+                        <option value="2">Event</option>
+                        <option value="3">Alarm</option>
+                        <option value="8">Pattern</option>
+                        <option value="16">Command Input Pattern</option>
+                        <option value="128">Loop Expression</option>
+                        <option value="512" data-type="sub" hidden>Skip</option>
+                        <option value="1024" data-type="sub" hidden>Wait</option>
+                        <option value="4096" data-type="sub" hidden>Loop Pattern</option>
+                        <option value="8192" data-type="sub" hidden>Loop Lines</option>
+                        <option value="16384" data-type="sub" hidden>Duration</option>
+                        <option value="32768" data-type="sub" hidden>Within Lines</option>
+                        <option value="65536" data-type="sub" hidden>Manual</option>
+                        <option value="131072" data-type="sub" hidden>ReParse</option>
+                        <option value="262144" data-type="sub" hidden>ReParse Pattern</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="priority">Priority</label>
+                    <input type="number" class="form-control" id="priority">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="name">Name</label>
+                    <input class="form-control" id="name">
+                </div>
+                <div class="mb-3" style="display: none">
+                    <label class="form-label" for="state">State</label>
+                    <input type="number" class="form-control" id="state">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="params">Params</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="params">
+                        <span class="input-group-text" id="params-suffix" style="display: none">ms</span>
+                    </div>
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="verbatim">
+                    <label class="form-check-label" for="verbatim">Verbatim</label>
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="temp">
+                    <label class="form-check-label" for="temp">Temporary</label>
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="caseSensitive">
+                    <label class="form-check-label" for="caseSensitive">Case
+                        sensitive</label>
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="triggernewline">
+                    <label class="form-check-label" for="triggernewline">Trigger on
+                        newline</label>
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="triggerprompt">
+                    <label class="form-check-label" for="triggerprompt">Trigger on
+                        prompt</label>
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="raw">
+                    <label class="form-check-label" for="raw">Trigger on
+                        raw</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    let triggers = null;
+    let _statesChanged = false;
+    let _noDrop = false;
+    let _newState = -1;
+    let activeId = null;
+    let _activeIdx = -1;
+    function initField() {
+        if (!body.querySelector('#btn-remove-state')) {
+            body.querySelector('#pattern-grp').insertAdjacentHTML('beforeend', `<button class="btn btn-danger" type="button" id="btn-remove-state" title="Remove trigger state"><i class="bi bi-x-lg"></i></button>`);
+            body.querySelector('#btn-remove-state').addEventListener('click', () => {
+                confirm_box('Remove current trigger state?', `Are you sure you want to delete this trigger state?'`).then(e => {
+                    if (e.button === DialogButtons.Yes) {
+                        if (!dialog.current.parent || dialog.current.itemSubIdx === -1) {
+                            let items = dialog.current.item.triggers;
+                            let oldItem = dialog.current.item;
+                            item = items.shift();
+                            item.state = oldItem.state;
+                            item.state = oldItem.state;
+                            item.priority = oldItem.priority;
+                            item.name = oldItem.name;
+                            item.triggers = items;
+                            if (item.type === 262144)
+                                item.type = 8;
+                            else if (item.type > 16)
+                                item.type = 0;
+                            dialog.current.profile.triggers[dialog.current.itemIdx] = item;
+                            profile.triggers[dialog.current.itemIdx] = item;
+                            dialog.reload();
+                        }
+                        else {
+                            const items = dialog.current.parent.triggers;
+                            items.splice(dialog.current.itemSubIdx, 1);
+                            if (items.length === 0) {
+                                window.location.hash = `profiles/${encodeURIComponent(profileName)}/triggers/${current.itemIdx}`;
+                            }
+                            else if (dialog.current.itemSubIdx > items.length)
+                                window.location.hash = `profiles/${encodeURIComponent(profileName)}/triggers/${current.itemIdx}/${items.length - 1}`;
+                            else
+                                dialog.reload();
+                        }
+                    }
+                })
+
+            });
+        }
+        if (!body.querySelector('#pattern-prefix'))
+            body.querySelector('#pattern-grp').insertAdjacentHTML('afterbegin', `<span class="input-group-text" id="pattern-prefix"></span>`);
+    }
+
+    function initInterface() {
+        let items = body.querySelectorAll('option[data-type="sub"]');
+        for (let i = 0, il = items.length; i < il; i++)
+            items[i].hidden = parent == null;
+
+        body.querySelector('#state').parentElement.style.display = 'none';
+        body.querySelector('#name').parentElement.style.display = '';
+        body.querySelector('#priority').parentElement.style.display = '';
+        if (parent && parent.triggers.length) {
+            body.querySelector('#btn-states').style.display = 'block';
+            triggers = parent.triggers;
+            body.querySelector('#name').parentElement.style.display = 'none';
+            body.querySelector('#priority').parentElement.style.display = 'none';
+            initField();
+        }
+        else if (item.triggers && item.triggers.length) {
+            body.querySelector('#btn-states').style.display = 'block';
+            triggers = item.triggers;
+            body.querySelector('#state').parentElement.style.display = 'block';
+            initField();
+        }
+        else {
+            body.querySelector('#btn-states').style.display = 'none';
+            if (body.querySelector('#btn-remove-state'))
+                body.querySelector('#btn-remove-state').remove();
+            if (body.querySelector('#pattern-prefix'))
+                body.querySelector('#pattern-prefix').remove();
+        }
+        if (triggers) {
+            if (!_noDrop) {
+                let menu = `<li><a data-index="-1" class="dropdown-item${!parent ? ' active' : ''}" href="#profiles/${encodeURIComponent(profileName)}/triggers/${current.itemIdx}"><span>0: ${GetDisplay(parent || item)}</span>`
+                menu += `<span class="btn-group float-end" style="margin-left: 10px;">`;
+                menu += `<button data-index="-1" title="Move state up" data-move="up" class="btn-light btn btn-outline-secondary btn-sm" type="button" style="--bs-btn-font-size: .6rem;"><i class="bi bi-chevron-double-up"></i></button>`;
+                menu += `<button data-index="-1" title="Move state down" data-move="down" class="btn-light btn btn-outline-secondary btn-sm" type="button" style="--bs-btn-font-size: .6rem;"><i class="bi bi-chevron-double-down"></i></button>`;
+                menu += `</span></a></li>`;
+                for (let t = 0, tl = triggers.length; t < tl; t++) {
+                    menu += `<li><a data-index="${t}" class="dropdown-item${t === current.itemSubIdx ? ' active' : ''}" href="#profiles/${encodeURIComponent(profileName)}/triggers/${current.itemIdx}/${t}"><span>${t + 1}: ${GetDisplay(triggers[t])}</span><span class="btn-group float-end" style="margin-left: 10px;"> `;
+                    menu += `<button data-index="${t}" title="Move state up" data-move="up" class="btn-light btn btn-outline-secondary btn-sm" type="button" style="--bs-btn-font-size: .6rem;"><i class="bi bi-chevron-double-up"></i></button>`;
+                    menu += `<button data-index="${t}" title="Move state down" data-move="down" class="btn-light btn btn-outline-secondary btn-sm" type="button" style="--bs-btn-font-size: .6rem;"><i class="bi bi-chevron-double-down"></i></button>`;
+                    menu += `</span></a></li>`;
+                }
+                body.querySelector('#states-menu').innerHTML = menu;
+            }
+            items = body.querySelectorAll('#states-menu li a');
+            for (let i = 0, il = items.length; i < il; i++)
+                items[i].addEventListener('click', e => {
+                    let index = +e.currentTarget.dataset.index;;
+                    current.itemSubIdx = index;
+                    if (index === -1) {
+                        item = current.profile.triggers[current.itemIdx];
+                        parent = null;
+                    }
+                    else {
+                        parent = current.profile.triggers[current.itemIdx];
+                        item = parent.triggers[index];
+                    }
+                    initInterface();
+                });
+            items = body.querySelectorAll('#states-menu [data-move="up"]');
+            for (let i = 0, il = items.length; i < il; i++)
+                items[i].addEventListener('click', e => {
+                    _noDrop = true;
+                    let index = +e.currentTarget.dataset.index;
+                    swapStates(index, index - 1);
+                    let item1 = body.querySelectorAll('#states-menu [data-index="' + index + '"]');
+                    let item2 = body.querySelectorAll('#states-menu [data-index="' + (index - 1) + '"]');
+                    let cItem = dialog.current.profile[dialog.current.collection][dialog.current.itemIdx];
+                    for (let i = 0, il = item1.length; i < il; i++) {
+                        item1[i].dataset.index = index - 1;
+                        if (item1[i].tagName === 'A') {
+                            item1[i].firstChild.textContent = `${index}: ${GetDisplay(cItem.getState(index))}`;
+                            item1[i].href = `#profiles/${encodeURIComponent(profileName)}/triggers/${current.itemIdx}/${item1[i].dataset.index}`;
+                        }
+                    }
+                    for (let i = 0, il = item2.length; i < il; i++) {
+                        item2[i].dataset.index = index;
+                        if (item2[i].tagName === 'A') {
+                            item2[i].href = `#profiles/${encodeURIComponent(profileName)}/triggers/${current.itemIdx}/${item1[i].dataset.index}`;
+                            item2[i].firstChild.textContent = `${index + 1}: ${GetDisplay(cItem.getState(index + 1))}`;
+                        }
+                    }
+                    _noDrop = false;
+                    e.stopPropagation();
+                    e.cancelBubble = true;
+                    e.preventDefault();
+                });
+            items = body.querySelectorAll('#states-menu [data-move="down"]');
+            for (let i = 0, il = items.length; i < il; i++)
+                items[i].addEventListener('click', e => {
+                    let index = +e.currentTarget.dataset.index;
+                    swapStates(index, index + 1);
+                    let item1 = body.querySelectorAll('#states-menu [data-index="' + index + '"]');
+                    let item2 = body.querySelectorAll('#states-menu [data-index="' + (index + 1) + '"]');
+                    let cItem = dialog.current.profile[dialog.current.collection][dialog.current.itemIdx];
+                    for (let i = 0, il = item1.length; i < il; i++) {
+                        item1[i].dataset.index = index + 1;
+                        if (item1[i].tagName === 'A') {
+                            item1[i].href = `#profiles/${encodeURIComponent(profileName)}/triggers/${current.itemIdx}/${item1[i].dataset.index}`;
+                            item1[i].firstChild.textContent = `${index + 2}: ${GetDisplay(cItem.getState(index + 2))}`;
+                        }
+                    }
+                    for (let i = 0, il = item2.length; i < il; i++) {
+                        item2[i].dataset.index = index;
+                        if (item2[i].tagName === 'A') {
+                            item2[i].href = `#profiles/${encodeURIComponent(profileName)}/triggers/${current.itemIdx}/${item2[i].dataset.index}`
+                            item2[i].firstChild.textContent = `${index + 1}: ${GetDisplay(cItem.getState(index + 1))}`;
+                        }
+                    }
+                    e.stopPropagation();
+                    e.cancelBubble = true;
+                    e.preventDefault();
+                });
+            body.querySelector('#states-menu li:last-child button:nth-child(2)').disabled = true;
+            body.querySelector('#states-menu li:last-child button:nth-child(2)').style.backgroundColor = '#ececec';
+            body.querySelector('#states-menu li:first-child button:nth-child(1)').disabled = true;
+            body.querySelector('#states-menu li:first-child button:nth-child(1)').style.backgroundColor = '#ececec';
+        }
+        else
+            body.querySelector('#states-menu').innerHTML = '';
+        document.getElementById('testText').value = '';
+        document.getElementById('test-results').value = '';
+        $('.nav-tabs a[href="#triggerValue"]').tab('show');
+    }
+
+    document.getElementById('trigger-editor-dropdown').addEventListener('blur', (e) => {
+        var element = document.getElementById('pattern');
+        element.value = document.getElementById('trigger-editor-dropdown').value;
+        var event = new Event('change');
+        element.dispatchEvent(event);
+    });
+    document.getElementById('btn-editor').addEventListener('click', (e) => {
+        if (document.getElementById('trigger-editor-dropdown').style.display == 'block') {
+            var element = document.getElementById('pattern');
+            element.value = document.getElementById('trigger-editor-dropdown').value;
+            var event = new Event('change');
+            element.dispatchEvent(event);
+        }
+        else {
+            document.getElementById('trigger-editor-dropdown').value = document.getElementById('pattern').value;
+            document.getElementById('trigger-editor-dropdown').focus();
+        }
+    });
+    initInterface();
+    body.querySelector('#btn-add-state').addEventListener('click', () => {
+        parent = dialog.current.parent;
+        item = dialog.current.item;
+        if (parent) {
+            if (!parent.triggers)
+                parent.triggers = [];
+            triggers = parent.triggers;
+        }
+        else {
+            if (!item.triggers)
+                item.triggers = [];
+            triggers = item.triggers;
+            parent = item;
+        }
+        triggers.push(new Trigger());
+        item = triggers[triggers.length - 1];
+        current.itemSubIdx = triggers.length - 1;
+        window.location.hash = `profiles/${encodeURIComponent(profileName)}/triggers/${current.itemIdx}/${triggers.length - 1}`;
+        initInterface();
+    });
+    document.getElementById('btn-test').addEventListener('click', () => {
+        var txt = document.getElementById('testText').value;
+        if (txt.length === 0) {
+            document.getElementById('test-results').value = 'No text to test against!';
+            return;
+        }
+        try {
+
+            if (item.verbatim) {
+                if (!item.caseSensitive && item.pattern.toLowerCase() != txt.toLowerCase())
+                    document.getElementById('test-results').value = 'Pattern doesn\'t Match!';
+                else if (item.caseSensitive && item.pattern != txt)
+                    document.getElementById('test-results').value = 'Pattern doesn\'t Match!';
+                else
+                    document.getElementById('test-results').value = '%0 : ' + txt + '\n';
+            }
+            else {
+                var re;
+                if (item.caseSensitive)
+                    re = new RegExp(item.pattern, 'g');
+                else
+                    re = new RegExp(item.pattern, 'gi');
+                var res = re.exec(txt);
+                if (res === null || res.length === 0)
+                    document.getElementById('test-results').value = 'Pattern doesn\'t Match!';
+                else {
+                    var r = '';
+                    let m = 0;
+                    if (res[0] !== txt || client.getOption('prependTriggeredLine')) {
+                        r += '%0 : ' + txt + '\n';
+                        m = 1;
+                    }
+                    for (var i = 0; i < res.length; i++) {
+                        r += '%' + (i + m) + ' : ' + res[i] + '\n';
+                    }
+                    document.getElementById('test-results').value = r;
+                }
+            }
+        }
+        catch (e) {
+            document.getElementById('test-results').value = 'Error: ' + e;
+        }
+    })
+
+    body.querySelector('#pattern').addEventListener('change', e => {
+        debounce(() => {
+            let i = body.querySelector(`#states-menu a[data-index="${current.itemSubIdx}"] span`)
+            if (i)
+                i.textContent = (current.itemSubIdx + 1) + ': ' + GetDisplay(item);
+        }, 100, 'triggerUpdate');
+    });
+    body.querySelector('#pattern').addEventListener('input', e => {
+        debounce(() => {
+            let i = body.querySelector(`#states-menu a[data-index="${current.itemSubIdx}"] span`)
+            if (i)
+                i.textContent = (current.itemSubIdx + 1) + ': ' + GetDisplay(item);
+        }, 100, 'triggerUpdate');
+    });
+    body.querySelector('#type').addEventListener('change', e => {
+        let params = body.querySelector('#params');
+        switch (e.target.value) {
+            case '1024': //wait
+            case '16384': //Duration
+                params.parentElement.parentElement.style.display = '';
+                body.querySelector('#params-suffix').style.display = '';
+                body.querySelector('#params-suffix').parentElement.classList.add('input-group');
+                break;
+            case '128':
+            case '512': //skip            
+            case '4096': //LoopPattern
+            case '8192': //LoopLines
+            case '32768': //WithinLines            
+                params.parentElement.parentElement.style.display = '';
+                body.querySelector('#params-suffix').style.display = 'none';
+                body.querySelector('#params-suffix').parentElement.classList.remove('input-group');
+                break;
+            default:
+                params.parentElement.parentElement.style.display = 'none';
+                break;
+        }
+    })
+
+    let contentChanging = () => {
+        dialog.off('content-changing', contentChanging);
+        dialog.off('item-loaded', contentChanging);
+    };
+
+    let itemLoaded = e => {
+        parent = dialog.current.parent;
+        item = dialog.current.item;
+        initInterface();
+        if (body.querySelector('#pattern-prefix'))
+            body.querySelector('#pattern-prefix').textContent = dialog.current.itemSubIdx + 1;
+        if (activeId) {
+            setTimeout(() => {
+                if(activeId)
+                    document.getElementById(activeId).focus();
+                activeId = null;
+            }, 100);
+        }
+        _activeIdx = current.itemSubIdx;
+    };
+    dialog.on('content-changing', contentChanging);
+    dialog.on('item-loaded', itemLoaded);
+
+    $('#btn-states').on('hidden.bs.dropdown', () => {
+        if (_statesChanged) {
+            activeId = document.activeElement.id;
+            _statesChanged = false;
+            if (_activeIdx === -1)
+                window.location.hash = `profiles/${encodeURIComponent(profileName)}/triggers/${current.itemIdx}`;
+            else if (_activeIdx < dialog.current.profile.triggers[dialog.current.itemIdx].triggers.length)
+                window.location.hash = `profiles/${encodeURIComponent(profileName)}/triggers/${current.itemIdx}/${_activeIdx}`;
+            dialog.reload();
+        }
+    });
+
+    function swapStates(oldState, newState) {
+        const items = dialog.current.profile.triggers[dialog.current.itemIdx].triggers;
+        let oldItem, newItem;
+        body.querySelector('#states-menu li:last-child button:nth-child(2)').disabled = false;
+        body.querySelector('#states-menu li:last-child button:nth-child(2)').style.backgroundColor = '';
+        body.querySelector('#states-menu li:first-child button:nth-child(1)').disabled = false;
+        body.querySelector('#states-menu li:first-child button:nth-child(1)').style.backgroundColor = '';
+        let sMenu = body.querySelector('#states-menu');
+        if (oldState === _activeIdx)
+            _activeIdx = newState;
+        else if (newState === _activeIdx)
+            _activeIdx = oldState;
+        if (newState === -1) {
+            oldItem = items.shift();
+            oldItem.triggers = items;
+            if (oldItem.type === 262144)
+                oldItem.type = 8;
+            else if (oldItem.type > 16)
+                oldItem.type = 0;
+            newItem = dialog.current.profile.triggers[dialog.current.itemIdx];
+            newItem.triggers = [];
+            oldItem.state = newItem.state;
+            oldItem.priority = newItem.priority;
+            oldItem.name = newItem.name;
+            items.unshift(newItem);
+            profile.triggers[dialog.current.itemIdx] = oldItem;
+            sMenu.insertBefore(sMenu.childNodes[1], sMenu.childNodes[0]);
+        }
+        else if (oldState === -1) {
+            newItem = items.shift();
+            newItem.triggers = items;
+            if (newItem.type === 262144)
+                newItem.type = 8;
+            else if (newItem.type > 16)
+                newItem.type = 0;
+            oldItem = dialog.current.profile.triggers[dialog.current.itemIdx];
+            oldItem.triggers = [];
+            newItem.state = oldItem.state;
+            newItem.priority = oldItem.priority;
+            newItem.name = oldItem.name;
+            items.unshift(oldItem);
+            profile.triggers[dialog.current.itemIdx] = newItem;
+            sMenu.insertBefore(sMenu.childNodes[0], sMenu.childNodes[2]);
+
+        } else {
+            newItem = items[newState];
+            items[newState] = items[oldState];
+            items[oldState] = newItem;
+            if (oldState > newState)
+                sMenu.insertBefore(sMenu.childNodes[oldState], sMenu.childNodes[oldState - 2]);
+            else
+                sMenu.insertBefore(sMenu.childNodes[newState], sMenu.childNodes[newState - 2]);
+        }
+        body.querySelector('#states-menu li:last-child button:nth-child(2)').disabled = true;
+        body.querySelector('#states-menu li:last-child button:nth-child(2)').style.backgroundColor = '#ececec';
+        body.querySelector('#states-menu li:first-child button:nth-child(1)').disabled = true;
+        body.querySelector('#states-menu li:first-child button:nth-child(1)').style.backgroundColor = '#ececec';
+        if (oldState === dialog.current.itemSubIdx || newState === dialog.current.itemSubIdx) {
+            _statesChanged = true;
+            _newState = newState;
+            /*
+            if (newState === -1)
+                window.location.hash = `profiles/${encodeURIComponent(profileName)}/triggers/${current.itemIdx}`;
+            else if (newState < dialog.current.profile.triggers[dialog.current.itemIdx].triggers.length)
+                window.location.hash = `profiles/${encodeURIComponent(profileName)}/triggers/${current.itemIdx}/${newState}`;
+            dialog.reload();
+            */
+        }
+    }
+</script>
+<style>
+    #trigger-editor-dropdown {
+        left: 0px !important;
+        top: 42px !important;
+        transform: none !important;
+    }
+</style>

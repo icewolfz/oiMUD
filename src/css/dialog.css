@@ -37,6 +37,19 @@ dialog {
   margin: 0px;
 }
 
+.dialog-button-bar {
+  background-color: #f5f5f5;
+  position: absolute;
+  left: 0;
+  right: 0;
+  padding: 5px;
+  min-height: 41px;
+  top: 34px;
+  border-bottom: 1px solid #ddd;
+  box-shadow: inset 0 1px 0 #fff;
+  border-top: 1px solid #ddd;
+}
+
 .dialog-footer {
   background-color: #f5f5f5;
   box-shadow: inset 0 1px 0 #fff;
@@ -46,25 +59,28 @@ dialog {
   right: 0;
   padding: 5px;
   border-top: 1px solid #ddd;
-  min-height: 49px;
+  min-height: 41px;
 }
 
-.dialog-footer .btn-group .btn {
+.dialog-footer .btn-group .btn,
+.dialog-button-bar .btn-group .btn {
   margin: 0px;
 }
 
-.dialog-footer .btn.float-end {
+.dialog-footer .btn.float-end,
+.dialog-button-bar .btn.float-end {
   margin-left: 4px;
 }
 
-.dialog-footer .btn.float-start {
+.dialog-footer .btn.float-start,
+.dialog-button-bar .btn.float-start {
   margin-right: 4px;
 }
 
 .dialog-body {
   left: 0;
   right: 0;
-  bottom: 49px;
+  bottom: 41px;
   top: 35px;
   position: absolute;
   background-color: white;
@@ -123,6 +139,49 @@ dialog {
   .dialog .dialog-body {
     left: 0 !important;
   }
+
+  .dialog[data-panel="right"] .splitter.vertical .splitter-panel-1 {
+    display: none;
+  }
+
+  .dialog[data-panel="right"] .splitter.vertical .splitter-panel-2 {
+    left: 0px !important;
+  }
+
+  .dialog[data-panel="right"] .splitter.horizontal .splitter-panel-1 {
+    display: none;
+  }
+
+  .dialog[data-panel="right"] .splitter.horizontal .splitter-panel-2 {
+    top: 0px !important;
+  }
+
+  .dialog[data-panel="left"] .splitter.vertical .splitter-panel-1 {
+    right: 0px !important;
+    width: auto !important;
+  }
+
+  .dialog[data-panel="left"] .splitter.vertical .splitter-panel-2 {
+    display: none;
+  }
+
+  .dialog[data-panel="left"] .splitter.horizontal .splitter-panel-1 {
+    bottom: 0px !important;
+    height: auto !important;
+  }
+
+  .dialog[data-panel="left"] .splitter.horizontal .splitter-panel-2 {
+    display: none;
+  }
+
+  .dialog .spitter-drag-bar {
+    pointer-events: none;
+    display: none;
+  }
+
+  .icon-only {
+    display: none;
+  }
 }
 
 @media (max-width: 300px) {
@@ -153,6 +212,7 @@ dialog {
   left: 0;
   bottom: 0;
   cursor: w-resize;
+  z-index: 10;
 }
 
 .dialog.resizable .resizer-right {
@@ -163,6 +223,7 @@ dialog {
   right: 0;
   bottom: 0;
   cursor: e-resize;
+  z-index: 10;
 }
 
 .dialog.resizable .resizer-top {
@@ -173,6 +234,7 @@ dialog {
   right: 0;
   top: 0;
   cursor: n-resize;
+  z-index: 10;
 }
 
 .dialog.resizable .resizer-bottom {
@@ -183,6 +245,7 @@ dialog {
   right: 0;
   bottom: 0;
   cursor: s-resize;
+  z-index: 10;
 }
 
 .dialog.resizable .resizer-se {
@@ -193,7 +256,7 @@ dialog {
   right: 0;
   bottom: 0;
   cursor: se-resize;
-  z-index: 10;
+  z-index: 12;
 }
 
 .dialog.resizable .resizer-ne {
@@ -204,7 +267,7 @@ dialog {
   right: 0;
   top: 0;
   cursor: ne-resize;
-  z-index: 10;
+  z-index: 12;
 }
 
 .dialog.resizable .resizer-sw {
@@ -215,7 +278,7 @@ dialog {
   left: 0;
   bottom: 0;
   cursor: sw-resize;
-  z-index: 10;
+  z-index: 12;
 }
 
 .dialog.resizable .resizer-nw {
@@ -226,7 +289,7 @@ dialog {
   left: 0;
   top: 0;
   cursor: se-resize;
-  z-index: 10;
+  z-index: 12;
 }
 
 .dialog.maximized {
@@ -306,10 +369,14 @@ div.dialog {
 .settings-menu {
   left: 0;
   top: 35px;
-  bottom: 49px;
+  bottom: 41px;
   width: 200px;
   right: auto;
   border-right: 1px solid var(--bs-list-group-border-color);
   position: absolute;
   display: block;
+}
+
+.dialog .splitter-panel {
+  background-color: transparent;
 }

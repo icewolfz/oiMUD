@@ -3,34 +3,36 @@ div.offcanvas-body > ul > li > hr {
   margin: 2px;
 }
 
-.nav-item .fas,
-.nav-item .fa-stack {
+.offcanvas-body .nav-item .fas,
+.offcanvas-body .nav-item .fa-stack {
   width: 20px;
   text-align: center;
   margin-right: 2px;
 }
 
-.nav-item .fa-stack {
+.offcanvas-body .nav-item .fa-stack {
   width: 20px;
   text-align: center;
   margin: 0;
 }
 
-.nav-item svg {
+.offcanvas-body .nav-item svg {
   width: 20px !important;
   text-align: center;
   margin-right: 2px;
 }
 
-.nav-item a:hover {
+.offcanvas-body .nav-item a:hover {
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
   background-color: #9f9f9f;
+  color: white;
 }
 
-.nav-link {
+.offcanvas-body .nav-link {
   padding-left: 3px;
+  padding-right: 3px;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out, border-radius 0.15s;
 }

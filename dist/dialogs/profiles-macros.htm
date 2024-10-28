@@ -1,0 +1,130 @@
+<div class="mb-3">
+    <label class="form-label" for="key" style="width: 100%">Key
+        <div class="float-end form-check form-switch">
+            <input type="checkbox" class="form-check-input" id="enabled">
+            <label class="form-check-label" for="enabled">Enabled</label>
+        </div>
+    </label>
+    <select data-custom="true" class="form-select" id="key"></select>
+    <div class="invalid-feedback" id="key-feedback"></div>
+</div>
+
+<fieldset class="mb-3">
+    <div>Modifiers</div>
+    <div class="form-check form-switch form-check-inline">
+        <input type="checkbox" class="form-check-input" name="modifiers" id="modifiers-4" value="4" data-enum="true">
+        <label class="form-check-label" for="modifiers-4">Ctrl</label>
+    </div>
+    <div class="form-check form-switch form-check-inline">
+        <input type="checkbox" class="form-check-input" name="modifiers" id="modifiers-8" value="8" data-enum="true">
+        <label class="form-check-label" for="modifiers-8">Shift</label>
+    </div>
+    <div class="form-check form-switch form-check-inline">
+        <input type="checkbox" class="form-check-input" name="modifiers" id="modifiers-2" value="2" data-enum="true">
+        <label class="form-check-label" for="modifiers-2">Alt</label>
+    </div>
+    <div class="form-check form-switch form-check-inline">
+        <input type="checkbox" class="form-check-input" name="modifiers" id="modifiers-16" value="16" data-enum="true">
+        <label class="form-check-label" for="modifiers-16">Meta</label>
+    </div>
+</fieldset>
+<div class="mb-3">
+    <label class="form-label" for="style">Style</label>
+    <select class="form-select" id="style">
+        <option value="0">Text</option>
+        <option value="1">Parse</option>
+        <option value="2">Script</option>
+    </select>
+</div>
+<div class="mb-3">
+    <label class="form-label" for="value">Value</label>
+    <textarea class="form-control" id="value" rows="6"></textarea>
+</div>
+<div class="accordion" id="itemAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#advanced" aria-expanded="false" aria-controls="advanced">
+                Advanced
+            </button>
+        </h2>
+        <div id="advanced" class="accordion-collapse collapse" data-bs-parent="#itemAccordion">
+            <div class="accordion-body">
+                <div class="mb-3">
+                    <label class="form-label" for="name">Name</label>
+                    <input class="form-control" id="name">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="priority">Priority</label>
+                    <input type="number" class="form-control" id="priority">
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="send">
+                    <label class="form-check-label" for="send">Send to mud</label>
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="append">
+                    <label class="form-check-label" for="append">Append to command</label>
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="chain">
+                    <label class="form-check-label" for="chain">Daisy chain</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<input type="hidden" id="oModifiers" value="0" />
+<input type="hidden" id="oKey" value="0" />
+
+<script type="text/javascript">
+    const oldKey = item.key;
+    const oldModifiers = item.modifiers;
+    for (var key in keyCharToCode)
+        $('#key').append('<option value=\'' + keyCharToCode[key] + '\'>' + key + '</option>');
+    dialog.contents.querySelector('#key').addEventListener('change', e => {          
+            setTimeout(()=>checkValue(), 100);
+    });
+    const items = dialog.contents.querySelectorAll('[name="modifiers"]');
+    for (let i = 0, il = items.length; i < il; i++)
+        items[i].addEventListener('change', e => {
+            setTimeout(()=>checkValue(), 100);
+        });
+
+    function checkValue() {
+        const value = parseInt(body.querySelector('#key').value, 10);
+            let modifiers = 0;
+            if (body.querySelector('#modifiers-4').checked)
+                modifiers |= 4;
+            if (body.querySelector('#modifiers-8').checked)
+                modifiers |= 8;
+            if (body.querySelector('#modifiers-2').checked)
+                modifiers |= 2;
+            if (body.querySelector('#modifiers-16').checked)
+                modifiers |= 16;
+            if (value !== oldKey || oldModifiers !== modifiers) {
+                let r = FilterArrayByKeyValue(profile.macros, 'key', item.key);
+                r = FilterArrayByKeyValue(r, 'modifiers', item.modifiers);
+                const idx = r.indexOf(item)
+                if (idx !== -1)
+                    r.splice(idx, 1);
+                if (r.length > 0) {
+                    dialog.errorField = body.querySelector('#key');
+                    dialog.errorField.classList.add('is-invalid');                    
+                    dialog.contents.querySelector('#key-feedback').textContent = 'Key combination already used';
+                }
+                else {
+                    body.querySelector('#key').classList.remove('is-invalid');
+                    if (dialog.errorField === body.querySelector('#key'))
+                        dialog.errorField = null;
+                }
+            }
+            else {
+                body.querySelector('#key').classList.remove('is-invalid');
+                if (dialog.errorField === body.querySelector('#key'))
+                    dialog.errorField = null;
+            }
+    }
+</script>

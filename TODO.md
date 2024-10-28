@@ -51,12 +51,14 @@ case 'ch':
 - logger plugin and all related options
 - mapper plugin and all related options
 - backup plugin for shadowmud
-- profile manager
+- immortal tool plugin for shadowmud
+- Add undo system to profile manager
 - status plugin and related and move all lag meter to here
 - skip more prompt
 - skip more prompt delay
 - fix hidden windows
 - recode advanced editor to not use jquery when possible
+- make command history drop down work
 
 
 

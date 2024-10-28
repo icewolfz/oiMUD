@@ -160,6 +160,18 @@ dialog {
 .dialog-header .btn-group .btn {
   margin: 0px;
 }
+.dialog-button-bar {
+  background-color: #f5f5f5;
+  position: absolute;
+  left: 0;
+  right: 0;
+  padding: 5px;
+  min-height: 41px;
+  top: 34px;
+  border-bottom: 1px solid #ddd;
+  box-shadow: inset 0 1px 0 #fff;
+  border-top: 1px solid #ddd;
+}
 .dialog-footer {
   background-color: #f5f5f5;
   box-shadow: inset 0 1px 0 #fff;
@@ -169,21 +181,24 @@ dialog {
   right: 0;
   padding: 5px;
   border-top: 1px solid #ddd;
-  min-height: 49px;
+  min-height: 41px;
 }
-.dialog-footer .btn-group .btn {
+.dialog-footer .btn-group .btn,
+.dialog-button-bar .btn-group .btn {
   margin: 0px;
 }
-.dialog-footer .btn.float-end {
+.dialog-footer .btn.float-end,
+.dialog-button-bar .btn.float-end {
   margin-left: 4px;
 }
-.dialog-footer .btn.float-start {
+.dialog-footer .btn.float-start,
+.dialog-button-bar .btn.float-start {
   margin-right: 4px;
 }
 .dialog-body {
   left: 0;
   right: 0;
-  bottom: 49px;
+  bottom: 41px;
   top: 35px;
   position: absolute;
   background-color: white;
@@ -232,6 +247,39 @@ dialog {
   .dialog .dialog-body {
     left: 0 !important;
   }
+  .dialog[data-panel=right] .splitter.vertical .splitter-panel-1 {
+    display: none;
+  }
+  .dialog[data-panel=right] .splitter.vertical .splitter-panel-2 {
+    left: 0px !important;
+  }
+  .dialog[data-panel=right] .splitter.horizontal .splitter-panel-1 {
+    display: none;
+  }
+  .dialog[data-panel=right] .splitter.horizontal .splitter-panel-2 {
+    top: 0px !important;
+  }
+  .dialog[data-panel=left] .splitter.vertical .splitter-panel-1 {
+    right: 0px !important;
+    width: auto !important;
+  }
+  .dialog[data-panel=left] .splitter.vertical .splitter-panel-2 {
+    display: none;
+  }
+  .dialog[data-panel=left] .splitter.horizontal .splitter-panel-1 {
+    bottom: 0px !important;
+    height: auto !important;
+  }
+  .dialog[data-panel=left] .splitter.horizontal .splitter-panel-2 {
+    display: none;
+  }
+  .dialog .spitter-drag-bar {
+    pointer-events: none;
+    display: none;
+  }
+  .icon-only {
+    display: none;
+  }
 }
 @media (max-width: 300px) {
   .breadcrumb-item {
@@ -257,6 +305,7 @@ dialog {
   left: 0;
   bottom: 0;
   cursor: w-resize;
+  z-index: 10;
 }
 .dialog.resizable .resizer-right {
   width: 5px;
@@ -266,6 +315,7 @@ dialog {
   right: 0;
   bottom: 0;
   cursor: e-resize;
+  z-index: 10;
 }
 .dialog.resizable .resizer-top {
   width: 100%;
@@ -275,6 +325,7 @@ dialog {
   right: 0;
   top: 0;
   cursor: n-resize;
+  z-index: 10;
 }
 .dialog.resizable .resizer-bottom {
   width: 100%;
@@ -284,6 +335,7 @@ dialog {
   right: 0;
   bottom: 0;
   cursor: s-resize;
+  z-index: 10;
 }
 .dialog.resizable .resizer-se {
   width: 5px;
@@ -293,7 +345,7 @@ dialog {
   right: 0;
   bottom: 0;
   cursor: se-resize;
-  z-index: 10;
+  z-index: 12;
 }
 .dialog.resizable .resizer-ne {
   width: 5px;
@@ -303,7 +355,7 @@ dialog {
   right: 0;
   top: 0;
   cursor: ne-resize;
-  z-index: 10;
+  z-index: 12;
 }
 .dialog.resizable .resizer-sw {
   width: 5px;
@@ -313,7 +365,7 @@ dialog {
   left: 0;
   bottom: 0;
   cursor: sw-resize;
-  z-index: 10;
+  z-index: 12;
 }
 .dialog.resizable .resizer-nw {
   width: 5px;
@@ -323,7 +375,7 @@ dialog {
   left: 0;
   top: 0;
   cursor: se-resize;
-  z-index: 10;
+  z-index: 12;
 }
 .dialog.maximized {
   position: fixed !important;
@@ -392,12 +444,15 @@ div.dialog {
 .settings-menu {
   left: 0;
   top: 35px;
-  bottom: 49px;
+  bottom: 41px;
   width: 200px;
   right: auto;
   border-right: 1px solid var(--bs-list-group-border-color);
   position: absolute;
   display: block;
+}
+.dialog .splitter-panel {
+  background-color: transparent;
 }
 
 /* src/css/client.css */
@@ -491,30 +546,32 @@ div.offcanvas-body > ul > li > hr {
   border-top: 1px solid;
   margin: 2px;
 }
-.nav-item .fas,
-.nav-item .fa-stack {
+.offcanvas-body .nav-item .fas,
+.offcanvas-body .nav-item .fa-stack {
   width: 20px;
   text-align: center;
   margin-right: 2px;
 }
-.nav-item .fa-stack {
+.offcanvas-body .nav-item .fa-stack {
   width: 20px;
   text-align: center;
   margin: 0;
 }
-.nav-item svg {
+.offcanvas-body .nav-item svg {
   width: 20px !important;
   text-align: center;
   margin-right: 2px;
 }
-.nav-item a:hover {
+.offcanvas-body .nav-item a:hover {
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
   background-color: #9f9f9f;
+  color: white;
 }
-.nav-link {
+.offcanvas-body .nav-link {
   padding-left: 3px;
+  padding-right: 3px;
   transition:
     color 0.15s ease-in-out,
     background-color 0.15s ease-in-out,
@@ -1491,4 +1548,165 @@ div.offcanvas-body > ul > li > hr {
 .tox .tox-toolbar__overflow,
 .tox .tox-toolbar__primary {
   background-attachment: local !important;
+}
+
+/* src/css/nav.css */
+.dropdown-inline {
+  position: initial !important;
+  transform: none !important;
+  margin: 0px;
+  border: 0px;
+  padding: 0;
+}
+.dropdown-inline .nav-item {
+}
+.nav-link {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.nav-link .no-icon {
+  width: 16px;
+  height: 24px;
+}
+.nav-item.active > a {
+  background-color: var(--bs-secondary-bg);
+  border-radius: 10px;
+  color: black;
+}
+.nav-item > a:hover,
+.nav-item.active > a:hover {
+  background-color: var(--bs-tertiary-bg);
+  border-radius: 10px;
+  color: black;
+}
+@media (orientation: landscape) and (max-width: 641px), (orientation: landscape) and (max-height: 480px), (orientation: portrait) and (max-width: 480px), (orientation: portrait) and (max-height: 641px) {
+  .nav-item.active > a {
+    background-color: white;
+  }
+  .nav-item.active > a:hover {
+    background-color: white;
+  }
+}
+.dropdown-item:focus,
+.dropdown-item:hover {
+  color: #1e2125;
+  background-color: #e9ecef;
+}
+.list-badge-button {
+  height: 24px;
+  width: 24px;
+  font-size: 17px;
+  padding: 0px;
+  float: right;
+  padding-top: 3px;
+}
+
+/* src/css/profiles.css */
+#profile-menu > .nav-item {
+  width: 100%;
+}
+#profile-menu a.nav-link .form-switch {
+  display: none;
+}
+#profile-menu .list-badge-button {
+  display: none;
+}
+#profile-menu li:hover {
+}
+@media (orientation: landscape) and (max-width: 641px), (orientation: landscape) and (max-height: 480px), (orientation: portrait) and (max-width: 480px), (orientation: portrait) and (max-height: 641px) {
+  .dialog[data-panel=left] #profile-menu .dropdown-menu {
+    display: none;
+  }
+  .dialog[data-panel=left] #profile-menu a.nav-link i {
+    display: none;
+  }
+  .dialog[data-panel=left] #profile-menu a.nav-link .form-switch {
+    display: block;
+  }
+  .dialog[data-panel=left] #profile-menu a.nav-link span {
+    display: none;
+  }
+  .dialog[data-panel=left] #profile-menu .list-badge-button,
+  .dialog[data-panel=left] #profile-menu .list-badge-button i {
+    display: inline-block !important;
+  }
+}
+@media (max-width: 400px) {
+  .breadcrumb-item {
+    max-width: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 28px;
+    white-space: nowrap;
+  }
+  .breadcrumb-item:only-child,
+  .breadcrumb-item:first-child:last-child {
+    max-width: initial !important;
+  }
+  .breadcrumb-item:last-child {
+    max-width: 100px;
+  }
+}
+.breadcrumb-sm .breadcrumb-item {
+  max-width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 28px;
+  white-space: nowrap;
+}
+.breadcrumb-sm .breadcrumb-item:only-child,
+.breadcrumb-sm .breadcrumb-item:first-child:last-child {
+  max-width: initial !important;
+}
+.breadcrumb-sm .breadcrumb-item:last-child {
+  max-width: 100px;
+}
+.breadcrumb-item:last-child {
+  max-width: 250px;
+}
+#profile-splitter-panel1[data-collapsed=false] #profile-menu .list-badge-button,
+#profile-splitter-panel1[data-collapsed=false] #profile-menu .list-badge-button i {
+  display: inline-block !important;
+}
+
+/* src/css/splitter.css */
+.splitter {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1;
+}
+.splitter-panel {
+  position: absolute;
+  background-color: #f5f5f5;
+}
+.spitter-drag-bar {
+  background-color: transparent;
+  position: absolute;
+  z-index: 100;
+  background-color: #f5f5f5;
+  outline: none;
+}
+.spitter-drag-bar:hover {
+  background-color: #000;
+  transition-delay: 1s;
+  opacity: 0.5;
+}
+.splitter-ghost-bar {
+  background-color: #000;
+  opacity: 0.5;
+  position: absolute;
+  z-index: 999;
+  outline: none;
+}
+.splitter.vertical .spitter-drag-bar {
+  border-right: 1px solid rgb(221, 221, 221);
+  border-left: 1px solid rgb(221, 221, 221);
+}
+.splitter.horizontal .spitter-drag-bar {
+  border-top: 1px solid rgb(221, 221, 221);
+  border-bottom: 1px solid rgb(221, 221, 221);
 }

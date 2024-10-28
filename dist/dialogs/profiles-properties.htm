@@ -1,0 +1,46 @@
+<div class="mb-3">
+    <label for="name" class="form-label" style="width: 100%">Name
+        <div class="float-end form-check form-switch">
+            <input type="checkbox" class="form-check-input" id="enabled">
+            <label class="form-check-label" for="enabled">Enabled</label>
+        </div>
+
+    </label>
+    <input class="form-control" id="name" required>
+    <div class="invalid-feedback" id="name-feedback"></div>
+</div>
+
+<div class="list-group" style="margin-bottom: 8px;">
+    <a href="#profiles/{profileURL}/aliases" class="list-group-item list-group-item-action">
+        <div class="form-check-inline form-switch" style="margin: 0;">
+            <input type="checkbox" class="form-check-input" id="enableAliases" data-profile="{profile}">
+        </div>
+        Manage aliases
+    </a>
+    <a href="#profiles/{profileURL}/macros" class="list-group-item list-group-item-action">
+        <div class=" form-check-inline form-switch" style="margin: 0;">
+            <input type="checkbox" class="form-check-input" id="enableMacros" data-profile="{profile}">
+        </div>
+        Manage macros
+    </a>
+    <a href="#profiles/{profileURL}/triggers" class="list-group-item list-group-item-action">
+        <div class=" form-check-inline form-switch" style="margin: 0;">
+            <input type="checkbox" class="form-check-input" id="enableTriggers" data-profile="{profile}">
+        </div>
+        Manage triggers
+    </a>
+    <a href="#profiles/{profileURL}/buttons" class="list-group-item list-group-item-action">
+        <div class=" form-check-inline form-switch" style="margin: 0;">
+            <input type="checkbox" class="form-check-input" id="enableButtons" data-profile="{profile}">
+        </div>
+        Manage buttons
+    </a>
+</div>
+<div class="mb-3">
+    <label for="priority" class="form-label">Priority</label>
+    <input type="number" class="form-control" id="priority">
+</div>
+<div class="alert alert-info" role="alert">
+    #commands related to profiles will add to the highest priority profile enabled, if none enabled will add to the
+    default.
+</div>

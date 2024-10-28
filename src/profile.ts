@@ -455,6 +455,14 @@ export class Trigger extends Item {
     public clone() {
         return new Trigger(this);
     }
+
+    public getState(state) {
+        if (state === 0)
+            return this;
+        state--;
+        if (state >= this.triggers.length || state < 0) return null;
+        return this.triggers[state];
+    }
 }
 
 export class Context extends Item {
@@ -777,6 +785,108 @@ export class Profile {
         return m;
     }
 
+    static get DefaultButtons(): Button[] {
+        const buttons: Button[] = [];
+        let b;
+        b = new Button();
+        b.right = 176;
+        b.top = 14;
+        b.caption = 'fa-solid fa-angle-double-up';
+        b.value = 'up';
+        b.width = 48;
+        b.height = 48;
+        buttons.push(b);
+        b = new Button();
+        b.right = 124;
+        b.top = 14;
+        b.caption = 'fa-solid fa-caret-up,rotate--45';
+        b.value = 'northwest';
+        b.width = 48;
+        b.height = 48;
+        buttons.push(b);
+        b = new Button();
+        b.right = 72;
+        b.top = 14;
+        b.caption = 'fa-solid fa-caret-up';
+        b.value = 'north';
+        b.width = 48;
+        b.height = 48;
+        buttons.push(b);
+        b = new Button();
+        b.right = 20;
+        b.top = 14;
+        b.caption = 'fa-solid fa-caret-up,rotate-45';
+        b.value = 'northeast';
+        b.width = 48;
+        b.height = 48;
+        buttons.push(b);
+        b = new Button();
+        b.right = 176;
+        b.top = 66;
+        b.caption = 'fa-solid fa-crosshairs';
+        b.value = 'kill ${selected}';
+        b.width = 48;
+        b.height = 48;
+        buttons.push(b);
+        b = new Button();
+        b.right = 124;
+        b.top = 66;
+        b.caption = 'fa-solid fa-caret-left';
+        b.value = 'west';
+        b.width = 48;
+        b.height = 48;
+        buttons.push(b);
+        b = new Button();
+        b.right = 72;
+        b.top = 66;
+        b.caption = 'fa-solid fa-magnifying-glass';
+        b.value = 'look ${selected}';
+        b.width = 48;
+        b.height = 48;
+        buttons.push(b);
+        b = new Button();
+        b.right = 20;
+        b.top = 66;
+        b.caption = 'fa-solid fa-caret-right';
+        b.value = 'east';
+        b.width = 48;
+        b.height = 48;
+        buttons.push(b);
+        b = new Button();
+        b.right = 176;
+        b.top = 118;
+        b.caption = 'fa-solid fa-angle-double-down';
+        b.value = 'down';
+        b.width = 48;
+        b.height = 48;
+        buttons.push(b);
+        b = new Button();
+        b.right = 124;
+        b.top = 118;
+        b.caption = 'fa-solid fa-caret-down,rotate-45';
+        b.value = 'southwest';
+        b.width = 48;
+        b.height = 48;
+        buttons.push(b);
+        b = new Button();
+        b.right = 72;
+        b.top = 118;
+        b.caption = 'fa-solid fa-caret-down';
+        b.value = 'south';
+        b.width = 48;
+        b.height = 48;
+        buttons.push(b);
+        b = new Button();
+        b.right = 20;
+        b.top = 118;
+        b.caption = 'fa-solid fa-caret-down,rotate--45';
+        b.value = 'southeast';
+        b.width = 48;
+        b.height = 48;
+        buttons.push(b);
+        return buttons;
+    }
+
     public static load(file) {
         let profile;
         let data;
@@ -965,7 +1075,10 @@ export class Profile {
             }
             return data;
         }
-        data = clone(this);
+        data = clone(this, (key, value) => {
+            if (key === 'profile') return undefined;
+            return value;
+        });
         const profile = new Profile(false);
         let prop;
         for (prop in data) {
@@ -1005,9 +1118,7 @@ export class Profile {
         if (data.contexts && data.contexts.length > 0) {
             il = data.contexts.length;
             for (i = 0; i < il; i++) {
-                const item = data.contexts[i].clone();
-                item.profile = profile;
-                profile.contexts.push(item);
+                profile.contexts.push(new Context(data.contexts[i], profile));
             }
         }
         return profile;
@@ -1112,16 +1223,16 @@ export class ProfileCollection {
                 return -1;
             if (ap < bp)
                 return 1;
+            if (a === 'default')
+                return -1;
+            if (b === 'default')
+                return 1;
             ap = this.items[a].name;
             bp = this.items[b].name;
-            if (ap === 'default')
-                return -1;
-            if (bp === 'default')
-                return 1;
             if (ap > bp)
-                return -1;
-            if (ap < bp)
                 return 1;
+            if (ap < bp)
+                return -1;
             return 0;
         });
     }
@@ -1253,38 +1364,39 @@ export class ProfileCollection {
         if (version === 2) {
             const profiles = {};
             for (const p in this.items)
-                profiles[this.items[p].name] = this.items[p].clone(2);
+                profiles[this.items[p].name.toLowerCase()] = this.items[p].clone(2);
             return profiles;
         }
         const pc = new ProfileCollection();
         for (const p in this.items)
-            pc.items[this.items[p].name] = this.items[p].clone();
+            pc.items[this.items[p].name.toLowerCase()] = this.items[p].clone();
         pc.update();
         return pc;
     }
 
-    public load(key?) {
+    static load(key?) {
         return new Promise((resolve, reject) => {
+            let collection = new ProfileCollection();
             localforage.getItem(key || 'OoMUDProfiles').then(value => {
                 if (typeof value === 'string')
                     value = JSON.parse(value);
                 if (!value)
-                    this.add(Profile.Default);
+                    collection.add(Profile.Default);
                 else {
                     const keys = Object.keys(value);
                     let k = 0;
                     let kl = keys.length;
                     for (; k < kl; k++) {
-                        this.add(Profile.load(value[keys[k]]));
+                        collection.add(Profile.load(value[keys[k]]));
                     }
                 }
-                resolve(this);
+                resolve(collection);
             }).catch(reject);
         })
     }
 
     public save(key?) {
-        localforage.setItem(key || 'OoMUDProfiles', JSON.stringify(this.items, (key, value) => {
+        return localforage.setItem(key || 'OoMUDProfiles', JSON.stringify(this.items, (key, value) => {
             if (key === 'profile') return undefined;
             return value;
         }));

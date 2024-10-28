@@ -2580,3 +2580,20 @@ export function markdownParser(text) {
         .replace(/\\{/gim, '\\');        
     return toHTML.trim(); // using trim method to remove whitespace
 }
+
+export function scrollChildIntoView(parent, child) {
+    const childRect = child.getBoundingClientRect();
+    const parentRect = parent.getBoundingClientRect();
+  
+    if (
+      childRect.top < parentRect.top ||
+      childRect.bottom > parentRect.bottom ||
+      childRect.left < parentRect.left ||
+      childRect.right > parentRect.right
+    ) {
+      child.scrollIntoView({
+        behavior: "smooth", // Optional for smooth scrolling
+        block: "nearest" // Scrolls to nearest edge of the parent
+      });
+    }
+  }

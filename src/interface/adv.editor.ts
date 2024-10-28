@@ -2,7 +2,7 @@ import "../css/tinymce.css";
 import { EventEmitter } from "../events";
 import { RGBColor } from '../lib/rgbcolor';
 import { insertValue, stripHTML, htmlEncode, invert, getColors, copyText, openFileDialog, readFile, pasteText, pinkfishToHTML } from '../library'
-import { Dialog } from "../dialog";
+import { Dialog } from "./dialog";
 
 export class AdvEditor extends EventEmitter {
     private _element;
@@ -1235,6 +1235,7 @@ export class AdvEditor extends EventEmitter {
     private buildHTMLStack(els) {
         var tag, $el, t, tl;
         var stack = [];
+        var tags;
         for (var e = 0, el = els.length; e < el; e++) {
             $el = $(els[e]);
             tag = $el.prop('tagName');
@@ -1245,29 +1246,22 @@ export class AdvEditor extends EventEmitter {
             if (!tag)
                 stack.push('"' + $el.text() + '"');
             else if (tag === 'SPAN') {
+                tags = [];
                 if (els[e].className != '') {
                     tag = els[e].className.toUpperCase().split(/\s+/g);
                     tl = tag.length;
                     for (t = 0; t < tl; t++) {
                         if (tag[t] === 'NOFLASH')
-                            stack.push('FLASH');
+                            tags.push('FLASH');
                         else if (tag[t].length > 0)
-                            stack.push(tag[t]);
+                            tags.push(tag[t]);
                     }
-                    stack = stack.concat(this.buildHTMLStack($el.contents()));
-                    for (t = 0; t < tl; t++) {
-                        if (tag[t] === 'NOFLASH')
-                            stack.push('FLASH');
-                        else if (tag[t].length > 0)
-                            stack.push('/' + tag[t]);
-                    }
-                    continue;
                 }
-                else if ($el.css('text-decoration') === 'line-through')
-                    tag = 'STRIKEOUT';
-                else if ($el.css('text-decoration') === 'underline')
-                    tag = 'UNDERLINE';
-                else if ($el.data('mce-style')) {
+                if ($el.css('text-decoration') === 'line-through')
+                    tags.push('STRIKEOUT');
+                if ($el.css('text-decoration') === 'underline')
+                    tags.push('UNDERLINE');
+                if ($el.data('mce-style')) {
                     tag = $el.data('mce-style').toUpperCase().split(';');
                     tl = tag.length;
                     for (t = 0; t < tl; t++) {
@@ -1276,16 +1270,8 @@ export class AdvEditor extends EventEmitter {
                         tag[t] = tag[t].trim();
                         tag[t] = tag[t].replace('BACKGROUND:', 'BACKGROUND-COLOR:');
                         if (tag[t].length > 0)
-                            stack.push(tag[t]);
+                            tags.push(tag[t]);
                     }
-                    stack = stack.concat(this.buildHTMLStack($el.contents()));
-                    for (t = 0; t < tl; t++) {
-                        if (tag[t].endsWith('INHERIT') || tag[t].endsWith('BLACK'))
-                            continue;
-                        if (tag[t].length > 0)
-                            stack.push('/' + tag[t].trim());
-                    }
-                    continue;
                 }
                 else if ($el.css('color') || $el.css('background-color') || $el.css('background')) {
                     tag = [];
@@ -1298,19 +1284,19 @@ export class AdvEditor extends EventEmitter {
                     tl = tag.length;
                     for (t = 0; t < tl; t++) {
                         if (tag[t].length > 0)
-                            stack.push(tag[t].trim());
+                            tags.push(tag[t].trim());
                     }
-                    stack = stack.concat(this.buildHTMLStack($el.contents()));
-                    for (t = 0; t < tl; t++) {
-                        if (tag[t].length > 0)
-                            stack.push('/' + tag[t].trim());
-                    }
-                    continue;
                 }
-
-                stack.push(tag);
+                tl = tags.length;
+                for (t = 0; t < tl; t++) {
+                    if (!tags[t].length) continue;
+                    stack.push(tags[t].trim());
+                }
                 stack = stack.concat(this.buildHTMLStack($el.contents()));
-                stack.push('/' + tag);
+                for (t = tl - 1; t >= 0; t--) {
+                    if (!tags[t].length) continue;
+                    stack.push('/' + tags[t].trim());
+                }
             }
             else if (tag == 'BR' && $el.data('mce-bogus'))
                 stack.push('RESET');
@@ -1650,9 +1636,9 @@ export class AdvEditor extends EventEmitter {
                     e.content = e.content.replace(/ background: #000000;/g, '');
                     e.content = e.content.replace(/background: #000000;/g, '');
                     e.content = e.content.replace(/ background-color: #000000;/g, '');
-                    e.content = e.content.replace(/background-color: #000000;/g, '');                    
+                    e.content = e.content.replace(/background-color: #000000;/g, '');
                     e.content = e.content.replace(/ color: #BBBBBB;/g, '');
-                    e.content = e.content.replace(/color: #BBBBBB;/g, '');                    
+                    e.content = e.content.replace(/color: #BBBBBB;/g, '');
                     var regex = /<pre(.*?)>((.|\s)*)<\/pre>/mgi;
                     var m;
                     while ((m = regex.exec(e.content)) !== null) {

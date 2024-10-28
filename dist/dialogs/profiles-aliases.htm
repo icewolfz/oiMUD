@@ -1,0 +1,54 @@
+<div class="mb-3">
+    <label for="pattern" class="form-label" style="width: 100%">Name
+        <div class="float-end form-check form-switch">
+            <input type="checkbox" class="form-check-input" id="enabled">
+            <label class="form-check-label" for="enabled">Enabled</label>
+        </div>
+
+    </label>
+    <input class="form-control" id="pattern">
+</div>
+
+<div class="mb-3">
+    <label class="form-label" for="style">Style</label>
+    <select class="form-select" id="style">
+        <option value="0">Text</option>
+        <option value="1">Parse</option>
+        <option value="2">Script</option>
+    </select>
+</div>
+<div class="mb-3">
+    <label class="form-label" for="value">Value</label>
+    <textarea class="form-control" id="value" rows="6"></textarea>
+</div>
+
+<div class="accordion" id="itemAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#advanced" aria-expanded="false" aria-controls="advanced">
+                Advanced
+            </button>
+        </h2>
+        <div id="advanced" class="accordion-collapse collapse" data-bs-parent="#itemAccordion">
+            <div class="accordion-body">
+                <div class="mb-3">
+                    <label class="form-label" for="params">Params</label>
+                    <input class="form-control" id="params">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="priority">Priority</label>
+                    <input type="number" class="form-control" id="priority">
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="append">
+                    <label class="form-check-label" for="append">Append</label>
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="multi">
+                    <label class="form-check-label" for="multi">Multi</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

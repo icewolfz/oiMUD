@@ -1549,6 +1549,184 @@
     253: "Pa1",
     254: "Win Oem Clear"
   };
+  var keyCharToCode = {
+    Cancel: 3,
+    Help: 6,
+    Backspace: 8,
+    Tab: 9,
+    "Pause/Break": 19,
+    "Caps Lock": 20,
+    Esc: 27,
+    Space: 32,
+    "Page Up": 33,
+    "Page Down": 34,
+    End: 35,
+    Home: 36,
+    Left: 37,
+    Up: 38,
+    Right: 39,
+    Down: 40,
+    Insert: 45,
+    Delete: 46,
+    0: 48,
+    1: 49,
+    2: 50,
+    3: 51,
+    4: 52,
+    5: 53,
+    6: 54,
+    7: 55,
+    8: 56,
+    9: 57,
+    A: 65,
+    B: 66,
+    C: 67,
+    D: 68,
+    E: 69,
+    F: 70,
+    G: 71,
+    H: 72,
+    I: 73,
+    J: 74,
+    K: 75,
+    L: 76,
+    M: 77,
+    N: 78,
+    O: 79,
+    P: 80,
+    Q: 81,
+    R: 82,
+    S: 83,
+    T: 84,
+    U: 85,
+    V: 86,
+    W: 87,
+    X: 88,
+    Y: 89,
+    Z: 90,
+    "Numpad 0": 96,
+    "Numpad 1": 97,
+    "Numpad 2": 98,
+    "Numpad 3": 99,
+    "Numpad 4": 100,
+    "Numpad 5": 101,
+    "Numpad 6": 102,
+    "Numpad 7": 103,
+    "Numpad 8": 104,
+    "Numpad 9": 105,
+    "Numpad *": 106,
+    "Numpad +": 107,
+    "Numpad -": 109,
+    "Numpad .": 110,
+    "Numpad /": 111,
+    F1: 112,
+    F2: 113,
+    F3: 114,
+    F4: 115,
+    F5: 116,
+    F6: 117,
+    F7: 118,
+    F8: 119,
+    F9: 120,
+    F10: 121,
+    F11: 122,
+    F12: 123,
+    "Num Lock": 144,
+    "Scroll Lock": 145,
+    ";": 186,
+    ",": 188,
+    ".": 190,
+    "/": 191,
+    "`": 192,
+    "[": 219,
+    "\\": 220,
+    "]": 221,
+    "'": 222,
+    Kana: 21,
+    Eisu: 22,
+    Junja: 23,
+    Final: 24,
+    Hanja: 25,
+    Convert: 28,
+    Nonconvert: 29,
+    Accept: 30,
+    Modechange: 31,
+    Select: 41,
+    Print: 42,
+    Execute: 43,
+    Printscreen: 44,
+    Colon: 58,
+    Semicolon: 59,
+    "Less Than": 60,
+    Equals2: 61,
+    "Greater Than": 62,
+    "Question Mark": 63,
+    "Context Menu": 93,
+    Sleep: 95,
+    F13: 124,
+    F14: 125,
+    F15: 126,
+    F16: 127,
+    F17: 128,
+    F18: 129,
+    F19: 130,
+    F20: 131,
+    F21: 132,
+    F22: 133,
+    F23: 134,
+    F24: 135,
+    "Win Oem Fj Jisho": 146,
+    "Win Oem Fj Masshou": 147,
+    "Win Oem Fj Touroku": 148,
+    "Win Oem Fj Loya": 149,
+    "Win Oem Fj Roya": 150,
+    Circumflex: 160,
+    Exclamation: 161,
+    "Double Quote": 162,
+    Hash: 163,
+    Dollar: 164,
+    Percent: 165,
+    Ampersand: 166,
+    Underscore: 167,
+    "Open Paren": 168,
+    "Close Paren": 169,
+    Asterisk: 170,
+    Plus: 171,
+    Pipe: 172,
+    "Hyphen Minus": 173,
+    "Open Curly Bracket": 174,
+    "Close Curly Bracket": 175,
+    Tilde: 176,
+    "Volume Mute": 181,
+    "Volume Down": 182,
+    "Volume Up": 183,
+    Equals: 187,
+    Minus: 189,
+    "Win Ico Help": 227,
+    "Win Ico 00": 228,
+    "Win Ico Clear": 230,
+    "Win Oem Reset": 233,
+    "Win Oem Jump": 234,
+    "Win Oem Pa1": 235,
+    "Win Oem Pa2": 236,
+    "Win Oem Pa3": 237,
+    "Win Oem Wsctrl": 238,
+    "Win Oem Cusel": 239,
+    "Win Oem Attn": 240,
+    "Win Oem Finish": 241,
+    "Win Oem Copy": 242,
+    "Win Oem Auto": 243,
+    "Win Oem Enlw": 244,
+    "Win Oem Backtab": 245,
+    Attn: 246,
+    Crsel: 247,
+    Exsel: 248,
+    Ereof: 249,
+    Play: 250,
+    Zoom: 251,
+    Pa1: 253,
+    "Win Oem Clear": 254
+  };
   (function($2) {
     $2.fn.hasHorizontalScrollBar = function() {
       return $2(this)[0].scrollWidth > $2(this).innerWidth();
@@ -2490,6 +2668,18 @@
       mainFunction();
       delete _timers[key];
     }, delay);
+  }
+  function scrollChildIntoView(parent, child) {
+    const childRect = child.getBoundingClientRect();
+    const parentRect = parent.getBoundingClientRect();
+    if (childRect.top < parentRect.top || childRect.bottom > parentRect.bottom || childRect.left < parentRect.left || childRect.right > parentRect.right) {
+      child.scrollIntoView({
+        behavior: "smooth",
+        // Optional for smooth scrolling
+        block: "nearest"
+        // Scrolls to nearest edge of the parent
+      });
+    }
   }
 
   // src/telnet.ts
@@ -5926,6 +6116,13 @@
     clone() {
       return new _Trigger(this);
     }
+    getState(state) {
+      if (state === 0)
+        return this;
+      state--;
+      if (state >= this.triggers.length || state < 0) return null;
+      return this.triggers[state];
+    }
   };
   var Context = class _Context extends Item {
     constructor(data, profile) {
@@ -6229,6 +6426,107 @@
         m.push(new Macro(data[d]));
       return m;
     }
+    static get DefaultButtons() {
+      const buttons = [];
+      let b;
+      b = new Button();
+      b.right = 176;
+      b.top = 14;
+      b.caption = "fa-solid fa-angle-double-up";
+      b.value = "up";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 124;
+      b.top = 14;
+      b.caption = "fa-solid fa-caret-up,rotate--45";
+      b.value = "northwest";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 72;
+      b.top = 14;
+      b.caption = "fa-solid fa-caret-up";
+      b.value = "north";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 20;
+      b.top = 14;
+      b.caption = "fa-solid fa-caret-up,rotate-45";
+      b.value = "northeast";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 176;
+      b.top = 66;
+      b.caption = "fa-solid fa-crosshairs";
+      b.value = "kill ${selected}";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 124;
+      b.top = 66;
+      b.caption = "fa-solid fa-caret-left";
+      b.value = "west";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 72;
+      b.top = 66;
+      b.caption = "fa-solid fa-magnifying-glass";
+      b.value = "look ${selected}";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 20;
+      b.top = 66;
+      b.caption = "fa-solid fa-caret-right";
+      b.value = "east";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 176;
+      b.top = 118;
+      b.caption = "fa-solid fa-angle-double-down";
+      b.value = "down";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 124;
+      b.top = 118;
+      b.caption = "fa-solid fa-caret-down,rotate-45";
+      b.value = "southwest";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 72;
+      b.top = 118;
+      b.caption = "fa-solid fa-caret-down";
+      b.value = "south";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      b = new Button();
+      b.right = 20;
+      b.top = 118;
+      b.caption = "fa-solid fa-caret-down,rotate--45";
+      b.value = "southeast";
+      b.width = 48;
+      b.height = 48;
+      buttons.push(b);
+      return buttons;
+    }
     static load(file) {
       let profile;
       let data;
@@ -6414,7 +6712,10 @@
         }
         return data;
       }
-      data = clone(this);
+      data = clone(this, (key, value) => {
+        if (key === "profile") return void 0;
+        return value;
+      });
       const profile = new _Profile(false);
       let prop;
       for (prop in data) {
@@ -6453,9 +6754,7 @@
       if (data.contexts && data.contexts.length > 0) {
         il = data.contexts.length;
         for (i = 0; i < il; i++) {
-          const item = data.contexts[i].clone();
-          item.profile = profile;
-          profile.contexts.push(item);
+          profile.contexts.push(new Context(data.contexts[i], profile));
         }
       }
       return profile;
@@ -6553,16 +6852,16 @@
           return -1;
         if (ap < bp)
           return 1;
+        if (a === "default")
+          return -1;
+        if (b === "default")
+          return 1;
         ap = this.items[a].name;
         bp = this.items[b].name;
-        if (ap === "default")
-          return -1;
-        if (bp === "default")
-          return 1;
         if (ap > bp)
-          return -1;
-        if (ap < bp)
           return 1;
+        if (ap < bp)
+          return -1;
         return 0;
       });
     }
@@ -6680,36 +6979,37 @@
       if (version2 === 2) {
         const profiles = {};
         for (const p in this.items)
-          profiles[this.items[p].name] = this.items[p].clone(2);
+          profiles[this.items[p].name.toLowerCase()] = this.items[p].clone(2);
         return profiles;
       }
       const pc = new _ProfileCollection();
       for (const p in this.items)
-        pc.items[this.items[p].name] = this.items[p].clone();
+        pc.items[this.items[p].name.toLowerCase()] = this.items[p].clone();
       pc.update();
       return pc;
     }
-    load(key) {
+    static load(key) {
       return new Promise((resolve, reject) => {
+        let collection = new _ProfileCollection();
         localforage.getItem(key || "OoMUDProfiles").then((value) => {
           if (typeof value === "string")
             value = JSON.parse(value);
           if (!value)
-            this.add(Profile.Default);
+            collection.add(Profile.Default);
           else {
             const keys = Object.keys(value);
             let k = 0;
             let kl = keys.length;
             for (; k < kl; k++) {
-              this.add(Profile.load(value[keys[k]]));
+              collection.add(Profile.load(value[keys[k]]));
             }
           }
-          resolve(this);
+          resolve(collection);
         }).catch(reject);
       });
     }
     save(key) {
-      localforage.setItem(key || "OoMUDProfiles", JSON.stringify(this.items, (key2, value) => {
+      return localforage.setItem(key || "OoMUDProfiles", JSON.stringify(this.items, (key2, value) => {
         if (key2 === "profile") return void 0;
         return value;
       }));
@@ -23409,15 +23709,18 @@ Devanagari
       this._input.AddCommandToHistory(txt);
     }
     loadProfiles() {
-      this._profiles = new ProfileCollection();
-      this._profiles.load().then(() => {
-        if (!this.profiles.contains("default")) {
-          this.profiles.add(Profile.Default);
-          this.saveProfiles();
-        }
-        this.clearCache();
-        this.startAlarms();
-        this.emit("profiles-loaded");
+      return new Promise((resolve, reject) => {
+        ProfileCollection.load().then((profiles) => {
+          this._profiles = profiles;
+          if (!this.profiles.contains("default")) {
+            this.profiles.add(Profile.Default);
+            this.saveProfiles();
+          }
+          this.clearCache();
+          this.startAlarms();
+          this.emit("profiles-loaded");
+          resolve(this._profiles);
+        });
       });
     }
     removeProfile(profile) {
@@ -23909,6 +24212,7 @@ Devanagari
       if (remote == null) remote = false;
       if (newline && this.display.textLength > 0 && !this.display.EndOfLine && this.display.EndOfLineLength !== 0 && !this.telnet.prompt && !this.display.parseQueueEndOfLine)
         txt = "\n" + txt;
+      this.emit("print");
       this.parseInternal(txt, remote, false, prependSplit);
     }
     send(data, echo) {
@@ -24040,6 +24344,12 @@ Devanagari
       this.emit("bell");
     }
     raise(event, args, delay) {
+      if (!this.profiles) {
+        setTimeout(() => {
+          this.raise(event, args, delay);
+        }, 100);
+        return;
+      }
       if (!delay || delay < 1)
         this._input.triggerEvent(event, args);
       else
@@ -24118,6 +24428,10 @@ Devanagari
     });
     document.querySelector("#menu-settings a").addEventListener("click", (e) => {
       showDialog("settings");
+      closeMenu();
+    });
+    document.querySelector("#menu-profiles a").addEventListener("click", (e) => {
+      showDialog("profiles");
       closeMenu();
     });
     document.querySelector("#menu-fullscreen a").addEventListener("click", (e) => {
@@ -24205,7 +24519,17 @@ Devanagari
     }
   }
 
-  // src/dialog.ts
+  // src/interface/dialog.ts
+  var DialogButtons = /* @__PURE__ */ ((DialogButtons2) => {
+    DialogButtons2[DialogButtons2["None"] = 0] = "None";
+    DialogButtons2[DialogButtons2["Ok"] = 1] = "Ok";
+    DialogButtons2[DialogButtons2["Cancel"] = 2] = "Cancel";
+    DialogButtons2[DialogButtons2["Yes"] = 4] = "Yes";
+    DialogButtons2[DialogButtons2["No"] = 8] = "No";
+    DialogButtons2[DialogButtons2["YesNo"] = 12] = "YesNo";
+    DialogButtons2[DialogButtons2["Standard"] = 3] = "Standard";
+    return DialogButtons2;
+  })(DialogButtons || {});
   var Dialog = class extends EventEmitter {
     constructor(options) {
       super();
@@ -24219,8 +24543,7 @@ Devanagari
           else
             this.makeVisible();
           if (this._footer.style.display !== "none")
-            this._body.style.bottom = this._body.style.bottom = this._footer.clientHeight + 1 + "px";
-          +"px";
+            this._body.style.bottom = this._footer.clientHeight + 1 + "px";
         }, 250, this._id + "dialogResize");
       };
       this.resizeDoDrag = (e) => {
@@ -24259,6 +24582,8 @@ Devanagari
           if (t > window.innerWidth) t = window.innerWidth;
           this._dialog.style.left = t + "px";
         }
+        if (this._footer.style.display !== "none")
+          this._body.style.bottom = this._footer.clientHeight + 1 + "px";
       };
       this.resizeTouchDrag = (e) => {
         if (!e.touches.length) return;
@@ -24297,6 +24622,8 @@ Devanagari
           if (t > window.innerWidth) t = window.innerWidth;
           this._dialog.style.left = t + "px";
         }
+        if (this._footer.style.display !== "none")
+          this._body.style.bottom = this._footer.clientHeight + 1 + "px";
       };
       this.resizeStopDrag = (e) => {
         document.documentElement.removeEventListener("mousemove", this.resizeDoDrag);
@@ -24523,13 +24850,13 @@ Devanagari
         this._dialog.style.left = "0";
       let footer = "";
       if (options && (options.buttons & 2 /* Cancel */) === 2 /* Cancel */)
-        footer += `<button id="${this._id}-cancel" type="button" class="float-end btn btn-light" title="Cancel dialog">Cancel</button>`;
+        footer += `<button id="${this._id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Cancel dialog">Cancel</button>`;
       if (options && (options.buttons & 1 /* Ok */) === 1 /* Ok */)
-        footer += `<button id="${this._id}-ok" type="button" class="float-end btn btn-primary" title="Confirm dialog">Ok</button>`;
+        footer += `<button id="${this._id}-ok" type="button" class="btn-sm float-end btn btn-primary" title="Confirm dialog">Ok</button>`;
       if (options && (options.buttons & 8 /* No */) === 8 /* No */)
-        footer += `<button id="${this._id}-no" type="button" class="float-end btn btn-light" title="No">No</button>`;
+        footer += `<button id="${this._id}-no" type="button" class="btn-sm float-end btn btn-light" title="No">No</button>`;
       if (options && (options.buttons & 4 /* Yes */) === 4 /* Yes */)
-        footer += `<button id="${this._id}-yes" type="button" class="float-end btn btn-primary" title="Yes">Yes</button>`;
+        footer += `<button id="${this._id}-yes" type="button" class="btn-sm float-end btn btn-primary" title="Yes">Yes</button>`;
       this._dialog.innerHTML = `<div class="dialog-header">
         <button id="${this._id}-header-close" style="padding: 4px;" type="button" class="btn btn-close float-end btn-danger" data-dismiss="modal" title="Close window"></button>
         <button type="button" class="btn btn-light float-end maximize" id="${this._id}-max" title="Maximize window" style="padding: 0 4px;margin-top: -1px;"><i class="bi-arrows-fullscreen"></i></button>
@@ -24737,6 +25064,27 @@ Devanagari
       if (options && "position" in options && options.position > 0)
         this.position(options.position);
       this._windowResize();
+      this._resizeObserver = new ResizeObserver((entries, observer) => {
+        if (entries.length === 0) return;
+        if (!entries[0].contentRect || entries[0].contentRect.width === 0 || entries[0].contentRect.height === 0)
+          return;
+        if (!this._resizeObserverCache || this._resizeObserverCache.height !== entries[0].contentRect.height) {
+          this._resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
+          if (this._footer.style.display !== "none")
+            this._body.style.bottom = this._footer.clientHeight + 1 + "px";
+        }
+      });
+      this._resizeObserver.observe(this._footer);
+      this._observer = new MutationObserver((mutationsList) => {
+        let mutation;
+        for (mutation of mutationsList) {
+          if (mutation.type === "attributes" && mutation.attributeName === "style") {
+            if (this._footer.style.display !== "none")
+              this._body.style.bottom = this._footer.clientHeight + 1 + "px";
+          }
+        }
+      });
+      this._observer.observe(this._footer, { attributes: true, attributeOldValue: true, attributeFilter: ["style"] });
     }
     get maximizable() {
       return this._maximizable;
@@ -25003,23 +25351,24 @@ Devanagari
       this.emit("focus");
     }
     makeVisible(full, silent) {
+      var rect = this._dialog.getBoundingClientRect();
       if (full) {
-        if (this._state.x + this._state.width > window.innerWidth) {
+        if (rect.right > window.innerWidth) {
           this._state.x = window.innerWidth - this._state.width - 16;
-          if (this._state.x < 0) this._state.x = 0;
+          if (rect.left < 0) this._state.x = 0;
           this._dialog.style.left = this._state.x + "px";
         }
-        if (this._state.y + this._state.height > window.innerHeight - 16) {
+        if (rect.bottom > window.innerHeight) {
           this._state.y = window.innerHeight - this._state.height - 16;
-          if (this._state.y < 0) this._state.y = 0;
+          if (rect.top < 0) this._state.y = 0;
           this._dialog.style.top = this._state.y + "px";
         }
       } else {
-        if (this._state.x > window.innerWidth - 16) {
+        if (rect.left > window.innerWidth - 16) {
           this._state.x = window.innerWidth - 16;
           this._dialog.style.left = this._state.x + "px";
         }
-        if (this._state.y > window.innerHeight - 16) {
+        if (rect.top > window.innerHeight - 16) {
           this._state.y = window.innerHeight - 16;
           this._dialog.style.top = this._state.y + "px";
         }
@@ -25087,7 +25436,7 @@ Devanagari
       const scripts = this._body.querySelectorAll("script");
       for (let s = 0, sl = scripts.length; s < sl; s++) {
         let script = new Function("body", "dialog", ...Object.keys(args), scripts[s].textContent);
-        script.apply(client, [this._body, client, ...Object.values(args), this]);
+        script.apply(client, [this._body, this, ...Object.values(args), this]);
       }
     }
   };
@@ -25100,8 +25449,8 @@ Devanagari
     }
   };
   var ConfirmDialog = class extends Dialog {
-    constructor(title, message, icon) {
-      super(typeof title === "string" ? { title: getIcon(icon || 1 /* question */) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: 12 /* YesNo */ } : title);
+    constructor(title, message, icon, buttons) {
+      super(typeof title === "string" ? { title: getIcon(icon || 1 /* question */) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: buttons === void 0 ? 12 /* YesNo */ : buttons } : title);
       this.body.classList.add("d-flex", "justify-content-center", "align-content-center", "align-items-center");
       if (message)
         this.body.innerHTML = `<div class="text-center" style="width: 64px;height:64px;font-size: 40px;">${getIcon(icon || 1 /* question */)}</div><div class="ms-3 align-self-center flex-fill">${message}</div></div>`;
@@ -25120,9 +25469,9 @@ Devanagari
     }
     return '<i class="fa-solid fa-circle-info"></i> ';
   }
-  window.confirm_box = (title, message, icon) => {
+  window.confirm_box = (title, message, icon, buttons) => {
     return new Promise((resolve, reject) => {
-      const confirm = new ConfirmDialog(title, message, icon);
+      const confirm = new ConfirmDialog(title, message, icon, buttons);
       confirm.showModal();
       confirm.on("button-click", (e) => resolve(e));
       confirm.on("canceled", () => reject(null));
@@ -26277,6 +26626,7 @@ Devanagari
     buildHTMLStack(els) {
       var tag, $el, t, tl;
       var stack = [];
+      var tags;
       for (var e = 0, el = els.length; e < el; e++) {
         $el = $(els[e]);
         tag = $el.prop("tagName");
@@ -26287,28 +26637,22 @@ Devanagari
         if (!tag)
           stack.push('"' + $el.text() + '"');
         else if (tag === "SPAN") {
+          tags = [];
           if (els[e].className != "") {
             tag = els[e].className.toUpperCase().split(/\s+/g);
             tl = tag.length;
             for (t = 0; t < tl; t++) {
               if (tag[t] === "NOFLASH")
-                stack.push("FLASH");
+                tags.push("FLASH");
               else if (tag[t].length > 0)
-                stack.push(tag[t]);
+                tags.push(tag[t]);
             }
-            stack = stack.concat(this.buildHTMLStack($el.contents()));
-            for (t = 0; t < tl; t++) {
-              if (tag[t] === "NOFLASH")
-                stack.push("FLASH");
-              else if (tag[t].length > 0)
-                stack.push("/" + tag[t]);
-            }
-            continue;
-          } else if ($el.css("text-decoration") === "line-through")
-            tag = "STRIKEOUT";
-          else if ($el.css("text-decoration") === "underline")
-            tag = "UNDERLINE";
-          else if ($el.data("mce-style")) {
+          }
+          if ($el.css("text-decoration") === "line-through")
+            tags.push("STRIKEOUT");
+          if ($el.css("text-decoration") === "underline")
+            tags.push("UNDERLINE");
+          if ($el.data("mce-style")) {
             tag = $el.data("mce-style").toUpperCase().split(";");
             tl = tag.length;
             for (t = 0; t < tl; t++) {
@@ -26317,16 +26661,8 @@ Devanagari
               tag[t] = tag[t].trim();
               tag[t] = tag[t].replace("BACKGROUND:", "BACKGROUND-COLOR:");
               if (tag[t].length > 0)
-                stack.push(tag[t]);
+                tags.push(tag[t]);
             }
-            stack = stack.concat(this.buildHTMLStack($el.contents()));
-            for (t = 0; t < tl; t++) {
-              if (tag[t].endsWith("INHERIT") || tag[t].endsWith("BLACK"))
-                continue;
-              if (tag[t].length > 0)
-                stack.push("/" + tag[t].trim());
-            }
-            continue;
           } else if ($el.css("color") || $el.css("background-color") || $el.css("background")) {
             tag = [];
             if ($el.css("color"))
@@ -26338,18 +26674,19 @@ Devanagari
             tl = tag.length;
             for (t = 0; t < tl; t++) {
               if (tag[t].length > 0)
-                stack.push(tag[t].trim());
+                tags.push(tag[t].trim());
             }
-            stack = stack.concat(this.buildHTMLStack($el.contents()));
-            for (t = 0; t < tl; t++) {
-              if (tag[t].length > 0)
-                stack.push("/" + tag[t].trim());
-            }
-            continue;
           }
-          stack.push(tag);
+          tl = tags.length;
+          for (t = 0; t < tl; t++) {
+            if (!tags[t].length) continue;
+            stack.push(tags[t].trim());
+          }
           stack = stack.concat(this.buildHTMLStack($el.contents()));
-          stack.push("/" + tag);
+          for (t = tl - 1; t >= 0; t--) {
+            if (!tags[t].length) continue;
+            stack.push("/" + tags[t].trim());
+          }
         } else if (tag == "BR" && $el.data("mce-bogus"))
           stack.push("RESET");
         else {
@@ -26703,13 +27040,13 @@ Devanagari
       this.body.style.padding = "10px";
       this.buildMenu();
       let footer = "";
-      footer += `<button id="${this.id}-cancel" type="button" class="float-end btn btn-light" title="Cancel dialog">Cancel</button>`;
-      footer += `<button id="${this.id}-save" type="button" class="float-end btn btn-primary" title="Confirm dialog">Save</button>`;
-      footer += `<button id="${this.id}-reset" type="button" class="float-start btn btn-light" title="Reset settings">Reset</button>`;
-      footer += `<button id="${this.id}-reset-all" type="button" class="float-start btn btn-light" title="Reset All settings">Reset All</button>`;
-      footer += '<div class="vr float-start" style="margin-right: 4px;height: 37px;"></div>';
-      footer += `<button id="${this.id}-export" type="button" class="float-start btn btn-light" title="Export settings">Export</button>`;
-      footer += `<button id="${this.id}-import" type="button" class="float-start btn btn-light" title="Import settings">Import</button>`;
+      footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Cancel dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;
+      footer += `<button id="${this.id}-save" type="button" class="btn-sm float-end btn btn-primary" title="Confirm dialog"><i class="bi bi-save"></i><span class="icon-only"> Save</span></button>`;
+      footer += `<button id="${this.id}-reset" type="button" class="btn-sm float-start btn btn-light" title="Reset settings"><i class="bi bi-arrow-clockwise"></i><span class="icon-only"> Reset</span></button>`;
+      footer += `<button id="${this.id}-reset-all" type="button" class="btn-sm float-start btn btn-light" title="Reset All settings"><i class="bi bi-arrow-repeat"></i><span class="icon-only"> Reset All</span></button>`;
+      footer += '<div class="vr float-start" style="margin-right: 4px;height: 29px;"></div>';
+      footer += `<button id="${this.id}-export" type="button" class="btn-sm float-start btn btn-light" title="Export settings"><i class="bi bi-box-arrow-up"></i><span class="icon-only"> Export</span></button>`;
+      footer += `<button id="${this.id}-import" type="button" class="btn-sm float-start btn btn-light" title="Import settings"><i class="bi bi-box-arrow-in-down"></i><span class="icon-only"> Import</span></button>`;
       this.footer.innerHTML = footer;
       this.footer.querySelector(`#${this.id}-cancel`).addEventListener("click", () => {
         removeHash(this._page);
@@ -26830,7 +27167,7 @@ Devanagari
       for (let p = 0, pl = pages.length; p < pl; p++) {
         let title = capitalize(pages[p].match(/([A-Z]|^[a-z])[a-z]+/g).join(" "));
         if (p === last)
-          breadcrumb += '<li class="breadcrumb-item">' + title + "</li>";
+          breadcrumb += '<li class="breadcrumb-item active">' + title + "</li>";
         else
           breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p + 1).join("-") + '">' + title + "</a></li>";
       }
@@ -26911,8 +27248,7 @@ Devanagari
             if (forms[f].dataset.enum === "true") {
               const name2 = forms[f].name || forms[f].id.substring(0, forms[f].id.lastIndexOf("-"));
               const value = +forms[f].id.substring(forms[f].id.lastIndexOf("-") + 1);
-              if ((this.settings[name2] & value) === value)
-                forms[f].checked = true;
+              forms[f].checked = (this.settings[name2] & value) === value;
             } else
               forms[f].checked = this.settings[forms[f].id];
             forms[f].addEventListener("change", (e) => {
@@ -27007,7 +27343,7 @@ Devanagari
       if (value == "undefined") value = void 0;
       if (typeof value == "string" && parseFloat(value).toString() == value)
         value = parseFloat(value);
-      this.settings[option] = this.convertType(value, this.settings[option]);
+      this.settings[option] = this.convertType(value, typeof this.settings[option]);
     }
     convertType(value, type) {
       if (typeof value === type)
@@ -27019,6 +27355,8 @@ Devanagari
           return Number(value);
         case "boolean":
           return Boolean(value);
+        case "string":
+          return "" + value;
       }
       return value;
     }
@@ -27055,11 +27393,1652 @@ Devanagari
     }
   };
 
+  // src/interface/splitter.ts
+  var Splitter = class extends EventEmitter {
+    constructor(options) {
+      super();
+      this.$panel1MinSize = 200;
+      this.$panel2MinSize = 200;
+      this.$splitterWidth = 4;
+      this.$splitterDistance = 200;
+      this.$dragging = false;
+      this.$collapsed = 0;
+      this.live = true;
+      if (options && options.id)
+        this.$id = options.id;
+      if (options) {
+        this.$panel1 = options.panel1;
+        this.$panel2 = options.panel2;
+      }
+      if (options && options.container)
+        this.parent = options.container.container ? options.container.container : options.container;
+      else if (options && options.parent)
+        this.parent = options.parent;
+      else
+        this.parent = document.body;
+      if (options) {
+        if ("anchor" in options)
+          this.$anchor = options.anchor;
+        else
+          this.$anchor = 2 /* panel2 */;
+        this.orientation = options.orientation || 0 /* horizontal */;
+      } else {
+        this.$anchor = 2 /* panel2 */;
+        this.orientation = 0 /* horizontal */;
+      }
+    }
+    hide() {
+      this.$el.style.display = "none";
+    }
+    show() {
+      this.$el.style.display = "";
+    }
+    get id() {
+      return this.$id || this.parent.id;
+    }
+    set id(value) {
+      if (value === this.$id) return;
+      this.$id = value;
+      this.$el.id = this.id + "-splitter";
+      this.$panel1.id = this.id + "-splitter-panel1";
+      this.$panel2.id = this.id + "-splitter-panel2";
+      this.$dragBar.id = this.id + "-splitter-drag-bar";
+      if (this.$ghostBar)
+        this.$ghostBar.id = this.id + "-ghost-bar";
+    }
+    set parent(parent) {
+      if (typeof parent === "string") {
+        if (parent.startsWith("#"))
+          this.$parent = document.getElementById(parent.substr(1));
+        else
+          this.$parent = document.getElementById(parent);
+      } else if (parent instanceof $)
+        this.$parent = parent[0];
+      else if (parent instanceof HTMLElement)
+        this.$parent = parent;
+      if (!this.$parent)
+        this.$parent = document.body;
+      this.createControl();
+    }
+    get parent() {
+      return this.$parent;
+    }
+    get panel1() {
+      return this.$panel1;
+    }
+    get panel2() {
+      return this.$panel2;
+    }
+    get anchor() {
+      return this.$anchor;
+    }
+    set anchor(value) {
+      if (this.$anchor === value) return;
+      this.$anchor = 2;
+      this.updatePanels();
+    }
+    set SplitterDistance(value) {
+      if (this.$splitterDistance === value)
+        return;
+      this.$splitterDistance = value;
+      this.updatePanels();
+      this.emit("splitter-moved", value);
+    }
+    get SplitterDistance() {
+      return this.$splitterDistance;
+    }
+    set Panel1MinSize(value) {
+      if (this.$panel1MinSize === value)
+        return;
+      this.$panel1MinSize = value;
+      if (this.$orientation === 0 /* horizontal */) {
+        if (this.$panel1.clientWidth < value)
+          this.$splitterDistance = this.parent.clientWidth - this.$panel1MinSize;
+      } else if (this.$panel1.clientHeight < value)
+        this.$splitterDistance = this.parent.clientHeight - this.$panel1MinSize;
+      this.updatePanels();
+    }
+    get Panel1MinSize() {
+      return this.$panel1MinSize;
+    }
+    set Panel2MinSize(value) {
+      if (this.$panel2MinSize === value)
+        return;
+      this.$panel2MinSize = value;
+      if (this.$orientation === 0 /* horizontal */) {
+        if (this.$panel2.clientWidth < value)
+          this.$splitterDistance = value;
+      } else if (this.$panel2.clientHeight < value)
+        this.$splitterDistance = value;
+      this.updatePanels();
+    }
+    get Panel2MinSize() {
+      return this.$panel2MinSize;
+    }
+    get orientation() {
+      return this.$orientation;
+    }
+    set orientation(value) {
+      if (value === this.$orientation) return;
+      this.$orientation = value;
+      this.updatePanels();
+    }
+    get panel1Collapsed() {
+      return this.$collapsed === 1;
+    }
+    set panel1Collapsed(value) {
+      if (value) {
+        if (this.$collapsed === 1) return;
+        this.$collapsed = 1;
+        this.panel1.dataset.collapsed = "true";
+        this.panel2.dataset.collapsed = "false";
+        this.emit("collapsed", 1);
+        this.updatePanels();
+      } else if (this.$collapsed === 1) {
+        this.$collapsed = 0;
+        delete this.panel1.dataset.collapsed;
+        delete this.panel2.dataset.collapsed;
+        this.emit("collapsed", 0);
+        this.updatePanels();
+      }
+    }
+    get panel2Collapsed() {
+      return this.$collapsed === 2;
+    }
+    set panel2Collapsed(value) {
+      if (value) {
+        if (this.$collapsed === 2) return;
+        this.$collapsed = 2;
+        this.panel1.dataset.collapsed = "false";
+        this.panel2.dataset.collapsed = "true";
+        this.emit("collapsed", 2);
+        this.updatePanels();
+      } else if (this.$collapsed === 2) {
+        this.$collapsed = 0;
+        delete this.panel1.dataset.collapsed;
+        delete this.panel2.dataset.collapsed;
+        this.emit("collapsed", 0);
+        this.updatePanels();
+      }
+    }
+    updatePanels() {
+      if (this.$orientation === 0 /* horizontal */) {
+        this.$panel1.style.left = "0";
+        this.$panel1.style.top = "0";
+        this.$panel1.style.right = "0";
+        this.$panel2.style.left = "0";
+        this.$panel2.style.top = "";
+        this.$panel2.style.right = "0";
+        this.$panel2.style.bottom = "0";
+        this.$dragBar.style.left = "0";
+        this.$dragBar.style.right = "0";
+        if (this.$anchor === 1 /* panel1 */) {
+          this.$dragBar.style.bottom = "";
+          this.$dragBar.style.top = this.$splitterDistance + "px";
+        } else {
+          this.$dragBar.style.top = "";
+          this.$dragBar.style.bottom = this.$splitterDistance - this.$splitterWidth + "px";
+        }
+        this.$dragBar.style.height = this.$splitterWidth + "px";
+        this.$dragBar.style.cursor = "ns-resize";
+        if (this.$collapsed === 1) {
+          this.$panel1.style.display = "none";
+          this.$panel2.style.display = "";
+          this.$panel2.style.top = "0";
+          this.$panel2.style.height = "";
+          this.$dragBar.style.display = "none";
+        } else if (this.$collapsed === 2) {
+          this.$panel1.style.display = "";
+          this.$panel1.style.bottom = "0";
+          this.$panel1.style.height = "";
+          this.$panel2.style.display = "none";
+          this.$dragBar.style.display = "none";
+        } else if (this.$anchor === 1 /* panel1 */) {
+          this.$panel1.style.display = "";
+          this.$panel1.style.height = this.$splitterDistance - this.$splitterWidth + "px";
+          this.$panel2.style.display = "";
+          this.$panel2.style.top = this.$splitterDistance - this.$splitterWidth + "px";
+          this.$panel2.style.height = "";
+          this.$dragBar.style.display = "";
+        } else {
+          this.$panel1.style.display = "";
+          this.$panel1.style.bottom = this.$splitterDistance + "px";
+          this.$panel2.style.display = "";
+          this.$panel2.style.height = this.$splitterDistance - this.$splitterWidth + "px";
+          this.$dragBar.style.display = "";
+        }
+        this.$el.classList.remove("vertical");
+        this.$el.classList.add("horizontal");
+      } else {
+        this.$panel1.style.left = "0";
+        this.$panel1.style.top = "0";
+        this.$panel1.style.bottom = "0";
+        this.$panel1.classList.remove("horizontal");
+        this.$panel1.classList.add("vertical");
+        this.$panel2.style.left = "";
+        this.$panel2.style.top = "0";
+        this.$panel2.style.right = "0";
+        this.$panel2.style.bottom = "0";
+        if (this.$anchor === 1 /* panel1 */) {
+          this.$dragBar.style.right = "";
+          this.$dragBar.style.left = this.$splitterDistance - this.$splitterWidth + "px";
+        } else {
+          this.$dragBar.style.left = "";
+          this.$dragBar.style.right = this.$splitterDistance - this.$splitterWidth + "px";
+        }
+        this.$dragBar.style.top = "0";
+        this.$dragBar.style.bottom = "0";
+        this.$dragBar.style.width = this.$splitterWidth + "px";
+        this.$dragBar.style.cursor = "ew-resize";
+        if (this.$collapsed === 1) {
+          this.$panel1.style.display = "none";
+          this.$panel2.style.display = "";
+          this.$panel2.style.left = "0";
+          this.$panel2.style.width = "";
+          this.$dragBar.style.display = "none";
+        } else if (this.$collapsed === 2) {
+          this.$panel1.style.display = "";
+          this.$panel1.style.right = "0";
+          this.$panel1.style.width = "";
+          this.$panel2.style.display = "none";
+          this.$dragBar.style.display = "none";
+        } else if (this.$anchor === 1 /* panel1 */) {
+          this.$panel1.style.display = "";
+          this.$panel1.style.width = this.$splitterDistance - this.$splitterWidth + "px";
+          this.$panel2.style.display = "";
+          this.$panel2.style.left = this.$splitterDistance - this.$splitterWidth + "px";
+          this.$panel2.style.width = "";
+          this.$dragBar.style.display = "";
+        } else {
+          this.$panel1.style.display = "";
+          this.$panel1.style.right = this.$splitterDistance + "px";
+          this.$panel2.style.display = "";
+          this.$panel2.style.width = this.$splitterDistance - this.$splitterWidth + "px";
+          this.$dragBar.style.display = "";
+        }
+        this.$el.classList.remove("horizontal");
+        this.$el.classList.add("vertical");
+      }
+    }
+    createControl() {
+      this.$el = document.createElement("div");
+      this.$el.id = this.id + "-splitter";
+      this.$el.classList.add("splitter");
+      if (!this.$panel1) {
+        this.$panel1 = document.createElement("div");
+        this.$panel1.id = this.id + "-splitter-panel1";
+      }
+      this.$panel1.classList.add("splitter-panel", "splitter-panel-1");
+      this.$el.appendChild(this.$panel1);
+      if (!this.$panel2) {
+        this.$panel2 = document.createElement("div");
+        this.$panel2.id = this.id + "-splitter-panel2";
+      }
+      this.$panel2.classList.add("splitter-panel", "splitter-panel-2");
+      this.$el.appendChild(this.$panel2);
+      this.$dragBar = document.createElement("div");
+      this.$dragBar.id = this.id + "-splitter-drag-bar";
+      this.$dragBar.classList.add("spitter-drag-bar");
+      this.$el.appendChild(this.$dragBar);
+      this.$dragBar.tabIndex = 1;
+      this.$dragBar.addEventListener("mousedown", (e) => {
+        this.$dragBar.focus();
+        e.preventDefault();
+        this.$dragging = true;
+        this.$ghostBar = document.createElement("div");
+        this.$ghostBar.id = this.id + "-ghost-bar";
+        this.$ghostBar.classList.add("splitter-ghost-bar");
+        let bnd = this.$panel2.getBoundingClientRect();
+        if (this.$anchor === 1 /* panel1 */)
+          bnd = this.$panel1.getBoundingClientRect();
+        if (this.$orientation === 0 /* horizontal */) {
+          this.$ghostBar.style.left = "0";
+          if (this.$anchor === 1 /* panel1 */)
+            this.$ghostBar.style.top = bnd.bottom - this.$elBounds.top + "px";
+          else
+            this.$ghostBar.style.top = bnd.top - this.$elBounds.top - this.$splitterWidth + "px";
+          this.$ghostBar.style.right = "0";
+          this.$ghostBar.style.bottom = "";
+          this.$ghostBar.style.width = "";
+          this.$ghostBar.style.height = this.$splitterWidth + "px";
+          this.$ghostBar.style.cursor = "ns-resize";
+        } else {
+          if (this.$anchor === 1 /* panel1 */)
+            this.$ghostBar.style.left = bnd.right - this.$elBounds.left + "px";
+          else
+            this.$ghostBar.style.left = bnd.left - this.$elBounds.left - this.$splitterWidth + "px";
+          this.$ghostBar.style.top = "0";
+          this.$ghostBar.style.bottom = "0";
+          this.$ghostBar.style.right = "";
+          this.$ghostBar.style.height = "";
+          this.$ghostBar.style.width = this.$splitterWidth + "px";
+          this.$ghostBar.style.cursor = "ew-resize";
+        }
+        this.$ghostBar.move = (ge) => {
+          let l;
+          if (this.$orientation === 0 /* horizontal */ && this.$anchor === 1 /* panel1 */) {
+            l = ge.pageY - this.$elBounds.top;
+            if (l < this.$panel1MinSize + this.$splitterWidth)
+              this.$ghostBar.style.top = this.$panel1MinSize + "px";
+            else if (l > this.parent.clientHeight - this.$panel2MinSize - this.$splitterWidth)
+              this.$ghostBar.style.top = this.parent.clientHeight - this.$panel2MinSize - this.$splitterWidth + "px";
+            else
+              this.$ghostBar.style.top = l - 2 + "px";
+            if (this.live) {
+              if (l < this.$panel1MinSize + this.$splitterWidth)
+                this.SplitterDistance = this.$panel1MinSize + this.$splitterWidth;
+              else if (l > this.parent.clientHeight - this.$panel2MinSize - this.$splitterWidth)
+                this.SplitterDistance = this.parent.clientHeight - this.$panel2MinSize;
+              else
+                this.SplitterDistance = l - 2 + this.$splitterWidth;
+            }
+          } else if (this.$orientation === 0 /* horizontal */) {
+            l = ge.pageY - this.$elBounds.top;
+            if (l < this.$panel1MinSize)
+              this.$ghostBar.style.top = this.$panel1MinSize + "px";
+            else if (l > this.parent.clientHeight - this.$panel2MinSize)
+              this.$ghostBar.style.top = this.parent.clientHeight - this.$panel2MinSize + "px";
+            else
+              this.$ghostBar.style.top = l - 2 + "px";
+            if (this.live) {
+              if (l < this.$panel1MinSize)
+                this.SplitterDistance = this.parent.clientHeight - this.$panel1MinSize;
+              else if (l > this.parent.clientHeight - this.$panel2MinSize)
+                this.SplitterDistance = this.$panel2MinSize;
+              else
+                this.SplitterDistance = this.parent.clientHeight - l + 2;
+            }
+          } else if (this.$orientation === 1 /* vertical */ && this.$anchor === 1 /* panel1 */) {
+            l = ge.pageX - this.$elBounds.left;
+            if (l < this.$panel1MinSize + this.$splitterWidth)
+              this.$ghostBar.style.left = this.$panel1MinSize + "px";
+            else if (l >= this.parent.clientWidth - this.$panel2MinSize - this.$splitterWidth)
+              this.$ghostBar.style.left = this.parent.clientWidth - this.$panel2MinSize - this.$splitterWidth + "px";
+            else
+              this.$ghostBar.style.left = l - 2 + "px";
+            if (this.live) {
+              if (l < this.$panel1MinSize + this.$splitterWidth)
+                this.SplitterDistance = this.$panel1MinSize + this.$splitterWidth;
+              else if (l >= this.parent.clientWidth - this.$panel2MinSize - this.$splitterWidth)
+                this.SplitterDistance = this.parent.clientWidth - this.$panel2MinSize;
+              else
+                this.SplitterDistance = l - 2 + this.$splitterWidth;
+            }
+          } else {
+            l = ge.pageX - this.$elBounds.left;
+            if (l < this.$panel1MinSize)
+              this.$ghostBar.style.left = this.$panel1MinSize + "px";
+            else if (l > this.parent.clientWidth - this.$panel2MinSize)
+              this.$ghostBar.style.left = this.parent.clientWidth - this.$panel2MinSize + "px";
+            else
+              this.$ghostBar.style.left = l - 2 + "px";
+            if (this.live) {
+              if (l < this.$panel1MinSize)
+                this.SplitterDistance = this.parent.clientWidth - this.$panel1MinSize;
+              else if (l > this.parent.clientWidth - this.$panel2MinSize)
+                this.SplitterDistance = this.$panel2MinSize;
+              else
+                this.SplitterDistance = this.parent.clientWidth - l + 2;
+            }
+          }
+          this.emit("splitter-moving", l);
+        };
+        this.parent.appendChild(this.$ghostBar);
+        document.addEventListener("mousemove", this.$ghostBar.move);
+      });
+      this.$dragBar.addEventListener("dblclick", (e) => {
+        this.emit("dblclick", e);
+      });
+      window.addEventListener("resize", () => {
+        this.resize();
+      });
+      document.addEventListener("mouseup", (e) => {
+        if (!this.$dragging) return;
+        e.preventDefault();
+        e.stopPropagation();
+        e.cancelBubble = true;
+        let l;
+        if (this.$orientation === 0 /* horizontal */) {
+          l = e.pageY - this.$elBounds.top;
+          if (this.$anchor === 1 /* panel1 */) {
+            if (l < this.$panel1MinSize + this.$splitterWidth)
+              this.SplitterDistance = this.$panel1MinSize + this.$splitterWidth;
+            else if (l > this.parent.clientHeight - this.$panel2MinSize - this.$splitterWidth)
+              this.SplitterDistance = this.parent.clientHeight - this.$panel2MinSize;
+            else
+              this.SplitterDistance = l - 2 + this.$splitterWidth;
+          } else if (l < this.$panel1MinSize)
+            this.SplitterDistance = this.parent.clientHeight - this.$panel1MinSize - 2;
+          else if (l > this.parent.clientHeight - this.$panel2MinSize)
+            this.SplitterDistance = this.$panel2MinSize;
+          else
+            this.SplitterDistance = this.parent.clientHeight - l + 2;
+        } else {
+          l = e.pageX - this.$elBounds.left;
+          if (this.$anchor === 1 /* panel1 */) {
+            if (l < this.$panel1MinSize + this.$splitterWidth)
+              this.SplitterDistance = this.$panel1MinSize + this.$splitterWidth;
+            else if (l > this.parent.clientWidth - this.$panel2MinSize - this.$splitterWidth)
+              this.SplitterDistance = this.parent.clientWidth - this.$panel2MinSize;
+            else
+              this.SplitterDistance = l - 2 + this.$splitterWidth;
+          } else if (l < this.$panel1MinSize)
+            this.SplitterDistance = this.parent.clientWidth - this.$panel1MinSize - 2;
+          else if (l > this.parent.clientWidth - this.$panel2MinSize)
+            this.SplitterDistance = this.$panel2MinSize;
+          else
+            this.SplitterDistance = this.parent.clientWidth - l + 2;
+        }
+        this.parent.removeChild(this.$ghostBar);
+        document.removeEventListener("mousemove", this.$ghostBar.move);
+        this.$ghostBar = null;
+        this.$dragging = false;
+      });
+      this.parent.appendChild(this.$el);
+      setTimeout(() => {
+        this.$elBounds = this.$el.getBoundingClientRect();
+      }, 10);
+      this.$resizeObserver = new ResizeObserver((entries, observer) => {
+        if (entries.length === 0) return;
+        if (!entries[0].contentRect || entries[0].contentRect.width === 0 || entries[0].contentRect.height === 0)
+          return;
+        if (!this.$resizeObserverCache || this.$resizeObserverCache.width !== entries[0].contentRect.width || this.$resizeObserverCache.height !== entries[0].contentRect.height) {
+          this.$resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
+          this.resize();
+        }
+      });
+      this.$resizeObserver.observe(this.$el);
+      this.$observer = new MutationObserver((mutationsList) => {
+        let mutation;
+        for (mutation of mutationsList) {
+          if (mutation.type === "attributes" && mutation.attributeName === "style") {
+            if (mutation.oldValue === "display: none;")
+              this.resize();
+          }
+        }
+      });
+      this.$observer.observe(this.$el, { attributes: true, attributeOldValue: true, attributeFilter: ["style"] });
+    }
+    resize() {
+      if (this.$orientation === 0 /* horizontal */ && this.$anchor === 1 /* panel1 */) {
+        if (this.$panel2.clientHeight && this.$panel2.clientHeight < this.$panel2MinSize && this.$panel1.clientHeight > this.$panel1MinSize)
+          this.SplitterDistance = this.parent.clientHeight - this.$panel2MinSize;
+      } else if (this.$orientation === 0 /* horizontal */) {
+        if (this.$panel1.clientHeight && this.$panel1.clientHeight < this.$panel1MinSize && this.$panel2.clientHeight > this.$panel2MinSize)
+          this.SplitterDistance = this.$panel1MinSize;
+      } else if (this.$orientation === 1 /* vertical */ && this.$anchor === 1 /* panel1 */) {
+        if (this.$panel2.clientWidth && this.$panel2.clientWidth < this.$panel2MinSize && this.$panel1.clientWidth > this.$panel1MinSize)
+          this.SplitterDistance = this.parent.clientWidth - this.$panel2MinSize;
+      } else if (this.$panel1.clientWidth < this.$panel1MinSize && this.$panel2.clientWidth > this.$panel2MinSize)
+        this.SplitterDistance = this.$panel1MinSize;
+      this.$elBounds = this.$el.getBoundingClientRect();
+    }
+  };
+
+  // src/interface/profilesdialog.ts
+  var ProfilesDialog = class extends Dialog {
+    constructor() {
+      super({ title: '<i class="fas fa-users"></i> Profiles', center: true, minWidth: 410 });
+      this._profilesChanged = false;
+      this._current = {
+        profile: null,
+        profileName: "",
+        item: null,
+        parent: null,
+        itemIdx: -1,
+        collection: "",
+        itemSubIdx: -1
+      };
+      this._canClose = false;
+      this._small = false;
+      this.on("resized", (e) => {
+        if (e.width < 430) {
+          if (this._small) return;
+          const item = this.header.querySelector(".breadcrumb");
+          item.classList.add("breadcrumb-sm");
+          this._small = true;
+        } else if (this._small) {
+          const item = this.header.querySelector(".breadcrumb");
+          item.classList.remove("breadcrumb-sm");
+          this._small = false;
+        }
+      });
+      client.on("profiles-loaded", () => {
+        if (!this.profiles) {
+          this.profiles = client.profiles.clone();
+          this.profiles.SortByPriority();
+          this._buildMenu();
+        }
+      });
+      client.on("profiles-updated", () => {
+      });
+      client.on("initialized", () => {
+        if (!this.profiles) {
+          this.profiles = client.profiles.clone();
+          this.profiles.SortByPriority();
+          this._buildMenu();
+        }
+      });
+      this.body.style.padding = "10px";
+      this._splitter = new Splitter({ id: "profile", parent: this.body, orientation: 1 /* vertical */, anchor: 1 /* panel1 */ });
+      this._menu = this._splitter.panel1;
+      this._menu.style.overflow = "hidden";
+      this._menu.style.overflowY = "auto";
+      this._contents = this._splitter.panel2;
+      this._contents.style.overflow = "auto";
+      this._contents.style.padding = "10px";
+      this._contents.style.paddingLeft = "14px";
+      if (client.profiles) {
+        this.profiles = client.profiles.clone();
+        this.profiles.SortByPriority();
+        this._buildMenu();
+      }
+      let footer = "";
+      footer += `<button id="${this.id}-back" type="button" class="btn-sm float-start btn btn-light" title="Go back"><i class="bi bi-arrow-left"></i><span class="icon-only"> Back</span></button>`;
+      footer += `<button id="btn-profile-menu" class="btn-sm float-start btn btn-outline-secondary" type="button" aria-controls="profile-menu" title="Show menu" data-bs-toggle="dropdown" aria-expanded="false" style="margin-right: 4px;"><i class="fa-solid fa-bars"></i></button>`;
+      footer += `<ul id="${this.id}-dropdown-menu" class="dropdown-menu" style="overflow: auto;">`;
+      footer += `<li id="${this.id}-add-profile"><a class="dropdown-item">Add profile</a></li>`;
+      footer += `<li id="${this.id}-add-empty-profile"><a class="dropdown-item">Add empty profile</a></li>`;
+      footer += `<li id="${this.id}-add-sep"><hr class="dropdown-divider"></li>`;
+      footer += `<li id="${this.id}-add-alias"><a class="dropdown-item">Add alias</a></li>`;
+      footer += `<li id="${this.id}-add-macro"><a class="dropdown-item">Add macro</a></li>`;
+      footer += `<li id="${this.id}-add-trigger"><a class="dropdown-item">Add trigger</a></li>`;
+      footer += `<li id="${this.id}-add-button"><a class="dropdown-item">Add button</a></li>`;
+      footer += `<li id="${this.id}-add-sep2"><hr class="dropdown-divider"></li>`;
+      footer += `<li id="${this.id}-add-default-buttons"><a class="dropdown-item">Add default buttons</a></li>`;
+      footer += `<li id="${this.id}-add-default-macros"><a class="dropdown-item">Add default macros</a></li>`;
+      footer += '<li><hr class="dropdown-divider"></li>';
+      footer += `<li id="${this.id}-export-current"><a class="dropdown-item">Export current profile</a></li>`;
+      footer += `<li id="${this.id}-export"><a class="dropdown-item">Export profiles</a></li>`;
+      footer += `<li id="${this.id}-import"><a class="dropdown-item">Import profiles</a></li>`;
+      footer += '<li><hr class="dropdown-divider"></li>';
+      footer += `<li id="${this.id}-refresh"><a class="dropdown-item">Refresh</a></li>`;
+      footer += "</ul>";
+      footer += '<span id="profile-page-buttons"></span>';
+      footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Close dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;
+      footer += `<button id="${this.id}-save" type="button" class="btn-sm float-end btn btn-primary" title="Save changes" disabled><i class="bi bi-save"></i><span class="icon-only"> Save</span></button>`;
+      footer += `<button id="${this.id}-apply" type="button" class="btn-sm float-end btn btn-secondary" title="Apply changes" disabled><i class="bi bi-check-lg"></i><span class="icon-only"> Apply</span></button>`;
+      this.footer.innerHTML = footer;
+      this.footer.classList.add("dropup");
+      $("#btn-profile-menu").on("shown.bs.dropdown", () => {
+        setTimeout(() => {
+          let el = this.footer.querySelector("#" + this.id + "-dropdown-menu");
+          let rect = el.getBoundingClientRect();
+          if (rect.y < 10)
+            el.style.height = rect.height + rect.y - 10 + "px";
+          if (rect.bottom > document.body.clientHeight - 10)
+            el.style.height = document.body.clientHeight - rect.y - 10 + "px";
+        }, 0);
+      });
+      $("#btn-profile-menu").on("hidden.bs.dropdown", () => {
+        let el = this.footer.querySelector("#" + this.id + "-dropdown-menu");
+        el.style.height = "";
+      });
+      this.footer.querySelector(`#${this.id}-cancel`).addEventListener("click", () => {
+        removeHash(this._page);
+        this.close();
+      });
+      this.footer.querySelector(`#${this.id}-back`).addEventListener("click", () => {
+        this._goBack();
+      });
+      this.on("closing", (e) => {
+      });
+      this.on("closed", () => {
+        removeHash(this._page);
+      });
+      this.on("canceling", (e) => {
+      });
+      this.on("canceled", () => {
+        removeHash(this._page);
+      });
+      this.footer.querySelector(`#${this.id}-add-profile a`).addEventListener("click", () => {
+        this._createProfile(true);
+      });
+      this.footer.querySelector(`#${this.id}-add-empty-profile a`).addEventListener("click", () => {
+        this._createProfile(false);
+      });
+      this.footer.querySelector(`#${this.id}-add-alias a`).addEventListener("click", () => {
+        this._addItem("aliases");
+      });
+      this.footer.querySelector(`#${this.id}-add-macro a`).addEventListener("click", () => {
+        this._addItem("macros");
+      });
+      this.footer.querySelector(`#${this.id}-add-trigger a`).addEventListener("click", () => {
+        this._addItem("triggers");
+      });
+      this.footer.querySelector(`#${this.id}-add-button a`).addEventListener("click", () => {
+        this._addItem("buttons");
+      });
+      this.footer.querySelector(`#${this.id}-add-default-buttons a`).addEventListener("click", () => {
+        const items = Profile.DefaultButtons;
+        let il = items.length;
+        for (let i = 0; i < il; i++)
+          this._addItem("buttons", items[i]);
+      });
+      this.footer.querySelector(`#${this.id}-add-default-macros a`).addEventListener("click", () => {
+        const items = Profile.DefaultMacros;
+        let il = items.length;
+        for (let i = 0; i < il; i++)
+          this._addItem("macros", items[i]);
+      });
+      this.footer.querySelector(`#${this.id}-export-current a`).addEventListener("click", () => {
+        const data = {
+          version: 2,
+          profiles: {}
+        };
+        data.profiles[this._current.profileName] = this._current.profile.clone(2);
+        fileSaveAs.show(JSON.stringify(data), `oiMUD.${this._current.profileName}.txt`, "text/plain");
+      });
+      this.footer.querySelector(`#${this.id}-export a`).addEventListener("click", () => {
+        const data = {
+          version: 2,
+          profiles: this.profiles.clone(2)
+        };
+        fileSaveAs.show(JSON.stringify(data), "oiMUD.profiles.txt", "text/plain");
+      });
+      this.footer.querySelector(`#${this.id}-import a`).addEventListener("click", () => {
+        openFileDialog("Import profile(s)").then((files) => {
+          readFile(files[0]).then((contents) => {
+            try {
+              var data = JSON.parse(contents);
+              if (data.version == 2) {
+                if (data.profiles) {
+                  var keys = Object.keys(data.profiles);
+                  var n, i, k = 0, kl = keys.length;
+                  for (; k < kl; k++) {
+                    n = keys[k];
+                    i = 0;
+                    while (this.profiles.contains(n)) {
+                      if (i === 0)
+                        n = keys[k] + " Copy";
+                      else
+                        n = keys[k] + " Copy (" + i + ")";
+                      i++;
+                    }
+                    data.profiles[keys[k]].name = n;
+                    const p = Profile.load(data.profiles[keys[k]]);
+                    this.profiles.add(p);
+                  }
+                  if (kl === 0) return;
+                  this.changed = true;
+                  this._buildMenu();
+                  this._expandPath(this._page);
+                }
+              } else
+                setTimeout(function() {
+                  alert_box("Invalid file", "Unable to import file, not a valid profile file", 4 /* exclamation */);
+                }, 50);
+            } catch (err) {
+              setTimeout(function() {
+                alert_box("Error importing", "Error importing file.", 3 /* error */);
+              }, 50);
+              client.error(err);
+            }
+          }).catch(client.error);
+        }).catch(() => {
+        });
+      });
+      this.footer.querySelector(`#${this.id}-refresh a`).addEventListener("click", () => {
+        this._buildMenu();
+        this.setBody(this._page);
+      });
+      this.footer.querySelector(`#${this.id}-save`).addEventListener("click", () => {
+        if (this._errorField) {
+          this._errorField.focus();
+          return;
+        }
+        this._save();
+        this.close();
+      });
+      this.footer.querySelector(`#${this.id}-apply`).addEventListener("click", () => {
+        if (this._errorField) {
+          this._errorField.focus();
+          return;
+        }
+        this._save();
+      });
+    }
+    set errorField(value) {
+      this._errorField = value;
+    }
+    get errorField() {
+      return this._errorField;
+    }
+    get current() {
+      return this._current;
+    }
+    set changed(value) {
+      if (value === this._profilesChanged) return;
+      this._profilesChanged = value;
+      this.footer.querySelector(`#${this.id}-save`).disabled = !value;
+      this.footer.querySelector(`#${this.id}-apply`).disabled = !value;
+    }
+    get changed() {
+      return this._profilesChanged;
+    }
+    get contents() {
+      return this._contents;
+    }
+    _getItem(collection, index, idPrefix, hrefPrefix, indent) {
+      if (!collection || collection.length === 0) return "";
+      let menu = "";
+      indent = indent || 0;
+      let padding = indent * 20 + 16;
+      menu += `<li class="nav-item" title="${htmlEncode(GetDisplay(collection[index]))}" id="${idPrefix + "-" + (collection[index].useName ? this.sanitizeID(collection[index].name.toLowerCase()) : index)}">`;
+      if (collection[index].items && collection[index].items.length) {
+        menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark" href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start bi bi-chevron-right"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this.sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? " checked" : ""}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
+        menu += this._getItems(collection[index].items, idPrefix + "-" + this.sanitizeID(collection[index].name.toLowerCase()), hrefPrefix + "/" + encodeURIComponent(collection[index].name.toLowerCase()), indent + 1);
+      } else if (collection[index].useName)
+        menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark " href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start no-icon"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this.sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? " checked" : ""}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
+      else
+        menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark" href="#${hrefPrefix}/${index}"><i class="align-middle float-start no-icon"></i><input type="checkbox" class="form-check-input" data-page="${hrefPrefix}/${index}" id="enabled-${idPrefix}-${index}"${collection[index].enabled ? " checked" : ""}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
+      menu += "</li>";
+      return menu;
+    }
+    _getItems(collection, idPrefix, hrefPrefix, indent) {
+      if (!collection || collection.length === 0) return "";
+      let menu = "";
+      for (let c = 0, cl = collection.length; c < cl; c++) {
+        menu += this._getItem(collection, c, idPrefix, hrefPrefix, indent);
+      }
+      return '<ul class="dropdown-menu dropdown-inline">' + menu + "</ul>";
+    }
+    _buildMenu() {
+      let nav = "";
+      for (let k = 0, kl = this.profiles.keys.length; k < kl; k++) {
+        nav += this._profile(this.profiles.keys[k]);
+      }
+      this._menu.innerHTML = '<ul class="nav" id="profile-menu">' + nav + "</ul>";
+      let items = this._menu.querySelectorAll("a");
+      for (let i = 0, il = items.length; i < il; i++) {
+        this._profileEvents(items[i]);
+      }
+    }
+    _profileEvents(item) {
+      let items = item.querySelectorAll(".bi-chevron-right");
+      let i, il;
+      for (i = 0, il = items.length; i < il; i++)
+        items[i].addEventListener("click", (e) => {
+          e.target.closest("li").querySelector(".dropdown-menu").classList.toggle("show");
+          e.target.classList.toggle("bi-chevron-right");
+          e.target.classList.toggle("bi-chevron-down");
+          e.preventDefault();
+        });
+      items = item.querySelectorAll("input");
+      for (i = 0, il = items.length; i < il; i++)
+        items[i].addEventListener("change", (e) => {
+          const data = e.target.dataset.page.split("/");
+          const value = e.target.checked;
+          switch (data.length) {
+            case 2:
+              if (!value && this.profiles.keys.filter((k) => this.profiles.enabled(k)).length === 1) {
+                alert_box("Cannot disable", "One profile must always be enabled.");
+                e.target.checked = true;
+                return;
+              }
+              this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}`).checked = value;
+              this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}-switch`).checked = value;
+              if (this._page === e.target.dataset.page)
+                this._contents.querySelector("#enabled").checked = value;
+              this.profiles.items[data[1]].enabled = value;
+              this.changed = true;
+              break;
+            case 3:
+              this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}-${data[2]}`).checked = value;
+              if (this._page === `profiles/${data[1]}`)
+                this._contents.querySelector("#enable" + capitalize(data[2])).checked = value;
+              this.profiles.items[data[1]]["enable" + capitalize(data[2])] = value;
+              this.changed = true;
+              break;
+            case 4:
+              this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}-${data[2]}-${data[3]}`).checked = value;
+              if (this._page === e.target.dataset.page)
+                this._contents.querySelector("#enabled").checked = value;
+              else if (this._page === `profiles/${data[1]}/${data[2]}`)
+                this._contents.querySelector("#check-" + data[3]).checked = value;
+              this.profiles.items[data[1]][data[2]][+data[3]].enabled = value;
+              this.changed = true;
+              break;
+          }
+          e.stopPropagation();
+          e.cancelBubble = true;
+        });
+      items = item.querySelectorAll(".list-badge-button");
+      for (i = 0, il = items.length; i < il; i++)
+        items[i].addEventListener("click", (e) => {
+          this._deleteProfile(e.target.parentElement.dataset.profile);
+          e.preventDefault();
+        });
+    }
+    _profile(profile) {
+      let nav = `<li class="nav-item" data-profile="${profile}" title="${capitalize(profile)}" id="${this.sanitizeID(profile)}">`;
+      nav += `<a class="nav-link text-dark" href="#profiles/${encodeURIComponent(profile)}">`;
+      if (profile !== "default")
+        nav += `<span class="list-badge-button badge text-bg-danger" data-profile="${profile}"><i class="bi bi-trash"></i></span>`;
+      nav += `<i class="align-middle float-start bi bi-chevron-right"></i> `;
+      nav += this._item(capitalize(profile), "enabled-" + profile, this.profiles.items[profile].enabled);
+      nav += `</a>`;
+      nav += this._getItems([
+        {
+          name: "Aliases",
+          items: this.profiles.items[profile].aliases,
+          useName: true,
+          enabled: this.profiles.items[profile].enableAliases
+        },
+        {
+          name: "Macros",
+          items: this.profiles.items[profile].macros,
+          useName: true,
+          enabled: this.profiles.items[profile].enableMacros
+        },
+        {
+          name: "Triggers",
+          items: this.profiles.items[profile].triggers,
+          useName: true,
+          enabled: this.profiles.items[profile].enableTriggers
+        },
+        {
+          name: "Buttons",
+          items: this.profiles.items[profile].buttons,
+          useName: true,
+          enabled: this.profiles.items[profile].enableButtons
+        }
+      ], this.sanitizeID(profile), "profiles/" + encodeURIComponent(profile), 1);
+      nav += "</li>";
+      return nav;
+    }
+    _item(title, id, enabled) {
+      return `<span><input type="checkbox" data-page="profiles/${title.toLowerCase()}" class="form-check-input" id="${this.sanitizeID(id)}"${enabled ? " checked" : ""}> ${title}</span><div class="form-check form-switch"><input type="checkbox" class="form-check-input" id="${id}-switch"${enabled ? " checked" : ""}> ${title}</div>`;
+    }
+    setBody(contents, args) {
+      if (!this.profiles) {
+        setTimeout(() => {
+          this.setBody(contents, args);
+        }, 100);
+        return;
+      }
+      if (this._errorField) {
+        setTimeout(() => this._errorField.focus(), 100);
+        window.location.hash = this._page;
+        return;
+      }
+      this._page = this.dialog.dataset.path;
+      if (this._page === "profiles")
+        this.dialog.dataset.panel = "left";
+      else
+        this.dialog.dataset.panel = "right";
+      const pages = this._page.split("/");
+      let breadcrumb = "";
+      let last = pages.length - 1;
+      if (pages.length === 1)
+        breadcrumb += '<li><i class="float-start fas fa-users" style="padding: 2px;margin-right: 2px;"></i></li>';
+      else
+        breadcrumb += '<li><a href="#' + pages.slice(0, 1).join("-") + '"><i class="float-start fas fa-users" style="padding: 2px;margin-right: 2px;"></i></a></li>';
+      if (pages.length < 4)
+        for (let p2 = 0, pl = pages.length; p2 < pl; p2++) {
+          let title = capitalize(pages[p2]);
+          if (p2 === last)
+            breadcrumb += '<li class="breadcrumb-item active">' + title + "</li>";
+          else
+            breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p2 + 1).join("/") + '">' + title + "</a></li>";
+        }
+      let k, kl, p;
+      this._expandPath(pages);
+      this.footer.querySelector("#profile-page-buttons").innerHTML = "";
+      this.footer.querySelector(`#${this.id}-export-current`).style.display = "";
+      this.title = `<ol class="breadcrumb${this._small ? " breadcrumb-sm" : ""}" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;flex-wrap: nowrap;">${breadcrumb}</ol>`;
+      this._contents.scrollTop = 0;
+      if (!this._setCurrent(pages))
+        return;
+      if (pages.length < 2) {
+        this.footer.querySelector(`#${this.id}-export-current`).style.display = "none";
+        this.footer.querySelector(`#${this.id}-add-sep`).style.display = "none";
+        this.footer.querySelector(`#${this.id}-add-alias`).style.display = "none";
+        this.footer.querySelector(`#${this.id}-add-macro`).style.display = "none";
+        this.footer.querySelector(`#${this.id}-add-trigger`).style.display = "none";
+        this.footer.querySelector(`#${this.id}-add-button`).style.display = "none";
+        this.footer.querySelector(`#${this.id}-add-sep2`).style.display = "none";
+        this.footer.querySelector(`#${this.id}-add-default-buttons`).style.display = "none";
+        this.footer.querySelector(`#${this.id}-add-default-macros`).style.display = "none";
+        this._splitter.panel2Collapsed = true;
+        this.footer.querySelector(`#${this.id}-back`).style.display = "none";
+      } else {
+        this.footer.querySelector(`#${this.id}-add-sep`).style.display = "";
+        this.footer.querySelector(`#${this.id}-add-alias`).style.display = "";
+        this.footer.querySelector(`#${this.id}-add-macro`).style.display = "";
+        this.footer.querySelector(`#${this.id}-add-trigger`).style.display = "";
+        this.footer.querySelector(`#${this.id}-add-button`).style.display = "";
+        this.footer.querySelector(`#${this.id}-back`).style.display = "";
+        this.footer.querySelector(`#${this.id}-add-sep2`).style.display = "";
+        this.footer.querySelector(`#${this.id}-add-default-buttons`).style.display = "";
+        this.footer.querySelector(`#${this.id}-add-default-macros`).style.display = "";
+        this._splitter.panel2Collapsed = false;
+      }
+      if (pages.length === 2) {
+        if (this._contentPage !== "properties") {
+          this._contentPage = "properties";
+          this._loadPage("properties").then(
+            (contents2) => {
+              this._setContents(contents2);
+              const forms = this._contents.querySelectorAll("input");
+              this._contents.querySelector("#name").disabled = this._current.profileName === "default";
+              for (let f = 0, fl = forms.length; f < fl; f++)
+                if (forms[f].type === "checkbox") {
+                  forms[f].checked = this._current.profile[forms[f].id];
+                  forms[f].addEventListener("change", (e) => {
+                    const value = e.target.checked;
+                    if (e.target.id === "enabled") {
+                      if (!value && this.profiles.keys.filter((k2) => this.profiles.enabled(k2)).length === 1) {
+                        alert_box("Cannot disable", "One profile must always be enabled.");
+                        e.target.checked = true;
+                        return;
+                      }
+                      this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}`).checked = value;
+                      this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-switch`).checked = value;
+                      if (this._page === e.target.dataset.page)
+                        this._contents.querySelector("#enabled").checked = value;
+                      this.profiles.items[this._current.profileName].enabled = value;
+                    } else {
+                      this._current.profile[e.target.id] = value;
+                      this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-${e.target.id.substring(6).toLowerCase()}`).checked = value;
+                      this.changed = true;
+                    }
+                    this.changed = true;
+                  });
+                } else {
+                  forms[f].value = this._current.profile[forms[f].id];
+                  forms[f].addEventListener("change", (e) => {
+                    const target = e.currentTarget || e.target;
+                    if (target.id === "name") {
+                      debounce(() => {
+                        let err = this._renameProfile(target.value);
+                        if (err === true) {
+                          forms[f].classList.remove("is-invalid");
+                          this._errorField = null;
+                        } else {
+                          forms[f].classList.add("is-invalid");
+                          this._errorField = forms[f];
+                          this._contents.querySelector("#name-feedback").textContent = err;
+                        }
+                        this._sortProfiles();
+                      }, 200, "renameProfile");
+                    } else {
+                      this._current.profile[target.id] = target.value;
+                      debounce(() => this._sortProfiles(), 200, "sortProfiles");
+                    }
+                    this.changed = true;
+                  });
+                  forms[f].addEventListener("input", (e) => {
+                    const target = e.currentTarget || e.target;
+                    if (target.id === "name") {
+                      debounce(() => {
+                        let err = this._renameProfile(target.value);
+                        if (err === true) {
+                          forms[f].classList.remove("is-invalid");
+                          this._errorField = null;
+                        } else {
+                          forms[f].classList.add("is-invalid");
+                          this._errorField = forms[f];
+                          this._contents.querySelector("#name-feedback").textContent = err;
+                        }
+                        this._sortProfiles();
+                      }, 200, "renameProfile");
+                    } else {
+                      this._current.profile[target.id] = target.value;
+                      debounce(() => this._sortProfiles(), 200, "sortProfiles");
+                    }
+                    this.changed = true;
+                  });
+                }
+            }
+          ).catch(() => {
+          });
+        } else {
+          this._contents.querySelector("#name").disabled = this._current.profileName === "default";
+          const forms = this._contents.querySelectorAll("input");
+          for (let f = 0, fl = forms.length; f < fl; f++) {
+            if (forms[f].type === "checkbox")
+              forms[f].checked = this._current.profile[forms[f].id];
+            else
+              forms[f].value = this._current.profile[forms[f].id];
+          }
+        }
+        if (this._current.profileName !== "default") {
+          let b = `<button id="${this.id}-remove" type="button" class="btn-sm btn btn-danger" title="Remove profile"><i class="bi bi-trash"></i></button>`;
+          this.footer.querySelector("#profile-page-buttons").innerHTML = b;
+          this.footer.querySelector(`#${this.id}-remove`).addEventListener("click", (e) => {
+            if (this._errorField)
+              this._errorField = null;
+            this._deleteProfile(this._current.profileName);
+          });
+        }
+      } else if (pages.length === 3) {
+        if (this._current.item.length === 0) {
+          p = '<h1 id="empty" style="width: 100%;text-align:center">No ' + this._current.collection + ".</h1>";
+          p += `<button id="${this.id}-add-contents" type="button" class="btn-sm float-start btn btn-outline-secondary" title="Add ${this._getItemType()}"><i class="bi bi-plus-lg"></i> Add ${this._getItemType()}</button>`;
+        } else {
+          p = "";
+          for (k = 0, kl = this._current.item.length; k < kl; k++) {
+            p += `<a data-profile ="${this._current.profileName}" id="item-${k}" data-index="${k}" href="#profiles/${encodeURIComponent(this._current.profileName)}/${this._current.collection}/${k}" class="list-group-item list-group-item-action">`;
+            p += `<span data-index="${k}" class="list-badge-button badge text-bg-danger"><i class="bi bi-trash"></i></span>`;
+            p += `<div class="form-check-inline form-switch" style="margin: 0;">`;
+            p += `<input type="checkbox" class="form-check-input" id="check-${k}" data-profile="${this._current.profileName}" data-index="${k}" data-field="enabled" data-items="${this._current.collection}"${this._current.item[k].enabled ? ' checked="checked"' : ""}>`;
+            p += `</div>${htmlEncode(GetDisplay(this._current.item[k]))}</a>`;
+          }
+        }
+        let b = `<button id="${this.id}-add" type="button" class="btn-sm float-start btn btn-outline-secondary" title="Add ${this._getItemType()}"><i class="bi bi-plus-lg"></i></button>`;
+        this.footer.querySelector("#profile-page-buttons").innerHTML = b;
+        this._setContents('<div class="list-group">' + p + "</div>");
+        let items = this._contents.querySelectorAll(".list-badge-button");
+        for (let i = 0, il = items.length; i < il; i++)
+          items[i].addEventListener("click", (e) => {
+            this._removeItem(+e.target.parentElement.dataset.index);
+            e.stopPropagation();
+            e.cancelBubble = true;
+            e.preventDefault();
+          });
+        this._contentPage = null;
+        this.footer.querySelector(`#${this.id}-add`).addEventListener("click", () => {
+          this._addItem();
+        });
+        if (this._contents.querySelector(`#${this.id}-add-contents`))
+          this._contents.querySelector(`#${this.id}-add-contents`).addEventListener("click", () => {
+            this._addItem();
+          });
+        items = this._contents.querySelectorAll("input");
+        for (let i = 0, il = items.length; i < il; i++)
+          items[i].addEventListener("change", (e) => {
+            const target = e.currentTarget || e.target;
+            const value = target.checked;
+            this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-${this._current.collection}-${target.dataset.index}`).checked = value;
+            this._current.profile[this._current.collection][+target.dataset.index].enabled = value;
+            this.changed = true;
+          });
+      } else if (pages.length === 4) {
+        let b = `<button id="${this.id}-remove" type="button" class="btn-sm btn btn-danger" title="Remove ${this._getItemType()}"><i class="bi bi-trash"></i></button>`;
+        this.footer.querySelector("#profile-page-buttons").innerHTML = b;
+        this.footer.querySelector(`#${this.id}-remove`).addEventListener("click", (e) => {
+          this._removeItem(this._current.itemIdx, 0, true);
+          e.stopPropagation();
+          e.cancelBubble = true;
+          e.preventDefault();
+        });
+        for (let p2 = 0, pl = pages.length; p2 < pl; p2++) {
+          if (p2 === last)
+            breadcrumb += '<li class="breadcrumb-item active">' + htmlEncode(GetDisplay(this._current.item)) + "</li>";
+          else
+            breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p2 + 1).join("/") + '">' + capitalize(pages[p2]) + "</a></li>";
+        }
+        this.title = `<ol class="breadcrumb${this._small ? " breadcrumb-sm" : ""}" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;flex-wrap: nowrap;">${breadcrumb}</ol>`;
+        if (this._contentPage !== this._current.collection) {
+          this._contentPage = this._current.collection;
+          this._loadPage(this._current.collection).then((contents2) => {
+            this._setContents(contents2);
+            this._loadItem(true);
+          }).catch(() => {
+          });
+        } else
+          this._loadItem();
+      } else if (pages.length === 5) {
+        let b = `<button id="${this.id}-remove" type="button" class="btn-sm btn btn-danger" title="Remove ${this._getItemType()}"><i class="bi bi-trash"></i></button>`;
+        this.footer.querySelector("#profile-page-buttons").innerHTML = b;
+        this.footer.querySelector(`#${this.id}-remove`).addEventListener("click", (e) => {
+          this._removeItem(this._current.itemIdx, 0, true);
+          e.stopPropagation();
+          e.cancelBubble = true;
+          e.preventDefault();
+        });
+        let last2 = pages.length - 1;
+        for (let p2 = 0, pl = pages.length; p2 < pl; p2++) {
+          if (p2 === last2 - 1)
+            breadcrumb += '<li class="breadcrumb-item"><a href="#' + pages.slice(0, p2 + 1).join("/") + '">' + htmlEncode(GetDisplay(this._current.parent)) + "</a></li>";
+          else if (p2 === last2)
+            breadcrumb += '<li class="breadcrumb-item active">' + htmlEncode(GetDisplay(this._current.item)) + "</li>";
+          else
+            breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p2 + 1).join("/") + '">' + capitalize(pages[p2]) + "</a></li>";
+        }
+        this.title = `<ol class="breadcrumb${this._small ? " breadcrumb-sm" : ""}" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;flex-wrap: nowrap;">${breadcrumb}</ol>`;
+        if (this._contentPage !== this._current.collection) {
+          this._contentPage = this._current.collection;
+          this._loadPage(this._current.collection).then((contents2) => this._setContents(contents2)).catch(() => {
+            this._loadItem(true);
+          });
+        } else
+          this._loadItem();
+      } else {
+        let b = `<button id="btn-${this.id}-add-profile" type="button" class="btn-sm btn btn-outline-secondary" title="Add profile"><i class="bi bi-plus-lg"></i></button>`;
+        this.footer.querySelector("#profile-page-buttons").innerHTML = b;
+        this.footer.querySelector(`#btn-${this.id}-add-profile`).addEventListener("click", () => {
+          this._createProfile(true);
+        });
+        this._contentPage = null;
+        this._setContents("");
+      }
+    }
+    _setCurrent(pages) {
+      if (!pages)
+        return false;
+      this._current.itemIdx = this._current.itemSubIdx = -1;
+      this._current.parent = null;
+      if (pages.length > 1) {
+        this._current.profileName = pages[1];
+        if (!this.profiles.contains(this._current.profileName)) {
+          this._setContents(`<h1 id="empty" style="width: 100%;text-align:center">Profile ${this._current.profileName} not found.</h1>`);
+          this._contentPage = null;
+          return false;
+        }
+        this._current.profile = this.profiles.items[this._current.profileName];
+      }
+      if (pages.length > 2) {
+        this._current.collection = pages[2];
+        if (!this._current.profile[this._current.collection]) {
+          this._setContents(`<h1 id="empty" style="width: 100%;text-align:center">${capitalize(this._current.collection)} not found in ${this._current.profileName}.</h1>`);
+          this._contentPage = null;
+          return false;
+        }
+        this._current.item = this._current.profile[pages[2]];
+      }
+      if (pages.length > 3) {
+        this._current.itemIdx = +pages[3];
+        if (this._current.itemIdx < 0 || this._current.itemIdx >= this._current.item.length) {
+          this._setContents(`<h1 id="empty" style="width: 100%;text-align:center">${capitalize(this._getItemType())} not found.</h1>`);
+          this._contentPage = null;
+          return;
+        }
+        this._current.item = this._current.profile[pages[2]][this._current.itemIdx];
+      }
+      if (pages.length > 4) {
+        this._current.itemSubIdx = +pages[4];
+        if (!this._current.item.triggers) {
+          this._setContents(`<h1 id="empty" style="width: 100%;text-align:center">Invalid trigger.</h1>`);
+          this._contentPage = null;
+          return;
+        }
+        if (this._current.itemSubIdx < 0 || this._current.itemSubIdx >= this._current.item.triggers.length) {
+          this._setContents(`<h1 id="empty" style="width: 100%;text-align:center">Trigger state not found.</h1>`);
+          this._contentPage = null;
+          return;
+        }
+        this._current.parent = this._current.item;
+        this._current.item = this._current.item.triggers[this._current.itemSubIdx];
+      }
+      return true;
+    }
+    _loadPage(page) {
+      return new Promise((resolve, reject) => {
+        $.ajax({
+          url: "dialogs/profiles-" + page + ".htm",
+          cache: false,
+          type: "GET"
+        }).done((data) => {
+          data = data.replace(/{profileURL}/g, encodeURIComponent(this._current.profileName)).replace(/{profile}/g, this._current.profileName);
+          resolve(data);
+        }).fail(function() {
+          reject("");
+        });
+      });
+    }
+    _setContents(contents) {
+      this._contents.innerHTML = contents;
+      const scripts = this._contents.querySelectorAll("script");
+      const args = {
+        client,
+        item: this._current.item,
+        FilterArrayByKeyValue,
+        keyCharToCode,
+        keyCodeToChar,
+        profile: this._current.profile,
+        profileName: this._current.profileName,
+        parent: this._current.parent,
+        current: this._current,
+        GetDisplay,
+        Trigger,
+        debounce,
+        updateHash,
+        DialogButtons
+      };
+      this.emit("content-changing");
+      for (let s = 0, sl = scripts.length; s < sl; s++) {
+        let script = new Function("body", "dialog", ...Object.keys(args), "try { " + scripts[s].textContent + "}catch(e){client.error(e)}");
+        script.apply(client, [this._contents, this, ...Object.values(args), this]);
+      }
+      this.emit("content-changed");
+    }
+    _loadItem(events) {
+      const forms = this._contents.querySelectorAll("input,select,textarea");
+      for (let f = 0, fl = forms.length; f < fl; f++) {
+        if (!(forms[f].id in this._current.item) && forms[f].dataset.enum !== "true")
+          continue;
+        if (forms[f].type === "checkbox") {
+          if (forms[f].dataset.enum === "true") {
+            const name2 = forms[f].name || forms[f].id.substring(0, forms[f].id.lastIndexOf("-"));
+            const value = +forms[f].id.substring(forms[f].id.lastIndexOf("-") + 1);
+            forms[f].checked = (this._current.item[name2] & value) === value;
+          } else
+            forms[f].checked = this._current.item[forms[f].id];
+          if (events)
+            forms[f].addEventListener("change", (e) => {
+              const target = e.currentTarget || e.target;
+              if (target.style.display === "none") return;
+              if (target.dataset.enum === "true") {
+                const name2 = target.name || target.id.substring(0, target.id.lastIndexOf("-"));
+                const enums = this.body.querySelectorAll(`[name=${name2}]`);
+                let value = 0;
+                for (let e2 = 0, el = enums.length; e2 < el; e2++) {
+                  if (enums[e2].checked)
+                    value |= +enums[e2].value;
+                }
+                this._current.item[name2] = value;
+              } else {
+                this._current.item[target.id] = target.checked || false;
+                if (target.id === "enabled")
+                  this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-${this._current.collection}-${this._current.itemIdx}`).checked = this._current.item[target.id];
+              }
+              this.changed = true;
+              this._updateItemMenu();
+            });
+        } else {
+          forms[f].value = this._current.item[forms[f].id];
+          if (events) {
+            forms[f].addEventListener("change", (e) => {
+              const target = e.currentTarget || e.target;
+              if (target.style.display === "none") return;
+              this.setValue(this._current.item, target.id, target.value);
+              this.changed = true;
+              this._updateItemMenu();
+            });
+            forms[f].addEventListener("input", (e) => {
+              const target = e.currentTarget || e.target;
+              if (target.style.display === "none") return;
+              this.setValue(this._current.item, target.id, target.value);
+              this.changed = true;
+              this._updateItemMenu();
+            });
+          }
+          let c = this.changed;
+          forms[f].dispatchEvent(new Event("change"));
+          this.changed = c;
+        }
+      }
+      this.emit("item-loaded", this._current);
+    }
+    _updateItemMenu(currentItem, profile, collection, index) {
+      profile = profile || this._current.profileName;
+      collection = collection || this._current.collection;
+      if (typeof index !== "number")
+        index = this._current.itemIdx;
+      const currentParent = this._current.parent;
+      currentItem = currentItem || this._current.item;
+      debounce(() => {
+        let item = this.body.querySelector(`#${this.sanitizeID(profile)}-${collection}-${index}`);
+        if (!item) return;
+        let display;
+        display = GetDisplay(currentParent || currentItem);
+        item.title = display;
+        item.firstChild.childNodes[2].textContent = " " + display;
+        let bc = this.header.querySelector("ol").children;
+        if (bc.length > 4) {
+          if (bc[4].children.length)
+            bc[4].children[0].textContent = display;
+          else
+            bc[4].textContent = display;
+        }
+        if (bc.length > 5) {
+          bc[5].textContent = GetDisplay(currentItem);
+        }
+      }, 200, "updateItemMenu");
+    }
+    _expandPath(pages, select) {
+      if (!Array.isArray(pages))
+        pages = pages.split("/");
+      let id;
+      let el;
+      let expand;
+      let po = 0;
+      if (pages[0] === "profiles")
+        po = 1;
+      let last = pages.length - 1;
+      for (let p = po, pl = pages.length; p < pl; p++) {
+        id = this.sanitizeID(pages.slice(po, p + 1).join("-"));
+        el = document.getElementById(id);
+        if (!el) continue;
+        if (p === last) {
+          setTimeout(() => {
+            const items = this._menu.querySelectorAll(".active");
+            for (let i = 0, il = items.length; i < il; i++)
+              items[i].classList.remove("active");
+            scrollChildIntoView(this._menu, el);
+            el.classList.add("active");
+            if (select)
+              el.firstChild.click();
+          }, 100);
+        } else {
+          expand = el.querySelector(".dropdown-menu");
+          if (!expand || expand.classList.contains("show")) continue;
+          el = el.querySelector("i");
+          if (el) {
+            el.closest("li").querySelector(".dropdown-menu").classList.toggle("show");
+            el.classList.toggle("bi-chevron-right");
+            el.classList.toggle("bi-chevron-down");
+          }
+        }
+      }
+    }
+    _goBack() {
+      if (this._errorField) {
+        this._errorField.focus();
+        return;
+      }
+      const pages = this._page.split("/");
+      if (pages.length === 5)
+        updateHash(pages.slice(0, pages.length - 2).join("/"), this._page);
+      else
+        updateHash(pages.slice(0, pages.length - 1).join("/"), this._page);
+    }
+    _createProfile(defaults) {
+      let i = this.profiles.length;
+      let name2 = "NewProfile" + i;
+      while (this.profiles.contains(name2)) {
+        i++;
+        name2 = "NewProfile" + i;
+      }
+      const profile = new Profile(name2, defaults);
+      name2 = name2.toLowerCase();
+      this.profiles.add(profile);
+      this.profiles.SortByPriority();
+      let menuItem = this._profile(name2);
+      i = this.profiles.keys.indexOf(name2);
+      const menu = document.getElementById("profile-menu");
+      if (i === -1 || i >= menu.children.length)
+        i = menu.children.length - 1;
+      if (i < 0) i = 0;
+      menu.children[i].insertAdjacentHTML("afterend", menuItem);
+      this._profileEvents(menu.children[i + 1]);
+      this.changed = true;
+      updateHash("profiles/" + name2, this._page);
+    }
+    _deleteProfile(profile) {
+      if (!profile) return false;
+      confirm_box("Remove profile?", `Delete "${profile}"?`).then((e) => {
+        if (e.button === 4 /* Yes */) {
+          this.profiles.remove(profile);
+          this._menu.querySelector("#" + profile).remove();
+          if (this._page.startsWith("profiles/" + profile))
+            updateHash("profiles", this._page);
+          this.changed = true;
+        }
+      });
+    }
+    _renameProfile(name2, oldProfile) {
+      if (!name2) return "Name can not be empty!";
+      oldProfile = (oldProfile || this._current.profileName).toLowerCase();
+      name2 = name2.toLowerCase();
+      if (name2 === oldProfile) return true;
+      if (this.profiles.contains(name2))
+        return "A profile named " + name2 + " already exists!";
+      this.profiles.remove(oldProfile);
+      this._current.profile.name = name2;
+      this._current.profileName = name2;
+      this.profiles.add(this._current.profile);
+      const oldID = this.sanitizeID(oldProfile);
+      const newID = this.sanitizeID(name2);
+      let items;
+      items = this.body.querySelector(`#${oldID} a`);
+      items.children[2].childNodes[1].textContent = " " + capitalize(name2);
+      document.querySelector(`#${oldID} a`).children[3].childNodes[1].textContent = " " + capitalize(name2);
+      items = this.body.querySelector(`#${oldID}`);
+      items.id = newID;
+      items.title = name2;
+      this._replaceProfileName(this._menu.firstChild, oldProfile, name2);
+      this._replaceProfileName(this._contents, oldProfile, name2);
+      this.header.querySelector("ol").children[2].textContent = capitalize(name2);
+      return true;
+    }
+    _replaceProfileName(container, oldName, newName) {
+      let items;
+      let i, il;
+      const oldID = this.sanitizeID(oldName);
+      const newID = this.sanitizeID(newName);
+      items = container.querySelectorAll(`[id*="-${oldID}-"]`);
+      for (i = 0, il = items.length; i < il; i++)
+        items[i].id = items[i].id.replace(`-${oldID}-`, `-${newID}-`);
+      items = container.querySelectorAll(`[id$="-${oldID}"]`);
+      for (i = 0, il = items.length; i < il; i++)
+        items[i].id = items[i].id.replace(`-${oldID}`, `-${newID}`);
+      items = container.querySelectorAll(`[id^="${oldID}-"]`);
+      for (i = 0, il = items.length; i < il; i++)
+        items[i].id = items[i].id.replace(`${oldID}-`, `${newID}-`);
+      items = container.querySelectorAll(`[data-profile="${oldID}"]`);
+      for (i = 0, il = items.length; i < il; i++)
+        items[i].dataset.profile = newID;
+      const oldPath = encodeURIComponent(oldName);
+      const newPath = encodeURIComponent(newName);
+      items = container.querySelectorAll(`[href*="/${oldPath}/"]`);
+      for (i = 0, il = items.length; i < il; i++)
+        items[i].href = items[i].getAttribute("href").replace(`/${oldPath}/`, `/${newPath}/`);
+      items = container.querySelectorAll(`[href$="/${oldPath}"]`);
+      for (i = 0, il = items.length; i < il; i++)
+        items[i].href = items[i].getAttribute("href").replace(`/${oldPath}`, `/${newPath}`);
+      items = container.querySelectorAll(`[href^="${oldPath}/"]`);
+      for (i = 0, il = items.length; i < il; i++)
+        items[i].href = items[i].getAttribute("href").replace(`${oldPath}/`, `${newPath}/`);
+      items = container.querySelectorAll(`[data-path*="/${oldPath}/"]`);
+      for (i = 0, il = items.length; i < il; i++)
+        items[i].dataset.path = items[i].dataset.path.replace(`/${oldPath}`, `/${newPath}`);
+      items = container.querySelectorAll(`[data-page*="/${oldPath}/"]`);
+      for (i = 0, il = items.length; i < il; i++)
+        items[i].dataset.page = items[i].dataset.page.replace(`/${oldPath}/`, `/${newPath}/`);
+      items = container.querySelectorAll(`[data-page$="/${oldPath}"]`);
+      for (i = 0, il = items.length; i < il; i++)
+        items[i].dataset.page = items[i].dataset.page.replace(`/${oldPath}`, `/${newPath}`);
+    }
+    _sortProfiles() {
+      this.profiles.SortByPriority();
+      const menu = this._menu.firstChild;
+      const items = Array.from(menu.children);
+      items.sort((a, b) => {
+        let ap = this.profiles.items[a.dataset.profile].priority;
+        let bp = this.profiles.items[b.dataset.profile].priority;
+        if (ap > bp)
+          return -1;
+        if (ap < bp)
+          return 1;
+        if (a.dataset.profile === "default")
+          return -1;
+        if (b.dataset.profile === "default")
+          return 1;
+        ap = a.dataset.profile;
+        bp = b.dataset.profile;
+        if (ap > bp)
+          return 1;
+        if (ap < bp)
+          return -1;
+        return 0;
+      });
+      items.forEach((item) => menu.appendChild(item));
+    }
+    _save() {
+      if (!this.changed) return true;
+      if (this._errorField) {
+        this._errorField.focus();
+        return false;
+      }
+      this.profiles.save().then(() => {
+        client.loadProfiles().then(() => {
+        });
+      });
+      this.changed = false;
+      return true;
+    }
+    close() {
+      if (!this._canClose) {
+        this.confirmSave().then((r) => {
+          if (r) {
+            if (!this._save()) return;
+          }
+          this._canClose = true;
+          this.close();
+        }).catch(() => {
+          this._canClose = false;
+        });
+      } else
+        super.close();
+    }
+    reload() {
+      if (!this._setCurrent(this._page.split("/")))
+        return;
+      this._loadItem();
+      this._updateItemMenu();
+    }
+    confirmSave() {
+      return new Promise((resolve, reject) => {
+        if (this._profilesChanged) {
+          confirm_box("Save changes?", `Save changes to profiles?`, null, 12 /* YesNo */ | 2 /* Cancel */).then((e) => {
+            if (e.button === 4 /* Yes */)
+              resolve(true);
+            else if (e.button === 8 /* No */)
+              resolve(false);
+            else
+              reject();
+          }).catch((e) => {
+            reject();
+          });
+        } else
+          resolve(true);
+      });
+    }
+    sanitizeID(name2) {
+      return name2.toLowerCase().replace(/[^a-z0-9:.-]+/gi, "_");
+    }
+    _getItemType(collection) {
+      collection = collection || this._current.collection;
+      if (!collection) return;
+      if (collection === "aliases") return "alias";
+      return collection.substring(0, collection.length - 1);
+    }
+    _addItem(collection, item) {
+      if (!collection) collection = this._current.collection;
+      if (!collection) return;
+      var index = this._current.profile[collection].length;
+      let menuItem;
+      if (!item) {
+        if (collection === "aliases")
+          item = new Alias();
+        else if (collection === "triggers")
+          item = new Trigger();
+        else if (collection === "buttons")
+          item = new Button();
+        else if (collection === "macros")
+          item = new Macro();
+        else if (collection === "context")
+          item = new Context();
+      }
+      this._current.profile[collection].push(item);
+      let m = this._menu.querySelector(`#${this.sanitizeID(this._current.profileName)}-${collection}`);
+      if (index === 0) {
+        menuItem = this._getItem([{
+          name: capitalize(collection),
+          items: this._current.profile[collection],
+          useName: true,
+          enabled: this._current.profile[collection]
+        }], 0, this.sanitizeID(this._current.profileName), "profiles/" + encodeURIComponent(this._current.profileName), 1);
+        var newNode = document.createElement("div");
+        newNode.innerHTML = menuItem;
+        if (m.replaceWith)
+          m.replaceWith(newNode.firstChild);
+        else if (m.replaceChild)
+          m.parentNode.replaceChild(newNode.firstChild, m);
+        else
+          m.outerHTML = menuItem;
+        m = this._menu.querySelector(`#${this.sanitizeID(this._current.profileName)}-${collection}`);
+        this._profileEvents(m);
+      } else {
+        menuItem = this._getItem(this._current.profile[collection], index, `${this.sanitizeID(this._current.profileName)}-${collection}`, `profiles/${encodeURIComponent(this._current.profileName)}/${collection}`, 2);
+        m = m.querySelector("ul");
+        m.insertAdjacentHTML("beforeend", menuItem);
+        m = this._menu.querySelector(`#${this.sanitizeID(this._current.profileName)}-${collection}`);
+        this._profileEvents(m.lastChild);
+      }
+      updateHash(`profiles/${encodeURIComponent(this._current.profileName)}/${collection}/${index}`, this._page);
+      this.changed = true;
+    }
+    _removeItem(index, collection, back) {
+      if (!collection) collection = this._current.collection;
+      if (!collection) return;
+      confirm_box("Remove profile?", `Delete ${this._getItemType()}?`).then((e) => {
+        if (e.button === 4 /* Yes */) {
+          const id = `${this.sanitizeID(this._current.profileName)}-${collection}`;
+          const items = this._current.profile[collection];
+          items.splice(index, 1);
+          this._menu.querySelector(`#${id}-${index}`).remove();
+          if (this._current.itemIdx === -1)
+            this.setBody(this._page);
+          if (items.length === 0) {
+            this._menu.querySelector(`#${id} i`).remove();
+            this._menu.querySelector(`#${id} a`).insertAdjacentHTML("afterbegin", '<i class="align-middle float-start no-icon"></i>');
+          } else {
+            const menuItems = this._menu.querySelector(`#${id} ul`);
+            let i = menuItems.children.length;
+            const href = `#profiles/${encodeURIComponent(this._current.profileName)}/${collection}/`;
+            for (; index < i; index++) {
+              const item = menuItems.children[index];
+              item.id = `${id}-${index}`;
+              item.firstChild.href = `${href}${index}`;
+              item.firstChild.children[1].id = `enabled-${id}-${index}`;
+            }
+          }
+          this.changed = true;
+          if (back)
+            this._goBack();
+        }
+      });
+    }
+    setValue(obj, prop, value) {
+      if (value == "false") value = false;
+      if (value == "true") value = true;
+      if (value == "null") value = null;
+      if (value == "undefined") value = void 0;
+      if (typeof value == "string" && parseFloat(value).toString() == value)
+        value = parseFloat(value);
+      obj[prop] = this.convertType(value, typeof obj[prop]);
+    }
+    convertType(value, type) {
+      if (typeof value === type)
+        return value;
+      switch (type) {
+        case "number":
+          if (typeof value == "string" && parseFloat(value).toString() == value)
+            return parseFloat(value);
+          return Number(value);
+        case "boolean":
+          return Boolean(value);
+        case "string":
+          return "" + value;
+      }
+      return value;
+    }
+  };
+  function GetDisplay(arr) {
+    if (arr.displaytype === 1) {
+      const f = new Function("item", "keyCodeToChar", "MacroDisplay", arr.display);
+      return f(arr, keyCodeToChar, MacroDisplay);
+    }
+    if ($.isFunction(arr.display))
+      return arr.display(arr);
+    if ($.isFunction(arr[arr.display]))
+      return arr[arr.display](arr);
+    if (!arr[arr.display])
+      return arr["name"];
+    return arr[arr.display];
+  }
+
   // src/interface/interface.ts
   var editor;
   var editorDialog;
+  var _currentIcon = -1;
   function initializeInterface() {
     let options;
+    _setIcon(0);
     initMenu();
     client.input.on("history-navigate", () => {
       if (client.getOption("commandAutoSize") || client.getOption("commandScrollbars"))
@@ -27093,6 +29072,22 @@ Devanagari
     });
     client.on("set-title", (title) => {
       window.document.title = title;
+    });
+    client.on("connected", () => _setIcon(1));
+    client.on("closed", () => _setIcon(0));
+    client.on("received-data", () => {
+      if (!client.active && client.connected)
+        _setIcon(2);
+    });
+    client.on("focus", () => {
+      if (client.connected)
+        _setIcon(1);
+      else
+        _setIcon(0);
+    });
+    client.on("print", () => {
+      if (!client.active && client.connected)
+        _setIcon(2);
     });
     client.display.on("selection-done", (e) => {
       if (client.getOption("AutoCopySelectedToClipboard") && client.display.hasSelection) {
@@ -27148,9 +29143,9 @@ Devanagari
         editorDialog.dialog.editor = editor;
         if (tinymce)
           editorDialog.header.querySelector("#adv-editor-max").insertAdjacentHTML("afterend", '<button type="button" class="btn btn-light float-end" id="adv-editor-switch" title="Switch to advanced" style="padding: 0 4px;margin-top: -1px;"><i class="bi-shuffle"></i></button>');
-        editorDialog.footer.innerHTML = `<button id="btn-adv-editor-clear" type="button" class="float-start btn btn-light" title="Clear editor">Clear</button>
-                <button id="btn-adv-editor-append" type="button" class="float-start btn btn-light" title="Append file...">Append file...</button>
-                <button id="btn-adv-editor-send" type="button" class="float-end btn btn-primary" title="Send">Send</button>`;
+        editorDialog.footer.innerHTML = `<button id="btn-adv-editor-clear" type="button" class="btn-sm float-start btn btn-light" title="Clear editor"><i class="bi bi-journal-x"></i><span class="icon-only"> Clear</span></button>
+                <button id="btn-adv-editor-append" type="button" class="btn-sm float-start btn btn-light" title="Append file..."><i class="bi bi-box-arrow-in-down"></i><span class="icon-only"> Append file...</span></button>
+                <button id="btn-adv-editor-send" type="button" class="btn-sm float-end btn btn-primary" title="Send"><i class="bi bi-send-fill"></i><span class="icon-only"> Send</span></button>`;
         if (!editor.isSimple)
           editorDialog.header.querySelector("#adv-editor-switch").title = "Switch to simple";
         editorDialog.header.querySelector("#adv-editor-switch").addEventListener("click", () => {
@@ -27221,6 +29216,26 @@ Devanagari
     var hashes = decodeURI(window.location.hash.substring(1)).split(",").filter((s) => s.trim() !== string);
     window.location.hash = hashes.join(",");
   }
+  function addHash(string) {
+    if (!string || string.length === 0) return;
+    string = string.trim();
+    if (string.startsWith("#"))
+      string = string.substring(1);
+    var hashes = decodeURI(window.location.hash.substring(1)).split(",").filter((s) => s.trim() !== string);
+    hashes.push(string);
+    window.location.hash = hashes.join(",");
+  }
+  function updateHash(add, remove) {
+    if (!Array.isArray(add))
+      add = [add];
+    remove = remove || [];
+    if (!Array.isArray(remove))
+      remove = [remove];
+    remove = remove.concat(...add);
+    var hashes = decodeURI(window.location.hash.substring(1)).split(",").filter((s) => !remove.includes(s.trim()));
+    hashes = hashes.concat(...add);
+    window.location.hash = hashes.join(",");
+  }
   function hashChange() {
     if (!window.location.hash || window.location.hash.length < 2) return;
     var dialogs = decodeURI(window.location.hash.substring(1)).split(",").map((s) => s.trim());
@@ -27233,7 +29248,7 @@ Devanagari
           document.getElementById("btn-adv-editor").click();
           break;
         default:
-          if (dialogs[d].startsWith("settings"))
+          if (dialogs[d].startsWith("settings") || dialogs[d].startsWith("profiles"))
             showDialog(dialogs[d]);
           break;
       }
@@ -27275,11 +29290,27 @@ Devanagari
         _dialogs.settings.setBody("", { client });
         _dialogs.settings.showModal();
       } else
-        loadDialog(_dialogs.settings, name2, 2, false).then(() => {
-        }).catch((e) => {
+        loadDialog(_dialogs.settings, name2, 2, false).catch((e) => {
           client.error(e);
         });
       return _dialogs.settings;
+    }
+    if (name2.startsWith("profiles")) {
+      if (!_dialogs.profiles) {
+        _dialogs.profiles = new ProfilesDialog();
+        _dialogs.profiles.on("closed", () => {
+          delete _dialogs.profiles;
+        });
+        _dialogs.profiles.on("canceled", () => {
+          delete _dialogs.profiles;
+        });
+      }
+      _dialogs.profiles.dialog.dataset.path = name2;
+      _dialogs.profiles.dialog.dataset.fullPath = name2;
+      _dialogs.profiles.dialog.dataset.hash = window.location.hash;
+      _dialogs.profiles.setBody("", { client });
+      _dialogs.profiles.show();
+      return _dialogs.profiles;
     }
   }
   function loadDialog(dialog, path, show, showError) {
@@ -27301,11 +29332,11 @@ Devanagari
         resolve(data);
       }).fail(function(err) {
         if (showError && client.enableDebug)
-          dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path}</h1> ${err.statusText}`;
+          dialog.setBody(`<h1 style="width: 100%;text-align:center">Error loading ${path}</h1> ${err.statusText}`);
         else if (showError)
-          dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path}</h1>`;
+          dialog.setBody(`<h1 style="width: 100%;text-align:center">Error loading ${path}</h1>`);
         else
-          dialog.body.innerHTML = "";
+          dialog.setBody("");
         reject(path + ": " + subpath.statusText);
       });
     });
@@ -27381,6 +29412,26 @@ Devanagari
     client.commandInput.parentElement.style.height = height + "px";
     client.commandInput.closest("nav").style.height = height + 6 + "px";
     client.display.container.style.bottom = height + padding + "px";
+  }
+  function _setIcon(ico) {
+    if (_currentIcon === ico)
+      return;
+    _currentIcon = ico;
+    let icon = "disconnected";
+    switch (ico) {
+      case 1:
+        icon = "connected";
+        break;
+      case 2:
+        icon = "active";
+        break;
+    }
+    document.getElementById("icon1").remove();
+    document.getElementById("icon2").remove();
+    document.getElementById("icon3").remove();
+    document.querySelector("head").insertAdjacentHTML("afterbegin", `<link id="icon1" rel="shortcut icon" href="images/${icon}.ico" />
+        <link id="icon2" rel="icon" href="images/${icon}.ico" />
+        <link id="icon3" rel="icon" type="image/x-icon" href="images/${icon}.png" />`);
   }
   window.initializeInterface = initializeInterface;
 })();

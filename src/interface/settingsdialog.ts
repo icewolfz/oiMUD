@@ -1,4 +1,4 @@
-import { Dialog, DialogButtons, AlertDialog, ConfirmDialog, DialogIcon } from "../dialog";
+import { Dialog, DialogButtons, AlertDialog, ConfirmDialog, DialogIcon } from "./dialog";
 import { capitalize, clone, openFileDialog, readFile } from '../library';
 import { Settings, SettingList } from "../settings";
 import { RGBColor } from '../lib/rgbcolor';
@@ -15,13 +15,13 @@ export class SettingsDialog extends Dialog {
         this.body.style.padding = '10px';
         this.buildMenu();
         let footer = '';
-        footer += `<button id="${this.id}-cancel" type="button" class="float-end btn btn-light" title="Cancel dialog">Cancel</button>`;
-        footer += `<button id="${this.id}-save" type="button" class="float-end btn btn-primary" title="Confirm dialog">Save</button>`;
-        footer += `<button id="${this.id}-reset" type="button" class="float-start btn btn-light" title="Reset settings">Reset</button>`
-        footer += `<button id="${this.id}-reset-all" type="button" class="float-start btn btn-light" title="Reset All settings">Reset All</button>`
-        footer += '<div class="vr float-start" style="margin-right: 4px;height: 37px;"></div>';
-        footer += `<button id="${this.id}-export" type="button" class="float-start btn btn-light" title="Export settings">Export</button>`;
-        footer += `<button id="${this.id}-import" type="button" class="float-start btn btn-light" title="Import settings">Import</button>`;
+        footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Cancel dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;
+        footer += `<button id="${this.id}-save" type="button" class="btn-sm float-end btn btn-primary" title="Confirm dialog"><i class="bi bi-save"></i><span class="icon-only"> Save</span></button>`;
+        footer += `<button id="${this.id}-reset" type="button" class="btn-sm float-start btn btn-light" title="Reset settings"><i class="bi bi-arrow-clockwise"></i><span class="icon-only"> Reset</span></button>`
+        footer += `<button id="${this.id}-reset-all" type="button" class="btn-sm float-start btn btn-light" title="Reset All settings"><i class="bi bi-arrow-repeat"></i><span class="icon-only"> Reset All</span></button>`
+        footer += '<div class="vr float-start" style="margin-right: 4px;height: 29px;"></div>';
+        footer += `<button id="${this.id}-export" type="button" class="btn-sm float-start btn btn-light" title="Export settings"><i class="bi bi-box-arrow-up"></i><span class="icon-only"> Export</span></button>`;
+        footer += `<button id="${this.id}-import" type="button" class="btn-sm float-start btn btn-light" title="Import settings"><i class="bi bi-box-arrow-in-down"></i><span class="icon-only"> Import</span></button>`;
         this.footer.innerHTML = footer;
         this.footer.querySelector(`#${this.id}-cancel`).addEventListener('click', () => {
             removeHash(this._page);
@@ -150,7 +150,7 @@ export class SettingsDialog extends Dialog {
         for (let p = 0, pl = pages.length; p < pl; p++) {
             let title = capitalize(pages[p].match(/([A-Z]|^[a-z])[a-z]+/g).join(' '));
             if (p === last)
-                breadcrumb += '<li class="breadcrumb-item">' + title + '</li>';
+                breadcrumb += '<li class="breadcrumb-item active">' + title + '</li>';
             else
                 breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p + 1).join('-') + '">' + title + '</a></li>';
         }
@@ -239,8 +239,7 @@ export class SettingsDialog extends Dialog {
                     if (forms[f].dataset.enum === 'true') {
                         const name = forms[f].name || forms[f].id.substring(0, forms[f].id.lastIndexOf('-'));
                         const value = +forms[f].id.substring(forms[f].id.lastIndexOf('-') + 1);
-                        if ((this.settings[name] & value) === value)
-                            forms[f].checked = true;
+                        forms[f].checked = (this.settings[name] & value) === value;
                     }
                     else
                         forms[f].checked = this.settings[forms[f].id];
@@ -342,7 +341,7 @@ export class SettingsDialog extends Dialog {
         if (value == 'undefined') value = undefined;
         if (typeof value == 'string' && parseFloat(value).toString() == value)
             value = parseFloat(value);
-        this.settings[option] = this.convertType(value, this.settings[option]);
+        this.settings[option] = this.convertType(value, typeof this.settings[option]);
     }
 
     public convertType(value, type) {
@@ -355,6 +354,8 @@ export class SettingsDialog extends Dialog {
                 return Number(value);
             case 'boolean':
                 return Boolean(value);
+            case 'string':
+                return '' + value;
         }
         return value;
     }

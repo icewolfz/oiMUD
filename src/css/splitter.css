@@ -1,0 +1,44 @@
+.splitter {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+.splitter-panel {
+  position: absolute;
+  background-color: #f5f5f5;
+}
+
+.spitter-drag-bar {
+  background-color: transparent;
+  position: absolute;
+  z-index: 100;
+  background-color: #f5f5f5;
+  outline: none;
+}
+
+.spitter-drag-bar:hover {
+  background-color: #000;
+  transition-delay: 1s;
+  opacity: 0.5;  
+}
+
+.splitter-ghost-bar {
+  background-color: #000;
+  opacity: 0.5;
+  position: absolute;
+  z-index: 999;
+  outline: none;
+}
+
+.splitter.vertical .spitter-drag-bar {
+  border-right: 1px solid rgb(221, 221, 221);
+  border-left: 1px solid rgb(221, 221, 221);
+}
+.splitter.horizontal .spitter-drag-bar {
+  border-top: 1px solid rgb(221, 221, 221);
+  border-bottom: 1px solid rgb(221, 221, 221);
+}

@@ -435,16 +435,19 @@ export class Client extends EventEmitter {
     }
 
     public loadProfiles() {
-        this._profiles = new ProfileCollection();
-        this._profiles.load().then(() => {
-            //ensure default exist and is loaded
-            if (!this.profiles.contains('default')) {
-                this.profiles.add(Profile.Default);
-                this.saveProfiles();
-            }
-            this.clearCache();
-            this.startAlarms();
-            this.emit('profiles-loaded');
+        return new Promise((resolve, reject) => {
+            ProfileCollection.load().then((profiles: ProfileCollection) => {
+                this._profiles = profiles;
+                //ensure default exist and is loaded
+                if (!this.profiles.contains('default')) {
+                    this.profiles.add(Profile.Default);
+                    this.saveProfiles();
+                }
+                this.clearCache();
+                this.startAlarms();
+                this.emit('profiles-loaded');
+                resolve(this._profiles);
+            });
         });
     }
 
@@ -1297,6 +1300,7 @@ export class Client extends EventEmitter {
         if (remote == null) remote = false;
         if (newline && this.display.textLength > 0 && !this.display.EndOfLine && this.display.EndOfLineLength !== 0 && !this.telnet.prompt && !this.display.parseQueueEndOfLine)
             txt = '\n' + txt;
+        this.emit('print');
         this.parseInternal(txt, remote, false, prependSplit);
     }
 
@@ -1450,6 +1454,13 @@ export class Client extends EventEmitter {
     }
 
     public raise(event: string, args?, delay?: number) {
+        //if profiles not loaded, try again until loaded as profiles are loaded async
+        if (!this.profiles) {
+            setTimeout(() => {
+                this.raise(event, args, delay);
+            }, 100);
+            return;
+        }
         if (!delay || delay < 1)
             this._input.triggerEvent(event, args);
         else

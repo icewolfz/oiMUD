@@ -2,10 +2,11 @@
 import "../css/interface.css";
 import { initMenu } from './menu';
 import { Client } from '../client';
-import { Dialog } from "../dialog";
+import { Dialog } from "./dialog";
 import { openFileDialog, readFile, debounce, copyText, getParameterByName } from '../library';
 import { AdvEditor } from './adv.editor';
 import { SettingsDialog } from './settingsdialog';
+import { ProfilesDialog } from "./profilesdialog";
 
 declare global {
     interface Window {
@@ -17,9 +18,11 @@ declare global {
 //cache the objects once made for later use
 let editor: AdvEditor;
 let editorDialog: Dialog;
+let _currentIcon = -1;
 
 export function initializeInterface() {
     let options;
+    _setIcon(0);
     initMenu();
     client.input.on('history-navigate', () => {
         if (client.getOption('commandAutoSize') || client.getOption('commandScrollbars'))
@@ -55,12 +58,29 @@ export function initializeInterface() {
     client.on('set-title', title => {
         window.document.title = title;
     });
+    client.on('connected', () => _setIcon(1));
+    client.on('closed', () => _setIcon(0));
+    client.on('received-data', () => {
+        if (!client.active && client.connected)
+            _setIcon(2);
+    })
+    client.on('focus', () => {
+        if (client.connected)
+            _setIcon(1);
+        else
+            _setIcon(0);
+    })
+    client.on('print', () => {
+        if (!client.active && client.connected)
+            _setIcon(2);
+    });
     client.display.on('selection-done', e => {
         if (client.getOption('AutoCopySelectedToClipboard') && client.display.hasSelection) {
             copyText(client.display.selection);
             client.display.clearSelection();
         }
     });
+
     //setup advanced editor footer button
     document.getElementById('btn-adv-editor').addEventListener('click', e => {
         if (!editorDialog) {
@@ -110,9 +130,9 @@ export function initializeInterface() {
             editorDialog.dialog.editor = editor;
             if (TINYMCE && tinymce)
                 editorDialog.header.querySelector('#adv-editor-max').insertAdjacentHTML('afterend', '<button type="button" class="btn btn-light float-end" id="adv-editor-switch" title="Switch to advanced" style="padding: 0 4px;margin-top: -1px;"><i class="bi-shuffle"></i></button>');
-            editorDialog.footer.innerHTML = `<button id="btn-adv-editor-clear" type="button" class="float-start btn btn-light" title="Clear editor">Clear</button>
-                <button id="btn-adv-editor-append" type="button" class="float-start btn btn-light" title="Append file...">Append file...</button>
-                <button id="btn-adv-editor-send" type="button" class="float-end btn btn-primary" title="Send">Send</button>`;
+            editorDialog.footer.innerHTML = `<button id="btn-adv-editor-clear" type="button" class="btn-sm float-start btn btn-light" title="Clear editor"><i class="bi bi-journal-x"></i><span class="icon-only"> Clear</span></button>
+                <button id="btn-adv-editor-append" type="button" class="btn-sm float-start btn btn-light" title="Append file..."><i class="bi bi-box-arrow-in-down"></i><span class="icon-only"> Append file...</span></button>
+                <button id="btn-adv-editor-send" type="button" class="btn-sm float-end btn btn-primary" title="Send"><i class="bi bi-send-fill"></i><span class="icon-only"> Send</span></button>`;
             if (!editor.isSimple)
                 editorDialog.header.querySelector('#adv-editor-switch').title = 'Switch to simple';
             editorDialog.header.querySelector('#adv-editor-switch').addEventListener('click', () => {
@@ -187,6 +207,29 @@ export function removeHash(string) {
     window.location.hash = hashes.join(',');
 }
 
+export function addHash(string) {
+    if (!string || string.length === 0) return;
+    string = string.trim();
+    if (string.startsWith('#'))
+        string = string.substring(1);
+    var hashes = decodeURI(window.location.hash.substring(1)).split(',').filter(s => s.trim() !== string);
+    hashes.push(string);
+    window.location.hash = hashes.join(',');
+}
+
+export function updateHash(add: string | string[], remove?: string | string[]) {
+    if (!Array.isArray(add))
+        add = [add];
+    remove = remove || [];
+    if (!Array.isArray(remove))
+        remove = [remove];
+    //remove add, new to ensure no dups
+    remove = remove.concat(...add);
+    var hashes = decodeURI(window.location.hash.substring(1)).split(',').filter(s => !remove.includes(s.trim()));
+    hashes = hashes.concat(...add);
+    window.location.hash = hashes.join(',');
+}
+
 function hashChange() {
     if (!window.location.hash || window.location.hash.length < 2) return;
     var dialogs = decodeURI(window.location.hash.substring(1)).split(',').map(s => s.trim());
@@ -199,7 +242,7 @@ function hashChange() {
                 document.getElementById('btn-adv-editor').click();
                 break;
             default:
-                if (dialogs[d].startsWith('settings'))
+                if (dialogs[d].startsWith('settings') || dialogs[d].startsWith('profiles'))
                     showDialog(dialogs[d]);
                 break;
         }
@@ -239,15 +282,31 @@ export function showDialog(name: string) {
             _dialogs.settings.dialog.dataset.path = name;
             _dialogs.settings.dialog.dataset.fullPath = name;
             _dialogs.settings.dialog.dataset.hash = window.location.hash;
-            _dialogs.settings.setBody('', { client: client })
+            _dialogs.settings.setBody('', { client: client });
             _dialogs.settings.showModal();
         }
         else
-            loadDialog(_dialogs.settings, name, 2, false).then(() => {
-            }).catch(e => {
+            loadDialog(_dialogs.settings, name, 2, false).catch(e => {
                 client.error(e);
             });
         return _dialogs.settings;
+    }
+    if (name.startsWith('profiles')) {
+        if (!_dialogs.profiles) {
+            _dialogs.profiles = new ProfilesDialog();
+            _dialogs.profiles.on('closed', () => {
+                delete _dialogs.profiles;
+            });
+            _dialogs.profiles.on('canceled', () => {
+                delete _dialogs.profiles;
+            });
+        }
+        _dialogs.profiles.dialog.dataset.path = name;
+        _dialogs.profiles.dialog.dataset.fullPath = name;
+        _dialogs.profiles.dialog.dataset.hash = window.location.hash;
+        _dialogs.profiles.setBody('', { client: client });
+        _dialogs.profiles.show();
+        return _dialogs.profiles;
     }
 }
 
@@ -272,11 +331,11 @@ export function loadDialog(dialog: Dialog, path, show?, showError?) {
             })
             .fail(function (err) {
                 if (showError && client.enableDebug)
-                    dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path}</h1> ${err.statusText}`;
+                    dialog.setBody(`<h1 style="width: 100%;text-align:center">Error loading ${path}</h1> ${err.statusText}`);
                 else if (showError)
-                    dialog.body.innerHTML = `<h1 style="width: 100%;text-align:center">Error loading ${path}</h1>`;
+                    dialog.setBody(`<h1 style="width: 100%;text-align:center">Error loading ${path}</h1>`);
                 else
-                    dialog.body.innerHTML = '';
+                    dialog.setBody('');
                 reject(path + ': ' + subpath.statusText);
             });
     });
@@ -364,4 +423,27 @@ function _resizeCommandInput() {
     client.commandInput.closest('nav').style.height = height + 6 + 'px';
     client.display.container.style.bottom = (height + padding) + 'px';
 }
+
+// eslint-disable-next-line no-unused-vars
+function _setIcon(ico) {
+    if (_currentIcon === ico)
+        return;
+    _currentIcon = ico;
+    let icon = 'disconnected';
+    switch (ico) {
+        case 1:
+            icon = 'connected';
+            break;
+        case 2:
+            icon = 'active';
+            break;
+    }
+    document.getElementById('icon1').remove();
+    document.getElementById('icon2').remove();
+    document.getElementById('icon3').remove();
+    document.querySelector('head').insertAdjacentHTML('afterbegin', `<link id="icon1" rel="shortcut icon" href="images/${icon}.ico" />
+        <link id="icon2" rel="icon" href="images/${icon}.ico" />
+        <link id="icon3" rel="icon" type="image/x-icon" href="images/${icon}.png" />`);
+}
+
 window.initializeInterface = initializeInterface;

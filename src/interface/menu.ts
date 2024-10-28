@@ -64,6 +64,10 @@ export function initMenu() {
         showDialog('settings');
         closeMenu();
     });
+    document.querySelector('#menu-profiles a').addEventListener('click', e => {
+        showDialog('profiles');
+        closeMenu();
+    });    
     document.querySelector('#menu-fullscreen a').addEventListener('click', e => {
         var doc: any = window.document;
         var docEl: any = doc.documentElement;

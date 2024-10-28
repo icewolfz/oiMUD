@@ -1,0 +1,114 @@
+<div class="mb-3">
+    <label for="caption" class="form-label" style="width: 100%">Caption
+        <div class="float-end form-check form-switch">
+            <input type="checkbox" class="form-check-input" id="enabled">
+            <label class="form-check-label" for="enabled">Enabled</label>
+        </div>
+    </label>
+    <input class="form-control" id="caption">
+</div>
+<div class="mb-3">
+    <label for="icon" class="form-label" style="width: 100%">Icon</label>
+    <input class="form-control" id="icon">
+</div>
+<div class="mb-3">
+    <label class="form-label" for="style">Style</label>
+    <select class="form-select" id="style">
+        <option value="0">Text</option>
+        <option value="1">Parse</option>
+        <option value="2">Script</option>
+    </select>
+</div>
+<div class="mb-3">
+    <label class="form-label" for="value">Value</label>
+    <textarea class="form-control" id="value" rows="6"></textarea>
+</div>
+<div class="accordion" id="itemAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#advanced" aria-expanded="false" aria-controls="advanced">
+                Advanced
+            </button>
+        </h2>
+        <div id="advanced" class="accordion-collapse collapse" data-bs-parent="#itemAccordion">
+            <div class="accordion-body">
+                <div class="mb-3">
+                    <label class="form-label" for="name">Name</label>
+                    <input class="form-control" id="name">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="priority">Priority</label>
+                    <input type="number" class="form-control" id="priority">
+                </div>
+
+                <div class="form-check form-switch form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="send">
+                    <label class="form-check-label" for="send">Send to mud</label>
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="append">
+                    <label class="form-check-label" for="append">Append to command</label>
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="chain">
+                    <label class="form-check-label" for="chain">Daisy chain</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#size"
+                aria-expanded="false" aria-controls="size">
+                Size
+            </button>
+        </h2>
+        <div id="size" class="accordion-collapse collapse" data-bs-parent="#itemAccordion">
+            <div class="accordion-body">
+                <div class="mb-3">
+                    <label class="form-label" for="width">Width</label>
+                    <input type="number" class="form-control" id="width" min="0">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="height">Height</label>
+                    <input type="number" class="form-control" id="height" min="0">
+                </div>
+                <small class="form-text text-muted alert alert-info" style="padding: 2px">
+                    0 will attempt to auto size based on position and caption
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#position" aria-expanded="false" aria-controls="position">
+                Position
+            </button>
+        </h2>
+        <div id="position" class="accordion-collapse collapse" data-bs-parent="#itemAccordion">
+            <div class="accordion-body">
+                <div class="mb-3">
+                    <label class="form-label" for="top">Top</label>
+                    <input type="number" class="form-control" id="top" min="-1">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="left">Left</label>
+                    <input type="number" class="form-control" id="left" min="-1">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="right">Right</label>
+                    <input type="number" class="form-control" id="right" min="-1">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="bottom">Bottom</label>
+                    <input type="number" class="form-control" id="bottom" min="-1">
+                </div>
+                <small class="form-text text-muted alert alert-info" style="padding: 2px">
+                    -1 for all sides will auto position based on the right side of the screen
+                </small>
+            </div>
+        </div>
+    </div>
+</div>

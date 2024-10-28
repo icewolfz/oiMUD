@@ -28413,6 +28413,7 @@ Devanagari
           });
         }
       } else if (pages.length === 3) {
+        let pp = "";
         if (this._current.item.length === 0) {
           p = '<h1 id="empty" style="width: 100%;text-align:center">No ' + this._current.collection + ".</h1>";
           p += `<button id="${this.id}-add-contents" type="button" class="btn-sm float-start btn btn-outline-secondary" title="Add ${this._getItemType()}"><i class="bi bi-plus-lg"></i> Add ${this._getItemType()}</button>`;
@@ -28425,10 +28426,11 @@ Devanagari
             p += `<input type="checkbox" class="form-check-input" id="check-${k}" data-profile="${this._current.profileName}" data-index="${k}" data-field="enabled" data-items="${this._current.collection}"${this._current.item[k].enabled ? ' checked="checked"' : ""}>`;
             p += `</div>${htmlEncode(GetDisplay(this._current.item[k]))}</a>`;
           }
+          pp = `<button id="${this.id}-add-contents" type="button" class="btn-sm btn btn-outline-secondary" title="Add ${this._getItemType()}" style="margin-bottom: 5px;width:100%;"><i class="bi bi-plus-lg"></i> Add ${this._getItemType()}</button>`;
         }
         let b = `<button id="${this.id}-add" type="button" class="btn-sm float-start btn btn-outline-secondary" title="Add ${this._getItemType()}"><i class="bi bi-plus-lg"></i></button>`;
         this.footer.querySelector("#profile-page-buttons").innerHTML = b;
-        this._setContents('<div class="list-group">' + p + "</div>");
+        this._setContents(pp + '<div class="list-group">' + p + "</div>");
         let items = this._contents.querySelectorAll(".list-badge-button");
         for (let i = 0, il = items.length; i < il; i++)
           items[i].addEventListener("click", (e) => {

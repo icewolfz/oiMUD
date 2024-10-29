@@ -1,4 +1,5 @@
  - create chat plugin and use on('function') event to add custom chat commnads
+             client.sendChat = updateChat;
 ```
 //spell-checker:ignore chatprompt chatp
 case 'chatprompt':
@@ -49,11 +50,14 @@ case 'ch':
 ```
 
 - logger plugin and all related options
+    - ensure add #window support by hooking the client events
 - mapper plugin and all related options
-    client.telnet.GMCPSupports.push('Room 1');
+    - client.telnet.GMCPSupports.push('Room 1');
+    - ensure #window support by hooking client events
 - backup plugin for shadowmud
 - immortal tool plugin for shadowmud            
-    client.telnet.GMCPSupports.push('IED 1');
+    - client.telnet.GMCPSupports.push('IED 1');
+    - Add #win support if added
 - maybe just a general shadowmud plugin that groups all sm related like backup and immortal tools
 - Profile manager:
     - Add undo system
@@ -87,7 +91,6 @@ case 'ch':
         configurable: true
     });    
 ```
-
 
 
 

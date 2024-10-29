@@ -7992,6 +7992,40 @@
     let options;
     _setIcon(0);
     initMenu();
+    window.readClipboard = () => "";
+    window.writeClipboard = (txt, html) => {
+    };
+    window.readClipboardHTML = () => "";
+    client.readClipboard = window.readClipboard;
+    client.writeClipboard = window.writeClipboard;
+    client.readClipboardHTML = window.readClipboardHTML;
+    client.closeDialog = (window2) => {
+      switch (window2) {
+        case "editor":
+        case "help":
+        case "about":
+          closeDialog(window2);
+          break;
+        case "profiles":
+        case "profiles-manager":
+        case "profile-manager":
+        case "manager":
+          closeDialog("profiles");
+          break;
+        case "prefs":
+        case "options":
+        case "preferences":
+          closeDialog("settings");
+          break;
+        case "history":
+        case "command-history":
+          closeDialog("history");
+          break;
+        default:
+          client.emit("close-window", window2);
+          break;
+      }
+    };
     ["repeatnum", "i"].forEach((a) => {
       Object.defineProperty(window, a, {
         get: function() {
@@ -8212,100 +8246,44 @@
         });
       }
     });
-    document.getElementById("btn-adv-editor").addEventListener("click", (e) => {
-      if (!editorDialog) {
-        editorDialog = new Dialog(Object.assign({}, client.getOption("windows.editor") || { center: true }, { title: '<i class="fas fa-edit"></i> Advanced editor', id: "adv-editor" }));
-        editorDialog.on("resized", (e2) => {
-          client.setOption("windows.editor", e2);
-        });
-        editorDialog.on("moved", (e2) => {
-          client.setOption("windows.editor", e2);
-        });
-        editorDialog.on("maximized", () => {
-          client.setOption("windows.editor", editorDialog.windowState);
-        });
-        editorDialog.on("restored", () => {
-          client.setOption("windows.editor", editorDialog.windowState);
-        });
-        editorDialog.on("shown", () => {
-          client.setOption("windows.editor", editorDialog.windowState);
-          editor.initialize();
-        });
-        editorDialog.on("closing", () => {
-          editor.remove();
-        });
-        editorDialog.on("closed", () => {
-          client.setOption("windows.editor", editorDialog.windowState);
-          removeHash("editor");
-        });
-        editorDialog.on("canceling", () => {
-          editor.remove();
-        });
-        editorDialog.on("canceled", () => {
-          client.setOption("windows.editor", editorDialog.windowState);
-          removeHash("editor");
-        });
-        editorDialog.on("focus", () => editor.focus());
-        const textarea = document.createElement("textarea");
-        textarea.classList.add("form-control", "form-control-sm");
-        textarea.id = "adv-editor-txt";
-        editorDialog.body.appendChild(textarea);
-        editorDialog.body.style.overflow = "hidden";
-        if (!editor) editor = new AdvEditor(textarea, !client.getOption("simpleEditor"));
-        editor.on("close", () => {
-          editorDialog.close();
-        });
-        editor.on("editor-init", () => editor.focus());
-        editor.on("click", () => editorDialog.focus());
-        editorDialog.dialog.editor = editor;
-        if (tinymce)
-          editorDialog.header.querySelector("#adv-editor-max").insertAdjacentHTML("afterend", '<button type="button" class="btn btn-light float-end" id="adv-editor-switch" title="Switch to advanced" style="padding: 0 4px;margin-top: -1px;"><i class="bi-shuffle"></i></button>');
-        editorDialog.footer.innerHTML = `<button id="btn-adv-editor-clear" type="button" class="btn-sm float-start btn btn-light" title="Clear editor"><i class="bi bi-journal-x"></i><span class="icon-only"> Clear</span></button>
-                <button id="btn-adv-editor-append" type="button" class="btn-sm float-start btn btn-light" title="Append file..."><i class="bi bi-box-arrow-in-down"></i><span class="icon-only"> Append file...</span></button>
-                <button id="btn-adv-editor-send" type="button" class="btn-sm float-end btn btn-primary" title="Send"><i class="bi bi-send-fill"></i><span class="icon-only"> Send</span></button>`;
-        if (!editor.isSimple)
-          editorDialog.header.querySelector("#adv-editor-switch").title = "Switch to simple";
-        editorDialog.header.querySelector("#adv-editor-switch").addEventListener("click", () => {
-          client.setOption("simpleEditor", !editor.simple);
-          let value = "";
-          if (!editor.isSimple)
-            value = editor.getFormattedText().replace(/(?:\r)/g, "");
-          editor.simple = !editor.simple;
-          if (!editor.isSimple) {
-            editorDialog.hideFooter();
-            editorDialog.header.querySelector("#adv-editor-switch").title = "Switch to simple";
-          } else {
-            editor.value = value;
-            editorDialog.showFooter();
-            editorDialog.header.querySelector("#adv-editor-switch").title = "Switch to advanced";
-            setTimeout(() => editor.focus(), 100);
-          }
-        });
-        document.getElementById("btn-adv-editor-append").addEventListener("click", () => {
-          openFileDialog("Append file", false).then((files) => {
-            readFile(files[0]).then((contents) => {
-              editor.insert(contents);
-            }).catch(client.error);
-          }).catch(() => {
-          });
-        });
-        document.getElementById("btn-adv-editor-send").addEventListener("click", () => {
-          client.sendCommand(editor.value());
-          if (client.getOption("editorClearOnSend"))
-            editor.clear();
-          if (client.getOption("editorCloseOnSend"))
-            editorDialog.close();
-        });
-        document.getElementById("btn-adv-editor-clear").addEventListener("click", () => {
-          editor.clear();
-          editor.focus();
-        });
-        if (!editor.isSimple)
-          editorDialog.hideFooter();
+    client.on("window", (window2, args, name) => {
+      switch (window2) {
+        case "editor":
+        case "help":
+        case "about":
+          if (args === "close")
+            closeDialog(window2);
+          else
+            showDialog(window2);
+          break;
+        case "profiles":
+        case "profiles-manager":
+        case "profile-manager":
+        case "manager":
+          if (args === "close")
+            closeDialog("profiles");
+          else
+            showDialog("profiles");
+          break;
+        case "prefs":
+        case "options":
+        case "preferences":
+          if (args === "close")
+            closeDialog("settings");
+          else
+            showDialog("settings");
+          break;
+        case "history":
+        case "command-history":
+          if (args === "close")
+            closeDialog("history");
+          else
+            showDialog("history");
+          break;
       }
-      editorDialog.show();
-      if (editor.isSimple)
-        editor.focus();
+    });
+    document.getElementById("btn-adv-editor").addEventListener("click", (e) => {
+      showDialog("editor");
     });
     options = client.getOption("windows.editor");
     if (options && options.show)
@@ -8530,6 +8508,101 @@
         _loadHistory();
         _dialogs.history.show();
         return _dialogs.history;
+      case "editor":
+        if (!editorDialog) {
+          editorDialog = new Dialog(Object.assign({}, client.getOption("windows.editor") || { center: true }, { title: '<i class="fas fa-edit"></i> Advanced editor', id: "adv-editor" }));
+          editorDialog.on("resized", (e) => {
+            client.setOption("windows.editor", e);
+          });
+          editorDialog.on("moved", (e) => {
+            client.setOption("windows.editor", e);
+          });
+          editorDialog.on("maximized", () => {
+            client.setOption("windows.editor", editorDialog.windowState);
+          });
+          editorDialog.on("restored", () => {
+            client.setOption("windows.editor", editorDialog.windowState);
+          });
+          editorDialog.on("shown", () => {
+            client.setOption("windows.editor", editorDialog.windowState);
+            editor.initialize();
+          });
+          editorDialog.on("closing", () => {
+            editor.remove();
+          });
+          editorDialog.on("closed", () => {
+            client.setOption("windows.editor", editorDialog.windowState);
+            removeHash("editor");
+          });
+          editorDialog.on("canceling", () => {
+            editor.remove();
+          });
+          editorDialog.on("canceled", () => {
+            client.setOption("windows.editor", editorDialog.windowState);
+            removeHash("editor");
+          });
+          editorDialog.on("focus", () => editor.focus());
+          const textarea = document.createElement("textarea");
+          textarea.classList.add("form-control", "form-control-sm");
+          textarea.id = "adv-editor-txt";
+          editorDialog.body.appendChild(textarea);
+          editorDialog.body.style.overflow = "hidden";
+          if (!editor) editor = new AdvEditor(textarea, !client.getOption("simpleEditor"));
+          editor.on("close", () => {
+            editorDialog.close();
+          });
+          editor.on("editor-init", () => editor.focus());
+          editor.on("click", () => editorDialog.focus());
+          editorDialog.dialog.editor = editor;
+          if (tinymce)
+            editorDialog.header.querySelector("#adv-editor-max").insertAdjacentHTML("afterend", '<button type="button" class="btn btn-light float-end" id="adv-editor-switch" title="Switch to advanced" style="padding: 0 4px;margin-top: -1px;"><i class="bi-shuffle"></i></button>');
+          editorDialog.footer.innerHTML = `<button id="btn-adv-editor-clear" type="button" class="btn-sm float-start btn btn-light" title="Clear editor"><i class="bi bi-journal-x"></i><span class="icon-only"> Clear</span></button>
+                    <button id="btn-adv-editor-append" type="button" class="btn-sm float-start btn btn-light" title="Append file..."><i class="bi bi-box-arrow-in-down"></i><span class="icon-only"> Append file...</span></button>
+                    <button id="btn-adv-editor-send" type="button" class="btn-sm float-end btn btn-primary" title="Send"><i class="bi bi-send-fill"></i><span class="icon-only"> Send</span></button>`;
+          if (!editor.isSimple)
+            editorDialog.header.querySelector("#adv-editor-switch").title = "Switch to simple";
+          editorDialog.header.querySelector("#adv-editor-switch").addEventListener("click", () => {
+            client.setOption("simpleEditor", !editor.simple);
+            let value = "";
+            if (!editor.isSimple)
+              value = editor.getFormattedText().replace(/(?:\r)/g, "");
+            editor.simple = !editor.simple;
+            if (!editor.isSimple) {
+              editorDialog.hideFooter();
+              editorDialog.header.querySelector("#adv-editor-switch").title = "Switch to simple";
+            } else {
+              editor.value = value;
+              editorDialog.showFooter();
+              editorDialog.header.querySelector("#adv-editor-switch").title = "Switch to advanced";
+              setTimeout(() => editor.focus(), 100);
+            }
+          });
+          document.getElementById("btn-adv-editor-append").addEventListener("click", () => {
+            openFileDialog("Append file", false).then((files) => {
+              readFile(files[0]).then((contents) => {
+                editor.insert(contents);
+              }).catch(client.error);
+            }).catch(() => {
+            });
+          });
+          document.getElementById("btn-adv-editor-send").addEventListener("click", () => {
+            client.sendCommand(editor.value());
+            if (client.getOption("editorClearOnSend"))
+              editor.clear();
+            if (client.getOption("editorCloseOnSend"))
+              editorDialog.close();
+          });
+          document.getElementById("btn-adv-editor-clear").addEventListener("click", () => {
+            editor.clear();
+            editor.focus();
+          });
+          if (!editor.isSimple)
+            editorDialog.hideFooter();
+        }
+        editorDialog.show();
+        if (editor.isSimple)
+          editor.focus();
+        return editorDialog;
     }
     if (name.startsWith("settings")) {
       if (!_dialogs.settings) {
@@ -8598,6 +8671,14 @@
         reject(path + ": " + subpath.statusText);
       });
     });
+  }
+  function closeDialog(dialog) {
+    if (_dialogs[dialog])
+      _dialogs[dialog].close();
+    else if (dialog === "editor") {
+      if (editorDialog)
+        editorDialog.close();
+    }
   }
   function _loadHistory() {
     if (!_dialogs.history) return;

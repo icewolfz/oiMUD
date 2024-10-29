@@ -972,7 +972,7 @@ export class ProfilesDialog extends Dialog {
                     updateHash('profiles', this._page);
                 this.changed = true;
             }
-        })
+        });
     }
 
     private _renameProfile(name, oldProfile?) {

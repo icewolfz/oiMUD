@@ -2,7 +2,7 @@
 import "../css/interface.css";
 import { initMenu } from './menu';
 import { Client } from '../client';
-import { Dialog } from "./dialog";
+import { Dialog, DialogButtons } from "./dialog";
 import { openFileDialog, readFile, debounce, copyText, getParameterByName } from '../library';
 import { AdvEditor } from './adv.editor';
 import { SettingsDialog } from './settingsdialog';
@@ -14,6 +14,7 @@ declare global {
     }
     let client: Client;
 }
+declare let confirm_box;
 
 //cache the objects once made for later use
 let editor: AdvEditor;
@@ -54,6 +55,7 @@ export function initializeInterface() {
                 }
             }
         }
+        if (_dialogs.history) editorDialog.resetState(client.getOption('windows.history') || { center: true, width: 400, height: 275 });
     });
     client.on('set-title', title => {
         window.document.title = title;
@@ -181,9 +183,41 @@ export function initializeInterface() {
     options = client.getOption('windows.editor');
     if (options && options.show)
         document.getElementById('btn-adv-editor').click();
+    options = client.getOption('windows.history');
+    if (options && options.show)
+        showDialog('history');
+
 
     document.getElementById('btn-command-history').addEventListener('show.bs.dropdown', function () {
         document.body.appendChild(document.getElementById('command-history-menu'));
+        let h = '';
+        const menu = document.getElementById('command-history-menu');
+        let history = client.commandHistory;
+        for (let i = 0, il = history.length; i < il; i++)
+            h += `<li id="command-history-item-${i}"><a data-index="${i}" class="dropdown-item" href="javascript:void(0)">${history[i]}</a></li>`;
+        if (history.length) {
+            h += '<li><hr class="dropdown-divider"></li>';
+            h += `<li><a id="history-clear" class="dropdown-item" href="javascript:void(0)">Clear history</a></li>`;
+        }
+        h += `<li><a id="history-show" class="dropdown-item" href="javascript:void(0)">Show history window...</a></li>`;
+        menu.innerHTML = h;
+        if (history.length)
+            menu.querySelector('#history-clear').addEventListener('click', () => {
+                confirm_box('Clear history?', `Clear all history`).then(e => {
+                    if (e.button === DialogButtons.Yes) {
+                        client.clearCommandHistory()
+                    }
+                });
+            });
+        menu.querySelector('#history-show').addEventListener('click', () => showDialog('history'));
+        const items = document.querySelectorAll('[id^="command-history-item"] a');
+        for (let i = 0, il = items.length; i < il; i++) {
+            items[i].addEventListener('click', e => {
+                var cmd = client.commandHistory[parseInt((e.currentTarget as HTMLElement).dataset.index, 10)];
+                client.AddCommandToHistory(cmd);
+                client.sendCommand(cmd, null, client.getOption('allowCommentsFromCommand'));
+            });
+        }
     });
     document.getElementById('btn-command-history').addEventListener('hidden.bs.dropdown', function () {
         document.getElementById('btn-command-history').parentElement.appendChild(document.getElementById('command-history-menu'));
@@ -196,6 +230,10 @@ export function initializeInterface() {
         resizeCommandInput();
     window.addEventListener('hashchange', hashChange, false);
     window.addEventListener('load', hashChange);
+
+    client.on('command-history-changed', history => {
+        _loadHistory();
+    });
 }
 
 export function removeHash(string) {
@@ -242,7 +280,7 @@ function hashChange() {
                 document.getElementById('btn-adv-editor').click();
                 break;
             default:
-                if (dialogs[d].startsWith('settings') || dialogs[d].startsWith('profiles'))
+                if (dialogs[d] === 'history' || dialogs[d].startsWith('settings') || dialogs[d].startsWith('profiles'))
                     showDialog(dialogs[d]);
                 break;
         }
@@ -267,6 +305,83 @@ export function showDialog(name: string) {
                 client.error(e);
             });
             return _dialogs.about;
+        case 'history':
+            if (!_dialogs.history) {
+                _dialogs.history = new Dialog(Object.assign({}, client.getOption('windows.history') || { center: true, width: 400, height: 275 }, { title: '<i class="bi bi-clock-history"></i> Command history', id: 'command-history' }));
+                _dialogs.history.on('closed', () => {
+                    delete _dialogs.history;
+                    removeHash(name);
+                });
+                _dialogs.history.on('canceled', () => {
+                    delete _dialogs.history;
+                    removeHash(name);
+                });
+                _dialogs.history.on('resized', e => {
+                    client.setOption('windows.history', e);
+                });
+                _dialogs.history.on('moved', e => {
+                    client.setOption('windows.history', e);
+                })
+                _dialogs.history.on('maximized', () => {
+                    client.setOption('windows.history', _dialogs.history.windowState);
+                });
+                _dialogs.history.on('restored', () => {
+                    client.setOption('windows.history', _dialogs.history.windowState);
+                });
+                _dialogs.history.on('shown', () => {
+                    client.setOption('windows.history', _dialogs.history.windowState);
+                });
+                _dialogs.history.on('closed', () => {
+                    client.setOption('windows.history', _dialogs.history.windowState);
+                    removeHash('history');
+                });
+                _dialogs.history.on('canceled', () => {
+                    client.setOption('windows.history', _dialogs.history.windowState);
+                    removeHash('history');
+                });
+                let footer = '';
+                footer += `<button id="${_dialogs.history.id}-clear" type="button" class="btn-sm float-end btn btn-danger" title="Clear history"><i class="bi bi-trash"></i><span class="icon-only"> Clear</span></button>`;
+                footer += `<button id="${_dialogs.history.id}-send" type="button" class="btn-sm float-end btn btn-primary" title="Send"><i class="bi bi-send-fill"></i><span class="icon-only"> Send</span></button>`;
+                footer += `<button id="${_dialogs.history.id}-refresh" type="button" class="btn-sm float-start btn btn-light" title="Refresh"><i class="bi bi-arrow-repeat"></i><span class="icon-only"> Refresh</span></button>`
+                _dialogs.history.footer.innerHTML = footer;
+                _dialogs.history.body.innerHTML = `<select id="history-list" multiple="multiple" class="form-control"></select>`;
+
+                _dialogs.history.body.querySelector('#history-list').addEventListener('dblclick', e => {
+                    const cmd = e.currentTarget.value;
+                    client.AddCommandToHistory(cmd);
+                    client.sendCommand(cmd, false, client.getOption('allowCommentsFromCommand'));
+                    _dialogs.history.close();
+                });
+                _dialogs.history.body.querySelector('#history-list').addEventListener('change', e => {
+                    client.setHistoryIndex(e.currentTarget.selectedIndex);
+                    _dialogs.history.footer.querySelector(`#${_dialogs.history.id}-send`).style.display = history.length && _dialogs.history.body.querySelector('#history-list').selectedIndex !== -1 ? '' : 'none';
+                });
+
+                _dialogs.history.footer.querySelector(`#${_dialogs.history.id}-refresh`).addEventListener('click', () => _loadHistory())
+                _dialogs.history.footer.querySelector(`#${_dialogs.history.id}-send`).addEventListener('click', () => {
+                    const list = _dialogs.history.body.querySelector('#history-list');
+                    let cmds = []
+                    for (let l = 0, ll = list.options.length; l < ll; l++) {
+                        if (list.options[l].selected) {
+                            cmds.push(list.options[l].value);
+                        }
+                    }
+                    for (let c = 0, cl = cmds.length; c < cl; c++) {
+                        client.AddCommandToHistory(cmds[c]);
+                        client.sendCommand(cmds[c], false, client.getOption('allowCommentsFromCommand'));
+                    }
+                });
+                _dialogs.history.footer.querySelector(`#${_dialogs.history.id}-clear`).addEventListener('click', () => {
+                    confirm_box('Clear history?', `Clear all history`).then(e => {
+                        if (e.button === DialogButtons.Yes) {
+                            client.clearCommandHistory();
+                        }
+                    });
+                });
+            }
+            _loadHistory();
+            _dialogs.history.show();
+            return _dialogs.history;
     }
     if (name.startsWith('settings')) {
         if (!_dialogs.settings) {
@@ -339,6 +454,23 @@ export function loadDialog(dialog: Dialog, path, show?, showError?) {
                 reject(path + ': ' + subpath.statusText);
             });
     });
+}
+
+function _loadHistory() {
+    if (!_dialogs.history) return;
+    const list: HTMLSelectElement = document.getElementById('history-list') as HTMLSelectElement;
+    list.innerHTML = '';
+    let history = client.commandHistory;
+    var fragment = document.createDocumentFragment();
+    for (var i = 0, l = history.length; i < l; i++) {
+        var opt = document.createElement('option');
+        opt.appendChild(document.createTextNode(history[i]));
+        opt.value = history[i];
+        fragment.append(opt);
+    }
+    list.appendChild(fragment);
+    _dialogs.history.footer.querySelector(`#${_dialogs.history.id}-clear`).style.display = history.length ? '' : 'none';
+    _dialogs.history.footer.querySelector(`#${_dialogs.history.id}-send`).style.display = history.length && list.selectedIndex !== -1 ? '' : 'none';
 }
 
 function resizeCommandInput() {

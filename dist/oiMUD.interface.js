@@ -8000,6 +8000,58 @@
     return arr[arr.display];
   }
 
+  // src/interface/contextmenu.ts
+  var Contextmenu = class _Contextmenu extends EventEmitter {
+    constructor(items, id) {
+      super();
+      this._cleanUp = () => {
+        window.removeEventListener("click", this._cleanUp);
+        window.removeEventListener("keydown", this._cleanUp);
+        if (this._menu)
+          this._menu.remove();
+      };
+      this._items = items || [];
+      this._id = id || (/* @__PURE__ */ new Date()).getTime();
+      this._createMenu();
+    }
+    _createMenu() {
+      if (!this._menu) {
+        let menu = `<ul id="${this._id}" class="dropdown-menu show">`;
+        for (var i = 0, il = this._items.length; i < il; i++) {
+          menu += `<li><a class="dropdown-item" data-index="${i}" href="#">${this._items[i].name}</a></li>`;
+        }
+        menu += "</ul>";
+        document.body.insertAdjacentHTML("afterend", menu);
+        this._menu = document.getElementById(this._id);
+      }
+      let items = this._menu.querySelectorAll("li a");
+      for (let i2 = 0, il2 = items.length; i2 < il2; i2++) {
+        items[i2].addEventListener("click", (e) => {
+          let index = +e.currentTarget.dataset.index;
+          if (typeof this._items[index].action === "function")
+            this._items[index].action(this._items[i2], e);
+          this._cleanUp();
+        });
+      }
+    }
+    close() {
+      this._cleanUp();
+    }
+    show(x, y) {
+      this._menu.style.left = x + "px";
+      this._menu.style.top = y + "px";
+      this._menu.style.display = "block";
+      this._menu.style.position = "absolute";
+      setTimeout(() => {
+        window.addEventListener("click", this._cleanUp);
+        window.addEventListener("keydown", this._cleanUp);
+      }, 100);
+    }
+    static popup(items, x, y) {
+      new _Contextmenu(items).show(x, y);
+    }
+  };
+
   // src/interface/interface.ts
   var editor;
   var editorDialog;
@@ -8040,37 +8092,25 @@
       extra = "?" + x + "," + y;
     }
     if (url.constructor === Array || url.__proto__.constructor === Array || Object.prototype.toString.call(url) === "[object Array]") {
-      let menu = '<ul id="mxp-send-menu" class="dropdown-menu show">';
+      let items = [];
       for (var i = 0, il = url.length; i < il; i++) {
         url[i] = url[i].replace("&text;", el.textContent);
         if (i < tt.length)
-          menu += `<li><a class="dropdown-item" data-pnt="${pmt ? "true" : "false"}" data-cmd="${htmlEncode(url[i] + extra)}" href="#">${tt[i]}</a></li>`;
+          items.push({
+            name: tt[i],
+            action: (item) => MXPMenuHandler(item.cmd, item.pmt),
+            pmt,
+            cmd: url[i] + extra
+          });
         else
-          menu += `<li><a class="dropdown-item" data-pnt="${pmt ? "true" : "false"}" data-cmd="${htmlEncode(url[i] + extra)}" href="#">${url[i]}</a></li>`;
+          items.push({
+            name: url[i],
+            action: (item) => MXPMenuHandler(item.cmd, item.pmt),
+            pmt,
+            cmd: url[i] + extra
+          });
       }
-      menu += "</ul>";
-      document.body.insertAdjacentHTML("afterend", menu);
-      menu = document.getElementById("mxp-send-menu");
-      menu.cleanUp = (e2) => {
-        window.removeEventListener("click", menu.cleanUp);
-        window.removeEventListener("keydown", menu.cleanUp);
-        menu.remove();
-      };
-      let items = menu.querySelectorAll("li a");
-      for (let i2 = 0, il2 = items.length; i2 < il2; i2++) {
-        items[i2].addEventListener("click", (e2) => {
-          MXPMenuHandler(e2.currentTarget.dataset.cmd, e2.currentTarget.dataset.pmt === "true");
-          menu.cleanUp();
-        });
-      }
-      setTimeout(() => {
-        window.addEventListener("click", menu.cleanUp);
-        window.addEventListener("keydown", menu.cleanUp);
-      }, 100);
-      menu.style.left = e.clientX + "px";
-      menu.style.top = e.clientY + "px";
-      menu.style.display = "block";
-      menu.style.position = "absolute";
+      Contextmenu.popup(items, e.clientX, e.clientY);
     } else if (pmt) {
       url = url.replace("&text;", el.textContent) + extra;
       client.commandInput.value = url;

@@ -3,10 +3,11 @@ import "../css/interface.css";
 import { initMenu } from './menu';
 import { Client } from '../client';
 import { Dialog, DialogButtons } from "./dialog";
-import { openFileDialog, readFile, debounce, copyText, pasteText, setSelectionRange, htmlEncode, offset } from '../library';
+import { openFileDialog, readFile, debounce, copyText, pasteText, setSelectionRange, offset } from '../library';
 import { AdvEditor } from './adv.editor';
 import { SettingsDialog } from './settingsdialog';
 import { ProfilesDialog } from "./profilesdialog";
+import { Contextmenu } from './contextmenu';
 import "../css/buttons.css";
 declare global {
     interface Window {
@@ -70,39 +71,26 @@ function doMXPSend(e, el, url, pmt?, tt?) {
         var y = Math.floor(e.clientY - os.top);
         extra = '?' + x + ',' + y;
     }
-    //TODO convert to contextmenu
     if (url.constructor === Array || url.__proto__.constructor === Array || Object.prototype.toString.call(url) === '[object Array]') {
-        let menu: any = '<ul id="mxp-send-menu" class="dropdown-menu show">';
+        let items = [];
         for (var i = 0, il = url.length; i < il; i++) {
             url[i] = url[i].replace('&text;', el.textContent);
             if (i < tt.length)
-                menu += `<li><a class="dropdown-item" data-pnt="${pmt ? 'true' : 'false'}" data-cmd="${htmlEncode(url[i] + extra)}" href="#">${tt[i]}</a></li>`;
+                items.push({
+                    name: tt[i],
+                    action: item => MXPMenuHandler(item.cmd, item.pmt),
+                    pmt: pmt,
+                    cmd: url[i] + extra
+                });
             else
-                menu += `<li><a class="dropdown-item" data-pnt="${pmt ? 'true' : 'false'}" data-cmd="${htmlEncode(url[i] + extra)}" href="#">${url[i]}</a></li>`;
+                items.push({
+                    name: url[i],
+                    action: item => MXPMenuHandler(item.cmd, item.pmt),
+                    pmt: pmt,
+                    cmd: url[i] + extra
+                });
         }
-        menu += '</ul>';
-        document.body.insertAdjacentHTML('afterend', menu);
-        menu = document.getElementById('mxp-send-menu');
-        menu.cleanUp = e => {
-            window.removeEventListener('click', menu.cleanUp);
-            window.removeEventListener('keydown', menu.cleanUp);
-            menu.remove();
-        };
-        let items = menu.querySelectorAll('li a');
-        for (let i = 0, il = items.length; i < il; i++) {
-            items[i].addEventListener('click', e => {
-                MXPMenuHandler(e.currentTarget.dataset.cmd, e.currentTarget.dataset.pmt === 'true');
-                menu.cleanUp();
-            })
-        }
-        setTimeout( () => {
-            window.addEventListener('click', menu.cleanUp);
-            window.addEventListener('keydown', menu.cleanUp);
-        }, 100);
-        menu.style.left = e.clientX + 'px';
-        menu.style.top = e.clientY + 'px';
-        menu.style.display = 'block';
-        menu.style.position = 'absolute';
+        Contextmenu.popup(items, e.clientX, e.clientY);
     }
     else if (pmt) {
         url = url.replace('&text;', el.textContent) + extra;

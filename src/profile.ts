@@ -332,6 +332,7 @@ export class Button extends Item {
     public bottom: number = -1;
     public width: number = 64;
     public height: number = 64;
+    public iconOnly: boolean = false;
 
     constructor(data?, profile?) {
         super(data);

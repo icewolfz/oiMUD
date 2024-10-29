@@ -5476,6 +5476,7 @@
       this.bottom = -1;
       this.width = 64;
       this.height = 64;
+      this.iconOnly = false;
       this.caption = "NewButton";
       this.display = "caption";
       if (typeof data === "object") {

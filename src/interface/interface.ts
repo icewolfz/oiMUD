@@ -7,7 +7,7 @@ import { openFileDialog, readFile, debounce, copyText, getParameterByName } from
 import { AdvEditor } from './adv.editor';
 import { SettingsDialog } from './settingsdialog';
 import { ProfilesDialog } from "./profilesdialog";
-
+import "../css/buttons.css";
 declare global {
     interface Window {
         initializeInterface;
@@ -81,6 +81,9 @@ export function initializeInterface() {
             copyText(client.display.selection);
             client.display.clearSelection();
         }
+    });
+    client.on('profiles-loaded', () => {
+        buildButtons();
     });
     client.on('notify', (title, message, options) => {
         if (!client.getOption('enableNotifications') || !("Notification" in window)) return;
@@ -280,6 +283,7 @@ export function initializeInterface() {
     client.on('command-history-changed', history => {
         _loadHistory();
     });
+    showButtons();
 }
 
 export function removeHash(string) {
@@ -617,6 +621,309 @@ function _setIcon(ico) {
     document.querySelector('head').insertAdjacentHTML('afterbegin', `<link id="icon1" rel="shortcut icon" href="images/${icon}.ico" />
         <link id="icon2" rel="icon" href="images/${icon}.ico" />
         <link id="icon3" rel="icon" type="image/x-icon" href="images/${icon}.png" />`);
+}
+
+export function toggleButtons() {
+    client.setOption('showButtons', !client.getOption('showButtons'));
+    showButtons();
+}
+
+function createButton(button, index) {
+    var c = '';
+    var tt = '';
+    var caption = button.caption;
+    var bh = 0;
+    if (caption.substring(0, 3) === 'fa-') {
+        caption = caption.split(',');
+        if (caption.length > 1)
+            caption = '<i class="fas ' + caption[0] + ' fa-fw" data-fa-transform="' + caption[1] + '"></i>';
+        else
+            caption = '<i class="fas ' + caption[0] + ' fa-fw"></i>';
+        bh = 26;
+    }
+    else if (caption.substring(0, 4) === 'fas-') {
+        caption = caption.split(',');
+        if (caption.length > 1)
+            caption = '<i class="fas fa-' + caption[0].substring(4) + ' fa-fw" data-fa-transform="' + caption[1] + '"></i>';
+        else
+            caption = '<i class="fas fa-' + caption[0].substring(4) + ' fa-fw"></i>';
+        bh = 26;
+    }
+    else if (caption.substring(0, 4) === 'far-') {
+        caption = caption.split(',');
+        if (caption.length > 1)
+            caption = '<i class="far fa-' + caption[0].substring(4) + ' fa-fw" data-fa-transform="' + caption[1] + '"></i>';
+        else
+            caption = '<i class="far fa-' + caption[0].substring(4) + ' fa-fw"></i>';
+        bh = 26;
+    }
+    else if (caption.substring(0, 4) === 'fab-') {
+        caption = caption.split(',');
+        if (caption.length > 1)
+            caption = '<i class="fab fa-' + caption[0].substring(4) + ' fa-fw" data-fa-transform="' + caption[1] + '"></i>';
+        else
+            caption = '<i class="fab fa-' + caption[0].substring(4) + ' fa-fw"></i>';
+        bh = 26;
+    }
+    else if (caption.substring(0, 7) === 'http://' || caption.substring(0, 7) === 'https://')
+        caption = '<img src="' + caption + '" style="max-width: ' + button.width + 'px;max-height:' + button.height + 'px"/>';
+    else {
+        if (!button.iconOnly)
+            caption = button.caption;
+        tt = button.caption;
+    }
+    if (button.icon && button.icon.length) {
+        var icon = button.icon;
+        if (icon.substring(0, 3) === 'fa-') {
+            icon = icon.split(',');
+            if (icon.length > 1)
+                icon = '<i class="fas ' + icon[0] + ' fa-fw" data-fa-transform="' + icon[1] + '"></i>';
+            else
+                icon = '<i class="fas ' + icon[0] + ' fa-fw"></i>';
+            bh = 26;
+        }
+        else if (icon.substring(0, 4) === 'fas-') {
+            icon = icon.split(',');
+            if (icon.length > 1)
+                icon = '<i class="fas fa-' + icon[0].substring(4) + ' fa-fw" data-fa-transform="' + icon[1] + '"></i>';
+            else
+                icon = '<i class="fas fa-' + icon[0].substring(4) + ' fa-fw"></i>';
+            bh = 26;
+        }
+        else if (icon.substring(0, 4) === 'far-') {
+            icon = icon.split(',');
+            if (icon.length > 1)
+                icon = '<i class="far fa-' + icon[0].substring(4) + ' fa-fw" data-fa-transform="' + icon[1] + '"></i>';
+            else
+                icon = '<i class="far fa-' + icon[0].substring(4) + ' fa-fw"></i>';
+            bh = 26;
+        }
+        else if (icon.substring(0, 4) === 'fab-') {
+            icon = icon.split(',');
+            if (icon.length > 1)
+                icon = '<i class="fab fa-' + icon[0].substring(4) + ' fa-fw" data-fa-transform="' + icon[1] + '"></i>';
+            else
+                icon = '<i class="fab fa-' + icon[0].substring(4) + ' fa-fw"></i>';
+            bh = 26;
+        }
+        else if (button.icon.length) {
+            icon = '<img src="' + icon + '" style="max-width: ' + button.width + 'px;max-height:' + button.height + 'px"/>';
+        }
+        if (button.iconOnly)
+            caption = icon;
+        else
+            caption = icon + caption;
+    }
+    c += '<button';
+    c += ' data-index="' + index + '"';
+    if (button.name && button.name.length !== 0)
+        c += ' id="button-' + button.name + '"';
+    c += ' class="user-button" style="';
+    if (button.left === -1 && button.right === -1 && button.top === -1 && button.bottom === -1) {
+        c += 'position: static;margin-right:2px;margin-top:2px;';
+    }
+    else {
+        if (button.left >= 0)
+            c += 'left:' + (button.left || 0) + 'px;';
+        if (button.top >= 0)
+            c += 'top:' + (button.top || 0) + 'px;';
+        if (button.bottom >= 0)
+            c += 'bottom:' + (button.bottom || 0) + 'px;';
+        if (button.right >= 0)
+            c += 'right:' + (button.right || 0) + 'px;';
+        if (button.right === -1 && button.left === -1)
+            c += 'right:0px;';
+        if (button.bottom === -1 && button.top === -1)
+            c += 'top:0px;';
+    }
+    if (button.width)
+        c += 'width: ' + button.width + 'px;';
+    else if (bh === 26)
+        c += 'min-width: 26px;';
+    if (button.height)
+        c += 'height: ' + button.height + 'px;';
+    c += '" title="' + tt + '" draggable="true" data-index="' + index + '">' + caption + '</button>';
+    return c;
+}
+
+function showButtons() {
+    if (client.getOption('showButtons'))
+        document.getElementById('buttons').style.visibility = 'visible';
+    else
+        document.getElementById('buttons').style.visibility = '';
+}
+
+function buildButtons() {
+    var c = '';
+    var buttons = client.buttons;
+    var b, bl;
+    for (b = 0, bl = buttons.length; b < bl; b++) {
+        if (!buttons[b].enabled) continue;
+        c += createButton(buttons[b], b);
+    }
+    document.getElementById('buttons').innerHTML = c;
+    const items = document.querySelectorAll('#buttons button');
+    for (let i = 0, il = items.length; i < il; i++) {
+        items[i].addEventListener('click', e => {
+            ExecuteButton(e.currentTarget, +(e.currentTarget as HTMLElement).dataset.index);
+        });
+        dragButton(items[i]);
+    }
+}
+
+// eslint-disable-next-line no-unused-vars
+function ExecuteButton(el, idx) {
+    if (idx < 0) return false;
+    if (el.dataset.moving === 'true') {
+        delete el.dataset.moving;
+        return;
+    }
+    var buttons = client.buttons;
+    if (idx >= buttons.length) return false;
+    var button = buttons[idx];
+    if (!button.enabled) return false;
+    var ret;// = "";
+    switch (button.style) {
+        case 1:
+            ret = client.parseOutgoing(button.value);
+            break;
+        case 2:
+            /*jslint evil: true */
+            var f = new Function('try { ' + button.value + '} catch (e) { if(this.options.showScriptErrors) this.error(e);}');
+            ret = f.apply(client);
+            break;
+        default:
+            ret = button.value;
+            break;
+    }
+    if (ret === null || typeof ret == 'undefined')
+        return true;
+    if (button.send) {
+        if (!ret.endsWith('\n'))
+            ret += '\n';
+        if (button.chain) {
+            if (client.commandInput.value.endsWith(' ')) {
+                client.commandInput.value += ret;
+                client.sendCommand();
+                return true;
+            }
+        }
+        if (client.connected)
+            client.send(ret);
+        if (client.telnet.echo && client.getOption('commandEcho'))
+            client.echo(ret);
+    }
+    else if (button.append)
+        client.commandInput.value += ret;
+    return true;
+}
+
+function dragButton(elmnt) {
+    var pos3 = 0, pos4 = 0;
+    var delay;
+    if (document.getElementById(elmnt.id + 'header')) {
+        // if present, the header is where you move the DIV from:
+        document.getElementById(elmnt.id + 'header').onmousedown = dragMouseDown;
+    } else {
+        // otherwise, move the DIV from anywhere inside the DIV:
+        elmnt.onmousedown = dragMouseDown;
+        elmnt.ontouchstart = dragTouchStart;
+        elmnt.onmouseleave = dragMouseleave;
+    }
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        if (e.buttons !== 1) return;
+        e.preventDefault();
+        var b = elmnt.getBoundingClientRect();
+        pos3 = e.pageX - b.left;
+        pos4 = e.pageY - b.top;
+        document.onmouseup = closeDragButton;
+        delay = setTimeout(function () {
+            document.onmousemove = elementDrag;
+            delay = null;
+        }, 500);
+    }
+
+    function dragMouseleave() {
+        if (delay)
+            closeDragButton();
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // calculate the new cursor position:
+
+        // set the element's new position:
+        elmnt.style.position = 'absolute';
+        elmnt.style.top = (e.pageY - pos4) + 'px';
+        elmnt.style.left = (e.pageX - document.body.clientWidth - pos3) + 'px';
+        elmnt.dataset.moving = 'true';
+    }
+
+    function dragTouchStart(e) {
+        e = e || window.event;
+        if (!e.touches.length) return;
+        //e.preventDefault();
+        var b = elmnt.getBoundingClientRect();
+        pos3 = e.touches[0].pageX - b.left;
+        pos4 = e.touches[0].pageY - b.top;
+        document.ontouchend = closeDragButton;
+        delay = setTimeout(function () {
+            document.ontouchmove = elementMove;
+            delay = null;
+        }, 500);
+    }
+
+    function elementMove(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // calculate the new cursor position:
+
+        // set the element's new position:
+        elmnt.style.position = 'absolute';
+        if (!e.touches.length) return;
+        elmnt.style.top = (e.touches[0].pageY - pos4) + 'px';
+        elmnt.style.left = (e.touches[0].pageX - document.body.clientWidth - pos3) + 'px';
+        elmnt.dataset.moving = 'true';
+    }
+
+    function closeDragButton() {
+        // stop moving when mouse button is released:
+        var b = elmnt.getBoundingClientRect();
+        var idx = parseInt(elmnt.dataset.index, 10);
+        if (idx < 0) return;
+        var buttons = client.buttons;
+        if (idx >= buttons.length) return;
+        var button = buttons[idx];
+        if (!button.enabled) return;
+        if (button.left === -1 && button.right === -1 && button.top === -1 && button.bottom === -1) {
+            button.top = b.top || -1;
+            button.right = document.body.clientWidth - b.right || -1;
+        }
+        else {
+            if (button.left >= 0)
+                button.left = (document.body.clientWidth - b.left) || -1;
+            if (button.top >= 0)
+                button.top = b.top || -1;
+            if (button.bottom >= 0)
+                button.bottom = b.bottom || -1;
+            if (button.right >= 0)
+                button.right = document.body.clientWidth - b.right || -1;
+            if (button.right === -1 && button.left === -1)
+                button.right = document.body.clientWidth - b.right || -1;
+            if (button.bottom === -1 && button.top === -1)
+                button.top = b.top || -1;
+        }
+
+        document.onmouseup = null;
+        document.onmousemove = null;
+        document.ontouchend = null;
+        document.ontouchmove = null;
+        clearTimeout(delay);
+        client.saveProfiles();
+    }
 }
 
 window.initializeInterface = initializeInterface;

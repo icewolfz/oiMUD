@@ -1,7 +1,7 @@
 declare let client;
 declare let bootstrap;
 
-import { showDialog } from "./interface";
+import { showDialog, toggleButtons } from "./interface";
 
 export function closeMenu() {
     const instance = bootstrap.Offcanvas.getInstance(document.getElementById('clientMenu'));
@@ -67,7 +67,7 @@ export function initMenu() {
     document.querySelector('#menu-profiles a').addEventListener('click', e => {
         showDialog('profiles');
         closeMenu();
-    });    
+    });
     document.querySelector('#menu-fullscreen a').addEventListener('click', e => {
         var doc: any = window.document;
         var docEl: any = doc.documentElement;
@@ -93,6 +93,21 @@ export function initMenu() {
         }
         closeMenu();
     });
+    document.querySelector('#menu-buttons a').addEventListener('click', e => {
+        toggleButtons();
+        let button = document.querySelector('#menu-buttons') as HTMLElement;
+        if (client.getOption('showButtons')) {
+            button.title = 'Hide buttons';
+            button.classList.add('active');
+            document.querySelector('#menu-buttons a span').textContent = 'Hide buttons';
+        }
+        else {
+            button.title = 'Show buttons';
+            button.classList.remove('active');
+            document.querySelector('#menu-buttons a span').textContent = 'Show buttons';
+        }
+        closeMenu();
+    });
     updateScrollLock();
 
     let pl = client.plugins.length;
@@ -107,7 +122,7 @@ export function initMenu() {
                 let item = client.plugins[p].settings[s];
                 let code;
                 let id = 'menu-' + (item.name || '').toLowerCase().replace(/ /g, '-');
-                if(item.name === '-')
+                if (item.name === '-')
                     code = '<li><hr class="dropdown-divider"></li>';
                 else if (typeof item.action === 'string')
                     code = `<li id="menu-${id}" class="nav-item" title="${item.name || ''}"><a class="nav-link" href="#${item.action}">${item.icon || ''}${item.name || ''}</i><span>${item.name || ''}</span></a></li>`;
@@ -126,7 +141,7 @@ export function initMenu() {
                     }
                 }
                 list.insertAdjacentHTML('beforeend', code);
-                if(item.name === '-') continue;
+                if (item.name === '-') continue;
                 if (typeof item.action === 'function')
                     document.querySelector(`#${id} a`).addEventListener('click', e => {
                         const ie = { client: client, preventDefault: false };
@@ -137,7 +152,17 @@ export function initMenu() {
             }
         }
     }
-
+    let button = document.querySelector('#menu-buttons') as HTMLElement;
+    if (client.getOption('showButtons')) {
+        button.title = 'Hide buttons';
+        button.classList.add('active');
+        document.querySelector('#menu-buttons a span').textContent = 'Hide buttons';
+    }
+    else {
+        button.title = 'Show buttons';
+        button.classList.remove('active');
+        document.querySelector('#menu-buttons a span').textContent = 'Show buttons';
+    }
 }
 
 function updateScrollLock() {

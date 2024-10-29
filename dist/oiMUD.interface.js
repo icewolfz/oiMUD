@@ -7984,10 +7984,127 @@
   var editor;
   var editorDialog;
   var _currentIcon = -1;
+  var _selword = "";
+  var _selurl = "";
+  var _selline = "";
+  var lastMouse;
   function initializeInterface() {
     let options;
     _setIcon(0);
     initMenu();
+    ["repeatnum", "i"].forEach((a) => {
+      Object.defineProperty(window, a, {
+        get: function() {
+          if (!client) return void 0;
+          return client.repeatnum;
+        },
+        configurable: true
+      });
+    });
+    Object.defineProperty(window, "$selected", {
+      get: function() {
+        if (!client) return "";
+        return client.display.selection;
+      },
+      configurable: true
+    });
+    Object.defineProperty(window, "$copied", {
+      get: function() {
+        return "";
+      },
+      configurable: true
+    });
+    Object.defineProperty(window, "$selword", {
+      get: function() {
+        if (!client) return "";
+        return client.input.vStack["$selword"] || _selword || (lastMouse ? client.display.getWordFromPosition(lastMouse.pageX, lastMouse.pageY) : "");
+      },
+      configurable: true
+    });
+    Object.defineProperty(window, "$selurl", {
+      get: function() {
+        if (!client) return "";
+        let value = client.input.vStack["$selurl"] || _selurl || "";
+        if (value) return value;
+        if (!lastMouse) return "";
+        var parent = lastMouse.srcElement.parentNode;
+        if (parent && parent.classList && parent.classList.contains("URLLink"))
+          return parent.title;
+        else if (parent && parent.classList && parent.classList.contains("MXPLink") && parent.dataset && parent.dataset.href && parent.dataset.href.length > 0)
+          return parent.dataset.href;
+        return "";
+      },
+      configurable: true
+    });
+    Object.defineProperty(window, "$selline", {
+      get: function() {
+        if (!client) return "";
+        let value = client.input.vStack["$selline"] || _selline || "";
+        if (value) return value;
+        if (!lastMouse) return "";
+        var pos = client.display.getLineOffset(lastMouse.pageX, lastMouse.pageY);
+        if (pos.y < 0 || pos.y >= client.display.lines.length)
+          return "";
+        return client.display.getLineText(pos.y, true);
+      },
+      configurable: true
+    });
+    Object.defineProperty(window, "$selectedword", {
+      get: function() {
+        if (!client) return "";
+        return client.input.vStack["$selectedword"] || _selword || (lastMouse ? client.display.getWordFromPosition(lastMouse.pageX, lastMouse.pageY) : "");
+      },
+      configurable: true
+    });
+    Object.defineProperty(window, "$selectedurl", {
+      get: function() {
+        if (!client) return "";
+        let value = client.input.vStack["$selectedurl"] || _selurl || "";
+        if (value) return value;
+        if (!lastMouse) return "";
+        var parent = lastMouse.srcElement.parentNode;
+        if (parent && parent.classList && parent.classList.contains("URLLink"))
+          return parent.title;
+        else if (parent && parent.classList && parent.classList.contains("MXPLink") && parent.dataset && parent.dataset.href && parent.dataset.href.length > 0)
+          return parent.dataset.href;
+        return "";
+      },
+      configurable: true
+    });
+    Object.defineProperty(window, "$selectedline", {
+      get: function() {
+        if (!client) return "";
+        let value = client.input.vStack["$selectedline"] || _selline || "";
+        if (value) return value;
+        if (!lastMouse) return "";
+        var pos = client.display.getLineOffset(lastMouse.pageX, lastMouse.pageY);
+        if (pos.y < 0 || pos.y >= client.display.lines.length)
+          return "";
+        return client.display.getLineText(pos.y, true);
+      },
+      configurable: true
+    });
+    Object.defineProperty(window, "$action", {
+      get: function() {
+        if (!client) return "";
+        return client.input.vStack["$action"] || (client.input.lastTriggerExecuted ? client.input.lastTriggerExecuted.value : "") || "";
+      },
+      configurable: true
+    });
+    Object.defineProperty(window, "$trigger", {
+      get: function() {
+        if (!client) return "";
+        return client.input.vStack["$trigger"] || client.input.lastTriggered || "";
+      },
+      configurable: true
+    });
+    Object.defineProperty(window, "$caption", {
+      get: function() {
+        if (!client) return "";
+        return client.input.vStack["$caption"] || "";
+      },
+      configurable: true
+    });
     client.input.on("history-navigate", () => {
       if (client.getOption("commandAutoSize") || client.getOption("commandScrollbars"))
         resizeCommandInput();
@@ -8239,6 +8356,39 @@
     updateCommandInput();
     if (client.getOption("commandAutoSize") || client.getOption("commandScrollbars"))
       resizeCommandInput();
+    window.addEventListener("keydown", (event) => {
+      if (event.which === 33)
+        client.display.pageUp();
+      else if (event.which === 34)
+        client.display.pageDown();
+    });
+    window.addEventListener("error", (e) => {
+      const { message, filename, lineno, colno, error } = e;
+      if (client) {
+        if (error)
+          client.error(error);
+        else if (message.startsWith("Uncaught Error: "))
+          client.error(`${message.substr(16)}`);
+        else
+          client.error(`${message}`);
+        if (client.getOption("enableDebug")) {
+          client.error("Url: " + filename);
+          client.error("Line: " + lineno);
+          client.error("Column: " + colno);
+          client.error(error);
+        }
+      } else {
+        console.error("Message: " + message);
+        console.error("Url: " + filename);
+        console.error("Line: " + lineno);
+        console.error("Column: " + colno);
+        console.error(error);
+      }
+      return true;
+    });
+    window.addEventListener("mousemove", (event) => {
+      lastMouse = event;
+    });
     window.addEventListener("hashchange", hashChange, false);
     window.addEventListener("load", hashChange);
     client.on("command-history-changed", (history2) => {

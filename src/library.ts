@@ -2597,3 +2597,28 @@ export function scrollChildIntoView(parent, child) {
       });
     }
   }
+
+  export function getWordAtPosition(x, y) {
+    // Get the element at the specified coordinates
+    const element = document.elementFromPoint(x, y);
+  
+    // Check if the element exists and contains text
+    if (element && element.textContent) {
+      // Get the text content of the element
+      const text = element.textContent;
+  
+      // Find the word boundaries around the specified position
+      let start = text.lastIndexOf(' ', x) + 1;
+      let end = text.indexOf(' ', x);
+      if (end === -1) {
+        end = text.length;
+      }
+  
+      // Extract the word
+      const word = text.substring(start, end);
+  
+      return word;
+    }
+  
+    return null;
+  }

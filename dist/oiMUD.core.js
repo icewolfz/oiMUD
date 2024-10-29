@@ -20197,6 +20197,47 @@
         }
       }
     }
+    getLineOffset(x, y) {
+      const elements = document.elementsFromPoint(x, y);
+      let element;
+      for (let e = 0, el = elements.length; e < el; e++) {
+        if (this._view === elements[e]) break;
+        if (this._view.contains(elements[e])) {
+          element = elements[e];
+          break;
+        }
+      }
+      if (!element || !this._view.contains(element) && this._view != element)
+        return { x: -1, y: -1, lineID: -1 };
+      if (element.classList.contains("line"))
+        return { x: 0, y: this.model.getLineFromID(+element.dataset.id), lineID: +element.dataset.id };
+      const line = element.closest(".line");
+      if (line)
+        return { x: 0, y: this.model.getLineFromID(+line.dataset.id), lineID: +line.dataset.id };
+      return { x: -1, y: -1, lineID: -1 };
+    }
+    getWordFromPosition(x, y) {
+      const elements = document.elementsFromPoint(x, y);
+      let element;
+      for (let e = 0, el = elements.length; e < el; e++) {
+        if (this._view === elements[e]) return "";
+        if (this._view.contains(elements[e])) {
+          element = elements[e];
+          break;
+        }
+      }
+      if (element && element.textContent) {
+        const text = element.textContent;
+        let start = text.lastIndexOf(" ", x) + 1;
+        let end = text.indexOf(" ", x);
+        if (end === -1) {
+          end = text.length;
+        }
+        const word = text.substring(start, end);
+        return word;
+      }
+      return "";
+    }
   };
   var DisplayModel = class extends EventEmitter {
     constructor(options) {

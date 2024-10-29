@@ -65,9 +65,26 @@ case 'ch':
 - skip more prompt delay
 - fix hidden windows
 - recode advanced editor to not use jquery when possible
+- Add paste special? may not be possible as cant control paste
 
+/// status todo
+```
+    Object.defineProperty(window, '$character', {
+        get: function () {
+            if (_status)
+                return _status.name || _windowState.data.character || '';
+            return _windowState.data.character || '';
+        },
+        configurable: true
+    });
 
-
+    Object.defineProperty(window, '$characterid', {
+        get: function () {
+            return _windowState.data.characterId || -1;
+        },
+        configurable: true
+    });    
+```
 
 
 

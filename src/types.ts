@@ -4,7 +4,6 @@ export interface Point {
   x: number;
   y: number;
   lineID: number;
-  lineOffset: number;
 }
 
 export interface DisplayOptions extends ParserOptions {

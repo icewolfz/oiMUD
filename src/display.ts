@@ -1,6 +1,6 @@
 import { EventEmitter } from "./events";
 import { Parser } from "./parser";
-import { Size, DisplayOptions, ParserLine, FormatType, FontStyle } from "./types";
+import { Size, DisplayOptions, ParserLine, FormatType, FontStyle, Point } from "./types";
 import { htmlEncode, formatUnit, getScrollbarWidth, debounce } from './library';
 
 declare let moment;
@@ -1118,6 +1118,60 @@ export class Display extends EventEmitter {
                 selection.removeAllRanges();
             }
         }
+    }
+
+    public getLineOffset(x, y): Point {
+        const elements = document.elementsFromPoint(x, y);
+        let element;
+        for (let e = 0, el = elements.length; e < el; e++) {
+            if (this._view === elements[e]) break;
+            if (this._view.contains(elements[e])) {
+                element = elements[e];
+                break;
+            }
+        }
+        //not in view so fail
+        if (!element || !this._view.contains(element) && this._view != element)
+            return { x: -1, y: -1, lineID: -1 };
+        if (element.classList.contains('line'))
+            return { x: 0, y: this.model.getLineFromID(+element.dataset.id), lineID: +element.dataset.id };
+        const line = element.closest('.line') as HTMLElement;
+        if (line)
+            return { x: 0, y: this.model.getLineFromID(+line.dataset.id), lineID: +line.dataset.id };
+        return { x: -1, y: -1, lineID: -1 };
+    }
+
+    public getWordFromPosition(x, y): string {
+        // Get the element at the specified coordinates
+        const elements = document.elementsFromPoint(x, y);
+        let element;
+        for (let e = 0, el = elements.length; e < el; e++) {
+            if (this._view === elements[e]) return '';
+            if (this._view.contains(elements[e])) {
+                element = elements[e];
+                break;
+            }
+        }
+
+        // Check if the element exists and contains text
+        if (element && element.textContent) {
+            // Get the text content of the element
+            const text = element.textContent;
+
+            // Find the word boundaries around the specified position
+            let start = text.lastIndexOf(' ', x) + 1;
+            let end = text.indexOf(' ', x);
+            if (end === -1) {
+                end = text.length;
+            }
+
+            // Extract the word
+            const word = text.substring(start, end);
+
+            return word;
+        }
+
+        return '';
     }
 }
 

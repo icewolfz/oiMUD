@@ -29344,10 +29344,13 @@ Devanagari
         if (!_dialogs.history) {
           _dialogs.history = new Dialog(Object.assign({}, client.getOption("windows.history") || { center: true, width: 400, height: 275 }, { title: '<i class="bi bi-clock-history"></i> Command history', id: "command-history" }));
           _dialogs.history.on("closed", () => {
+            client.setOption("windows.history", _dialogs.history.windowState);
             delete _dialogs.history;
             removeHash(name2);
           });
           _dialogs.history.on("canceled", () => {
+            client.setOption("windows.history", _dialogs.history.windowState);
+            removeHash("history");
             delete _dialogs.history;
             removeHash(name2);
           });
@@ -29365,14 +29368,6 @@ Devanagari
           });
           _dialogs.history.on("shown", () => {
             client.setOption("windows.history", _dialogs.history.windowState);
-          });
-          _dialogs.history.on("closed", () => {
-            client.setOption("windows.history", _dialogs.history.windowState);
-            removeHash("history");
-          });
-          _dialogs.history.on("canceled", () => {
-            client.setOption("windows.history", _dialogs.history.windowState);
-            removeHash("history");
           });
           let footer = "";
           footer += `<button id="${_dialogs.history.id}-clear" type="button" class="btn-sm float-end btn btn-danger" title="Clear history"><i class="bi bi-trash"></i><span class="icon-only"> Clear</span></button>`;

@@ -285,7 +285,7 @@ export class Client extends EventEmitter {
             if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableTriggers)
                 this._itemCache.alarms = [];
             else
-                this._itemCache.alarms = $.grep(SortItemArrayByPriority(this.profiles.items[keys[k]].triggers), (a: Trigger) => {
+                this._itemCache.alarms = SortItemArrayByPriority(this.profiles.items[keys[k]].triggers).filter((a: Trigger) => {
                     //has sub triggers of type alarm so cache them for future use as well
                     if (a && a.enabled && a.triggers.length) {
                         if (a.type === TriggerType.Alarm) return true;
@@ -305,7 +305,7 @@ export class Client extends EventEmitter {
                 continue;
             tmp.push.apply(tmp, SortItemArrayByPriority(this.profiles.items[keys[k]].triggers));
         }
-        this._itemCache.alarms = $.grep(tmp, (a) => {
+        this._itemCache.alarms = tmp.filter((a) => {
             //has sub triggers of type alarm so cache them for future use as well
             if (a && a.enabled && a.triggers.length) {
                 if (a.type === TriggerType.Alarm) return true;

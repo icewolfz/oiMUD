@@ -6916,7 +6916,7 @@
       footer += `<button id="${this.id}-apply" type="button" class="btn-sm float-end btn btn-secondary" title="Apply changes" disabled><i class="bi bi-check-lg"></i><span class="icon-only"> Apply</span></button>`;
       this.footer.innerHTML = footer;
       this.footer.classList.add("dropup");
-      $("#btn-profile-menu").on("shown.bs.dropdown", () => {
+      document.getElementById("btn-profile-menu").addEventListener("shown.bs.dropdown", () => {
         setTimeout(() => {
           let el = this.footer.querySelector("#" + this.id + "-dropdown-menu");
           let rect = el.getBoundingClientRect();
@@ -6926,7 +6926,7 @@
             el.style.height = document.body.clientHeight - rect.y - 10 + "px";
         }, 0);
       });
-      $("#btn-profile-menu").on("hidden.bs.dropdown", () => {
+      document.getElementById("btn-profile-menu").addEventListener("hidden.bs.dropdown", () => {
         let el = this.footer.querySelector("#" + this.id + "-dropdown-menu");
         el.style.height = "";
       });

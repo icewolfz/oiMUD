@@ -15351,7 +15351,7 @@
     }
     buildTriggerCache() {
       if (this._TriggerCache == null) {
-        this._TriggerCache = $.grep(this.client.triggers, (a) => {
+        this._TriggerCache = this.client.triggers.filter((a) => {
           if (a && a.enabled && a.triggers.length) {
             if (a.type !== 3 /* Alarm */) return true;
             for (let s = 0, sl = a.triggers.length; s < sl; s++)
@@ -23642,7 +23642,7 @@ Devanagari
         if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableTriggers)
           this._itemCache.alarms = [];
         else
-          this._itemCache.alarms = $.grep(SortItemArrayByPriority(this.profiles.items[keys[k]].triggers), (a) => {
+          this._itemCache.alarms = SortItemArrayByPriority(this.profiles.items[keys[k]].triggers).filter((a) => {
             if (a && a.enabled && a.triggers.length) {
               if (a.type === 3 /* Alarm */) return true;
               for (let s = 0, sl = a.triggers.length; s < sl; s++)
@@ -23660,7 +23660,7 @@ Devanagari
           continue;
         tmp.push.apply(tmp, SortItemArrayByPriority(this.profiles.items[keys[k]].triggers));
       }
-      this._itemCache.alarms = $.grep(tmp, (a) => {
+      this._itemCache.alarms = tmp.filter((a) => {
         if (a && a.enabled && a.triggers.length) {
           if (a.type === 3 /* Alarm */) return true;
           for (let s = 0, sl = a.triggers.length; s < sl; s++)
@@ -28054,7 +28054,7 @@ Devanagari
       footer += `<button id="${this.id}-apply" type="button" class="btn-sm float-end btn btn-secondary" title="Apply changes" disabled><i class="bi bi-check-lg"></i><span class="icon-only"> Apply</span></button>`;
       this.footer.innerHTML = footer;
       this.footer.classList.add("dropup");
-      $("#btn-profile-menu").on("shown.bs.dropdown", () => {
+      document.getElementById("btn-profile-menu").addEventListener("shown.bs.dropdown", () => {
         setTimeout(() => {
           let el = this.footer.querySelector("#" + this.id + "-dropdown-menu");
           let rect = el.getBoundingClientRect();
@@ -28064,7 +28064,7 @@ Devanagari
             el.style.height = document.body.clientHeight - rect.y - 10 + "px";
         }, 0);
       });
-      $("#btn-profile-menu").on("hidden.bs.dropdown", () => {
+      document.getElementById("btn-profile-menu").addEventListener("hidden.bs.dropdown", () => {
         let el = this.footer.querySelector("#" + this.id + "-dropdown-menu");
         el.style.height = "";
       });

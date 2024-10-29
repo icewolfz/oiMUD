@@ -84,7 +84,7 @@ export class ProfilesDialog extends Dialog {
         });
         this.body.style.padding = '10px';
         this._splitter = new Splitter({ id: 'profile', parent: this.body, orientation: Orientation.vertical, anchor: PanelAnchor.panel1 });
-        if(client.getOption('profiles.split') >= 200)
+        if (client.getOption('profiles.split') >= 200)
             this._splitter.SplitterDistance = client.getOption('profiles.split');
         this._splitter.on('splitter-moved', distance => {
             client.setOption('profiles.split', distance);
@@ -128,7 +128,8 @@ export class ProfilesDialog extends Dialog {
         footer += `<button id="${this.id}-apply" type="button" class="btn-sm float-end btn btn-secondary" title="Apply changes" disabled><i class="bi bi-check-lg"></i><span class="icon-only"> Apply</span></button>`;
         this.footer.innerHTML = footer;
         this.footer.classList.add('dropup');
-        $('#btn-profile-menu').on('shown.bs.dropdown', () => {
+
+        document.getElementById('btn-profile-menu').addEventListener('shown.bs.dropdown', () => {
             setTimeout(() => {
                 let el = this.footer.querySelector('#' + this.id + '-dropdown-menu');
                 let rect = el.getBoundingClientRect();
@@ -138,7 +139,8 @@ export class ProfilesDialog extends Dialog {
                     el.style.height = (document.body.clientHeight - rect.y - 10) + 'px';
             }, 0);
         })
-        $('#btn-profile-menu').on('hidden.bs.dropdown', () => {
+
+        document.getElementById('btn-profile-menu').addEventListener('hidden.bs.dropdown', () => {
             let el = this.footer.querySelector('#' + this.id + '-dropdown-menu');
             el.style.height = '';
         });
@@ -168,7 +170,7 @@ export class ProfilesDialog extends Dialog {
         });
         this.on('shown', () => {
             client.setOption('windows.profiles', this.windowState);
-        });        
+        });
         this.footer.querySelector(`#${this.id}-add-profile a`).addEventListener('click', () => {
             this._createProfile(true);
         });

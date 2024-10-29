@@ -133,6 +133,7 @@ export function initializeInterface() {
     let options;
     _setIcon(0);
     initMenu();
+    //#region global scripting functions
     //not supported bu add stubs to prevent errors from imported scripts
     window.readClipboard = () => pasteText();
     window.readClipboardHTML = () => pasteText();
@@ -142,7 +143,7 @@ export function initializeInterface() {
     window.writeClipboard = (txt, html) => copyText(txt);
     (client as any).writeClipboard = window.writeClipboard;
 
-    (client as any).closeDialog = window => {
+    (client as any).closeWindow = window => {
         switch (window) {
             case 'editor':
             case 'help':
@@ -169,7 +170,7 @@ export function initializeInterface() {
                 break;
         }
     };
-
+    //#endregion
     //#region global variables for scripting
     ['repeatnum', 'i'].forEach((a) => {
         Object.defineProperty(window, a, {
@@ -189,7 +190,7 @@ export function initializeInterface() {
         configurable: true
     });
 
-    //Not supported but return blank to prevent errors on scriptsthat use it
+    //Not supported but return blank to prevent errors on scripts that use it
     Object.defineProperty(window, '$copied', {
         get: function () {
             return '';
@@ -288,9 +289,8 @@ export function initializeInterface() {
         },
         configurable: true
     });
-
     //#endregion
-
+    //#region client events
     client.input.on('history-navigate', () => {
         if (client.getOption('commandAutoSize') || client.getOption('commandScrollbars'))
             resizeCommandInput();
@@ -443,6 +443,7 @@ export function initializeInterface() {
     document.getElementById('btn-adv-editor').addEventListener('click', e => {
         showDialog('editor');
     });
+    //#endregion
     //restore advanced editor
     options = client.getOption('windows.editor');
     if (options && options.show)

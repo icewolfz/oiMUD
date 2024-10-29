@@ -29289,7 +29289,7 @@ Devanagari
     client.readClipboardHTML = window.readClipboardHTML;
     window.writeClipboard = (txt, html) => copyText(txt);
     client.writeClipboard = window.writeClipboard;
-    client.closeDialog = (window2) => {
+    client.closeWindow = (window2) => {
       switch (window2) {
         case "editor":
         case "help":

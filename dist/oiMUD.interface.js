@@ -326,6 +326,14 @@
     _edCache.textContent = value;
     return _edCache.innerHTML;
   }
+  function offset(el) {
+    const box = el.getBoundingClientRect();
+    const docElem = document.documentElement;
+    return {
+      top: box.top + window.pageYOffset - docElem.clientTop,
+      left: box.left + window.pageXOffset - docElem.clientLeft
+    };
+  }
   var StringBuffer = class {
     constructor(str) {
       //public rawbuffer: string[];
@@ -736,6 +744,18 @@
   })(jQuery);
   function clone(obj, replacer) {
     return JSON.parse(JSON.stringify(obj, replacer));
+  }
+  function setSelectionRange(input, selectionStart, selectionEnd) {
+    if (input.setSelectionRange) {
+      input.focus();
+      input.setSelectionRange(selectionStart, selectionEnd);
+    } else if (input.createTextRange) {
+      const range = input.createTextRange();
+      range.collapse(true);
+      range.moveEnd("character", selectionEnd);
+      range.moveStart("character", selectionStart);
+      range.select();
+    }
   }
   CanvasRenderingContext2D.prototype.fillRoundedRect = function(x, y, w, h, r) {
     this.beginPath();
@@ -7988,6 +8008,99 @@
   var _selurl = "";
   var _selline = "";
   var lastMouse;
+  function doLink(url) {
+    confirm_box("Open?", `Open '${url}'?`).then((e) => {
+      if (e.button === 4 /* Yes */) {
+        window.open(url);
+        if (client.getOption("CommandonClick"))
+          client.commandInput.focus();
+      }
+    });
+  }
+  function doMXPLink(el, url) {
+    if (url.startsWith("OoMUD://") || url.startsWith("jiMUD://") || url.startsWith("client://"))
+      doMXPSend(0, el, url.substring(8));
+    else {
+      confirm_box("Open?", `Open '${url}'?`).then((e) => {
+        if (e.button === 4 /* Yes */) {
+          window.open(url);
+          if (client.getOption("CommandonClick"))
+            client.commandInput.focus();
+        }
+      });
+    }
+  }
+  function doMXPSend(e, el, url, pmt, tt) {
+    var im = el.querySelector("img[ismap]");
+    var extra = "";
+    if (im) {
+      var os = offset(im);
+      var x = Math.floor(e.clientX - os.left);
+      var y = Math.floor(e.clientY - os.top);
+      extra = "?" + x + "," + y;
+    }
+    if (url.constructor === Array || url.__proto__.constructor === Array || Object.prototype.toString.call(url) === "[object Array]") {
+      let menu = '<ul id="mxp-send-menu" class="dropdown-menu show">';
+      for (var i = 0, il = url.length; i < il; i++) {
+        url[i] = url[i].replace("&text;", el.textContent);
+        if (i < tt.length)
+          menu += `<li><a class="dropdown-item" data-pnt="${pmt ? "true" : "false"}" data-cmd="${htmlEncode(url[i] + extra)}" href="#">${tt[i]}</a></li>`;
+        else
+          menu += `<li><a class="dropdown-item" data-pnt="${pmt ? "true" : "false"}" data-cmd="${htmlEncode(url[i] + extra)}" href="#">${url[i]}</a></li>`;
+      }
+      menu += "</ul>";
+      document.body.insertAdjacentHTML("afterend", menu);
+      menu = document.getElementById("mxp-send-menu");
+      menu.cleanUp = (e2) => {
+        window.removeEventListener("click", menu.cleanUp);
+        window.removeEventListener("keydown", menu.cleanUp);
+        menu.remove();
+      };
+      let items = menu.querySelectorAll("li a");
+      for (let i2 = 0, il2 = items.length; i2 < il2; i2++) {
+        items[i2].addEventListener("click", (e2) => {
+          MXPMenuHandler(e2.currentTarget.dataset.cmd, e2.currentTarget.dataset.pmt === "true");
+          menu.cleanUp();
+        });
+      }
+      setTimeout(() => {
+        window.addEventListener("click", menu.cleanUp);
+        window.addEventListener("keydown", menu.cleanUp);
+      }, 100);
+      menu.style.left = e.clientX + "px";
+      menu.style.top = e.clientY + "px";
+      menu.style.display = "block";
+      menu.style.position = "absolute";
+    } else if (pmt) {
+      url = url.replace("&text;", el.textContent) + extra;
+      client.commandInput.value = url;
+      setSelectionRange(client.commandInput, url.length, url.length);
+    } else
+      client.send(url.replace("&text;", el.textContent) + extra + "\n", true);
+    setTimeout(() => {
+      if (client.getOption("CommandonClick"))
+        client.commandInput.focus();
+    }, 0);
+  }
+  function MXPMenuHandler(cmd, pmt) {
+    if (pmt) {
+      client.commandInput.value = cmd;
+      setSelectionRange(client.commandInput, cmd.length, cmd.length);
+    } else
+      client.send(cmd, true);
+    setTimeout(() => {
+      if (client.getOption("CommandonClick"))
+        client.commandInput.focus();
+    }, 0);
+  }
+  function doMXPTooltip(el) {
+    el.title = el.title.replace("&text;", el.textContent);
+  }
+  window.doLink = doLink;
+  window.doMXPLink = doMXPLink;
+  window.doMXPSend = doMXPSend;
+  window.MXPMenuHandler = MXPMenuHandler;
+  window.doMXPTooltip = doMXPTooltip;
   function initializeInterface() {
     let options;
     _setIcon(0);

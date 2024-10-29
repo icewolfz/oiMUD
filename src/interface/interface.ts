@@ -3,7 +3,7 @@ import "../css/interface.css";
 import { initMenu } from './menu';
 import { Client } from '../client';
 import { Dialog, DialogButtons } from "./dialog";
-import { openFileDialog, readFile, debounce, copyText, pasteText } from '../library';
+import { openFileDialog, readFile, debounce, copyText, pasteText, setSelectionRange, htmlEncode, offset } from '../library';
 import { AdvEditor } from './adv.editor';
 import { SettingsDialog } from './settingsdialog';
 import { ProfilesDialog } from "./profilesdialog";
@@ -14,6 +14,11 @@ declare global {
         readClipboard;
         writeClipboard;
         readClipboardHTML;
+        doLink;
+        doMXPLink;
+        doMXPSend;
+        MXPMenuHandler;
+        doMXPTooltip;
     }
     let client: Client;
 }
@@ -29,6 +34,112 @@ let _selword = '';
 let _selurl = '';
 let _selline = '';
 let lastMouse;
+
+//#region MXP display hooks
+function doLink(url) {
+    confirm_box('Open?', `Open '${url}'?`).then(e => {
+        if (e.button === DialogButtons.Yes) {
+            window.open(url);
+            if (client.getOption('CommandonClick'))
+                client.commandInput.focus();
+        }
+    });
+}
+
+// eslint-disable-next-line no-unused-vars
+function doMXPLink(el, url) {
+    if (url.startsWith('OoMUD://') || url.startsWith('jiMUD://') || url.startsWith('client://'))
+        doMXPSend(0, el, url.substring(8));
+    else {
+        confirm_box('Open?', `Open '${url}'?`).then(e => {
+            if (e.button === DialogButtons.Yes) {
+                window.open(url);
+                if (client.getOption('CommandonClick'))
+                    client.commandInput.focus();
+            }
+        });
+    }
+}
+
+function doMXPSend(e, el, url, pmt?, tt?) {
+    var im = el.querySelector('img[ismap]');
+    var extra = '';
+    if (im) {
+        var os = offset(im);
+        var x = Math.floor(e.clientX - os.left);
+        var y = Math.floor(e.clientY - os.top);
+        extra = '?' + x + ',' + y;
+    }
+    //TODO convert to contextmenu
+    if (url.constructor === Array || url.__proto__.constructor === Array || Object.prototype.toString.call(url) === '[object Array]') {
+        let menu: any = '<ul id="mxp-send-menu" class="dropdown-menu show">';
+        for (var i = 0, il = url.length; i < il; i++) {
+            url[i] = url[i].replace('&text;', el.textContent);
+            if (i < tt.length)
+                menu += `<li><a class="dropdown-item" data-pnt="${pmt ? 'true' : 'false'}" data-cmd="${htmlEncode(url[i] + extra)}" href="#">${tt[i]}</a></li>`;
+            else
+                menu += `<li><a class="dropdown-item" data-pnt="${pmt ? 'true' : 'false'}" data-cmd="${htmlEncode(url[i] + extra)}" href="#">${url[i]}</a></li>`;
+        }
+        menu += '</ul>';
+        document.body.insertAdjacentHTML('afterend', menu);
+        menu = document.getElementById('mxp-send-menu');
+        menu.cleanUp = e => {
+            window.removeEventListener('click', menu.cleanUp);
+            window.removeEventListener('keydown', menu.cleanUp);
+            menu.remove();
+        };
+        let items = menu.querySelectorAll('li a');
+        for (let i = 0, il = items.length; i < il; i++) {
+            items[i].addEventListener('click', e => {
+                MXPMenuHandler(e.currentTarget.dataset.cmd, e.currentTarget.dataset.pmt === 'true');
+                menu.cleanUp();
+            })
+        }
+        setTimeout( () => {
+            window.addEventListener('click', menu.cleanUp);
+            window.addEventListener('keydown', menu.cleanUp);
+        }, 100);
+        menu.style.left = e.clientX + 'px';
+        menu.style.top = e.clientY + 'px';
+        menu.style.display = 'block';
+        menu.style.position = 'absolute';
+    }
+    else if (pmt) {
+        url = url.replace('&text;', el.textContent) + extra;
+        client.commandInput.value = url;
+        setSelectionRange(client.commandInput, url.length, url.length);
+    }
+    else
+        client.send(url.replace('&text;', el.textContent) + extra + '\n', true);
+    setTimeout(() => {
+        if (client.getOption('CommandonClick'))
+            client.commandInput.focus();
+    }, 0);
+}
+
+function MXPMenuHandler(cmd, pmt) {
+    if (pmt) {
+        client.commandInput.value = cmd;
+        setSelectionRange(client.commandInput, cmd.length, cmd.length);
+    }
+    else
+        client.send(cmd, true);
+    setTimeout(() => {
+        if (client.getOption('CommandonClick'))
+            client.commandInput.focus();
+    }, 0);
+}
+
+// eslint-disable-next-line no-unused-vars
+function doMXPTooltip(el) {
+    el.title = el.title.replace('&text;', el.textContent);
+}
+window.doLink = doLink;
+window.doMXPLink = doMXPLink;
+window.doMXPSend = doMXPSend;
+window.MXPMenuHandler = MXPMenuHandler;
+window.doMXPTooltip = doMXPTooltip;
+//#endregion
 
 export function initializeInterface() {
     let options;

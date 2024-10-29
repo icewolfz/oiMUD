@@ -50,8 +50,10 @@ case 'ch':
 
 - logger plugin and all related options
 - mapper plugin and all related options
+    client.telnet.GMCPSupports.push('Room 1');
 - backup plugin for shadowmud
-- immortal tool plugin for shadowmud
+- immortal tool plugin for shadowmud            
+    client.telnet.GMCPSupports.push('IED 1');
 - maybe just a general shadowmud plugin that groups all sm related like backup and immortal tools
 - Profile manager:
     - Add undo system

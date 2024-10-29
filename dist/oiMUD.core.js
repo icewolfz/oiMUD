@@ -21128,9 +21128,12 @@
     remove() {
       if (!this.client) return;
       this.client.removeListenersFromCaller(this);
+      let idx = this.client.telnet.GMCPSupports.indexOf("Client.Media 1");
+      this.client.telnet.GMCPSupports.splice(idx, 1);
     }
     initialize() {
       if (!this.client) return;
+      this.client.telnet.GMCPSupports.push("Client.Media 1");
       this.client.on("connecting", () => this.reset(), this);
       this.client.on("close", () => this.reset(), this);
       this.client.on("received-option", this.processOption, this);
@@ -22717,7 +22720,6 @@ Devanagari
       this._telnet.terminal = "oiMUD";
       this._telnet.version = this.version;
       this._telnet.GMCPSupports.push("oMUD 1");
-      this._telnet.GMCPSupports.push("Client.Media 1");
       this._telnet.on("error", (err) => {
         if (this.enableDebug) this.debug(err);
         if (err) {

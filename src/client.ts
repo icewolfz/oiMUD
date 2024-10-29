@@ -958,7 +958,6 @@ export class Client extends EventEmitter {
         this._telnet.terminal = 'oiMUD';
         this._telnet.version = this.version;
         this._telnet.GMCPSupports.push('oMUD 1');
-        this._telnet.GMCPSupports.push('Client.Media 1');
 
         this._telnet.on('error', (err) => {
             if (this.enableDebug) this.debug(err);

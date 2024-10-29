@@ -276,10 +276,13 @@ export class MSP extends Plugin {
     public remove() {
         if (!this.client) return;
         this.client.removeListenersFromCaller(this);
+        let idx = this.client.telnet.GMCPSupports.indexOf('Client.Media 1');
+        this.client.telnet.GMCPSupports.splice(idx, 1);
     }
 
     public initialize() {
         if (!this.client) return;
+        this.client.telnet.GMCPSupports.push('Client.Media 1');
         this.client.on('connecting', () => this.reset(), this);
         this.client.on('close', () => this.reset(), this);
         this.client.on('received-option', this.processOption, this);

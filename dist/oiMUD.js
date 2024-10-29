@@ -29098,6 +29098,37 @@ Devanagari
         client.display.clearSelection();
       }
     });
+    client.on("notify", (title, message, options2) => {
+      if (!client.getOption("enableNotifications")) return;
+      options2 = options2 || { silent: true };
+      if (!Object.prototype.hasOwnProperty.call(options2, "silent"))
+        options2.silent = true;
+      switch (_currentIcon) {
+        case 1:
+          options2.icon = options2.icon || "images/connected.png";
+          break;
+        case 2:
+          options2.icon = options2.icon || "images/active.png";
+          break;
+        default:
+          options2.icon = options2.icon || "images/disconnected.png";
+          break;
+      }
+      if (message) {
+        options2.body = message;
+        if (options2.body.length > 127)
+          options2.body = options2.body.substr(0, 127) + "...";
+      }
+      var notify = new window.Notification(title, options2);
+      notify.onclick = () => {
+        client.emit("notify-clicked", title, message);
+        client.raise("notify-clicked", [title, message]);
+      };
+      notify.onclose = () => {
+        client.emit("notify-closed", title, message);
+        client.raise("notify-closed", [title, message]);
+      };
+    });
     document.getElementById("btn-adv-editor").addEventListener("click", (e) => {
       if (!editorDialog) {
         editorDialog = new Dialog(Object.assign({}, client.getOption("windows.editor") || { center: true }, { title: '<i class="fas fa-edit"></i> Advanced editor', id: "adv-editor" }));

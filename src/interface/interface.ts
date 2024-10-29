@@ -82,7 +82,37 @@ export function initializeInterface() {
             client.display.clearSelection();
         }
     });
-
+    client.on('notify', (title, message, options) => {
+        if (!client.getOption('enableNotifications')) return;
+        options = options || { silent: true };
+        if (!Object.prototype.hasOwnProperty.call(options, 'silent'))
+            options.silent = true;
+        switch (_currentIcon) {
+            case 1:
+                options.icon = options.icon || 'images/connected.png';
+                break;
+            case 2:
+                options.icon = options.icon || 'images/active.png';
+                break;
+            default:
+                options.icon = options.icon || 'images/disconnected.png';
+                break;
+        }
+        if (message) {
+            options.body = message;
+            if (options.body.length > 127)
+                options.body = options.body.substr(0, 127) + '...';
+        }
+        var notify = new window.Notification(title, options);
+        notify.onclick = () => {
+            client.emit('notify-clicked', title, message);
+            client.raise('notify-clicked', [title, message]);
+        };
+        notify.onclose = () => {
+            client.emit('notify-closed', title, message);
+            client.raise('notify-closed', [title, message]);
+        };
+    });
     //setup advanced editor footer button
     document.getElementById('btn-adv-editor').addEventListener('click', e => {
         if (!editorDialog) {

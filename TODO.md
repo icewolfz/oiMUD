@@ -52,7 +52,11 @@ case 'ch':
 - mapper plugin and all related options
 - backup plugin for shadowmud
 - immortal tool plugin for shadowmud
-- Add undo system to profile manager
+- Profile manager:
+    - Add undo system
+    - Add options for profile sort order and direction
+    - Add option which profile to select on load
+    - Add option to expand selected profile on load
 - status plugin and related and move all lag meter to here
 - skip more prompt
 - skip more prompt delay

@@ -55,7 +55,8 @@ export function initializeInterface() {
                 }
             }
         }
-        if (_dialogs.history) editorDialog.resetState(client.getOption('windows.history') || { center: true, width: 400, height: 275 });
+        if (_dialogs.history) _dialogs.history.resetState(client.getOption('windows.history') || { center: true, width: 400, height: 275 });
+        if (_dialogs.profiles) _dialogs.profiles.resetState(client.getOption('windows.profiles') || { center: true, width: 400, height: 275 });
     });
     client.on('set-title', title => {
         window.document.title = title;
@@ -235,7 +236,9 @@ export function initializeInterface() {
     options = client.getOption('windows.history');
     if (options && options.show)
         showDialog('history');
-
+    options = client.getOption('windows.profiles');
+    if (options && options.show)
+        showDialog('profiles');
 
     document.getElementById('btn-command-history').addEventListener('show.bs.dropdown', function () {
         document.body.appendChild(document.getElementById('command-history-menu'));

@@ -4381,7 +4381,7 @@
     ["mapper.active.area", 0, 0, null],
     ["mapper.active.zone", 0, 2, 0],
     ["mapper.persistent", 0, 1, true],
-    ["profiles.split", 0, 2, -1],
+    ["profiles.split", 0, 2, 200],
     ["profiles.askoncancel", 0, 1, true],
     ["profiles.triggersAdvanced", 0, 1, false],
     ["profiles.aliasesAdvanced", 0, 1, false],
@@ -4899,7 +4899,7 @@
         case "mapper.active.zone":
           return 0;
         case "profiles.split":
-          return -1;
+          return 200;
         case "profiles.askoncancel":
           return true;
         case "profiles.triggersAdvanced":

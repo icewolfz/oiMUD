@@ -50,7 +50,7 @@ export class ProfilesDialog extends Dialog {
     public get contents() { return this._contents; }
 
     constructor() {
-        super(({ title: '<i class="fas fa-users"></i> Profiles', center: true, minWidth: 410 }));
+        super(Object.assign({}, client.getOption('windows.profiles') || { center: true }, { title: 'i class="fas fa-users"></i> Profiles', minWidth: 410 }));
         this.on('resized', e => {
             if (e.width < 430) {
                 if (this._small) return;
@@ -63,6 +63,7 @@ export class ProfilesDialog extends Dialog {
                 item.classList.remove('breadcrumb-sm');
                 this._small = false;
             }
+            client.setOption('windows.profiles', e);
         })
         client.on('profiles-loaded', () => {
             if (!this.profiles) {
@@ -83,6 +84,11 @@ export class ProfilesDialog extends Dialog {
         });
         this.body.style.padding = '10px';
         this._splitter = new Splitter({ id: 'profile', parent: this.body, orientation: Orientation.vertical, anchor: PanelAnchor.panel1 });
+        if(client.getOption('profiles.split') >= 200)
+            this._splitter.SplitterDistance = client.getOption('profiles.split');
+        this._splitter.on('splitter-moved', distance => {
+            client.setOption('profiles.split', distance);
+        })
         this._menu = this._splitter.panel1;
         this._menu.style.overflow = 'hidden';
         this._menu.style.overflowY = 'auto';
@@ -143,18 +149,26 @@ export class ProfilesDialog extends Dialog {
         this.footer.querySelector(`#${this.id}-back`).addEventListener('click', () => {
             this._goBack();
         });
-        this.on('closing', e => {
-
-        });
         this.on('closed', () => {
+            client.setOption('windows.profiles', this.windowState);
             removeHash(this._page);
-        });
-        this.on('canceling', e => {
-
         });
         this.on('canceled', () => {
+            client.setOption('windows.profiles', this.windowState);
             removeHash(this._page);
         });
+        this.on('moved', e => {
+            client.setOption('windows.profiles', e);
+        })
+        this.on('maximized', () => {
+            client.setOption('windows.profiles', this.windowState);
+        });
+        this.on('restored', () => {
+            client.setOption('windows.profiles', this.windowState);
+        });
+        this.on('shown', () => {
+            client.setOption('windows.profiles', this.windowState);
+        });        
         this.footer.querySelector(`#${this.id}-add-profile a`).addEventListener('click', () => {
             this._createProfile(true);
         });
@@ -485,8 +499,8 @@ export class ProfilesDialog extends Dialog {
         }
         if (pages.length === 2) {
             if (this._contentPage !== 'properties') {
-                this._contentPage = 'properties';
                 this._loadPage('properties').then(contents => {
+                    this._contentPage = 'properties';
                     this._setContents(contents);
                     const forms = this._contents.querySelectorAll('input');
                     this._contents.querySelector('#name').disabled = this._current.profileName === 'default';

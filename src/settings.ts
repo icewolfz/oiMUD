@@ -104,7 +104,7 @@ export let SettingList: any[] = [
     ['mapper.active.area', 0, 0, null],
     ['mapper.active.zone', 0, 2, 0],
     ['mapper.persistent', 0, 1, true],
-    ['profiles.split', 0, 2, -1],
+    ['profiles.split', 0, 2, 200],
     ['profiles.askoncancel', 0, 1, true],
     ['profiles.triggersAdvanced', 0, 1, false],
     ['profiles.aliasesAdvanced', 0, 1, false],
@@ -583,7 +583,7 @@ export class Settings {
             case 'mapper.active.z': return 0;
             case 'mapper.active.area': return null;
             case 'mapper.active.zone': return 0;
-            case 'profiles.split': return -1;
+            case 'profiles.split': return 200;
             case 'profiles.askoncancel': return true;
             case 'profiles.triggersAdvanced': return false;
             case 'profiles.aliasesAdvanced': return false;

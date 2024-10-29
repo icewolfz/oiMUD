@@ -4912,7 +4912,7 @@
     ["mapper.active.area", 0, 0, null],
     ["mapper.active.zone", 0, 2, 0],
     ["mapper.persistent", 0, 1, true],
-    ["profiles.split", 0, 2, -1],
+    ["profiles.split", 0, 2, 200],
     ["profiles.askoncancel", 0, 1, true],
     ["profiles.triggersAdvanced", 0, 1, false],
     ["profiles.aliasesAdvanced", 0, 1, false],
@@ -5430,7 +5430,7 @@
         case "mapper.active.zone":
           return 0;
         case "profiles.split":
-          return -1;
+          return 200;
         case "profiles.askoncancel":
           return true;
         case "profiles.triggersAdvanced":
@@ -27903,7 +27903,7 @@ Devanagari
   // src/interface/profilesdialog.ts
   var ProfilesDialog = class extends Dialog {
     constructor() {
-      super({ title: '<i class="fas fa-users"></i> Profiles', center: true, minWidth: 410 });
+      super(Object.assign({}, client.getOption("windows.profiles") || { center: true }, { title: 'i class="fas fa-users"></i> Profiles', minWidth: 410 }));
       this._profilesChanged = false;
       this._current = {
         profile: null,
@@ -27927,6 +27927,7 @@ Devanagari
           item.classList.remove("breadcrumb-sm");
           this._small = false;
         }
+        client.setOption("windows.profiles", e);
       });
       client.on("profiles-loaded", () => {
         if (!this.profiles) {
@@ -27946,6 +27947,11 @@ Devanagari
       });
       this.body.style.padding = "10px";
       this._splitter = new Splitter({ id: "profile", parent: this.body, orientation: 1 /* vertical */, anchor: 1 /* panel1 */ });
+      if (client.getOption("profiles.split") >= 200)
+        this._splitter.SplitterDistance = client.getOption("profiles.split");
+      this._splitter.on("splitter-moved", (distance) => {
+        client.setOption("profiles.split", distance);
+      });
       this._menu = this._splitter.panel1;
       this._menu.style.overflow = "hidden";
       this._menu.style.overflowY = "auto";
@@ -28006,15 +28012,25 @@ Devanagari
       this.footer.querySelector(`#${this.id}-back`).addEventListener("click", () => {
         this._goBack();
       });
-      this.on("closing", (e) => {
-      });
       this.on("closed", () => {
+        client.setOption("windows.profiles", this.windowState);
         removeHash(this._page);
-      });
-      this.on("canceling", (e) => {
       });
       this.on("canceled", () => {
+        client.setOption("windows.profiles", this.windowState);
         removeHash(this._page);
+      });
+      this.on("moved", (e) => {
+        client.setOption("windows.profiles", e);
+      });
+      this.on("maximized", () => {
+        client.setOption("windows.profiles", this.windowState);
+      });
+      this.on("restored", () => {
+        client.setOption("windows.profiles", this.windowState);
+      });
+      this.on("shown", () => {
+        client.setOption("windows.profiles", this.windowState);
       });
       this.footer.querySelector(`#${this.id}-add-profile a`).addEventListener("click", () => {
         this._createProfile(true);
@@ -28341,9 +28357,9 @@ Devanagari
       }
       if (pages.length === 2) {
         if (this._contentPage !== "properties") {
-          this._contentPage = "properties";
           this._loadPage("properties").then(
             (contents2) => {
+              this._contentPage = "properties";
               this._setContents(contents2);
               const forms = this._contents.querySelectorAll("input");
               this._contents.querySelector("#name").disabled = this._current.profileName === "default";
@@ -29096,7 +29112,8 @@ Devanagari
           }
         }
       }
-      if (_dialogs.history) editorDialog.resetState(client.getOption("windows.history") || { center: true, width: 400, height: 275 });
+      if (_dialogs.history) _dialogs.history.resetState(client.getOption("windows.history") || { center: true, width: 400, height: 275 });
+      if (_dialogs.profiles) _dialogs.profiles.resetState(client.getOption("windows.profiles") || { center: true, width: 400, height: 275 });
     });
     client.on("set-title", (title) => {
       window.document.title = title;
@@ -29274,6 +29291,9 @@ Devanagari
     options = client.getOption("windows.history");
     if (options && options.show)
       showDialog("history");
+    options = client.getOption("windows.profiles");
+    if (options && options.show)
+      showDialog("profiles");
     document.getElementById("btn-command-history").addEventListener("show.bs.dropdown", function() {
       document.body.appendChild(document.getElementById("command-history-menu"));
       let h = "";

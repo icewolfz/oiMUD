@@ -52,11 +52,13 @@ case 'ch':
 - mapper plugin and all related options
 - backup plugin for shadowmud
 - immortal tool plugin for shadowmud
+- maybe just a general shadowmud plugin that groups all sm related like backup and immortal tools
 - Profile manager:
     - Add undo system
     - Add options for profile sort order and direction
     - Add option which profile to select on load
     - Add option to expand selected profile on load
+    - Add search system
 - status plugin and related and move all lag meter to here
     - Add option to display lag in title
 - skip more prompt

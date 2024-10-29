@@ -19278,7 +19278,7 @@
       //#region Public properties
       this.scrollLock = false;
       if (!container)
-        throw new Error("Container must be a selector, element or jquery object");
+        throw new Error("Container must be a selector, element, jquery object or display options");
       if (typeof container === "object" && "container" in container) {
         options = Object.assign(options || {}, container);
         container = options.container;

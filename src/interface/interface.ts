@@ -3,7 +3,7 @@ import "../css/interface.css";
 import { initMenu } from './menu';
 import { Client } from '../client';
 import { Dialog, DialogButtons } from "./dialog";
-import { openFileDialog, readFile, debounce, copyText, getParameterByName } from '../library';
+import { openFileDialog, readFile, debounce, copyText, pasteText } from '../library';
 import { AdvEditor } from './adv.editor';
 import { SettingsDialog } from './settingsdialog';
 import { ProfilesDialog } from "./profilesdialog";
@@ -35,12 +35,13 @@ export function initializeInterface() {
     _setIcon(0);
     initMenu();
     //not supported bu add stubs to prevent errors from imported scripts
-    window.readClipboard = () => '';
-    window.writeClipboard = (txt, html) => { };
-    window.readClipboardHTML = () => '';
+    window.readClipboard = () => pasteText();
+    window.readClipboardHTML = () => pasteText();
     (client as any).readClipboard = window.readClipboard;
-    (client as any).writeClipboard = window.writeClipboard;
     (client as any).readClipboardHTML = window.readClipboardHTML;
+
+    window.writeClipboard = (txt, html) => copyText(txt);
+    (client as any).writeClipboard = window.writeClipboard;
 
     (client as any).closeDialog = window => {
         switch (window) {
@@ -296,8 +297,12 @@ export function initializeInterface() {
                         client.raise('notify-closed', [title, message]);
                     };
                 }
+                else
+                    client.echo('Notification permission denied.', -7, -8, true, true);
             });
         }
+        else
+            client.echo('Notification permission denied.', -7, -8, true, true);
     });
     client.on('window', (window, args, name) => {
         switch (window) {

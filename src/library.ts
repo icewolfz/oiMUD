@@ -2192,6 +2192,34 @@ export function pasteText() {
     });
 }
 
+export function pasteSync() {
+    let value = '';
+    if (document.queryCommandSupported && document.queryCommandSupported("paste")) {
+        var textarea = document.createElement("textarea");
+        textarea.style.position = "fixed";
+        textarea.style.width = '2em';
+        textarea.style.height = '2em';
+        textarea.style.padding = '0';
+        textarea.style.border = 'none';
+        textarea.style.outline = 'none';
+        textarea.style.boxShadow = 'none';
+        textarea.style.background = 'transparent';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+            document.execCommand("paste", false, null);
+            value = textarea.value;
+        }
+        catch (e) {
+        }
+        finally {
+            document.body.removeChild(textarea);
+        }
+    }
+    return value;
+}
+
 export function getParameterByName(name: string, url?: string): string {
     if (!name) return null;
     if (!url) url = window.location.href;
@@ -2577,48 +2605,48 @@ export function markdownParser(text) {
         .replace(/\*(.*)\*/gim, '<i>$1</i>') // italic text
         .replace(/_(.*)_/gim, '<i>$1</i>') // italic text
         .replace(/\\$/gim, '$')
-        .replace(/\\{/gim, '\\');        
+        .replace(/\\{/gim, '\\');
     return toHTML.trim(); // using trim method to remove whitespace
 }
 
 export function scrollChildIntoView(parent, child) {
     const childRect = child.getBoundingClientRect();
     const parentRect = parent.getBoundingClientRect();
-  
-    if (
-      childRect.top < parentRect.top ||
-      childRect.bottom > parentRect.bottom ||
-      childRect.left < parentRect.left ||
-      childRect.right > parentRect.right
-    ) {
-      child.scrollIntoView({
-        behavior: "smooth", // Optional for smooth scrolling
-        block: "nearest" // Scrolls to nearest edge of the parent
-      });
-    }
-  }
 
-  export function getWordAtPosition(x, y) {
+    if (
+        childRect.top < parentRect.top ||
+        childRect.bottom > parentRect.bottom ||
+        childRect.left < parentRect.left ||
+        childRect.right > parentRect.right
+    ) {
+        child.scrollIntoView({
+            behavior: "smooth", // Optional for smooth scrolling
+            block: "nearest" // Scrolls to nearest edge of the parent
+        });
+    }
+}
+
+export function getWordAtPosition(x, y) {
     // Get the element at the specified coordinates
     const element = document.elementFromPoint(x, y);
-  
+
     // Check if the element exists and contains text
     if (element && element.textContent) {
-      // Get the text content of the element
-      const text = element.textContent;
-  
-      // Find the word boundaries around the specified position
-      let start = text.lastIndexOf(' ', x) + 1;
-      let end = text.indexOf(' ', x);
-      if (end === -1) {
-        end = text.length;
-      }
-  
-      // Extract the word
-      const word = text.substring(start, end);
-  
-      return word;
+        // Get the text content of the element
+        const text = element.textContent;
+
+        // Find the word boundaries around the specified position
+        let start = text.lastIndexOf(' ', x) + 1;
+        let end = text.indexOf(' ', x);
+        if (end === -1) {
+            end = text.length;
+        }
+
+        // Extract the word
+        const word = text.substring(start, end);
+
+        return word;
     }
-  
+
     return null;
-  }
+}

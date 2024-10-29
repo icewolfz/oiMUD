@@ -19809,7 +19809,7 @@
       //#region Public properties
       this.scrollLock = false;
       if (!container)
-        throw new Error("Container must be a selector, element or jquery object");
+        throw new Error("Container must be a selector, element, jquery object or display options");
       if (typeof container === "object" && "container" in container) {
         options = Object.assign(options || {}, container);
         container = options.container;
@@ -29130,13 +29130,12 @@ Devanagari
     let options;
     _setIcon(0);
     initMenu();
-    window.readClipboard = () => "";
-    window.writeClipboard = (txt, html) => {
-    };
-    window.readClipboardHTML = () => "";
+    window.readClipboard = () => pasteText();
+    window.readClipboardHTML = () => pasteText();
     client.readClipboard = window.readClipboard;
-    client.writeClipboard = window.writeClipboard;
     client.readClipboardHTML = window.readClipboardHTML;
+    window.writeClipboard = (txt, html) => copyText(txt);
+    client.writeClipboard = window.writeClipboard;
     client.closeDialog = (window2) => {
       switch (window2) {
         case "editor":
@@ -29380,9 +29379,11 @@ Devanagari
               client.emit("notify-closed", title, message);
               client.raise("notify-closed", [title, message]);
             };
-          }
+          } else
+            client.echo("Notification permission denied.", -7, -8, true, true);
         });
-      }
+      } else
+        client.echo("Notification permission denied.", -7, -8, true, true);
     });
     client.on("window", (window2, args, name2) => {
       switch (window2) {

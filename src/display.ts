@@ -402,7 +402,7 @@ export class Display extends EventEmitter {
     constructor(container: string | JQuery | HTMLElement | DisplayOptions, options?: DisplayOptions) {
         super();
         if (!container)
-            throw new Error('Container must be a selector, element or jquery object');
+            throw new Error('Container must be a selector, element, jquery object or display options');
         if (typeof container === 'object' && 'container' in container) {
             options = Object.assign(options || {}, container);
             container = options.container;

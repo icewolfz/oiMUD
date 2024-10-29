@@ -7739,6 +7739,8 @@ export class Input extends EventEmitter {
 
     public ProcessMacros(keycode, alt, ctrl, shift, meta) {
         if (!keycode || (keycode > 9 && keycode < 19)) return false;
+        //not loaded yet so cant process so just bail
+        if(!this.client.profiles) return false;
         //if(!this.client.getOption('enableMacros')) return false;
         //Possible cache by modifier but  not sure if it it matters as there is a limit of 1 macro per key combo so at most there probably wont be more then 5 to maybe 20 macros per key
         //const macros = this._MacroCache[`${keycode}_${mod}`] || (this._MacroCache[`${keycode}_${mod}`] = FilterArrayByKeyValue(FilterArrayByKeyValue(this.client.macros, 'key', keycode), 'modifiers', mod));

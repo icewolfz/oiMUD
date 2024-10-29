@@ -14507,6 +14507,7 @@
     }
     ProcessMacros(keycode, alt, ctrl, shift, meta) {
       if (!keycode || keycode > 9 && keycode < 19) return false;
+      if (!this.client.profiles) return false;
       const macros = this._MacroCache[keycode] || (this._MacroCache[keycode] = FilterArrayByKeyValue(this.client.macros, "key", keycode));
       let m = 0;
       const ml = macros.length;
@@ -29144,9 +29145,14 @@ Devanagari
       super();
       this._cleanUp = () => {
         window.removeEventListener("click", this._cleanUp);
+        window.removeEventListener("mousedown", this._mouseup);
         window.removeEventListener("keydown", this._cleanUp);
         if (this._menu)
           this._menu.remove();
+      };
+      this._mouseup = (e) => {
+        if (this._menu.contains(e.srcElement)) return;
+        this._cleanUp();
       };
       this._items = items || [];
       this._id = id || (/* @__PURE__ */ new Date()).getTime();
@@ -29182,6 +29188,7 @@ Devanagari
       this._menu.style.position = "absolute";
       setTimeout(() => {
         window.addEventListener("click", this._cleanUp);
+        window.addEventListener("mousedown", this._mouseup);
         window.addEventListener("keydown", this._cleanUp);
       }, 100);
     }

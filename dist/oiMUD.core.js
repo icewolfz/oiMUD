@@ -13956,6 +13956,7 @@
     }
     ProcessMacros(keycode, alt, ctrl, shift, meta) {
       if (!keycode || keycode > 9 && keycode < 19) return false;
+      if (!this.client.profiles) return false;
       const macros = this._MacroCache[keycode] || (this._MacroCache[keycode] = FilterArrayByKeyValue(this.client.macros, "key", keycode));
       let m = 0;
       const ml = macros.length;

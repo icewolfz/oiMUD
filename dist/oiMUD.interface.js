@@ -8006,9 +8006,14 @@
       super();
       this._cleanUp = () => {
         window.removeEventListener("click", this._cleanUp);
+        window.removeEventListener("mousedown", this._mouseup);
         window.removeEventListener("keydown", this._cleanUp);
         if (this._menu)
           this._menu.remove();
+      };
+      this._mouseup = (e) => {
+        if (this._menu.contains(e.srcElement)) return;
+        this._cleanUp();
       };
       this._items = items || [];
       this._id = id || (/* @__PURE__ */ new Date()).getTime();
@@ -8044,6 +8049,7 @@
       this._menu.style.position = "absolute";
       setTimeout(() => {
         window.addEventListener("click", this._cleanUp);
+        window.addEventListener("mousedown", this._mouseup);
         window.addEventListener("keydown", this._cleanUp);
       }, 100);
     }

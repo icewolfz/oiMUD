@@ -83,7 +83,7 @@ export function initializeInterface() {
         }
     });
     client.on('notify', (title, message, options) => {
-        if (!client.getOption('enableNotifications')) return;
+        if (!client.getOption('enableNotifications') || !("Notification" in window)) return;
         options = options || { silent: true };
         if (!Object.prototype.hasOwnProperty.call(options, 'silent'))
             options.silent = true;
@@ -103,15 +103,31 @@ export function initializeInterface() {
             if (options.body.length > 127)
                 options.body = options.body.substr(0, 127) + '...';
         }
-        var notify = new window.Notification(title, options);
-        notify.onclick = () => {
-            client.emit('notify-clicked', title, message);
-            client.raise('notify-clicked', [title, message]);
-        };
-        notify.onclose = () => {
-            client.emit('notify-closed', title, message);
-            client.raise('notify-closed', [title, message]);
-        };
+        if (Notification.permission === 'granted') {
+            var notify = new window.Notification(title, options);
+            notify.onclick = () => {
+                client.emit('notify-clicked', title, message);
+                client.raise('notify-clicked', [title, message]);
+            };
+            notify.onclose = () => {
+                client.emit('notify-closed', title, message);
+                client.raise('notify-closed', [title, message]);
+            };
+        } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then((permission) => {
+                if (permission === "granted") {
+                    var notify = new window.Notification(title, options);
+                    notify.onclick = () => {
+                        client.emit('notify-clicked', title, message);
+                        client.raise('notify-clicked', [title, message]);
+                    };
+                    notify.onclose = () => {
+                        client.emit('notify-closed', title, message);
+                        client.raise('notify-closed', [title, message]);
+                    };
+                }
+            });
+        }
     });
     //setup advanced editor footer button
     document.getElementById('btn-adv-editor').addEventListener('click', e => {
@@ -345,7 +361,7 @@ export function showDialog(name: string) {
                 });
                 _dialogs.history.on('canceled', () => {
                     client.setOption('windows.history', _dialogs.history.windowState);
-                    removeHash('history');                    
+                    removeHash('history');
                     delete _dialogs.history;
                     removeHash(name);
                 });

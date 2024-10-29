@@ -58,10 +58,12 @@ case 'ch':
     - Add option which profile to select on load
     - Add option to expand selected profile on load
 - status plugin and related and move all lag meter to here
+    - Add option to display lag in title
 - skip more prompt
 - skip more prompt delay
 - fix hidden windows
 - recode advanced editor to not use jquery when possible
+
 
 
 

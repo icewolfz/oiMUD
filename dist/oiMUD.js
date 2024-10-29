@@ -29099,7 +29099,7 @@ Devanagari
       }
     });
     client.on("notify", (title, message, options2) => {
-      if (!client.getOption("enableNotifications")) return;
+      if (!client.getOption("enableNotifications") || !("Notification" in window)) return;
       options2 = options2 || { silent: true };
       if (!Object.prototype.hasOwnProperty.call(options2, "silent"))
         options2.silent = true;
@@ -29119,15 +29119,31 @@ Devanagari
         if (options2.body.length > 127)
           options2.body = options2.body.substr(0, 127) + "...";
       }
-      var notify = new window.Notification(title, options2);
-      notify.onclick = () => {
-        client.emit("notify-clicked", title, message);
-        client.raise("notify-clicked", [title, message]);
-      };
-      notify.onclose = () => {
-        client.emit("notify-closed", title, message);
-        client.raise("notify-closed", [title, message]);
-      };
+      if (Notification.permission === "granted") {
+        var notify = new window.Notification(title, options2);
+        notify.onclick = () => {
+          client.emit("notify-clicked", title, message);
+          client.raise("notify-clicked", [title, message]);
+        };
+        notify.onclose = () => {
+          client.emit("notify-closed", title, message);
+          client.raise("notify-closed", [title, message]);
+        };
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            var notify2 = new window.Notification(title, options2);
+            notify2.onclick = () => {
+              client.emit("notify-clicked", title, message);
+              client.raise("notify-clicked", [title, message]);
+            };
+            notify2.onclose = () => {
+              client.emit("notify-closed", title, message);
+              client.raise("notify-closed", [title, message]);
+            };
+          }
+        });
+      }
     });
     document.getElementById("btn-adv-editor").addEventListener("click", (e) => {
       if (!editorDialog) {

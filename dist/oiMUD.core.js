@@ -32700,6 +32700,7 @@ Devanagari
 <a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#export-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="export-submenu"><i class="fa fa-exchange"></i> <span>Export/Import</span></a>
 <ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="export-submenu">
 <li id="mapper-export-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export as image</a></li>
+<li id="mapper-export-scaled-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export as scaled image</a></li>
 <li id="mapper-export-current-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export current view as image</a></li>
 <li><hr class="dropdown-divider"></li>
 <li id="mapper-export-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export current area</a></li>
@@ -32872,6 +32873,10 @@ Devanagari
       });
       this._dialog.body.querySelector("#mapper-export-image a").addEventListener("click", () => {
         this._dialogMap.exportImage();
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-export-scaled-image a").addEventListener("click", () => {
+        this._dialogMap.exportImage(true);
         closeMenu2();
       });
       this._dialog.body.querySelector("#mapper-export-current-image a").addEventListener("click", () => {

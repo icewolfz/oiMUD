@@ -115,35 +115,35 @@ export function initMenu() {
     let sl;
     const list = document.querySelector('#clientMenu ul')
     for (let p = 0; p < pl; p++) {
-        if (!client.plugins[p].settings) continue;
-        if (client.plugins[p].settings.length) {
-            sl = client.plugins[p].settings.length;
+        if (!client.plugins[p].menu) continue;
+        if (client.plugins[p].menu.length) {
+            sl = client.plugins[p].menu.length;
             for (s = 0; s < sl; s++) {
-                let item = client.plugins[p].settings[s];
+                let item = client.plugins[p].menu[s];
                 let code;
-                let id = 'menu-' + (item.name || '').toLowerCase().replace(/ /g, '-');
+                let id = 'menu-' + (item.name || s).toLowerCase().replace(/ /g, '-');
                 if (item.name === '-')
                     code = '<li><hr class="dropdown-divider"></li>';
                 else if (typeof item.action === 'string')
-                    code = `<li id="menu-${id}" class="nav-item" title="${item.name || ''}"><a class="nav-link" href="#${item.action}">${item.icon || ''}${item.name || ''}</i><span>${item.name || ''}</span></a></li>`;
+                    code = `<li id="menu-${id}" class="nav-item" title="${item.name || ''}"><a class="nav-link" href="#${item.action}">${item.icon || ''}<span>${item.name || ''}</span></a></li>`;
                 else
-                    code = `<li id="menu-${id}" class="nav-item" title="${item.name || ''}"><a class="nav-link" href="javascript:void(0)">${item.icon || ''}${item.name || ''}<span>${item.name || ''}</span></a></li>`;
+                    code = `<li id="menu-${id}" class="nav-item" title="${item.name || ''}"><a class="nav-link" href="javascript:void(0)">${item.icon || ''}<span>${item.name || ''}</span></a></li>`;
                 if ('position' in item) {
                     if (typeof item.position === 'string') {
-                        if (list.querySelector(item.position)) {
+                        if (list.querySelector(item.position))
                             list.querySelector(item.position).insertAdjacentHTML('afterend', code);
-                            continue;
-                        }
                     }
                     else if (item.position >= 0 && item.position < list.children.length) {
                         list.children[item.position].insertAdjacentHTML('afterend', code);
-                        continue;
                     }
+                    else
+                        list.insertAdjacentHTML('beforeend', code);
                 }
-                list.insertAdjacentHTML('beforeend', code);
+                else
+                    list.insertAdjacentHTML('beforeend', code);
                 if (item.name === '-') continue;
                 if (typeof item.action === 'function')
-                    document.querySelector(`#${id} a`).addEventListener('click', e => {
+                    document.querySelector(`#menu-${id} a`).addEventListener('click', e => {
                         const ie = { client: client, preventDefault: false };
                         item.action(ie);
                         if (ie.preventDefault) return;

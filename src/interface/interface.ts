@@ -1,4 +1,3 @@
-
 import "../css/interface.css";
 import { initMenu } from './menu';
 import { Client } from '../client';
@@ -505,6 +504,9 @@ export function initializeInterface() {
 
     window.addEventListener('error', (e) => {
         const { message, filename, lineno, colno, error } = e;
+        //not important so ignore it to prevent error spamming when reizing
+        if (message.includes("ResizeObserver loop completed with undelivered notifications")) 
+            return;
         if (client) {
             if (error)
                 client.error(error);
@@ -589,6 +591,8 @@ function hashChange() {
             default:
                 if (dialogs[d] === 'history' || dialogs[d].startsWith('settings') || dialogs[d].startsWith('profiles'))
                     showDialog(dialogs[d]);
+                else
+                    client.emit('window', dialogs[d]);
                 break;
         }
 }
@@ -646,7 +650,7 @@ export function showDialog(name: string) {
                 footer += `<button id="${_dialogs.history.id}-send" type="button" class="btn-sm float-end btn btn-primary" title="Send"><i class="bi bi-send-fill"></i><span class="icon-only"> Send</span></button>`;
                 footer += `<button id="${_dialogs.history.id}-refresh" type="button" class="btn-sm float-start btn btn-light" title="Refresh"><i class="bi bi-arrow-repeat"></i><span class="icon-only"> Refresh</span></button>`
                 _dialogs.history.footer.innerHTML = footer;
-                _dialogs.history.body.innerHTML = `<select id="history-list" multiple="multiple" class="form-control"></select>`;
+                _dialogs.history.body.innerHTML = `<select id="history-list" multiple="multiple" class="form-select"></select>`;
 
                 _dialogs.history.body.querySelector('#history-list').addEventListener('dblclick', e => {
                     const cmd = e.currentTarget.value;

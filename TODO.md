@@ -51,9 +51,6 @@ case 'ch':
 
 - logger plugin and all related options
     - ensure add #window support by hooking the client events
-- mapper plugin and all related options
-    - client.telnet.GMCPSupports.push('Room 1');
-    - ensure #window support by hooking client events
 - backup plugin for shadowmud
 - immortal tool plugin for shadowmud            
     - client.telnet.GMCPSupports.push('IED 1');
@@ -92,5 +89,4 @@ case 'ch':
     });    
 ```
 
-
-
+- recode mapper import/export to use web workers

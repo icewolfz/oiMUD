@@ -5,7 +5,13 @@
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __commonJS = (cb, mod) => function __require() {
+  var __require = /* @__PURE__ */ ((x2) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x2, {
+    get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
+  }) : x2)(function(x2) {
+    if (typeof require !== "undefined") return require.apply(this, arguments);
+    throw Error('Dynamic require of "' + x2 + '" is not supported');
+  });
+  var __commonJS = (cb, mod) => function __require2() {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var __copyProps = (to, from, except, desc) => {
@@ -30,23 +36,23 @@
     "src/lib/inflate_stream.min.js"(exports) {
       (function() {
         "use strict";
-        var k = void 0, l = true, aa = this;
-        function s(a, d) {
+        var k = void 0, l2 = true, aa = this;
+        function s(a, d2) {
           var b = a.split("."), c = aa;
           !(b[0] in c) && c.execScript && c.execScript("var " + b[0]);
-          for (var e; b.length && (e = b.shift()); ) !b.length && d !== k ? c[e] = d : c = c[e] ? c[e] : c[e] = {};
+          for (var e; b.length && (e = b.shift()); ) !b.length && d2 !== k ? c[e] = d2 : c = c[e] ? c[e] : c[e] = {};
         }
         ;
-        var x = "undefined" !== typeof Uint8Array && "undefined" !== typeof Uint16Array && "undefined" !== typeof Uint32Array && "undefined" !== typeof DataView;
-        function y(a) {
-          var d = a.length, b = 0, c = Number.POSITIVE_INFINITY, e, g, f, p, h, q, m, n, r, B;
-          for (n = 0; n < d; ++n) a[n] > b && (b = a[n]), a[n] < c && (c = a[n]);
+        var x2 = "undefined" !== typeof Uint8Array && "undefined" !== typeof Uint16Array && "undefined" !== typeof Uint32Array && "undefined" !== typeof DataView;
+        function y2(a) {
+          var d2 = a.length, b = 0, c = Number.POSITIVE_INFINITY, e, g, f, p, h, q, m, n, r, B;
+          for (n = 0; n < d2; ++n) a[n] > b && (b = a[n]), a[n] < c && (c = a[n]);
           e = 1 << b;
-          g = new (x ? Uint32Array : Array)(e);
+          g = new (x2 ? Uint32Array : Array)(e);
           f = 1;
           p = 0;
           for (h = 2; f <= b; ) {
-            for (n = 0; n < d; ++n) if (a[n] === f) {
+            for (n = 0; n < d2; ++n) if (a[n] === f) {
               q = 0;
               m = p;
               for (r = 0; r < f; ++r) q = q << 1 | m & 1, m >>= 1;
@@ -61,24 +67,24 @@
           return [g, b, c];
         }
         ;
-        function z(a, d, b) {
+        function z2(a, d2, b) {
           this.u = [];
           this.i = b ? b : 32768;
           this.v = 0;
-          this.a = d === k ? 0 : d;
+          this.a = d2 === k ? 0 : d2;
           this.d = this.e = 0;
-          this.input = x ? new Uint8Array(a) : a;
-          this.b = new (x ? Uint8Array : Array)(this.i);
+          this.input = x2 ? new Uint8Array(a) : a;
+          this.b = new (x2 ? Uint8Array : Array)(this.i);
           this.c = 0;
           this.t = this.l = false;
           this.f = 0;
           this.status = A;
         }
         var A = 0;
-        z.prototype.j = function(a, d) {
+        z2.prototype.j = function(a, d2) {
           var b = false;
           a !== k && (this.input = a);
-          d !== k && (this.a = d);
+          d2 !== k && (this.a = d2);
           for (; !b; ) switch (this.status) {
             case A:
             case 1:
@@ -88,7 +94,7 @@
               H(this);
               if (0 > (e = I(this, 3))) J(this), c = -1;
               else {
-                e & 1 && (this.l = l);
+                e & 1 && (this.l = l2);
                 e >>>= 1;
                 switch (e) {
                   case 0:
@@ -106,7 +112,7 @@
                 this.status = 2;
                 c = k;
               }
-              0 > c && (b = l);
+              0 > c && (b = l2);
               break;
             case 2:
             case 3:
@@ -126,7 +132,7 @@
                     this.status = 4;
                     g = k;
                   }
-                  0 > g && (b = l);
+                  0 > g && (b = l2);
                   break;
                 case 1:
                   this.status = 3;
@@ -137,7 +143,7 @@
                 case 2:
                   var m;
                   a: {
-                    var n = k, r = k, B = k, V = new (x ? Uint8Array : Array)(K.length), W = k;
+                    var n = k, r = k, B = k, V = new (x2 ? Uint8Array : Array)(K.length), W = k;
                     this.status = 3;
                     H(this);
                     n = I(this, 5) + 257;
@@ -150,8 +156,8 @@
                           if (0 > (w = I(this, 3))) throw Error("not enough input");
                           V[K[t]] = w;
                         }
-                        W = y(V);
-                        u = new (x ? Uint8Array : Array)(n + r);
+                        W = y2(V);
+                        u = new (x2 ? Uint8Array : Array)(n + r);
                         t = 0;
                         for (X = n + r; t < X; ) {
                           D = O(this, W);
@@ -175,13 +181,13 @@
                               E = u[t++] = D;
                           }
                         }
-                        new (x ? Uint8Array : Array)(n);
-                        new (x ? Uint8Array : Array)(r);
-                        this.k = x ? y(u.subarray(
+                        new (x2 ? Uint8Array : Array)(n);
+                        new (x2 ? Uint8Array : Array)(r);
+                        this.k = x2 ? y2(u.subarray(
                           0,
                           n
-                        )) : y(u.slice(0, n));
-                        this.n = x ? y(u.subarray(n)) : y(u.slice(n));
+                        )) : y2(u.slice(0, n));
+                        this.n = x2 ? y2(u.subarray(n)) : y2(u.slice(n));
                       } catch (pa) {
                         J(this);
                         m = -1;
@@ -191,7 +197,7 @@
                       m = 0;
                     }
                   }
-                  0 > m && (b = l);
+                  0 > m && (b = l2);
               }
               break;
             case 4:
@@ -217,23 +223,23 @@
                     this.c = G;
                     L = 0;
                   }
-                  0 > L && (b = l);
+                  0 > L && (b = l2);
                   break;
                 case 1:
                 case 2:
-                  0 > da(this) && (b = l);
+                  0 > da(this) && (b = l2);
               }
               break;
             case 6:
-              this.l ? b = l : this.status = A;
+              this.l ? b = l2 : this.status = A;
           }
           var Z, v = this.c, $2;
-          Z = this.t ? x ? new Uint8Array(this.b.subarray(this.f, v)) : this.b.slice(this.f, v) : x ? this.b.subarray(this.f, v) : this.b.slice(this.f, v);
+          Z = this.t ? x2 ? new Uint8Array(this.b.subarray(this.f, v)) : this.b.slice(this.f, v) : x2 ? this.b.subarray(this.f, v) : this.b.slice(this.f, v);
           this.f = v;
-          v > 32768 + this.i && (this.c = this.f = 32768, x ? ($2 = this.b, this.b = new Uint8Array(this.i + 32768), this.b.set($2.subarray(v - 32768, v))) : this.b = this.b.slice(v - 32768));
+          v > 32768 + this.i && (this.c = this.f = 32768, x2 ? ($2 = this.b, this.b = new Uint8Array(this.i + 32768), this.b.set($2.subarray(v - 32768, v))) : this.b = this.b.slice(v - 32768));
           return Z;
         };
-        var ea = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15], K = x ? new Uint16Array(ea) : ea, fa = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 258, 258], ga = x ? new Uint16Array(fa) : fa, ha = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 0, 0], ia = x ? new Uint8Array(ha) : ha, ja = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577], ka = x ? new Uint16Array(ja) : ja, la = [
+        var ea = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15], K = x2 ? new Uint16Array(ea) : ea, fa = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 258, 258], ga = x2 ? new Uint16Array(fa) : fa, ha = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 0, 0], ia = x2 ? new Uint8Array(ha) : ha, ja = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577], ka = x2 ? new Uint16Array(ja) : ja, la = [
           0,
           0,
           0,
@@ -264,28 +270,28 @@
           12,
           13,
           13
-        ], ma = x ? new Uint8Array(la) : la, Q = new (x ? Uint8Array : Array)(288), R, na;
+        ], ma = x2 ? new Uint8Array(la) : la, Q = new (x2 ? Uint8Array : Array)(288), R, na;
         R = 0;
         for (na = Q.length; R < na; ++R) Q[R] = 143 >= R ? 8 : 255 >= R ? 9 : 279 >= R ? 7 : 8;
-        var ba = y(Q), S = new (x ? Uint8Array : Array)(30), T, oa;
+        var ba = y2(Q), S = new (x2 ? Uint8Array : Array)(30), T, oa;
         T = 0;
         for (oa = S.length; T < oa; ++T) S[T] = 5;
-        var ca = y(S);
-        function I(a, d) {
-          for (var b = a.e, c = a.d, e = a.input, g = a.a, f; c < d; ) {
+        var ca = y2(S);
+        function I(a, d2) {
+          for (var b = a.e, c = a.d, e = a.input, g = a.a, f; c < d2; ) {
             if (e.length <= g) return -1;
             f = e[g++];
             b |= f << c;
             c += 8;
           }
-          f = b & (1 << d) - 1;
-          a.e = b >>> d;
-          a.d = c - d;
+          f = b & (1 << d2) - 1;
+          a.e = b >>> d2;
+          a.d = c - d2;
           a.a = g;
           return f;
         }
-        function O(a, d) {
-          for (var b = a.e, c = a.d, e = a.input, g = a.a, f = d[0], p = d[1], h, q, m; c < p; ) {
+        function O(a, d2) {
+          for (var b = a.e, c = a.d, e = a.input, g = a.a, f = d2[0], p = d2[1], h, q, m; c < p; ) {
             if (e.length <= g) return -1;
             h = e[g++];
             b |= h << c;
@@ -310,13 +316,13 @@
           a.e = a.q;
         }
         function da(a) {
-          var d = a.b, b = a.c, c, e, g, f, p = a.k, h = a.n, q = d.length, m;
+          var d2 = a.b, b = a.c, c, e, g, f, p = a.k, h = a.n, q = d2.length, m;
           for (a.status = 5; ; ) {
             H(a);
             c = O(a, p);
             if (0 > c) return a.c = b, J(a), -1;
             if (256 === c) break;
-            if (256 > c) b === q && (d = P(a), q = d.length), d[b++] = c;
+            if (256 > c) b === q && (d2 = P(a), q = d2.length), d2[b++] = c;
             else {
               e = c - 257;
               f = ga[e];
@@ -333,8 +339,8 @@
                 if (0 > m) return a.c = b, J(a), -1;
                 g += m;
               }
-              b + f >= q && (d = P(a), q = d.length);
-              for (; f--; ) d[b] = d[b++ - g];
+              b + f >= q && (d2 = P(a), q = d2.length);
+              for (; f--; ) d2[b] = d2[b++ - g];
               if (a.a === a.input.length) return a.c = b, -1;
             }
           }
@@ -342,24 +348,24 @@
           a.c = b;
           a.status = 6;
         }
-        function P(a, d) {
+        function P(a, d2) {
           var b, c = a.input.length / a.a + 1 | 0, e, g, f, p = a.input, h = a.b;
-          d && ("number" === typeof d.o && (c = d.o), "number" === typeof d.p && (c += d.p));
+          d2 && ("number" === typeof d2.o && (c = d2.o), "number" === typeof d2.p && (c += d2.p));
           2 > c ? (e = (p.length - a.a) / a.k[2], f = 258 * (e / 2) | 0, g = f < h.length ? h.length + f : h.length << 1) : g = h.length * c;
-          x ? (b = new Uint8Array(g), b.set(h)) : b = h;
+          x2 ? (b = new Uint8Array(g), b.set(h)) : b = h;
           a.b = b;
           return a.b;
         }
         ;
         function U(a) {
-          this.input = a === k ? new (x ? Uint8Array : Array)() : a;
+          this.input = a === k ? new (x2 ? Uint8Array : Array)() : a;
           this.a = 0;
-          this.g = new z(this.input, this.a);
+          this.g = new z2(this.input, this.a);
           this.b = this.g.b;
         }
         U.prototype.j = function(a) {
-          var d;
-          if (a !== k) if (x) {
+          var d2;
+          if (a !== k) if (x2) {
             var b = new Uint8Array(this.input.length + a.length);
             b.set(this.input, 0);
             b.set(a, this.input.length);
@@ -385,10 +391,10 @@
             }
             c = 0 > e;
           }
-          if (c) return new (x ? Uint8Array : Array)();
-          d = this.g.j(this.input, this.a);
-          0 !== this.g.a && (this.input = x ? this.input.subarray(this.g.a) : this.input.slice(this.g.a), this.a = 0);
-          return d;
+          if (c) return new (x2 ? Uint8Array : Array)();
+          d2 = this.g.j(this.input, this.a);
+          0 !== this.g.a && (this.input = x2 ? this.input.subarray(this.g.a) : this.input.slice(this.g.a), this.a = 0);
+          return d2;
         };
         s("Zlib.InflateStream", U);
         s("Zlib.InflateStream.prototype.decompress", U.prototype.j);
@@ -751,11 +757,11 @@
               types = types.split(" ");
               for (var t = 0; t < types.length; t++) {
                 var idx = types[t], type = idx.split(".")[0];
-                for (var i2 = 0; i2 < events.length; i2++) {
-                  var namespace = events[i2].idx.split(".");
-                  if (events[i2].idx === idx || namespace[1] && namespace[1] === idx.replace(".", "")) {
-                    this.sound.removeEventListener(type, events[i2].func, true);
-                    events.splice(i2, 1);
+                for (var i3 = 0; i3 < events.length; i3++) {
+                  var namespace = events[i3].idx.split(".");
+                  if (events[i3].idx === idx || namespace[1] && namespace[1] === idx.replace(".", "")) {
+                    this.sound.removeEventListener(type, events[i3].func, true);
+                    events.splice(i3, 1);
                   }
                 }
               }
@@ -783,9 +789,9 @@
               types = types.split(" ");
               for (var t = 0; t < types.length; t++) {
                 var idx = types[t];
-                for (var i2 = 0; i2 < events.length; i2++) {
-                  var eventType = events[i2].idx.split(".");
-                  if (events[i2].idx === idx || eventType[0] && eventType[0] === idx.replace(".", "")) {
+                for (var i3 = 0; i3 < events.length; i3++) {
+                  var eventType = events[i3].idx.split(".");
+                  if (events[i3].idx === idx || eventType[0] && eventType[0] === idx.replace(".", "")) {
                     var evt = doc.createEvent("HTMLEvents");
                     evt.initEvent(eventType[0], false, true);
                     evt.originalEvent = detail;
@@ -874,10 +880,10 @@
             };
             function timerangeToArray(timeRange) {
               var array = [], length = timeRange.length - 1;
-              for (var i2 = 0; i2 <= length; i2++) {
+              for (var i3 = 0; i3 <= length; i3++) {
                 array.push({
-                  start: timeRange.start(i2),
-                  end: timeRange.end(i2)
+                  start: timeRange.start(i3),
+                  end: timeRange.end(i3)
                 });
               }
               return array;
@@ -886,10 +892,10 @@
               return filename.split(".").pop();
             }
             if (supported && src) {
-              for (var i in buzz2.defaults) {
-                if (buzz2.defaults.hasOwnProperty(i)) {
-                  if (options[i] === void 0) {
-                    options[i] = buzz2.defaults[i];
+              for (var i2 in buzz2.defaults) {
+                if (buzz2.defaults.hasOwnProperty(i2)) {
+                  if (options[i2] === void 0) {
+                    options[i2] = buzz2.defaults[i2];
                   }
                 }
               }
@@ -902,9 +908,9 @@
                 }
               }
               if (src instanceof Array) {
-                for (var j in src) {
-                  if (src.hasOwnProperty(j)) {
-                    this.addSource(src[j]);
+                for (var j2 in src) {
+                  if (src.hasOwnProperty(j2)) {
+                    this.addSource(src[j2]);
                   }
                 }
               } else if (options.formats.length) {
@@ -947,9 +953,9 @@
             this.remove = function(soundArray) {
               soundArray = argsToArray(soundArray, arguments);
               for (var a = 0; a < soundArray.length; a++) {
-                for (var i = 0; i < sounds.length; i++) {
-                  if (sounds[i] === soundArray[a]) {
-                    sounds.splice(i, 1);
+                for (var i2 = 0; i2 < sounds.length; i2++) {
+                  if (sounds[i2] === soundArray[a]) {
+                    sounds.splice(i2, 1);
                     break;
                   }
                 }
@@ -1049,8 +1055,8 @@
             };
             function fn() {
               var args = argsToArray(null, arguments), func = args.shift();
-              for (var i = 0; i < sounds.length; i++) {
-                sounds[i][func].apply(sounds[i], args);
+              for (var i2 = 0; i2 < sounds.length; i2++) {
+                sounds[i2][func].apply(sounds[i2], args);
               }
             }
             function argsToArray(array, args) {
@@ -1109,6 +1115,1175 @@
     }
   });
 
+  // src/lib/pathfinding3D.js
+  var require_pathfinding3D = __commonJS({
+    "src/lib/pathfinding3D.js"(exports, module) {
+      (function(e) {
+        if ("function" == typeof bootstrap) bootstrap("pf", e);
+        else if ("object" == typeof exports) module.exports = e();
+        else if ("function" == typeof define && define.amd) define(e);
+        else if ("undefined" != typeof ses) {
+          if (!ses.ok()) return;
+          ses.makePF = e;
+        } else "undefined" != typeof window ? window.PF = e() : global.PF = e();
+      })(function() {
+        var define2, ses2, bootstrap2, module2, exports2;
+        return function(e, t, n) {
+          function i2(n2, s2) {
+            if (!t[n2]) {
+              if (!e[n2]) {
+                var o = typeof __require == "function" && __require;
+                if (!s2 && o) return o(n2, true);
+                if (r) return r(n2, true);
+                throw new Error("Cannot find module '" + n2 + "'");
+              }
+              var u = t[n2] = { exports: {} };
+              e[n2][0].call(u.exports, function(t2) {
+                var r2 = e[n2][1][t2];
+                return i2(r2 ? r2 : t2);
+              }, u, u.exports);
+            }
+            return t[n2].exports;
+          }
+          var r = typeof __require == "function" && __require;
+          for (var s = 0; s < n.length; s++) i2(n[s]);
+          return i2;
+        }({
+          1: [function(require2, module3, exports3) {
+            module3.exports = require2("./lib/heap");
+          }, { "./lib/heap": 2 }],
+          2: [function(require2, module3, exports3) {
+            (function() {
+              var Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;
+              floor = Math.floor, min = Math.min;
+              defaultCmp = function(x2, y2) {
+                if (x2 < y2) {
+                  return -1;
+                }
+                if (x2 > y2) {
+                  return 1;
+                }
+                return 0;
+              };
+              insort = function(a, x2, lo, hi, cmp) {
+                var mid;
+                if (lo == null) {
+                  lo = 0;
+                }
+                if (cmp == null) {
+                  cmp = defaultCmp;
+                }
+                if (lo < 0) {
+                  throw new Error("lo must be non-negative");
+                }
+                if (hi == null) {
+                  hi = a.length;
+                }
+                while (lo < hi) {
+                  mid = floor((lo + hi) / 2);
+                  if (cmp(x2, a[mid]) < 0) {
+                    hi = mid;
+                  } else {
+                    lo = mid + 1;
+                  }
+                }
+                return [].splice.apply(a, [lo, lo - lo].concat(x2)), x2;
+              };
+              heappush = function(array, item, cmp) {
+                if (cmp == null) {
+                  cmp = defaultCmp;
+                }
+                array.push(item);
+                return _siftdown(array, 0, array.length - 1, cmp);
+              };
+              heappop = function(array, cmp) {
+                var lastelt, returnitem;
+                if (cmp == null) {
+                  cmp = defaultCmp;
+                }
+                lastelt = array.pop();
+                if (array.length) {
+                  returnitem = array[0];
+                  array[0] = lastelt;
+                  _siftup(array, 0, cmp);
+                } else {
+                  returnitem = lastelt;
+                }
+                return returnitem;
+              };
+              heapreplace = function(array, item, cmp) {
+                var returnitem;
+                if (cmp == null) {
+                  cmp = defaultCmp;
+                }
+                returnitem = array[0];
+                array[0] = item;
+                _siftup(array, 0, cmp);
+                return returnitem;
+              };
+              heappushpop = function(array, item, cmp) {
+                var _ref;
+                if (cmp == null) {
+                  cmp = defaultCmp;
+                }
+                if (array.length && cmp(array[0], item) < 0) {
+                  _ref = [array[0], item], item = _ref[0], array[0] = _ref[1];
+                  _siftup(array, 0, cmp);
+                }
+                return item;
+              };
+              heapify = function(array, cmp) {
+                var i2, _i, _j, _len, _ref, _ref1, _results, _results1;
+                if (cmp == null) {
+                  cmp = defaultCmp;
+                }
+                _ref1 = function() {
+                  _results1 = [];
+                  for (var _j2 = 0, _ref2 = floor(array.length / 2); 0 <= _ref2 ? _j2 < _ref2 : _j2 > _ref2; 0 <= _ref2 ? _j2++ : _j2--) {
+                    _results1.push(_j2);
+                  }
+                  return _results1;
+                }.apply(this).reverse();
+                _results = [];
+                for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+                  i2 = _ref1[_i];
+                  _results.push(_siftup(array, i2, cmp));
+                }
+                return _results;
+              };
+              updateItem = function(array, item, cmp) {
+                var pos;
+                if (cmp == null) {
+                  cmp = defaultCmp;
+                }
+                pos = array.indexOf(item);
+                if (pos === -1) {
+                  return;
+                }
+                _siftdown(array, 0, pos, cmp);
+                return _siftup(array, pos, cmp);
+              };
+              nlargest = function(array, n, cmp) {
+                var elem, result, _i, _len, _ref;
+                if (cmp == null) {
+                  cmp = defaultCmp;
+                }
+                result = array.slice(0, n);
+                if (!result.length) {
+                  return result;
+                }
+                heapify(result, cmp);
+                _ref = array.slice(n);
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  elem = _ref[_i];
+                  heappushpop(result, elem, cmp);
+                }
+                return result.sort(cmp).reverse();
+              };
+              nsmallest = function(array, n, cmp) {
+                var elem, i2, los, result, _i, _j, _len, _ref, _ref1, _results;
+                if (cmp == null) {
+                  cmp = defaultCmp;
+                }
+                if (n * 10 <= array.length) {
+                  result = array.slice(0, n).sort(cmp);
+                  if (!result.length) {
+                    return result;
+                  }
+                  los = result[result.length - 1];
+                  _ref = array.slice(n);
+                  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                    elem = _ref[_i];
+                    if (cmp(elem, los) < 0) {
+                      insort(result, elem, 0, null, cmp);
+                      result.pop();
+                      los = result[result.length - 1];
+                    }
+                  }
+                  return result;
+                }
+                heapify(array, cmp);
+                _results = [];
+                for (i2 = _j = 0, _ref1 = min(n, array.length); 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i2 = 0 <= _ref1 ? ++_j : --_j) {
+                  _results.push(heappop(array, cmp));
+                }
+                return _results;
+              };
+              _siftdown = function(array, startpos, pos, cmp) {
+                var newitem, parent, parentpos;
+                if (cmp == null) {
+                  cmp = defaultCmp;
+                }
+                newitem = array[pos];
+                while (pos > startpos) {
+                  parentpos = pos - 1 >> 1;
+                  parent = array[parentpos];
+                  if (cmp(newitem, parent) < 0) {
+                    array[pos] = parent;
+                    pos = parentpos;
+                    continue;
+                  }
+                  break;
+                }
+                return array[pos] = newitem;
+              };
+              _siftup = function(array, pos, cmp) {
+                var childpos, endpos, newitem, rightpos, startpos;
+                if (cmp == null) {
+                  cmp = defaultCmp;
+                }
+                endpos = array.length;
+                startpos = pos;
+                newitem = array[pos];
+                childpos = 2 * pos + 1;
+                while (childpos < endpos) {
+                  rightpos = childpos + 1;
+                  if (rightpos < endpos && !(cmp(array[childpos], array[rightpos]) < 0)) {
+                    childpos = rightpos;
+                  }
+                  array[pos] = array[childpos];
+                  pos = childpos;
+                  childpos = 2 * pos + 1;
+                }
+                array[pos] = newitem;
+                return _siftdown(array, startpos, pos, cmp);
+              };
+              Heap = function() {
+                Heap2.push = heappush;
+                Heap2.pop = heappop;
+                Heap2.replace = heapreplace;
+                Heap2.pushpop = heappushpop;
+                Heap2.heapify = heapify;
+                Heap2.nlargest = nlargest;
+                Heap2.nsmallest = nsmallest;
+                function Heap2(cmp) {
+                  this.cmp = cmp != null ? cmp : defaultCmp;
+                  this.nodes = [];
+                }
+                Heap2.prototype.push = function(x2) {
+                  return heappush(this.nodes, x2, this.cmp);
+                };
+                Heap2.prototype.pop = function() {
+                  return heappop(this.nodes, this.cmp);
+                };
+                Heap2.prototype.peek = function() {
+                  return this.nodes[0];
+                };
+                Heap2.prototype.contains = function(x2) {
+                  return this.nodes.indexOf(x2) !== -1;
+                };
+                Heap2.prototype.replace = function(x2) {
+                  return heapreplace(this.nodes, x2, this.cmp);
+                };
+                Heap2.prototype.pushpop = function(x2) {
+                  return heappushpop(this.nodes, x2, this.cmp);
+                };
+                Heap2.prototype.heapify = function() {
+                  return heapify(this.nodes, this.cmp);
+                };
+                Heap2.prototype.updateItem = function(x2) {
+                  return updateItem(this.nodes, x2, this.cmp);
+                };
+                Heap2.prototype.clear = function() {
+                  return this.nodes = [];
+                };
+                Heap2.prototype.empty = function() {
+                  return this.nodes.length === 0;
+                };
+                Heap2.prototype.size = function() {
+                  return this.nodes.length;
+                };
+                Heap2.prototype.clone = function() {
+                  var heap;
+                  heap = new Heap2();
+                  heap.nodes = this.nodes.slice(0);
+                  return heap;
+                };
+                Heap2.prototype.toArray = function() {
+                  return this.nodes.slice(0);
+                };
+                Heap2.prototype.insert = Heap2.prototype.push;
+                Heap2.prototype.remove = Heap2.prototype.pop;
+                Heap2.prototype.top = Heap2.prototype.peek;
+                Heap2.prototype.front = Heap2.prototype.peek;
+                Heap2.prototype.has = Heap2.prototype.contains;
+                Heap2.prototype.copy = Heap2.prototype.clone;
+                return Heap2;
+              }();
+              if (typeof module3 !== "undefined" && module3 !== null ? module3.exports : void 0) {
+                module3.exports = Heap;
+              } else {
+                window.Heap = Heap;
+              }
+            }).call(this);
+          }, {}],
+          3: [function(require2, module3, exports3) {
+            module3.exports = {
+              "Heap": require2("heap"),
+              "Node": require2("./core/Node"),
+              "Grid": require2("./core/Grid"),
+              "Util": require2("./core/Util"),
+              "Heuristic": require2("./core/Heuristic"),
+              "AStarFinder": require2("./finders/AStarFinder"),
+              "BestFirstFinder": require2("./finders/BestFirstFinder"),
+              "BreadthFirstFinder": require2("./finders/BreadthFirstFinder"),
+              "DijkstraFinder": require2("./finders/DijkstraFinder"),
+              "BiAStarFinder": require2("./finders/BiAStarFinder"),
+              "BiBestFirstFinder": require2("./finders/BiBestFirstFinder"),
+              "BiBreadthFirstFinder": require2("./finders/BiBreadthFirstFinder"),
+              "BiDijkstraFinder": require2("./finders/BiDijkstraFinder"),
+              "JumpPointFinder": require2("./finders/JumpPointFinder"),
+              "IDAStarFinder": require2("./finders/IDAStarFinder")
+            };
+          }, { "./core/Grid": 4, "./core/Heuristic": 5, "./core/Node": 6, "./core/Util": 7, "./finders/AStarFinder": 8, "./finders/BestFirstFinder": 9, "./finders/BiAStarFinder": 10, "./finders/BiBestFirstFinder": 11, "./finders/BiBreadthFirstFinder": 12, "./finders/BiDijkstraFinder": 13, "./finders/BreadthFirstFinder": 14, "./finders/DijkstraFinder": 15, "./finders/IDAStarFinder": 16, "./finders/JumpPointFinder": 17, "heap": 1 }],
+          4: [function(require2, module3, exports3) {
+            var Node = require2("./Node");
+            function Grid2(width, height, depth, matrix) {
+              this.width = width;
+              this.height = height;
+              this.depth = depth;
+              this.nodes = this._buildNodes(width, height, depth, matrix);
+            }
+            Grid2.prototype._buildNodes = function(width, height, depth, matrix) {
+              var i2, j2, z2, nodes = new Array(height), row;
+              for (i2 = 0; i2 < height; ++i2) {
+                nodes[i2] = new Array(width);
+                for (j2 = 0; j2 < width; ++j2) {
+                  nodes[i2][j2] = new Array(depth);
+                  for (z2 = 0; z2 < depth; ++z2) {
+                    nodes[i2][j2][z2] = new Node(j2, i2, z2);
+                  }
+                }
+              }
+              if (matrix === void 0) {
+                return nodes;
+              }
+              if (matrix.length !== height || matrix[0].length !== width) {
+                throw new Error("Matrix size does not fit");
+              }
+              for (i2 = 0; i2 < height; ++i2) {
+                for (j2 = 0; j2 < width; ++j2) {
+                  for (z2 = 0; z2 < depth; ++z2) {
+                    nodes[i2][j2][z2].walkable = matrix[i2][j2][z2];
+                  }
+                }
+              }
+              return nodes;
+            };
+            Grid2.prototype.getNodeAt = function(x2, y2, z2) {
+              return this.nodes[y2][x2][z2];
+            };
+            Grid2.prototype.isWalkableAt = function(x2, y2, z2, d2) {
+              return this.isInside(x2, y2, z2) && (this.nodes[y2][x2][z2].walkable & d2) == d2;
+            };
+            Grid2.prototype.isInside = function(x2, y2, z2) {
+              return x2 >= 0 && x2 < this.width && (y2 >= 0 && y2 < this.height) && (z2 >= 0 && z2 < this.depth);
+            };
+            Grid2.prototype.setWalkableAt = function(x2, y2, z2, walkable) {
+              this.nodes[y2][x2][z2].walkable = walkable;
+            };
+            Grid2.prototype.getNeighbors = function(node, allowDiagonal, dontCrossCorners) {
+              var x2 = node.x, y2 = node.y, z2 = node.z, neighbors2 = [], s0 = false, d0 = false, s1 = false, d1 = false, s2 = false, d2 = false, s3 = false, d3 = false, s4 = false, s5 = false, nodes = this.nodes;
+              if (this.isWalkableAt(x2, y2, z2, 128) && this.isInside(x2, y2 - 1, z2, 8)) {
+                neighbors2.push(nodes[y2 - 1][x2][z2]);
+                s0 = true;
+              }
+              if (this.isWalkableAt(x2, y2, z2, 32) && this.isInside(x2 + 1, y2, z2, 2)) {
+                neighbors2.push(nodes[y2][x2 + 1][z2]);
+                s1 = true;
+              }
+              if (this.isWalkableAt(x2, y2, z2, 8) && this.isInside(x2, y2 + 1, z2, 128)) {
+                neighbors2.push(nodes[y2 + 1][x2][z2]);
+                s2 = true;
+              }
+              if (this.isWalkableAt(x2, y2, z2, 2) && this.isInside(x2 - 1, y2, z2, 32)) {
+                neighbors2.push(nodes[y2][x2 - 1][z2]);
+                s3 = true;
+              }
+              if (this.isWalkableAt(x2, y2, z2, 512) && this.isInside(x2, y2, z2 + 1, 256)) {
+                neighbors2.push(nodes[y2][x2][z2 + 1]);
+                s4 = true;
+              }
+              if (this.isWalkableAt(x2, y2, z2, 256) && this.isInside(x2, y2, z2 - 1, 512)) {
+                neighbors2.push(nodes[y2][x2][z2 - 1]);
+                s5 = true;
+              }
+              if (!allowDiagonal) {
+                return neighbors2;
+              }
+              if (dontCrossCorners) {
+                d0 = s3 && s0;
+                d1 = s0 && s1;
+                d2 = s1 && s2;
+                d3 = s2 && s3;
+              } else {
+                d0 = s3 || s0 || true;
+                d1 = s0 || s1 || true;
+                d2 = s1 || s2 || true;
+                d3 = s2 || s3 || true;
+              }
+              if (d0 && this.isWalkableAt(x2, y2, z2, 1) && this.isInside(x2 - 1, y2 - 1, z2, 16)) {
+                neighbors2.push(nodes[y2 - 1][x2 - 1][z2]);
+              }
+              if (d1 && this.isWalkableAt(x2, y2, z2, 64) && this.isInside(x2 + 1, y2 - 1, z2, 4)) {
+                neighbors2.push(nodes[y2 - 1][x2 + 1][z2]);
+              }
+              if (d2 && this.isWalkableAt(x2, y2, z2, 16) && this.isInside(x2 + 1, y2 + 1, z2, 1)) {
+                neighbors2.push(nodes[y2 + 1][x2 + 1][z2]);
+              }
+              if (d3 && this.isWalkableAt(x2, y2, z2, 4) && this.isInside(x2 - 1, y2 + 1, z2, 64)) {
+                neighbors2.push(nodes[y2 + 1][x2 - 1][z2]);
+              }
+              return neighbors2;
+            };
+            Grid2.prototype.clone = function() {
+              var i2, j2, width = this.width, height = this.height, depth = this.depth, thisNodes = this.nodes, newGrid = new Grid2(width, height, depth), newNodes = new Array(height), row;
+              for (i2 = 0; i2 < height; ++i2) {
+                newNodes[i2] = new Array(width);
+                for (j2 = 0; j2 < width; ++j2) {
+                  newNodes[i2][j2] = new Array(depth);
+                  for (z = 0; z < depth; ++z) {
+                    newNodes[i2][j2][z] = new Node(j2, i2, z, thisNodes[i2][j2][z].walkable);
+                  }
+                }
+              }
+              newGrid.nodes = newNodes;
+              return newGrid;
+            };
+            module3.exports = Grid2;
+          }, { "./Node": 6 }],
+          5: [function(require2, module3, exports3) {
+            module3.exports = {
+              /**
+               * Manhattan distance.
+               * @param {number} dx - Difference in x.
+               * @param {number} dy - Difference in y.
+               * @return {number} dx + dy
+               */
+              manhattan: function(dx2, dy2, dz2) {
+                return dx2 + dy2 + dz2;
+              },
+              /**
+               * Euclidean distance.
+               * @param {number} dx - Difference in x.
+               * @param {number} dy - Difference in y.
+               * @return {number} sqrt(dx * dx + dy * dy)
+               */
+              euclidean: function(dx2, dy2, dz2) {
+                return Math.sqrt(dx2 * dx2 + dy2 * dy2 + dz2 * dz2);
+              },
+              /**
+               * Chebyshev distance.
+               * @param {number} dx - Difference in x.
+               * @param {number} dy - Difference in y.
+               * @return {number} max(dx, dy)
+               */
+              chebyshev: function(dx2, dy2, dz2) {
+                return Math.max(dx2, dy2, dz2);
+              }
+            };
+          }, {}],
+          6: [function(require2, module3, exports3) {
+            function Node(x2, y2, z2, walkable) {
+              this.x = x2;
+              this.y = y2;
+              this.walkable = walkable === void 0 ? true : walkable;
+              this.z = z2;
+            }
+            module3.exports = Node;
+          }, {}],
+          7: [function(require2, module3, exports3) {
+            function backtrace(node) {
+              var path = [[node.x, node.y, node.z]];
+              while (node.parent) {
+                node = node.parent;
+                path.push([node.x, node.y, node.z]);
+              }
+              return path.reverse();
+            }
+            exports3.backtrace = backtrace;
+            function biBacktrace(nodeA, nodeB) {
+              var pathA = backtrace(nodeA), pathB = backtrace(nodeB);
+              return pathA.concat(pathB.reverse());
+            }
+            exports3.biBacktrace = biBacktrace;
+            function pathLength(path) {
+              var i2, sum = 0, a, b, dx2, dy2, dz2;
+              for (i2 = 1; i2 < path.length; ++i2) {
+                a = path[i2 - 1];
+                b = path[i2];
+                dx2 = a[0] - b[0];
+                dy2 = a[1] - b[1];
+                dz2 = a[2] - b[2];
+                sum += Math.sqrt(dx2 * dx2 + dy2 * dy2 + dz2 * dz2);
+              }
+              return sum;
+            }
+            exports3.pathLength = pathLength;
+            function getLine(x1, y1, z1, x2, y2, z2) {
+              let ListOfPoints = [];
+              ListOfPoints.push([x1, y1, z1]);
+              let dx2 = Math.abs(x2 - x1);
+              let dy2 = Math.abs(y2 - y1);
+              let dz2 = Math.abs(z2 - z1);
+              let xs;
+              let ys;
+              let zs;
+              if (x2 > x1) {
+                xs = 1;
+              } else {
+                xs = -1;
+              }
+              if (y2 > y1) {
+                ys = 1;
+              } else {
+                ys = -1;
+              }
+              if (z2 > z1) {
+                zs = 1;
+              } else {
+                zs = -1;
+              }
+              if (dx2 >= dy2 && dx2 >= dz2) {
+                let p1 = 2 * dy2 - dx2;
+                let p2 = 2 * dz2 - dx2;
+                while (x1 != x2) {
+                  x1 += xs;
+                  if (p1 >= 0) {
+                    y1 += ys;
+                    p1 -= 2 * dx2;
+                  }
+                  if (p2 >= 0) {
+                    z1 += zs;
+                    p2 -= 2 * dx2;
+                  }
+                  p1 += 2 * dy2;
+                  p2 += 2 * dz2;
+                  ListOfPoints.push([x1, y1, z1]);
+                }
+              } else if (dy2 >= dx2 && dy2 >= dz2) {
+                let p1 = 2 * dx2 - dy2;
+                let p2 = 2 * dz2 - dy2;
+                while (y1 != y2) {
+                  y1 += ys;
+                  if (p1 >= 0) {
+                    x1 += xs;
+                    p1 -= 2 * dy2;
+                  }
+                  if (p2 >= 0) {
+                    z1 += zs;
+                    p2 -= 2 * dy2;
+                  }
+                  p1 += 2 * dx2;
+                  p2 += 2 * dz2;
+                  ListOfPoints.push([x1, y1, z1]);
+                }
+              } else {
+                let p1 = 2 * dy2 - dz2;
+                let p2 = 2 * dx2 - dz2;
+                while (z1 != z2) {
+                  z1 += zs;
+                  if (p1 >= 0) {
+                    y1 += ys;
+                    p1 -= 2 * dz2;
+                  }
+                  if (p2 >= 0) {
+                    x1 += xs;
+                    p2 -= 2 * dz2;
+                  }
+                  p1 += 2 * dy2;
+                  p2 += 2 * dx2;
+                  ListOfPoints.push([x1, y1, z1]);
+                }
+              }
+              return ListOfPoints;
+            }
+            exports3.getLine = getLine;
+            function smoothenPath(grid, path) {
+              var len = path.length, x0 = path[0][0], y0 = path[0][1], z0 = path[0][2], x1 = path[len - 1][0], y1 = path[len - 1][1], z1 = path[len - 1][2], sx, sy, sz;
+              ex, ey, ez;
+              lx, ly, lz;
+              newPath, i, j, coord, line, testCoord, blocked;
+              sx = x0;
+              sy = y0;
+              sz = z0;
+              lx = path[1][0];
+              ly = path[1][1];
+              lz = path[1][2];
+              newPath = [[sx, sy, sz]];
+              for (i = 2; i < len; ++i) {
+                coord = path[i];
+                ex = coord[0];
+                ey = coord[1];
+                ez = coord[2];
+                line = getLine(sx, sy, sz, ex, ey, ez);
+                blocked = false;
+                for (j = 1; j < line.length; ++j) {
+                  testCoord = line[j];
+                  if (!grid.isWalkableAt(testCoord[0], testCoord[1])) {
+                    blocked = true;
+                    newPath.push([lx, ly]);
+                    sx = lx;
+                    sy = ly;
+                    break;
+                  }
+                }
+                if (!blocked) {
+                  lx = ex;
+                  ly = ey;
+                }
+              }
+              newPath.push([x1, y1]);
+              return newPath;
+            }
+            exports3.smoothenPath = smoothenPath;
+          }, {}],
+          8: [function(require2, module3, exports3) {
+            var Heap = require2("heap");
+            var Util = require2("../core/Util");
+            var Heuristic = require2("../core/Heuristic");
+            function AStarFinder2(opt) {
+              opt = opt || {};
+              this.allowDiagonal = opt.allowDiagonal;
+              this.dontCrossCorners = opt.dontCrossCorners;
+              this.heuristic = opt.heuristic || Heuristic.manhattan;
+              this.weight = opt.weight || 1;
+            }
+            AStarFinder2.prototype.findPath = function(startX, startY, startZ, endX, endY, endZ, grid) {
+              if (!grid.isInside(startX, startY, startZ) || !grid.isInside(endX, endY, endZ))
+                return [];
+              var openList = new Heap(function(nodeA, nodeB) {
+                return nodeA.f - nodeB.f;
+              });
+              var startNode = grid.getNodeAt(startX, startY, startZ), endNode = grid.getNodeAt(endX, endY, endZ), heuristic = this.heuristic, allowDiagonal = this.allowDiagonal, dontCrossCorners = this.dontCrossCorners, weight = this.weight, abs2 = Math.abs, SQRT2 = Math.SQRT2, node, neighbors2, neighbor2, i2, l2, x2, y2, ng2, z2;
+              startNode.g = 0;
+              startNode.f = 0;
+              openList.push(startNode);
+              startNode.opened = true;
+              while (!openList.empty()) {
+                node = openList.pop();
+                node.closed = true;
+                if (node === endNode) {
+                  return Util.backtrace(endNode);
+                }
+                neighbors2 = grid.getNeighbors(node, allowDiagonal, dontCrossCorners);
+                for (i2 = 0, l2 = neighbors2.length; i2 < l2; ++i2) {
+                  neighbor2 = neighbors2[i2];
+                  if (neighbor2.closed) {
+                    continue;
+                  }
+                  x2 = neighbor2.x;
+                  y2 = neighbor2.y;
+                  z2 = neighbor2.z;
+                  ng2 = node.g + (x2 - node.x === 0 || y2 - node.y === 0 || z2 - node.z === 0 ? 1 : SQRT2);
+                  if (!neighbor2.opened || ng2 < neighbor2.g) {
+                    neighbor2.g = ng2;
+                    neighbor2.h = neighbor2.h || weight * heuristic(abs2(x2 - endX), abs2(y2 - endY), abs2(z2 - endZ));
+                    neighbor2.f = neighbor2.g + neighbor2.h;
+                    neighbor2.parent = node;
+                    if (!neighbor2.opened) {
+                      openList.push(neighbor2);
+                      neighbor2.opened = true;
+                    } else {
+                      openList.updateItem(neighbor2);
+                    }
+                  }
+                }
+              }
+              return [];
+            };
+            module3.exports = AStarFinder2;
+          }, { "../core/Heuristic": 5, "../core/Util": 7, "heap": 1 }],
+          9: [function(require2, module3, exports3) {
+            var AStarFinder2 = require2("./AStarFinder");
+            function BestFirstFinder(opt) {
+              AStarFinder2.call(this, opt);
+              var orig = this.heuristic;
+              this.heuristic = function(dx2, dy2, dz2) {
+                return orig(dx2, dy2, dz2) * 1e6;
+              };
+            }
+            BestFirstFinder.prototype = new AStarFinder2();
+            BestFirstFinder.prototype.constructor = BestFirstFinder;
+            module3.exports = BestFirstFinder;
+          }, { "./AStarFinder": 8 }],
+          10: [function(require2, module3, exports3) {
+            var Heap = require2("heap");
+            var Util = require2("../core/Util");
+            var Heuristic = require2("../core/Heuristic");
+            function BiAStarFinder(opt) {
+              opt = opt || {};
+              this.allowDiagonal = opt.allowDiagonal;
+              this.dontCrossCorners = opt.dontCrossCorners;
+              this.heuristic = opt.heuristic || Heuristic.manhattan;
+              this.weight = opt.weight || 1;
+            }
+            BiAStarFinder.prototype.findPath = function(startX, startY, startZ, endX, endY, endZ, grid) {
+              var cmp = function(nodeA, nodeB) {
+                return nodeA.f - nodeB.f;
+              }, startOpenList = new Heap(cmp), endOpenList = new Heap(cmp), startNode = grid.getNodeAt(startX, startY), endNode = grid.getNodeAt(endX, endY), heuristic = this.heuristic, allowDiagonal = this.allowDiagonal, dontCrossCorners = this.dontCrossCorners, weight = this.weight, abs2 = Math.abs, SQRT2 = Math.SQRT2, node, neighbors2, neighbor2, i2, l2, x2, y2, ng2, z2, BY_START = 1, BY_END = 2;
+              startNode.g = 0;
+              startNode.f = 0;
+              startOpenList.push(startNode);
+              startNode.opened = BY_START;
+              endNode.g = 0;
+              endNode.f = 0;
+              endOpenList.push(endNode);
+              endNode.opened = BY_END;
+              while (!startOpenList.empty() && !endOpenList.empty()) {
+                node = startOpenList.pop();
+                node.closed = true;
+                neighbors2 = grid.getNeighbors(node, allowDiagonal, dontCrossCorners);
+                for (i2 = 0, l2 = neighbors2.length; i2 < l2; ++i2) {
+                  neighbor2 = neighbors2[i2];
+                  if (neighbor2.closed) {
+                    continue;
+                  }
+                  if (neighbor2.opened === BY_END) {
+                    return Util.biBacktrace(node, neighbor2);
+                  }
+                  x2 = neighbor2.x;
+                  y2 = neighbor2.y;
+                  z2 = neighbor2.z;
+                  ng2 = node.g + (x2 - node.x === 0 || y2 - node.y === 0 || z2 - node.z === 0 ? 1 : SQRT2);
+                  if (!neighbor2.opened || ng2 < neighbor2.g) {
+                    neighbor2.g = ng2;
+                    neighbor2.h = neighbor2.h || weight * heuristic(abs2(x2 - endX), abs2(y2 - endY), abs2(z2 - endZ));
+                    neighbor2.f = neighbor2.g + neighbor2.h;
+                    neighbor2.parent = node;
+                    if (!neighbor2.opened) {
+                      startOpenList.push(neighbor2);
+                      neighbor2.opened = BY_START;
+                    } else {
+                      startOpenList.updateItem(neighbor2);
+                    }
+                  }
+                }
+                node = endOpenList.pop();
+                node.closed = true;
+                neighbors2 = grid.getNeighbors(node, allowDiagonal, dontCrossCorners);
+                for (i2 = 0, l2 = neighbors2.length; i2 < l2; ++i2) {
+                  neighbor2 = neighbors2[i2];
+                  if (neighbor2.closed) {
+                    continue;
+                  }
+                  if (neighbor2.opened === BY_START) {
+                    return Util.biBacktrace(neighbor2, node);
+                  }
+                  x2 = neighbor2.x;
+                  y2 = neighbor2.y;
+                  z2 = neighbor2.z;
+                  ng2 = node.g + (x2 - node.x === 0 || y2 - node.y === 0 || z2 - node.z === 0 ? 1 : SQRT2);
+                  if (!neighbor2.opened || ng2 < neighbor2.g) {
+                    neighbor2.g = ng2;
+                    neighbor2.h = neighbor2.h || weight * heuristic(abs2(x2 - startX), abs2(y2 - startY), abs2(z2 - startZ));
+                    neighbor2.f = neighbor2.g + neighbor2.h;
+                    neighbor2.parent = node;
+                    if (!neighbor2.opened) {
+                      endOpenList.push(neighbor2);
+                      neighbor2.opened = BY_END;
+                    } else {
+                      endOpenList.updateItem(neighbor2);
+                    }
+                  }
+                }
+              }
+              return [];
+            };
+            module3.exports = BiAStarFinder;
+          }, { "../core/Heuristic": 5, "../core/Util": 7, "heap": 1 }],
+          11: [function(require2, module3, exports3) {
+            var BiAStarFinder = require2("./BiAStarFinder");
+            function BiBestFirstFinder(opt) {
+              BiAStarFinder.call(this, opt);
+              var orig = this.heuristic;
+              this.heuristic = function(dx2, dy2, dz2) {
+                return orig(dx2, dy2, dz2) * 1e6;
+              };
+            }
+            BiBestFirstFinder.prototype = new BiAStarFinder();
+            BiBestFirstFinder.prototype.constructor = BiBestFirstFinder;
+            module3.exports = BiBestFirstFinder;
+          }, { "./BiAStarFinder": 10 }],
+          12: [function(require2, module3, exports3) {
+            var Util = require2("../core/Util");
+            function BiBreadthFirstFinder(opt) {
+              opt = opt || {};
+              this.allowDiagonal = opt.allowDiagonal;
+              this.dontCrossCorners = opt.dontCrossCorners;
+            }
+            BiBreadthFirstFinder.prototype.findPath = function(startX, startY, startZ, endX, endY, endZ, grid) {
+              var startNode = grid.getNodeAt(startX, startY, startZ), endNode = grid.getNodeAt(endX, endY, endZ), startOpenList = [], endOpenList = [], neighbors2, neighbor2, node, allowDiagonal = this.allowDiagonal, dontCrossCorners = this.dontCrossCorners, BY_START = 0, BY_END = 1, i2, l2;
+              startOpenList.push(startNode);
+              startNode.opened = true;
+              startNode.by = BY_START;
+              endOpenList.push(endNode);
+              endNode.opened = true;
+              endNode.by = BY_END;
+              while (startOpenList.length && endOpenList.length) {
+                node = startOpenList.shift();
+                node.closed = true;
+                neighbors2 = grid.getNeighbors(node, allowDiagonal, dontCrossCorners);
+                for (i2 = 0, l2 = neighbors2.length; i2 < l2; ++i2) {
+                  neighbor2 = neighbors2[i2];
+                  if (neighbor2.closed) {
+                    continue;
+                  }
+                  if (neighbor2.opened) {
+                    if (neighbor2.by === BY_END) {
+                      return Util.biBacktrace(node, neighbor2);
+                    }
+                    continue;
+                  }
+                  startOpenList.push(neighbor2);
+                  neighbor2.parent = node;
+                  neighbor2.opened = true;
+                  neighbor2.by = BY_START;
+                }
+                node = endOpenList.shift();
+                node.closed = true;
+                neighbors2 = grid.getNeighbors(node, allowDiagonal, dontCrossCorners);
+                for (i2 = 0, l2 = neighbors2.length; i2 < l2; ++i2) {
+                  neighbor2 = neighbors2[i2];
+                  if (neighbor2.closed) {
+                    continue;
+                  }
+                  if (neighbor2.opened) {
+                    if (neighbor2.by === BY_START) {
+                      return Util.biBacktrace(neighbor2, node);
+                    }
+                    continue;
+                  }
+                  endOpenList.push(neighbor2);
+                  neighbor2.parent = node;
+                  neighbor2.opened = true;
+                  neighbor2.by = BY_END;
+                }
+              }
+              return [];
+            };
+            module3.exports = BiBreadthFirstFinder;
+          }, { "../core/Util": 7 }],
+          13: [function(require2, module3, exports3) {
+            var BiAStarFinder = require2("./BiAStarFinder");
+            function BiDijkstraFinder(opt) {
+              BiAStarFinder.call(this, opt);
+              this.heuristic = function(dx2, dy2, dz2) {
+                return 0;
+              };
+            }
+            BiDijkstraFinder.prototype = new BiAStarFinder();
+            BiDijkstraFinder.prototype.constructor = BiDijkstraFinder;
+            module3.exports = BiDijkstraFinder;
+          }, { "./BiAStarFinder": 10 }],
+          14: [function(require2, module3, exports3) {
+            var Util = require2("../core/Util");
+            function BreadthFirstFinder(opt) {
+              opt = opt || {};
+              this.allowDiagonal = opt.allowDiagonal;
+              this.dontCrossCorners = opt.dontCrossCorners;
+            }
+            BreadthFirstFinder.prototype.findPath = function(startX, startY, startZ, endX, endY, endZ, grid) {
+              var openList = [], allowDiagonal = this.allowDiagonal, dontCrossCorners = this.dontCrossCorners, startNode = grid.getNodeAt(startX, startY, startZ), endNode = grid.getNodeAt(endX, endY, endZ), neighbors2, neighbor2, node, i2, l2;
+              openList.push(startNode);
+              startNode.opened = true;
+              while (openList.length) {
+                node = openList.shift();
+                node.closed = true;
+                if (node === endNode) {
+                  return Util.backtrace(endNode);
+                }
+                neighbors2 = grid.getNeighbors(node, allowDiagonal, dontCrossCorners);
+                for (i2 = 0, l2 = neighbors2.length; i2 < l2; ++i2) {
+                  neighbor2 = neighbors2[i2];
+                  if (neighbor2.closed || neighbor2.opened) {
+                    continue;
+                  }
+                  openList.push(neighbor2);
+                  neighbor2.opened = true;
+                  neighbor2.parent = node;
+                }
+              }
+              return [];
+            };
+            module3.exports = BreadthFirstFinder;
+          }, { "../core/Util": 7 }],
+          15: [function(require2, module3, exports3) {
+            var AStarFinder2 = require2("./AStarFinder");
+            function DijkstraFinder(opt) {
+              AStarFinder2.call(this, opt);
+              this.heuristic = function(dx2, dy2, dz2) {
+                return 0;
+              };
+            }
+            DijkstraFinder.prototype = new AStarFinder2();
+            DijkstraFinder.prototype.constructor = DijkstraFinder;
+            module3.exports = DijkstraFinder;
+          }, { "./AStarFinder": 8 }],
+          16: [function(require2, module3, exports3) {
+            var Util = require2("../core/Util");
+            var Heuristic = require2("../core/Heuristic");
+            var Node = require2("../core/Node");
+            function IDAStarFinder(opt) {
+              opt = opt || {};
+              this.allowDiagonal = opt.allowDiagonal;
+              this.dontCrossCorners = opt.dontCrossCorners;
+              this.heuristic = opt.heuristic || Heuristic.manhattan;
+              this.weight = opt.weight || 1;
+              this.trackRecursion = opt.trackRecursion || false;
+              this.timeLimit = opt.timeLimit || Infinity;
+            }
+            IDAStarFinder.prototype.findPath = function(startX, startY, startZ, endX, endY, endZ, grid) {
+              var nodesVisited = 0;
+              var startTime = (/* @__PURE__ */ new Date()).getTime();
+              var h = function(a, b) {
+                return this.heuristic(Math.abs(b.x - a.x), Math.abs(b.y - a.y), Math.abs(b.z - a.z));
+              }.bind(this);
+              var cost = function(a, b) {
+                return a.x === b.x || a.y === b.y || a.z === b.z ? 1 : Math.SQRT2;
+              };
+              var search = function(node, g, cutoff, route2, depth) {
+                nodesVisited++;
+                if (this.timeLimit > 0 && (/* @__PURE__ */ new Date()).getTime() - startTime > this.timeLimit * 1e3) {
+                  return Infinity;
+                }
+                var f = g + h(node, end) * this.weight;
+                if (f > cutoff) {
+                  return f;
+                }
+                if (node == end) {
+                  route2[depth] = [node.x, node.y, node.z];
+                  return node;
+                }
+                var min, t2, k, neighbour;
+                var neighbours = grid.getNeighbors(node, this.allowDiagonal, this.dontCrossCorners);
+                for (k = 0, min = Infinity; neighbour = neighbours[k]; ++k) {
+                  if (this.trackRecursion) {
+                    neighbour.retainCount = neighbour.retainCount + 1 || 1;
+                    if (neighbour.tested !== true) {
+                      neighbour.tested = true;
+                    }
+                  }
+                  t2 = search(neighbour, g + cost(node, neighbour), cutoff, route2, depth + 1);
+                  if (t2 instanceof Node) {
+                    route2[depth] = [node.x, node.y, node.z];
+                    return t2;
+                  }
+                  if (this.trackRecursion && --neighbour.retainCount === 0) {
+                    neighbour.tested = false;
+                  }
+                  if (t2 < min) {
+                    min = t2;
+                  }
+                }
+                return min;
+              }.bind(this);
+              var start = grid.getNodeAt(startX, startY, startZ);
+              var end = grid.getNodeAt(endX, endY, endZ);
+              var cutOff = h(start, end);
+              var j2, route, t;
+              for (j2 = 0; true; ++j2) {
+                route = [];
+                t = search(start, 0, cutOff, route, 0);
+                if (t === Infinity) {
+                  return [];
+                }
+                if (t instanceof Node) {
+                  return route;
+                }
+                cutOff = t;
+              }
+              return [];
+            };
+            module3.exports = IDAStarFinder;
+          }, { "../core/Heuristic": 5, "../core/Node": 6, "../core/Util": 7 }],
+          17: [function(require2, module3, exports3) {
+            var Heap = require2("heap");
+            var Util = require2("../core/Util");
+            var Heuristic = require2("../core/Heuristic");
+            function JumpPointFinder(opt) {
+              opt = opt || {};
+              this.heuristic = opt.heuristic || Heuristic.manhattan;
+              this.trackJumpRecursion = opt.trackJumpRecursion || false;
+            }
+            JumpPointFinder.prototype.findPath = function(startX, startY, startZ, endX, endY, endZ, grid) {
+              var openList = this.openList = new Heap(function(nodeA, nodeB) {
+                return nodeA.f - nodeB.f;
+              }), startNode = this.startNode = grid.getNodeAt(startX, startY, startZ), endNode = this.endNode = grid.getNodeAt(endX, endY, endZ), node;
+              this.grid = grid;
+              startNode.g = 0;
+              startNode.f = 0;
+              openList.push(startNode);
+              startNode.opened = true;
+              while (!openList.empty()) {
+                node = openList.pop();
+                node.closed = true;
+                if (node === endNode) {
+                  return Util.backtrace(endNode);
+                }
+                this._identifySuccessors(node);
+              }
+              return [];
+            };
+            JumpPointFinder.prototype._identifySuccessors = function(node) {
+              var grid = this.grid, heuristic = this.heuristic, openList = this.openList, endX = this.endNode.x, endY = this.endNode.y, endZ = this.endNode.z;
+              neighbors, neighbor, jumpPoint, i, l, x = node.x, y = node.y, z = node.z;
+              jx, jy, dx, dy, d, ng, jumpNode, dz, jz;
+              abs = Math.abs, max = Math.max;
+              neighbors = this._findNeighbors(node);
+              for (i = 0, l = neighbors.length; i < l; ++i) {
+                neighbor = neighbors[i];
+                jumpPoint = this._jump(neighbor[0], neighbor[1], x, y, z);
+                if (jumpPoint) {
+                  jx = jumpPoint[0];
+                  jy = jumpPoint[1];
+                  jz = jumpPoint[2];
+                  jumpNode = grid.getNodeAt(jx, jy, jz);
+                  if (jumpNode.closed) {
+                    continue;
+                  }
+                  d = Heuristic.euclidean(abs(jx - x), abs(jy - y), abs(jz - z));
+                  ng = node.g + d;
+                  if (!jumpNode.opened || ng < jumpNode.g) {
+                    jumpNode.g = ng;
+                    jumpNode.h = jumpNode.h || heuristic(abs(jx - endX), abs(jy - endY), abs(jz - endZ));
+                    jumpNode.f = jumpNode.g + jumpNode.h;
+                    jumpNode.parent = node;
+                    if (!jumpNode.opened) {
+                      openList.push(jumpNode);
+                      jumpNode.opened = true;
+                    } else {
+                      openList.updateItem(jumpNode);
+                    }
+                  }
+                }
+              }
+            };
+            JumpPointFinder.prototype._jump = function(x2, y2, z2, px, py, pz) {
+              var grid = this.grid, dx2 = x2 - px, dy2 = y2 - py, jx2, jy2;
+              dz = z2 - pz, jz;
+              if (!grid.isWalkableAt(x2, y2, z2)) {
+                return null;
+              }
+              if (this.trackJumpRecursion === true) {
+                grid.getNodeAt(x2, y2, z2).tested = true;
+              }
+              if (grid.getNodeAt(x2, y2, z2) === this.endNode) {
+                return [x2, y2, z2];
+              }
+              if (dx2 !== 0 && dy2 !== 0) {
+                if (grid.isWalkableAt(x2 - dx2, y2 + dy2, z2) && !grid.isWalkableAt(x2 - dx2, y2, z2) || grid.isWalkableAt(x2 + dx2, y2 - dy2, z2) && !grid.isWalkableAt(x2, y2 - dy2, z2)) {
+                  return [x2, y2, z2];
+                }
+              } else {
+                if (dx2 !== 0) {
+                  if (grid.isWalkableAt(x2 + dx2, y2 + 1, z2) && !grid.isWalkableAt(x2, y2 + 1, z2) || grid.isWalkableAt(x2 + dx2, y2 - 1, z2) && !grid.isWalkableAt(x2, y2 - 1, z2)) {
+                    return [x2, y2, z2];
+                  }
+                } else {
+                  if (grid.isWalkableAt(x2 + 1, y2 + dy2, z2) && !grid.isWalkableAt(x2 + 1, y2, z2) || grid.isWalkableAt(x2 - 1, y2 + dy2, z2) && !grid.isWalkableAt(x2 - 1, y2, z2)) {
+                    return [x2, y2, z2];
+                  }
+                }
+              }
+              if (dz !== 0) {
+                jz = his._jump(x2, y2, z2 + dz, x2, y2, z2);
+                if (jz) return [x2, y2, z2];
+              }
+              if (dx2 !== 0 && dy2 !== 0) {
+                jx2 = this._jump(x2 + dx2, y2, z2, x2, y2, z2);
+                jy2 = this._jump(x2, y2 + dy2, z2, x2, y2, z2);
+                if (jx2 || jy2) {
+                  return [x2, y2, z2];
+                }
+              }
+              if (grid.isWalkableAt(x2 + dx2, y2, z2) || grid.isWalkableAt(x2, y2 + dy2, z2)) {
+                return this._jump(x2 + dx2, y2 + dy2, z2, x2, y2, z2);
+              } else {
+                return null;
+              }
+            };
+            JumpPointFinder.prototype._findNeighbors = function(node) {
+              var parent = node.parent, x2 = node.x, y2 = node.y, z2 = node.z, grid = this.grid, px, py, nx, ny, dx2, dy2, pz, nz, dz2;
+              neighbors = [], neighborNodes, neighborNode, i, l;
+              if (parent) {
+                px = parent.x;
+                py = parent.y;
+                pz = parent.z;
+                dx2 = (x2 - px) / Math.max(Math.abs(x2 - px), 1);
+                dy2 = (y2 - py) / Math.max(Math.abs(y2 - py), 1);
+                dz2 = (z2 - pz) / Math.max(Math.abs(z2 - pz), 1);
+                if (dz2 !== 0) {
+                  if (grid.isWalkableAt(x2, y2, z2 + dz2)) {
+                    if (grid.isWalkableAt(x2, y2, z2 + dz2)) {
+                      neighbors.push([x2 + dx2, y2 + dy2, z2 + dz2]);
+                    }
+                    if (!grid.isWalkableAt(x2, y2, z2 + 1)) {
+                      neighbors.push([x2 + dx2, y2 + dy2, z2 + 1]);
+                    }
+                    if (!grid.isWalkableAt(x2, y2, z2 - 1)) {
+                      neighbors.push([x2 + dx2, y2 + dy2, z2 - 1]);
+                    }
+                  }
+                } else if (dx2 !== 0 && dy2 !== 0) {
+                  if (grid.isWalkableAt(x2, y2 + dy2, z2)) {
+                    neighbors.push([x2, y2 + dy2, z2]);
+                  }
+                  if (grid.isWalkableAt(x2 + dx2, y2, z2)) {
+                    neighbors.push([x2 + dx2, y2, z2]);
+                  }
+                  if (grid.isWalkableAt(x2, y2 + dy2, z2) || grid.isWalkableAt(x2 + dx2, y2, z2)) {
+                    neighbors.push([x2 + dx2, y2 + dy2, z2]);
+                  }
+                  if (!grid.isWalkableAt(x2 - dx2, y2, z2) && grid.isWalkableAt(x2, y2 + dy2, z2)) {
+                    neighbors.push([x2 - dx2, y2 + dy2, z2]);
+                  }
+                  if (!grid.isWalkableAt(x2, y2 - dy2, z2) && grid.isWalkableAt(x2 + dx2, y2, z2)) {
+                    neighbors.push([x2 + dx2, y2 - dy2, z2]);
+                  }
+                } else {
+                  if (dx2 === 0) {
+                    if (grid.isWalkableAt(x2, y2 + dy2, z2)) {
+                      if (grid.isWalkableAt(x2, y2 + dy2, z2)) {
+                        neighbors.push([x2, y2 + dy2, z2]);
+                      }
+                      if (!grid.isWalkableAt(x2 + 1, y2, z2)) {
+                        neighbors.push([x2 + 1, y2 + dy2, z2]);
+                      }
+                      if (!grid.isWalkableAt(x2 - 1, y2, z2)) {
+                        neighbors.push([x2 - 1, y2 + dy2, z2]);
+                      }
+                    }
+                  } else {
+                    if (grid.isWalkableAt(x2 + dx2, y2, z2)) {
+                      if (grid.isWalkableAt(x2 + dx2, y2, z2)) {
+                        neighbors.push([x2 + dx2, y2, z2]);
+                      }
+                      if (!grid.isWalkableAt(x2, y2 + 1, z2)) {
+                        neighbors.push([x2 + dx2, y2 + 1, z2]);
+                      }
+                      if (!grid.isWalkableAt(x2, y2 - 1, z2)) {
+                        neighbors.push([x2 + dx2, y2 - 1, z2]);
+                      }
+                    }
+                  }
+                }
+              } else {
+                neighborNodes = grid.getNeighbors(node, true);
+                for (i = 0, l = neighborNodes.length; i < l; ++i) {
+                  neighborNode = neighborNodes[i];
+                  neighbors.push([neighborNode.x, neighborNode.y, neighborNode.z]);
+                }
+              }
+              return neighbors;
+            };
+            module3.exports = JumpPointFinder;
+          }, { "../core/Heuristic": 5, "../core/Util": 7, "heap": 1 }]
+        }, {}, [3])(3);
+      });
+    }
+  });
+
   // src/events.ts
   var EventEmitter = class {
     #events = {};
@@ -1133,8 +2308,8 @@
         args = [args];
       caller = caller || this;
       var events = this.#events[type];
-      for (var i = 0, len = events.length; i < len; i++) {
-        events[i].listener.apply(events[i].caller || caller, args);
+      for (var i2 = 0, len = events.length; i2 < len; i2++) {
+        events[i2].listener.apply(events[i2].caller || caller, args);
       }
     }
     emit(type, ...args) {
@@ -1147,9 +2322,9 @@
       if (!type || !listener) return;
       if (!Array.isArray(this.#events[type])) return;
       const events = this.#events[type];
-      for (let i = events.length - 1; i >= 0; i--) {
-        if (events[i].listener === listener) {
-          events.splice(i, 1);
+      for (let i2 = events.length - 1; i2 >= 0; i2--) {
+        if (events[i2].listener === listener) {
+          events.splice(i2, 1);
           break;
         }
       }
@@ -1175,9 +2350,9 @@
       if (!type) {
         Object.keys(this.#events).forEach((key) => {
           const events2 = this.#events[key];
-          for (let i = events2.length - 1; i >= 0; i--) {
-            if (events2[i].caller === caller) {
-              events2.splice(i, 1);
+          for (let i2 = events2.length - 1; i2 >= 0; i2--) {
+            if (events2[i2].caller === caller) {
+              events2.splice(i2, 1);
               break;
             }
           }
@@ -1186,9 +2361,9 @@
       }
       if (!Array.isArray(this.#events[type])) return;
       const events = this.#events[type];
-      for (let i = 0, len = events.length; i < len; i++) {
-        if (events[i].caller === caller) {
-          events.splice(i, 1);
+      for (let i2 = 0, len = events.length; i2 < len; i2++) {
+        if (events[i2].caller === caller) {
+          events.splice(i2, 1);
           break;
         }
       }
@@ -1209,10 +2384,10 @@
       ``;
       var res = [];
       var thisp = arguments[1];
-      for (var i = 0; i < len; i++) {
-        if (i in this) {
-          var val = this[i];
-          if (fun.call(thisp, val, i, this)) {
+      for (var i2 = 0; i2 < len; i2++) {
+        if (i2 in this) {
+          var val = this[i2];
+          if (fun.call(thisp, val, i2, this)) {
             res.push(val);
           }
         }
@@ -1239,8 +2414,8 @@
     return 0;
   }
   function SortItemArrayByPriority(list) {
-    const map = list.map((el, i) => {
-      return { index: i, priority: el.priority };
+    const map = list.map((el, i2) => {
+      return { index: i2, priority: el.priority };
     });
     map.sort(SortMapByPriority);
     return map.map((el) => {
@@ -1251,9 +2426,9 @@
     const res = [];
     if (!array || array.length === 0) return res;
     const al = array.length;
-    for (let i = 0; i < al; i++) {
-      if (array[i]["enabled"] && array[i][k] === v)
-        res.push(array[i]);
+    for (let i2 = 0; i2 < al; i2++) {
+      if (array[i2]["enabled"] && array[i2][k] === v)
+        res.push(array[i2]);
     }
     if (res.length <= 1) return res;
     return res.sort(SortArrayByPriority);
@@ -1332,50 +2507,50 @@
       return false;
     if (chr === "-" || chr === "_" || chr === "." || chr === "~" || chr === "!" || chr === "*" || chr === "'" || chr === ";" || chr === ":" || chr === "@" || chr === "&" || chr === "=" || chr === "+" || chr === "$" || chr === "," || chr === "/" || chr === "\\" || chr === "?" || chr === "%" || chr === "#" || chr === "[" || chr === "]" || chr === "(" || chr === ")")
       return !proto;
-    const i = chr.charCodeAt(0);
-    if (i > 64 && i < 91)
+    const i2 = chr.charCodeAt(0);
+    if (i2 > 64 && i2 < 91)
       return true;
-    if (i > 96 && i < 123)
+    if (i2 > 96 && i2 < 123)
       return true;
-    if (i > 47 && i < 58)
+    if (i2 > 47 && i2 < 58)
       return true;
-    if (i >= 160 && i <= 55295)
+    if (i2 >= 160 && i2 <= 55295)
       return true;
-    if (i >= 57344 && i <= 64975)
+    if (i2 >= 57344 && i2 <= 64975)
       return true;
-    if (i >= 65008 && i <= 65533)
+    if (i2 >= 65008 && i2 <= 65533)
       return true;
-    if (i >= 65536 && i <= 131069)
+    if (i2 >= 65536 && i2 <= 131069)
       return true;
-    if (i >= 131072 && i <= 196605)
+    if (i2 >= 131072 && i2 <= 196605)
       return true;
-    if (i >= 196608 && i <= 262141)
+    if (i2 >= 196608 && i2 <= 262141)
       return true;
-    if (i >= 262144 && i <= 327677)
+    if (i2 >= 262144 && i2 <= 327677)
       return true;
-    if (i >= 327680 && i <= 393213)
+    if (i2 >= 327680 && i2 <= 393213)
       return true;
-    if (i >= 393216 && i <= 458749)
+    if (i2 >= 393216 && i2 <= 458749)
       return true;
-    if (i >= 458752 && i <= 524285)
+    if (i2 >= 458752 && i2 <= 524285)
       return true;
-    if (i >= 524288 && i <= 589821)
+    if (i2 >= 524288 && i2 <= 589821)
       return true;
-    if (i >= 589824 && i <= 655357)
+    if (i2 >= 589824 && i2 <= 655357)
       return true;
-    if (i >= 655360 && i <= 720893)
+    if (i2 >= 655360 && i2 <= 720893)
       return true;
-    if (i >= 720896 && i <= 786429)
+    if (i2 >= 720896 && i2 <= 786429)
       return true;
-    if (i >= 786432 && i <= 851965)
+    if (i2 >= 786432 && i2 <= 851965)
       return true;
-    if (i >= 851968 && i <= 917501)
+    if (i2 >= 851968 && i2 <= 917501)
       return true;
-    if (i >= 921600 && i <= 983037)
+    if (i2 >= 921600 && i2 <= 983037)
       return true;
-    if (i >= 983040 && i <= 1048573)
+    if (i2 >= 983040 && i2 <= 1048573)
       return true;
-    if (i >= 1048576 && i <= 1114109)
+    if (i2 >= 1048576 && i2 <= 1114109)
       return true;
     return false;
   }
@@ -1743,6 +2918,20 @@
   function clone(obj, replacer) {
     return JSON.parse(JSON.stringify(obj, replacer));
   }
+  function copy(o) {
+    let output;
+    let v;
+    let key;
+    if (!o || typeof o !== "object" && !Array.isArray(o))
+      return o;
+    output = Array.isArray(o) ? [] : {};
+    for (key in o) {
+      if (!o.hasOwnProperty(key)) continue;
+      v = o[key];
+      output[key] = v && (typeof v === "object" || Array.isArray(v)) ? copy(v) : v;
+    }
+    return output;
+  }
   function setSelectionRange(input, selectionStart, selectionEnd) {
     if (input.setSelectionRange) {
       input.focus();
@@ -1763,31 +2952,31 @@
     } else
       input.select();
   }
-  CanvasRenderingContext2D.prototype.fillRoundedRect = function(x, y, w, h, r) {
+  CanvasRenderingContext2D.prototype.fillRoundedRect = function(x2, y2, w, h, r) {
     this.beginPath();
-    this.moveTo(x + r, y);
-    this.lineTo(x + w - r, y);
-    this.quadraticCurveTo(x + w, y, x + w, y + r);
-    this.lineTo(x + w, y + h - r);
-    this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    this.lineTo(x + r, y + h);
-    this.quadraticCurveTo(x, y + h, x, y + h - r);
-    this.lineTo(x, y + r);
-    this.quadraticCurveTo(x, y, x + r, y);
+    this.moveTo(x2 + r, y2);
+    this.lineTo(x2 + w - r, y2);
+    this.quadraticCurveTo(x2 + w, y2, x2 + w, y2 + r);
+    this.lineTo(x2 + w, y2 + h - r);
+    this.quadraticCurveTo(x2 + w, y2 + h, x2 + w - r, y2 + h);
+    this.lineTo(x2 + r, y2 + h);
+    this.quadraticCurveTo(x2, y2 + h, x2, y2 + h - r);
+    this.lineTo(x2, y2 + r);
+    this.quadraticCurveTo(x2, y2, x2 + r, y2);
     this.closePath();
     this.fill();
   };
-  CanvasRenderingContext2D.prototype.strokeRoundedRect = function(x, y, w, h, r) {
+  CanvasRenderingContext2D.prototype.strokeRoundedRect = function(x2, y2, w, h, r) {
     this.beginPath();
-    this.moveTo(x + r, y);
-    this.lineTo(x + w - r, y);
-    this.quadraticCurveTo(x + w, y, x + w, y + r);
-    this.lineTo(x + w, y + h - r);
-    this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    this.lineTo(x + r, y + h);
-    this.quadraticCurveTo(x, y + h, x, y + h - r);
-    this.lineTo(x, y + r);
-    this.quadraticCurveTo(x, y, x + r, y);
+    this.moveTo(x2 + r, y2);
+    this.lineTo(x2 + w - r, y2);
+    this.quadraticCurveTo(x2 + w, y2, x2 + w, y2 + r);
+    this.lineTo(x2 + w, y2 + h - r);
+    this.quadraticCurveTo(x2 + w, y2 + h, x2 + w - r, y2 + h);
+    this.lineTo(x2 + r, y2 + h);
+    this.quadraticCurveTo(x2, y2 + h, x2, y2 + h - r);
+    this.lineTo(x2, y2 + r);
+    this.quadraticCurveTo(x2, y2, x2 + r, y2);
     this.closePath();
     this.stroke();
   };
@@ -1922,23 +3111,23 @@
       str.push(this.substr(pS, s - pS));
     return str;
   };
-  function getTimeSpan(i) {
+  function getTimeSpan(i2) {
     let al;
     const tmp = [];
-    al = Math.floor(i / (1e3 * 60 * 60 * 24));
-    i -= al * (1e3 * 60 * 60 * 24);
+    al = Math.floor(i2 / (1e3 * 60 * 60 * 24));
+    i2 -= al * (1e3 * 60 * 60 * 24);
     if (al === 1) tmp.push(al + " day");
     else if (al > 0) tmp.push(al + " days");
-    al = Math.floor(i / (1e3 * 60 * 60));
-    i -= al * (1e3 * 60 * 60);
+    al = Math.floor(i2 / (1e3 * 60 * 60));
+    i2 -= al * (1e3 * 60 * 60);
     if (al === 1) tmp.push(al + " hour");
     else if (al > 0) tmp.push(al + " hours");
-    al = Math.floor(i / (1e3 * 60));
-    i -= al * (1e3 * 60);
+    al = Math.floor(i2 / (1e3 * 60));
+    i2 -= al * (1e3 * 60);
     if (al === 1) tmp.push(al + " minute");
     else if (al > 0) tmp.push(al + " minutes");
-    al = Math.floor(i / 1e3);
-    i -= al * 1e3;
+    al = Math.floor(i2 / 1e3);
+    i2 -= al * 1e3;
     if (al === 1) tmp.push(al + " second");
     else if (al > 0) tmp.push(al + " seconds");
     if (tmp.length === 0)
@@ -1949,15 +3138,15 @@
     if (!s) return "";
     s = s.split(" ");
     let c;
-    let i;
+    let i2;
     let p;
     const il = first ? 1 : s.length;
-    for (i = 0; i < il; i++) {
-      const pl = s[i].length;
+    for (i2 = 0; i2 < il; i2++) {
+      const pl = s[i2].length;
       for (p = 0; p < pl; p++) {
-        c = s[i].charAt(p);
+        c = s[i2].charAt(p);
         if (c >= "a" && c <= "z" || c >= "A" && c <= "Z") {
-          s[i] = s[i].substr(0, p) + c.toUpperCase() + s[i].substr(p + 1).toLowerCase();
+          s[i2] = s[i2].substr(0, p) + c.toUpperCase() + s[i2].substr(p + 1).toLowerCase();
           break;
         }
       }
@@ -2322,12 +3511,12 @@
     }
   }
   function StringToBinary(string) {
-    var chars, code, i, isUCS2, len, _i;
+    var chars, code, i2, isUCS2, len, _i;
     len = string.length;
     chars = [];
     isUCS2 = false;
-    for (i = _i = 0; 0 <= len ? _i < len : _i > len; i = 0 <= len ? ++_i : --_i) {
-      code = String.prototype.charCodeAt.call(string, i);
+    for (i2 = _i = 0; 0 <= len ? _i < len : _i > len; i2 = 0 <= len ? ++_i : --_i) {
+      code = String.prototype.charCodeAt.call(string, i2);
       if (code > 255) {
         isUCS2 = true;
         chars = null;
@@ -2344,15 +3533,15 @@
   }
   var txtEncoder;
   function StringToUint8Array(string) {
-    var binary, binLen, buffer, chars, i, _i;
+    var binary, binLen, buffer, chars, i2, _i;
     if (window.TextEncoder !== void 0)
       return (txtEncoder || (txtEncoder = new TextEncoder())).encode(string);
     binary = StringToBinary(string);
     binLen = binary.length;
     buffer = new ArrayBuffer(binLen);
     chars = new Uint8Array(buffer);
-    for (i = _i = 0; 0 <= binLen ? _i < binLen : _i > binLen; i = 0 <= binLen ? ++_i : --_i) {
-      chars[i] = String.prototype.charCodeAt.call(binary, i);
+    for (i2 = _i = 0; 0 <= binLen ? _i < binLen : _i > binLen; i2 = 0 <= binLen ? ++_i : --_i) {
+      chars[i2] = String.prototype.charCodeAt.call(binary, i2);
     }
     return chars;
   }
@@ -2499,9 +3688,9 @@
           var link = document.createElement("a");
           link.setAttribute("href", url);
           link.setAttribute("download", name2 || "Download.bin");
-          var event = document.createEvent("MouseEvents");
-          event.initMouseEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-          link.dispatchEvent(event);
+          var event2 = document.createEvent("MouseEvents");
+          event2.initMouseEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+          link.dispatchEvent(event2);
         } else {
           if (BrowserSupportedMimeTypes[mimetype.split(";")[0]] === true) {
             mimetype = "application/octet-stream";
@@ -2524,9 +3713,9 @@
           var link = document.createElement("a");
           link.setAttribute("href", url);
           link.setAttribute("download", name2 || "Download.bin");
-          var event = document.createEvent("MouseEvents");
-          event.initMouseEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-          link.dispatchEvent(event);
+          var event2 = document.createEvent("MouseEvents");
+          event2.initMouseEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+          link.dispatchEvent(event2);
         } else {
           if (BrowserSupportedMimeTypes[mimetype.split(";")[0]] === true) {
             mimetype = "application/octet-stream";
@@ -2550,21 +3739,21 @@
   }
   window.fileSaveAs = new fSaveAs();
   function utf8() {
-    var intc, i;
+    var intc, i2;
     function TryGetCharUTF8(b, count) {
-      var c = b.charCodeAt(i);
+      var c = b.charCodeAt(i2);
       if ((c & 128) === 0)
         intc = c;
       else {
         if ((c & 224) == 192) {
-          intc = (c & 31) << 6 | b.charCodeAt(i + 1) & 63;
-          i += 1;
+          intc = (c & 31) << 6 | b.charCodeAt(i2 + 1) & 63;
+          i2 += 1;
         } else if ((c & 240) == 224) {
-          intc = (c & 15) << 12 | (b.charCodeAt(i + 1) & 63) << 6 | b.charCodeAt(i + 2) & 63;
-          i += 2;
+          intc = (c & 15) << 12 | (b.charCodeAt(i2 + 1) & 63) << 6 | b.charCodeAt(i2 + 2) & 63;
+          i2 += 2;
         } else if ((c & 248) == 240) {
-          intc = (c & 7) << 18 | (b.charCodeAt(i + 1) & 63) << 12 | (b.charCodeAt(i + 2) & 63) << 6 | b.charCodeAt(i + 3) & 63;
-          i += 1;
+          intc = (c & 7) << 18 | (b.charCodeAt(i2 + 1) & 63) << 12 | (b.charCodeAt(i2 + 2) & 63) << 6 | b.charCodeAt(i2 + 3) & 63;
+          i2 += 1;
         } else
           return false;
       }
@@ -2573,7 +3762,7 @@
     this.decode = function(s) {
       var ss = new StringBuffer();
       var sl = s.length;
-      for (i = 0; i < sl; i++) {
+      for (i2 = 0; i2 < sl; i2++) {
         if (TryGetCharUTF8(s, sl))
           ss.appendCode(intc);
       }
@@ -2582,19 +3771,19 @@
     this.decode2 = function(s) {
       var ss = new StringBuffer();
       var sl = s.length;
-      var i2, c;
-      for (i2 = 0; i2 < sl; i2++) {
-        c = s.charCodeAt(i2);
+      var i3, c;
+      for (i3 = 0; i3 < sl; i3++) {
+        c = s.charCodeAt(i3);
         if ((c & 128) !== 0) {
           if ((c & 224) == 192) {
-            c = (c & 31) << 6 | s.charCodeAt(i2 + 1) & 63;
-            i2 += 1;
+            c = (c & 31) << 6 | s.charCodeAt(i3 + 1) & 63;
+            i3 += 1;
           } else if ((c & 240) == 224) {
-            c = (c & 15) << 12 | (s.charCodeAt(i2 + 1) & 63) << 6 | s.charCodeAt(i2 + 2) & 63;
-            i2 += 2;
+            c = (c & 15) << 12 | (s.charCodeAt(i3 + 1) & 63) << 6 | s.charCodeAt(i3 + 2) & 63;
+            i3 += 2;
           } else if ((c & 248) == 240) {
-            c = (c & 7) << 18 | (s.charCodeAt(i2 + 1) & 63) << 12 | (s.charCodeAt(i2 + 2) & 63) << 6 | s.charCodeAt(i2 + 3) & 63;
-            i2 += 1;
+            c = (c & 7) << 18 | (s.charCodeAt(i3 + 1) & 63) << 12 | (s.charCodeAt(i3 + 2) & 63) << 6 | s.charCodeAt(i3 + 3) & 63;
+            i3 += 1;
           } else
             continue;
         }
@@ -2669,7 +3858,7 @@
       dialog.showModal();
     });
   }
-  function readFile(file) {
+  function readFile(file, progress) {
     return new Promise((resolve, reject) => {
       if (!file) reject(new Error("Invalid file"));
       var reader = new FileReader();
@@ -2678,6 +3867,8 @@
         resolve(evt.target.result);
       };
       reader.readAsText(file);
+      if (progress)
+        reader.onprogress = progress;
     });
   }
   var _timers = {};
@@ -2985,7 +4176,7 @@
       let msdp_val = "";
       let msdp_var = "";
       let _MSSP;
-      let i = 0;
+      let i2 = 0;
       let ne;
       let idx = 0;
       tmp = "";
@@ -2993,21 +4184,21 @@
       let debugOp = "";
       try {
         for (; idx < len; idx++) {
-          i = data[idx];
+          i2 = data[idx];
           switch (state) {
             case 0:
-              if (i === 255) {
+              if (i2 === 255) {
                 if (this.enableDebug) debugOp = "TELOP: <IAC>";
-                _sb.push(i);
+                _sb.push(i2);
                 state = 1;
               } else if (this.UTF8 || this.options.CHARSET && this.server.CHARSET) {
-                if ((i & 128) === 128 && idx >= len - 4) {
+                if ((i2 & 128) === 128 && idx >= len - 4) {
                   let uLen = 0;
-                  if ((i & 192) === 192)
+                  if ((i2 & 192) === 192)
                     uLen = 1;
-                  else if ((i & 224) === 224)
+                  else if ((i2 & 224) === 224)
                     uLen = 2;
-                  else if ((i & 240) === 240)
+                  else if ((i2 & 240) === 240)
                     uLen = 3;
                   if (idx + uLen >= len) {
                     _sb.push(...data.slice(idx));
@@ -3018,36 +4209,36 @@
                     break;
                   }
                 }
-                processed.appendCode(i);
+                processed.appendCode(i2);
               } else
-                processed.appendCode(i);
+                processed.appendCode(i2);
               break;
             case 1:
-              if (i === 255) {
+              if (i2 === 255) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<IAC>");
                   debugOp = "";
                 }
-                processed.appendCode(i);
+                processed.appendCode(i2);
                 _sb = [];
                 state = 0;
-              } else if ((!this.options.EOR || !this.server.EOR) && i === 239) {
+              } else if ((!this.options.EOR || !this.server.EOR) && i2 === 239) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<NOP>");
                   debugOp = "";
                 }
                 _sb = [];
                 state = 0;
-              } else if (i === 241 || i === 130) {
+              } else if (i2 === 241 || i2 === 130) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<NOP>");
                   debugOp = "";
                 }
                 _sb = [];
                 state = 0;
-              } else if (i === 249 || i === 239) {
+              } else if (i2 === 249 || i2 === 239) {
                 if (this.enableDebug) {
-                  if (i === 239)
+                  if (i2 === 239)
                     this.emit("debug", debugOp + "<EOR>");
                   else
                     this.emit("debug", debugOp + "<GA>");
@@ -3060,9 +4251,9 @@
                   this.prompt = true;
                 _sb = [];
                 state = 0;
-              } else if (i === 253 || i === 254 || i === 251 || i === 252) {
+              } else if (i2 === 253 || i2 === 254 || i2 === 251 || i2 === 252) {
                 if (this.enableDebug) {
-                  switch (i) {
+                  switch (i2) {
                     case 253:
                       debugOp += "<DO>";
                       break;
@@ -3077,21 +4268,21 @@
                       break;
                   }
                 }
-                _sb.push(i);
-                verb = i;
+                _sb.push(i2);
+                verb = i2;
                 state = 2;
-              } else if (i === 250) {
+              } else if (i2 === 250) {
                 if (this.enableDebug) debugOp += "<SB>";
-                _sb.push(i);
+                _sb.push(i2);
                 state = 3;
               } else {
-                if (this.enableDebug) debugOp += this._formatByte(i);
+                if (this.enableDebug) debugOp += this._formatByte(i2);
                 _sb = [];
                 state = 0;
               }
               break;
             case 2:
-              if (i === 1) {
+              if (i2 === 1) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<ECHO>");
                   debugOp = "";
@@ -3099,35 +4290,35 @@
                 if (verb === 253) {
                   if (this.options.ECHO) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WILL><ECHO>");
-                    this.replyToOption(i, 251, verb);
+                    this.replyToOption(i2, 251, verb);
                     this.echo = false;
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><ECHO>");
                     this.echo = true;
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 254) {
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><ECHO>");
-                  this.replyToOption(i, 252, verb);
+                  this.replyToOption(i2, 252, verb);
                   this.echo = true;
                 } else if (verb === 251) {
                   if (this.options.ECHO) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DO><ECHO>");
-                    this.replyToOption(i, 253, verb);
+                    this.replyToOption(i2, 253, verb);
                     this.echo = false;
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><ECHO>");
                     this.echo = true;
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 252) {
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><ECHO>");
                   this.echo = true;
-                  this.replyToOption(i, 254, verb);
+                  this.replyToOption(i2, 254, verb);
                 }
                 state = 0;
                 _sb = [];
-              } else if (i === 24) {
+              } else if (i2 === 24) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<TERMINALTYPE>");
                   debugOp = "";
@@ -3135,29 +4326,29 @@
                 if (verb === 253) {
                   if (this.options.TTYPE) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WILL><TERMINALTYPE>");
-                    this.replyToOption(i, 251, verb);
+                    this.replyToOption(i2, 251, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><TERMINALTYPE>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 254) {
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><TERMINALTYPE>");
-                  this.replyToOption(i, 252, verb);
+                  this.replyToOption(i2, 252, verb);
                 } else if (verb === 251) {
                   if (this.options.TTYPE) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DO><TERMINALTYPE>");
-                    this.replyToOption(i, 253, verb);
+                    this.replyToOption(i2, 253, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><TERMINALTYPE>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 252) {
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><TERMINALTYPE>");
-                  this.replyToOption(i, 254, verb);
+                  this.replyToOption(i2, 254, verb);
                 }
                 state = 0;
                 _sb = [];
-              } else if (i === 25) {
+              } else if (i2 === 25) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<ENDOFRECORD>");
                   debugOp = "";
@@ -3166,30 +4357,30 @@
                   this.server.EOR = true;
                   if (this.options.EOR) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WILL><ENDOFRECORD>");
-                    this.replyToOption(i, 251, verb);
+                    this.replyToOption(i2, 251, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><ENDOFRECORD>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 254) {
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><ENDOFRECORD>");
-                  this.replyToOption(i, 252, verb);
+                  this.replyToOption(i2, 252, verb);
                 } else if (verb === 251) {
                   this.server.EOR = true;
                   if (this.options.EOR) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DO><ENDOFRECORD>");
-                    this.replyToOption(i, 253, verb);
+                    this.replyToOption(i2, 253, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><ENDOFRECORD>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 252) {
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><ENDOFRECORD>");
-                  this.replyToOption(i, 254, verb);
+                  this.replyToOption(i2, 254, verb);
                 }
                 state = 0;
                 _sb = [];
-              } else if (i === 31) {
+              } else if (i2 === 31) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<NAWS>");
                   debugOp = "";
@@ -3198,33 +4389,33 @@
                   this.server.NAWS = true;
                   if (this.options.NAWS) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WILL><NAWS>");
-                    this.replyToOption(i, 251, verb);
+                    this.replyToOption(i2, 251, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><NAWS>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 254) {
                   this.server.NAWS = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><NAWS>");
-                  this.replyToOption(i, 252, verb);
+                  this.replyToOption(i2, 252, verb);
                 } else if (verb === 251) {
                   this.server.NAWS = true;
                   if (this.options.NAWS) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DO><NAWS>");
-                    this.replyToOption(i, 253, verb);
+                    this.replyToOption(i2, 253, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><NAWS>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 252) {
                   this.server.NAWS = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><NAWS>");
-                  this.replyToOption(i, 254, verb);
+                  this.replyToOption(i2, 254, verb);
                 }
                 this.emit("windowSize");
                 state = 0;
                 _sb = [];
-              } else if (i === 36 || i === 39) {
+              } else if (i2 === 36 || i2 === 39) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<NEWENVIRON>");
                   debugOp = "";
@@ -3233,30 +4424,30 @@
                   this.server.NEWENVIRON = true;
                   if (this.options.NEWENVIRON) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WILL><NEWENVIRON>");
-                    this.replyToOption(i, 251, verb);
+                    this.replyToOption(i2, 251, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><NEWENVIRON>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 254) {
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><NEWENVIRON>");
-                  this.replyToOption(i, 252, verb);
+                  this.replyToOption(i2, 252, verb);
                 } else if (verb === 251) {
                   this.server.NEWENVIRON = true;
                   if (this.options.NEWENVIRON) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DO><NEWENVIRON>");
-                    this.replyToOption(i, 253, verb);
+                    this.replyToOption(i2, 253, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><NEWENVIRON>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 252) {
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><NEWENVIRON>");
-                  this.replyToOption(i, 254, verb);
+                  this.replyToOption(i2, 254, verb);
                 }
                 state = 0;
                 _sb = [];
-              } else if (i === 69) {
+              } else if (i2 === 69) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<MSDP>");
                   debugOp = "";
@@ -3265,32 +4456,32 @@
                   this.server.MSDP = true;
                   if (this.options.MSDP) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WILL><MSDP>");
-                    this.replyToOption(i, 251, verb);
+                    this.replyToOption(i2, 251, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><MSDP>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 254) {
                   this.server.MSDP = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><MSDP>");
-                  this.replyToOption(i, 252, verb);
+                  this.replyToOption(i2, 252, verb);
                 } else if (verb === 251) {
                   this.server.MSDP = true;
                   if (this.options.MSDP) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DO><MSDP>");
-                    this.replyToOption(i, 253, verb);
+                    this.replyToOption(i2, 253, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><MSDP>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 252) {
                   this.server.MSDP = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><MSDP>");
-                  this.replyToOption(i, 254, verb);
+                  this.replyToOption(i2, 254, verb);
                 }
                 state = 0;
                 _sb = [];
-              } else if (i === 70) {
+              } else if (i2 === 70) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<MSSP>");
                   debugOp = "";
@@ -3299,32 +4490,32 @@
                   this.server.MSSP = true;
                   if (this.options.MSSP) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WILL><MSSP>");
-                    this.replyToOption(i, 251, verb);
+                    this.replyToOption(i2, 251, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><MSSP>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 254) {
                   this.server.MSSP = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><MSSP>");
-                  this.replyToOption(i, 252, verb);
+                  this.replyToOption(i2, 252, verb);
                 } else if (verb === 251) {
                   this.server.MSSP = true;
                   if (this.options.MSSP) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DO><MSSP>");
-                    this.replyToOption(i, 253, verb);
+                    this.replyToOption(i2, 253, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><MSSP>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 252) {
                   this.server.MSSP = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><MSSP>");
-                  this.replyToOption(i, 254, verb);
+                  this.replyToOption(i2, 254, verb);
                 }
                 state = 0;
                 _sb = [];
-              } else if (i === 85) {
+              } else if (i2 === 85) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<MCCP1>");
                   debugOp = "";
@@ -3333,32 +4524,32 @@
                   this.server.MCCP1 = true;
                   if (this.options.MCCP) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WILL><MCCP1>");
-                    this.replyToOption(i, 251, verb);
+                    this.replyToOption(i2, 251, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><MCCP1>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 254) {
                   this.server.MCCP1 = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><MCCP1>");
-                  this.replyToOption(i, 252, verb);
+                  this.replyToOption(i2, 252, verb);
                 } else if (verb === 251) {
                   this.server.MCCP1 = true;
                   if (this.options.MCCP) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DO><MCCP1>");
-                    this.replyToOption(i, 253, verb);
+                    this.replyToOption(i2, 253, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><MCCP1>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 252) {
                   this.server.MCCP1 = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><MCCP1>");
-                  this.replyToOption(i, 254, verb);
+                  this.replyToOption(i2, 254, verb);
                 }
                 state = 0;
                 _sb = [];
-              } else if (i === 86) {
+              } else if (i2 === 86) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<MCCP2>");
                   debugOp = "";
@@ -3367,32 +4558,32 @@
                   this.server.MCCP2 = true;
                   if (this.options.MCCP) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WILL><MCCP2>");
-                    this.replyToOption(i, 251, verb);
+                    this.replyToOption(i2, 251, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><MCCP2>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 254) {
                   this.server.MCCP2 = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><MCCP2>");
-                  this.replyToOption(i, 252, verb);
+                  this.replyToOption(i2, 252, verb);
                 } else if (verb === 251) {
                   this.server.MCCP2 = true;
                   if (this.options.MCCP) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DO><MCCP2>");
-                    this.replyToOption(i, 253, verb);
+                    this.replyToOption(i2, 253, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><MCCP2>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 252) {
                   this.server.MCCP2 = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><MCCP2>");
-                  this.replyToOption(i, 254, verb);
+                  this.replyToOption(i2, 254, verb);
                 }
                 state = 0;
                 _sb = [];
-              } else if (i === 91) {
+              } else if (i2 === 91) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<MXP>");
                   debugOp = "";
@@ -3401,40 +4592,40 @@
                   this.server.MXP = true;
                   if (this.options.MXP) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WILL><MXP>");
-                    this.replyToOption(i, 251, verb);
+                    this.replyToOption(i2, 251, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><MXP>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 254) {
                   this.server.MXP = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><MXP>");
-                  this.replyToOption(i, 252, verb);
+                  this.replyToOption(i2, 252, verb);
                 } else if (verb === 251) {
                   this.server.MXP = true;
                   if (this.options.MXP) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DO><MXP>");
-                    this.replyToOption(i, 253, verb);
+                    this.replyToOption(i2, 253, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><MXP>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 252) {
                   this.server.MXP = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><MXP>");
-                  this.replyToOption(i, 254, verb);
+                  this.replyToOption(i2, 254, verb);
                 }
                 state = 0;
                 _sb = [];
-              } else if (i === 130 || i === 241) {
+              } else if (i2 === 130 || i2 === 241) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<NOP>");
                   debugOp = "";
                 }
-                this._fireReceiveOption(i, verb, "");
+                this._fireReceiveOption(i2, verb, "");
                 _sb = [];
                 state = 0;
-              } else if (i === 201) {
+              } else if (i2 === 201) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<GMCP>");
                   debugOp = "";
@@ -3443,34 +4634,34 @@
                   this.server.GMCP = true;
                   if (this.options.GMCP) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WILL><GMCP>");
-                    this.replyToOption(i, 251, verb);
+                    this.replyToOption(i2, 251, verb);
                     this._startGMCP();
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><GMCP>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 254) {
                   this.server.GMCP = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><GMCP>");
-                  this.replyToOption(i, 252, verb);
+                  this.replyToOption(i2, 252, verb);
                 } else if (verb === 251) {
                   this.server.GMCP = true;
                   if (this.options.GMCP) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DO><GMCP>");
-                    this.replyToOption(i, 253, verb);
+                    this.replyToOption(i2, 253, verb);
                     this._startGMCP();
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><GMCP>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 252) {
                   this.server.GMCP = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><GMCP>");
-                  this.replyToOption(i, 254, verb);
+                  this.replyToOption(i2, 254, verb);
                 }
                 state = 0;
                 _sb = [];
-              } else if (i === 42) {
+              } else if (i2 === 42) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<CHARSET>");
                   debugOp = "";
@@ -3479,82 +4670,82 @@
                   this.server.CHARSET = true;
                   if (this.options.CHARSET) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WILL><CHARSET>");
-                    this.replyToOption(i, 251, verb);
+                    this.replyToOption(i2, 251, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><CHARSET>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 254) {
                   this.server.CHARSET = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><CHARSET>");
-                  this.replyToOption(i, 252, verb);
+                  this.replyToOption(i2, 252, verb);
                 } else if (verb === 251) {
                   this.server.CHARSET = true;
                   if (this.options.CHARSET) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DO><CHARSET>");
-                    this.replyToOption(i, 253, verb);
+                    this.replyToOption(i2, 253, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><CHARSET>");
-                    this.replyToOption(i, 254, verb);
+                    this.replyToOption(i2, 254, verb);
                   }
                 } else if (verb === 252) {
                   this.server.CHARSET = false;
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><CHARSET>");
-                  this.replyToOption(i, 254, verb);
+                  this.replyToOption(i2, 254, verb);
                 }
                 state = 0;
                 _sb = [];
               } else {
                 if (this.enableDebug) {
-                  this.emit("debug", debugOp + this._formatByte(i));
+                  this.emit("debug", debugOp + this._formatByte(i2));
                   debugOp = "";
                 }
                 if (verb === 251 || verb === 252) {
-                  if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><" + i + ">");
-                  this.replyToOption(i, 254, verb);
+                  if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><" + i2 + ">");
+                  this.replyToOption(i2, 254, verb);
                 } else if (verb === 254 || verb === 253) {
-                  if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><" + i + ">");
-                  this.replyToOption(i, 252, verb);
+                  if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><" + i2 + ">");
+                  this.replyToOption(i2, 252, verb);
                 }
                 state = 0;
                 _sb = [];
               }
               break;
             case 3:
-              option = i;
-              if (i === 24) {
+              option = i2;
+              if (i2 === 24) {
                 if (this.enableDebug) debugOp += "<TERMINALTYPE>";
-                _sb.push(i);
-                option = i;
+                _sb.push(i2);
+                option = i2;
                 state = 4;
-              } else if (i === 36 || i === 39) {
+              } else if (i2 === 36 || i2 === 39) {
                 if (this.enableDebug) debugOp += "<NEWENVIRON>";
-                _sb.push(i);
-                option = i;
+                _sb.push(i2);
+                option = i2;
                 state = 12;
                 ne = -1;
-              } else if (i === 69) {
+              } else if (i2 === 69) {
                 if (this.enableDebug) debugOp += "<MSDP>";
-                _sb.push(i);
-                option = i;
+                _sb.push(i2);
+                option = i2;
                 state = 4;
-              } else if (i === 70) {
+              } else if (i2 === 70) {
                 if (this.enableDebug) debugOp += "<MSSP>";
-                _sb.push(i);
-                option = i;
+                _sb.push(i2);
+                option = i2;
                 state = 8;
                 _MSSP = {};
-              } else if (i === 85 || i === 86) {
-                if (this.enableDebug) debugOp += i === 85 ? "<MCCP1>" : "<MCCP2>";
-                _sb.push(i);
-                option = i;
+              } else if (i2 === 85 || i2 === 86) {
+                if (this.enableDebug) debugOp += i2 === 85 ? "<MCCP1>" : "<MCCP2>";
+                _sb.push(i2);
+                option = i2;
                 state = 11;
-              } else if (i === 201) {
+              } else if (i2 === 201) {
                 if (this.enableDebug) debugOp += "<GMCP>";
-                _sb.push(i);
-                option = i;
+                _sb.push(i2);
+                option = i2;
                 state = 7;
-              } else if (i === 240) {
+              } else if (i2 === 240) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<SE>");
                   debugOp = "";
@@ -3564,23 +4755,23 @@
                 tmp = null;
                 state = 0;
                 _sb = [];
-              } else if (i === 42) {
+              } else if (i2 === 42) {
                 if (this.enableDebug) debugOp += "<CHARSET>";
-                _sb.push(i);
-                option = i;
+                _sb.push(i2);
+                option = i2;
                 state = 17;
                 msdp_val = "";
               } else {
-                if (this.enableDebug) debugOp += this._formatByte(i);
-                _sb.push(i);
+                if (this.enableDebug) debugOp += this._formatByte(i2);
+                _sb.push(i2);
               }
               break;
             case 4:
-              if (option === 24 && i === 1) {
+              if (option === 24 && i2 === 1) {
                 if (this.enableDebug) debugOp += "<SEND>";
-                _sb.push(i);
+                _sb.push(i2);
                 verb = 1;
-              } else if (i === 240) {
+              } else if (i2 === 240) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<SE>");
                   debugOp = "";
@@ -3596,40 +4787,40 @@
                 }
                 state = 0;
                 _sb = [];
-              } else if (option === 69 && i === 1) {
+              } else if (option === 69 && i2 === 1) {
                 if (this.enableDebug) debugOp += "<MSDP_VAR>";
-                _sb.push(i);
+                _sb.push(i2);
                 msdp_var = "";
                 state = 5;
               } else {
-                if (this.enableDebug) debugOp += this._formatByte(i);
-                _sb.push(i);
+                if (this.enableDebug) debugOp += this._formatByte(i2);
+                _sb.push(i2);
               }
               break;
             case 5:
-              if (i === 2) {
+              if (i2 === 2) {
                 if (this.enableDebug) debugOp += "<MSDP_VAL>";
-                _sb.push(i);
+                _sb.push(i2);
                 msdp_val = "";
                 state = 6;
               } else {
-                if (this.enableDebug) debugOp += this._formatByte(i);
-                msdp_var += String.fromCharCode(i);
-                _sb.push(i);
+                if (this.enableDebug) debugOp += this._formatByte(i2);
+                msdp_var += String.fromCharCode(i2);
+                _sb.push(i2);
               }
               break;
             case 6:
-              if (i === 255) {
+              if (i2 === 255) {
                 if (this.enableDebug) debugOp += "<IAC>";
-                _sb.push(i);
-              } else if (i === 1) {
+                _sb.push(i2);
+              } else if (i2 === 1) {
                 if (this.enableDebug) debugOp += "<MSDP_VAR>";
                 this._fireReceiveMSDP(msdp_var, msdp_val);
                 msdp_val = "";
                 msdp_var = "";
-                _sb.push(i);
+                _sb.push(i2);
                 state = 5;
-              } else if (i === 240) {
+              } else if (i2 === 240) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<SE>");
                   debugOp = "";
@@ -3643,16 +4834,16 @@
                 state = 0;
                 _sb = [];
               } else {
-                if (this.enableDebug) debugOp += this._formatByte(i);
-                msdp_val += String.fromCharCode(i);
-                _sb.push(i);
+                if (this.enableDebug) debugOp += this._formatByte(i2);
+                msdp_val += String.fromCharCode(i2);
+                _sb.push(i2);
               }
               break;
             case 7:
-              if (i === 255) {
+              if (i2 === 255) {
                 if (this.enableDebug) debugOp += "<IAC>";
-                _sb.push(i);
-              } else if (i === 240) {
+                _sb.push(i2);
+              } else if (i2 === 240) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<SE>");
                   debugOp = "";
@@ -3665,16 +4856,16 @@
                 msdp_val = "";
                 _sb = [];
               } else {
-                if (this.enableDebug) debugOp += this._formatByte(i);
-                msdp_val += String.fromCharCode(i);
-                _sb.push(i);
+                if (this.enableDebug) debugOp += this._formatByte(i2);
+                msdp_val += String.fromCharCode(i2);
+                _sb.push(i2);
               }
               break;
             case 8:
-              if (i === 255) {
+              if (i2 === 255) {
                 if (this.enableDebug) debugOp += "<IAC>";
-                _sb.push(i);
-              } else if (i === 240) {
+                _sb.push(i2);
+              } else if (i2 === 240) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<SE>");
                   this.emit("debug", this.MSSP);
@@ -3689,64 +4880,64 @@
                 _MSSP = 0;
                 state = 0;
                 _sb = [];
-              } else if (i === 1) {
+              } else if (i2 === 1) {
                 if (this.enableDebug) debugOp += "<MSSP_VAR>";
-                _sb.push(i);
+                _sb.push(i2);
                 msdp_var = "";
                 state = 9;
               } else {
-                if (this.enableDebug) debugOp += this._formatByte(i);
-                _sb.push(i);
+                if (this.enableDebug) debugOp += this._formatByte(i2);
+                _sb.push(i2);
               }
               break;
             case 9:
-              if (i === 255) {
+              if (i2 === 255) {
                 if (this.enableDebug) debugOp += "<IAC>";
-                _sb.push(i);
+                _sb.push(i2);
                 state = 8;
-              } else if (i === 1) {
+              } else if (i2 === 1) {
                 if (this.enableDebug) debugOp += "<MSSP_VAR>";
-                _sb.push(i);
+                _sb.push(i2);
                 msdp_var = "";
-              } else if (i === 2) {
+              } else if (i2 === 2) {
                 if (this.enableDebug) debugOp += "<MSSP_VAL>";
-                _sb.push(i);
+                _sb.push(i2);
                 this.MSSP[msdp_var] = "";
                 _MSSP[msdp_var] = "";
                 state = 10;
               } else {
-                if (this.enableDebug) debugOp += this._formatByte(i);
-                msdp_var += String.fromCharCode(i);
-                _sb.push(i);
+                if (this.enableDebug) debugOp += this._formatByte(i2);
+                msdp_var += String.fromCharCode(i2);
+                _sb.push(i2);
               }
               break;
             case 10:
-              if (i === 255) {
+              if (i2 === 255) {
                 if (this.enableDebug) debugOp += "<IAC>";
-                _sb.push(i);
+                _sb.push(i2);
                 state = 8;
-              } else if (i === 1) {
+              } else if (i2 === 1) {
                 if (this.enableDebug) debugOp += "<MSSP_VAR>";
-                _sb.push(i);
+                _sb.push(i2);
                 msdp_var = "";
                 state = 9;
-              } else if (i === 2) {
+              } else if (i2 === 2) {
                 if (this.enableDebug) debugOp += "<MSSP_VAL>";
-                _sb.push(i);
+                _sb.push(i2);
                 this.MSSP[msdp_var] = "";
                 _MSSP[msdp_var] = "";
               } else {
-                if (this.enableDebug) debugOp += this._formatByte(i);
-                this.MSSP[msdp_var] += String.fromCharCode(i);
-                _MSSP[msdp_var] += String.fromCharCode(i);
-                _sb.push(i);
+                if (this.enableDebug) debugOp += this._formatByte(i2);
+                this.MSSP[msdp_var] += String.fromCharCode(i2);
+                _MSSP[msdp_var] += String.fromCharCode(i2);
+                _sb.push(i2);
               }
               break;
             case 11:
-              if (i === 255) {
+              if (i2 === 255) {
                 if (this.enableDebug) debugOp += "<IAC>";
-                _sb.push(i);
-              } else if (i === 240) {
+                _sb.push(i2);
+              } else if (i2 === 240) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<SE>");
                   debugOp = "";
@@ -3761,10 +4952,10 @@
               }
               break;
             case 12:
-              if (i === 255) {
+              if (i2 === 255) {
                 if (this.enableDebug) debugOp += "<IAC>";
-                _sb.push(i);
-              } else if (i === 240) {
+                _sb.push(i2);
+              } else if (i2 === 240) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<SE>");
                   debugOp = "";
@@ -3776,50 +4967,50 @@
                 state = 0;
                 msdp_val = "";
                 _sb = [];
-              } else if (i === 0) {
+              } else if (i2 === 0) {
                 if (this.enableDebug) debugOp += "<IS>";
-                _sb.push(i);
+                _sb.push(i2);
                 state = 13;
-                verb = i;
-              } else if (i === 1) {
+                verb = i2;
+              } else if (i2 === 1) {
                 if (this.enableDebug) debugOp += "<SEND>";
-                _sb.push(i);
+                _sb.push(i2);
                 state = 13;
-                verb = i;
-              } else if (i === 2) {
+                verb = i2;
+              } else if (i2 === 2) {
                 if (this.enableDebug) debugOp += "<SEND>";
-                _sb.push(i);
+                _sb.push(i2);
                 state = 13;
-                verb = i;
+                verb = i2;
               } else {
-                if (this.enableDebug) debugOp += this._formatByte(i);
-                msdp_val += String.fromCharCode(i);
-                _sb.push(i);
+                if (this.enableDebug) debugOp += this._formatByte(i2);
+                msdp_val += String.fromCharCode(i2);
+                _sb.push(i2);
               }
               break;
             case 13:
-              if (i === 0) {
+              if (i2 === 0) {
                 if (this.enableDebug) debugOp += "<VAR>";
-                _sb.push(i);
+                _sb.push(i2);
                 state = 14;
-                verb = i;
+                verb = i2;
                 msdp_var = "";
                 if (ne === -1) ne = 0;
-              } else if (i === 1) {
+              } else if (i2 === 1) {
                 if (this.enableDebug) debugOp += "<VALUE>";
-                _sb.push(i);
+                _sb.push(i2);
                 state = 13;
-                verb = i;
+                verb = i2;
                 if (ne === -1) ne = 1;
-              } else if (i === 3) {
+              } else if (i2 === 3) {
                 if (this.enableDebug) debugOp += "<USERVAR>";
-                _sb.push(i);
+                _sb.push(i2);
                 state = 13;
-                verb = i;
-              } else if (i === 255) {
+                verb = i2;
+              } else if (i2 === 255) {
                 if (this.enableDebug) debugOp += "<IAC>";
-                _sb.push(i);
-              } else if (i === 240) {
+                _sb.push(i2);
+              } else if (i2 === 240) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<SE>");
                   debugOp = "";
@@ -3837,47 +5028,47 @@
                 msdp_val = "";
                 _sb = [];
               } else {
-                if (this.enableDebug) debugOp += this._formatByte(i);
-                msdp_val += String.fromCharCode(i);
-                _sb.push(i);
+                if (this.enableDebug) debugOp += this._formatByte(i2);
+                msdp_val += String.fromCharCode(i2);
+                _sb.push(i2);
               }
               break;
             case 14:
-              if (i === 2) {
-                if (this.enableDebug) debugOp += this._formatByte(i);
-                _sb.push(i);
+              if (i2 === 2) {
+                if (this.enableDebug) debugOp += this._formatByte(i2);
+                _sb.push(i2);
                 state = 15;
                 pState = 14;
-              } else if (i === 255 || i <= 3) {
+              } else if (i2 === 255 || i2 <= 3) {
                 idx--;
                 state = 13;
               } else {
-                if (this.enableDebug) debugOp += this._formatByte(i);
-                msdp_var += String.fromCharCode(i);
-                _sb.push(i);
+                if (this.enableDebug) debugOp += this._formatByte(i2);
+                msdp_var += String.fromCharCode(i2);
+                _sb.push(i2);
               }
               break;
             case 15:
-              if (this.enableDebug) debugOp += this._formatByte(i);
+              if (this.enableDebug) debugOp += this._formatByte(i2);
               if (pState === 16)
-                msdp_val += String.fromCharCode(i);
+                msdp_val += String.fromCharCode(i2);
               else
-                msdp_var += String.fromCharCode(i);
+                msdp_var += String.fromCharCode(i2);
               state = pState;
-              _sb.push(i);
+              _sb.push(i2);
               break;
             case 16:
               break;
             case 17:
-              if (i === 1) {
+              if (i2 === 1) {
                 if (this.enableDebug) debugOp += "<REQUEST>";
-                _sb.push(i);
+                _sb.push(i2);
                 state = 18;
                 msdp_val = "";
-              } else if (i === 255) {
+              } else if (i2 === 255) {
                 if (this.enableDebug) debugOp += "<IAC>";
-                _sb.push(i);
-              } else if (i === 240) {
+                _sb.push(i2);
+              } else if (i2 === 240) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<SE>");
                   debugOp = "";
@@ -3892,16 +5083,16 @@
                 msdp_val = "";
                 _sb = [];
               } else {
-                if (this.enableDebug) debugOp += this._formatByte(i);
-                msdp_val += String.fromCharCode(i);
-                _sb.push(i);
+                if (this.enableDebug) debugOp += this._formatByte(i2);
+                msdp_val += String.fromCharCode(i2);
+                _sb.push(i2);
               }
               break;
             case 18:
-              if (i === 255) {
+              if (i2 === 255) {
                 if (this.enableDebug) debugOp += "<IAC>";
-                _sb.push(i);
-              } else if (i === 240) {
+                _sb.push(i2);
+              } else if (i2 === 240) {
                 if (this.enableDebug) {
                   this.emit("debug", debugOp + "<SE>");
                   debugOp = "";
@@ -3924,9 +5115,9 @@
                 msdp_val = "";
                 _sb = [];
               } else {
-                if (this.enableDebug) debugOp += this._formatByte(i);
-                msdp_val += String.fromCharCode(i);
-                _sb.push(i);
+                if (this.enableDebug) debugOp += this._formatByte(i2);
+                msdp_val += String.fromCharCode(i2);
+                _sb.push(i2);
               }
               break;
           }
@@ -4086,7 +5277,7 @@
       let dl;
       let ba;
       let idx = 0;
-      let i;
+      let i2;
       let c;
       if (data instanceof Uint8Array) {
         dl = data.byteLength;
@@ -4106,13 +5297,13 @@
       ba = new StringBuffer();
       for (; idx < dl; idx++) {
         c = data.charAt(idx);
-        i = data.charCodeAt(idx);
+        i2 = data.charCodeAt(idx);
         ba.append(c);
-        if (i === 255)
+        if (i2 === 255)
           ba.append(c);
-        else if (i === 13 && dl === 1)
+        else if (i2 === 13 && dl === 1)
           ba.append("\r\n");
-        else if (i === 10 && dl === 1)
+        else if (i2 === 10 && dl === 1)
           ba.append("\r\0");
       }
       return ba.toString();
@@ -4920,7 +6111,7 @@
     ["mapper.importType", 0, 2, 1],
     ["mapper.vscroll", 0, 2, 0],
     ["mapper.hscroll", 0, 2, 0],
-    ["mapper.scale", 0, 2, 1],
+    ["mapper.scale", 0, 2, 100],
     ["mapper.alwaysOnTop", 0, 1, false],
     ["mapper.alwaysOnTopClient", 0, 1, true],
     ["mapper.memory", 0, 1, false],
@@ -5216,7 +6407,14 @@
           case "enableEcho":
           case "enableSpeedpaths":
           case "parseSpeedpaths":
+          case "mapper.enabled":
           case "MapperSplitArea":
+          case "mapper.split":
+          case "MapperFillWalls":
+          case "mapper.fill":
+          case "mapper.follow":
+          case "MapperOpen":
+          case "showMapper":
           case "parseSingleQuotes":
           case "parseDoubleQuotes":
           case "logEnabled":
@@ -5427,7 +6625,7 @@
         case "mapper.hscroll":
           return 0;
         case "mapper.scale":
-          return 1;
+          return 100;
         case "mapper.active":
           return {
             ID: null,
@@ -5790,18 +6988,18 @@
     return SubTriggerTypes2;
   })(SubTriggerTypes || {});
   function MacroDisplay(item) {
-    const d = [];
+    const d2 = [];
     if (item.gamepad > 0) {
-      d.push("Gamepad " + item.gamepad);
+      d2.push("Gamepad " + item.gamepad);
       if (item.key > 0)
-        d.push("Button " + item.key);
+        d2.push("Button " + item.key);
       else if (item.gamepadAxes < 0)
-        d.push("Axis " + -item.gamepadAxes);
+        d2.push("Axis " + -item.gamepadAxes);
       else if (item.gamepadAxes > 0)
-        d.push("Axis " + item.gamepadAxes);
-      if (d.length === 1)
+        d2.push("Axis " + item.gamepadAxes);
+      if (d2.length === 1)
         return "None";
-      return d.join("+");
+      return d2.join("+");
     }
     if (item.key === 0) {
       if (item.name && item.name.length > 0)
@@ -5809,22 +7007,22 @@
       return "None";
     }
     if ((item.modifiers & 4 /* Ctrl */) === 4 /* Ctrl */)
-      d.push("Ctrl");
+      d2.push("Ctrl");
     if ((item.modifiers & 2 /* Alt */) === 2 /* Alt */)
-      d.push("Alt");
+      d2.push("Alt");
     if ((item.modifiers & 8 /* Shift */) === 8 /* Shift */)
-      d.push("Shift");
+      d2.push("Shift");
     if ((item.modifiers & 16 /* Meta */) === 16 /* Meta */)
-      d.push("Meta");
+      d2.push("Meta");
     if (keyCodeToChar[item.key])
-      d.push(keyCodeToChar[item.key]);
+      d2.push(keyCodeToChar[item.key]);
     else if (item.name && item.name.length > 0)
       return "None - " + item.name;
     else
       return "None";
     if (item.name && item.name.length > 0)
-      return d.join("+") + " - " + item.name;
-    return d.join("+");
+      return d2.join("+") + " - " + item.name;
+    return d2.join("+");
   }
   var Alarm = class _Alarm {
     constructor(data, pattern) {
@@ -6125,8 +7323,8 @@
           if (prop === "triggers") {
             this.triggers = [];
             const il = data.triggers.length;
-            for (let i = 0; i < il; i++) {
-              this.triggers.push(new _Trigger(data.triggers[i]));
+            for (let i2 = 0; i2 < il; i2++) {
+              this.triggers.push(new _Trigger(data.triggers[i2]));
             }
           } else
             this[prop] = data[prop];
@@ -6165,10 +7363,10 @@
             continue;
           }
           if (prop === "items") {
-            let i = 0;
+            let i2 = 0;
             const il = data[prop].length;
-            for (; i < il; i++)
-              this.items.push(new _Context(data[prop][i]));
+            for (; i2 < il; i2++)
+              this.items.push(new _Context(data[prop][i2]));
           } else
             this[prop] = data[prop];
         }
@@ -6443,8 +7641,8 @@
       ];
       const m = [];
       const dl = data.length;
-      for (let d = 0; d < dl; d++)
-        m.push(new Macro(data[d]));
+      for (let d2 = 0; d2 < dl; d2++)
+        m.push(new Macro(data[d2]));
       return m;
     }
     static get DefaultButtons() {
@@ -6565,37 +7763,37 @@
           continue;
         profile[prop] = data[prop];
       }
-      let i;
+      let i2;
       let il;
       if (data.aliases && data.aliases.length > 0) {
         il = data.aliases.length;
-        for (i = 0; i < il; i++) {
-          profile.aliases.push(new Alias(data.aliases[i], null, profile));
+        for (i2 = 0; i2 < il; i2++) {
+          profile.aliases.push(new Alias(data.aliases[i2], null, profile));
         }
       }
       if (data.triggers && data.triggers.length > 0) {
         il = data.triggers.length;
-        for (i = 0; i < il; i++) {
-          profile.triggers.push(new Trigger(data.triggers[i], profile));
+        for (i2 = 0; i2 < il; i2++) {
+          profile.triggers.push(new Trigger(data.triggers[i2], profile));
         }
       }
       if (data.macros && data.macros.length > 0) {
         il = data.macros.length;
         profile.macros = [];
-        for (i = 0; i < il; i++) {
-          profile.macros.push(new Macro(data.macros[i], profile));
+        for (i2 = 0; i2 < il; i2++) {
+          profile.macros.push(new Macro(data.macros[i2], profile));
         }
       }
       if (data.buttons && data.buttons.length > 0) {
         il = data.buttons.length;
-        for (i = 0; i < il; i++) {
-          profile.buttons.push(new Button(data.buttons[i], profile));
+        for (i2 = 0; i2 < il; i2++) {
+          profile.buttons.push(new Button(data.buttons[i2], profile));
         }
       }
       if (data.contexts && data.contexts.length > 0) {
         il = data.contexts.length;
-        for (i = 0; i < il; i++) {
-          profile.contexts.push(new Context(data.contexts[i], profile));
+        for (i2 = 0; i2 < il; i2++) {
+          profile.contexts.push(new Context(data.contexts[i2], profile));
         }
       }
       profile.file = profile.name;
@@ -6603,7 +7801,7 @@
     }
     clone(version2) {
       let data;
-      let i;
+      let i2;
       let il;
       if (version2 === 2) {
         data = {
@@ -6624,68 +7822,68 @@
         };
         if (this.aliases.length > 0) {
           il = this.aliases.length;
-          for (i = 0; i < il; i++) {
+          for (i2 = 0; i2 < il; i2++) {
             data.aliases.push({
-              pattern: this.aliases[i].pattern,
-              value: this.aliases[i].value,
-              priority: this.aliases[i].priority,
-              regexp: this.aliases[i].regexp,
-              style: this.aliases[i].style,
-              multi: this.aliases[i].multi,
-              append: this.aliases[i].append,
-              name: this.aliases[i].name,
-              group: this.aliases[i].group,
-              enabled: this.aliases[i].enabled,
-              params: this.aliases[i].params,
-              display: this.aliases[i].display,
-              notes: this.aliases[i].notes || ""
+              pattern: this.aliases[i2].pattern,
+              value: this.aliases[i2].value,
+              priority: this.aliases[i2].priority,
+              regexp: this.aliases[i2].regexp,
+              style: this.aliases[i2].style,
+              multi: this.aliases[i2].multi,
+              append: this.aliases[i2].append,
+              name: this.aliases[i2].name,
+              group: this.aliases[i2].group,
+              enabled: this.aliases[i2].enabled,
+              params: this.aliases[i2].params,
+              display: this.aliases[i2].display,
+              notes: this.aliases[i2].notes || ""
             });
           }
         }
         if (this.triggers.length > 0) {
           il = this.triggers.length;
-          for (i = 0; i < il; i++) {
+          for (i2 = 0; i2 < il; i2++) {
             const t = {
-              pattern: this.triggers[i].pattern,
-              value: this.triggers[i].value,
-              priority: this.triggers[i].priority,
-              verbatim: this.triggers[i].verbatim,
-              style: this.triggers[i].style,
-              name: this.triggers[i].name,
-              group: this.triggers[i].group,
-              enabled: this.triggers[i].enabled,
-              display: this.triggers[i].display,
-              triggernewline: this.triggers[i].triggerNewline,
-              caseSensitive: this.triggers[i].caseSensitive,
-              triggerprompt: this.triggers[i].triggerPrompt,
-              raw: this.triggers[i].raw,
-              type: this.triggers[i].type,
-              notes: this.triggers[i].notes || "",
-              state: this.triggers[i].state || 0,
-              params: this.triggers[i].params || "",
+              pattern: this.triggers[i2].pattern,
+              value: this.triggers[i2].value,
+              priority: this.triggers[i2].priority,
+              verbatim: this.triggers[i2].verbatim,
+              style: this.triggers[i2].style,
+              name: this.triggers[i2].name,
+              group: this.triggers[i2].group,
+              enabled: this.triggers[i2].enabled,
+              display: this.triggers[i2].display,
+              triggernewline: this.triggers[i2].triggerNewline,
+              caseSensitive: this.triggers[i2].caseSensitive,
+              triggerprompt: this.triggers[i2].triggerPrompt,
+              raw: this.triggers[i2].raw,
+              type: this.triggers[i2].type,
+              notes: this.triggers[i2].notes || "",
+              state: this.triggers[i2].state || 0,
+              params: this.triggers[i2].params || "",
               triggers: []
             };
-            if (this.triggers[i].triggers && this.triggers[i].triggers.length) {
-              const sl = this.triggers[i].triggers.length;
+            if (this.triggers[i2].triggers && this.triggers[i2].triggers.length) {
+              const sl = this.triggers[i2].triggers.length;
               for (let s = 0; s < sl; s++) {
                 t.triggers.push({
-                  pattern: this.triggers[i].triggers[s].pattern,
-                  value: this.triggers[i].triggers[s].value,
-                  priority: this.triggers[i].triggers[s].priority,
-                  verbatim: this.triggers[i].triggers[s].verbatim,
-                  style: this.triggers[i].triggers[s].style,
-                  name: this.triggers[i].triggers[s].name,
-                  group: this.triggers[i].triggers[s].group,
-                  enabled: this.triggers[i].triggers[s].enabled,
-                  display: this.triggers[i].triggers[s].display,
-                  triggernewline: this.triggers[i].triggers[s].triggerNewline,
-                  caseSensitive: this.triggers[i].triggers[s].caseSensitive,
-                  triggerprompt: this.triggers[i].triggers[s].triggerPrompt,
-                  raw: this.triggers[i].triggers[s].raw,
-                  type: this.triggers[i].triggers[s].type,
-                  notes: this.triggers[i].triggers[s].notes || "",
-                  state: this.triggers[i].triggers[s].state || 0,
-                  params: this.triggers[i].triggers[s].params || "",
+                  pattern: this.triggers[i2].triggers[s].pattern,
+                  value: this.triggers[i2].triggers[s].value,
+                  priority: this.triggers[i2].triggers[s].priority,
+                  verbatim: this.triggers[i2].triggers[s].verbatim,
+                  style: this.triggers[i2].triggers[s].style,
+                  name: this.triggers[i2].triggers[s].name,
+                  group: this.triggers[i2].triggers[s].group,
+                  enabled: this.triggers[i2].triggers[s].enabled,
+                  display: this.triggers[i2].triggers[s].display,
+                  triggernewline: this.triggers[i2].triggers[s].triggerNewline,
+                  caseSensitive: this.triggers[i2].triggers[s].caseSensitive,
+                  triggerprompt: this.triggers[i2].triggers[s].triggerPrompt,
+                  raw: this.triggers[i2].triggers[s].raw,
+                  type: this.triggers[i2].triggers[s].type,
+                  notes: this.triggers[i2].triggers[s].notes || "",
+                  state: this.triggers[i2].triggers[s].state || 0,
+                  params: this.triggers[i2].triggers[s].params || "",
                   triggers: []
                 });
               }
@@ -6695,28 +7893,28 @@
         }
         if (this.macros.length > 0) {
           il = this.macros.length;
-          for (i = 0; i < il; i++) {
+          for (i2 = 0; i2 < il; i2++) {
             data.macros.push({
-              key: this.macros[i].key,
-              value: this.macros[i].value,
-              style: this.macros[i].style,
-              append: this.macros[i].append,
-              send: this.macros[i].send,
-              name: this.macros[i].name,
-              group: this.macros[i].group,
-              enabled: this.macros[i].enabled,
+              key: this.macros[i2].key,
+              value: this.macros[i2].value,
+              style: this.macros[i2].style,
+              append: this.macros[i2].append,
+              send: this.macros[i2].send,
+              name: this.macros[i2].name,
+              group: this.macros[i2].group,
+              enabled: this.macros[i2].enabled,
               display: 'if(item.key === 0) return "None"; return keyCodeToChar[item.key]',
               displaytype: 1,
-              modifiers: this.macros[i].modifiers,
-              chain: this.macros[i].chain,
-              notes: this.macros[i].notes || ""
+              modifiers: this.macros[i2].modifiers,
+              chain: this.macros[i2].chain,
+              notes: this.macros[i2].notes || ""
             });
           }
         }
         if (this.buttons.length > 0) {
           il = this.buttons.length;
-          for (i = 0; i < il; i++) {
-            data.buttons.push(clone(this.buttons[i], (key, value) => {
+          for (i2 = 0; i2 < il; i2++) {
+            data.buttons.push(clone(this.buttons[i2], (key, value) => {
               if (key === "profile") return void 0;
               return value;
             }));
@@ -6724,8 +7922,8 @@
         }
         if (this.contexts.length > 0) {
           il = this.contexts.length;
-          for (i = 0; i < il; i++) {
-            data.contexts.push(clone(this.contexts[i], (key, value) => {
+          for (i2 = 0; i2 < il; i2++) {
+            data.contexts.push(clone(this.contexts[i2], (key, value) => {
               if (key === "profile") return void 0;
               return value;
             }));
@@ -6749,33 +7947,33 @@
       }
       if (data.aliases && data.aliases.length > 0) {
         il = data.aliases.length;
-        for (i = 0; i < il; i++) {
-          profile.aliases.push(new Alias(data.aliases[i], null, profile));
+        for (i2 = 0; i2 < il; i2++) {
+          profile.aliases.push(new Alias(data.aliases[i2], null, profile));
         }
       }
       if (data.triggers && data.triggers.length > 0) {
         il = data.triggers.length;
-        for (i = 0; i < il; i++) {
-          profile.triggers.push(new Trigger(data.triggers[i], profile));
+        for (i2 = 0; i2 < il; i2++) {
+          profile.triggers.push(new Trigger(data.triggers[i2], profile));
         }
       }
       if (data.macros && data.macros.length > 0) {
         il = data.macros.length;
         profile.macros = [];
-        for (i = 0; i < il; i++) {
-          profile.macros.push(new Macro(data.macros[i], profile));
+        for (i2 = 0; i2 < il; i2++) {
+          profile.macros.push(new Macro(data.macros[i2], profile));
         }
       }
       if (data.buttons && data.buttons.length > 0) {
         il = data.buttons.length;
-        for (i = 0; i < il; i++) {
-          profile.buttons.push(new Button(data.buttons[i], profile));
+        for (i2 = 0; i2 < il; i2++) {
+          profile.buttons.push(new Button(data.buttons[i2], profile));
         }
       }
       if (data.contexts && data.contexts.length > 0) {
         il = data.contexts.length;
-        for (i = 0; i < il; i++) {
-          profile.contexts.push(new Context(data.contexts[i], profile));
+        for (i2 = 0; i2 < il; i2++) {
+          profile.contexts.push(new Context(data.contexts[i2], profile));
         }
       }
       return profile;
@@ -6785,8 +7983,8 @@
       if (!type || type.length === 0 || !this[type] || this[type].length === 0)
         return null;
       tmp = SortItemArrayByPriority(this[type]);
-      const l = tmp.length;
-      for (let t = 0; t < l; t++) {
+      const l2 = tmp.length;
+      for (let t = 0; t < l2; t++) {
         if (tmp[t][field] === value)
           return tmp[t];
       }
@@ -6797,9 +7995,9 @@
       if (!type || type.length === 0 || !this[type] || this[type].length === 0)
         return null;
       tmp = SortItemArrayByPriority(this[type]);
-      const l = tmp.length;
+      const l2 = tmp.length;
       if (typeof field === "object") {
-        for (let t = 0; t < l; t++) {
+        for (let t = 0; t < l2; t++) {
           for (const v in field) {
             if (!field.hasOwnProperty(v)) continue;
             if (tmp[t][v] === field[v])
@@ -6808,7 +8006,7 @@
         }
         return -1;
       }
-      for (let t = 0; t < l; t++) {
+      for (let t = 0; t < l2; t++) {
         if (tmp[t][field] === value)
           return tmp[t];
       }
@@ -6819,9 +8017,9 @@
       if (!type || type.length === 0 || !this[type] || this[type].length === 0)
         return null;
       tmp = SortItemArrayByPriority(this[type]);
-      const l = tmp.length;
+      const l2 = tmp.length;
       if (typeof field === "object") {
-        for (let t = 0; t < l; t++) {
+        for (let t = 0; t < l2; t++) {
           for (const v in field) {
             if (!field.hasOwnProperty(v)) continue;
             if (tmp[t][v] === field[v])
@@ -6830,7 +8028,7 @@
         }
         return -1;
       }
-      for (let t = 0; t < l; t++) {
+      for (let t = 0; t < l2; t++) {
         if (tmp[t][field] === value)
           return this[type].indexOf(tmp[t]);
       }
@@ -6841,9 +8039,9 @@
       if (!type || type.length === 0 || !this[type] || this[type].length === 0)
         return null;
       tmp = SortItemArrayByPriority(this[type]);
-      const l = tmp.length;
+      const l2 = tmp.length;
       if (typeof field === "object") {
-        for (let t = 0; t < l; t++) {
+        for (let t = 0; t < l2; t++) {
           for (const v in field) {
             if (!field.hasOwnProperty(v)) continue;
             if (tmp[t][v] !== field[v]) continue;
@@ -6852,7 +8050,7 @@
         }
         return -1;
       }
-      for (let t = 0; t < l; t++) {
+      for (let t = 0; t < l2; t++) {
         if (tmp[t][field] === value)
           return this[type].indexOf(tmp[t]);
       }
@@ -7030,10 +8228,10 @@
       });
     }
     save(key) {
-      return localforage.setItem(key || "OoMUDProfiles", JSON.stringify(this.items, (key2, value) => {
+      return localforage.setItem(key || "OoMUDProfiles", JSON.parse(JSON.stringify(this.items, (key2, value) => {
         if (key2 === "profile") return void 0;
         return value;
-      }));
+      })));
     }
     get length() {
       return this.keys.length;
@@ -7198,13 +8396,13 @@
     let idx = 0;
     let tl = pattern.length;
     let c;
-    let i;
+    let i2;
     let arg;
     let pat;
     let nest = 0;
     for (idx = 0; idx < tl; idx++) {
       c = pattern.charAt(idx);
-      i = pattern.charCodeAt(idx);
+      i2 = pattern.charCodeAt(idx);
       switch (state) {
         case 1 /* Ampersand */:
           if (arg.length === 0 && (c === "*" || c === "?" || c === "^" || c === "$"))
@@ -7219,7 +8417,7 @@
             state = 7 /* AmpersandRange */;
           } else if (c === "{")
             continue;
-          else if (c === "}" || !(i >= 48 && i <= 57 || i >= 65 && i <= 90 || i >= 97 && i <= 122 || i === 95 || i === 36)) {
+          else if (c === "}" || !(i2 >= 48 && i2 <= 57 || i2 >= 65 && i2 <= 90 || i2 >= 97 && i2 <= 122 || i2 === 95 || i2 === 36)) {
             if (!isValidIdentifier(arg))
               throw new Error("Invalid variable name");
             if (!pat.length && /^\d+$/.exec(arg))
@@ -7337,7 +8535,7 @@
         case 10 /* Variable */:
           if (c === "{" && arg.length === 0)
             continue;
-          else if (c === "}" || !(i >= 48 && i <= 57 || i >= 65 && i <= 90 || i >= 97 && i <= 122 || i === 95 || i === 36)) {
+          else if (c === "}" || !(i2 >= 48 && i2 <= 57 || i2 >= 65 && i2 <= 90 || i2 >= 97 && i2 <= 122 || i2 === 95 || i2 === 36)) {
             if (!isValidIdentifier(arg))
               throw new Error("Invalid variable name");
             if (client2) {
@@ -7484,11 +8682,11 @@
         return _mathjs;
       };
       this._commandHistory = [];
-      document.addEventListener("keydown", (event) => {
-        if (!this.isLocked && this.ProcessMacros(event.which, event.altKey, event.ctrlKey, event.shiftKey, event.metaKey)) {
-          event.preventDefault();
-          event.stopPropagation();
-        } else if (event.key === "ScrollLock")
+      document.addEventListener("keydown", (event2) => {
+        if (!this.isLocked && this.ProcessMacros(event2.which, event2.altKey, event2.ctrlKey, event2.shiftKey, event2.metaKey)) {
+          event2.preventDefault();
+          event2.stopPropagation();
+        } else if (event2.key === "ScrollLock")
           this.toggleScrollLock();
       });
       this.client.on("parse-command", (data) => {
@@ -7512,14 +8710,14 @@
           this.initMathJS();
         this.initPads();
       });
-      this.client.commandInput.addEventListener("keyup", (event) => {
-        if (event.key !== "Escape" && event.key !== "ArrowUp" && event.key !== "ArrowDown")
+      this.client.commandInput.addEventListener("keyup", (event2) => {
+        if (event2.key !== "Escape" && event2.key !== "ArrowUp" && event2.key !== "ArrowDown")
           this._historyIdx = this._commandHistory.length;
       });
-      this.client.commandInput.addEventListener("keydown", (event) => {
-        switch (event.key) {
+      this.client.commandInput.addEventListener("keydown", (event2) => {
+        switch (event2.key) {
           case "Escape":
-            if (event.ctrlKey || event.shiftKey || event.metaKey || event.altKey) return;
+            if (event2.ctrlKey || event2.shiftKey || event2.metaKey || event2.altKey) return;
             this.client.commandInput.blur();
             this.client.commandInput.value = "";
             this.client.commandInput.select();
@@ -7527,10 +8725,10 @@
             this._tabIdx = -1;
             this._tabWords = null;
             this._tabSearch = null;
-            this.emit("history-navigate", event);
+            this.emit("history-navigate", event2);
             break;
           case "ArrowUp":
-            if (event.ctrlKey || event.shiftKey || event.metaKey || event.altKey) return;
+            if (event2.ctrlKey || event2.shiftKey || event2.metaKey || event2.altKey) return;
             if (this._historyIdx === this._commandHistory.length && this.client.commandInput.value.length > 0) {
               this.AddCommandToHistory(this.client.commandInput.value);
               if (this.client.commandInput.value === this._commandHistory[this._historyIdx - 1])
@@ -7546,10 +8744,10 @@
               this.client.commandInput.value = this._commandHistory[this._historyIdx];
             }
             setTimeout(() => this.client.commandInput.select(), 0);
-            this.emit("history-navigate", event);
+            this.emit("history-navigate", event2);
             break;
           case "ArrowDown":
-            if (event.ctrlKey || event.shiftKey || event.metaKey || event.altKey) return;
+            if (event2.ctrlKey || event2.shiftKey || event2.metaKey || event2.altKey) return;
             if (this._historyIdx === this._commandHistory.length && this.client.commandInput.value.length > 0)
               this.AddCommandToHistory(this.client.commandInput.value);
             this._historyIdx++;
@@ -7560,60 +8758,60 @@
               this.client.commandInput.value = this._commandHistory[this._historyIdx];
             }
             setTimeout(() => this.client.commandInput.select(), 0);
-            this.emit("history-navigate", event);
+            this.emit("history-navigate", event2);
             break;
           case "Enter":
             switch (this.client.getOption("newlineShortcut")) {
               case 1 /* Ctrl */:
-                if (event.ctrlKey && !event.shiftKey && !event.metaKey && !event.altKey) {
+                if (event2.ctrlKey && !event2.shiftKey && !event2.metaKey && !event2.altKey) {
                   insertValue(this.client.commandInput, "\n");
-                  this.emit("history-navigate", event);
+                  this.emit("history-navigate", event2);
                   this.client.commandInput.blur();
                   this.client.commandInput.focus();
                   return true;
                 }
                 break;
               case 8 /* CtrlAndShift */:
-                if (event.ctrlKey && event.shiftKey && !event.metaKey && !event.altKey) {
+                if (event2.ctrlKey && event2.shiftKey && !event2.metaKey && !event2.altKey) {
                   insertValue(this.client.commandInput, "\n");
-                  this.emit("history-navigate", event);
+                  this.emit("history-navigate", event2);
                   this.client.commandInput.blur();
                   this.client.commandInput.focus();
                   return true;
                 }
                 break;
               case 4 /* CtrlOrShift */:
-                if ((event.ctrlKey || event.shiftKey) && !event.metaKey && !event.altKey) {
+                if ((event2.ctrlKey || event2.shiftKey) && !event2.metaKey && !event2.altKey) {
                   insertValue(this.client.commandInput, "\n");
-                  this.emit("history-navigate", event);
+                  this.emit("history-navigate", event2);
                   this.client.commandInput.blur();
                   this.client.commandInput.focus();
                   return true;
                 }
                 break;
               case 2 /* Shift */:
-                if (event.ctrlKey && event.shiftKey && !event.metaKey && !event.altKey) {
+                if (event2.ctrlKey && event2.shiftKey && !event2.metaKey && !event2.altKey) {
                   insertValue(this.client.commandInput, "\n");
-                  this.emit("history-navigate", event);
+                  this.emit("history-navigate", event2);
                   this.client.commandInput.blur();
                   this.client.commandInput.focus();
                   return true;
                 }
                 break;
             }
-            if (!event.ctrlKey && !event.shiftKey && !event.metaKey && !event.altKey) {
+            if (!event2.ctrlKey && !event2.shiftKey && !event2.metaKey && !event2.altKey) {
               this._tabIdx = -1;
               this._tabWords = null;
               this._tabSearch = null;
               this.client.sendCommand(null, null, this.client.getOption("allowCommentsFromCommand"));
-              this.emit("history-navigate", event);
+              this.emit("history-navigate", event2);
             }
-            event.preventDefault();
+            event2.preventDefault();
             break;
           case "Tab":
             if (!this.client.getOption("enableTabCompletion") || this.client.commandInput.value.length === 0) return;
-            if (event.altKey || event.ctrlKey || event.metaKey) return;
-            if (event.shiftKey)
+            if (event2.altKey || event2.ctrlKey || event2.metaKey) return;
+            if (event2.shiftKey)
               this._tabIdx--;
             else
               this._tabIdx++;
@@ -7644,7 +8842,7 @@
               if (this.client.getOption("tabCompletionLookupType") === 8 /* List */)
                 this._tabWords = [...new Set(this.client.getOption("tabCompletionList").split(/\s+/).filter((word) => word.match(regSearch)))];
               else {
-                this._tabWords = [].concat(...this.client.display.lines.slice(this.client.display.lines.length - this.client.getOption("tabCompletionBufferLimit")).map((line) => line.text.split(/\s+/))).filter((word) => word.match(regSearch)).reverse();
+                this._tabWords = [].concat(...this.client.display.lines.slice(this.client.display.lines.length - this.client.getOption("tabCompletionBufferLimit")).map((line2) => line2.text.split(/\s+/))).filter((word) => word.match(regSearch)).reverse();
                 if (this.client.getOption("tabCompletionLookupType") === 1 /* PrependBuffer */)
                   this._tabWords = [...new Set(this.client.getOption("tabCompletionList").split(/\s+/).filter((word) => word.match(regSearch)).reverse())].concat(this._tabWords);
                 else if (this.client.getOption("tabCompletionLookupType") === 2 /* AppendBuffer */)
@@ -7660,8 +8858,8 @@
             this.client.commandInput.value = this.client.commandInput.value.substring(0, start) + (tabCasing === 1 ? this._tabWords[this._tabIdx].toLowerCase() : tabCasing === 2 ? this._tabWords[this._tabIdx].toUpperCase() : this._tabWords[this._tabIdx]) + this.client.commandInput.value.substring(end, this.client.commandInput.value.length);
             this.client.commandInput.selectionStart = this._tabSearch.start + this._tabSearch.find;
             this.client.commandInput.selectionEnd = this._tabSearch.start + this._tabWords[this._tabIdx].length;
-            event.preventDefault();
-            this.emit("history-navigate", event);
+            event2.preventDefault();
+            this.emit("history-navigate", event2);
             break;
           case "Shift":
           case "Control":
@@ -7687,7 +8885,7 @@
             break;
         }
       });
-      this.client.commandInput.addEventListener("mouseup", (event) => {
+      this.client.commandInput.addEventListener("mouseup", (event2) => {
         this._tabIdx = -1;
         this._tabWords = null;
         this._tabSearch = null;
@@ -7723,8 +8921,8 @@
       if (this.loops.length) {
         scope.repeatnum = this.repeatnum;
         const ll = this.loops.length;
-        for (let l = 0; l < ll && l < 18; l++)
-          scope[String.fromCharCode(105 + l)] = this.loops[l];
+        for (let l2 = 0; l2 < ll && l2 < 18; l2++)
+          scope[String.fromCharCode(105 + l2)] = this.loops[l2];
       }
       return scope;
     }
@@ -7850,7 +9048,7 @@
           let sides;
           let mod;
           let min;
-          let max;
+          let max2;
           if (args.length === 0) throw new Error("Invalid arguments for diceavg");
           if (args.length === 1) {
             res = this.getDiceArguments(args[0], scope, "diceavg");
@@ -7870,15 +9068,15 @@
           min = 1;
           if (sides === "F" || sides === "f") {
             min = -1;
-            max = 1;
+            max2 = 1;
           } else if (sides === "%") {
-            max = 1;
+            max2 = 1;
             min = 0;
           } else
-            max = parseInt(sides);
+            max2 = parseInt(sides);
           if (mod)
-            return math2.evaluate((min + max) / 2 * c + mod, scope);
-          return (min + max) / 2 * c;
+            return math2.evaluate((min + max2) / 2 * c + mod, scope);
+          return (min + max2) / 2 * c;
         },
         dicemin: (args, math2, scope) => {
           let res;
@@ -7916,7 +9114,7 @@
           let c;
           let sides;
           let mod;
-          let max;
+          let max2;
           if (args.length === 0) throw new Error("Invalid arguments for dicemax");
           if (args.length === 1) {
             res = this.getDiceArguments(args[0], scope, "dicemax");
@@ -7934,21 +9132,21 @@
           } else
             throw new Error("Too many arguments for dicemax");
           if (sides === "F" || sides === "f")
-            max = 1;
+            max2 = 1;
           else if (sides === "%")
-            max = 1;
+            max2 = 1;
           else
-            max = parseInt(sides);
+            max2 = parseInt(sides);
           if (mod)
-            return math2.evaluate(max * c + mod, scope);
-          return max * c;
+            return math2.evaluate(max2 * c + mod, scope);
+          return max2 * c;
         },
         dicedev: (args, math2, scope) => {
           let res;
           let c;
           let sides;
           let mod;
-          let max;
+          let max2;
           if (args.length === 0) throw new Error("Invalid arguments for dicedev");
           if (args.length === 1) {
             res = this.getDiceArguments(args[0], scope, "dicedev");
@@ -7966,21 +9164,21 @@
           } else
             throw new Error("Too many arguments for dicedev");
           if (sides === "F" || sides === "f")
-            max = 6;
+            max2 = 6;
           else if (sides === "%")
-            max = 1;
+            max2 = 1;
           else
-            max = parseInt(sides);
+            max2 = parseInt(sides);
           if (mod)
-            return math2.evaluate(Math.sqrt((max * max - 1) / 12 * c) + mod, scope);
-          return Math.sqrt((max * max - 1) / 12 * c);
+            return math2.evaluate(Math.sqrt((max2 * max2 - 1) / 12 * c) + mod, scope);
+          return Math.sqrt((max2 * max2 - 1) / 12 * c);
         },
         zdicedev: (args, math2, scope) => {
           let res;
           let c;
           let sides;
           let mod;
-          let max;
+          let max2;
           if (args.length === 0) throw new Error("Invalid arguments for zdicedev");
           if (args.length === 1) {
             res = this.getDiceArguments(args[0], scope, "zdicedev");
@@ -7998,15 +9196,15 @@
           } else
             throw new Error("Too many arguments for zdicedev");
           if (sides === "F" || sides === "f")
-            max = 6;
+            max2 = 6;
           else if (sides === "%")
-            max = 1;
+            max2 = 1;
           else
-            max = parseInt(sides);
-          max--;
+            max2 = parseInt(sides);
+          max2--;
           if (mod)
-            return math2.evaluate(Math.sqrt((max * max - 1) / 12 * c) + mod, scope);
-          return Math.sqrt((max * max - 1) / 12 * c);
+            return math2.evaluate(Math.sqrt((max2 * max2 - 1) / 12 * c) + mod, scope);
+          return Math.sqrt((max2 * max2 - 1) / 12 * c);
         },
         dice: (args, math2, scope) => {
           let res;
@@ -8029,7 +9227,7 @@
           } else
             throw new Error("Invalid arguments for dice");
           let sum = 0;
-          for (let i = 0; i < c; i++) {
+          for (let i2 = 0; i2 < c; i2++) {
             if (sides === "F" || sides === "f")
               sum += fudgeDice();
             else if (sides === "%")
@@ -8066,23 +9264,23 @@
             if (kl === 0) return 0;
             for (; k < kl; k++) {
               sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
-              sides = sides.find((i) => {
-                return i.pattern === args[0];
+              sides = sides.find((i2) => {
+                return i2.pattern === args[0];
               });
               if (sides) return 1;
               sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
-              sides = sides.find((i) => {
-                return i.pattern === args[0] || i.name === args[0];
+              sides = sides.find((i2) => {
+                return i2.pattern === args[0] || i2.name === args[0];
               });
               if (sides) return 1;
               sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].macros);
-              sides = sides.find((i) => {
-                return MacroDisplay(i).toLowerCase() === args[0].toLowerCase() || i.name === args[0];
+              sides = sides.find((i2) => {
+                return MacroDisplay(i2).toLowerCase() === args[0].toLowerCase() || i2.name === args[0];
               });
               if (sides) return 1;
               sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
-              sides = sides.find((i) => {
-                return i.caption === args[0] || i.name === args[0];
+              sides = sides.find((i2) => {
+                return i2.caption === args[0] || i2.name === args[0];
               });
               if (sides) return 1;
             }
@@ -8098,36 +9296,36 @@
               switch (args[1]) {
                 case "alias":
                   sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
-                  sides = sides.find((i) => {
-                    return i.pattern === args[0];
+                  sides = sides.find((i2) => {
+                    return i2.pattern === args[0];
                   });
                   if (sides) return 1;
                   return 0;
                 case "event":
                   sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
-                  sides = sides.find((i) => {
-                    return i.type === 2 /* Event */ && (i.pattern === args[0] || i.name === args[0]);
+                  sides = sides.find((i2) => {
+                    return i2.type === 2 /* Event */ && (i2.pattern === args[0] || i2.name === args[0]);
                   });
                   if (sides) return 1;
                   return 0;
                 case "trigger":
                   sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
-                  sides = sides.find((i) => {
-                    return i.pattern === args[0] || i.name === args[0];
+                  sides = sides.find((i2) => {
+                    return i2.pattern === args[0] || i2.name === args[0];
                   });
                   if (sides) return 1;
                   return 0;
                 case "macro":
                   sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].macros);
-                  sides = sides.find((i) => {
-                    return MacroDisplay(i).toLowerCase() === args[0].toLowerCase() || i.name === args[0];
+                  sides = sides.find((i2) => {
+                    return MacroDisplay(i2).toLowerCase() === args[0].toLowerCase() || i2.name === args[0];
                   });
                   if (sides) return 1;
                   return 0;
                 case "button":
                   sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
-                  sides = sides.find((i) => {
-                    return i.caption === args[0] || i.name === args[0];
+                  sides = sides.find((i2) => {
+                    return i2.caption === args[0] || i2.name === args[0];
                   });
                   if (sides) return 1;
                   return 0;
@@ -8190,16 +9388,16 @@
           let mod = [];
           let min = {};
           let sides;
-          let max;
+          let max2;
           for (sides = 0; sides < c; sides++) {
             if (args[sides].trim() === "current")
               mod.push(args[sides].trim());
             else {
-              max = getAnsiCode(args[sides].trim());
-              if (max === -1)
+              max2 = getAnsiCode(args[sides].trim());
+              if (max2 === -1)
                 throw new Error("Invalid color or style for ansi");
-              if (max >= 0 && max < 30)
-                min[max] = 1;
+              if (max2 >= 0 && max2 < 30)
+                min[max2] = 1;
               else
                 mod.push(args[sides]);
             }
@@ -8284,9 +9482,9 @@
         case: (args, math2, scope) => {
           if (args.length === 0)
             throw new Error("Missing arguments for case");
-          let i = args[0].compile().evaluate(scope);
-          if (i > 0 && i < args.length)
-            return args[i].compile().evaluate(scope);
+          let i2 = args[0].compile().evaluate(scope);
+          if (i2 > 0 && i2 < args.length)
+            return args[i2].compile().evaluate(scope);
           return null;
         },
         switch: (args, math2, scope) => {
@@ -8294,8 +9492,8 @@
             throw new Error("Missing arguments for switch");
           if (args.length % 2 === 1)
             throw new Error("All expressions must have a value for switch");
-          let i = args.length;
-          for (let c = 0; c < i; c += 2) {
+          let i2 = args.length;
+          for (let c = 0; c < i2; c += 2) {
             if (args[c].compile().evaluate(scope))
               return args[c + 1].compile().evaluate(scope);
           }
@@ -8802,7 +10000,7 @@
         const state = this._controllers[controller.index].state;
         const axes = this._controllers[controller.index].axes;
         const bl = controller.buttons.length;
-        let i;
+        let i2;
         let macros;
         if (!this._gamepadCaches[c])
           this._gamepadCaches[c] = FilterArrayByKeyValue(this.client.macros, "gamepad", c + 1);
@@ -8810,21 +10008,21 @@
         let m = 0;
         const ml = macros.length;
         if (ml === 0) continue;
-        for (i = 0; i < bl; i++) {
-          let val = controller.buttons[i];
+        for (i2 = 0; i2 < bl; i2++) {
+          let val = controller.buttons[i2];
           let pressed;
           if (typeof val === "object") {
             pressed = val.pressed;
             val = val.value;
           } else
             pressed = val >= 0.5;
-          if (state.buttons[i]) {
-            if (state.buttons[i].pressed !== pressed) {
-              state.buttons[i].pressed = pressed;
+          if (state.buttons[i2]) {
+            if (state.buttons[i2].pressed !== pressed) {
+              state.buttons[i2].pressed = pressed;
               if (!pressed) {
                 for (; m < ml; m++) {
                   if (!macros[m].enabled) continue;
-                  if (macros[m].key !== i + 1) continue;
+                  if (macros[m].key !== i2 + 1) continue;
                   if (this.ExecuteMacro(macros[m])) {
                     if (this._controllersCount > 0 || controllers.length > 0)
                       requestAnimationFrame(() => {
@@ -8836,28 +10034,28 @@
               }
             }
           } else {
-            state.buttons[i] = { pct: Math.round(val * 100), pressed };
+            state.buttons[i2] = { pct: Math.round(val * 100), pressed };
           }
         }
         const al = controller.axes.length;
         let a = 0;
-        for (i = 0; i < al; i++) {
-          if (state.axes[i] !== controller.axes[i] && controller.axes[i] !== axes[i]) {
-            state.axes[i] = controller.axes[i];
-            if (state.axes[i] < -0.75) {
-              a = -(i + 1);
-            } else if (state.axes[i] > 0.75) {
-              a = i + 1;
+        for (i2 = 0; i2 < al; i2++) {
+          if (state.axes[i2] !== controller.axes[i2] && controller.axes[i2] !== axes[i2]) {
+            state.axes[i2] = controller.axes[i2];
+            if (state.axes[i2] < -0.75) {
+              a = -(i2 + 1);
+            } else if (state.axes[i2] > 0.75) {
+              a = i2 + 1;
             }
-          } else if (state.axes[i] < -0.75) {
-            a = -(i + 1);
-          } else if (state.axes[i] > 0.75) {
-            a = i + 1;
+          } else if (state.axes[i2] < -0.75) {
+            a = -(i2 + 1);
+          } else if (state.axes[i2] > 0.75) {
+            a = i2 + 1;
           }
           if (a !== 0)
             for (; m < ml; m++) {
               if (!macros[m].enabled) continue;
-              if (macros[m].gamepadAxes !== i + 1) continue;
+              if (macros[m].gamepadAxes !== i2 + 1) continue;
               if (this.ExecuteMacro(macros[m])) {
                 if (this._controllersCount > 0 || controllers.length > 0)
                   requestAnimationFrame(() => {
@@ -9057,7 +10255,7 @@
       let f = false;
       let items;
       let al;
-      let i;
+      let i2;
       let tmp;
       let profile = null;
       let name2 = null;
@@ -9066,7 +10264,7 @@
       let reload;
       let trigger;
       let avg;
-      let max;
+      let max2;
       let min;
       switch (fun.toLowerCase()) {
         //spell-checker:ignore untrigger unaction
@@ -9263,10 +10461,10 @@
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
                           throw new Error(`Invalid trigger priority option '${o.trim()}'`);
-                        i = parseInt(tmp[1], 10);
-                        if (isNaN(i))
+                        i2 = parseInt(tmp[1], 10);
+                        if (isNaN(i2))
                           throw new Error("Invalid trigger priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i;
+                        item.options["priority"] = i2;
                       } else
                         throw new Error(`Invalid trigger option '${o.trim()}'`);
                   }
@@ -9314,10 +10512,10 @@
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
                           throw new Error(`Invalid trigger priority option '${o.trim()}'`);
-                        i = parseInt(tmp[1], 10);
-                        if (isNaN(i))
+                        i2 = parseInt(tmp[1], 10);
+                        if (isNaN(i2))
                           throw new Error("Invalid trigger priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i;
+                        item.options["priority"] = i2;
                       } else
                         throw new Error(`Invalid trigger option '${o.trim()}'`);
                   }
@@ -9377,10 +10575,10 @@
                       tmp = o.trim().split("=");
                       if (tmp.length !== 2)
                         throw new Error(`Invalid event priority option '${o.trim()}'`);
-                      i = parseInt(tmp[1], 10);
-                      if (isNaN(i))
+                      i2 = parseInt(tmp[1], 10);
+                      if (isNaN(i2))
                         throw new Error("Invalid event priority value '" + tmp[1] + "' must be a number");
-                      item.options["priority"] = i;
+                      item.options["priority"] = i2;
                     } else
                       throw new Error(`Invalid event option '${o.trim()}'`);
                 }
@@ -9407,10 +10605,10 @@
                       tmp = o.trim().split("=");
                       if (tmp.length !== 2)
                         throw new Error(`Invalid event priority option '${o.trim()}'`);
-                      i = parseInt(tmp[1], 10);
-                      if (isNaN(i))
+                      i2 = parseInt(tmp[1], 10);
+                      if (isNaN(i2))
                         throw new Error("Invalid event priority value '" + tmp[1] + "' must be a number");
-                      item.options["priority"] = i;
+                      item.options["priority"] = i2;
                     } else
                       throw new Error(`Invalid event option '${o.trim()}'`);
                 }
@@ -9529,7 +10727,7 @@
             items = SortItemArrayByPriority(profile.triggers.filter((t) => t.type === 2 /* Event */));
             n = this.stripQuotes(n);
             tmp = n;
-            n = items.findIndex((i2) => i2.pattern === n || i2.name === n);
+            n = items.findIndex((i3) => i3.pattern === n || i3.name === n);
             f = n !== -1;
             if (!f)
               this.client.echo("Event '" + tmp + "' not found.", -7, -8, true, true);
@@ -9623,10 +10821,10 @@
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
                           throw new Error(`Invalid button priority option '${o.trim()}'`);
-                        i = parseInt(tmp[1], 10);
-                        if (isNaN(i))
+                        i2 = parseInt(tmp[1], 10);
+                        if (isNaN(i2))
                           throw new Error("Invalid button priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i;
+                        item.options["priority"] = i2;
                       } else
                         throw new Error(`Invalid button option '${o.trim()}'`);
                   }
@@ -9652,10 +10850,10 @@
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
                           throw new Error(`Invalid button priority option '${o.trim()}'`);
-                        i = parseInt(tmp[1], 10);
-                        if (isNaN(i))
+                        i2 = parseInt(tmp[1], 10);
+                        if (isNaN(i2))
                           throw new Error("Invalid button priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i;
+                        item.options["priority"] = i2;
                       } else
                         throw new Error(`Invalid button option '${o.trim()}'`);
                   }
@@ -9784,7 +10982,7 @@
               f = true;
             } else {
               n = this.stripQuotes(n);
-              n = items.findIndex((i2) => i2.name === n || i2.caption === n);
+              n = items.findIndex((i3) => i3.name === n || i3.caption === n);
               f = n !== -1;
             }
             if (!f)
@@ -9987,15 +11185,15 @@
             return null;
           } else if (args.length > 1)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "ga\x1B[0;-11;-12mg number or \x1B[4m" + cmdChar + "ga\x1B[0;-11;-12mg");
-          i = parseInt(args[0], 10);
-          if (isNaN(i))
+          i2 = parseInt(args[0], 10);
+          if (isNaN(i2))
             throw new Error("Invalid number '" + args[0] + "'");
           if (this._gags.length && this._gags[this._gags.length - 1] == this.client.display.lines.length) {
             this._gag = 0;
             this._gags.pop();
           }
           this._gags.push(this.client.display.lines.length);
-          if (i >= 0) {
+          if (i2 >= 0) {
             this._gagID.push(setTimeout(() => {
               n = this.adjustLastLine(this._gags.pop());
               if (this._gags.length) {
@@ -10007,16 +11205,16 @@
                 }
               }
               this.client.display.removeLine(n);
-              this._gag = i;
+              this._gag = i2;
             }, 0));
             this._gag = 0;
           } else {
             this._gagID.push(setTimeout(() => {
               n = this.adjustLastLine(this._gags.pop());
-              i *= -1;
-              if (i > this.client.display.lines.length)
-                i = this.client.display.lines.length;
-              this.client.display.removeLines(n - i, i);
+              i2 *= -1;
+              if (i2 > this.client.display.lines.length)
+                i2 = this.client.display.lines.length;
+              this.client.display.removeLines(n - i2, i2);
               this._gag = 0;
             }, 0));
             this._gag = 0;
@@ -10030,12 +11228,12 @@
           args = args.filter((a) => a);
           if (args.length === 0 || args.length > 1)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "wa\x1B[0;-11;-12mit number");
-          i = parseInt(this.parseInline(args[0]), 10);
-          if (isNaN(i))
-            throw new Error("Invalid number '" + i + "' for wait");
-          if (i < 1)
+          i2 = parseInt(this.parseInline(args[0]), 10);
+          if (isNaN(i2))
+            throw new Error("Invalid number '" + i2 + "' for wait");
+          if (i2 < 1)
             throw new Error("Must be greater then zero for wait");
-          return i;
+          return i2;
         case "showclient":
         case "showcl":
           if ((this.client.getOption("echo") & 4) === 4)
@@ -10108,10 +11306,10 @@
             this.client.echo(raw, -3, -4, true, true);
           if (args.length < 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "raisede\x1B[0;-11;-12mlayed milliseconds name or \x1B[4m" + cmdChar + "raisede\x1B[0;-11;-12mlayed milliseconds name arguments");
-          i = parseInt(this.stripQuotes(this.parseInline(args[0])), 10);
-          if (isNaN(i))
+          i2 = parseInt(this.stripQuotes(this.parseInline(args[0])), 10);
+          if (isNaN(i2))
             throw new Error("Invalid number '" + args[0] + "' for raisedelayed");
-          if (i < 1)
+          if (i2 < 1)
             throw new Error("Must be greater then zero for raisedelayed");
           args.shift();
           if (this.client.getOption("parseDoubleQuotes"))
@@ -10127,9 +11325,9 @@
               });
             });
           if (args.length === 1)
-            this.client.raise(args[0], 0, i);
+            this.client.raise(args[0], 0, i2);
           else
-            this.client.raise(args[0], args.slice(1), i);
+            this.client.raise(args[0], args.slice(1), i2);
           return null;
         case "notify":
         case "not":
@@ -10226,7 +11424,7 @@
         case "print":
           if ((this.client.getOption("echo") & 4) === 4)
             this.client.echo(raw, -3, -4, true, true);
-          i = this.client.enableTriggers;
+          i2 = this.client.enableTriggers;
           this.client.enableTriggers = false;
           args = this.parseInline(args.join(" "));
           if (this.client.telnet.prompt)
@@ -10234,17 +11432,17 @@
           else
             this.client.print("\x1B[-7;-8m" + args + "\x1B[0m\n", false);
           this.client.telnet.prompt = false;
-          this.client.enableTriggers = i;
+          this.client.enableTriggers = i2;
           return null;
         case "printprompt":
         case "printp":
           if ((this.client.getOption("echo") & 4) === 4)
             this.client.echo(raw, -3, -4, true, true);
-          i = this.client.enableTriggers;
+          i2 = this.client.enableTriggers;
           this.client.enableTriggers = false;
           args = this.parseInline(args.join(" "));
           this.client.print("\x1B[-7;-8m" + args + "\x1B[0m", false);
-          this.client.enableTriggers = i;
+          this.client.enableTriggers = i2;
           return null;
         case "alias":
         case "al":
@@ -10288,11 +11486,11 @@
                 this.client.echo("Alias '" + items[n].pattern + "' updated.", -7, -8, true, true);
               }
             } else {
-              for (i = 0, al = items.length; i < al; i++) {
-                if (items[i]["pattern"] === n) {
-                  items[i].value = args;
+              for (i2 = 0, al = items.length; i2 < al; i2++) {
+                if (items[i2]["pattern"] === n) {
+                  items[i2].value = args;
                   this.client.echo("Alias '" + n + "' updated.", -7, -8, true, true);
-                  this.emit("item-updated", "alias", profile.name, i, tmp);
+                  this.emit("item-updated", "alias", profile.name, i2, tmp);
                   f = true;
                   break;
                 }
@@ -10351,7 +11549,7 @@
                 f = true;
             } else {
               tmp = n;
-              n = items.findIndex((i2) => i2.pattern === n);
+              n = items.findIndex((i3) => i3.pattern === n);
               f = n !== -1;
             }
             if (!f)
@@ -10387,9 +11585,9 @@
               f = true;
             } else {
               n = n.toLowerCase();
-              for (i = 0, al = SettingList.length; i < al; i++) {
-                if (SettingList[i][0].toLowerCase() === n) {
-                  n = i;
+              for (i2 = 0, al = SettingList.length; i2 < al; i2++) {
+                if (SettingList[i2][0].toLowerCase() === n) {
+                  n = i2;
                   f = true;
                   break;
                 }
@@ -10436,12 +11634,12 @@
                   }
                   break;
                 case 2:
-                  i = parseInt(args, 10);
-                  if (isNaN(i))
+                  i2 = parseInt(args, 10);
+                  if (isNaN(i2))
                     throw new Error("Invalid number '" + args + "'");
                   else {
-                    this.client.setOption(SettingList[n][1] || SettingList[n][0], i);
-                    this.client.echo("Setting '" + SettingList[n][0] + "' set to '" + i + "'.", -7, -8, true, true);
+                    this.client.setOption(SettingList[n][1] || SettingList[n][0], i2);
+                    this.client.echo("Setting '" + SettingList[n][0] + "' set to '" + i2 + "'.", -7, -8, true, true);
                     this.client.loadOptions();
                   }
                   break;
@@ -10470,9 +11668,9 @@
               tmp = n;
               n = n.toLowerCase();
               if (n !== "all") {
-                for (i = 0, al = SettingList.length; i < al; i++) {
-                  if (SettingList[i][0].toLowerCase() === n) {
-                    n = i;
+                for (i2 = 0, al = SettingList.length; i2 < al; i2++) {
+                  if (SettingList[i2][0].toLowerCase() === n) {
+                    n = i2;
                     f = true;
                     break;
                   }
@@ -10480,18 +11678,18 @@
               }
               if (n === "all") {
                 tmp = "Current settings:\n";
-                for (i = 0, al = SettingList.length; i < al; i++) {
-                  switch (SettingList[i][2]) {
+                for (i2 = 0, al = SettingList.length; i2 < al; i2++) {
+                  switch (SettingList[i2][2]) {
                     case 0:
                     case 2:
-                      tmp += "    " + SettingList[i][0] + ": " + this.client.getOption(SettingList[n][1] || SettingList[n][0]) + "\n";
+                      tmp += "    " + SettingList[i2][0] + ": " + this.client.getOption(SettingList[n][1] || SettingList[n][0]) + "\n";
                       break;
                     case 1:
                     case 3:
                       if (this.client.getOption(SettingList[n][1] || SettingList[n][0]))
-                        tmp += "    " + SettingList[i][0] + ": true\n";
+                        tmp += "    " + SettingList[i2][0] + ": true\n";
                       else
-                        tmp += "    " + SettingList[i][0] + ": false\n";
+                        tmp += "    " + SettingList[i2][0] + ": false\n";
                       break;
                   }
                 }
@@ -10522,11 +11720,11 @@
           this.client.echo("\x1B[4mProfiles:\x1B[0m", -7, -8, true, true);
           const files = this.client.profiles.keys;
           al = files.length;
-          for (i = 0; i < al; i++) {
-            if (this.client.profiles.items[files[i]] && this.client.profiles.items[files[i]].enabled)
-              this.client.echo("   " + this.client.profiles.keys[i] + " is enabled", -7, -8, true, true);
+          for (i2 = 0; i2 < al; i2++) {
+            if (this.client.profiles.items[files[i2]] && this.client.profiles.items[files[i2]].enabled)
+              this.client.echo("   " + this.client.profiles.keys[i2] + " is enabled", -7, -8, true, true);
             else
-              this.client.echo("   " + files[i] + " is disabled", -7, -8, true, true);
+              this.client.echo("   " + files[i2] + " is disabled", -7, -8, true, true);
           }
           return null;
         case "profile":
@@ -10636,40 +11834,40 @@
             args = args[0].toLowerCase().split(",");
             if (args.length === 1) {
               if (args[0] === "bold")
-                i = 370;
+                i2 = 370;
               if (args[0].trim().match(/^#(?:[a-f0-9]{3}|[a-f0-9]{6})\b$/g))
-                i = args[0].trim();
+                i2 = args[0].trim();
               else if (args[0].trim().match(/^[-|+]?\d+$/g))
-                i = parseInt(args[0].trim(), 10);
+                i2 = parseInt(args[0].trim(), 10);
               else {
-                i = getAnsiColorCode(args[0]);
-                if (i === -1) {
+                i2 = getAnsiColorCode(args[0]);
+                if (i2 === -1) {
                   if (isMXPColor(args[0]))
-                    i = args[0];
+                    i2 = args[0];
                   else
                     throw new Error("Invalid fore color");
                 }
               }
               setTimeout(() => {
                 n = this.adjustLastLine(n);
-                this.client.display.colorSubStrByLine(n, i);
+                this.client.display.colorSubStrByLine(n, i2);
               }, 0);
             } else if (args.length === 2) {
               if (args[0] === "bold" && args[1] === "bold")
                 throw new Error("Invalid fore color");
               if (args[0] === "bold")
-                i = 370;
+                i2 = 370;
               else if (args[0] === "current")
-                i = null;
+                i2 = null;
               else if (args[0].trim().match(/^#(?:[a-f0-9]{3}|[a-f0-9]{6})\b$/g))
-                i = args[0].trim();
+                i2 = args[0].trim();
               else if (args[0].trim().match(/^[-|+]?\d+$/g))
-                i = parseInt(args[0].trim(), 10);
+                i2 = parseInt(args[0].trim(), 10);
               else {
-                i = getAnsiColorCode(args[0]);
-                if (i === -1) {
+                i2 = getAnsiColorCode(args[0]);
+                if (i2 === -1) {
                   if (isMXPColor(args[0]))
-                    i = args[0];
+                    i2 = args[0];
                   else
                     throw new Error("Invalid fore color");
                 }
@@ -10677,29 +11875,29 @@
               if (args[1] === "bold") {
                 setTimeout(() => {
                   n = this.adjustLastLine(n);
-                  if (i === 370)
-                    this.client.display.colorSubStrByLine(n, i);
+                  if (i2 === 370)
+                    this.client.display.colorSubStrByLine(n, i2);
                   else
-                    this.client.display.colorSubStrByLine(n, i * 10);
+                    this.client.display.colorSubStrByLine(n, i2 * 10);
                 }, 0);
               } else {
-                p = i;
+                p = i2;
                 if (args[1].trim().match(/^#(?:[a-f0-9]{3}|[a-f0-9]{6})\b$/g))
-                  i = args[1].trim();
+                  i2 = args[1].trim();
                 else if (args[1].trim().match(/^[-|+]?\d+$/g))
-                  i = parseInt(args[1].trim(), 10);
+                  i2 = parseInt(args[1].trim(), 10);
                 else {
-                  i = getAnsiColorCode(args[1], true);
-                  if (i === -1) {
+                  i2 = getAnsiColorCode(args[1], true);
+                  if (i2 === -1) {
                     if (isMXPColor(args[1]))
-                      i = args[1];
+                      i2 = args[1];
                     else
                       throw new Error("Invalid back color");
                   }
                 }
                 setTimeout(() => {
                   n = this.adjustLastLine(n);
-                  this.client.display.colorSubStrByLine(n, p, i);
+                  this.client.display.colorSubStrByLine(n, p, i2);
                 }, 0);
               }
             } else if (args.length === 3) {
@@ -10708,42 +11906,42 @@
                 args.push("bold");
               }
               if (args[0].trim() === "current")
-                i = null;
+                i2 = null;
               else if (args[0].trim().match(/^#(?:[a-f0-9]{3}|[a-f0-9]{6})\b$/g))
-                i = args[0].trim();
+                i2 = args[0].trim();
               else if (args[0].trim().match(/^[-|+]?\d+$/g))
-                i = parseInt(args[0].trim(), 10);
+                i2 = parseInt(args[0].trim(), 10);
               else {
-                i = getAnsiColorCode(args[0]);
-                if (i === -1) {
+                i2 = getAnsiColorCode(args[0]);
+                if (i2 === -1) {
                   if (isMXPColor(args[0]))
-                    i = args[0];
+                    i2 = args[0];
                   else
                     throw new Error("Invalid fore color");
                 }
               }
               if (args[2] !== "bold")
                 throw new Error("Only bold is supported as third argument");
-              else if (!i)
-                i = 370;
+              else if (!i2)
+                i2 = 370;
               else
-                p = i * 10;
+                p = i2 * 10;
               if (args[1].trim().match(/^#(?:[a-f0-9]{3}|[a-f0-9]{6})\b$/g))
-                i = args[1].trim();
+                i2 = args[1].trim();
               else if (args[1].trim().match(/^[-|+]?\d+$/g))
-                i = parseInt(args[1].trim(), 10);
+                i2 = parseInt(args[1].trim(), 10);
               else {
-                i = getAnsiColorCode(args[1], true);
-                if (i === -1) {
+                i2 = getAnsiColorCode(args[1], true);
+                if (i2 === -1) {
                   if (isMXPColor(args[1]))
-                    i = args[0];
+                    i2 = args[0];
                   else
                     throw new Error("Invalid back color");
                 }
               }
               setTimeout(() => {
                 n = this.adjustLastLine(n);
-                this.client.display.colorSubStrByLine(n, p, i);
+                this.client.display.colorSubStrByLine(n, p, i2);
               }, 0);
             }
           }
@@ -10808,16 +12006,16 @@
             args = args[0].toLowerCase().split(",");
             if (args.length === 1) {
               if (args[0] === "bold")
-                i = 370;
+                i2 = 370;
               if (args[0].trim().match(/^#(?:[a-f0-9]{3}|[a-f0-9]{6})\b$/g))
-                i = args[0].trim();
+                i2 = args[0].trim();
               else if (args[0].trim().match(/^[-|+]?\d+$/g))
-                i = parseInt(args[0].trim(), 10);
+                i2 = parseInt(args[0].trim(), 10);
               else {
-                i = getAnsiColorCode(args[0]);
-                if (i === -1) {
+                i2 = getAnsiColorCode(args[0]);
+                if (i2 === -1) {
                   if (isMXPColor(args[0]))
-                    i = args[0];
+                    i2 = args[0];
                   else
                     throw new Error("Invalid fore color");
                 }
@@ -10825,12 +12023,12 @@
               setTimeout(() => {
                 n = this.adjustLastLine(n);
                 if (trigger.length === 1)
-                  this.client.display.colorSubStrByLine(n, i);
+                  this.client.display.colorSubStrByLine(n, i2);
                 else {
                   trigger[1].lastIndex = 0;
                   tmp = trigger[0].matchAll(trigger[1]);
                   for (const match of tmp) {
-                    this.client.display.colorSubStrByLine(n, i, null, match.index, match[0].length);
+                    this.client.display.colorSubStrByLine(n, i2, null, match.index, match[0].length);
                   }
                 }
               }, 0);
@@ -10838,18 +12036,18 @@
               if (args[0] === "bold" && args[1] === "bold")
                 throw new Error("Invalid fore color");
               if (args[0] === "bold")
-                i = 370;
+                i2 = 370;
               else if (args[0] === "current")
-                i = null;
+                i2 = null;
               else if (args[0].trim().match(/^#(?:[a-f0-9]{3}|[a-f0-9]{6})\b$/g))
-                i = args[0].trim();
+                i2 = args[0].trim();
               else if (args[0].trim().match(/^[-|+]?\d+$/g))
-                i = parseInt(args[0].trim(), 10);
+                i2 = parseInt(args[0].trim(), 10);
               else {
-                i = getAnsiColorCode(args[0]);
-                if (i === -1) {
+                i2 = getAnsiColorCode(args[0]);
+                if (i2 === -1) {
                   if (isMXPColor(args[0]))
-                    i = args[0];
+                    i2 = args[0];
                   else
                     throw new Error("Invalid fore color");
                 }
@@ -10857,29 +12055,29 @@
               if (args[1] === "bold") {
                 setTimeout(() => {
                   n = this.adjustLastLine(n);
-                  if (i !== 370)
-                    i *= 10;
+                  if (i2 !== 370)
+                    i2 *= 10;
                   if (trigger.length === 1)
-                    this.client.display.colorSubStrByLine(n, i);
+                    this.client.display.colorSubStrByLine(n, i2);
                   else {
                     trigger[1].lastIndex = 0;
                     tmp = trigger[0].matchAll(trigger[1]);
                     for (const match of tmp) {
-                      this.client.display.colorSubStrByLine(n, i, null, match.index, match[0].length);
+                      this.client.display.colorSubStrByLine(n, i2, null, match.index, match[0].length);
                     }
                   }
                 }, 0);
               } else {
-                p = i;
+                p = i2;
                 if (args[1].trim().match(/^#(?:[a-f0-9]{3}|[a-f0-9]{6})\b$/g))
-                  i = args[1].trim();
+                  i2 = args[1].trim();
                 else if (args[1].trim().match(/^[-|+]?\d+$/g))
-                  i = parseInt(args[1].trim(), 10);
+                  i2 = parseInt(args[1].trim(), 10);
                 else {
-                  i = getAnsiColorCode(args[1], true);
-                  if (i === -1) {
+                  i2 = getAnsiColorCode(args[1], true);
+                  if (i2 === -1) {
                     if (isMXPColor(args[1]))
-                      i = args[1];
+                      i2 = args[1];
                     else
                       throw new Error("Invalid back color");
                   }
@@ -10887,12 +12085,12 @@
                 setTimeout(() => {
                   n = this.adjustLastLine(n);
                   if (trigger.length === 1)
-                    this.client.display.colorSubStrByLine(n, p, i);
+                    this.client.display.colorSubStrByLine(n, p, i2);
                   else {
                     trigger[1].lastIndex = 0;
                     tmp = trigger[0].matchAll(trigger[1]);
                     for (const match of tmp) {
-                      this.client.display.colorSubStrByLine(n, p, i, match.index, match[0].length);
+                      this.client.display.colorSubStrByLine(n, p, i2, match.index, match[0].length);
                     }
                   }
                 }, 0);
@@ -10903,35 +12101,35 @@
                 args.push("bold");
               }
               if (args[0].trim() === "current")
-                i = null;
+                i2 = null;
               else if (args[0].trim().match(/^#(?:[a-f0-9]{3}|[a-f0-9]{6})\b$/g))
-                i = args[0].trim();
+                i2 = args[0].trim();
               else if (args[0].trim().match(/^[-|+]?\d+$/g))
-                i = parseInt(args[0].trim(), 10);
+                i2 = parseInt(args[0].trim(), 10);
               else {
-                i = getAnsiColorCode(args[0]);
-                if (i === -1) {
+                i2 = getAnsiColorCode(args[0]);
+                if (i2 === -1) {
                   if (isMXPColor(args[0]))
-                    i = args[0];
+                    i2 = args[0];
                   else
                     throw new Error("Invalid fore color");
                 }
               }
               if (args[2] !== "bold")
                 throw new Error("Only bold is supported as third argument");
-              else if (!i)
-                i = 370;
+              else if (!i2)
+                i2 = 370;
               else
-                p = i * 10;
+                p = i2 * 10;
               if (args[1].trim().match(/^#(?:[a-f0-9]{3}|[a-f0-9]{6})\b$/g))
-                i = args[1].trim();
+                i2 = args[1].trim();
               else if (args[1].trim().match(/^[-|+]?\d+$/g))
-                i = parseInt(args[1].trim(), 10);
+                i2 = parseInt(args[1].trim(), 10);
               else {
-                i = getAnsiColorCode(args[1], true);
-                if (i === -1) {
+                i2 = getAnsiColorCode(args[1], true);
+                if (i2 === -1) {
                   if (isMXPColor(args[1]))
-                    i = args[0];
+                    i2 = args[0];
                   else
                     throw new Error("Invalid back color");
                 }
@@ -10939,12 +12137,12 @@
               setTimeout(() => {
                 n = this.adjustLastLine(n);
                 if (trigger.length === 1)
-                  this.client.display.colorSubStrByLine(n, p, i);
+                  this.client.display.colorSubStrByLine(n, p, i2);
                 else {
                   trigger[1].lastIndex = 0;
                   tmp = trigger[0].matchAll(trigger[1]);
                   for (const match of tmp) {
-                    this.client.display.colorSubStrByLine(n, p, i, match.index, match[0].length);
+                    this.client.display.colorSubStrByLine(n, p, i2, match.index, match[0].length);
                   }
                 }
               }, 0);
@@ -10990,64 +12188,64 @@
             args = args[0].toLowerCase().split(",");
             if (args.length === 1) {
               if (args[0] === "bold")
-                i = 370;
+                i2 = 370;
               if (args[0].trim().match(/^#(?:[a-f0-9]{3}|[a-f0-9]{6})\b$/g))
-                i = args[0].trim();
+                i2 = args[0].trim();
               else if (args[0].trim().match(/^[-|+]?\d+$/g))
-                i = parseInt(args[0].trim(), 10);
+                i2 = parseInt(args[0].trim(), 10);
               else {
-                i = getAnsiColorCode(args[0]);
-                if (i === -1) {
+                i2 = getAnsiColorCode(args[0]);
+                if (i2 === -1) {
                   if (isMXPColor(args[0]))
-                    i = args[0];
+                    i2 = args[0];
                   else
                     throw new Error("Invalid fore color");
                 }
               }
               setTimeout(() => {
-                this.colorPosition(n, i, null, item);
+                this.colorPosition(n, i2, null, item);
               }, 0);
             } else if (args.length === 2) {
               if (args[0] === "bold" && args[1] === "bold")
                 throw new Error("Invalid fore color");
               if (args[0] === "bold")
-                i = 370;
+                i2 = 370;
               else if (args[0] === "current")
-                i = null;
+                i2 = null;
               else if (args[0].trim().match(/^#(?:[a-f0-9]{3}|[a-f0-9]{6})\b$/g))
-                i = args[0].trim();
+                i2 = args[0].trim();
               else if (args[0].trim().match(/^[-|+]?\d+$/g))
-                i = parseInt(args[0].trim(), 10);
+                i2 = parseInt(args[0].trim(), 10);
               else {
-                i = getAnsiColorCode(args[0]);
-                if (i === -1) {
+                i2 = getAnsiColorCode(args[0]);
+                if (i2 === -1) {
                   if (isMXPColor(args[0]))
-                    i = args[0];
+                    i2 = args[0];
                   else
                     throw new Error("Invalid fore color");
                 }
               }
               if (args[1] === "bold") {
                 setTimeout(() => {
-                  this.colorPosition(n, i === 370 ? i : i * 10, null, item);
+                  this.colorPosition(n, i2 === 370 ? i2 : i2 * 10, null, item);
                 }, 0);
               } else {
-                p = i;
+                p = i2;
                 if (args[1].trim().match(/^#(?:[a-f0-9]{3}|[a-f0-9]{6})\b$/g))
-                  i = args[1].trim();
+                  i2 = args[1].trim();
                 else if (args[1].trim().match(/^[-|+]?\d+$/g))
-                  i = parseInt(args[1].trim(), 10);
+                  i2 = parseInt(args[1].trim(), 10);
                 else {
-                  i = getAnsiColorCode(args[1], true);
-                  if (i === -1) {
+                  i2 = getAnsiColorCode(args[1], true);
+                  if (i2 === -1) {
                     if (isMXPColor(args[1]))
-                      i = args[1];
+                      i2 = args[1];
                     else
                       throw new Error("Invalid back color");
                   }
                 }
                 setTimeout(() => {
-                  this.colorPosition(n, p, i, item);
+                  this.colorPosition(n, p, i2, item);
                 }, 0);
               }
             } else if (args.length === 3) {
@@ -11056,41 +12254,41 @@
                 args.push("bold");
               }
               if (args[0].trim() === "current")
-                i = null;
+                i2 = null;
               else if (args[0].trim().match(/^#(?:[a-f0-9]{3}|[a-f0-9]{6})\b$/g))
-                i = args[0].trim();
+                i2 = args[0].trim();
               else if (args[0].trim().match(/^[-|+]?\d+$/g))
-                i = parseInt(args[0].trim(), 10);
+                i2 = parseInt(args[0].trim(), 10);
               else {
-                i = getAnsiColorCode(args[0]);
-                if (i === -1) {
+                i2 = getAnsiColorCode(args[0]);
+                if (i2 === -1) {
                   if (isMXPColor(args[0]))
-                    i = args[0];
+                    i2 = args[0];
                   else
                     throw new Error("Invalid fore color");
                 }
               }
               if (args[2] !== "bold")
                 throw new Error("Only bold is supported as third argument");
-              else if (!i)
-                i = 370;
+              else if (!i2)
+                i2 = 370;
               else
-                p = i * 10;
+                p = i2 * 10;
               if (args[1].trim().match(/^#(?:[a-f0-9]{3}|[a-f0-9]{6})\b$/g))
-                i = args[1].trim();
+                i2 = args[1].trim();
               else if (args[1].trim().match(/^[-|+]?\d+$/g))
-                i = parseInt(args[1].trim(), 10);
+                i2 = parseInt(args[1].trim(), 10);
               else {
-                i = getAnsiColorCode(args[1], true);
-                if (i === -1) {
+                i2 = getAnsiColorCode(args[1], true);
+                if (i2 === -1) {
                   if (isMXPColor(args[1]))
-                    i = args[0];
+                    i2 = args[0];
                   else
                     throw new Error("Invalid back color");
                 }
               }
               setTimeout(() => {
-                this.colorPosition(n, p, i, item);
+                this.colorPosition(n, p, i2, item);
               }, 0);
             }
           }
@@ -11195,13 +12393,13 @@
           else
             n = null;
           al = args.length;
-          for (i = 0; i < al; i += 2) {
-            if (args[i].match(/^\{[\s\S]*\}$/g))
-              args[i] = args[i].substr(1, args[i].length - 2);
-            if (this.evaluate(this.parseInline(args[i]))) {
-              if (args[i + 1].match(/^\{[\s\S]*\}$/g))
-                args[i + 1] = args[i + 1].substr(1, args[i + 1].length - 2);
-              tmp = this.parseOutgoing(args[i + 1]);
+          for (i2 = 0; i2 < al; i2 += 2) {
+            if (args[i2].match(/^\{[\s\S]*\}$/g))
+              args[i2] = args[i2].substr(1, args[i2].length - 2);
+            if (this.evaluate(this.parseInline(args[i2]))) {
+              if (args[i2 + 1].match(/^\{[\s\S]*\}$/g))
+                args[i2 + 1] = args[i2 + 1].substr(1, args[i2 + 1].length - 2);
+              tmp = this.parseOutgoing(args[i2 + 1]);
               if (tmp != null && tmp.length > 0)
                 return tmp;
               return null;
@@ -11234,44 +12432,44 @@
           tmp = parseInt(n[0], 10);
           if (isNaN(tmp))
             throw new Error("Invalid loop min '" + n[0] + "' must be a number");
-          i = parseInt(n[1], 10);
-          if (isNaN(i))
+          i2 = parseInt(n[1], 10);
+          if (isNaN(i2))
             throw new Error("Invalid loop max '" + n[1] + "' must be a number");
-          if (tmp > i) tmp++;
+          if (tmp > i2) tmp++;
           else tmp--;
-          return this.executeForLoop(tmp, i, args);
+          return this.executeForLoop(tmp, i2, args);
         case "repeat":
         case "rep":
           if ((this.client.getOption("echo") & 4) === 4)
             this.client.echo(raw, -3, -4, true, true);
           if (args.length < 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "rep\x1B[0;-11;-12meat\x1B[0;-11;-12m expression {commands}");
-          i = args.shift();
-          if (i.match(/^\{[\s\S]*\}$/g))
-            i = i.substr(1, i.length - 2);
-          i = this.evaluate(this.parseInline(i));
-          if (typeof i !== "number")
+          i2 = args.shift();
+          if (i2.match(/^\{[\s\S]*\}$/g))
+            i2 = i2.substr(1, i2.length - 2);
+          i2 = this.evaluate(this.parseInline(i2));
+          if (typeof i2 !== "number")
             throw new Error("Arguments must be a number");
           args = args.join(" ");
           if (args.match(/^\{[\s\S]*\}$/g))
             args = args.substr(1, args.length - 2);
-          if (i < 1)
-            return this.executeForLoop(-i + 1, 1, args);
-          return this.executeForLoop(0, i, args);
+          if (i2 < 1)
+            return this.executeForLoop(-i2 + 1, 1, args);
+          return this.executeForLoop(0, i2, args);
         case "until":
           if ((this.client.getOption("echo") & 4) === 4)
             this.client.echo(raw, -3, -4, true, true);
           if (args.length < 2)
             throw new Error("Invalid syntax use " + cmdChar + "until expression {commands}");
-          i = args.shift();
-          if (i.match(/^\{[\s\S]*\}$/g))
-            i = i.substr(1, i.length - 2);
+          i2 = args.shift();
+          if (i2.match(/^\{[\s\S]*\}$/g))
+            i2 = i2.substr(1, i2.length - 2);
           args = args.join(" ");
           if (args.match(/^\{[\s\S]*\}$/g))
             args = args.substr(1, args.length - 2);
           tmp = [];
           this.loops.push(0);
-          while (!this.evaluate(this.parseInline(i))) {
+          while (!this.evaluate(this.parseInline(i2))) {
             let out = this.parseOutgoing(args);
             if (out != null && out.length > 0)
               tmp.push(out);
@@ -11294,15 +12492,15 @@
             this.client.echo(raw, -3, -4, true, true);
           if (args.length < 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "wh\x1B[0;-11;-12mile expression {commands}");
-          i = args.shift();
-          if (i.match(/^\{[\s\S]*\}$/g))
-            i = i.substr(1, i.length - 2);
+          i2 = args.shift();
+          if (i2.match(/^\{[\s\S]*\}$/g))
+            i2 = i2.substr(1, i2.length - 2);
           args = args.join(" ");
           if (args.match(/^\{[\s\S]*\}$/g))
             args = args.substr(1, args.length - 2);
           tmp = [];
           this.loops.push(0);
-          while (this.evaluate(this.parseInline(i))) {
+          while (this.evaluate(this.parseInline(i2))) {
             let out = this.parseOutgoing(args);
             if (out != null && out.length > 0)
               tmp.push(out);
@@ -11325,17 +12523,17 @@
             this.client.echo(raw, -3, -4, true, true);
           if (args.length < 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "fo\x1B[0;-11;-12mrall stringlist {commands}");
-          i = args.shift();
-          if (i.match(/^\{[\s\S]*\}$/g))
-            i = i.substr(1, i.length - 2);
+          i2 = args.shift();
+          if (i2.match(/^\{[\s\S]*\}$/g))
+            i2 = i2.substr(1, i2.length - 2);
           args = args.join(" ");
           if (args.match(/^\{[\s\S]*\}$/g))
             args = args.substr(1, args.length - 2);
           tmp = [];
-          i = this.splitByQuotes(this.stripQuotes(this.parseInline(i)), "|");
-          al = i.length;
+          i2 = this.splitByQuotes(this.stripQuotes(this.parseInline(i2)), "|");
+          al = i2.length;
           for (n = 0; n < al; n++) {
-            this.loops.push(i[n]);
+            this.loops.push(i2[n]);
             let out = this.parseOutgoing(args);
             if (out != null && out.length > 0)
               tmp.push(out);
@@ -11358,35 +12556,35 @@
           if ((this.client.getOption("echo") & 4) === 4)
             this.client.echo(raw, -3, -4, true, true);
           if (args.length === 0) {
-            i = Object.keys(this.client.variables);
-            al = i.length;
+            i2 = Object.keys(this.client.variables);
+            al = i2.length;
             tmp = [];
             for (n = 0; n < al; n++)
-              tmp.push(i[n] + " = " + this.client.variables[i[n]]);
+              tmp.push(i2[n] + " = " + this.client.variables[i2[n]]);
             return tmp.join("\n");
           }
-          i = args.shift();
-          if (i.match(/^\{.*\}$/g))
-            i = i.substr(1, i.length - 2);
-          i = this.parseInline(i);
-          if (!isValidIdentifier(i))
+          i2 = args.shift();
+          if (i2.match(/^\{.*\}$/g))
+            i2 = i2.substr(1, i2.length - 2);
+          i2 = this.parseInline(i2);
+          if (!isValidIdentifier(i2))
             throw new Error("Invalid variable name");
           if (args.length === 0)
-            return this.client.variables[i]?.toString();
+            return this.client.variables[i2]?.toString();
           args = args.join(" ");
           if (args.match(/^\{[\s\S]*\}$/g))
             args = args.substr(1, args.length - 2);
           args = this.parseInline(args);
           if (args.match(/^\s*?[-|+]?\d+\s*?$/))
-            this.client.variables[i] = parseInt(args, 10);
+            this.client.variables[i2] = parseInt(args, 10);
           else if (args.match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
-            this.client.variables[i] = parseFloat(args);
+            this.client.variables[i2] = parseFloat(args);
           else if (args === "true")
-            this.client.variables[i] = true;
+            this.client.variables[i2] = true;
           else if (args === "false")
-            this.client.variables[i] = false;
+            this.client.variables[i2] = false;
           else
-            this.client.variables[i] = this.stripQuotes(args);
+            this.client.variables[i2] = this.stripQuotes(args);
           return null;
         case "unvar":
         case "unv":
@@ -11394,11 +12592,11 @@
             this.client.echo(raw, -3, -4, true, true);
           if (args.length !== 1)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unv\x1B[0;-11;-12mar name ");
-          i = args.shift();
-          if (i.match(/^\{[\s\S]*\}$/g))
-            i = i.substr(1, i.length - 2);
-          i = this.parseInline(i);
-          delete this.client.variables[i];
+          i2 = args.shift();
+          if (i2.match(/^\{[\s\S]*\}$/g))
+            i2 = i2.substr(1, i2.length - 2);
+          i2 = this.parseInline(i2);
+          delete this.client.variables[i2];
           return null;
         case "add":
         case "ad":
@@ -11406,22 +12604,22 @@
             this.client.echo(raw, -3, -4, true, true);
           if (args.length < 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "ad\x1B[0;-11;-12md name value");
-          i = args.shift();
-          if (i.match(/^\{[\s\S]*\}$/g))
-            i = i.substr(1, i.length - 2);
-          i = this.parseInline(i);
-          if (this.client.variables.hasOwnProperty(i) && typeof this.client.variables[i] !== "number")
-            throw new Error(i + " is not a number for add");
+          i2 = args.shift();
+          if (i2.match(/^\{[\s\S]*\}$/g))
+            i2 = i2.substr(1, i2.length - 2);
+          i2 = this.parseInline(i2);
+          if (this.client.variables.hasOwnProperty(i2) && typeof this.client.variables[i2] !== "number")
+            throw new Error(i2 + " is not a number for add");
           args = args.join(" ");
           if (args.match(/^\{[\s\S]*\}$/g))
             args = args.substr(1, args.length - 2);
           args = this.evaluate(this.parseInline(args));
           if (typeof args !== "number")
             throw new Error("Value is not a number for add");
-          if (!this.client.variables.hasOwnProperty(i))
-            this.client.variables[i] = args;
+          if (!this.client.variables.hasOwnProperty(i2))
+            this.client.variables[i2] = args;
           else
-            this.client.variables[i] += args;
+            this.client.variables[i2] += args;
           return null;
         case "math":
         case "mat":
@@ -11429,17 +12627,17 @@
             this.client.echo(raw, -3, -4, true, true);
           if (args.length < 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "mat\x1B[0;-11;-12mh name value");
-          i = args.shift();
-          if (i.match(/^\{[\s\S]*\}$/g))
-            i = i.substr(1, i.length - 2);
-          i = this.parseInline(i);
+          i2 = args.shift();
+          if (i2.match(/^\{[\s\S]*\}$/g))
+            i2 = i2.substr(1, i2.length - 2);
+          i2 = this.parseInline(i2);
           args = args.join(" ");
           if (args.match(/^\{[\s\S]*\}$/g))
             args = args.substr(1, args.length - 2);
           args = this.evaluate(this.parseInline(args));
           if (typeof args !== "number")
             throw new Error("Value is not a number for add");
-          this.client.variables[i] = args;
+          this.client.variables[i2] = args;
           return null;
         case "evaluate":
         case "eva":
@@ -11491,15 +12689,15 @@
             throw new Error("Invalid syntax use " + cmdChar + "CLR");
           if (this.client.display.lines.length === 0)
             return null;
-          i = this.client.display.WindowSize.height + 2;
+          i2 = this.client.display.WindowSize.height + 2;
           n = this.client.display.lines.length;
-          while (n-- && i) {
+          while (n-- && i2) {
             if (this.client.display.lines[n].text.length)
               break;
-            i--;
+            i2--;
           }
           tmp = [];
-          while (i--)
+          while (i2--)
             tmp.push("\n");
           this.client.print(tmp.join(""), true);
           return null;
@@ -11634,9 +12832,9 @@
             trigger.state = n;
             throw new Error("Trigger state must be greater than or equal to 0 or less than or equal to " + trigger.triggers.length);
           }
-          i = trigger.fired;
+          i2 = trigger.fired;
           trigger.fired = false;
-          this.resetTriggerState(this._TriggerCache.indexOf(trigger), n, i);
+          this.resetTriggerState(this._TriggerCache.indexOf(trigger), n, i2);
           this.client.restartAlarmState(trigger, n, trigger.state);
           this.client.saveProfiles();
           this.client.emit("item-updated", "trigger", trigger.profile.name, trigger.profile.triggers.indexOf(trigger), trigger);
@@ -11653,7 +12851,7 @@
             return this.parseInline(this.stripQuotes(m));
           });
           n = 0;
-          i = false;
+          i2 = false;
           switch (args.length) {
             case 0:
               throw new Error("Invalid syntax use " + cmdChar + "set \x1B[3mname|pattern\x1B[0;-11;-12m state \x1B[3mvalue profile\x1B[0;-11;-12m");
@@ -11666,10 +12864,10 @@
                 if (n < 0 || n > trigger.triggers.length)
                   throw new Error("Trigger state must be greater than or equal to 0 or less than or equal to " + trigger.triggers.length);
                 if (n === 0) {
-                  i = trigger.fired;
+                  i2 = trigger.fired;
                   trigger.fired = true;
                 } else {
-                  i = trigger.triggers[n - 1].fired;
+                  i2 = trigger.triggers[n - 1].fired;
                   trigger.triggers[n - 1].fired = true;
                 }
               } else
@@ -11686,10 +12884,10 @@
                 if (args[1] !== "0" && args[1] !== "1" && args[1] !== "true" && args[1] !== "false")
                   throw new Error("Value must be 0, 1, true, or false");
                 if (n === 0) {
-                  i = trigger.fired;
+                  i2 = trigger.fired;
                   trigger.fired = args[1] === "1" || args[1] === "true";
                 } else {
-                  i = trigger.triggers[n - 1].fired;
+                  i2 = trigger.triggers[n - 1].fired;
                   trigger.triggers[n - 1].fired = args[1] === "1" || args[1] === "true";
                 }
               } else {
@@ -11723,10 +12921,10 @@
                 if (n < 0 || n > trigger.triggers.length)
                   throw new Error("Trigger state must be greater than or equal to 0 or less than or equal to " + trigger.triggers.length);
                 if (n === 0) {
-                  i = trigger.fired;
+                  i2 = trigger.fired;
                   trigger.fired = true;
                 } else {
-                  i = trigger.triggers[n - 1].fired;
+                  i2 = trigger.triggers[n - 1].fired;
                   trigger.triggers[n - 1].fired = true;
                 }
               }
@@ -11748,10 +12946,10 @@
                 if (n < 0 || n > trigger.triggers.length)
                   throw new Error("Trigger state must be greater than or equal to 0 or less than or equal to " + trigger.triggers.length);
                 if (n === 0) {
-                  i = trigger.fired;
+                  i2 = trigger.fired;
                   trigger.fired = true;
                 } else {
-                  i = trigger.triggers[n - 1].fired;
+                  i2 = trigger.triggers[n - 1].fired;
                   trigger.triggers[n - 1].fired = true;
                 }
               } else {
@@ -11785,10 +12983,10 @@
                 if (n < 0 || n > trigger.triggers.length)
                   throw new Error("Trigger state must be greater than or equal to 0 or less than or equal to " + trigger.triggers.length);
                 if (n === 0) {
-                  i = trigger.fired;
+                  i2 = trigger.fired;
                   trigger.fired = args[2] === "1" || args[2] === "true";
                 } else {
-                  i = trigger.triggers[n - 1].fired;
+                  i2 = trigger.triggers[n - 1].fired;
                   trigger.triggers[n - 1].fired = args[2] === "1" || args[2] === "true";
                 }
               }
@@ -11808,10 +13006,10 @@
               if (args[2] !== "0" && args[2] !== "1" && args[2] !== "true" && args[2] !== "false")
                 throw new Error("Value must be 0, 1, true, or false");
               if (n === 0) {
-                i = trigger.fired;
+                i2 = trigger.fired;
                 trigger.fired = args[2] === "1" || args[2] === "true";
               } else {
-                i = trigger.triggers[n - 1].fired;
+                i2 = trigger.triggers[n - 1].fired;
                 trigger.triggers[n - 1].fired = args[2] === "1" || args[2] === "true";
               }
               break;
@@ -11820,7 +13018,7 @@
           }
           this.client.saveProfiles();
           this.client.emit("item-updated", "trigger", trigger.profile.name, trigger.profile.triggers.indexOf(trigger), trigger);
-          this.resetTriggerState(this._TriggerCache.indexOf(trigger), n, i);
+          this.resetTriggerState(this._TriggerCache.indexOf(trigger), n, i2);
           if (n === 0)
             this.client.echo("Trigger state 0 fired state set to " + trigger.fired + ".", -7, -8, true, true);
           else {
@@ -11916,10 +13114,10 @@
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
                           throw new Error(`Invalid trigger priority option '${o.trim()}'`);
-                        i = parseInt(tmp[1], 10);
-                        if (isNaN(i))
+                        i2 = parseInt(tmp[1], 10);
+                        if (isNaN(i2))
                           throw new Error("Invalid trigger priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i;
+                        item.options["priority"] = i2;
                       } else
                         throw new Error(`Invalid trigger option '${o.trim()}'`);
                   }
@@ -11977,10 +13175,10 @@
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
                           throw new Error(`Invalid trigger priority option '${o.trim()}'`);
-                        i = parseInt(tmp[1], 10);
-                        if (isNaN(i))
+                        i2 = parseInt(tmp[1], 10);
+                        if (isNaN(i2))
                           throw new Error("Invalid trigger priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i;
+                        item.options["priority"] = i2;
                       } else
                         throw new Error(`Invalid trigger option '${o.trim()}'`);
                   }
@@ -12019,14 +13217,14 @@
                 if ((this.client.getOption("echo") & 4) === 4)
                   this.client.echo(r, -3, -4, true, true);
                 p = "";
-                i = "";
+                i2 = "";
                 if (a.length > 1)
                   p = this.stripQuotes(this.parseInline(a[0]));
                 if (a.length > 2)
-                  i = this.stripQuotes(this.parseInline(a[1]));
+                  i2 = this.stripQuotes(this.parseInline(a[1]));
                 items = contents.split(/\r?\n/);
-                items.forEach((line) => {
-                  this.client.sendBackground(p + line + i, null, this.client.getOption("allowCommentsFromCommand"));
+                items.forEach((line2) => {
+                  this.client.sendBackground(p + line2 + i2, null, this.client.getOption("allowCommentsFromCommand"));
                 });
               }).catch(this.client.error);
             }).catch(() => {
@@ -12042,14 +13240,14 @@
                 if ((this.client.getOption("echo") & 4) === 4)
                   this.client.echo(r, -3, -4, true, true);
                 p = "";
-                i = "";
+                i2 = "";
                 if (a.length > 1)
                   p = this.stripQuotes(this.parseInline(a[0]));
                 if (a.length > 2)
-                  i = this.stripQuotes(this.parseInline(a[1]));
+                  i2 = this.stripQuotes(this.parseInline(a[1]));
                 items = contents.split(/\r?\n/);
-                items.forEach((line) => {
-                  this.client.sendRaw(p + line + i);
+                items.forEach((line2) => {
+                  this.client.sendRaw(p + line2 + i2);
                 });
               }).catch(this.client.error);
             }).catch(() => {
@@ -12202,10 +13400,10 @@
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
                           throw new Error(`Invalid temporary trigger priority option '${o.trim()}'`);
-                        i = parseInt(tmp[1], 10);
-                        if (isNaN(i))
+                        i2 = parseInt(tmp[1], 10);
+                        if (isNaN(i2))
                           throw new Error("Invalid temporary trigger priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i;
+                        item.options["priority"] = i2;
                       } else
                         throw new Error(`Invalid temporary trigger option '${o.trim()}'`);
                   }
@@ -12251,10 +13449,10 @@
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
                           throw new Error(`Invalid temporary trigger priority option '${o.trim()}'`);
-                        i = parseInt(tmp[1], 10);
-                        if (isNaN(i))
+                        i2 = parseInt(tmp[1], 10);
+                        if (isNaN(i2))
                           throw new Error("Invalid temporary trigger priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i;
+                        item.options["priority"] = i2;
                       } else
                         throw new Error(`Invalid temporary trigger option '${o.trim()}'`);
                   }
@@ -12280,15 +13478,15 @@
             this.client.setOption("display.wordWrap", !this.client.getOption("display.wordWrap"));
             this.client.display.wordWrap = this.client.getOption("display.wordWrap");
           } else {
-            i = parseInt(this.parseInline(args[0]), 10);
-            if (isNaN(i))
-              throw new Error("Invalid number '" + i + "' for wrap");
-            if (i < 0)
+            i2 = parseInt(this.parseInline(args[0]), 10);
+            if (isNaN(i2))
+              throw new Error("Invalid number '" + i2 + "' for wrap");
+            if (i2 < 0)
               throw new Error("Must be greater then or equal to zero for wrap");
             this.client.setOption("display.wordWrap", true);
-            this.client.setOption("display.wordWrap", i);
+            this.client.setOption("display.wordWrap", i2);
             this.client.display.wordWrap = true;
-            this.client.display.wrapAt = i;
+            this.client.display.wrapAt = i2;
           }
           return null;
         case "prompt":
@@ -12298,26 +13496,26 @@
           if (args.length === 0 || args.length > 4)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "pr\x1B[0;-11;-12mompt variable \x1B[3mmessage defaultValue mask\x1B[0;-11;-12m");
           else {
-            i = args.shift();
-            if (i.match(/^\{.*\}$/g))
-              i = i.substr(1, i.length - 2);
-            i = this.parseInline(i);
-            if (!isValidIdentifier(i))
+            i2 = args.shift();
+            if (i2.match(/^\{.*\}$/g))
+              i2 = i2.substr(1, i2.length - 2);
+            i2 = this.parseInline(i2);
+            if (!isValidIdentifier(i2))
               throw new Error("Invalid variable name");
             args = args.map((a) => this.parseInline(this.stripQuotes(a)));
             if (args.length === 3 && args[2] && args[2].toLowerCase() === "true")
               args[2] = true;
             args = window.prompt(...args);
             if (args?.match(/^\s*?[-|+]?\d+\s*?$/))
-              this.client.variables[i] = parseInt(args, 10);
+              this.client.variables[i2] = parseInt(args, 10);
             else if (args?.match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
-              this.client.variables[i] = parseFloat(args);
+              this.client.variables[i2] = parseFloat(args);
             else if (args === "true")
-              this.client.variables[i] = true;
+              this.client.variables[i2] = true;
             else if (args === "false")
-              this.client.variables[i] = false;
+              this.client.variables[i2] = false;
             else
-              this.client.variables[i] = args;
+              this.client.variables[i2] = args;
           }
           return null;
         case "setmap":
@@ -12338,15 +13536,15 @@
       if (fun.match(/^[-|+]?\d+$/)) {
         if ((this.client.getOption("echo") & 4) === 4)
           this.client.echo(raw, -3, -4, true, true);
-        i = parseInt(fun, 10);
+        i2 = parseInt(fun, 10);
         if (args.length === 0)
           throw new Error("Invalid syntax use " + cmdChar + "nnn commands");
         args = args.join(" ");
         if (args.match(/^\{[\s\S]*\}$/g))
           args = args.substr(1, args.length - 2);
-        if (i < 1)
-          return this.executeForLoop(-i + 1, 1, args);
-        return this.executeForLoop(0, i, args);
+        if (i2 < 1)
+          return this.executeForLoop(-i2 + 1, 1, args);
+        return this.executeForLoop(0, i2, args);
       }
       const data = { name: fun, args, raw, handled: false, return: null };
       this.client.emit("function", data);
@@ -13599,9 +14797,9 @@
       if (WindowVariables.indexOf(text) !== -1)
         return this.vStack["$" + text] || window["$" + text] || "";
       if (this.loops.length && text.length === 1) {
-        let i = text.charCodeAt(0) - 105;
-        if (i >= 0 && i < 18 && i < this.loops.length)
-          return this.loops[i];
+        let i2 = text.charCodeAt(0) - 105;
+        if (i2 >= 0 && i2 < 18 && i2 < this.loops.length)
+          return this.loops[i2];
       }
       const re = new RegExp("^([a-zA-Z]+)\\((.*)\\)$", "g");
       let res = re.exec(text);
@@ -13616,7 +14814,7 @@
       let mod;
       let args;
       let min;
-      let max;
+      let max2;
       let escape2 = this.client.getOption("allowEscape") ? this.client.getOption("escapeChar") : "";
       switch (res[1]) {
         case "time":
@@ -13663,7 +14861,7 @@
           else if (sides !== "%")
             sides = parseInt(sides);
           let sum = 0;
-          for (let i = 0; i < c; i++) {
+          for (let i2 = 0; i2 < c; i2++) {
             if (sides === "F" || sides === "f")
               sum += fudgeDice();
             else if (sides === "%")
@@ -13696,15 +14894,15 @@
           min = 1;
           if (sides === "F" || sides === "f") {
             min = -1;
-            max = 1;
+            max2 = 1;
           } else if (sides === "%") {
             min = 0;
-            max = 1;
+            max2 = 1;
           } else
-            max = parseInt(sides);
+            max2 = parseInt(sides);
           if (mod)
-            return this.evaluate((min + max) / 2 * c + mod);
-          return "" + (min + max) / 2 * c;
+            return this.evaluate((min + max2) / 2 * c + mod);
+          return "" + (min + max2) / 2 * c;
         case "dicemin":
           args = this.parseInline(res[2]).split(",");
           if (args.length === 0) throw new Error("Invalid dice for dicemin");
@@ -13748,14 +14946,14 @@
           } else
             throw new Error("Too many arguments for dicemax");
           if (sides === "F" || sides === "f")
-            max = 1;
+            max2 = 1;
           else if (sides === "%")
-            max = 1;
+            max2 = 1;
           else
-            max = parseInt(sides);
+            max2 = parseInt(sides);
           if (mod)
-            return this.evaluate(max * c + mod);
-          return "" + max * c;
+            return this.evaluate(max2 * c + mod);
+          return "" + max2 * c;
         case "zdicedev":
         case "dicedev":
           const fun = res[1];
@@ -13776,16 +14974,16 @@
           } else
             throw new Error("Too many arguments for " + fun);
           if (sides === "F" || sides === "f")
-            max = 6;
+            max2 = 6;
           else if (sides === "%")
-            max = 1;
+            max2 = 1;
           else
-            max = parseInt(sides);
+            max2 = parseInt(sides);
           if (fun === "zdicedev")
-            max--;
+            max2--;
           if (mod)
-            return this.evaluate(Math.sqrt((max * max - 1) / 12 * c) + mod);
-          return "" + Math.sqrt((max * max - 1) / 12 * c);
+            return this.evaluate(Math.sqrt((max2 * max2 - 1) / 12 * c) + mod);
+          return "" + Math.sqrt((max2 * max2 - 1) / 12 * c);
         case "color":
           args = this.parseInline(res[2]).split(",");
           if (args.length === 0)
@@ -13847,11 +15045,11 @@
             if (args[sides].trim() === "current")
               mod.push(args[sides].trim());
             else {
-              max = getAnsiCode(args[sides].trim());
-              if (max === -1)
+              max2 = getAnsiCode(args[sides].trim());
+              if (max2 === -1)
                 throw new Error("Invalid color or style for ansi");
-              if (max >= 0 && max < 30)
-                min[max] = 1;
+              if (max2 >= 0 && max2 < 30)
+                min[max2] = 1;
               else
                 mod.push(args[sides]);
             }
@@ -14173,23 +15371,23 @@
             if (kl === 0) return 0;
             for (; k < kl; k++) {
               sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
-              sides = sides.find((i) => {
-                return i.pattern === args[0];
+              sides = sides.find((i2) => {
+                return i2.pattern === args[0];
               });
               if (sides) return 1;
               sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
-              sides = sides.find((i) => {
-                return i.pattern === args[0] || i.name === args[0];
+              sides = sides.find((i2) => {
+                return i2.pattern === args[0] || i2.name === args[0];
               });
               if (sides) return 1;
               sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].macros);
-              sides = sides.find((i) => {
-                return MacroDisplay(i).toLowerCase() === args[0].toLowerCase() || i.name === args[0];
+              sides = sides.find((i2) => {
+                return MacroDisplay(i2).toLowerCase() === args[0].toLowerCase() || i2.name === args[0];
               });
               if (sides) return 1;
               sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
-              sides = sides.find((i) => {
-                return i.caption === args[0] || i.name === args[0];
+              sides = sides.find((i2) => {
+                return i2.caption === args[0] || i2.name === args[0];
               });
               if (sides) return 1;
             }
@@ -14205,36 +15403,36 @@
               switch (args[1]) {
                 case "alias":
                   sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
-                  sides = sides.find((i) => {
-                    return i.pattern === args[0];
+                  sides = sides.find((i2) => {
+                    return i2.pattern === args[0];
                   });
                   if (sides) return 1;
                   return 0;
                 case "event":
                   sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
-                  sides = sides.find((i) => {
-                    return i.type === 2 /* Event */ && (i.pattern === args[0] || i.name === args[0]);
+                  sides = sides.find((i2) => {
+                    return i2.type === 2 /* Event */ && (i2.pattern === args[0] || i2.name === args[0]);
                   });
                   if (sides) return 1;
                   return 0;
                 case "trigger":
                   sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
-                  sides = sides.find((i) => {
-                    return i.pattern === args[0] || i.name === args[0];
+                  sides = sides.find((i2) => {
+                    return i2.pattern === args[0] || i2.name === args[0];
                   });
                   if (sides) return 1;
                   return 0;
                 case "macro":
                   sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].macros);
-                  sides = sides.find((i) => {
-                    return MacroDisplay(i).toLowerCase() === args[0].toLowerCase() || i.name === args[0];
+                  sides = sides.find((i2) => {
+                    return MacroDisplay(i2).toLowerCase() === args[0].toLowerCase() || i2.name === args[0];
                   });
                   if (sides) return 1;
                   return 0;
                 case "button":
                   sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
-                  sides = sides.find((i) => {
-                    return i.caption === args[0] || i.name === args[0];
+                  sides = sides.find((i2) => {
+                    return i2.caption === args[0] || i2.name === args[0];
                   });
                   if (sides) return 1;
                   return 0;
@@ -14305,12 +15503,12 @@
             throw new Error("Too many arguments for alarm");
           args[0] = this.stripQuotes(args[0]);
           sides = this.client.alarms;
-          max = sides.length;
-          if (max === 0)
+          max2 = sides.length;
+          if (max2 === 0)
             throw new Error("No alarms set.");
           c = 0;
           if (args.length === 1) {
-            for (; c < max; c++) {
+            for (; c < max2; c++) {
               if (sides[c].type !== 3 /* Alarm */) continue;
               if (sides[c].name === args[0] || sides[c].pattern === args[0]) {
                 if (sides[c].suspended)
@@ -14322,7 +15520,7 @@
             mod = parseInt(args[1], 10);
             if (isNaN(mod)) {
               args[1] = this.stripQuotes(args[1].trim());
-              for (; c < max; c++) {
+              for (; c < max2; c++) {
                 if (sides[c].type !== 3 /* Alarm */) continue;
                 if (sides[c].name === args[0] || sides[c].pattern === args[0]) {
                   if (sides[c].profile.name.toUpperCase() !== args[1].toUpperCase())
@@ -14334,7 +15532,7 @@
               }
               throw Error("Alarm not found in profile: " + args[1] + ".");
             } else {
-              for (; c < max; c++) {
+              for (; c < max2; c++) {
                 if (sides[c].type !== 3 /* Alarm */) continue;
                 if (sides[c].name === args[0] || sides[c].pattern === args[0]) {
                   if (!sides[c].suspended)
@@ -14349,7 +15547,7 @@
             if (isNaN(mod))
               throw new Error("Invalid time for alarm");
             args[2] = this.stripQuotes(args[2].trim());
-            for (; c < max; c++) {
+            for (; c < max2; c++) {
               if (sides[c].type !== 3 /* Alarm */) continue;
               if (sides[c].name === args[0] || sides[c].pattern === args[0]) {
                 if (sides[c].profile.name.toUpperCase() !== args[2].toUpperCase())
@@ -14586,17 +15784,17 @@
       let num = "";
       let idx = 0;
       let c;
-      let i;
+      let i2;
       let t;
       let p;
       let n = 0;
       const tl = str.length;
       for (; idx < tl; idx++) {
         c = str.charAt(idx);
-        i = str.charCodeAt(idx);
+        i2 = str.charCodeAt(idx);
         switch (state) {
           case 1:
-            if (i > 47 && i < 58)
+            if (i2 > 47 && i2 < 58)
               num += c;
             else if (c === "\\")
               state = 2;
@@ -14606,7 +15804,7 @@
             }
             break;
           case 2:
-            if (i > 47 && i < 58)
+            if (i2 > 47 && i2 < 58)
               cmd += c;
             else {
               cmd += "\\";
@@ -14637,7 +15835,7 @@
             }
             break;
           default:
-            if (i > 47 && i < 58) {
+            if (i2 > 47 && i2 < 58) {
               if (cmd.length > 0) {
                 if (num.length === 0)
                   t = 1;
@@ -14760,11 +15958,11 @@
         return 32 /* Alarm */;
       return type;
     }
-    ExecuteTriggers(type, line, raw, frag, ret, subtypes) {
-      if (!this.enableTriggers || line == null) return line;
+    ExecuteTriggers(type, line2, raw, frag, ret, subtypes) {
+      if (!this.enableTriggers || line2 == null) return line2;
       if (ret == null) ret = false;
       if (frag == null) frag = false;
-      raw = raw || line;
+      raw = raw || line2;
       this.buildTriggerCache();
       let t = 0;
       let pattern;
@@ -14863,27 +16061,27 @@
                   states[t] = state;
               } else if (states[t].loop !== -1 && states[t].lineCount < 1)
                 continue;
-              this._LastTriggered = trigger.raw ? raw : line;
+              this._LastTriggered = trigger.raw ? raw : line2;
               val = this.ExecuteTrigger(trigger, [this._LastTriggered], ret, t, [this._LastTriggered], 0, parent);
             } else {
               this.advanceTrigger(trigger, parent, t);
               continue;
             }
           } else if (trigger.verbatim) {
-            if (!trigger.caseSensitive && (trigger.raw ? raw : line).toLowerCase() !== trigger.pattern.toLowerCase()) {
+            if (!trigger.caseSensitive && (trigger.raw ? raw : line2).toLowerCase() !== trigger.pattern.toLowerCase()) {
               if (!states[t] && (trigger.type === 131072 /* ReParse */ || trigger.type === 262144 /* ReParsePattern */)) {
                 this.advanceTrigger(trigger, parent, t);
                 t = this.cleanUpTriggerState(t);
               }
               continue;
-            } else if (trigger.caseSensitive && (trigger.raw ? raw : line) !== trigger.pattern) {
+            } else if (trigger.caseSensitive && (trigger.raw ? raw : line2) !== trigger.pattern) {
               if (!states[t] && (trigger.type === 131072 /* ReParse */ || trigger.type === 262144 /* ReParsePattern */)) {
                 this.advanceTrigger(trigger, parent, t);
                 t = this.cleanUpTriggerState(t);
               }
               continue;
             }
-            this._LastTriggered = trigger.raw ? raw : line;
+            this._LastTriggered = trigger.raw ? raw : line2;
             val = this.ExecuteTrigger(trigger, [this._LastTriggered], ret, t, [this._LastTriggered], 0, parent);
           } else {
             let re;
@@ -14896,7 +16094,7 @@
             else
               re = rCache["gi" + pattern] || (rCache["gi" + pattern] = new RegExp(pattern, "gid"));
             re.lastIndex = 0;
-            const res = re.exec(trigger.raw ? raw : line);
+            const res = re.exec(trigger.raw ? raw : line2);
             if (!res || !res.length) {
               if (!states[t] && (trigger.type === 131072 /* ReParse */ || trigger.type === 262144 /* ReParsePattern */)) {
                 this.advanceTrigger(trigger, parent, t);
@@ -14905,8 +16103,8 @@
               continue;
             }
             let args;
-            this._LastTriggered = trigger.raw ? raw : line;
-            if ((trigger.raw ? raw : line) === res[0] || !this.client.getOption("prependTriggeredLine"))
+            this._LastTriggered = trigger.raw ? raw : line2;
+            if ((trigger.raw ? raw : line2) === res[0] || !this.client.getOption("prependTriggeredLine"))
               args = res;
             else {
               args = [this._LastTriggered, ...res];
@@ -14937,27 +16135,27 @@
             this.client.debug(e);
         }
       }
-      return line;
+      return line2;
     }
-    TestTrigger(trigger, parent, t, line, raw, frag) {
+    TestTrigger(trigger, parent, t, line2, raw, frag) {
       let val;
       let pattern;
       try {
         if (trigger.verbatim) {
-          if (!trigger.caseSensitive && (trigger.raw ? raw : line).toLowerCase() !== trigger.pattern.toLowerCase()) {
+          if (!trigger.caseSensitive && (trigger.raw ? raw : line2).toLowerCase() !== trigger.pattern.toLowerCase()) {
             if (!this._TriggerStates[t]) {
               this.advanceTrigger(trigger, parent, t);
               t = this.cleanUpTriggerState(t);
             }
             return t;
-          } else if (trigger.caseSensitive && (trigger.raw ? raw : line) !== trigger.pattern) {
+          } else if (trigger.caseSensitive && (trigger.raw ? raw : line2) !== trigger.pattern) {
             if (!this._TriggerStates[t]) {
               this.advanceTrigger(trigger, parent, t);
               t = this.cleanUpTriggerState(t);
             }
             return t;
           }
-          this._LastTriggered = trigger.raw ? raw : line;
+          this._LastTriggered = trigger.raw ? raw : line2;
           val = this.ExecuteTrigger(trigger, [this._LastTriggered], false, t, [this._LastTriggered], 0, parent);
         } else {
           let re;
@@ -14970,7 +16168,7 @@
           else
             re = this._TriggerRegExCache["gi" + pattern] || (this._TriggerRegExCache["gi" + pattern] = new RegExp(pattern, "gid"));
           re.lastIndex = 0;
-          const res = re.exec(trigger.raw ? raw : line);
+          const res = re.exec(trigger.raw ? raw : line2);
           if (!res || !res.length) {
             if (!this._TriggerStates[t] && (trigger.type === 131072 /* ReParse */ || trigger.type === 262144 /* ReParsePattern */)) {
               this.advanceTrigger(trigger, parent, t);
@@ -14979,8 +16177,8 @@
             return t;
           }
           let args;
-          this._LastTriggered = trigger.raw ? raw : line;
-          if ((trigger.raw ? raw : line) === res[0] || !this.client.getOption("prependTriggeredLine"))
+          this._LastTriggered = trigger.raw ? raw : line2;
+          if ((trigger.raw ? raw : line2) === res[0] || !this.client.getOption("prependTriggeredLine"))
             args = res;
           else {
             args = [this._LastTriggered, ...res];
@@ -15373,16 +16571,16 @@
       this._lastSuspend = -1;
       this._MacroCache = {};
     }
-    triggerEvent(event, args) {
+    triggerEvent(event2, args) {
       if (!this.enableTriggers) return;
       this.buildTriggerCache();
       let t = 0;
       if (!args)
-        args = [event];
+        args = [event2];
       else if (!Array.isArray(args))
-        args = [event, args];
+        args = [event2, args];
       else
-        args.unshift(event);
+        args.unshift(event2);
       const tl = this._TriggerCache.length;
       for (; t < tl; t++) {
         let trigger = this._TriggerCache[t];
@@ -15415,14 +16613,14 @@
         }
         if (trigger.type === 131072 /* ReParse */ || trigger.type === 262144 /* ReParsePattern */) {
           const val = this.adjustLastLine(this.client.display.lines.length, true);
-          const line = this.client.display.lines[val];
-          t = this.TestTrigger(trigger, parent, t, line, this.client.display.lines[val].raw || line, val === this.client.display.lines.length - 1);
+          const line2 = this.client.display.lines[val];
+          t = this.TestTrigger(trigger, parent, t, line2, this.client.display.lines[val].raw || line2, val === this.client.display.lines.length - 1);
           continue;
         }
         if (trigger.type !== 2 /* Event */) continue;
-        if (trigger.caseSensitive && event !== trigger.pattern) continue;
-        if (!trigger.caseSensitive && event.toLowerCase() !== trigger.pattern.toLowerCase()) continue;
-        this._LastTriggered = event;
+        if (trigger.caseSensitive && event2 !== trigger.pattern) continue;
+        if (!trigger.caseSensitive && event2.toLowerCase() !== trigger.pattern.toLowerCase()) continue;
+        this._LastTriggered = event2;
         this.ExecuteTrigger(trigger, args, false, t, 0, 0, parent);
         t = this.cleanUpTriggerState(t);
       }
@@ -15453,25 +16651,25 @@
         lines = str.splitQuote("\n" + this.client.getOption("commandStackingChar"));
       else
         lines = str.splitQuote("\n");
-      let l = 0;
+      let l2 = 0;
       const ll = lines.length;
       const code = [];
       const b = [];
       const cmdChar = this.client.getOption("commandChar");
-      for (; l < ll; l++) {
-        if (lines[l].trim().startsWith(cmdChar + "wait ")) {
+      for (; l2 < ll; l2++) {
+        if (lines[l2].trim().startsWith(cmdChar + "wait ")) {
           code.push("setTimeout(()=> {");
-          b.unshift(parseInt(lines[l].trim().substr(5), 10) || 0);
+          b.unshift(parseInt(lines[l2].trim().substr(5), 10) || 0);
         } else {
           code.push("client.sendCommand('");
-          code.push(lines[l]);
+          code.push(lines[l2]);
           code.push("\\n');");
         }
       }
       const bl = b.length;
-      for (l = 0; l < bl; l++) {
+      for (l2 = 0; l2 < bl; l2++) {
         code.push("}, ");
-        code.push(b[l]);
+        code.push(b[l2]);
         code.push(");");
       }
       return code.join("");
@@ -15807,13 +17005,13 @@
       else {
         const xEnd = item.hasOwnProperty("xEnd") && item.xEnd >= 0 ? item.xEnd : null;
         const xStart = item.xStart;
-        let line = n - item.yStart;
+        let line2 = n - item.yStart;
         let end = n;
         if (item.hasOwnProperty("yEnd"))
           end = n - item.yEnd;
-        while (line <= end) {
-          this.client.display.colorSubStringByLine(line, fore, back, xStart, xEnd);
-          line++;
+        while (line2 <= end) {
+          this.client.display.colorSubStringByLine(line2, fore, back, xStart, xEnd);
+          line2++;
         }
       }
     }
@@ -16012,9 +17210,9 @@
         }
       }
     ];
-    for (var i = 0, cl = color_defs.length; i < cl; i++) {
-      var re = color_defs[i].re;
-      var processor = color_defs[i].process;
+    for (var i2 = 0, cl = color_defs.length; i2 < cl; i2++) {
+      var re = color_defs[i2].re;
+      var processor = color_defs[i2].process;
       var bits = re.exec(color_string);
       if (bits) {
         var channels = processor(bits);
@@ -16318,11 +17516,11 @@
     ProcessAnsiColorParams(params) {
       let p = 0;
       const pl = params.length;
-      let i;
+      let i2;
       let rgb;
       for (; p < pl; p++) {
-        i = +params[p] || 0;
-        switch (i) {
+        i2 = +params[p] || 0;
+        switch (i2) {
           case 0:
             this.ResetColors();
             break;
@@ -16418,7 +17616,7 @@
           case 36:
           //set foreground color to cyan
           case 37:
-            this._CurrentForeColor = i;
+            this._CurrentForeColor = i2;
             break;
           case 38:
             if (p + 2 < pl && params[p + 1] === "5") {
@@ -16431,18 +17629,18 @@
               }
               p += 2;
             } else if (p + 4 < pl && params[p + 1] === "2") {
-              i = +params[p + 2] || 0;
-              if (i < 0 || i > 255)
+              i2 = +params[p + 2] || 0;
+              if (i2 < 0 || i2 > 255)
                 continue;
-              rgb = i + ";";
-              i = +params[p + 3] || 0;
-              if (i < 0 || i > 255)
+              rgb = i2 + ";";
+              i2 = +params[p + 3] || 0;
+              if (i2 < 0 || i2 > 255)
                 continue;
-              rgb += i + ";";
-              i = +params[p + 4] || 0;
-              if (i < 0 || i > 255)
+              rgb += i2 + ";";
+              i2 = +params[p + 4] || 0;
+              if (i2 < 0 || i2 > 255)
                 continue;
-              rgb += i;
+              rgb += i2;
               this._CurrentForeColor = rgb;
               p += 4;
             }
@@ -16462,7 +17660,7 @@
           case 45:
           case 46:
           case 47:
-            this._CurrentBackColor = i;
+            this._CurrentBackColor = i2;
             break;
           case 48:
             if (p + 2 < pl && params[p + 1] === "5") {
@@ -16475,18 +17673,18 @@
               }
               p += 2;
             } else if (p + 4 < pl && params[p + 1] === "2") {
-              i = +params[p + 2] || 0;
-              if (i < 0 || i > 255)
+              i2 = +params[p + 2] || 0;
+              if (i2 < 0 || i2 > 255)
                 continue;
-              rgb = i + ";";
-              i = +params[p + 3] || 0;
-              if (i < 0 || i > 255)
+              rgb = i2 + ";";
+              i2 = +params[p + 3] || 0;
+              if (i2 < 0 || i2 > 255)
                 continue;
-              rgb += i + ";";
-              i = +params[p + 4] || 0;
-              if (i < 0 || i > 255)
+              rgb += i2 + ";";
+              i2 = +params[p + 4] || 0;
+              if (i2 < 0 || i2 > 255)
                 continue;
-              rgb += i;
+              rgb += i2;
               this._CurrentBackColor = rgb;
               p += 4;
             }
@@ -16517,7 +17715,7 @@
           case 58:
           //Reserved
           case 59:
-            this._CurrentForeColor = i - 20;
+            this._CurrentForeColor = i2 - 20;
             this._CurrentAttributes |= 1 /* Bold */;
             break;
           //xterm 16 but color
@@ -16531,7 +17729,7 @@
           case 95:
           case 96:
           case 97:
-            this._CurrentForeColor = i;
+            this._CurrentForeColor = i2;
             break;
           case 100:
           case 101:
@@ -16541,7 +17739,7 @@
           case 105:
           case 106:
           case 107:
-            this._CurrentBackColor = i;
+            this._CurrentBackColor = i2;
             break;
         }
       }
@@ -16794,19 +17992,19 @@
       if (!color.ok) return;
       this._ColorTable[code] = color.toRGB();
     }
-    AddLine(line, raw, fragment, skip, formats, remote) {
-      const data = { raw, line, fragment, gagged: skip, formats: this.pruneFormats(formats, line.length, fragment), remote };
+    AddLine(line2, raw, fragment, skip, formats, remote) {
+      const data = { raw, line: line2, fragment, gagged: skip, formats: this.pruneFormats(formats, line2.length, fragment), remote };
       this.emit("add-line", data);
       this.EndOfLine = !fragment;
     }
     pruneFormats(formats, textLen, fragment) {
       if (!formats || formats.length < 2) return formats;
-      const l = formats.length;
+      const l2 = formats.length;
       const nF = [];
-      for (let f = 0; f < l; f++) {
+      for (let f = 0; f < l2; f++) {
         const format = formats[f];
         let end;
-        if (f < l - 1) {
+        if (f < l2 - 1) {
           const nFormat = formats[f + 1];
           if (format.offset === nFormat.offset && nFormat.formatType === format.formatType)
             continue;
@@ -16888,7 +18086,7 @@
       let sArg;
       let sArgs;
       let color;
-      let x;
+      let x2;
       let xl = args.length;
       let e;
       let sl;
@@ -16955,8 +18153,8 @@
           tmp = this.CloneCurrentStyle();
           tmp.open = true;
           tmp.tag = MXPTag[tag];
-          for (x = 0; x < xl; x++) {
-            arg = args[x].split("=");
+          for (x2 = 0; x2 < xl; x2++) {
+            arg = args[x2].split("=");
             if (arg.length > 1) {
               switch (arg[0].toUpperCase()) {
                 case "SIZE":
@@ -17012,18 +18210,18 @@
                   if (this.enableDebug) this.emit("debug", "Invalid Argument for " + tag + ": " + arg[0]);
                   break;
               }
-            } else if (x === 0) {
-              tmp.font = stripQuotes(args[x]) || 0;
-            } else if (x === 1) {
-              if (this.isNumber(args[x]))
-                tmp.fontSize = args[x] + "pt";
+            } else if (x2 === 0) {
+              tmp.font = stripQuotes(args[x2]) || 0;
+            } else if (x2 === 1) {
+              if (this.isNumber(args[x2]))
+                tmp.fontSize = args[x2] + "pt";
               else
-                tmp.fontSize = args[x] || 0;
-            } else if (x === 2) {
-              color = new RGBColor(stripQuotes(args[x]));
+                tmp.fontSize = args[x2] || 0;
+            } else if (x2 === 2) {
+              color = new RGBColor(stripQuotes(args[x2]));
               if (color.ok) tmp.fore = color.toRGB();
-            } else if (x === 3) {
-              color = new RGBColor(stripQuotes(args[x]));
+            } else if (x2 === 3) {
+              color = new RGBColor(stripQuotes(args[x2]));
               if (color.ok) tmp.back = color.toRGB();
             }
           }
@@ -17100,8 +18298,8 @@
               align: "bottom",
               ismap: false
             };
-            for (x = 0; x < xl; x++) {
-              arg = args[x].split("=");
+            for (x2 = 0; x2 < xl; x2++) {
+              arg = args[x2].split("=");
               switch (arg[0].toUpperCase()) {
                 case "FNAME":
                   e.name = stripQuotes(arg[1]);
@@ -17135,22 +18333,22 @@
                   e.ismap = true;
                   break;
                 default:
-                  if (x === 0)
-                    e.name = stripQuotes(args[x]);
-                  else if (x === 1)
-                    e.url = stripQuotes(args[x]);
-                  else if (x === 2 && args[x].length > 0)
-                    e.type = args[x];
-                  else if (x === 3)
-                    e.h = stripQuotes(args[x]);
-                  else if (x === 4)
-                    e.w = stripQuotes(args[x]);
-                  else if (x === 5)
-                    e.hspace = args[x];
-                  else if (x === 6)
-                    e.vspace = args[x];
-                  else if (x === 7)
-                    e.align = args[x].toLowerCase();
+                  if (x2 === 0)
+                    e.name = stripQuotes(args[x2]);
+                  else if (x2 === 1)
+                    e.url = stripQuotes(args[x2]);
+                  else if (x2 === 2 && args[x2].length > 0)
+                    e.type = args[x2];
+                  else if (x2 === 3)
+                    e.h = stripQuotes(args[x2]);
+                  else if (x2 === 4)
+                    e.w = stripQuotes(args[x2]);
+                  else if (x2 === 5)
+                    e.hspace = args[x2];
+                  else if (x2 === 6)
+                    e.vspace = args[x2];
+                  else if (x2 === 7)
+                    e.align = args[x2].toLowerCase();
                   break;
               }
             }
@@ -17163,8 +18361,8 @@
               return null;
             this.mxpElements[e].attributes = {};
             this.mxpElements[e].attributeIndexes = [];
-            for (x = 1; x < xl; x++) {
-              sArgs = args[x].split("=");
+            for (x2 = 1; x2 < xl; x2++) {
+              sArgs = args[x2].split("=");
               if (sArgs.length > 1)
                 this.mxpElements[e].attributes[sArgs[0].toLowerCase()] = sArgs[1];
               else
@@ -17175,8 +18373,8 @@
           case "!TAG":
             e = new Tag();
             e.remote = remote;
-            for (x = 0; x < xl; x++) {
-              arg = args[x].split("=");
+            for (x2 = 0; x2 < xl; x2++) {
+              arg = args[x2].split("=");
               switch (arg[0].toUpperCase()) {
                 case "WINDOWNAME":
                   e.window = stripQuotes(arg[1]);
@@ -17199,16 +18397,16 @@
                   e.enabled = false;
                   break;
                 default:
-                  if (x === 0) {
-                    tmp = +args[x];
+                  if (x2 === 0) {
+                    tmp = +args[x2];
                     if (!isNaN(tmp)) e.index = tmp;
-                  } else if (x === 1)
-                    e.window = stripQuotes(args[x]);
-                  else if (x === 2) {
-                    color = new RGBColor(stripQuotes(args[x]));
+                  } else if (x2 === 1)
+                    e.window = stripQuotes(args[x2]);
+                  else if (x2 === 2) {
+                    color = new RGBColor(stripQuotes(args[x2]));
                     if (color.ok) e.fore = color.toRGB();
-                  } else if (x === 3) {
-                    color = new RGBColor(stripQuotes(args[x]));
+                  } else if (x2 === 3) {
+                    color = new RGBColor(stripQuotes(args[x2]));
                     if (color.ok) e.back = color.toRGB();
                   }
                   break;
@@ -17231,9 +18429,9 @@
           case "!EL":
           case "!ELEMENT":
             e = new Element(remote);
-            for (x = 0; x < xl; x++) {
-              if (args[x].toUpperCase().startsWith("ATT=")) {
-                arg = stripQuotes(args[x]).substring(4).split(" ");
+            for (x2 = 0; x2 < xl; x2++) {
+              if (args[x2].toUpperCase().startsWith("ATT=")) {
+                arg = stripQuotes(args[x2]).substring(4).split(" ");
                 for (s = 0, sl = arg.length; s < sl; s++) {
                   sArgs = stripQuotes(arg[s]).split("=");
                   if (sArgs.length > 1)
@@ -17244,7 +18442,7 @@
                 }
                 continue;
               }
-              arg = args[x].split("=");
+              arg = args[x2].split("=");
               switch (arg[0].toUpperCase()) {
                 case "TAG":
                   tmp = +arg[1];
@@ -17272,14 +18470,14 @@
                   e.open = false;
                   break;
                 default:
-                  if (x === 0)
-                    e.name = stripQuotes(args[x]).toUpperCase();
-                  else if (x === 1) {
-                    e.definition = stripQuotes(args[x]);
+                  if (x2 === 0)
+                    e.name = stripQuotes(args[x2]).toUpperCase();
+                  else if (x2 === 1) {
+                    e.definition = stripQuotes(args[x2]);
                     e.closeDefinition = this.GetCloseTags(e.definition);
                     if (this.enableDebug) this.emit("debug", "MXP close definition: " + e.closeDefinition);
-                  } else if (x === 2) {
-                    arg = args[x].substring(4).split(" ");
+                  } else if (x2 === 2) {
+                    arg = args[x2].substring(4).split(" ");
                     for (s = 0, sl = arg.length; s < sl; s++) {
                       sArgs = arg[s].split("=");
                       if (sArgs.length > 1)
@@ -17288,11 +18486,11 @@
                         e.attributes[sArgs[0]] = "";
                       e.attributeIndexes.push(sArgs[0]);
                     }
-                  } else if (x === 3) {
-                    tmp = +args[x];
+                  } else if (x2 === 3) {
+                    tmp = +args[x2];
                     if (!isNaN(tmp)) e.tag = tmp;
-                  } else if (x === 4)
-                    e.flag = stripQuotes(args[x]);
+                  } else if (x2 === 4)
+                    e.flag = stripQuotes(args[x2]);
                   break;
               }
             }
@@ -17314,8 +18512,8 @@
           case "!EN":
           case "!ENTITY":
             e = new Entity(remote);
-            for (x = 0; x < xl; x++) {
-              arg = args[x].split("=");
+            for (x2 = 0; x2 < xl; x2++) {
+              arg = args[x2].split("=");
               switch (arg[0].toUpperCase()) {
                 case "DESC":
                   e.description = stripQuotes(arg[1]);
@@ -17353,12 +18551,12 @@
                   }
                   return null;
                 default:
-                  if (x === 0)
-                    e.name = stripQuotes(args[x]);
-                  else if (x === 1)
-                    e.value = stripQuotes(args[x]);
-                  else if (x === 2)
-                    e.description = stripQuotes(args[x]);
+                  if (x2 === 0)
+                    e.name = stripQuotes(args[x2]);
+                  else if (x2 === 1)
+                    e.value = stripQuotes(args[x2]);
+                  else if (x2 === 2)
+                    e.description = stripQuotes(args[x2]);
                   break;
               }
             }
@@ -17380,8 +18578,8 @@
             if (this.enableDebug) this.emit("debug", "MXP captured: " + e.value);
             args = tmp.obj;
             xl = args.length;
-            for (x = 0; x < xl; x++) {
-              arg = args[x].split("=");
+            for (x2 = 0; x2 < xl; x2++) {
+              arg = args[x2].split("=");
               switch (arg[0].toUpperCase()) {
                 case "DESC":
                   e.description = stripQuotes(arg[1]);
@@ -17419,10 +18617,10 @@
                   }
                   return null;
                 default:
-                  if (x === 0)
-                    e.name = stripQuotes(args[x]);
-                  else if (x === 1)
-                    e.description = stripQuotes(args[x]);
+                  if (x2 === 0)
+                    e.name = stripQuotes(args[x2]);
+                  else if (x2 === 1)
+                    e.description = stripQuotes(args[x2]);
                   break;
               }
             }
@@ -17445,8 +18643,8 @@
             return null;
           case "GAUGE":
             e = { value: 0, max: 1, caption: "", color: 0 };
-            for (x = 0; x < xl; x++) {
-              arg = args[x].split("=");
+            for (x2 = 0; x2 < xl; x2++) {
+              arg = args[x2].split("=");
               if (arg.length > 1) {
                 switch (arg[0].toUpperCase()) {
                   case "VALUE":
@@ -17470,19 +18668,19 @@
                     if (color.ok) e.color = color.toRGB();
                     break;
                 }
-              } else if (x === 0) {
-                tmp = parseFloat(this.GetEntity(args[x]));
+              } else if (x2 === 0) {
+                tmp = parseFloat(this.GetEntity(args[x2]));
                 if (isNaN(tmp))
-                  tmp = this.GetEntity(args[x]);
+                  tmp = this.GetEntity(args[x2]);
                 e.value = tmp;
-              } else if (x === 1) {
-                tmp = parseFloat(this.GetEntity(args[x]));
+              } else if (x2 === 1) {
+                tmp = parseFloat(this.GetEntity(args[x2]));
                 if (isNaN(tmp))
-                  tmp = this.GetEntity(args[x]);
+                  tmp = this.GetEntity(args[x2]);
                 e.max = tmp;
-              } else if (x === 2 && args[x].length > 0)
-                e.caption = stripQuotes(args[x]);
-              else if (x === 3 && args[x].length > 0) {
+              } else if (x2 === 2 && args[x2].length > 0)
+                e.caption = stripQuotes(args[x2]);
+              else if (x2 === 3 && args[x2].length > 0) {
                 color = new RGBColor(stripQuotes(arg[1]));
                 if (color.ok) e.color = color.toRGB();
               }
@@ -17492,8 +18690,8 @@
             break;
           case "STAT":
             e = { value: 0, max: 1, caption: "" };
-            for (x = 0; x < xl; x++) {
-              arg = args[x].split("=");
+            for (x2 = 0; x2 < xl; x2++) {
+              arg = args[x2].split("=");
               if (arg.length > 1) {
                 switch (arg[0].toUpperCase()) {
                   case "VALUE":
@@ -17513,26 +18711,26 @@
                       e.caption = stripQuotes(arg[1]);
                     break;
                 }
-              } else if (x === 0) {
-                tmp = parseFloat(this.GetEntity(args[x]));
+              } else if (x2 === 0) {
+                tmp = parseFloat(this.GetEntity(args[x2]));
                 if (isNaN(tmp))
-                  tmp = this.GetEntity(args[x]);
+                  tmp = this.GetEntity(args[x2]);
                 e.value = tmp;
-              } else if (x === 1) {
-                tmp = parseFloat(this.GetEntity(args[x]));
+              } else if (x2 === 1) {
+                tmp = parseFloat(this.GetEntity(args[x2]));
                 if (isNaN(tmp))
-                  tmp = this.GetEntity(args[x]);
+                  tmp = this.GetEntity(args[x2]);
                 e.max = tmp;
-              } else if (x === 2 && args[x].length > 0)
-                e.caption = stripQuotes(args[x]);
+              } else if (x2 === 2 && args[x2].length > 0)
+                e.caption = stripQuotes(args[x2]);
             }
             this.mxpState.expanded = false;
             this.emit("stat", e);
             break;
           case "MUSIC":
             e = { off: false, file: "", url: "", volume: 100, repeat: 1, priority: 50, type: "", continue: true };
-            for (x = 0; x < xl; x++) {
-              arg = args[x].split("=");
+            for (x2 = 0; x2 < xl; x2++) {
+              arg = args[x2].split("=");
               if (arg.length > 1) {
                 switch (arg[0].toUpperCase()) {
                   case "FNAME":
@@ -17567,29 +18765,29 @@
                       e.url += "/";
                     break;
                 }
-              } else if (x === 0) {
-                e.file = stripQuotes(args[x]);
+              } else if (x2 === 0) {
+                e.file = stripQuotes(args[x2]);
                 if (e.file.toLowerCase() === "off") {
                   e.off = true;
                   e.file = "";
                 }
-              } else if (x === 1) {
-                tmp = +args[x];
+              } else if (x2 === 1) {
+                tmp = +args[x2];
                 if (isNaN(tmp))
                   tmp = 100;
                 e.volume = tmp;
-              } else if (x === 2) {
-                tmp = +args[x];
+              } else if (x2 === 2) {
+                tmp = +args[x2];
                 if (isNaN(tmp))
                   tmp = 1;
                 e.repeat = tmp;
-              } else if (x === 3)
-                e.continue = args[x] !== "0";
-              else if (x === 4) {
-                if (args[x].length > 0)
-                  e.type = args[x];
-              } else if (x === 5) {
-                e.url = stripQuotes(args[x]);
+              } else if (x2 === 3)
+                e.continue = args[x2] !== "0";
+              else if (x2 === 4) {
+                if (args[x2].length > 0)
+                  e.type = args[x2];
+              } else if (x2 === 5) {
+                e.url = stripQuotes(args[x2]);
                 if (!e.url.endsWith("/") && e.url.length > 0)
                   e.url += "/";
               }
@@ -17598,8 +18796,8 @@
             break;
           case "SOUND":
             e = { off: false, file: "", url: "", volume: 100, repeat: 1, priority: 50, type: "", continue: true };
-            for (x = 0; x < xl; x++) {
-              arg = args[x].split("=");
+            for (x2 = 0; x2 < xl; x2++) {
+              arg = args[x2].split("=");
               if (arg.length > 1) {
                 switch (arg[0].toUpperCase()) {
                   case "FNAME":
@@ -17637,32 +18835,32 @@
                       e.url += "/";
                     break;
                 }
-              } else if (x === 0) {
-                e.file = stripQuotes(args[x]);
+              } else if (x2 === 0) {
+                e.file = stripQuotes(args[x2]);
                 if (e.file.toLowerCase() === "off") {
                   e.off = true;
                   e.file = "";
                 }
-              } else if (x === 1) {
-                tmp = +args[x];
+              } else if (x2 === 1) {
+                tmp = +args[x2];
                 if (isNaN(tmp))
                   tmp = 100;
                 e.volume = tmp;
-              } else if (x === 2) {
-                tmp = +args[x];
+              } else if (x2 === 2) {
+                tmp = +args[x2];
                 if (isNaN(tmp))
                   tmp = 1;
                 e.repeat = tmp;
-              } else if (x === 3) {
-                tmp = +args[x];
+              } else if (x2 === 3) {
+                tmp = +args[x2];
                 if (isNaN(tmp))
                   tmp = 1;
                 e.priority = tmp;
-              } else if (x === 4) {
-                if (args[x].length > 0)
-                  e.type = args[x];
-              } else if (x === 5) {
-                e.url = stripQuotes(args[x]);
+              } else if (x2 === 4) {
+                if (args[x2].length > 0)
+                  e.type = args[x2];
+              } else if (x2 === 5) {
+                e.url = stripQuotes(args[x2]);
                 if (!e.url.endsWith("/") && e.url.length > 0)
                   e.url += "/";
               }
@@ -17686,8 +18884,8 @@
           case "SUPPORT":
             sArgs = [];
             if (xl > 0) {
-              for (x = 0; x < xl; x++) {
-                arg = stripQuotes(args[x]);
+              for (x2 = 0; x2 < xl; x2++) {
+                arg = stripQuotes(args[x2]);
                 if (arg.indexOf(".") === -1) {
                   arg = arg.toUpperCase();
                   switch (arg) {
@@ -17740,7 +18938,7 @@
                       break;
                   }
                 } else {
-                  arg = args[x].split(".");
+                  arg = args[x2].split(".");
                   arg[0] = arg[0].toUpperCase();
                   switch (arg[0]) {
                     case "IMAGE":
@@ -17865,8 +19063,8 @@
             tmp = this.CloneCurrentStyle();
             tmp.open = false;
             tmp.tag = MXPTag[tag];
-            for (x = 0; x < xl; x++) {
-              arg = args[x].split("=");
+            for (x2 = 0; x2 < xl; x2++) {
+              arg = args[x2].split("=");
               if (arg.length > 1) {
                 switch (arg[0].toUpperCase()) {
                   case "HREF":
@@ -17882,12 +19080,12 @@
                     if (this.enableDebug) this.emit("debug", "Invalid Argument for " + tag + ": " + arg[0]);
                     break;
                 }
-              } else if (x === 0)
-                href = stripQuotes(args[x]);
-              else if (x === 1)
-                hint = stripQuotes(args[x]);
-              else if (x === 2)
-                expire = stripQuotes(args[x]);
+              } else if (x2 === 0)
+                href = stripQuotes(args[x2]);
+              else if (x2 === 1)
+                hint = stripQuotes(args[x2]);
+              else if (x2 === 2)
+                expire = stripQuotes(args[x2]);
             }
             tmp.custom = "";
             tmp.properties = {
@@ -17912,8 +19110,8 @@
             tmp = this.CloneCurrentStyle();
             tmp.open = false;
             tmp.tag = MXPTag[tag];
-            for (x = 0; x < xl; x++) {
-              arg = args[x].split("=");
+            for (x2 = 0; x2 < xl; x2++) {
+              arg = args[x2].split("=");
               if (arg[0] === "PROMPT")
                 prompt = true;
               else if (arg.length > 1) {
@@ -17934,14 +19132,14 @@
                     if (this.enableDebug) this.emit("debug", "Invalid Argument for " + tag + ": " + arg[0]);
                     break;
                 }
-              } else if (x === 0)
-                href = stripQuotes(args[x]);
-              else if (x === 1)
-                hint = stripQuotes(args[x]);
-              else if (x === 2)
+              } else if (x2 === 0)
+                href = stripQuotes(args[x2]);
+              else if (x2 === 1)
+                hint = stripQuotes(args[x2]);
+              else if (x2 === 2)
                 prompt = true;
-              else if (x === 3)
-                expire = stripQuotes(args[x]);
+              else if (x2 === 3)
+                expire = stripQuotes(args[x2]);
             }
             tmp.custom = "";
             this.mxpStyles.push(tmp);
@@ -18070,13 +19268,13 @@
         sArgs = {};
         for (s = 0, sl = e.attributeIndexes.length; s < sl; s++)
           sArgs[e.attributeIndexes[s]] = e.attributes[e.attributeIndexes[s]];
-        for (x = 0; x < xl; x++) {
-          sArg = args[x].split("=");
+        for (x2 = 0; x2 < xl; x2++) {
+          sArg = args[x2].split("=");
           sArg[0] = sArg[0].toLowerCase();
           if (e.attributes[sArg[0]])
             sArgs[sArg[0]] = sArg[1];
-          else if (x < e.attributeIndexes.length)
-            sArgs[e.attributeIndexes[x]] = sArg[0];
+          else if (x2 < e.attributeIndexes.length)
+            sArgs[e.attributeIndexes[x2]] = sArg[0];
         }
         for (sArg in sArgs) {
           if (!sArgs.hasOwnProperty(sArg)) continue;
@@ -18286,15 +19484,15 @@
     MXPCapture(str) {
       if (this.mxpState.capture < 1) return;
       const il = this.mxpState.captured.length;
-      for (let i = 0; i < il; i++)
-        this.mxpState.captured[i].push(str);
+      for (let i2 = 0; i2 < il; i2++)
+        this.mxpState.captured[i2].push(str);
     }
     MXPDeCapture(cnt) {
       if (this.mxpState.capture < 1) return;
       const il = this.mxpState.captured.length;
-      for (let i = 0; i < il; i++) {
+      for (let i2 = 0; i2 < il; i2++) {
         for (let p = 0; p < cnt; p++)
-          this.mxpState.captured[i].pop();
+          this.mxpState.captured[i2].pop();
       }
     }
     isNumber(str) {
@@ -18426,9 +19624,9 @@
       let idx = 0;
       let tl = text.length;
       let c;
-      let i;
+      let i2;
       const e = this.emulateControlCodes;
-      const d = this.displayControlCodes;
+      const d2 = this.displayControlCodes;
       const f = this.emulateTerminal;
       const u = this.enableURLDetection;
       const s = this.enableMSP;
@@ -18443,7 +19641,7 @@
       try {
         for (idx = 0; idx < tl; idx++) {
           c = text.charAt(idx);
-          i = text.charCodeAt(idx);
+          i2 = text.charCodeAt(idx);
           if (idx >= mOffset)
             rawBuilder.push(c);
           this.rawLength++;
@@ -18563,7 +19761,7 @@
                     stringBuilder = [];
                     rawBuilder = [];
                     formatBuilder = [...this.getMXPOpenFormatBlocks(), format = this.getFormatBlock(lineLength), ...this.getMXPCloseFormatBlocks()];
-                    for (let j = 0; j < iTmp; j++) {
+                    for (let j2 = 0; j2 < iTmp; j2++) {
                       this.AddLine("", "\n", false, false, formatBuilder, remote);
                       this.MXPCapture("\n");
                     }
@@ -18595,7 +19793,7 @@
               }
               break;
             case 3 /* XTermTitle */:
-              if (i === 7) {
+              if (i2 === 7) {
                 this._SplitBuffer = "";
                 this.emit("set-title", _TermTitle, _TermTitleType == null ? 0 : _TermTitleType);
                 _TermTitle = "";
@@ -18641,14 +19839,14 @@
               *<ESC>#6 Change current line to double-width single-height
               */
               c === "#") {
-                if (d) {
+                if (d2) {
                   stringBuilder.push("\u241B");
-                  if (i < 16) {
-                    stringBuilder.push(String.fromCharCode(parseInt("240" + i.toString(16), 16)));
-                    this.MXPCapture("&#x241B&#x240" + i.toString(16) + ";");
+                  if (i2 < 16) {
+                    stringBuilder.push(String.fromCharCode(parseInt("240" + i2.toString(16), 16)));
+                    this.MXPCapture("&#x241B&#x240" + i2.toString(16) + ";");
                   } else {
-                    stringBuilder.push(String.fromCharCode(parseInt("24" + i.toString(16), 16)));
-                    this.MXPCapture("&#x241B&#x24" + i.toString(16) + ";");
+                    stringBuilder.push(String.fromCharCode(parseInt("24" + i2.toString(16), 16)));
+                    this.MXPCapture("&#x241B&#x24" + i2.toString(16) + ";");
                   }
                   lineLength += 2;
                   this.textLength += 2;
@@ -19054,7 +20252,7 @@
                   this.MXPCapture(c);
                   lineLength++;
                   this.textLength++;
-                  if (i > 255)
+                  if (i2 > 255)
                     format.unicode = true;
                 } else if (lNest.length > 0 && c === "(") {
                   lNest.push(")");
@@ -19062,7 +20260,7 @@
                   this.MXPCapture(c);
                   lineLength++;
                   this.textLength++;
-                  if (i > 255)
+                  if (i2 > 255)
                     format.unicode = true;
                 } else if (lNest.length > 0 && c === "[") {
                   lNest.push("]");
@@ -19070,7 +20268,7 @@
                   this.MXPCapture(c);
                   lineLength++;
                   this.textLength++;
-                  if (i > 255)
+                  if (i2 > 255)
                     format.unicode = true;
                 } else if (lNest.length === 1 && lNest[lNest.length - 1] === c) {
                   if (lLnk !== stringBuilder.length - 1) {
@@ -19097,7 +20295,7 @@
                   rawBuilder.pop();
                   this.rawLength--;
                 } else {
-                  if (i > 255)
+                  if (i2 > 255)
                     format.unicode = true;
                   stringBuilder.push(c);
                   this.MXPCapture(c);
@@ -19161,7 +20359,7 @@
                 _MXPArgs[_MXPArgs.length - 1] += c;
               break;
             default:
-              if (e && i === 7) {
+              if (e && i2 === 7) {
                 if (f) {
                   c = "\u2407";
                   stringBuilder.push(c);
@@ -19169,7 +20367,7 @@
                   lineLength++;
                   this.textLength++;
                   this.mxpState.noBreak = false;
-                } else if (d) {
+                } else if (d2) {
                   stringBuilder.push(c);
                   this.MXPCapture("&#x2407;");
                   lineLength++;
@@ -19193,7 +20391,7 @@
                   lineLength--;
                   this.textLength--;
                 }
-                if (d) {
+                if (d2) {
                   c = "\u25D8";
                   stringBuilder.push(c);
                   this.MXPCapture(c);
@@ -19261,82 +20459,82 @@
               } else if (e && c === "\x1B") {
                 this._SplitBuffer += c;
                 state = 1 /* Ansi */;
-              } else if (i < 32 || i === 127) {
+              } else if (i2 < 32 || i2 === 127) {
                 if (f) {
-                  if (i === 1)
+                  if (i2 === 1)
                     c = "\u263A";
-                  else if (i === 2)
+                  else if (i2 === 2)
                     c = "\u263B";
-                  else if (i === 3)
+                  else if (i2 === 3)
                     c = "\u2665";
-                  else if (i === 4)
+                  else if (i2 === 4)
                     c = "\u2666";
-                  else if (i === 5)
+                  else if (i2 === 5)
                     c = "\u2663";
-                  else if (i === 6)
+                  else if (i2 === 6)
                     c = "\u2660";
-                  else if (i === 7)
+                  else if (i2 === 7)
                     c = "\u2407";
-                  else if (i === 8)
+                  else if (i2 === 8)
                     c = "\u25D8";
-                  else if (i === 9)
+                  else if (i2 === 9)
                     c = "\u25CB";
-                  else if (i === 10)
+                  else if (i2 === 10)
                     c = "\u25D9";
-                  else if (i === 11)
+                  else if (i2 === 11)
                     c = "\u2642";
-                  else if (i === 12)
+                  else if (i2 === 12)
                     c = "\u2640";
-                  else if (i === 13)
+                  else if (i2 === 13)
                     c = "\u266A";
-                  else if (i === 14)
+                  else if (i2 === 14)
                     c = "\u266B";
-                  else if (i === 15)
+                  else if (i2 === 15)
                     c = "\u263C";
-                  else if (i === 16)
+                  else if (i2 === 16)
                     c = "\u25BA";
-                  else if (i === 17)
+                  else if (i2 === 17)
                     c = "\u25C4";
-                  else if (i === 18)
+                  else if (i2 === 18)
                     c = "\u2195";
-                  else if (i === 19)
+                  else if (i2 === 19)
                     c = "\u203C";
-                  else if (i === 20)
+                  else if (i2 === 20)
                     c = "\xB6";
-                  else if (i === 21)
+                  else if (i2 === 21)
                     c = "\xA7";
-                  else if (i === 22)
+                  else if (i2 === 22)
                     c = "\u25AC";
-                  else if (i === 23)
+                  else if (i2 === 23)
                     c = "\u21A8";
-                  else if (i === 24)
+                  else if (i2 === 24)
                     c = "\u2191";
-                  else if (i === 25)
+                  else if (i2 === 25)
                     c = "\u2193";
-                  else if (i === 26)
+                  else if (i2 === 26)
                     c = "\u2192";
-                  else if (i === 27)
+                  else if (i2 === 27)
                     c = "\u2190";
-                  else if (i === 28)
+                  else if (i2 === 28)
                     c = "\u221F";
-                  else if (i === 29)
+                  else if (i2 === 29)
                     c = "\u2194";
-                  else if (i === 30)
+                  else if (i2 === 30)
                     c = "\u25B2";
-                  else if (i === 31)
+                  else if (i2 === 31)
                     c = "\u25BC";
-                  else if (i === 127)
+                  else if (i2 === 127)
                     c = "\u2302";
                   stringBuilder.push(c);
                   this.MXPCapture(c);
                   lineLength++;
                   this.textLength++;
                   this.mxpState.noBreak = false;
-                } else if (d) {
-                  i = 9216 + i;
-                  stringBuilder.push(String.fromCharCode(i));
+                } else if (d2) {
+                  i2 = 9216 + i2;
+                  stringBuilder.push(String.fromCharCode(i2));
                   this.MXPCapture("&#");
-                  this.MXPCapture(i.toString());
+                  this.MXPCapture(i2.toString());
                   this.MXPCapture(";");
                   lineLength++;
                   this.textLength++;
@@ -19474,262 +20672,262 @@
                 idx += 7;
                 this.mxpState.noBreak = false;
               } else {
-                if (f && i > 127 && i < 255) {
-                  if (i === 128)
+                if (f && i2 > 127 && i2 < 255) {
+                  if (i2 === 128)
                     c = "\xC7";
-                  else if (i === 129)
+                  else if (i2 === 129)
                     c = "\xFC";
-                  else if (i === 130)
+                  else if (i2 === 130)
                     c = "\xE9";
-                  else if (i === 131)
+                  else if (i2 === 131)
                     c = "\xE2";
-                  else if (i === 132)
+                  else if (i2 === 132)
                     c = "\xE4";
-                  else if (i === 133)
+                  else if (i2 === 133)
                     c = "\xE0";
-                  else if (i === 134)
+                  else if (i2 === 134)
                     c = "\xE5";
-                  else if (i === 135)
+                  else if (i2 === 135)
                     c = "\xE7";
-                  else if (i === 136)
+                  else if (i2 === 136)
                     c = "\xEA";
-                  else if (i === 137)
+                  else if (i2 === 137)
                     c = "\xEB";
-                  else if (i === 138)
+                  else if (i2 === 138)
                     c = "\xE8";
-                  else if (i === 139)
+                  else if (i2 === 139)
                     c = "\xEF";
-                  else if (i === 140)
+                  else if (i2 === 140)
                     c = "\xEE";
-                  else if (i === 141)
+                  else if (i2 === 141)
                     c = "\xEC";
-                  else if (i === 142)
+                  else if (i2 === 142)
                     c = "\xC4";
-                  else if (i === 143)
+                  else if (i2 === 143)
                     c = "\xC5";
-                  else if (i === 144)
+                  else if (i2 === 144)
                     c = "\xC9";
-                  else if (i === 145)
+                  else if (i2 === 145)
                     c = "\xE6";
-                  else if (i === 146)
+                  else if (i2 === 146)
                     c = "\xC6";
-                  else if (i === 147)
+                  else if (i2 === 147)
                     c = "\xF4";
-                  else if (i === 148)
+                  else if (i2 === 148)
                     c = "\xF6";
-                  else if (i === 149)
+                  else if (i2 === 149)
                     c = "\xF2";
-                  else if (i === 150)
+                  else if (i2 === 150)
                     c = "\xFB";
-                  else if (i === 151)
+                  else if (i2 === 151)
                     c = "\xF9";
-                  else if (i === 152)
+                  else if (i2 === 152)
                     c = "\xFF";
-                  else if (i === 153)
+                  else if (i2 === 153)
                     c = "\xD6";
-                  else if (i === 154)
+                  else if (i2 === 154)
                     c = "\xDC";
-                  else if (i === 155)
+                  else if (i2 === 155)
                     c = "\xA2";
-                  else if (i === 156)
+                  else if (i2 === 156)
                     c = "\xA3";
-                  else if (i === 157)
+                  else if (i2 === 157)
                     c = "\xA5";
-                  else if (i === 158)
+                  else if (i2 === 158)
                     c = "\u20A7";
-                  else if (i === 159)
+                  else if (i2 === 159)
                     c = "\u0192";
-                  else if (i === 160)
+                  else if (i2 === 160)
                     c = "\xE1";
-                  else if (i === 161)
+                  else if (i2 === 161)
                     c = "\xED";
-                  else if (i === 162)
+                  else if (i2 === 162)
                     c = "\xF3";
-                  else if (i === 163)
+                  else if (i2 === 163)
                     c = "\xFA";
-                  else if (i === 164)
+                  else if (i2 === 164)
                     c = "\xF1";
-                  else if (i === 165)
+                  else if (i2 === 165)
                     c = "\xD1";
-                  else if (i === 166)
+                  else if (i2 === 166)
                     c = "\xAA";
-                  else if (i === 167)
+                  else if (i2 === 167)
                     c = "\xBA";
-                  else if (i === 168)
+                  else if (i2 === 168)
                     c = "\xBF";
-                  else if (i === 169)
+                  else if (i2 === 169)
                     c = "\u2310";
-                  else if (i === 170)
+                  else if (i2 === 170)
                     c = "\xAC";
-                  else if (i === 171)
+                  else if (i2 === 171)
                     c = "\xBD";
-                  else if (i === 172)
+                  else if (i2 === 172)
                     c = "\xBC";
-                  else if (i === 173)
+                  else if (i2 === 173)
                     c = "\xA1";
-                  else if (i === 174)
+                  else if (i2 === 174)
                     c = "\xAB";
-                  else if (i === 175)
+                  else if (i2 === 175)
                     c = "\xBB";
-                  else if (i === 176)
+                  else if (i2 === 176)
                     c = "\u2591";
-                  else if (i === 177)
+                  else if (i2 === 177)
                     c = "\u2592";
-                  else if (i === 178)
+                  else if (i2 === 178)
                     c = "\u2593";
-                  else if (i === 179)
+                  else if (i2 === 179)
                     c = "\u2502";
-                  else if (i === 180)
+                  else if (i2 === 180)
                     c = "\u2524";
-                  else if (i === 181)
+                  else if (i2 === 181)
                     c = "\u2561";
-                  else if (i === 182)
+                  else if (i2 === 182)
                     c = "\u2562";
-                  else if (i === 183)
+                  else if (i2 === 183)
                     c = "\u2556";
-                  else if (i === 184)
+                  else if (i2 === 184)
                     c = "\u2555";
-                  else if (i === 185)
+                  else if (i2 === 185)
                     c = "\u2563";
-                  else if (i === 186)
+                  else if (i2 === 186)
                     c = "\u2551";
-                  else if (i === 187)
+                  else if (i2 === 187)
                     c = "\u2557";
-                  else if (i === 188)
+                  else if (i2 === 188)
                     c = "\u255D";
-                  else if (i === 189)
+                  else if (i2 === 189)
                     c = "\u255C";
-                  else if (i === 190)
+                  else if (i2 === 190)
                     c = "\u255B";
-                  else if (i === 191)
+                  else if (i2 === 191)
                     c = "\u2510";
-                  else if (i === 192)
+                  else if (i2 === 192)
                     c = "\u2514";
-                  else if (i === 193)
+                  else if (i2 === 193)
                     c = "\u2534";
-                  else if (i === 194)
+                  else if (i2 === 194)
                     c = "\u252C";
-                  else if (i === 195)
+                  else if (i2 === 195)
                     c = "\u251C";
-                  else if (i === 196)
+                  else if (i2 === 196)
                     c = "\u2500";
-                  else if (i === 197)
+                  else if (i2 === 197)
                     c = "\u253C";
-                  else if (i === 198)
+                  else if (i2 === 198)
                     c = "\u255E";
-                  else if (i === 199)
+                  else if (i2 === 199)
                     c = "\u255F";
-                  else if (i === 200)
+                  else if (i2 === 200)
                     c = "\u255A";
-                  else if (i === 201)
+                  else if (i2 === 201)
                     c = "\u2554";
-                  else if (i === 202)
+                  else if (i2 === 202)
                     c = "\u2569";
-                  else if (i === 203)
+                  else if (i2 === 203)
                     c = "\u2566";
-                  else if (i === 204)
+                  else if (i2 === 204)
                     c = "\u2560";
-                  else if (i === 205)
+                  else if (i2 === 205)
                     c = "\u2550";
-                  else if (i === 206)
+                  else if (i2 === 206)
                     c = "\u256C";
-                  else if (i === 207)
+                  else if (i2 === 207)
                     c = "\u2567";
-                  else if (i === 208)
+                  else if (i2 === 208)
                     c = "\u2568";
-                  else if (i === 209)
+                  else if (i2 === 209)
                     c = "\u2564";
-                  else if (i === 210)
+                  else if (i2 === 210)
                     c = "\u2565";
-                  else if (i === 211)
+                  else if (i2 === 211)
                     c = "\u2559";
-                  else if (i === 212)
+                  else if (i2 === 212)
                     c = "\u2558";
-                  else if (i === 213)
+                  else if (i2 === 213)
                     c = "\u2552";
-                  else if (i === 214)
+                  else if (i2 === 214)
                     c = "\u2553";
-                  else if (i === 215)
+                  else if (i2 === 215)
                     c = "\u256B";
-                  else if (i === 216)
+                  else if (i2 === 216)
                     c = "\u256A";
-                  else if (i === 217)
+                  else if (i2 === 217)
                     c = "\u2518";
-                  else if (i === 218)
+                  else if (i2 === 218)
                     c = "\u250C";
-                  else if (i === 219)
+                  else if (i2 === 219)
                     c = "\u2588";
-                  else if (i === 220)
+                  else if (i2 === 220)
                     c = "\u2584";
-                  else if (i === 221)
+                  else if (i2 === 221)
                     c = "\u258C";
-                  else if (i === 222)
+                  else if (i2 === 222)
                     c = "\u2590";
-                  else if (i === 223)
+                  else if (i2 === 223)
                     c = "\u2580";
-                  else if (i === 224)
+                  else if (i2 === 224)
                     c = "\u03B1";
-                  else if (i === 225)
+                  else if (i2 === 225)
                     c = "\u03B2";
-                  else if (i === 226)
+                  else if (i2 === 226)
                     c = "\u0393";
-                  else if (i === 227)
+                  else if (i2 === 227)
                     c = "\u03C0";
-                  else if (i === 228)
+                  else if (i2 === 228)
                     c = "\u03A3";
-                  else if (i === 229)
+                  else if (i2 === 229)
                     c = "\u03C3";
-                  else if (i === 230)
+                  else if (i2 === 230)
                     c = "\xB5";
-                  else if (i === 231)
+                  else if (i2 === 231)
                     c = "\u03C4";
-                  else if (i === 232)
+                  else if (i2 === 232)
                     c = "\u03A6";
-                  else if (i === 233)
+                  else if (i2 === 233)
                     c = "\u0398";
-                  else if (i === 234)
+                  else if (i2 === 234)
                     c = "\u03A9";
-                  else if (i === 235)
+                  else if (i2 === 235)
                     c = "\u03B4";
-                  else if (i === 236)
+                  else if (i2 === 236)
                     c = "\u221E";
-                  else if (i === 237)
+                  else if (i2 === 237)
                     c = "\u2205";
-                  else if (i === 238)
+                  else if (i2 === 238)
                     c = "\u2208";
-                  else if (i === 239)
+                  else if (i2 === 239)
                     c = "\u2229";
-                  else if (i === 240)
+                  else if (i2 === 240)
                     c = "\u2261";
-                  else if (i === 241)
+                  else if (i2 === 241)
                     c = "\xB1";
-                  else if (i === 242)
+                  else if (i2 === 242)
                     c = "\u2265";
-                  else if (i === 243)
+                  else if (i2 === 243)
                     c = "\u2264";
-                  else if (i === 244)
+                  else if (i2 === 244)
                     c = "\u2320";
-                  else if (i === 245)
+                  else if (i2 === 245)
                     c = "\u2321";
-                  else if (i === 246)
+                  else if (i2 === 246)
                     c = "\xF7";
-                  else if (i === 247)
+                  else if (i2 === 247)
                     c = "\u2248";
-                  else if (i === 248)
+                  else if (i2 === 248)
                     c = "\xB0";
-                  else if (i === 249)
+                  else if (i2 === 249)
                     c = "\u2219";
-                  else if (i === 250)
+                  else if (i2 === 250)
                     c = "\xB7";
-                  else if (i === 251)
+                  else if (i2 === 251)
                     c = "\u221A";
-                  else if (i === 252)
+                  else if (i2 === 252)
                     c = "\u207F";
-                  else if (i === 253)
+                  else if (i2 === 253)
                     c = "\xB2";
-                  else if (i === 254)
+                  else if (i2 === 254)
                     c = "\u25A0";
-                } else if (i > 255)
+                } else if (i2 > 255)
                   format.unicode = true;
                 stringBuilder.push(c);
                 this.MXPCapture(c);
@@ -19757,8 +20955,8 @@
           );
         }
         this.AddLine(stringBuilder.join(""), rawBuilder.join(""), true, false, formatBuilder, remote);
-      } catch (ex) {
-        if (this.enableDebug) this.emit("debug", ex);
+      } catch (ex2) {
+        if (this.enableDebug) this.emit("debug", ex2);
       }
       this.busy = false;
       this.emit("parse-done");
@@ -20043,8 +21241,8 @@
         if (this._expireCache.length) {
           let id;
           let elLine;
-          for (let x = 0, xl = this._expireCache.length; x < xl; x++)
-            this.rebuildLine(this._expireCache[x]);
+          for (let x2 = 0, xl = this._expireCache.length; x2 < xl; x2++)
+            this.rebuildLine(this._expireCache[x2]);
         }
         this._expireCache = [];
         this.emit("expire-links");
@@ -20207,9 +21405,9 @@
       return Math.trunc((this._innerHeight - this._padding[0] - this._padding[2]) / this._charHeight);
     }
     get html() {
-      const l = this.lines.length;
+      const l2 = this.lines.length;
       const html = [];
-      for (let idx = 0; idx < l; idx++)
+      for (let idx = 0; idx < l2; idx++)
         html.push(this.getLineHTML(idx));
       return html.join("");
     }
@@ -20229,14 +21427,14 @@
       if (!this.scrollLock)
         this._view.scrollTop = this._view.scrollHeight;
     }
-    scrollTo(x, y) {
-      this._view.scrollTo(x, y);
+    scrollTo(x2, y2) {
+      this._view.scrollTo(x2, y2);
     }
-    scrollToCharacter(x, y) {
-      this._view.scrollTo(x * this._charHeight, y * this._charWidth);
+    scrollToCharacter(x2, y2) {
+      this._view.scrollTo(x2 * this._charHeight, y2 * this._charWidth);
     }
-    scrollBy(x, y) {
-      this._view.scrollBy(x, y);
+    scrollBy(x2, y2) {
+      this._view.scrollBy(x2, y2);
     }
     scrollUp() {
       this._view.scrollBy(0, -this._charHeight);
@@ -20267,20 +21465,20 @@
     CurrentAnsiCode() {
       return this._model.CurrentAnsiCode();
     }
-    removeLine(line, noUpdate) {
-      if (line < 0 || line >= this.lines.length) return;
-      this.emit("line-removed", line, this.lines[line].text);
-      const id = this._model.getLineID(line);
+    removeLine(line2, noUpdate) {
+      if (line2 < 0 || line2 >= this.lines.length) return;
+      this.emit("line-removed", line2, this.lines[line2].text);
+      const id = this._model.getLineID(line2);
       const elLine = document.querySelector(`[data-id="${id}"]`);
       this._view.removeChild(elLine);
-      this._model.removeLine(line);
+      this._model.removeLine(line2);
     }
-    removeLines(line, amt) {
-      if (line < 0 || line >= this.lines.length) return;
+    removeLines(line2, amt) {
+      if (line2 < 0 || line2 >= this.lines.length) return;
       if (amt < 1) amt = 1;
-      this.emit("lines-removed", line, this.lines.slice(line, line + amt - 1));
-      this._view.replaceChildren(...[].slice.call(this._view.children, 0, line), ...[].slice.call(this._view.children, line + amt));
-      this._model.removeLines(line, amt);
+      this.emit("lines-removed", line2, this.lines.slice(line2, line2 + amt - 1));
+      this._view.replaceChildren(...[].slice.call(this._view.children, 0, line2), ...[].slice.call(this._view.children, line2 + amt));
+      this._model.removeLines(line2, amt);
     }
     updateDisplay() {
       this._view.classList.remove("animate");
@@ -20582,9 +21780,9 @@
         return `<span data-id="${id}" class="line">${parts.join("")}</span>`;
       return `<span  data-id="${id}" class="line">${parts.join("")}<br></span>`;
     }
-    getLineText(line, full) {
-      if (line < 0 || line >= this.lines.length || !this.lines[line]) return "";
-      return this.lines[line].text;
+    getLineText(line2, full) {
+      if (line2 < 0 || line2 >= this.lines.length || !this.lines[line2]) return "";
+      return this.lines[line2].text;
     }
     rebuildLine(start) {
       this.rebuildLines(start, start);
@@ -20597,9 +21795,9 @@
         end = this.lines.length - 1;
       const lines = this.lines;
       let _html = [];
-      let line = start;
-      for (; line <= end; line++) {
-        _html.push(this.getLineHTML(line));
+      let line2 = start;
+      for (; line2 <= end; line2++) {
+        _html.push(this.getLineHTML(line2));
       }
       if (start === 0 && end === this.lines.length - 1)
         this._view.innerHTML = _html.join("");
@@ -20749,8 +21947,8 @@
         }
       }
     }
-    getLineOffset(x, y) {
-      const elements = document.elementsFromPoint(x, y);
+    getLineOffset(x2, y2) {
+      const elements = document.elementsFromPoint(x2, y2);
       let element;
       for (let e = 0, el = elements.length; e < el; e++) {
         if (this._view === elements[e]) break;
@@ -20763,13 +21961,13 @@
         return { x: -1, y: -1, lineID: -1 };
       if (element.classList.contains("line"))
         return { x: 0, y: this.model.getLineFromID(+element.dataset.id), lineID: +element.dataset.id };
-      const line = element.closest(".line");
-      if (line)
-        return { x: 0, y: this.model.getLineFromID(+line.dataset.id), lineID: +line.dataset.id };
+      const line2 = element.closest(".line");
+      if (line2)
+        return { x: 0, y: this.model.getLineFromID(+line2.dataset.id), lineID: +line2.dataset.id };
       return { x: -1, y: -1, lineID: -1 };
     }
-    getWordFromPosition(x, y) {
-      const elements = document.elementsFromPoint(x, y);
+    getWordFromPosition(x2, y2) {
+      const elements = document.elementsFromPoint(x2, y2);
       let element;
       for (let e = 0, el = elements.length; e < el; e++) {
         if (this._view === elements[e]) return "";
@@ -20780,8 +21978,8 @@
       }
       if (element && element.textContent) {
         const text = element.textContent;
-        let start = text.lastIndexOf(" ", x) + 1;
-        let end = text.indexOf(" ", x);
+        let start = text.lastIndexOf(" ", x2) + 1;
+        let end = text.indexOf(" ", x2);
         if (end === -1) {
           end = text.length;
         }
@@ -20811,22 +22009,22 @@
       });
       this._parser.on("expire-links", (args) => {
         let lines;
-        let line;
+        let line2;
         let expire;
         if (!args || args.length === 0) {
-          for (line in this._expire2) {
-            if (!this._expire2.hasOwnProperty(line))
+          for (line2 in this._expire2) {
+            if (!this._expire2.hasOwnProperty(line2))
               continue;
-            this.expireLineLinkFormat(this._expire2[line], +line);
+            this.expireLineLinkFormat(this._expire2[line2], +line2);
           }
           for (expire in this._expire) {
             if (!this._expire.hasOwnProperty(expire))
               continue;
             lines = this._expire[expire];
-            for (line in lines) {
-              if (!lines.hasOwnProperty(line))
+            for (line2 in lines) {
+              if (!lines.hasOwnProperty(line2))
                 continue;
-              this.expireLineLinkFormat(lines[line], +line);
+              this.expireLineLinkFormat(lines[line2], +line2);
             }
           }
           this._expire2 = [];
@@ -20834,10 +22032,10 @@
           this.emit("expire-links", args);
         } else if (this._expire[args]) {
           lines = this._expire[args];
-          for (line in lines) {
-            if (!lines.hasOwnProperty(line))
+          for (line2 in lines) {
+            if (!lines.hasOwnProperty(line2))
               continue;
-            this.expireLineLinkFormat(lines[line], +line);
+            this.expireLineLinkFormat(lines[line2], +line2);
           }
           delete this._expire[args];
           this.emit("expire-links", args);
@@ -20951,14 +22149,14 @@
       this.emit("add-line-done", data);
       if (data.gagged)
         return;
-      const line = {
+      const line2 = {
         text: data.line === "\n" || data.line.length === 0 ? "" : data.line,
         raw: data.raw,
         formats: data.formats,
         id: this._lineID,
         timestamp: data.timestamp
       };
-      this.lines.push(line);
+      this.lines.push(line2);
       this.lineIDs.push(this._lineID);
       this._lineID++;
       this.buildLineExpires(this.lines.length - 1);
@@ -21032,24 +22230,24 @@
     get busy() {
       return this._parser.busy;
     }
-    removeLine(line) {
-      this.lines.splice(line, 1);
-      this.lineIDs.splice(line, 1);
-      this._expire2.splice(line, 1);
+    removeLine(line2) {
+      this.lines.splice(line2, 1);
+      this.lineIDs.splice(line2, 1);
+      this._expire2.splice(line2, 1);
     }
-    removeLines(line, amt) {
-      this.lines.splice(line, amt);
-      this.lineIDs.splice(line, amt);
-      this._expire2.splice(line, amt);
+    removeLines(line2, amt) {
+      this.lines.splice(line2, amt);
+      this.lineIDs.splice(line2, amt);
+      this._expire2.splice(line2, amt);
       for (let ol in this._expire) {
-        if (!this._expire.hasOwnProperty(ol) || this._expire[ol].length === 0 || line >= this._expire[ol].length)
+        if (!this._expire.hasOwnProperty(ol) || this._expire[ol].length === 0 || line2 >= this._expire[ol].length)
           continue;
-        this._expire[ol].splice(line, amt);
+        this._expire[ol].splice(line2, amt);
       }
     }
-    getLineID(line) {
-      if (line < 0 || line >= this.lineIDs.length) return -1;
-      return this.lineIDs[line];
+    getLineID(line2) {
+      if (line2 < 0 || line2 >= this.lineIDs.length) return -1;
+      return this.lineIDs[line2];
     }
     get getNextLineID() {
       return this._lineID;
@@ -21426,12 +22624,12 @@
     }
     pruneFormats(formats, textLen) {
       if (!formats || formats.length < 2) return formats;
-      const l = formats.length;
+      const l2 = formats.length;
       const nF = [];
-      for (let f = 0; f < l; f++) {
+      for (let f = 0; f < l2; f++) {
         const format = formats[f];
         let end;
-        if (f < l - 1) {
+        if (f < l2 - 1) {
           const nFormat = formats[f + 1];
           if (format.offset === nFormat.offset && nFormat.formatType === format.formatType)
             continue;
@@ -21454,17 +22652,17 @@
       return nF;
     }
     get text() {
-      return this.lines.map((line) => line.text).join("\n");
+      return this.lines.map((line2) => line2.text).join("\n");
     }
     get raw() {
-      return this.lines.map((line) => line.raw).join("");
+      return this.lines.map((line2) => line2.raw).join("");
     }
-    getText(line, start, end) {
-      if (line < 0 || line >= this.lines.length) return "";
+    getText(line2, start, end) {
+      if (line2 < 0 || line2 >= this.lines.length) return "";
       if (start < 0) start = 0;
-      if (typeof end === "undefined" || end > this.lines[line].text.length)
-        return this.lines[line].text.substring(start);
-      return this.lines[line].text.substring(start, end);
+      if (typeof end === "undefined" || end > this.lines[line2].text.length)
+        return this.lines[line2].text.substring(start);
+      return this.lines[line2].text.substring(start, end);
     }
   };
 
@@ -21794,13 +22992,13 @@
       const args = [];
       let state = 0;
       let str = [];
-      let x = 0;
+      let x2 = 0;
       let xl = text.length;
       let c;
       let arg;
       let tmp;
-      for (; x < xl; x++) {
-        c = text.charAt(x);
+      for (; x2 < xl; x2++) {
+        c = text.charAt(x2);
         switch (state) {
           case 1:
             if (c === "'") {
@@ -21835,11 +23033,11 @@
         args.push(str.join(""));
         str = [];
       }
-      x = 0;
+      x2 = 0;
       xl = args.length;
       this.debug("MSP arguments found: " + args);
-      for (x = 0; x < xl; x++) {
-        arg = args[x].split("=");
+      for (x2 = 0; x2 < xl; x2++) {
+        arg = args[x2].split("=");
         if (arg.length > 1) {
           switch (arg[0].toUpperCase()) {
             case "FNAME":
@@ -21882,34 +23080,34 @@
                 e.url += "/";
               break;
           }
-        } else if (x === 0) {
-          e.file = stripQuotes(args[x]);
+        } else if (x2 === 0) {
+          e.file = stripQuotes(args[x2]);
           if (e.file.toLowerCase() === "off") {
             e.off = true;
             e.file = "";
           }
-        } else if (x === 1) {
-          tmp = parseInt(args[x], 10);
+        } else if (x2 === 1) {
+          tmp = parseInt(args[x2], 10);
           if (isNaN(tmp))
             tmp = 100;
           e.volume = tmp;
-        } else if (x === 2) {
-          tmp = parseInt(args[x], 10);
+        } else if (x2 === 2) {
+          tmp = parseInt(args[x2], 10);
           if (isNaN(tmp))
             tmp = 1;
           e.repeat = tmp;
-        } else if (x === 3 && type === 1)
-          e.continue = args[x] !== "0";
-        else if (x === 3) {
-          tmp = parseInt(args[x], 10);
+        } else if (x2 === 3 && type === 1)
+          e.continue = args[x2] !== "0";
+        else if (x2 === 3) {
+          tmp = parseInt(args[x2], 10);
           if (isNaN(tmp))
             tmp = 1;
           e.priority = tmp;
-        } else if (x === 4) {
-          if (args[x].length > 0)
-            e.type = args[x];
-        } else if (x === 5) {
-          e.url = stripQuotes(args[x]);
+        } else if (x2 === 4) {
+          if (args[x2].length > 0)
+            e.type = args[x2];
+        } else if (x2 === 5) {
+          e.url = stripQuotes(args[x2]);
           if (!e.url.endsWith("/") && e.url.length > 0)
             e.url += "/";
         }
@@ -22111,7 +23309,7 @@
     processFunction(data) {
       let args;
       let tmp;
-      let i;
+      let i2;
       if (!data) return;
       switch (data.name.toLowerCase()) {
         case "soundinfo":
@@ -22132,12 +23330,12 @@
         case "playm":
           args = this.client.input.parseOutgoing(data.args.join(" "), false);
           tmp = { off: false, file: "", url: "", volume: 100, repeat: 1, priority: 50, type: "", continue: true };
-          i = args.lastIndexOf("/");
-          if (i === -1)
+          i2 = args.lastIndexOf("/");
+          if (i2 === -1)
             tmp.file = args;
           else {
-            tmp.file = args.substring(i + 1);
-            tmp.url = args.substring(0, i + 1);
+            tmp.file = args.substring(i2 + 1);
+            tmp.url = args.substring(0, i2 + 1);
           }
           this.music(tmp);
           data.handled = true;
@@ -22146,12 +23344,12 @@
         case "plays":
           args = this.client.input.parseOutgoing(data.args.join(" "), false);
           tmp = { off: false, file: "", url: "", volume: 100, repeat: 1, priority: 50, type: "", continue: true };
-          i = args.lastIndexOf("/");
-          if (i === -1)
+          i2 = args.lastIndexOf("/");
+          if (i2 === -1)
             tmp.file = args;
           else {
-            tmp.file = args.substring(i + 1);
-            tmp.url = args.substring(0, i + 1);
+            tmp.file = args.substring(i2 + 1);
+            tmp.url = args.substring(0, i2 + 1);
           }
           this.sound(tmp);
           data.handled = true;
@@ -22198,13 +23396,13 @@
               this.client.echo(data.raw, -3, -4, true, true);
             let n = this.client.getOption("enableCommands");
             this.client.setOption("enableCommands", true);
-            let i = (/* @__PURE__ */ new Date()).getTime();
+            let i2 = (/* @__PURE__ */ new Date()).getTime();
             console.time("testfile parse");
             this.client.sendCommand(contents, null, this.client.getOption("allowCommentsFromCommand"));
             console.timeEnd("testfile parse");
             let p = (/* @__PURE__ */ new Date()).getTime();
             this.client.setOption("enableCommands", n);
-            this.client.print(`Time: ${p - i}
+            this.client.print(`Time: ${p - i2}
 `, true);
           }).catch(this.client.error);
         }).catch(() => {
@@ -22221,13 +23419,13 @@
               this.client.echo(data.raw, -3, -4, true, true);
             let n = this.client.getOption("enableCommands");
             this.client.setOption("enableCommands", true);
-            let i = (/* @__PURE__ */ new Date()).getTime();
+            let i2 = (/* @__PURE__ */ new Date()).getTime();
             console.time("testfiler parse");
             this.client.telnet.receivedData(StringToUint8Array(contents), true, true);
             console.timeEnd("testfiler parse");
             let p = (/* @__PURE__ */ new Date()).getTime();
             this.client.setOption("enableCommands", n);
-            this.client.print(`Time: ${p - i}
+            this.client.print(`Time: ${p - i2}
 `, true);
           }).catch(this.client.error);
         }).catch(() => {
@@ -22243,28 +23441,28 @@
             if (data && data.raw && (this.client.getOption("echo") & 4) === 4)
               this.client.echo(data.raw, -3, -4, true, true);
             let avg = 0;
-            let max = 0;
+            let max2 = 0;
             let min = 0;
             let items = [];
             let p;
             console.time(`testspeedfile`);
-            for (let i = 0; i < 10; i++) {
+            for (let i2 = 0; i2 < 10; i2++) {
               const start = (/* @__PURE__ */ new Date()).getTime();
-              console.time(`testspeedfile parse ${i}`);
+              console.time(`testspeedfile parse ${i2}`);
               this.client.sendCommand(contents, null, this.client.getOption("allowCommentsFromCommand"));
-              console.timeEnd(`testspeedfile parse ${i}`);
+              console.timeEnd(`testspeedfile parse ${i2}`);
               const end = (/* @__PURE__ */ new Date()).getTime();
               p = end - start;
               avg += p;
-              if (p > max) max = p;
+              if (p > max2) max2 = p;
               if (!min || p < min) min = p;
-              items.push(`${i} - ${p}`);
+              items.push(`${i2} - ${p}`);
             }
             console.timeEnd(`testspeedfile`);
             items.push(`Total - ${avg}`);
             items.push(`Average - ${avg / 10}`);
             items.push(`Min - ${min}`);
-            items.push(`Max - ${max}`);
+            items.push(`Max - ${max2}`);
             this.client.print(items.join("\n") + "\n", true);
           }).catch(this.client.error);
         }).catch(() => {
@@ -22280,28 +23478,28 @@
             if (data && data.raw && (this.client.getOption("echo") & 4) === 4)
               this.client.echo(data.raw, -3, -4, true, true);
             let avg = 0;
-            let max = 0;
+            let max2 = 0;
             let min = 0;
             let items = [];
             let p;
             console.time(`testspeedfile`);
-            for (let i = 0; i < 10; i++) {
+            for (let i2 = 0; i2 < 10; i2++) {
               const start = (/* @__PURE__ */ new Date()).getTime();
-              console.time(`testspeedfile parse ${i}`);
+              console.time(`testspeedfile parse ${i2}`);
               this.client.telnet.receivedData(StringToUint8Array(contents), true, true);
-              console.timeEnd(`testspeedfile parse ${i}`);
+              console.timeEnd(`testspeedfile parse ${i2}`);
               const end = (/* @__PURE__ */ new Date()).getTime();
               p = end - start;
               avg += p;
-              if (p > max) max = p;
+              if (p > max2) max2 = p;
               if (!min || p < min) min = p;
-              items.push(`${i} - ${p}`);
+              items.push(`${i2} - ${p}`);
             }
             console.timeEnd(`testspeedfile`);
             items.push(`Total - ${avg}`);
             items.push(`Average - ${avg / 10}`);
             items.push(`Min - ${min}`);
-            items.push(`Max - ${max}`);
+            items.push(`Max - ${max2}`);
             this.client.print(items.join("\n") + "\n", true);
           }).catch(this.client.error);
         }).catch(() => {
@@ -22885,16 +24083,16 @@
       };
       this.functions["testfansi"] = () => {
         let sample = "";
-        let i;
+        let i2;
         sample = String.fromCharCode(1);
-        for (i = 3; i <= 6; i++)
-          sample += String.fromCharCode(i);
-        for (i = 14; i <= 26; i++)
-          sample += String.fromCharCode(i);
-        for (i = 28; i <= 31; i++)
-          sample += String.fromCharCode(i);
-        for (i = 127; i <= 254; i++)
-          sample += String.fromCharCode(i);
+        for (i2 = 3; i2 <= 6; i2++)
+          sample += String.fromCharCode(i2);
+        for (i2 = 14; i2 <= 26; i2++)
+          sample += String.fromCharCode(i2);
+        for (i2 = 28; i2 <= 31; i2++)
+          sample += String.fromCharCode(i2);
+        for (i2 = 127; i2 <= 254; i2++)
+          sample += String.fromCharCode(i2);
         sample += "\n";
         const dcc = this.client.display.displayControlCodes;
         this.client.display.displayControlCodes = true;
@@ -22912,16 +24110,16 @@
         this.client.display.displayControlCodes = dcc;
       };
       this.functions["testcontrolchars"] = () => {
-        let i;
+        let i2;
         let sample = "1:  " + String.fromCharCode(1) + ",";
-        for (i = 3; i <= 9; i++)
-          sample += `${i}: ${String.fromCharCode(i)},`;
-        for (i = 11; i <= 27; i++)
-          sample += `${i}: ${String.fromCharCode(i)},`;
-        for (i = 28; i <= 31; i++)
-          sample += `${i}: ${String.fromCharCode(i)},`;
-        for (i = 127; i <= 254; i++)
-          sample += `${i}: ${String.fromCharCode(i)},`;
+        for (i2 = 3; i2 <= 9; i2++)
+          sample += `${i2}: ${String.fromCharCode(i2)},`;
+        for (i2 = 11; i2 <= 27; i2++)
+          sample += `${i2}: ${String.fromCharCode(i2)},`;
+        for (i2 = 28; i2 <= 31; i2++)
+          sample += `${i2}: ${String.fromCharCode(i2)},`;
+        for (i2 = 127; i2 <= 254; i2++)
+          sample += `${i2}: ${String.fromCharCode(i2)},`;
         sample += "\n";
         const dcc = this.client.display.displayControlCodes;
         this.client.display.displayControlCodes = true;
@@ -22956,14 +24154,14 @@
         let r;
         let g;
         let b;
-        let i = 0;
+        let i2 = 0;
         for (r = 0; r < 256; r += 16) {
           for (g = 0; g < 256; g += 16) {
             for (b = 0; b < 256; b += 16) {
               sample += "\x1B[48;2;" + r + ";" + g + ";" + b + "m  ";
-              if (i % 63 === 0)
+              if (i2 % 63 === 0)
                 sample += "\n";
-              i++;
+              i2++;
             }
           }
         }
@@ -22986,23 +24184,23 @@
         const e = this.client.getOption("enableCommands");
         this.client.setOption("enableCommands", true);
         let avg = 0;
-        let max = 0;
+        let max2 = 0;
         let min = 0;
         let t;
-        for (let i = 0; i < 10; i++) {
+        for (let i2 = 0; i2 < 10; i2++) {
           const start = (/* @__PURE__ */ new Date()).getTime();
           this.client.sendCommand(commands);
           const end = (/* @__PURE__ */ new Date()).getTime();
           t = end - start;
           avg += t;
-          if (t > max) max = t;
+          if (t > max2) max2 = t;
           if (!min || t < min) min = t;
-          sample.push(`${i} - ${t}`);
+          sample.push(`${i2} - ${t}`);
         }
         sample.push(`Total - ${avg}`);
         sample.push(`Average - ${avg / 10}`);
         sample.push(`Min - ${min}`);
-        sample.push(`Max - ${max}`);
+        sample.push(`Max - ${max2}`);
         this.client.print(sample.join("\n") + "\n", true);
         this.client.setOption("enableCommands", e);
       };
@@ -23062,10 +24260,10 @@ Devanagari
           //Other additional symbols ( 1F30D - 1F567 ) 
         ];
         var n = 0;
-        for (var i = 0; i < emojiRange.length; i++) {
-          var range = emojiRange[i];
-          for (var x = range[0]; x < range[1]; x++) {
-            sample += String.fromCodePoint(x);
+        for (var i2 = 0; i2 < emojiRange.length; i2++) {
+          var range = emojiRange[i2];
+          for (var x2 = range[0]; x2 < range[1]; x2++) {
+            sample += String.fromCodePoint(x2);
             n++;
             if (n == 36) {
               sample += "\n";
@@ -23148,1465 +24346,2097 @@ Devanagari
     }
   };
 
-  // src/client.ts
-  var Client = class extends EventEmitter {
-    constructor(options) {
-      super();
-      //#region Private properties
-      this._enableDebug = false;
-      this._itemCache = {
-        triggers: null,
-        aliases: null,
-        macros: null,
-        buttons: null,
-        contexts: null,
-        defaultContext: null,
-        alarms: null,
-        alarmPatterns: []
-      };
-      this._variables = {};
-      this._options = {};
-      //#endregion
-      //#region Public properties
-      this.active = true;
-      this.connecting = false;
-      this.version = version;
-      this.connectTime = 0;
-      this.disconnectTime = 0;
-      this.lastSendTime = 0;
-      this.defaultTitle = "oiMUD";
-      this.errored = false;
-      window.client = this;
-      window.oiMUD = this;
-      this._plugins = [];
-      options = Object.assign({ display: "#display", commandInput: "#commandInput" }, options || {});
-      if (!("display" in options) || typeof options.display === void 0)
-        options.display = "#display";
-      if (!("commandInput" in options) || typeof options.commandInput === void 0)
-        options.commandInput = "#commandInput";
-      this._display = new Display(options.display);
-      this.display.on("click", (e) => {
-        if (this.getOption("CommandonClick"))
-          this._commandInput.focus();
-      });
-      this.display.on("scroll-lock", (lock) => {
-        this.scrollLock = lock;
-      });
-      this.display.on("update-window", (width, height) => {
-        this.telnet.updateWindow(width, height);
-      });
-      this.display.on("update-window", (width, height) => {
-        this.telnet.updateWindow(width, height);
-      });
-      this.display.on("debug", (msg) => {
-        this.debug(msg);
-      });
-      this.display.on("add-line", (data) => {
-        this.emit("add-line", data);
-      });
-      this.display.on("add-line-done", (data) => {
-        this.emit("add-line-done", data);
-      });
-      this.display.on("MXP-tag-reply", (tag, args) => {
-        const e = { tag, args, preventDefault: false };
-        this.emit("MXP-tag-reply", e);
-        if (e.preventDefault)
-          return;
-        switch (tag) {
-          case "VERSION":
-            if (this.display.MXPStyleVersion && this.display.MXPStyleVersion.length) {
-              this.debug(`MXP Tag REPLY: <VERSION MXP=1.0 STYLE=${this.display.MXPStyleVersion} CLIENT=jiMUD VERSION=${this.version} REGISTERED=no>`);
-              this.send(`\x1B[1z<VERSION MXP=1.0 STYLE=${this.display.MXPStyleVersion} CLIENT=jiMUD VERSION=${this.version} REGISTERED=no>\r
-`);
-            } else {
-              this.debug(`MXP Tag REPLY: <VERSION MXP=1.0 CLIENT=jiMUD VERSION=${this.version} REGISTERED=no>`);
-              this.send(`\x1B[1z<VERSION MXP=1.0 CLIENT=jiMUD VERSION=${this.version} REGISTERED=no>\r
-`);
-            }
-            break;
-          case "SUPPORT":
-            this.debug(`MXP Tag REPLY: <SUPPORTS ${args.join(" ")}>`);
-            this.send(`\x1B[1z<SUPPORTS ${args.join(" ")}>\r
-`);
-            break;
-          case "USER":
-            this.emit("sendUsername", e);
-            break;
-          case "PASSWORD":
-            this.emit("sendPassword", e);
-            break;
-        }
-      });
-      this.display.on("expire-links", (args) => {
-        this.emit("expire-links", args);
-      });
-      this.display.on("parse-done", () => {
-        this.emit("parse-done");
-      });
-      this.display.on("set-title", (title, type) => {
-        if (typeof title === "undefined" || title == null || title.length === 0)
-          this.emit("set-title", this.getOption("title").replace("$t", this.defaultTitle) || this.defaultTitle);
-        else if (type !== 1)
-          this.emit("set-title", this.getOption("title").replace("$t", title) || "");
-      });
-      this.display.on("music", (data) => {
-        this.emit("music", data);
-      });
-      this.display.on("sound", (data) => {
-        this.emit("sound", data);
-      });
-      this.display.on("bell", () => {
-        this.emit("bell");
-      });
-      if (typeof options.commandInput === "string") {
-        this._commandInput = document.querySelector(options.commandInput);
-        if (!this._commandInput)
-          throw new Error("Invalid selector for command input.");
-      } else if (options.commandInput instanceof $)
-        this._commandInput = options.commandInput[0];
-      else if (options.commandInput instanceof HTMLElement)
-        this._commandInput = options.commandInput;
-      else
-        throw new Error("Command input must be a selector, element or jquery object");
-      this._telnet = new Telnet({ protocol: options.protocol, scheme: options.scheme });
-      this._telnet.terminal = "oiMUD";
-      this._telnet.version = this.version;
-      this._telnet.GMCPSupports.push("oMUD 1");
-      this._telnet.on("error", (err) => {
-        if (this.enableDebug) this.debug(err);
-        if (err) {
-          if (err.type === "close" && err.code === 1006)
-            return;
-          const msg = [];
-          if (err.type)
-            msg.push(err.type);
-          if (err.text)
-            msg.push(err.text);
-          if (err.message)
-            msg.push(err.message);
-          if (err.reason)
-            msg.push(err.reason);
-          if (err.code)
-            this.error(err.code + " : " + msg.join(", "));
-          else
-            this.error(msg.join(", "));
-        } else
-          this.error("Unknown telnet error.");
-        if (this.getOption("autoConnect") && !this._telnet.connected)
-          setTimeout(() => {
-            this.connect();
-          }, client.getOption("autoConnectDelay"));
-        this.emit("reconnect");
-      });
-      this.telnet.on("connecting", () => {
-        this.connecting = true;
-        this.echo("Trying to connect to " + this.host + ":" + this.port, -7 /* InfoText */, -8 /* InfoBackground */, true, true);
-      });
-      this.telnet.on("connect", () => {
-        this.connecting = false;
-        this.echo("Connected...", -7 /* InfoText */, -8 /* InfoBackground */, true, true);
-        this.connectTime = Date.now();
-        this.disconnectTime = 0;
-        this.lastSendTime = Date.now();
-        this.emit("connected");
-        this.raise("connected");
-      });
-      this.telnet.on("debug", (msg) => {
-        this.debug(msg);
-      });
-      this.telnet.on("receive-option", (data) => {
-        this.emit("received-option", data);
-      });
-      this.telnet.on("close", () => {
-        this.connecting = false;
-        this.echo("Connection closed to " + this.host + ":" + this.port, -7 /* InfoText */, -8 /* InfoBackground */, true, true);
-        this.disconnectTime = Date.now();
-        this.emit("closed");
-        this.raise("disconnected");
-        this.connectTime = 0;
-        this.lastSendTime = 0;
-      });
-      this.telnet.on("received-data", (data) => {
-        data = { value: data };
-        this.emit("received-data", data);
-        if (data == null || typeof data === "undefined" || data.value == null || typeof data.value === "undefined")
-          return;
-        this.printInternal(data.value, false, true);
-        this.debug("Latency: " + this.telnet.latency + "ms");
-        this.debug("Latency: " + this.telnet.latency / 1e3 + "s");
-      });
-      this.telnet.on("received-MSDP", (data) => {
-        this.emit("received-MSDP", data);
-      });
-      this.telnet.on("received-GMCP", (data) => {
-        let val = data.value;
-        let mod;
-        let idx = 0;
-        const dl = val.length;
-        let c;
-        if (dl === 0) return;
-        for (idx = 0; idx < dl; idx++) {
-          c = val.charAt(idx);
-          if (c === " " || c === "{" || c === "[")
-            break;
-        }
-        mod = val.substr(0, idx).trim();
-        val = val.substr(idx).trim();
-        this.debug("GMCP Module: " + mod);
-        this.debug("GMCP Data: " + val);
-        let obj;
-        if (mod.toLowerCase() === "client.gui") {
-          obj = val.split("/n");
-          if (val.length >= 2) {
-            obj = {
-              version: parseInt(obj[0], 10),
-              url: obj[1]
-            };
-          } else if (val.length > 0) {
-            obj = {
-              version: parseInt(obj[0], 10),
-              url: obj[1]
-            };
-          } else
-            obj = { version: obj, url: "" };
-          this.emit("received-GMCP", mod, obj);
-          return;
-        }
-        try {
-          if (val.length > 0)
-            obj = JSON.parse(val);
-        } catch (e) {
-          this.error("Invalid GMCP");
-          return;
-        }
-        this.emit("received-GMCP", mod, obj);
-      });
-      this.telnet.on("windowSize", () => {
-        this.UpdateWindow();
-      });
-      let tmp = getParameterByName("host");
-      if (tmp !== null && tmp.length)
-        this.host = tmp;
-      else if (options && "host" in options)
-        this.host = options.host;
-      else
-        this.host = "127.0.0.1";
-      tmp = +getParameterByName("port");
-      if (!isNaN(tmp) && tmp > 0)
-        this.port = tmp;
-      else if (options && "port" in options)
-        this.port = options.port;
-      else
-        this.port = 23;
-      this._input = new Input(this);
-      this._input.on("scroll-lock", (lock) => {
-        this.display.scrollLock = lock;
-        this.emit("scroll-lock", lock);
-      });
-      this._input.on("command-history-changed", (history2) => this.emit("command-history-changed", history2));
-      this._input.on("item-added", (type, profile, item) => {
-        this.emit("item-added", type, profile, item);
-      });
-      this._input.on("item-updated", (type, profile, idx, item) => {
-        this.emit("item-updated", type, profile, idx, item);
-      });
-      this._input.on("item-removed", (type, profile, idx) => {
-        this.emit("item-removed", type, profile, idx);
-      });
-      this.loadOptions();
-      this._commandInput.value = "";
-      this._commandInput.focus();
-      window.addEventListener("blur", () => {
-        this.active = false;
-        this.emit("blur");
-        this.raise("blur");
-      });
-      window.addEventListener("focus", () => {
-        this.active = true;
-        this.emit("focus");
-        this.raise("focus");
-      });
-      window.addEventListener("beforeunload", (e) => {
-        if (this.connected) {
-          if (e)
-            e.returnValue = "Closing or reloading will disconnect you from the mud.";
-          return "Closing or reloading will disconnect you from the mud.";
-        }
-        this.raise("closed");
-      });
-      window.addEventListener("unload", () => {
-        if (this.connected)
-          this.close();
-      });
-      this.addPlugin(new MSP(this));
-      if (true)
-        this.addPlugin(new Test(this));
-      if (this.getOption("autoConnect"))
-        setTimeout(() => {
-          this.connect();
-        }, client.getOption("autoConnectDelay"));
-      this.emit("initialized");
-    }
-    //#endregion
-    //#region Public setter/getters
-    get telnet() {
-      return this._telnet;
-    }
-    get variables() {
-      return this._variables;
-    }
-    get commandInput() {
-      return this._commandInput;
-    }
-    get display() {
-      return this._display;
-    }
-    get profiles() {
-      return this._profiles;
-    }
-    get plugins() {
-      return this._plugins;
-    }
-    get options() {
-      return this._options;
-    }
-    get input() {
-      return this._input;
-    }
-    set simpleAlarms(value) {
-      this.setOption("simpleAlarms", value);
-    }
-    get simpleAlarms() {
-      return this.getOption("simpleAlarms");
-    }
-    set enableParsing(value) {
-      this.setOption("enableParsing", value);
-      this._input.enableParsing = value;
-    }
-    get enableParsing() {
-      return this.getOption("enableParsing");
-    }
-    set enableTriggers(value) {
-      this.setOption("enableTriggers", value);
-      this._input.enableTriggers = value;
-      this.startAlarms();
-    }
-    get enableTriggers() {
-      return this.getOption("enableTriggers");
-    }
-    get enableDebug() {
-      return this._enableDebug;
-    }
-    set enableDebug(enable) {
-      this._enableDebug = enable;
-      this._telnet.enableDebug = enable;
-      this._display.enableDebug = enable;
-    }
-    get host() {
-      return this._telnet.host;
-    }
-    set host(host) {
-      this._telnet.host = host;
-    }
-    get port() {
-      return this._telnet.port;
-    }
-    set port(port) {
-      this._telnet.port = port;
-    }
-    get connected() {
-      return this._telnet.connected;
-    }
-    get activeProfile() {
-      return this._profiles.active;
-    }
-    get commandHistory() {
-      return this._input.commandHistory;
-    }
-    get indices() {
-      return this._input.indices;
-    }
-    get repeatnum() {
-      return this._input.repeatnum;
-    }
-    get aliases() {
-      if (this._itemCache.aliases)
-        return this._itemCache.aliases;
-      const keys = this.profiles.keys;
-      const tmp = [];
-      let k = 0;
-      const kl = keys.length;
-      if (kl === 0) return [];
-      if (kl === 1) {
-        if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableAliases)
-          this._itemCache.aliases = [];
-        else
-          this._itemCache.aliases = SortItemArrayByPriority(this.profiles.items[keys[k]].aliases);
-        return this._itemCache.aliases;
-      }
-      for (; k < kl; k++) {
-        if (!this.profiles.items[keys[k]].enabled || !this.profiles.items[keys[k]].enableAliases || this.profiles.items[keys[k]].aliases.length === 0)
-          continue;
-        tmp.push.apply(tmp, SortItemArrayByPriority(this.profiles.items[keys[k]].aliases));
-      }
-      this._itemCache.aliases = tmp;
-      return this._itemCache.aliases;
-    }
-    get macros() {
-      if (this._itemCache.macros)
-        return this._itemCache.macros;
-      const keys = this.profiles.keys;
-      const tmp = [];
-      let k = 0;
-      const kl = keys.length;
-      if (kl === 0) return [];
-      if (kl === 1) {
-        if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableMacros)
-          this._itemCache.macros = [];
-        else
-          this._itemCache.macros = SortItemArrayByPriority(this.profiles.items[keys[k]].macros);
-        return this._itemCache.macros;
-      }
-      for (; k < kl; k++) {
-        if (!this.profiles.items[keys[k]].enabled || !this.profiles.items[keys[k]].enableMacros || this.profiles.items[keys[k]].macros.length === 0)
-          continue;
-        tmp.push.apply(tmp, SortItemArrayByPriority(this.profiles.items[keys[k]].macros));
-      }
-      this._itemCache.macros = tmp;
-      return this._itemCache.macros;
-    }
-    get triggers() {
-      if (this._itemCache.triggers)
-        return this._itemCache.triggers;
-      const keys = this.profiles.keys;
-      const tmp = [];
-      let k = 0;
-      const kl = keys.length;
-      if (kl === 0) return [];
-      if (kl === 1) {
-        if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableTriggers)
-          this._itemCache.triggers = [];
-        else
-          this._itemCache.triggers = SortItemArrayByPriority(this.profiles.items[keys[0]].triggers);
-        return this._itemCache.triggers;
-      }
-      for (; k < kl; k++) {
-        if (!this.profiles.items[keys[k]].enabled || !this.profiles.items[keys[k]].enableTriggers || this.profiles.items[keys[k]].triggers.length === 0)
-          continue;
-        tmp.push.apply(tmp, SortItemArrayByPriority(this.profiles.items[keys[k]].triggers));
-      }
-      this._itemCache.triggers = tmp;
-      return this._itemCache.triggers;
-    }
-    removeTrigger(trigger) {
-      const keys = this.profiles.keys;
-      let k = 0;
-      const kl = keys.length;
-      let idx = -1;
-      if (kl === 0)
-        return;
-      if (kl === 1) {
-        if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableTriggers)
-          return;
-        idx = this.profiles.items[keys[k]].triggers.indexOf(trigger);
-      } else
-        for (; k < kl && idx !== -1; k++) {
-          if (!this.profiles.items[keys[k]].enabled || !this.profiles.items[keys[k]].enableTriggers || this.profiles.items[keys[k]].triggers.length === 0)
-            continue;
-          idx = this.profiles.items[keys[k]].triggers.indexOf(trigger);
-          if (idx !== -1)
-            break;
-        }
-      if (idx === -1)
-        return;
-      this.profiles.items[keys[k]].triggers.splice(idx, 1);
-      this._itemCache.triggers = null;
-      if ((trigger.triggers.length || trigger.type === 3 /* Alarm */) && this._itemCache.alarms) {
-        idx = this._itemCache.alarms.indexOf(trigger);
-        if (idx !== -1) {
-          this._itemCache.alarms.splice(idx, 1);
-          this._itemCache.alarmPatterns.splice(idx, 1);
-        }
-      }
-      this.saveProfiles();
-      this.emit("item-removed", "trigger", keys[k], idx);
-    }
-    get alarms() {
-      if (this._itemCache.alarms)
-        return this._itemCache.alarms;
-      const keys = this.profiles.keys;
-      const tmp = [];
-      let k = 0;
-      const kl = keys.length;
-      if (kl === 0) return [];
-      if (kl === 1) {
-        if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableTriggers)
-          this._itemCache.alarms = [];
-        else
-          this._itemCache.alarms = SortItemArrayByPriority(this.profiles.items[keys[k]].triggers).filter((a) => {
-            if (a && a.enabled && a.triggers.length) {
-              if (a.type === 3 /* Alarm */) return true;
-              for (let s = 0, sl = a.triggers.length; s < sl; s++)
-                if (a.triggers[s].enabled && a.triggers[s].type === 3 /* Alarm */)
-                  return true;
-              return false;
-            }
-            return a && a.enabled && a.type === 3 /* Alarm */;
-          });
-        this._itemCache.alarms.reverse();
-        return this._itemCache.alarms;
-      }
-      for (; k < kl; k++) {
-        if (!this.profiles.items[keys[k]].enabled || !this.profiles.items[keys[k]].enableTriggers || this.profiles.items[keys[k]].triggers.length === 0)
-          continue;
-        tmp.push.apply(tmp, SortItemArrayByPriority(this.profiles.items[keys[k]].triggers));
-      }
-      this._itemCache.alarms = tmp.filter((a) => {
-        if (a && a.enabled && a.triggers.length) {
-          if (a.type === 3 /* Alarm */) return true;
-          for (let s = 0, sl = a.triggers.length; s < sl; s++)
-            if (a.triggers[s].enabled && a.triggers[s].type === 3 /* Alarm */)
-              return true;
-          return false;
-        }
-        return a && a.enabled && a.type === 3 /* Alarm */;
-      });
-      this._itemCache.alarms.reverse();
-      return this._itemCache.alarms;
-    }
-    get buttons() {
-      if (this._itemCache.buttons)
-        return this._itemCache.buttons;
-      const keys = this.profiles.keys;
-      const tmp = [];
-      let k = 0;
-      const kl = keys.length;
-      if (kl === 0) return [];
-      if (kl === 1) {
-        if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableButtons)
-          this._itemCache.buttons = [];
-        else
-          this._itemCache.buttons = SortItemArrayByPriority(this.profiles.items[keys[k]].buttons);
-        return this._itemCache.buttons;
-      }
-      for (; k < kl; k++) {
-        if (!this.profiles.items[keys[k]].enabled || !this.profiles.items[keys[k]].enableButtons || this.profiles.items[keys[k]].buttons.length === 0)
-          continue;
-        tmp.push.apply(tmp, SortItemArrayByPriority(this.profiles.items[keys[k]].buttons));
-      }
-      this._itemCache.buttons = tmp;
-      return this._itemCache.buttons;
-    }
-    get contexts() {
-      if (this._itemCache.contexts)
-        return this._itemCache.contexts;
-      const keys = this.profiles.keys;
-      const tmp = [];
-      let k = 0;
-      const kl = keys.length;
-      if (kl === 0) return [];
-      if (kl === 1) {
-        if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableContexts)
-          this._itemCache.contexts = [];
-        else
-          this._itemCache.contexts = SortItemArrayByPriority(this.profiles.items[keys[k]].contexts);
-        return this._itemCache.contexts;
-      }
-      for (; k < kl; k++) {
-        if (!this.profiles.items[keys[k]].enabled || !this.profiles.items[keys[k]].enableContexts || this.profiles.items[keys[k]].contexts.length === 0)
-          continue;
-        tmp.push.apply(tmp, SortItemArrayByPriority(this.profiles.items[keys[k]].contexts));
-      }
-      this._itemCache.contexts = tmp;
-      return this._itemCache["contexts"];
-    }
-    get defaultContext() {
-      if (this._itemCache.defaultContext !== null)
-        return this._itemCache.defaultContext;
-      this._itemCache.defaultContext = this.profiles.defaultContext;
-      return this._itemCache.defaultContext;
-    }
-    //#endregion    
-    addPlugin(plugin) {
-      if (!plugin) return;
-      this.plugins.push(plugin);
-      plugin.initialize();
-    }
-    removePlugin(plugin) {
-      if (!this.plugins.length) return;
-      const idx = this.plugins.indexOf(plugin);
-      if (idx !== -1) {
-        plugin.remove();
-        this.plugins.splice(idx, 1);
-      }
-    }
-    getVariable(name2) {
-      return this.variables[name2];
-    }
-    setVariable(name2, value) {
-      this.variables[name2] = value;
-    }
-    setVariables(variables) {
-      const names = Object.keys(variables);
-      if (names.length === 0) return;
-      const nl = names.length;
-      let name2;
-      for (let n = 0; n < nl; n++) {
-        name2 = names[n];
-        this.variables[name2] = variables[name2];
-      }
-    }
-    hasVariable(name2) {
-      return this.variables.hasOwnProperty(name2);
-    }
-    removeVariable(name2) {
-      if (!this.variables.hasOwnProperty(name2))
-        return;
-      delete this.variables[name2];
-    }
-    setHistoryIndex(index) {
-      this._input.setHistoryIndex(index);
-    }
-    clearCommandHistory() {
-      this._input.clearCommandHistory();
-    }
-    AddCommandToHistory(txt) {
-      this._input.AddCommandToHistory(txt);
-    }
-    loadProfiles() {
-      return new Promise((resolve, reject) => {
-        ProfileCollection.load().then((profiles) => {
-          this._profiles = profiles;
-          if (!this.profiles.contains("default")) {
-            this.profiles.add(Profile.Default);
-            this.saveProfiles();
-          }
-          this.clearCache();
-          this.startAlarms();
-          this.emit("profiles-loaded");
-          resolve(this._profiles);
-        });
-      });
-    }
-    removeProfile(profile) {
-      if (!profile) return;
-      this.profiles.remove(profile);
-      this.clearCache();
-      this.startAlarms();
-      this.emit("profile-removed", profile);
-    }
-    saveProfiles() {
-      this._profiles.save();
-      this.clearCache();
-      this.emit("profiles-updated");
-    }
-    toggleProfile(profile) {
-      this.profiles.toggle(profile);
-      this.saveProfiles();
-      this.clearCache();
-      this.startAlarms();
-      this.emit("profile-toggled", profile, this.profiles[profile].enabled);
-    }
-    startAlarms() {
-      const al = this.alarms.length;
-      if ((al === 0 || !this.getOption("enableTriggers")) && this._alarm) {
-        clearInterval(this._alarm);
-        this._alarm = null;
-      } else if (al && !this._alarm)
-        this._alarm = setInterval((client2) => {
-          client2.process_alarms();
-        }, 1e3, this);
-    }
-    setAlarmState(idx, state) {
-      if (typeof idx === "object")
-        idx = this.alarms.indexOf(idx);
-      if (idx === -1 || idx >= this.alarms.length)
-        return;
-      let pattern = this._itemCache.alarmPatterns[idx];
-      if (!pattern) {
-        pattern = {};
-        if (this.alarms[idx].type === 3 /* Alarm */)
-          pattern[0] = Alarm.parse(this.alarms[idx]);
-        for (let s = 0, sl = this.alarms[idx].triggers.length; s < sl; s++) {
-          if (this.alarms[idx].triggers[s].enabled && this.alarms[idx].triggers[s].type === 3 /* Alarm */)
-            pattern[s] = Alarm.parse(this.alarms[idx].triggers[s]);
-        }
-        this._itemCache.alarmPatterns[idx] = pattern;
-      }
-      for (const p in pattern) {
-        if (!pattern.hasOwnProperty(p)) continue;
-        if (state) {
-          pattern[p].startTime += Date.now() - pattern[p].suspended;
-          pattern[p].prevTime += Date.now() - pattern[p].suspended;
-          if (pattern[p].tempTime)
-            pattern[p].tempTime += Date.now() - pattern[p].suspended;
-          pattern[p].suspended = 0;
-        } else
-          pattern[p].suspended = Date.now();
-      }
-    }
-    setAlarmTempTime(idx, temp) {
-      if (typeof idx === "object")
-        idx = this.alarms.indexOf(idx);
-      if (idx === -1 || idx >= this.alarms.length)
-        return;
-      let pattern = this._itemCache.alarmPatterns[idx];
-      if (!pattern) {
-        pattern = {};
-        if (this.alarms[idx].type === 3 /* Alarm */)
-          pattern[0] = Alarm.parse(this.alarms[idx]);
-        for (let s = 0, sl = this.alarms[idx].triggers.length; s < sl; s++) {
-          if (this.alarms[idx].triggers[s].enabled && this.alarms[idx].triggers[s].type === 3 /* Alarm */)
-            pattern[s] = Alarm.parse(this.alarms[idx].triggers[s]);
-        }
-        this._itemCache.alarmPatterns[idx] = pattern;
-      }
-      if (pattern[0])
-        pattern[0].setTempTime(temp);
-    }
-    restartAlarmState(idx, oldState, newState) {
-      if (oldState === newState)
-        return;
-      if (typeof idx === "object")
-        idx = this.alarms.indexOf(idx);
-      if (idx === -1 || idx >= this.alarms.length)
-        return;
-      let pattern = this._itemCache.alarmPatterns[idx];
-      if (!pattern) {
-        pattern = {};
-        if (this.alarms[idx].type === 3 /* Alarm */)
-          pattern[0] = Alarm.parse(this.alarms[idx]);
-        for (let s = 0, sl = this.alarms[idx].triggers.length; s < sl; s++) {
-          if (this.alarms[idx].triggers[s].enabled && this.alarms[idx].triggers[s].type === 3 /* Alarm */)
-            pattern[s] = Alarm.parse(this.alarms[idx].triggers[s]);
-        }
-        this._itemCache.alarmPatterns[idx] = pattern;
-      }
-      if (pattern[oldState])
-        pattern[oldState].restart = Date.now();
-      if (pattern[newState])
-        pattern[newState].restart = Date.now();
-    }
-    getRemainingAlarmTime(idx) {
-      if (typeof idx === "object")
-        idx = this.alarms.indexOf(idx);
-      if (idx === -1 || idx >= this.alarms.length)
-        return 0;
-      if (!this.alarms[idx].enabled)
-        return 0;
-      let pattern = this._itemCache.alarmPatterns[idx];
-      if (!pattern) {
-        pattern = {};
-        if (this.alarms[idx].type === 3 /* Alarm */)
-          pattern[0] = Alarm.parse(this.alarms[idx]);
-        for (let s = 0, sl = this.alarms[idx].triggers.length; s < sl; s++) {
-          if (this.alarms[idx].triggers[s].enabled && this.alarms[idx].triggers[s].type === 3 /* Alarm */)
-            pattern[s] = Alarm.parse(this.alarms[idx].triggers[s]);
-        }
-        this._itemCache.alarmPatterns[idx] = pattern;
-      }
-      if (pattern[0]) {
-        const alarm = pattern[0];
-        const now = Date.now();
-        const dNow = /* @__PURE__ */ new Date();
-        let future = now;
-        let fend = future + 9e7;
-        let mod = 1e3;
-        if (alarm.seconds !== -1)
-          mod = 1e3;
-        else if (alarm.minutes !== -1)
-          mod = 6e4;
-        else if (alarm.hours !== -1)
-          mod = 36e5;
-        if (alarm.tempTime) {
-          if (alarm.tempTime - now > 0)
-            return alarm.tempTime - now;
-          return 0;
-        } else {
-          while (future < fend) {
-            if (this.alarm_match(alarm, future, dNow))
-              return future - now;
-            future += mod;
-            dNow.setTime(dNow.getTime() + mod);
-          }
-          return -1;
-        }
-      }
-      return 0;
-    }
-    updateAlarms() {
-      if (this._itemCache.alarmPatterns) {
-        const old = this._itemCache.alarmPatterns;
-        const oAlarms = this.alarms;
-        this._itemCache.alarmPatterns = [];
-        this._itemCache.alarms = null;
-        const al = this.alarms.length;
-        let idx = -1;
-        for (let a = 0; a < al; a++) {
-          idx = oAlarms.indexOf(this.alarms[a]);
-          if (idx !== -1)
-            this._itemCache.alarmPatterns[a] = old[idx];
-        }
-      }
-      this.startAlarms();
-    }
-    process_alarms() {
-      if (!this.getOption("enableTriggers"))
-        return;
-      let a = 0;
-      let changed = false;
-      const al = this.alarms.length;
-      if (al === 0 && this._alarm) {
-        clearInterval(this._alarm);
-        this._alarm = null;
-        return;
-      }
-      const patterns = this._itemCache.alarmPatterns;
-      const now = Date.now();
-      const alarms = this.alarms;
-      const dNow = /* @__PURE__ */ new Date();
-      for (a = al - 1; a >= 0; a--) {
-        let trigger = alarms[a];
-        const parent = trigger;
-        if (!trigger.enabled) continue;
-        if (trigger.state > trigger.triggers.length)
-          trigger.state = 0;
-        if (trigger.state !== 0 && trigger.triggers && trigger.triggers.length) {
-          trigger = trigger.triggers[trigger.state - 1];
-          while (!trigger.enabled && parent.state !== 0) {
-            parent.state++;
-            if (parent.state > parent.triggers.length) {
-              parent.state = 0;
-              trigger = trigger.triggers[parent.state - 1];
-              break;
-            }
-            if (parent.state)
-              trigger = trigger.triggers[parent.state - 1];
-            else
-              trigger = parent;
-            changed = true;
-          }
-          if (changed) {
-            if (this.getOption("saveTriggerStateChanges"))
-              this.saveProfiles();
-            this.emit("item-updated", "trigger", parent.profile.name, parent.profile.triggers.indexOf(parent));
-          }
-          if (!trigger.enabled) continue;
-        }
-        if (trigger.type === 131072 /* ReParse */ || trigger.type === 262144 /* ReParsePattern */) {
-          const val = this._input.adjustLastLine(this.display.lines.length, true);
-          const line = this.display.lines[val];
-          a = this._input.TestTrigger(trigger, parent, a, line, this.display.lines[val].raw || line, val === this.display.lines.length - 1);
-          continue;
-        }
-        if (trigger.type !== 3 /* Alarm */) continue;
-        let alarm = patterns[a];
-        if (!alarm) {
-          try {
-            patterns[a] = {};
-            if (trigger.type === 3 /* Alarm */)
-              patterns[a][0] = Alarm.parse(trigger);
-            for (let s = 0, sl = trigger.triggers.length; s < sl; s++) {
-              if (trigger.triggers[s].type === 3 /* Alarm */)
-                patterns[a][s] = Alarm.parse(trigger.triggers[s]);
-            }
-          } catch (e) {
-            patterns[a] = null;
-            if (this.getOption("disableTriggerOnError")) {
-              trigger.enabled = false;
-              setTimeout(() => {
-                this.saveProfiles();
-                this.emit("item-updated", "trigger", parent.profile, parent.profile.triggers.indexOf(parent), parent);
-              });
-            }
-            throw e;
-          }
-          alarm = patterns[a];
-          if (!alarm) continue;
-        }
-        alarm = alarm[trigger.state];
-        if (alarm.restart) {
-          alarm.startTime = Date.now();
-          alarm.prevTime = alarm.startTime;
-          if (alarm.tempTime)
-            alarm.tempTime += Date.now() - alarm.restart;
-          alarm.restart = 0;
-        }
-        let match = true;
-        if (alarm.tempTime) {
-          match = now >= alarm.tempTime;
-          if (match)
-            alarm.tempTime = 0;
-        } else
-          match = this.alarm_match(alarm, now, dNow);
-        if (match && !alarm.suspended) {
-          alarm.prevTime = now;
-          const state = parent.state;
-          this._input.lastTriggered = alarm.pattern;
-          this._input.ExecuteTrigger(trigger, [alarm.pattern], false, -a, null, null, parent);
-          if (state !== parent.state)
-            alarm.restart = Date.now();
-          if (alarm.temp) {
-            if (parent.triggers.length) {
-              if (state === 0) {
-                const item = parent.triggers.shift();
-                item.state = state;
-                item.priority = parent.priority;
-                item.name = parent.name;
-                item.profile = parent.profile;
-                if (item.state > item.triggers.length)
-                  item.state = 0;
-                item.triggers = parent.triggers;
-                alarms[a] = item;
-                patterns[a] = null;
-                this.saveProfiles();
-                const idx = parent.profile.triggers.indexOf(parent);
-                parent.profile.triggers[idx] = item;
-                this.emit("item-updated", "trigger", parent.profile.name, idx, item);
-              } else {
-                parent.triggers.splice(state - 1, 1);
-                patterns[a].splice(state - 1, 1);
-                parent.state = state;
-                if (parent.state > parent.triggers.length)
-                  parent.state = 0;
-                this.saveProfiles();
-                const idx = parent.profile.triggers.indexOf(parent);
-                this.emit("item-updated", "trigger", parent.profile.name, idx, parent);
-              }
-            } else {
-              this._input.clearTriggerState(a);
-              this.removeTrigger(parent);
-            }
-          }
-          a = -this._input.cleanUpTriggerState(-a);
+  // src/interface/mapdisplay.ts
+  var PF = __toESM(require_pathfinding3D());
+
+  // src/map.ts
+  var RoomExits = {
+    out: 4096,
+    enter: 2048,
+    unknown: 1024,
+    up: 512,
+    down: 256,
+    north: 128,
+    northeast: 64,
+    east: 32,
+    southeast: 16,
+    south: 8,
+    southwest: 4,
+    west: 2,
+    northwest: 1,
+    none: 0
+  };
+  var Room = class _Room {
+    constructor(data) {
+      this.num = null;
+      this.x = 0;
+      this.y = 0;
+      this.z = 0;
+      this.area = "";
+      this.zone = 0;
+      this.details = 0 /* None */;
+      this.exits = {};
+      if (data) {
+        for (let prop in data) {
+          if (!data.hasOwnProperty(prop)) continue;
+          this[prop] = data[prop];
         }
       }
     }
-    alarm_match(alarm, now, dNow) {
-      if (!alarm || alarm.suspended) return false;
-      let match = true;
-      let ts;
-      let sec;
-      let min;
-      let hr;
-      let hours;
-      let minutes;
-      let seconds;
-      if (!moment || this.simpleAlarms) {
-        ts = now - this.connectTime;
-        if (ts < 1e3)
-          return false;
-        sec = Math.round(ts / 1e3);
-        min = Math.floor(sec / 60);
-        hr = Math.floor(min / 60);
-        hours = hr;
-        minutes = Math.floor(min % 60);
-        seconds = Math.floor(sec % 60);
-      } else {
-        if (alarm.start)
-          ts = moment.duration(now - this.connectTime);
-        else
-          ts = moment.duration(now - alarm.startTime);
-        if (ts.asMilliseconds() < 1e3)
-          return false;
-        sec = Math.round(ts.asMilliseconds() / 1e3);
-        min = Math.floor(sec / 60);
-        hr = Math.floor(min / 60);
-        hours = ts.hours();
-        minutes = ts.minutes();
-        seconds = ts.seconds();
-      }
-      if (alarm.hoursWildCard) {
-        if (alarm.hours === 0)
-          match = match && hours === 0;
-        else if (alarm.hours !== -1)
-          match = match && hr !== 0 && hr % alarm.hours === 0;
-      } else if (alarm.hours !== -1)
-        match = match && alarm.hours === (alarm.start ? hours : dNow.getHours());
-      if (alarm.minutesWildcard) {
-        if (alarm.minutes === 0)
-          match = match && minutes === 0;
-        else if (alarm.minutes !== -1)
-          match = match && min !== 0 && min % alarm.minutes === 0;
-      } else if (alarm.minutes !== -1)
-        match = match && alarm.minutes === (alarm.start ? minutes : dNow.getMinutes());
-      if (alarm.secondsWildcard) {
-        if (alarm.seconds === 0)
-          match = match && seconds === 0;
-        else if (alarm.seconds !== -1)
-          match = match && sec % alarm.seconds === 0;
-      } else if (alarm.seconds !== -1)
-        match = match && alarm.seconds === (alarm.start ? seconds : dNow.getSeconds());
-      return match;
+    get exitsID() {
+      return Object.keys(this.exits).map((exit) => RoomExits[exit]).reduce((a, c) => a | c, 0);
     }
-    loadOptions() {
-      this._options = new Settings();
-      this.enableDebug = this._options.enableDebug;
-      this.display.maxLines = this._options.bufferSize;
-      this.display.enableFlashing = this._options.flashing;
-      this.display.enableMXP = this._options.enableMXP;
-      this.display.showInvalidMXPTags = this._options["display.showInvalidMXPTags"];
-      this.display.enableURLDetection = this._options.enableURLDetection;
-      this.display.enableMSP = this._options.enableMSP;
-      this.display.enableColors = this._options["display.enableColors"];
-      this.display.enableBackgroundColors = this._options["display.enableBackgroundColors"];
-      this.display.wordWrap = this._options["display.wordWrap"];
-      this.display.wrapAt = this._options["display.wrapAt"];
-      this.display.indent = this._options["display.indent"];
-      this.display.showTimestamp = this._options["display.showTimestamp"];
-      this.display.tabWidth = this._options["display.tabWidth"];
-      this.display.timestampFormat = this._options["display.timestampFormat"];
-      const colors = this.getOption("colors");
-      if (colors && colors.length > 0) {
-        let c;
-        const cl = colors.length;
-        for (c = 0; c < cl; c++) {
-          if (!colors[c] || colors[c].length === 0) continue;
-          this.display.SetColor(c, colors[c]);
-        }
-      }
-      if (this._telnet) {
-        this._telnet.options.MCCP = this._options.enableMCCP;
-        this._telnet.options.MXP = this._options.enableMXP;
-        this._telnet.UTF8 = this._options.enableUTF8;
-        this._telnet.options.ECHO = this._options.enableEcho;
-        this._telnet.enableLatency = this._options.lagMeter;
-        this._telnet.enablePing = this._options.enablePing;
-      }
-      this._input.scrollLock = this._options.scrollLocked;
-      this._input.enableParsing = this._options.enableParsing;
-      this._input.enableTriggers = this._options.enableTriggers;
-      this.display.scrollLock = this._options.scrollLocked;
-      this.display.hideTrailingEmptyLine = this._options["display.hideTrailingEmptyLine"];
-      this.display.displayControlCodes = this.getOption("display.displayControlCodes");
-      this.display.emulateTerminal = this.getOption("display.emulateTerminal");
-      this.display.emulateControlCodes = this.getOption("display.emulateControlCodes");
-      this._commandInput.wrap = this.getOption("commandWordWrap") ? "on" : "off";
-      if (this.UpdateFonts) this.UpdateFonts();
-      this.display.scrollDisplay();
-      this.loadProfiles();
-      this.emit("options-loaded");
-    }
-    setOption(name2, value) {
-      if (name2 === -1 || name2 === "-1")
-        return;
-      this._options[name2] = value;
-      Settings.setValue(name2, value);
-      this.emit("option=changed", name2, value);
-    }
-    getOption(name2) {
-      if (this._options && name2 in this._options)
-        return this._options[name2];
-      return this._options[name2] = Settings.getValue(name2);
-    }
-    UpdateFonts() {
-      if (!this.display) return;
-      this.display.updateFont(this._options.font + ", monospace", this._options.fontSize);
-      this._commandInput.style.fontSize = this._options.cmdfontSize;
-      this._commandInput.style.fontFamily = this._options.cmdfont + ", monospace";
-    }
-    parse(txt) {
-      this.parseInternal(txt, false, false, true);
-    }
-    parseInternal(txt, remote, force, prependSplit) {
-      this.display.append(txt, remote, force, prependSplit);
-    }
-    error(err) {
-      if (this.enableDebug) this.debug(err);
-      let msg = "";
-      if (err == null || typeof err === "undefined")
-        err = new Error("Unknown");
-      else if (typeof err === "string" && err.length === 0)
-        err = new Error("Unknown");
-      if (err.stack && this.getOption("showErrorsExtended"))
-        msg = err.stack;
-      else if (err instanceof Error || err instanceof TypeError)
-        msg = err.name + ": " + err.message;
-      else if (err.message)
-        msg = err.message;
-      else
-        msg = "" + err;
-      if (msg.match(/^.*Error: /g) || msg.match(/^.*Error - /g))
-        this.echo(msg, -11 /* ErrorText */, -12 /* ErrorBackground */, true, true);
-      else
-        this.echo("Error: " + msg, -11 /* ErrorText */, -12 /* ErrorBackground */, true, true);
-      if (this.getOption("logErrors")) {
-        if (!this.getOption("showErrorsExtended")) {
-          if (err.stack)
-            msg = err.stack;
-          else {
-            err = new Error(err || msg);
-            msg = err.stack;
-          }
-        } else if (!err.stack) {
-          err = new Error(err || msg);
-          msg = err.stack;
-        }
-        window.console.log((/* @__PURE__ */ new Date()).toLocaleString());
-        window.console.log(msg);
-        localforage.getItem("oiMUDErrorLog", function(err2, value) {
-          localforage.setItem("oiMUDErrorLog", value = (value || "") + (/* @__PURE__ */ new Date()).toLocaleString() + "\n" + msg + "\n");
-        });
-      }
-      if (err === "Error: ECONNRESET - read ECONNRESET." && this.telnet.connected)
-        this.close();
-      this.raise("error", msg);
-    }
-    echo(str, fore, back, newline, forceLine) {
-      if (str == null) str = "";
-      if (newline == null) newline = false;
-      if (forceLine == null) forceLine = false;
-      if (fore == null) fore = -3 /* LocalEcho */;
-      if (back == null) back = -4 /* LocalEchoBack */;
-      const codes = "\x1B[0m" + this.display.CurrentAnsiCode() + "\n";
-      str = "" + str;
-      if (str.endsWith("\n"))
-        str = str.substr(0, str.length - 1);
-      if (this.telnet.prompt && forceLine) {
-        this.print("\n\x1B[" + fore + ";" + back + "m" + str + codes, newline);
-        this.telnet.prompt = false;
-      } else
-        this.print("\x1B[" + fore + ";" + back + "m" + str + codes, newline);
-    }
-    print(txt, newline) {
-      this.printInternal(txt, newline, false, true);
-    }
-    printInternal(txt, newline, remote, prependSplit) {
-      if (txt == null || typeof txt === "undefined") return;
-      if (newline == null) newline = false;
-      if (remote == null) remote = false;
-      if (newline && this.display.textLength > 0 && !this.display.EndOfLine && this.display.EndOfLineLength !== 0 && !this.telnet.prompt && !this.display.parseQueueEndOfLine)
-        txt = "\n" + txt;
-      this.emit("print");
-      this.parseInternal(txt, remote, false, prependSplit);
-    }
-    send(data, echo) {
-      this.telnet.sendData(data);
-      this.lastSendTime = Date.now();
-      if (echo && this.telnet.echo && this.getOption("commandEcho"))
-        this.echo(data);
-      else if (echo)
-        this.echo("\n");
-    }
-    sendRaw(data) {
-      this.telnet.sendData(data, true);
-      this.lastSendTime = Date.now();
-    }
-    sendGMCP(data) {
-      this.telnet.sendGMCP(data);
-      this.lastSendTime = Date.now();
-    }
-    debug(str, style) {
-      const data = { value: str };
-      this.emit("debug", data);
-      if (!this._enableDebug || data == null || typeof data === "undefined" || data.value == null || typeof data.value === "undefined" || data.value.length === 0)
-        return;
-      if (window.console) {
-        if (style)
-          window.console.log("%c" + str, style);
-        else
-          window.console.log(data.value);
-      }
-    }
-    sendCommand(txt, noEcho, comments) {
-      if (txt == null) {
-        txt = this._commandInput.value;
-        if (!this.telnet.echo)
-          this._commandInput.value = "";
-        else
-          this._input.AddCommandToHistory(txt);
-      }
-      txt = "" + txt;
-      if (!txt.endsWith("\n"))
-        txt = txt + "\n";
-      const data = { value: txt, handled: false, comments };
-      this.emit("parse-command", data);
-      if (data == null || typeof data === "undefined") return;
-      if (data.handled || data.value == null || typeof data.value === "undefined") return;
-      if (data.value.length > 0)
-        this.send(data.value, !noEcho);
-      if (!this.getOption("keepLastCommand"))
-        this._commandInput.value = "";
-      else if (this.getOption("selectLastCommand"))
-        selectAll(this._commandInput);
-    }
-    sendBackground(txt, noEcho, comments) {
-      if (txt == null) {
-        txt = this._commandInput.value;
-        if (!this.telnet.echo)
-          this._commandInput.value = "";
-        else
-          this._input.AddCommandToHistory(txt);
-      }
-      txt = "" + txt;
-      if (!txt.endsWith("\n"))
-        txt = txt + "\n";
-      const data = { value: txt, handled: false, comments };
-      this.emit("parse-command", data);
-      if (data == null || typeof data === "undefined") return;
-      if (data.value == null || typeof data.value === "undefined") return;
-      if (!data.handled && data.value.length > 0)
-        this.send(data.value, !noEcho);
-    }
-    get scrollLock() {
-      return this._input.scrollLock;
-    }
-    set scrollLock(enabled) {
-      this._input.scrollLock = enabled;
-    }
-    toggleScrollLock() {
-      this._input.toggleScrollLock();
-    }
-    UpdateWindow() {
-      this.display.updateWindow();
-    }
-    close() {
-      this.telnet.close();
-    }
-    connect() {
-      this.errored = false;
-      this.emit("connecting");
-      this.display.ClearMXP();
-      this.display.ResetMXPLine();
-      this.telnet.connect();
-      this.emit("connect");
-      this._commandInput.focus();
-    }
-    receivedData(data) {
-      this.telnet.receivedData(data);
-    }
-    notify(title, message, options) {
-      if (this.enableDebug) {
-        this.emit("debug", "notify title: " + title);
-        this.emit("debug", "notify msg: " + message);
-      }
-      this.emit("notify", title, message, options);
-    }
-    clear() {
-      this.display.clear();
-      this.emit("cleared");
-    }
-    parseInline(text) {
-      return this._input.parseInline(text);
-    }
-    parseOutgoing(text, eAlias, stacking, noFunction) {
-      return this._input.parseOutgoing(text, eAlias, stacking, noFunction);
-    }
-    clearCache() {
-      this._input.clearCaches();
-      this._itemCache = {
-        triggers: null,
-        aliases: null,
-        macros: null,
-        buttons: null,
-        contexts: null,
-        defaultContext: null,
-        alarms: null,
-        alarmPatterns: []
-      };
-    }
-    beep() {
-      this.emit("bell");
-    }
-    raise(event, args, delay) {
-      if (!this.profiles) {
-        setTimeout(() => {
-          this.raise(event, args, delay);
-        }, 100);
-        return;
-      }
-      if (!delay || delay < 1)
-        this._input.triggerEvent(event, args);
-      else
-        setTimeout(() => {
-          this._input.triggerEvent(event, args);
-        }, delay);
-    }
-    show() {
-      this.emit("show");
-    }
-    hide() {
-      this.emit("hide");
-    }
-    toggle() {
-      this.emit("toggle");
+    clone() {
+      return new _Room(copy(this));
     }
   };
-  window.Client = Client;
-  window.Display = Display;
-
-  // src/interface/menu.ts
-  function closeMenu() {
-    const instance = bootstrap.Offcanvas.getInstance(document.getElementById("clientMenu"));
-    if (!instance) return;
-    instance.hide();
-  }
-  function showMenu() {
-    bootstrap.Offcanvas.getOrCreateInstance(document.getElementById("clientMenu")).show();
-  }
-  function initMenu() {
-    document.getElementById("btn-menu").addEventListener("click", showMenu);
-    client.on("connected", () => {
-      let el = document.getElementById("menu-connect");
-      let text = document.querySelector("#menu-connect a span");
-      let icon = document.querySelector("#menu-connect svg") || document.querySelector("#menu-connect i");
-      el.title = "Disconnect";
-      el.classList.add("active");
-      text.textContent = "Disconnect";
-      icon.classList.add("fa-plug-circle-xmark");
-      icon.classList.remove("fa-plug");
-    });
-    client.on("closed", () => {
-      let el = document.getElementById("menu-connect");
-      let text = document.querySelector("#menu-connect a span");
-      let icon = document.querySelector("#menu-connect svg") || document.querySelector("#menu-connect i");
-      el.title = "Connect";
-      el.classList.remove("active");
-      text.textContent = "Connect";
-      icon.classList.remove("fa-plug-circle-xmark");
-      icon.classList.add("fa-plug");
-    });
-    client.on("scroll-lock", updateScrollLock);
-    document.querySelector("#menu-connect a").addEventListener("click", (e) => {
-      if (client.connected)
-        client.close();
-      else {
-        client.connect();
-        closeMenu();
-      }
-    });
-    document.querySelector("#menu-clear a").addEventListener("click", (e) => {
-      client.clear();
-      closeMenu();
-    });
-    document.querySelector("#menu-lock a").addEventListener("click", (e) => {
-      client.toggleScrollLock();
-      closeMenu();
-    });
-    document.querySelector("#menu-editor a").addEventListener("click", (e) => {
-      closeMenu();
-      document.getElementById("btn-adv-editor").click();
-    });
-    document.querySelector("#menu-about a").addEventListener("click", (e) => {
-      showDialog("about");
-      closeMenu();
-    });
-    document.querySelector("#menu-settings a").addEventListener("click", (e) => {
-      showDialog("settings");
-      closeMenu();
-    });
-    document.querySelector("#menu-profiles a").addEventListener("click", (e) => {
-      showDialog("profiles");
-      closeMenu();
-    });
-    document.querySelector("#menu-fullscreen a").addEventListener("click", (e) => {
-      var doc = window.document;
-      var docEl = doc.documentElement;
-      var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-      var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-      let el = document.getElementById("menu-fullscreen");
-      let icon = document.querySelector("#menu-fullscreen svg") || document.querySelector("#menu-fullscreen i");
-      let text = document.querySelector("#menu-fullscreen a span");
-      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-        el.title = "Exit fullscreen";
-        text.textContent = "Exit fullscreen";
-        requestFullScreen.call(docEl);
-        icon.classList.add("fa-minimize");
-        icon.classList.remove("fa-maximize");
-      } else {
-        el.title = "Enter fullscreen";
-        text.textContent = "Enter fullscreen";
-        cancelFullScreen.call(doc);
-        icon.classList.add("fa-maximize");
-        icon.classList.remove("fa-minimize");
-      }
-      closeMenu();
-    });
-    document.querySelector("#menu-buttons a").addEventListener("click", (e) => {
-      toggleButtons();
-      let button2 = document.querySelector("#menu-buttons");
-      if (client.getOption("showButtons")) {
-        button2.title = "Hide buttons";
-        button2.classList.add("active");
-        document.querySelector("#menu-buttons a span").textContent = "Hide buttons";
-      } else {
-        button2.title = "Show buttons";
-        button2.classList.remove("active");
-        document.querySelector("#menu-buttons a span").textContent = "Show buttons";
-      }
-      closeMenu();
-    });
-    updateScrollLock();
-    let pl = client.plugins.length;
-    let s;
-    let sl;
-    const list = document.querySelector("#clientMenu ul");
-    for (let p = 0; p < pl; p++) {
-      if (!client.plugins[p].settings) continue;
-      if (client.plugins[p].settings.length) {
-        sl = client.plugins[p].settings.length;
-        for (s = 0; s < sl; s++) {
-          let item = client.plugins[p].settings[s];
-          let code;
-          let id = "menu-" + (item.name || "").toLowerCase().replace(/ /g, "-");
-          if (item.name === "-")
-            code = '<li><hr class="dropdown-divider"></li>';
-          else if (typeof item.action === "string")
-            code = `<li id="menu-${id}" class="nav-item" title="${item.name || ""}"><a class="nav-link" href="#${item.action}">${item.icon || ""}${item.name || ""}</i><span>${item.name || ""}</span></a></li>`;
-          else
-            code = `<li id="menu-${id}" class="nav-item" title="${item.name || ""}"><a class="nav-link" href="javascript:void(0)">${item.icon || ""}${item.name || ""}<span>${item.name || ""}</span></a></li>`;
-          if ("position" in item) {
-            if (typeof item.position === "string") {
-              if (list.querySelector(item.position)) {
-                list.querySelector(item.position).insertAdjacentHTML("afterend", code);
-                continue;
-              }
-            } else if (item.position >= 0 && item.position < list.children.length) {
-              list.children[item.position].insertAdjacentHTML("afterend", code);
-              continue;
-            }
+  var Map = class _Map extends EventEmitter {
+    constructor() {
+      super();
+      this.changed = false;
+      this._rooms = {};
+      this._areas = [];
+      this._zone = 0;
+      this._keys = [];
+      this._keysZones = [];
+      this._current = new Room();
+    }
+    get current() {
+      return this._current;
+    }
+    set current(value) {
+      this._current = value;
+      this.emit("current-changed", value);
+    }
+    get Rooms() {
+      return this._rooms;
+    }
+    set Rooms(value) {
+      if (Array.isArray(value)) {
+        const or = value;
+        const rooms = {};
+        for (var r = 0, rl = or.length; r < rl; r++)
+          rooms[or[r].num] = or[r];
+        this._rooms = rooms;
+      } else
+        this._rooms = value || {};
+      this.buildKeys();
+      this._keys.forEach((key) => {
+        this._rooms[key] = this.normalizeRoom(this._rooms[key]);
+        if (this._rooms[key].zone > this._zone)
+          this._zone = this._rooms[key].zone;
+        if (this._areas.indexOf(this._rooms[key].area) === -1)
+          this._areas.push(this._rooms[key].area);
+      });
+      this._areas.sort();
+    }
+    get Areas() {
+      if (!this._areas) this.buildAreas();
+      return this._areas;
+    }
+    get zone() {
+      return this._zone;
+    }
+    set zone(value) {
+      this._zone = value || 0;
+    }
+    get count() {
+      return this._keys.length;
+    }
+    static load() {
+      return new Promise((resolve, reject) => {
+        localforage.getItem("nMapperData").then((value) => {
+          const map = new _Map();
+          if (value && value.Rooms)
+            map.Rooms = value.Rooms;
+          resolve(map);
+        }).catch(reject);
+      });
+    }
+    save() {
+      this.changed = false;
+      return localforage.setItem("nMapperData", { Rooms: this._rooms, Areas: this.Areas, Keys: this._keys });
+    }
+    getRoom(filter) {
+      const keys = this._keys;
+      const filterKeys = Object.keys(filter);
+      const fl = filterKeys.length;
+      roomLoop:
+        for (let k = 0, kl = keys.length; k < kl; k++) {
+          let room = this._rooms[keys[k]];
+          for (let f = 0; f < fl; f++) {
+            if (room[filterKeys[f]] !== filter[filterKeys[f]])
+              continue roomLoop;
           }
-          list.insertAdjacentHTML("beforeend", code);
-          if (item.name === "-") continue;
-          if (typeof item.action === "function")
-            document.querySelector(`#${id} a`).addEventListener("click", (e) => {
-              const ie = { client, preventDefault: false };
-              item.action(ie);
-              if (ie.preventDefault) return;
-              closeMenu();
-            });
+          return room;
+        }
+      return null;
+    }
+    getRooms(filter) {
+      const keys = this._keys;
+      const filterKeys = Object.keys(filter);
+      const fl = filterKeys.length;
+      const rooms = [];
+      roomLoop:
+        for (let k = 0, kl = keys.length; k < kl; k++) {
+          let room = this._rooms[keys[k]];
+          for (let f = 0; f < fl; f++) {
+            if (room[filterKeys[f]] !== filter[filterKeys[f]])
+              continue roomLoop;
+          }
+          rooms.push(room);
+        }
+      return rooms;
+    }
+    roomExists(filter) {
+      const keys = this._keysZones;
+      const filterKeys = Object.keys(filter);
+      const fl = filterKeys.length;
+      if (keys.findIndex((key) => {
+        let room = this._rooms[key];
+        for (let f = 0; f < fl; f++) {
+          if (room[filterKeys[f]] !== filter[filterKeys[f]])
+            return false;
+        }
+        return true;
+      }) !== -1)
+        return true;
+      return false;
+    }
+    removeRoom(room) {
+      if (typeof room === "string")
+        room = this._rooms[room];
+      if (!room) return;
+      if (this.Rooms[room.num]) {
+        let idx = this._keys.indexOf(room.num);
+        if (idx !== -1)
+          this._keys.splice(idx, 1);
+        idx = this._keysZones.indexOf(room.num);
+        if (idx !== -1)
+          this._keysZones.splice(idx, 1);
+        delete this._rooms[room.num];
+        this.changed = true;
+        this.emit("rooms-removed", [room]);
+        if (!this.getRoom({ area: room.area })) {
+          let idx2 = this._areas.indexOf(room.area);
+          this._areas.splice(idx2, 1);
+          this.emit("areas-removed", [room.area]);
         }
       }
     }
-    let button = document.querySelector("#menu-buttons");
-    if (client.getOption("showButtons")) {
-      button.title = "Hide buttons";
-      button.classList.add("active");
-      document.querySelector("#menu-buttons a span").textContent = "Hide buttons";
-    } else {
-      button.title = "Show buttons";
-      button.classList.remove("active");
-      document.querySelector("#menu-buttons a span").textContent = "Show buttons";
+    removeRooms(filter) {
+      const keys = this._keys;
+      const filterKeys = Object.keys(filter);
+      const fl = filterKeys.length;
+      const rooms = [];
+      let idx;
+      let areas = {};
+      roomLoop:
+        for (let k = keys.length - 1; k >= 0; k--) {
+          let room = this._rooms[keys[k]];
+          for (let f = 0; f < fl; f++) {
+            if (room[filterKeys[f]] !== filter[filterKeys[f]])
+              continue roomLoop;
+          }
+          rooms.push(room);
+          idx = this._keys.indexOf(room.num);
+          if (idx !== -1)
+            this._keys.splice(idx, 1);
+          idx = this._keysZones.indexOf(room.num);
+          if (idx !== -1)
+            this._keysZones.splice(idx, 1);
+          areas[room.area] = true;
+          delete this._rooms[room.num];
+        }
+      if (rooms.length) {
+        this.changed = true;
+        this.emit("rooms-removed", rooms);
+        for (let area in areas) {
+          if (!this.getRoom({ area })) {
+            let idx2 = this._areas.indexOf(area);
+            this._areas.splice(idx2, 1);
+          }
+        }
+        this.emit("areas-removed", Object.keys(areas));
+      }
     }
-  }
-  function updateScrollLock() {
-    let el = document.getElementById("menu-lock");
-    let text = document.querySelector("#menu-lock a span");
-    let icon = document.querySelector("#menu-lock svg") || document.querySelector("#menu-lock i");
-    if (client.scrollLock) {
-      el.title = "Unlock display";
-      el.classList.add("active");
-      text.textContent = "Unlock display";
-      icon.classList.add("fa-unlock");
-      icon.classList.remove("fa-lock");
-    } else {
-      el.title = "Lock display";
-      el.classList.remove("active");
-      text.textContent = "Lock display";
-      icon.classList.remove("fa-unlock");
-      icon.classList.add("fa-lock");
+    removeAllRooms() {
+      const rooms = this._keys.map((key) => this._rooms[key]);
+      const areas = this._areas;
+      this._rooms = {};
+      this._keys = [];
+      this._keysZones = [];
+      this._areas = [];
+      this._zone = 0;
+      this.current = new Room();
+      this.changed = true;
+      this.emit("rooms-removed", rooms);
+      this.emit("areas-removed", areas);
     }
-  }
+    setRoom(room) {
+      if (!room) return;
+      this.changed = true;
+      room = this.normalizeRoom(room);
+      this.emit("before-room-changed", this._rooms[room.num]);
+      this._rooms[room.num] = room;
+      if (room.zone > this._zone)
+        this._zone = room.zone;
+      this.buildKeys();
+      this.addArea(room.area);
+      this.emit("room-changed", this._rooms[room.num]);
+      return this._rooms[room.num];
+    }
+    addArea(area) {
+      if (!area) return 0;
+      if (this._areas.indexOf(area) !== -1) return;
+      this._areas.push(area);
+      this._areas.sort();
+      this.emit("areas-added", [area]);
+    }
+    getFreeZone(zone) {
+      if (!zone) zone = 0;
+      if (zone > this.zone)
+        return zone;
+      return ++this.zone;
+    }
+    normalizeRoom(r) {
+      const id = "" + (r.num || r.ID);
+      const room = {
+        area: r.Area || r.area || "",
+        details: r.Details || r.details || 0 /* None */,
+        name: r.Name || r.name || "",
+        env: r.Env || r.env || r.environment || "",
+        x: +r.X || +r.x || 0,
+        y: +r.Y || +r.y || 0,
+        z: +r.Z || +r.z || 0,
+        zone: +r.Zone || +r.zone || 0,
+        indoors: +r.Indoors || +r.indoors || 0,
+        background: r.Background || r.background || "",
+        notes: r.Notes || r.notes || "",
+        num: id ? "" + id : null,
+        exits: r.exits || {}
+      };
+      if (room.exits) {
+        let exit;
+        let dest;
+        for (exit in room.exits) {
+          if (!room.exits.hasOwnProperty(exit)) continue;
+          dest = room.exits[exit].DestID || room.exits[exit].num || null;
+          room.exits[exit] = {
+            num: dest ? "" + dest : null,
+            isdoor: +room.exits[exit].IsDoor || +room.exits[exit].isdoor || null,
+            isclosed: +room.exits[exit].IsClosed || +room.exits[exit].isclosed || null
+          };
+        }
+      }
+      return new Room(room);
+    }
+    buildKeys() {
+      this._keys = Object.keys(this._rooms).sort((a, b) => {
+        const aRoom = this._rooms[a];
+        const bRoom = this._rooms[b];
+        if (aRoom.x > bRoom.x) return 1;
+        if (aRoom.x < bRoom.x) return -1;
+        if (aRoom.y > bRoom.y) return 1;
+        if (aRoom.y < bRoom.y) return -1;
+        if (aRoom.z > bRoom.z) return 1;
+        if (aRoom.z < bRoom.z) return -1;
+        if (aRoom.zone > bRoom.zone) return 1;
+        if (aRoom.zone < bRoom.zone) return -1;
+        return a.localeCompare(b);
+      });
+      this._keysZones = this._keys.slice().sort((a, b) => {
+        const aRoom = this._rooms[a];
+        const bRoom = this._rooms[b];
+        if (aRoom.zone > bRoom.zone) return 1;
+        if (aRoom.zone < bRoom.zone) return -1;
+        return a.localeCompare(b);
+      });
+    }
+    buildAreas() {
+      this._areas = [];
+      this._keys.forEach((key) => {
+        if (this._areas.indexOf(this._rooms[key].area) === -1)
+          this._areas.push(this._rooms[key].area);
+      });
+      this._areas.sort();
+    }
+    cancelImport() {
+      this._cancel = true;
+    }
+    async import(data, type) {
+      if (!data || data === null || typeof data == "undefined") {
+        return;
+      }
+      this._cancel = false;
+      if (!Array.isArray(data))
+        data = Object.values(data);
+      if (type === 1 /* Replace */)
+        this.removeAllRooms();
+      this.emit("import-progress", 0);
+      const rl = data.length;
+      let room;
+      const areas = {};
+      this._areas.forEach((area) => areas[area] = true);
+      const rooms = [];
+      for (let r = 0; r < rl; r++) {
+        if (this._cancel)
+          break;
+        this.emit("import-progress", Math.floor(r / rl * 100));
+        if (data[r] === null) continue;
+        room = this.normalizeRoom(data[r]);
+        this._rooms[room.num] = room;
+        if (room.zone > this._zone)
+          this._zone = room.zone;
+        areas[room.area] = true;
+        rooms.push(room);
+      }
+      this.emit("rooms-changed", rooms);
+      this._areas = Object.keys(areas);
+      this._areas.sort();
+      this.emit("areas-added", Object.keys(areas));
+      this.buildKeys();
+      this.changed = true;
+      if (this._cancel)
+        this.emit("import-canceled");
+      else
+        this.emit("import-complete");
+    }
+  };
+
+  // src/interface/mapdisplay.ts
+  var MapDisplay = class extends EventEmitter {
+    constructor(container, options) {
+      super();
+      this.MouseDrag = { x: 0, y: 0, button: 0, state: false };
+      this.drag = false;
+      this.vscroll = 0;
+      this.hscroll = 0;
+      this.markers = {};
+      this._updating = 0 /* none */;
+      this._rTimeout = 0;
+      this.$focused = false;
+      this._showLegend = false;
+      this._splitArea = false;
+      this._fillWalls = false;
+      this._enabled = true;
+      this._follow = true;
+      this.commandDelay = 500;
+      this.commandDelayCount = 5;
+      this._scale = 1;
+      this._mapperNavDown = false;
+      this._pointerCache = [];
+      this._pointerDistance = -1;
+      this._showNav = true;
+      if (!container)
+        throw new Error("Container must be a selector, element, jquery object or Map options");
+      if (typeof container === "object" && "container" in container) {
+        options = Object.assign(options || {}, container);
+        container = options.container;
+        delete options.container;
+      } else if (!options)
+        options = {};
+      if (typeof container === "string") {
+        this._container = document.querySelector(container);
+        if (!this._container)
+          throw new Error("Invalid selector for display.");
+      } else if (container instanceof $)
+        this._container = container[0];
+      else if (container instanceof HTMLElement)
+        this._container = container;
+      else
+        throw new Error("Container must be a selector, element or jquery object");
+      this._resizeObserver = new ResizeObserver((entries, observer) => {
+        if (entries.length === 0) return;
+        if (!entries[0].contentRect || entries[0].contentRect.width === 0 || entries[0].contentRect.height === 0)
+          return;
+        if (!this._resizeObserverCache || this._resizeObserverCache.height !== entries[0].contentRect.height || this._resizeObserverCache.width !== entries[0].contentRect.width) {
+          this._resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
+          this._resizeCanvas();
+        }
+      });
+      this._resizeObserver.observe(this._container);
+      this._observer = new MutationObserver((mutationsList) => {
+        let mutation;
+        for (mutation of mutationsList) {
+          if (mutation.type === "attributes" && mutation.attributeName === "style") {
+            this._resizeCanvas();
+          }
+        }
+      });
+      this._observer.observe(this._container, { attributes: true, attributeOldValue: true, attributeFilter: ["style"] });
+      this._canvas = document.createElement("canvas");
+      this._canvas.id = this._container.id + "-canvas";
+      this._canvas.classList.add("map-canvas");
+      this._canvas.style.touchAction = "none";
+      this._canvas.tabIndex = 1;
+      this._resizeCanvas();
+      this._container.appendChild(this._canvas);
+      this._container.insertAdjacentHTML("afterbegin", `<div class="MapperNavButton" title="Scroll northwest" style="top:4px;left:4px;background-position: 0px 0px;" data-x="-1" data-y="-1"></div>
+        <div class="MapperNavButton" title="Scroll north" style="top:4px;left:50%;background-position: -22px 0px;margin-left:-11px;" data-x="0" data-y="-1"></div>
+        <div class="MapperNavButton" title="Scroll northeast" style="top:4px;left:100%;background-position: -44px 0px;margin-left:-26px;" data-x="1" data-y="-1"></div>
+        <div class="MapperNavButton" title="Scroll west" style="top:50%;left:4px;background-position: 0px -22px;margin-top:-11px;" data-x="-1" data-y="0"></div>
+        <div class="MapperNavButton" title="Scroll east" style="top:50%;left:100%;background-position: -44px -22px;margin-top:-11px;margin-left:-26px;" data-x="1" data-y="0"></div>
+        <div class="MapperNavButton" title="Scroll southwest" style="bottom:4px;left:4px;background-position: 0px -44px;" data-x="-1" data-y="1"></div>
+        <div class="MapperNavButton" title="Scroll south" style="bottom:4px;left:50%;background-position: -22px -44px;margin-left:-11px;" data-x="0" data-y="1"></div>
+        <div class="MapperNavButton" title="Scroll southeast" style="bottom:4px;left:100%;background-position: -44px -44px;margin-left:-26px;" data-x="1" data-y="1"></div>`);
+      this._container.querySelectorAll(".MapperNavButton").forEach((e) => {
+        e.addEventListener("wheel", (e2) => {
+          this._mapperNavDown = true;
+          const target = e2.currentTarget || e2.target;
+          if (e2.deltaY >= 0)
+            this.mapperNavClick(-parseInt(target.dataset.x, 10), -parseInt(target.dataset.y, 10));
+          else
+            this.mapperNavClick(parseInt(target.dataset.x, 10), parseInt(target.dataset.y, 10));
+          this._mapperNavDown = false;
+        }, { passive: true });
+        e.addEventListener("mouseleave", () => this._mapperNavDown = false);
+        e.addEventListener("mouseup", () => this._mapperNavDown = false);
+        e.addEventListener("mousedown", (e2) => {
+          this._mapperNavDown = true;
+          const target = e2.currentTarget || e2.target;
+          this.mapperNavClick(parseInt(target.dataset.x, 10), parseInt(target.dataset.y, 10));
+        });
+      });
+      this._context = this._canvas.getContext("2d");
+      this._context.mozImageSmoothingEnabled = false;
+      this._context.webkitImageSmoothingEnabled = false;
+      this._context.imageSmoothingEnabled = false;
+      this._canvas.addEventListener("pointerdown", (e) => {
+        this._pointerCache.push(e);
+      });
+      this._canvas.addEventListener("pointermove", (e) => {
+        const index = this._pointerCache.findIndex(
+          (cached) => cached.pointerId === e.pointerId
+        );
+        this._pointerCache[index] = e;
+        if (this._pointerCache.length === 2) {
+          const curDiff = Math.abs(this._pointerCache[0].clientX - this._pointerCache[1].clientX);
+          if (this._pointerDistance > 0) {
+            if (curDiff > this._pointerDistance) {
+              if (this.scale < 300)
+                this.scale += 1;
+            }
+            if (curDiff < this._pointerDistance) {
+              if (this.scale > 25)
+                this.scale -= 1;
+            }
+          }
+          this._pointerDistance = curDiff;
+        }
+      });
+      const pointerUp = (e) => {
+        const index = this._pointerCache.findIndex(
+          (cachedEv) => cachedEv.pointerId === e.pointerId
+        );
+        this._pointerCache.splice(index, 1);
+        if (this._pointerCache.length < 2) {
+          this._pointerDistance = -1;
+        }
+      };
+      this._canvas.addEventListener("pointerup", pointerUp);
+      this._canvas.addEventListener("pointercancel", pointerUp);
+      this._canvas.addEventListener("pointerout", pointerUp);
+      this._canvas.addEventListener("pointerleave", pointerUp);
+      this._canvas.addEventListener("touchstart", (e) => {
+        this.Mouse = this.getMapMousePos(e);
+        this.MouseDown = this.getMapMousePos(e);
+        this.MouseDrag.state = true;
+        this.drag = e.touches.length === 1;
+      }, { passive: true });
+      this._canvas.addEventListener("touchmove", (e) => {
+        this.MousePrev = this.Mouse;
+        this.Mouse = this.getMapMousePos(event);
+        if (this.drag) {
+          this.MouseDrag.x += this.MousePrev.x - this.Mouse.x;
+          this.MouseDrag.y += this.MousePrev.y - this.Mouse.y;
+          const x2 = Math.floor(this.MouseDrag.x / 32 / this._scale);
+          const y2 = Math.floor(this.MouseDrag.y / 32 / this._scale);
+          if (x2 > 0 || x2 < 0 || y2 < 0 || y2 > 0) {
+            this.MouseDrag.x -= x2 * 32 * this._scale;
+            this.MouseDrag.y -= y2 * 32 * this._scale;
+            this.scrollBy(x2, y2);
+          }
+          this._canvas.style.cursor = "move";
+        }
+        e.preventDefault();
+      }, { passive: true });
+      this._canvas.addEventListener("touchend", (e) => {
+        this.Mouse = this.getMapMousePos(e);
+        if (!this.MouseDown)
+          this.MouseDown = this.getMapMousePos(e);
+        if (this.Mouse.button === 0 && Math.floor(this.Mouse.x / 32 / this._scale) === Math.floor(this.MouseDown.x / 32 / this._scale) && Math.floor(this.Mouse.y / 32 / this._scale) === Math.floor(this.MouseDown.y / 32 / this._scale)) {
+          const x2 = this.Mouse.x;
+          const y2 = this.Mouse.y;
+          const room = this.findActiveRoomByCoords(x2, y2);
+          if (!this.selected || room && room.num !== this.selected.num)
+            this.selected = room;
+        }
+        this.MouseDrag.state = false;
+        this.drag = false;
+        this._canvas.style.cursor = "default;";
+      }, { passive: true });
+      this._canvas.addEventListener("mousemove", (event2) => {
+        this.MousePrev = this.Mouse;
+        this.Mouse = this.getMapMousePos(event2);
+        if (this.drag) {
+          this.MouseDrag.x += this.MousePrev.x - this.Mouse.x;
+          this.MouseDrag.y += this.MousePrev.y - this.Mouse.y;
+          const x2 = Math.floor(this.MouseDrag.x / 32 / this._scale);
+          const y2 = Math.floor(this.MouseDrag.y / 32 / this._scale);
+          if (x2 > 0 || x2 < 0 || y2 < 0 || y2 > 0) {
+            this.MouseDrag.x -= x2 * 32 * this._scale;
+            this.MouseDrag.y -= y2 * 32 * this._scale;
+            this.scrollBy(x2, y2);
+          }
+          this._canvas.style.cursor = "move";
+        }
+        event2.preventDefault();
+      });
+      this._canvas.addEventListener("mousedown", (event2) => {
+        this.Mouse = this.getMapMousePos(event2);
+        this.MouseDown = this.getMapMousePos(event2);
+        this.MouseDrag.state = true;
+        this.drag = this.MouseDown.button === 0;
+      });
+      this._canvas.addEventListener("mouseup", (event2) => {
+        this.Mouse = this.getMapMousePos(event2);
+        if (!this.MouseDown)
+          this.MouseDown = this.getMapMousePos(event2);
+        if (this.Mouse.button === 0 && Math.floor(this.Mouse.x / 32 / this._scale) === Math.floor(this.MouseDown.x / 32 / this._scale) && Math.floor(this.Mouse.y / 32 / this._scale) === Math.floor(this.MouseDown.y / 32 / this._scale)) {
+          const x2 = this.Mouse.x;
+          const y2 = this.Mouse.y;
+          const room = this.findActiveRoomByCoords(x2, y2);
+          if (!this.selected || room && room.num !== this.selected.num)
+            this.selected = room;
+        }
+        this.MouseDrag.state = false;
+        this.drag = false;
+        this._canvas.style.cursor = "default;";
+      });
+      this._canvas.addEventListener("wheel", (e) => {
+        if (e.deltaY >= 0)
+          this.scale -= 5;
+        else
+          this.scale += 5;
+      }, { passive: true });
+      this._canvas.addEventListener("mouseenter", (event2) => {
+        this.Mouse = this.getMapMousePos(event2);
+      });
+      this._canvas.addEventListener("mouseleave", (event2) => {
+        this.Mouse = this.getMapMousePos(event2);
+        if (this.drag) {
+          this.doUpdate(1 /* draw */);
+          this.drag = false;
+          $(this._canvas).css("cursor", "default");
+        }
+      });
+      this._canvas.addEventListener("contextmenu", (event2) => {
+        event2.preventDefault();
+        const m = this.getMapMousePos(event2);
+        this.emit("context-menu", this.findActiveRoomByCoords(m.x, m.y).clone());
+        return false;
+      });
+      this._canvas.addEventListener("click", (event2) => {
+        event2.preventDefault();
+        this.MouseDrag.state = false;
+        this.drag = false;
+        $(this._canvas).css("cursor", "default");
+      });
+      this._canvas.addEventListener("dblclick", (event2) => {
+        event2.preventDefault();
+        this.Mouse = this.getMapMousePos(event2);
+        this.MouseDown = this.getMapMousePos(event2);
+        this.MouseDrag.state = true;
+        this.drag = true;
+        $(this._canvas).css("cursor", "move");
+      });
+      this._canvas.onselectstart = () => {
+        return false;
+      };
+      this._canvas.addEventListener("focus", (e) => {
+        this.setFocus(true);
+      });
+      this._canvas.addEventListener("blur", (e) => {
+        this.setFocus(false);
+      });
+      this._canvas.addEventListener("keydown", (e) => {
+        if (!this.$focused) return;
+        switch (e.which) {
+          case 27:
+            e.preventDefault();
+            this.MouseDrag.state = false;
+            this.drag = false;
+            $(this._canvas).css("cursor", "default");
+            break;
+          case 38:
+            e.preventDefault();
+            this.scrollBy(0, -1);
+            break;
+          case 40:
+            e.preventDefault();
+            this.scrollBy(0, 1);
+            break;
+          case 37:
+            e.preventDefault();
+            this.scrollBy(-1, 0);
+            break;
+          case 39:
+            e.preventDefault();
+            this.scrollBy(1, 0);
+            break;
+          case 110:
+          case 46:
+            e.preventDefault();
+            this.emit("delete-selected");
+            break;
+          case 97:
+            e.preventDefault();
+            this.scrollBy(-1, 1);
+            break;
+          case 98:
+            e.preventDefault();
+            this.scrollBy(0, 1);
+            break;
+          case 99:
+            e.preventDefault();
+            this.scrollBy(1, 1);
+            break;
+          case 100:
+            e.preventDefault();
+            this.scrollBy(-1, 0);
+            break;
+          case 101:
+            e.preventDefault();
+            this.focusCurrentRoom();
+            break;
+          case 102:
+            e.preventDefault();
+            this.scrollBy(1, 0);
+            break;
+          case 103:
+            e.preventDefault();
+            this.scrollBy(-1, -1);
+            break;
+          case 104:
+            e.preventDefault();
+            this.scrollBy(0, -1);
+            break;
+          case 105:
+            e.preventDefault();
+            this.scrollBy(1, -1);
+            break;
+          case 107:
+            e.preventDefault();
+            this.setLevel(this.active.z + 1);
+            break;
+          case 109:
+            e.preventDefault();
+            this.setLevel(this.active.z - 1);
+            break;
+          case 111:
+            e.preventDefault();
+            this.setZone(this.active.zone - 1);
+            break;
+          case 106:
+            e.preventDefault();
+            this.setZone(this.active.zone + 1);
+            break;
+        }
+      });
+      this._map = options.map;
+      this.reset();
+      this.refresh();
+    }
+    get showNavigation() {
+      return this._showNav;
+    }
+    set showNavigation(value) {
+      if (value === this._showNav) return;
+      this._showNav = value;
+      this._container.querySelectorAll(".MapperNavButton").forEach((e) => {
+        e.style.display = this._showNav ? "" : "none";
+      });
+      this._canvas.style.top = this._showNav ? "" : "0";
+      this._canvas.style.left = this._showNav ? "" : "0";
+      this._canvas.style.right = this._showNav ? "" : "0";
+      this._canvas.style.bottom = this._showNav ? "" : "0";
+      this._resizeCanvas();
+    }
+    get selected() {
+      return this._selected;
+    }
+    set selected(value) {
+      this.emit("room-before-selected", this._selected ? this._selected.clone() : null);
+      this._selected = value.clone();
+      this.emit("room-selected", value.clone());
+      this.doUpdate(1 /* draw */);
+    }
+    get container() {
+      return this._container;
+    }
+    set scale(value) {
+      if (value < 25)
+        value = 25;
+      if (value > 300)
+        value = 300;
+      if (this._scale !== value) {
+        this._scale = value / 100;
+        this.emit("setting-changed", "scale", value);
+        this.$drawCache = 0;
+        this.doUpdate(1 /* draw */);
+      }
+    }
+    get scale() {
+      return Math.round(this._scale * 100);
+    }
+    set enabled(value) {
+      if (this._enabled !== value) {
+        this._enabled = value;
+        this.emit("setting-changed", "enabled", value);
+      }
+    }
+    get enabled() {
+      return this._enabled;
+    }
+    set follow(value) {
+      if (this._follow !== value) {
+        this._follow = value;
+        this.emit("setting-changed", "follow", value);
+      }
+    }
+    get follow() {
+      return this._follow;
+    }
+    set showLegend(value) {
+      if (this._showLegend !== value) {
+        this._showLegend = value;
+        this.$drawCache = 0;
+        this.doUpdate(1 /* draw */);
+        this.emit("setting-changed", "legend", value);
+      }
+    }
+    get showLegend() {
+      return this._showLegend;
+    }
+    set splitArea(value) {
+      if (this._splitArea !== value) {
+        this._splitArea = value;
+        this.$drawCache = 0;
+        this.doUpdate(1 /* draw */);
+        this.emit("setting-changed", "split", value);
+      }
+    }
+    get splitArea() {
+      return this._splitArea;
+    }
+    set fillWalls(value) {
+      if (this._fillWalls !== value) {
+        this._fillWalls = value;
+        this.$drawCache = 0;
+        this.doUpdate(1 /* draw */);
+        this.emit("setting-changed", "fill", value);
+      }
+    }
+    get fillWalls() {
+      return this._fillWalls;
+    }
+    getMapMousePos(evt) {
+      const rect = this._canvas.getBoundingClientRect();
+      if (evt.touches && evt.touches.length)
+        return {
+          x: evt.touches[0].clientX - rect.left,
+          y: evt.touches[0].clientY - rect.top,
+          button: 0,
+          state: false
+        };
+      return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top,
+        button: evt.button,
+        state: false
+      };
+    }
+    scrollBy(x2, y2) {
+      this.vscroll += x2;
+      this.hscroll += y2;
+      this.doUpdate(1 /* draw */);
+      this.emit("setting-changed", "vscroll", this.vscroll);
+      this.emit("setting-changed", "hscroll", this.hscroll);
+    }
+    scrollTo(x2, y2) {
+      this.vscroll = x2;
+      this.hscroll = y2;
+      this.doUpdate(1 /* draw */);
+      this.emit("setting-changed", "vscroll", this.vscroll);
+      this.emit("setting-changed", "hscroll", this.hscroll);
+    }
+    findActiveRoomByCoords(rx, ry) {
+      let x2 = this.vscroll - this._canvas.width / 32 / 2 / this._scale;
+      let y2 = this.hscroll - this._canvas.height / 32 / 2 / this._scale;
+      let ox = 15.5 * this._scale;
+      let oy = 15.5 * this._scale;
+      if (this._canvas.width % 2 !== 0)
+        ox = 15 * this._scale;
+      if (this._canvas.height % 2 !== 0)
+        oy = 15 * this._scale;
+      x2 += (rx - ox) / 32 / this._scale;
+      y2 += (ry - oy) / 32 / this._scale;
+      x2 = Math.floor(x2);
+      y2 = Math.floor(y2);
+      if (this._splitArea)
+        return this.map.getRoom({ x: x2, y: y2, z: this.active.z, zone: this.active.zone, area: this.active.area }) || new Room();
+      return this.map.getRoom({ x: x2, y: y2, z: this.active.z, zone: this.active.zone }) || new Room();
+    }
+    draw(canvas, context, ex2) {
+      return new Promise((resolve, reject) => {
+        if (!canvas)
+          canvas = this._canvas;
+        if (!context)
+          context = this._context;
+        if (!ex2) ex2 = false;
+        if (!canvas || !context || !this._map) {
+          reject();
+          return;
+        }
+        const x2 = this.vscroll - canvas.width / 32 / 2 / this._scale;
+        const y2 = this.hscroll - canvas.height / 32 / 2 / this._scale;
+        const z2 = this.active.z || 0;
+        const area = this.active.area || "";
+        const zone = this.active.zone || 0;
+        let ox = 15.5 * this._scale;
+        let oy = 15.5 * this._scale;
+        if (canvas.width % 2 !== 0)
+          ox = 15 * this._scale;
+        if (canvas.height % 2 !== 0)
+          oy = 15 * this._scale;
+        context.font = "8pt Arial";
+        const s = (/* @__PURE__ */ new Date()).getTime();
+        const $w = canvas.width / 32 / this._scale + 1;
+        const $h = canvas.height / 32 / this._scale + 1;
+        const $x = x2 - 1;
+        const $y = y2 - 1;
+        const rooms = Object.values(this._map.Rooms).filter((room) => {
+          if (room.zone !== zone || room.z !== z2) return false;
+          if (this._splitArea && room.area !== area) return false;
+          if (0 <= room.x - $x && room.x - $x <= $w && (0 <= room.y - $y && room.y - $y <= $h) || 0 <= room.x - $x && room.x - $x <= $w && (0 <= room.y - $y + 1 && room.y - $y + 1 <= $h) || 0 <= room.x - $x + 1 && room.x - $x + 1 <= $w && (0 <= room.y - $y + 1 && room.y - $y + 1 <= $h) || 0 <= room.x - $x + 1 && room.x - $x + 1 <= $w && (0 <= room.y - $y && room.y - $y <= $h))
+            return true;
+          return false;
+        });
+        this.emit("debug", "Mapper: Draw - room query time: " + ((/* @__PURE__ */ new Date()).getTime() - s));
+        const d2 = (/* @__PURE__ */ new Date()).getTime();
+        if (ex2) {
+          context.fillStyle = "#eae4d6";
+          context.fillRect(0, 0, canvas.width, canvas.height);
+        } else
+          context.clearRect(0, 0, canvas.width, canvas.height);
+        this.emit("debug", "Mapper: Draw - room calculations time: " + ((/* @__PURE__ */ new Date()).getTime() - s));
+        for (let r = 0, rl = rooms.length; r < rl; r++) {
+          const room = rooms[r];
+          this.DrawRoom(context, (room.x - x2) * 32 * this._scale + ox, (room.y - y2) * 32 * this._scale + oy, room, ex2, this._scale);
+        }
+        this.emit("debug", "Mapper: Draw - display time: " + ((/* @__PURE__ */ new Date()).getTime() - d2));
+        this.emit("debug", "Mapper: Draw - final time: " + ((/* @__PURE__ */ new Date()).getTime() - s));
+        this.DrawLegend(context, 1, -4, 0);
+        resolve(true);
+      });
+    }
+    reset(type) {
+      if (this._map && (!type || type === 1)) {
+        this._map.current = new Room();
+        this.emit("current-changed", this._map.current);
+      }
+      if (!type) {
+        this.setActive(new Room());
+        this.selected = new Room();
+      }
+    }
+    refresh() {
+      this.$drawCache = 0;
+      this.doUpdate(1 /* draw */);
+      this.emit("refresh");
+    }
+    focusCurrentRoom() {
+      if (this._map.current.num) {
+        this.setActive(this._map.current.clone());
+        this.emit("active-room-changed", this.active.clone());
+      }
+      this.focusActiveRoom();
+    }
+    focusActiveRoom() {
+      this.scrollTo(this.active.x + 1, this.active.y + 1);
+    }
+    setActive(room) {
+      this.active = room.clone();
+      this.emit("active-room-changed", this.active);
+    }
+    get current() {
+      return this._map.current;
+    }
+    set current(value) {
+      this.emit("path-cleared");
+      if (!value || !value.num) value = this.selected;
+      this._map.current = value.clone();
+      this.markers = {};
+      this.markedRooms = 0;
+    }
+    setArea(area) {
+      this.active.area = area;
+      if (this._map.current.num !== null && this._map.current.area === this.active.area) {
+        this.setActive(this._map.current.clone());
+        this.focusActiveRoom();
+        this.emit("setting-changed", "active", this.active);
+      } else {
+        const room = this._map.getRoom({ area });
+        if (room) {
+          this.active = room.clone();
+          this.setActive(this.active);
+          this.focusActiveRoom();
+          this.emit("setting-changed", "active", this.active);
+        }
+      }
+    }
+    setLevel(level) {
+      if (level !== this.active.z) {
+        this.active.z = level;
+        this.doUpdate(1 /* draw */);
+        this.emit("setting-changed", "active", this.active);
+      }
+    }
+    setZone(zone) {
+      if (zone !== this.active.zone) {
+        this.active.zone = zone;
+        this.doUpdate(1 /* draw */);
+        this.emit("setting-changed", "active", this.active);
+      }
+    }
+    removeRoom(room) {
+      if (this._map.roomExists({ num: room.num })) {
+        this._map.removeRoom(room);
+        this.emit("remove-done", room);
+        if (room.num === this._map.current.num) {
+          this._map.current = new Room();
+          this.emit("current-changed", this._map.current);
+          this.clearPath();
+        } else if (this.markers[room.num])
+          this.clearPath();
+        if (room.num === this.active.num)
+          this.setActive(new Room());
+        if (room.num === this.selected.num)
+          this.selected = new Room();
+        this.refresh();
+      }
+    }
+    clearSelectedRoom() {
+      const es = { preventDefault: false };
+      this.emit("clear-selected", es);
+      if (es.preventDefault) return;
+      this.removeRoom(this.selected);
+    }
+    clearCurrentRoom() {
+      const es = { preventDefault: false };
+      this.emit("clear-current", es);
+      if (es.preventDefault) return;
+      this.removeRoom(this._map.current);
+    }
+    clearArea() {
+      const es = { preventDefault: false };
+      this.emit("clear-area", es);
+      if (es.preventDefault) return;
+      this._map.removeRooms({ area: this.active.area });
+      this.emit("clear-area-done", this.active.area);
+      this.reset();
+      this.refresh();
+    }
+    clearAll() {
+      const es = { preventDefault: false };
+      this.emit("clear-all", es);
+      if (es.preventDefault) return;
+      this._map.removeAllRooms();
+      this.emit("clear-done");
+      this.reset();
+      this.refresh();
+      this.focusActiveRoom();
+    }
+    set map(map) {
+      this._map = map;
+      map.on("current-changed", (room) => {
+        this.clearPath();
+        this.emit("current-changed", this._map.current);
+        if (this.selected && this.selected.num === room.num)
+          this.emit("room-selected", room.clone());
+        if (this.follow)
+          this.focusCurrentRoom();
+        else
+          this.setActive(room.clone());
+        this.refresh();
+      });
+      map.on("before-room-changed", (room) => {
+        if (room)
+          delete this.$drawCache[(room.background ? room.background : room.env) + "," + room.indoors + "," + room.exitsID + "," + room.details];
+      });
+      map.on("room-changed", (room) => {
+        if (this.selected && this.selected.num === room.num)
+          this.selected = room;
+        if (this.follow)
+          this.focusCurrentRoom();
+        else
+          this.setActive(this.current.clone());
+        this.refresh();
+      });
+      map.on("rooms-changed", (rooms) => {
+        if (this.selected && this.selected.num) {
+          const idx = rooms.findIndex((room) => room.num === this.selected.num);
+          if (idx !== -1)
+            this.selected = rooms[idx];
+        }
+        if (this.follow)
+          this.focusCurrentRoom();
+        else
+          this.setActive(this.current.clone());
+        this.refresh();
+      });
+      this.refresh();
+    }
+    get map() {
+      return this._map;
+    }
+    set rooms(rooms) {
+      this._map.Rooms = rooms;
+    }
+    get rooms() {
+      return this._map.Rooms;
+    }
+    roomExists(x2, y2, z2, zone, area) {
+      if (area)
+        return this._map.roomExists({ x: x2, y: y2, z: z2, zone: zone || 0, area });
+      return this._map.roomExists({ x: x2, y: y2, z: z2, zone: zone || 0 });
+    }
+    setRoom(room) {
+      this._map.setRoom(room);
+    }
+    DrawLegend(ctx, x2, y2, nc) {
+      if (!this._showLegend) return;
+      ctx.strokeStyle = "black";
+      if (!nc) {
+        ctx.fillStyle = "#eae4d6";
+        ctx.fillRect(x2 + 30, y2 + 35, 130, 175);
+      }
+      ctx.fillStyle = "black";
+      ctx.strokeRect(x2 + 30, y2 + 35, 130, 175);
+      ctx.font = "italic bold 8pt Georgia";
+      ctx.fillText("Dock", x2 + 50, y2 + 50);
+      ctx.fillStyle = "chocolate";
+      ctx.beginPath();
+      ctx.arc(x2 + 40, y2 + 45, 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.closePath();
+      ctx.fillStyle = "black";
+      ctx.fillText("Pier", x2 + 50, y2 + 65);
+      ctx.fillStyle = "gray";
+      ctx.beginPath();
+      ctx.arc(x2 + 40, y2 + 60, 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.closePath();
+      ctx.fillStyle = "black";
+      ctx.fillText("Water Source", x2 + 50, y2 + 80);
+      ctx.fillStyle = "aqua";
+      ctx.beginPath();
+      ctx.arc(x2 + 40, y2 + 75, 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.closePath();
+      ctx.fillStyle = "black";
+      ctx.fillText("Bank", x2 + 50, y2 + 95);
+      ctx.font = "8pt Arial";
+      ctx.fillStyle = "goldenrod";
+      ctx.beginPath();
+      ctx.fillText("$", x2 + 38, y2 + 95);
+      ctx.closePath();
+      ctx.font = "italic bold 8pt Georgia";
+      ctx.fillStyle = "black";
+      ctx.fillText("Shop", x2 + 50, y2 + 110);
+      ctx.font = "8pt Arial";
+      ctx.fillStyle = "purple";
+      ctx.beginPath();
+      ctx.fillText("\u23CF", x2 + 38, y2 + 110);
+      ctx.closePath();
+      ctx.font = "italic bold 8pt Georgia";
+      ctx.fillStyle = "black";
+      ctx.fillText("Hospital", x2 + 50, y2 + 125);
+      ctx.font = "8pt Arial";
+      ctx.fillStyle = "blue";
+      ctx.beginPath();
+      ctx.fillText("\u2665", x2 + 38, y2 + 125);
+      ctx.closePath();
+      ctx.font = "italic bold 8pt Georgia";
+      ctx.fillStyle = "black";
+      ctx.fillText("Bar & Restaurant", x2 + 50, y2 + 140);
+      ctx.font = "8pt Arial";
+      ctx.fillStyle = "green";
+      ctx.beginPath();
+      ctx.fillText("\u2617", x2 + 38, y2 + 140);
+      ctx.closePath();
+      ctx.font = "italic bold 8pt Georgia";
+      ctx.fillStyle = "black";
+      ctx.fillText("Bar", x2 + 50, y2 + 155);
+      ctx.font = "8pt Arial";
+      ctx.fillStyle = "green";
+      ctx.beginPath();
+      ctx.fillText("\u266A", x2 + 38, y2 + 155);
+      ctx.closePath();
+      ctx.font = "italic bold 8pt Georgia";
+      ctx.fillStyle = "black";
+      ctx.fillText("Restaurant", x2 + 50, y2 + 170);
+      ctx.font = "8pt Arial";
+      ctx.fillStyle = "green";
+      ctx.beginPath();
+      ctx.fillText("\u2616", x2 + 38, y2 + 170);
+      ctx.closePath();
+      ctx.font = "italic bold 8pt Georgia";
+      ctx.fillStyle = "black";
+      ctx.fillText("Train", x2 + 50, y2 + 185);
+      ctx.font = "8pt Arial";
+      ctx.fillStyle = "red";
+      ctx.beginPath();
+      ctx.fillText("\u260D", x2 + 38, y2 + 185);
+      ctx.closePath();
+      ctx.font = "italic bold 8pt Georgia";
+      ctx.fillStyle = "black";
+      ctx.fillText("Stable", x2 + 50, y2 + 200);
+      ctx.font = "8pt Arial";
+      ctx.fillStyle = "rgb(153, 102, 0)";
+      ctx.beginPath();
+      ctx.fillText("\u2658", x2 + 38, y2 + 200);
+      ctx.closePath();
+    }
+    translate(ctx, amt, scale) {
+      if (scale === 2) return;
+      const o = amt - amt * scale;
+      ctx.translate(amt * scale + o, amt * scale + o);
+    }
+    DrawRoom(ctx, x2, y2, room, ex2, scale) {
+      if (!this.$drawCache)
+        this.$drawCache = {};
+      if (!scale) scale = this._scale;
+      const key = (room.background ? room.background : room.env) + "," + room.indoors + "," + room.exitsID + "," + room.details;
+      if (!this.$drawCache[key]) {
+        this.$drawCache[key] = document.createElement("canvas");
+        this.$drawCache[key].classList.add("map-canvas");
+        this.$drawCache[key].height = 32 * scale;
+        this.$drawCache[key].width = 32 * scale;
+        const tx = this.$drawCache[key].getContext("2d");
+        this.translate(tx, 0.5, scale);
+        tx.beginPath();
+        let f = false;
+        if (room.background) {
+          tx.fillStyle = room.background;
+          f = true;
+        } else if (room.env) {
+          switch (room.env) {
+            case "wood":
+              tx.fillStyle = "#966F33";
+              f = true;
+              break;
+            case "jungle":
+              tx.fillStyle = "#347C2C";
+              f = true;
+              break;
+            case "forest":
+              tx.fillStyle = "#4E9258";
+              f = true;
+              break;
+            case "grass":
+            case "grassland":
+            case "plains":
+            case "prairie":
+            case "savannah":
+              tx.fillStyle = "#4AA02C";
+              f = true;
+              break;
+            case "desert":
+            case "dirt":
+            case "dirtroad":
+            case "beach":
+            case "sand":
+            case "sanddesert":
+              tx.fillStyle = "#C2B280";
+              f = true;
+              break;
+            case "snow":
+              tx.fillStyle = "#F0F8FF";
+              f = true;
+              break;
+            case "tundra":
+            case "icesheet":
+              tx.fillStyle = "#368BC1";
+              f = true;
+              break;
+            case "underwater":
+            case "water":
+            case "lake":
+            case "river":
+              tx.fillStyle = "#EBF4FA";
+              f = true;
+              break;
+            case "ocean":
+              tx.fillStyle = "#C2DFFF";
+              f = true;
+              break;
+            case "bog":
+            case "city":
+            case "cliff":
+            case "highmountain":
+            case "hills":
+            case "mountain":
+            case "swamp":
+              f = false;
+              break;
+            case "farmland":
+              f = true;
+              tx.fillStyle = "#A9DFBF";
+              break;
+            case "rockdesert":
+              tx.fillStyle = "#6E2C00";
+              f = true;
+              break;
+            case "pavedroad":
+              tx.fillStyle = "#D0D3D4";
+              f = true;
+              break;
+            case "cobble":
+            case "rocky":
+            case "stone":
+              tx.fillStyle = "#D5DBDB";
+              f = true;
+              break;
+            default:
+              f = false;
+              break;
+          }
+        } else
+          f = false;
+        tx.strokeStyle = "black";
+        tx.lineWidth = 0.6 * scale;
+        if (!room.indoors) {
+          tx.arc(16 * scale, 16 * scale, 8 * scale, 0, Math.PI * 2, false);
+          if (f) tx.fill();
+          tx.stroke();
+        } else {
+          if (f) tx.fillRect(8 * scale, 8 * scale, 16 * scale, 16 * scale);
+          tx.strokeRect(8 * scale, 8 * scale, 16 * scale, 16 * scale);
+        }
+        tx.closePath();
+        tx.beginPath();
+        tx.fillStyle = "#cccccc";
+        if (room.exits.north) {
+          tx.moveTo(16 * scale, 0 * scale);
+          tx.lineTo(16 * scale, 8 * scale);
+        } else if (this._fillWalls)
+          tx.fillRect(9 * scale, 0 * scale, 14 * scale, 4 * scale);
+        if (room.exits.northwest) {
+          if (!room.Indoors) {
+            tx.moveTo(0 * scale, 0 * scale);
+            tx.lineTo(10 * scale, 10 * scale);
+          } else {
+            tx.moveTo(0 * scale, 0 * scale);
+            tx.lineTo(8 * scale, 8 * scale);
+          }
+        } else if (this._fillWalls) {
+          tx.fillRect(2 * scale, 0 * scale, 2 * scale, 2 * scale);
+          tx.fillRect(0 * scale, 2 * scale, 4 * scale, 2 * scale);
+          if (!room.exits.north)
+            tx.fillRect(4 * scale, 0 * scale, 5 * scale, 4 * scale);
+          if (!room.exits.west)
+            tx.fillRect(0 * scale, 4 * scale, 4 * scale, 5 * scale);
+        }
+        if (room.exits.northeast) {
+          if (!room.Indoors) {
+            tx.moveTo(32 * scale, 0 * scale);
+            tx.lineTo(22 * scale, 10 * scale);
+          } else {
+            tx.moveTo(32 * scale, 0 * scale);
+            tx.lineTo(24 * scale, 8 * scale);
+          }
+        } else if (this._fillWalls) {
+          tx.fillRect(28 * scale, 0 * scale, 2 * scale, 2 * scale);
+          tx.fillRect(28 * scale, 2 * scale, 4 * scale, 2 * scale);
+          tx.clearRect(30 * scale, 0 * scale, 2 * scale, 2 * scale);
+          if (!room.exits.north)
+            tx.fillRect(23 * scale, 0 * scale, 5 * scale, 4 * scale);
+          if (!room.exits.east)
+            tx.fillRect(28 * scale, 4 * scale, 4 * scale, 5 * scale);
+        }
+        if (room.exits.east) {
+          tx.moveTo(24 * scale, 16 * scale);
+          tx.lineTo(32 * scale, 16 * scale);
+        } else if (this._fillWalls)
+          tx.fillRect(28 * scale, 9 * scale, 4 * scale, 14 * scale);
+        if (room.exits.west) {
+          tx.moveTo(0 * scale, 16 * scale);
+          tx.lineTo(8 * scale, 16 * scale);
+        } else if (this._fillWalls)
+          tx.fillRect(0 * scale, 9 * scale, 4 * scale, 14 * scale);
+        if (room.exits.south) {
+          tx.moveTo(16 * scale, 24 * scale);
+          tx.lineTo(16 * scale, 32 * scale);
+        } else if (this._fillWalls)
+          tx.fillRect(9 * scale, 28 * scale, 14 * scale, 4 * scale);
+        if (room.exits.southeast) {
+          if (!room.Indoors) {
+            tx.moveTo(32 * scale, 32 * scale);
+            tx.lineTo(22 * scale, 22 * scale);
+          } else {
+            tx.moveTo(32 * scale, 32 * scale);
+            tx.lineTo(24 * scale, 24 * scale);
+          }
+        } else if (this._fillWalls) {
+          tx.fillRect(28 * scale, 28 * scale, 4 * scale, 2 * scale);
+          tx.fillRect(28 * scale, 30 * scale, 2 * scale, 2 * scale);
+          if (!room.exits.south)
+            tx.fillRect(23 * scale, 28 * scale, 5 * scale, 4 * scale);
+          if (!room.exits.east)
+            tx.fillRect(28 * scale, 23 * scale, 4 * scale, 5 * scale);
+        }
+        if (room.exits.southwest) {
+          if (!room.Indoors) {
+            tx.moveTo(0 * scale, 32 * scale);
+            tx.lineTo(10 * scale, 22 * scale);
+          } else {
+            tx.moveTo(0 * scale, 32 * scale);
+            tx.lineTo(8 * scale, 24 * scale);
+          }
+        } else if (this._fillWalls) {
+          tx.fillRect(0 * scale, 28 * scale, 4 * scale, 2 * scale);
+          tx.fillRect(2 * scale, 30 * scale, 2 * scale, 2 * scale);
+          if (!room.exits.south)
+            tx.fillRect(4 * scale, 28 * scale, 5 * scale, 4 * scale);
+          if (!room.exits.west)
+            tx.fillRect(0 * scale, 23 * scale, 4 * scale, 5 * scale);
+        }
+        tx.closePath();
+        tx.stroke();
+        tx.fillStyle = "black";
+        tx.strokeStyle = "black";
+        if (room.exits.up) {
+          tx.beginPath();
+          tx.moveTo(1 * scale, 11 * scale);
+          tx.lineTo(7 * scale, 11 * scale);
+          tx.lineTo(4 * scale, 8 * scale);
+          tx.closePath();
+          tx.fill();
+        }
+        if (room.exits.down) {
+          tx.beginPath();
+          tx.moveTo(1 * scale, 21 * scale);
+          tx.lineTo(7 * scale, 21 * scale);
+          tx.lineTo(4 * scale, 24 * scale);
+          tx.closePath();
+          tx.fill();
+        }
+        if (room.exits.out) {
+          tx.beginPath();
+          tx.moveTo(26 * scale, 8 * scale);
+          tx.lineTo(29 * scale, 11 * scale);
+          tx.lineTo(26 * scale, 14 * scale);
+          tx.closePath();
+          tx.fill();
+        }
+        if (room.exits.enter) {
+          tx.beginPath();
+          tx.moveTo(29 * scale, 19 * scale);
+          tx.lineTo(26 * scale, 22 * scale);
+          tx.lineTo(29 * scale, 25 * scale);
+          tx.closePath();
+          tx.fill();
+        }
+        if ((room.details & 1 /* Dock */) === 1 /* Dock */) {
+          tx.fillStyle = "chocolate";
+          tx.beginPath();
+          tx.arc(20 * scale, 5 * scale, 2 * scale, 0, Math.PI * 2);
+          tx.fill();
+          tx.closePath();
+        } else if ((room.details & 2 /* Pier */) === 2 /* Pier */) {
+          tx.fillStyle = "gray";
+          tx.beginPath();
+          tx.arc(12 * scale, 5 * scale, 2 * scale, 0, Math.PI * 2);
+          tx.fill();
+          tx.closePath();
+        }
+        if ((room.details & 128 /* WaterSource */) === 128 /* WaterSource */) {
+          tx.fillStyle = "aqua";
+          tx.beginPath();
+          tx.arc(12 * scale, 5 * scale, 2 * scale, 0, Math.PI * 2);
+          tx.fill();
+          tx.closePath();
+        }
+        tx.scale(scale, scale);
+        if ((room.details & 4 /* Bank */) === 4 /* Bank */) {
+          tx.fillStyle = "goldenrod";
+          tx.beginPath();
+          tx.fillText("$", 9, 17);
+          tx.closePath();
+        }
+        if ((room.details & 8 /* Shop */) === 8 /* Shop */) {
+          tx.fillStyle = "purple";
+          tx.beginPath();
+          tx.fillText("\u23CF", 15, 17);
+          tx.closePath();
+        }
+        if ((room.details & 16 /* Hospital */) === 16 /* Hospital */) {
+          tx.fillStyle = "blue";
+          tx.beginPath();
+          tx.fillText("\u2665", 15, 17);
+          tx.closePath();
+        }
+        if ((room.details & 256 /* Trainer */) === 256 /* Trainer */) {
+          tx.fillStyle = "red";
+          tx.beginPath();
+          tx.fillText("\u260D", 15, 17);
+          tx.closePath();
+        }
+        if ((room.details & 512 /* Stable */) === 512 /* Stable */) {
+          tx.fillStyle = "rgb(153, 102, 0)";
+          tx.beginPath();
+          tx.fillText("\u2658", 7, 17);
+          tx.closePath();
+        }
+        if ((room.details & 64 /* Restaurant */) === 64 /* Restaurant */ && (room.details & 32 /* Bar */) === 32 /* Bar */) {
+          tx.fillStyle = "green";
+          tx.beginPath();
+          tx.fillText("\u2617", 15, 17);
+          tx.closePath();
+        } else if ((room.details & 32 /* Bar */) === 32 /* Bar */) {
+          tx.fillStyle = "green";
+          tx.beginPath();
+          tx.fillText("\u266A", 15, 17);
+          tx.closePath();
+        } else if ((room.details & 64 /* Restaurant */) === 64 /* Restaurant */) {
+          tx.fillStyle = "green";
+          tx.beginPath();
+          tx.fillText("\u2616", 15, 17);
+          tx.closePath();
+        }
+        tx.setTransform(1, 0, 0, 1, 0, 0);
+        this.translate(tx, -0.5, scale);
+      }
+      ctx.drawImage(this.$drawCache[key], x2 | 0, y2 | 0);
+      this.DrawDoor(ctx, x2 + 12 * scale, y2 - 2 * scale, 8 * scale, 3 * scale, room.exits.north);
+      this.DrawDoor(ctx, x2 + 31 * scale, y2 + 12 * scale, 3 * scale, 8 * scale, room.exits.east);
+      this.DrawDoor(ctx, x2 - 1 * scale, y2 + 12 * scale, 3 * scale, 8 * scale, room.exits.west);
+      this.DrawDoor(ctx, x2 + 12 * scale, y2 + 30 * scale, 8 * scale, 3 * scale, room.exits.south);
+      this.DrawDDoor(ctx, x2, y2, 5 * scale, 5 * scale, room.exits.northwest);
+      this.DrawDDoor(ctx, x2 + 32 * scale, y2, -5 * scale, 5 * scale, room.exits.northeast);
+      this.DrawDDoor(ctx, x2 + 32 * scale, y2 + 32 * scale, -5 * scale, -5 * scale, room.exits.southeast);
+      this.DrawDDoor(ctx, x2, y2 + 32 * scale, 5 * scale, -5 * scale, room.exits.southwest);
+      if (!ex2 && this.selected.num === room.num) {
+        if (this.$focused) {
+          ctx.fillStyle = "rgba(135, 206, 250, 0.5)";
+          ctx.strokeStyle = "LightSkyBlue";
+        } else {
+          ctx.fillStyle = "rgba(142, 142, 142, 0.5)";
+          ctx.strokeStyle = "rgba(142, 142, 142, 0.5)";
+        }
+        ctx.fillRoundedRect(x2, y2, 32 * scale, 32 * scale, 8 * scale);
+        ctx.strokeRoundedRect(x2, y2, 32 * scale, 32 * scale, 8 * scale);
+      }
+      if (this.markers[room.num] === 2)
+        this.drawMarker(ctx, x2, y2, "green", scale);
+      else if (this.markers[room.num] === 3)
+        this.drawMarker(ctx, x2, y2, "blue", scale);
+      else if (this.markers[room.num])
+        this.drawMarker(ctx, x2, y2, "yellow", scale);
+      if (!ex2 && room.num === this._map.current.num)
+        this.drawMarker(ctx, x2, y2, "red", scale);
+    }
+    drawMarker(ctx, x2, y2, color, scale) {
+      if (!color) color = "yellow";
+      ctx.beginPath();
+      ctx.fillStyle = color;
+      ctx.strokeStyle = "black";
+      ctx.arc(x2 + 16 * scale, y2 + 16 * scale, 4 * scale, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.closePath();
+    }
+    DrawDoor(ctx, x2, y2, w, h, exit) {
+      if (!exit || !exit.isdoor) return;
+      ctx.beginPath();
+      ctx.clearRect(x2, y2, w, h);
+      ctx.fillStyle = "black";
+      ctx.strokeStyle = "black";
+      if (exit.isclosed)
+        ctx.fillRect(x2, y2, w, h);
+      else
+        ctx.strokeRect(x2, y2, w, h);
+      ctx.closePath();
+    }
+    DrawDDoor(ctx, x2, y2, w, h, exit) {
+      if (!exit || !exit.isdoor) return;
+      ctx.beginPath();
+      ctx.fillStyle = "black";
+      ctx.strokeStyle = "black";
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 + w, y2);
+      ctx.lineTo(x2, y2 + h);
+      ctx.lineTo(x2, y2);
+      if (exit.isclosed)
+        ctx.fill();
+      else
+        ctx.stroke();
+      ctx.closePath();
+    }
+    PointInRect(x2, y2, x1, x22, y1, y22) {
+      if (x1 <= x2 && x2 <= x22 && (y1 <= y2 && y2 <= y22))
+        return true;
+      return false;
+    }
+    getRoom(id) {
+      return this._map.Rooms[id];
+    }
+    getRooms(filter) {
+      if (!filter)
+        return Object.values(this._map.Rooms);
+      return this._map.getRooms(filter);
+    }
+    showPath(destRoom) {
+      if (!destRoom || !destRoom.num)
+        destRoom = this.selected;
+      if (this._map.current.num == null || destRoom.num == null)
+        return;
+      if (this._splitArea && this._map.current.area !== destRoom.area)
+        return;
+      if (this._map.current.zone !== destRoom.zone)
+        return;
+      let rooms;
+      if (this._splitArea)
+        rooms = this.getRooms({ area: this._map.current.area, zone: this._map.current.zone });
+      else
+        rooms = this.getRooms({ zone: this._map.current.zone });
+      let room;
+      let id;
+      const roomsC = [];
+      let ox = null;
+      let oy = 0;
+      let oz = 0;
+      let w = 0;
+      let h = 0;
+      let d2 = 0;
+      let r;
+      let rl;
+      let x2;
+      let y2;
+      let z2;
+      let cx;
+      let cy;
+      let cz;
+      for (id in rooms) {
+        if (!rooms.hasOwnProperty(id)) continue;
+        room = rooms[id];
+        if (ox == null) {
+          ox = room.x;
+          w = room.x + 1;
+          oy = room.y;
+          h = room.y + 1;
+          oz = room.z;
+          d2 = room.z + 1;
+          continue;
+        }
+        if (room.x < ox) ox = room.x;
+        else if (room.x > w) w = room.x;
+        if (room.y < oy) oy = room.y;
+        else if (room.y > h) h = room.y;
+        if (room.z < oz) oz = room.z;
+        else if (room.z > d2) d2 = room.z;
+      }
+      for (id in rooms) {
+        if (!rooms.hasOwnProperty(id)) continue;
+        room = rooms[id];
+        if (room == null) continue;
+        if (!roomsC[room.y - oy]) roomsC[room.y - oy] = [];
+        if (!roomsC[room.y - oy][room.x - ox]) roomsC[room.y - oy][room.x - ox] = [];
+        roomsC[room.y - oy][room.x - ox][room.z - oz] = room;
+      }
+      w = Math.sqrt(Math.pow(w - ox, 2)) + 1;
+      h = Math.sqrt(Math.pow(oy - h, 2)) + 1;
+      d2 = Math.sqrt(Math.pow(oz - d2, 2)) + 1;
+      const matrix = [];
+      for (y2 = 0; y2 < h; y2++) {
+        matrix[y2] = [];
+        for (x2 = 0; x2 < w; x2++) {
+          matrix[y2][x2] = [];
+          for (z2 = 0; z2 < d2; z2++)
+            matrix[y2][x2][z2] = 0;
+        }
+      }
+      for (id in rooms) {
+        if (!rooms.hasOwnProperty(id)) continue;
+        room = rooms[id];
+        x2 = room.x - ox;
+        y2 = room.y - oy;
+        z2 = room.z - oz;
+        if (room.exits.northwest)
+          matrix[y2][x2][z2] |= 1;
+        if (room.exits.north)
+          matrix[y2][x2][z2] |= 128;
+        if (room.exits.northeast)
+          matrix[y2][x2][z2] |= 64;
+        if (room.exits.west)
+          matrix[y2][x2][z2] |= 2;
+        if (room.exits.east)
+          matrix[y2][x2][z2] |= 32;
+        if (room.exits.southwest)
+          matrix[y2][x2][z2] |= 4;
+        if (room.exits.south)
+          matrix[y2][x2][z2] |= 8;
+        if (room.exits.southeast)
+          matrix[y2][x2][z2] |= 16;
+        if (room.exits.up)
+          matrix[y2][x2][z2] |= 512;
+        if (room.exits.down)
+          matrix[y2][x2][z2] |= 256;
+      }
+      const grid = new PF.Grid(w, h, d2, matrix);
+      const finder = new PF.AStarFinder({ allowDiagonal: true, dontCrossCorners: false });
+      x2 = this._map.current.x - ox;
+      y2 = this._map.current.y - oy;
+      z2 = this._map.current.z - oz;
+      cx = destRoom.x - ox;
+      cy = destRoom.y - oy;
+      cz = destRoom.z - oz;
+      const fPath = finder.findPath(x2, y2, z2, cx, cy, cz, grid);
+      rl = fPath.length;
+      this.markers = {};
+      this.markedRooms = [this._map.current, destRoom];
+      for (r = 0; r < rl; r++) {
+        x2 = Math.floor(fPath[r][0]);
+        y2 = Math.floor(fPath[r][1]);
+        z2 = Math.floor(fPath[r][2]);
+        if (roomsC[y2] && roomsC[y2][x2] && roomsC[y2][x2][z2]) {
+          if (roomsC[y2][x2][z2].num === this._map.current.num)
+            this.markers[roomsC[y2][x2][z2].num] = 2;
+          else if (roomsC[y2][x2][z2].num === destRoom.num)
+            this.markers[roomsC[y2][x2][z2].num] = 3;
+          else
+            this.markers[roomsC[y2][x2][z2].num] = 1;
+        }
+      }
+      this.emit("path-shown");
+      this.doUpdate(1 /* draw */);
+    }
+    clearPath() {
+      this.emit("path-cleared");
+      this.markers = {};
+      this.markedRooms = 0;
+      this.doUpdate(1 /* draw */);
+    }
+    get hasMarked() {
+      return this.markedRooms && this.markedRooms.length !== 0;
+    }
+    get markedStart() {
+      if (!this.markedRooms) return 0;
+      return this.markedRooms[0];
+    }
+    get markedEnd() {
+      if (!this.markedRooms) return 0;
+      return this.markedRooms[1];
+    }
+    getMarkedPath() {
+      return new Promise((resolve, reject) => {
+        if (!this.markedRooms)
+          this.getPath().then(resolve).catch(reject);
+        else
+          this.getPath(this.markedRooms[1], this.markedRooms[0]).then(resolve).catch(reject);
+      });
+    }
+    getPath(destRoom, startRoom) {
+      return new Promise((resolve, reject) => {
+        if (!destRoom || !destRoom.num)
+          destRoom = this.selected;
+        if (!startRoom || !startRoom.num)
+          startRoom = this._map.current;
+        if (startRoom.num == null || destRoom.num == null) {
+          reject("Invalid start or end room.");
+          return;
+        }
+        if (this._splitArea && startRoom.area !== destRoom.area) {
+          reject("Start and end rooms must be in same the area.");
+          return;
+        }
+        if (startRoom.zone !== destRoom.zone) {
+          reject("Start and end rooms must be in the same zone.");
+          return;
+        }
+        let rooms;
+        if (this._splitArea)
+          rooms = this.getRooms({ area: startRoom.area, zone: startRoom.zone });
+        else
+          rooms = this.getRooms({ zone: startRoom.zone });
+        let room;
+        let id;
+        let ox = null;
+        let oy = 0;
+        let oz = 0;
+        let w = 0;
+        let h = 0;
+        let d2 = 0;
+        let r;
+        let rl;
+        let x2;
+        let y2;
+        let z2;
+        let cx;
+        let cy;
+        let cz;
+        let x22;
+        let y22;
+        let z22;
+        for (id in rooms) {
+          if (!rooms.hasOwnProperty(id)) continue;
+          room = rooms[id];
+          if (ox == null) {
+            ox = room.x;
+            w = room.x + 1;
+            oy = room.y;
+            h = room.y + 1;
+            oz = room.z;
+            d2 = room.z + 1;
+            continue;
+          }
+          if (room.x < ox) ox = room.x;
+          else if (room.x > w) w = room.x;
+          if (room.y < oy) oy = room.y;
+          else if (room.y > h) h = room.y;
+          if (room.z < oz) oz = room.z;
+          else if (room.z > d2) d2 = room.z;
+        }
+        w = Math.sqrt(Math.pow(w - ox, 2)) + 1;
+        h = Math.sqrt(Math.pow(oy - h, 2)) + 1;
+        d2 = Math.sqrt(Math.pow(oz - d2, 2)) + 1;
+        const matrix = [];
+        for (y2 = 0; y2 < h; y2++) {
+          matrix[y2] = [];
+          for (x2 = 0; x2 < w; x2++) {
+            matrix[y2][x2] = [];
+            for (z2 = 0; z2 < d2; z2++)
+              matrix[y2][x2][z2] = 0;
+          }
+        }
+        for (id in rooms) {
+          if (!rooms.hasOwnProperty(id)) continue;
+          room = rooms[id];
+          x2 = room.x - ox;
+          y2 = room.y - oy;
+          z2 = room.z - oz;
+          if (room.exits.northwest)
+            matrix[y2][x2][z2] |= 1;
+          if (room.exits.north)
+            matrix[y2][x2][z2] |= 128;
+          if (room.exits.northeast)
+            matrix[y2][x2][z2] |= 64;
+          if (room.exits.west)
+            matrix[y2][x2][z2] |= 2;
+          if (room.exits.east)
+            matrix[y2][x2][z2] |= 32;
+          if (room.exits.southwest)
+            matrix[y2][x2][z2] |= 4;
+          if (room.exits.south)
+            matrix[y2][x2][z2] |= 8;
+          if (room.exits.southeast)
+            matrix[y2][x2][z2] |= 16;
+          if (room.exits.up)
+            matrix[y2][x2][z2] |= 512;
+          if (room.exits.down)
+            matrix[y2][x2][z2] |= 256;
+        }
+        const grid = new PF.Grid(w, h, d2, matrix);
+        const finder = new PF.AStarFinder({ allowDiagonal: true, dontCrossCorners: false });
+        x2 = startRoom.x - ox;
+        y2 = startRoom.y - oy;
+        z2 = startRoom.z - oz;
+        cx = destRoom.x - ox;
+        cy = destRoom.y - oy;
+        cz = destRoom.z - oz;
+        const fPath = finder.findPath(x2, y2, z2, cx, cy, cz, grid);
+        rl = fPath.length;
+        const walk = [];
+        for (r = 0; r < rl - 1; r++) {
+          x2 = Math.floor(fPath[r][0]);
+          y2 = Math.floor(fPath[r][1]);
+          z2 = Math.floor(fPath[r][2]);
+          x22 = Math.floor(fPath[r + 1][0]);
+          y22 = Math.floor(fPath[r + 1][1]);
+          z22 = Math.floor(fPath[r + 1][2]);
+          if (z2 - 1 === z22)
+            walk.push("down");
+          else if (z2 + 1 === z22)
+            walk.push("up");
+          else if (x2 - 1 === x22 && y2 - 1 === y22)
+            walk.push("northwest");
+          else if (x2 === x22 && y2 - 1 === y22)
+            walk.push("north");
+          else if (x2 + 1 === x22 && y2 - 1 === y22)
+            walk.push("northeast");
+          else if (x2 - 1 === x22 && y2 + 1 === y22)
+            walk.push("southwest");
+          else if (x2 === x22 && y2 + 1 === y22)
+            walk.push("south");
+          else if (x2 + 1 === x22 && y2 + 1 === y22)
+            walk.push("southeast");
+          else if (x2 - 1 === x22 && y2 === y22)
+            walk.push("west");
+          else
+            walk.push("east");
+        }
+        resolve(walk);
+      });
+    }
+    walkPath(destRoom, startRoom) {
+      this.getPath(destRoom, startRoom).then((walk) => {
+        this.SendCommands(walk);
+      }).catch(() => {
+      });
+    }
+    walkMarkedPath() {
+      const destRoom = this.markedRooms ? this.markedRooms[1] : 0;
+      const startRoom = this.markedRooms ? this.markedRooms[0] : 0;
+      return new Promise((resolve, reject) => {
+        this.getPath(destRoom, startRoom).then((walk) => {
+          this.SendCommands(walk);
+        }).catch(() => {
+        });
+      });
+    }
+    SendCommands(cmds) {
+      let tmp;
+      let cnt = this.commandDelayCount;
+      if (cnt < 0) cnt = 1;
+      if (cmds.length > cnt) {
+        tmp = cmds.slice(cnt);
+        cmds = cmds.slice(0, cnt);
+        setTimeout(() => {
+          this.SendCommands(tmp);
+        }, this.commandDelay);
+      }
+      this.emit("send-commands", cmds.join("\n") + "\n");
+    }
+    doUpdate(type) {
+      if (!type) return;
+      this._updating |= type;
+      if (this._updating === 0 /* none */ || this._rTimeout)
+        return;
+      this._rTimeout = window.requestAnimationFrame(() => {
+        if ((this._updating & 1 /* draw */) === 1 /* draw */) {
+          this.draw().catch(() => {
+          });
+          this._updating &= ~1 /* draw */;
+        }
+        this._rTimeout = 0;
+        this.doUpdate(this._updating);
+      });
+    }
+    setFocus(value) {
+      if (this.$focused === value) return;
+      this.$focused = value;
+      this.doUpdate(1 /* draw */);
+    }
+    updateOptions(options) {
+      if (!options) return;
+      for (let option in options) {
+        if (!Object.prototype.hasOwnProperty.call(options, option))
+          continue;
+        if (option in this)
+          this[option] = options[option];
+      }
+    }
+    _resizeCanvas() {
+      if (!this._context || this.container.clientHeight === 0 || this.container.clientWidth === 0) return;
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = this._canvas.width;
+      tempCanvas.height = this._canvas.height;
+      const tempContext = tempCanvas.getContext("2d");
+      tempContext.drawImage(this._canvas, 0, 0);
+      if (this._showNav) {
+        this._canvas.width = this.container.clientWidth - 60;
+        this._canvas.height = this.container.clientHeight - 60;
+      } else {
+        const computedStyle = window.getComputedStyle(this._canvas);
+        const borderLeftWidth = parseFloat(computedStyle.borderLeftWidth);
+        const borderRightWidth = parseFloat(computedStyle.borderRightWidth);
+        const borderTopWidth = parseFloat(computedStyle.borderTopWidth);
+        const borderBottomWidth = parseFloat(computedStyle.borderBottomWidth);
+        this._canvas.width = this.container.clientWidth - borderLeftWidth - borderRightWidth;
+        this._canvas.height = this.container.clientHeight - borderTopWidth - borderBottomWidth;
+      }
+      this._context.drawImage(tempCanvas, 0, 0);
+      this.doUpdate(1 /* draw */);
+    }
+    mapperNavClick(x2, y2) {
+      if (!this._mapperNavDown) return;
+      this.scrollBy(x2, y2);
+      setTimeout(() => {
+        this.mapperNavClick(x2, y2);
+      }, 100);
+    }
+    copyPath(separator) {
+      separator = separator || client.getOption("commandStackingChar") || ";";
+      this.getPath().then((walk) => {
+        copyText(walk.join(separator || "\n"));
+        this.emit("debug", "Directions: " + walk);
+      }).catch((err) => this.emit("error", err));
+    }
+    copyMarkedPath(separator) {
+      separator = separator || client.getOption("commandStackingChar") || ";";
+      this.getMarkedPath().then((walk) => {
+        copyText(walk.join(separator || "\n"));
+        this.emit("debug", "Directions: " + walk);
+      }).catch((err) => this.emit("error", err));
+    }
+    copySpeedpath() {
+      this.getPath().then((walk) => {
+        let cnt = 0;
+        let cmd = "";
+        let cmds = [client.getOption("speedpathsChar") || "!"];
+        const wl = walk.length;
+        for (let w = 0; w < wl; w++) {
+          if (cmd.length && cmd !== walk[w]) {
+            cmds.push(cnt);
+            cmds.push(cmd);
+            cnt = 0;
+          }
+          cnt++;
+          cmd = walk[w];
+        }
+        cmds.push(cnt);
+        cmds.push(cmd);
+        copyText(cmds.join(""));
+        this.emit("debug", "Speedpath: " + cmds);
+      }).catch((err) => this.emit("error", err));
+    }
+    copyMarkedSpeedpath() {
+      this.getMarkedPath().then((walk) => {
+        let cnt = 0;
+        let cmd = "";
+        let cmds = [client.getOption("speedpathsChar") || "!"];
+        const wl = walk.length;
+        for (let w = 0; w < wl; w++) {
+          if (cmd.length && cmd !== walk[w]) {
+            cmds.push(cnt);
+            cmds.push(cmd);
+            cnt = 0;
+          }
+          cnt++;
+          cmd = walk[w];
+        }
+        cmds.push(cnt);
+        cmds.push(cmd);
+        copyText(cmds.join(""));
+        this.emit("debug", "Speedpath: " + cmds);
+      }).catch((err) => this.emit("error", err));
+    }
+    exportImage(scaled) {
+      const rooms = this.getRooms({ area: this.active.area, z: this.active.z, zone: this.active.zone });
+      let x2 = null, y2 = 0, w = 0, h = 0, r;
+      const rl = rooms.length;
+      let room, cx, cy;
+      const t = this.active.area === null || !this._splitArea ? "" : this.active.area;
+      const scale = scaled ? this._scale : 1;
+      for (r = 0; r < rl; r++) {
+        room = rooms[r];
+        if (room === null) continue;
+        if (x2 === null) {
+          x2 = room.x;
+          w = room.x + 1;
+          y2 = room.y;
+          h = room.y + 1;
+          continue;
+        }
+        if (room.x < x2) x2 = room.x;
+        else if (room.x > w) w = room.x;
+        if (room.y < y2) y2 = room.y;
+        else if (room.y > h) h = room.y;
+      }
+      this._context.font = "italic bold 16pt Georgia";
+      var fx = this._context.measureText(t).width;
+      var rectWidth = Math.ceil(Math.sqrt(Math.pow(w - x2, 2)) * 32 * scale + 60 + 32);
+      var rectHeight = Math.ceil(Math.sqrt(Math.pow(y2 - h, 2)) * 32 * scale + 60 + 32);
+      if (rectWidth < fx) rectWidth = fx + 60;
+      if (this._showLegend) {
+        rectWidth += 155;
+        if (rectHeight < 200) rectHeight = 200;
+      }
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.id = "mapper-export";
+      tempCanvas.style.height = rectHeight + "px";
+      tempCanvas.style.width = rectWidth + "px";
+      tempCanvas.width = rectWidth;
+      tempCanvas.height = rectHeight;
+      var ctx;
+      if (tempCanvas && tempCanvas.getContext)
+        ctx = tempCanvas.getContext("2d");
+      else {
+        this.emit("error", "Mapper image export: Error generating map!");
+        return;
+      }
+      ctx.strokeStyle = "black";
+      ctx.fillStyle = "#eae4d6";
+      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      ctx.font = "8pt Arial";
+      for (r = 0; r < rl; r++) {
+        room = rooms[r];
+        if (room === null) continue;
+        cx = (room.x - x2) * 32 * scale + 30.5;
+        cy = (room.y - y2) * 32 * scale + 30.5;
+        this.DrawRoom(ctx, cx, cy, room, true, scale);
+      }
+      ctx.save();
+      ctx.strokeStyle = "black";
+      ctx.fillStyle = "black";
+      ctx.font = "italic bold 16pt Georgia";
+      fx = rectWidth / 2 - fx / 2;
+      ctx.fillText(t, fx, 20);
+      ctx.translate(rectWidth - 25, rectHeight - 25);
+      ctx.font = "italic bold 12pt Georgia";
+      ctx.fillText("N", 3, -5);
+      ctx.beginPath();
+      ctx.moveTo(10, 0);
+      ctx.lineTo(5, 15);
+      ctx.lineTo(10, 20);
+      ctx.lineTo(15, 15);
+      ctx.lineTo(10, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      this.DrawLegend(ctx, rectWidth - 185, -10, 1);
+      tempCanvas.toBlob((blob) => {
+        var reader = new FileReader();
+        reader.addEventListener("loadend", (evt) => {
+          fileSaveAs.show(evt.target.result, this._splitArea && t.length ? "OoMUD." + t + ".png" : "OoMUD.png", "image/png");
+        });
+        reader.readAsArrayBuffer(blob);
+      });
+    }
+    exportCurrentImage() {
+      var tempCanvas = document.createElement("canvas");
+      var context = tempCanvas.getContext("2d");
+      tempCanvas.width = this._canvas.width;
+      tempCanvas.height = this._canvas.height;
+      this.draw(tempCanvas, context, true).then(() => {
+        tempCanvas.toBlob((blob) => {
+          var reader = new FileReader();
+          reader.addEventListener("loadend", (evt) => {
+            fileSaveAs.show(evt.target.result, "OoMUD.current.png", "image/png");
+          });
+          reader.readAsArrayBuffer(blob);
+        });
+      });
+    }
+    exportArea() {
+      fileSaveAs.show(JSON.stringify(this.getRooms({ area: this.active.area })), this._splitArea ? "OoMUD." + this.active.area + ".map.txt" : "OoMUD.map.txt", "text/plain");
+    }
+    exportAll() {
+      fileSaveAs.show(JSON.stringify(this.map.Rooms), "OoMUD.map.txt", "text/plain");
+    }
+  };
 
   // src/interface/dialog.ts
   var DialogButtons = /* @__PURE__ */ ((DialogButtons2) => {
@@ -24633,6 +26463,7 @@ Devanagari
             this.makeVisible();
           if (this._footer.style.display !== "none")
             this._body.style.bottom = this._footer.clientHeight + 1 + "px";
+          this.emit("resizing");
         }, 250, this._id + "dialogResize");
       };
       this.resizeDoDrag = (e) => {
@@ -24673,6 +26504,7 @@ Devanagari
         }
         if (this._footer.style.display !== "none")
           this._body.style.bottom = this._footer.clientHeight + 1 + "px";
+        this.emit("resizing");
       };
       this.resizeTouchDrag = (e) => {
         if (!e.touches.length) return;
@@ -24713,6 +26545,7 @@ Devanagari
         }
         if (this._footer.style.display !== "none")
           this._body.style.bottom = this._footer.clientHeight + 1 + "px";
+        this.emit("resizing");
       };
       this.resizeStopDrag = (e) => {
         document.documentElement.removeEventListener("mousemove", this.resizeDoDrag);
@@ -24746,12 +26579,12 @@ Devanagari
         this._header.style.cursor = "move";
       };
       this.dragMouseMove = (e) => {
-        let x = this._dragPosition.x - e.clientX;
-        let y = this._dragPosition.y - e.clientY;
+        let x2 = this._dragPosition.x - e.clientX;
+        let y2 = this._dragPosition.y - e.clientY;
         this._dragPosition.x = e.clientX;
         this._dragPosition.y = e.clientY;
-        this._state.x = this._dialog.offsetLeft - x;
-        this._state.y = this._dialog.offsetTop - y;
+        this._state.x = this._dialog.offsetLeft - x2;
+        this._state.y = this._dialog.offsetTop - y2;
         if (this._state.x > window.innerWidth - 16)
           this._state.x = window.innerWidth - 16;
         if (this._state.y > window.innerHeight - 16)
@@ -24766,12 +26599,12 @@ Devanagari
       };
       this.dragTouchMove = (e) => {
         if (!e.touches.length) return;
-        let x = this._dragPosition.x - e.touches[0].clientX;
-        let y = this._dragPosition.y - e.touches[0].clientY;
+        let x2 = this._dragPosition.x - e.touches[0].clientX;
+        let y2 = this._dragPosition.y - e.touches[0].clientY;
         this._dragPosition.x = e.touches[0].clientX;
         this._dragPosition.y = e.touches[0].clientY;
-        this._state.x = this._dialog.offsetLeft - x;
-        this._state.y = this._dialog.offsetTop - y;
+        this._state.x = this._dialog.offsetLeft - x2;
+        this._state.y = this._dialog.offsetTop - y2;
         if (this._state.x > window.innerWidth - 16)
           this._state.x = window.innerWidth - 16;
         if (this._state.y > window.innerHeight - 16)
@@ -24803,6 +26636,7 @@ Devanagari
       this.moveable = true;
       this.resizable = true;
       this._maximizable = true;
+      this._closable = true;
       if (options && "type" in options && options.type == 1) {
         this._dialog = document.createElement("div");
         this._dialog.open = false;
@@ -24818,8 +26652,10 @@ Devanagari
           this._dialog.dataset.show = "" + this._state.show;
           if (!this._dialog._keydown) {
             this._dialog._keydown = (e) => {
-              if (e.key === "Escape" && e.srcElement.tagName !== "TEXTAREA" && e.srcElement.tagName !== "INPUT" && e.srcElement.tagName !== "SELECT")
+              if (e.key === "Escape" && e.srcElement.tagName !== "TEXTAREA" && e.srcElement.tagName !== "INPUT" && e.srcElement.tagName !== "SELECT") {
+                this._dialog.returnValue = "canceled";
                 this.close();
+              }
             };
           }
           if (!this._dialog.backdrop_) {
@@ -25009,6 +26845,8 @@ Devanagari
         this._dialog.querySelector(`#${this._id}-max`).style.display = "";
       else
         this._dialog.querySelector(`#${this._id}-max`).style.display = "none";
+      if (options && "closeable" in options)
+        this.closeable = options.closeable;
       if (options && (options.buttons & 2 /* Cancel */) === 2 /* Cancel */)
         this._dialog.querySelector(`#${this._id}-cancel`).addEventListener("click", () => {
           const e = { preventDefault: false, button: 2 /* Cancel */ };
@@ -25186,6 +27024,17 @@ Devanagari
       else
         this._dialog.querySelector(`#${this._id}-max`).style.display = "none";
     }
+    get closeable() {
+      return this._closable;
+    }
+    set closeable(value) {
+      if (value === this._closable) return;
+      this._closable = value;
+      if (this._closable)
+        this._dialog.querySelector(`#${this._id}-header-close`).style.display = "";
+      else
+        this._dialog.querySelector(`#${this._id}-header-close`).style.display = "none";
+    }
     set maximized(value) {
       if (this._state.maximized === value) return;
       this._state.maximized = value;
@@ -25220,10 +27069,10 @@ Devanagari
       this._resize.minHeight = parseInt(styles.minHeight, 10);
       this._resize.minWidth = parseInt(styles.minWidth, 10);
       var rect = e.target.getBoundingClientRect();
-      var x = e.targetTouches[0].clientX - rect.x;
-      var y = e.targetTouches[0].clientY - rect.y;
-      this._resize.borderHeight = y + parseInt(styles.borderTopWidth);
-      this._resize.borderWidth = x + parseInt(styles.borderLeftWidth);
+      var x2 = e.targetTouches[0].clientX - rect.x;
+      var y2 = e.targetTouches[0].clientY - rect.y;
+      this._resize.borderHeight = y2 + parseInt(styles.borderTopWidth);
+      this._resize.borderWidth = x2 + parseInt(styles.borderLeftWidth);
       this._body.style.pointerEvents = "none";
       document.documentElement.addEventListener("touchmove", this.resizeTouchDrag, false);
       document.documentElement.addEventListener("touchend", this.resizeStopDrag, false);
@@ -25257,6 +27106,7 @@ Devanagari
       if (!this._dialog.parentElement)
         document.body.appendChild(this._dialog);
       this.makeVisible(true);
+      this._dialog.returnValue = "";
       if (this._dialog.open) {
         this.focus();
         return;
@@ -25272,6 +27122,7 @@ Devanagari
       if (!this._dialog.parentElement)
         document.body.appendChild(this._dialog);
       this.makeVisible(true);
+      this._dialog.returnValue = "";
       if (this._dialog.open) {
         this.focus();
         return;
@@ -25286,12 +27137,14 @@ Devanagari
     get opened() {
       return this._dialog.open;
     }
-    close() {
+    close(returnValue) {
       if (!this._dialog.open) return;
       if (this._dialog.backdrop_)
         this._dialog.parentNode.removeChild(this._dialog.backdrop_);
       if (this._dialog._keydown)
         window.document.removeEventListener("keydown", this._dialog._keydown);
+      if (returnValue)
+        this._dialog.returnValue = returnValue;
       this._dialog.close();
     }
     get header() {
@@ -25401,27 +27254,27 @@ Devanagari
     }
     getMaxZIndex(forceReset) {
       const dialogs = document.getElementsByTagName("dialog");
-      let d = 0;
+      let d2 = 0;
       const dl = dialogs.length;
-      let i = parseInt(this._dialog.style.zIndex, 10);
+      let i2 = parseInt(this._dialog.style.zIndex, 10);
       ;
       const order = [];
-      for (; d < dl; d++) {
-        if (!dialogs[d].style.zIndex || !dialogs[d].style.zIndex.length) continue;
-        let z = parseInt(dialogs[d].style.zIndex, 10);
-        if (z > i)
-          i = z;
-        order.push({ z, idx: d, show: parseInt(dialogs[d].dataset.show || "", 10) || 0 });
+      for (; d2 < dl; d2++) {
+        if (!dialogs[d2].style.zIndex || !dialogs[d2].style.zIndex.length) continue;
+        let z2 = parseInt(dialogs[d2].style.zIndex, 10);
+        if (z2 > i2)
+          i2 = z2;
+        order.push({ z: z2, idx: d2, show: parseInt(dialogs[d2].dataset.show || "", 10) || 0 });
       }
-      this._state.zIndex = i;
+      this._state.zIndex = i2;
       if (forceReset || this._state.zIndex > 1e3) {
         this._state.zIndex = 100;
-        d = 0;
+        d2 = 0;
         order.sort((a, b) => a.show > b.show ? 1 : a.z < b.z ? -1 : a.z > b.z ? 1 : 0);
-        for (; d < dl; d++) {
-          if (dialogs[order[d]].backdrop_)
-            dialogs[order[d]].backdrop_.style.zIndex = "" + this._state.zIndex++;
-          dialogs[order[d].idx].style.zIndex = "" + this._state.zIndex++;
+        for (; d2 < dl; d2++) {
+          if (dialogs[order[d2]].backdrop_)
+            dialogs[order[d2]].backdrop_.style.zIndex = "" + this._state.zIndex++;
+          dialogs[order[d2].idx].style.zIndex = "" + this._state.zIndex++;
         }
       }
     }
@@ -25532,7 +27385,7 @@ Devanagari
   var AlertDialog = class extends Dialog {
     constructor(title, message, icon) {
       super(typeof title === "string" ? { title: getIcon(icon || 4 /* exclamation */) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: 1 /* Ok */ } : title);
-      this.body.classList.add("d-flex", "justify-content-center", "talign-content-center", "align-items-center");
+      this.body.classList.add("d-flex", "justify-content-center", "align-content-center", "align-items-center");
       if (message)
         this.body.innerHTML = `<div class="text-center" style="width: 64px;height:64px;font-size: 40px;">${getIcon(icon || 4 /* exclamation */)}</div><div class="ms-3 align-self-center flex-fill">${message}</div></div>`;
     }
@@ -25543,6 +27396,34 @@ Devanagari
       this.body.classList.add("d-flex", "justify-content-center", "align-content-center", "align-items-center");
       if (message)
         this.body.innerHTML = `<div class="text-center" style="width: 64px;height:64px;font-size: 40px;">${getIcon(icon || 1 /* question */)}</div><div class="ms-3 align-self-center flex-fill">${message}</div></div>`;
+    }
+  };
+  var ProgressDialog = class extends Dialog {
+    constructor(title, message, icon) {
+      super(typeof title === "string" ? { title: getIcon(icon || 1 /* question */) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: 2 /* Cancel */, closeable: false } : title);
+      this.body.classList.add("text-center", "justify-content-center", "align-content-center", "align-items-center");
+      this.body.innerHTML = `<div class="align-self-center flex-fill" id="progress-message" style="padding:0 5px">${message || ""}</div></div><div class="progress" role="progressbar" aria-label="${title}" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="margin: 5px;"><div class="progress-bar" style="width: 0%"></div></div>`;
+      this._progress = this.body.querySelector(".progress-bar");
+    }
+    set label(value) {
+      this._progress.innerHTML = value;
+    }
+    get label() {
+      return this._progress.innerHTML;
+    }
+    set progress(value) {
+      if (value < 0) value = 0;
+      if (value > 100) value = 100;
+      this._progress.style.width = value + "%";
+    }
+    get progress() {
+      return parseInt(this._progress.style.width, 10);
+    }
+    get message() {
+      return this.body.querySelector("#progress-message").textContent;
+    }
+    set message(value) {
+      this.body.querySelector("#progress-message").textContent = value;
     }
   };
   function getIcon(icon) {
@@ -25570,7 +27451,181 @@ Devanagari
   window.alert_box = (title, message, icon) => {
     new AlertDialog(title, message, icon).showModal();
   };
+  window.progress_box = (title, message, icon) => {
+    return new ProgressDialog(title, message, icon);
+  };
   window.Dialog = Dialog;
+
+  // src/interface/menu.ts
+  function closeMenu() {
+    const instance = bootstrap.Offcanvas.getInstance(document.getElementById("clientMenu"));
+    if (!instance) return;
+    instance.hide();
+  }
+  function showMenu() {
+    bootstrap.Offcanvas.getOrCreateInstance(document.getElementById("clientMenu")).show();
+  }
+  function initMenu() {
+    document.getElementById("btn-menu").addEventListener("click", showMenu);
+    client.on("connected", () => {
+      let el = document.getElementById("menu-connect");
+      let text = document.querySelector("#menu-connect a span");
+      let icon = document.querySelector("#menu-connect svg") || document.querySelector("#menu-connect i");
+      el.title = "Disconnect";
+      el.classList.add("active");
+      text.textContent = "Disconnect";
+      icon.classList.add("fa-plug-circle-xmark");
+      icon.classList.remove("fa-plug");
+    });
+    client.on("closed", () => {
+      let el = document.getElementById("menu-connect");
+      let text = document.querySelector("#menu-connect a span");
+      let icon = document.querySelector("#menu-connect svg") || document.querySelector("#menu-connect i");
+      el.title = "Connect";
+      el.classList.remove("active");
+      text.textContent = "Connect";
+      icon.classList.remove("fa-plug-circle-xmark");
+      icon.classList.add("fa-plug");
+    });
+    client.on("scroll-lock", updateScrollLock);
+    document.querySelector("#menu-connect a").addEventListener("click", (e) => {
+      if (client.connected)
+        client.close();
+      else {
+        client.connect();
+        closeMenu();
+      }
+    });
+    document.querySelector("#menu-clear a").addEventListener("click", (e) => {
+      client.clear();
+      closeMenu();
+    });
+    document.querySelector("#menu-lock a").addEventListener("click", (e) => {
+      client.toggleScrollLock();
+      closeMenu();
+    });
+    document.querySelector("#menu-editor a").addEventListener("click", (e) => {
+      closeMenu();
+      document.getElementById("btn-adv-editor").click();
+    });
+    document.querySelector("#menu-about a").addEventListener("click", (e) => {
+      showDialog("about");
+      closeMenu();
+    });
+    document.querySelector("#menu-settings a").addEventListener("click", (e) => {
+      showDialog("settings");
+      closeMenu();
+    });
+    document.querySelector("#menu-profiles a").addEventListener("click", (e) => {
+      showDialog("profiles");
+      closeMenu();
+    });
+    document.querySelector("#menu-fullscreen a").addEventListener("click", (e) => {
+      var doc = window.document;
+      var docEl = doc.documentElement;
+      var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+      var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+      let el = document.getElementById("menu-fullscreen");
+      let icon = document.querySelector("#menu-fullscreen svg") || document.querySelector("#menu-fullscreen i");
+      let text = document.querySelector("#menu-fullscreen a span");
+      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        el.title = "Exit fullscreen";
+        text.textContent = "Exit fullscreen";
+        requestFullScreen.call(docEl);
+        icon.classList.add("fa-minimize");
+        icon.classList.remove("fa-maximize");
+      } else {
+        el.title = "Enter fullscreen";
+        text.textContent = "Enter fullscreen";
+        cancelFullScreen.call(doc);
+        icon.classList.add("fa-maximize");
+        icon.classList.remove("fa-minimize");
+      }
+      closeMenu();
+    });
+    document.querySelector("#menu-buttons a").addEventListener("click", (e) => {
+      toggleButtons();
+      let button2 = document.querySelector("#menu-buttons");
+      if (client.getOption("showButtons")) {
+        button2.title = "Hide buttons";
+        button2.classList.add("active");
+        document.querySelector("#menu-buttons a span").textContent = "Hide buttons";
+      } else {
+        button2.title = "Show buttons";
+        button2.classList.remove("active");
+        document.querySelector("#menu-buttons a span").textContent = "Show buttons";
+      }
+      closeMenu();
+    });
+    updateScrollLock();
+    let pl = client.plugins.length;
+    let s;
+    let sl;
+    const list = document.querySelector("#clientMenu ul");
+    for (let p = 0; p < pl; p++) {
+      if (!client.plugins[p].menu) continue;
+      if (client.plugins[p].menu.length) {
+        sl = client.plugins[p].menu.length;
+        for (s = 0; s < sl; s++) {
+          let item = client.plugins[p].menu[s];
+          let code;
+          let id = "menu-" + (item.name || s).toLowerCase().replace(/ /g, "-");
+          if (item.name === "-")
+            code = '<li><hr class="dropdown-divider"></li>';
+          else if (typeof item.action === "string")
+            code = `<li id="menu-${id}" class="nav-item" title="${item.name || ""}"><a class="nav-link" href="#${item.action}">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
+          else
+            code = `<li id="menu-${id}" class="nav-item" title="${item.name || ""}"><a class="nav-link" href="javascript:void(0)">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
+          if ("position" in item) {
+            if (typeof item.position === "string") {
+              if (list.querySelector(item.position))
+                list.querySelector(item.position).insertAdjacentHTML("afterend", code);
+            } else if (item.position >= 0 && item.position < list.children.length) {
+              list.children[item.position].insertAdjacentHTML("afterend", code);
+            } else
+              list.insertAdjacentHTML("beforeend", code);
+          } else
+            list.insertAdjacentHTML("beforeend", code);
+          if (item.name === "-") continue;
+          if (typeof item.action === "function")
+            document.querySelector(`#menu-${id} a`).addEventListener("click", (e) => {
+              const ie = { client, preventDefault: false };
+              item.action(ie);
+              if (ie.preventDefault) return;
+              closeMenu();
+            });
+        }
+      }
+    }
+    let button = document.querySelector("#menu-buttons");
+    if (client.getOption("showButtons")) {
+      button.title = "Hide buttons";
+      button.classList.add("active");
+      document.querySelector("#menu-buttons a span").textContent = "Hide buttons";
+    } else {
+      button.title = "Show buttons";
+      button.classList.remove("active");
+      document.querySelector("#menu-buttons a span").textContent = "Show buttons";
+    }
+  }
+  function updateScrollLock() {
+    let el = document.getElementById("menu-lock");
+    let text = document.querySelector("#menu-lock a span");
+    let icon = document.querySelector("#menu-lock svg") || document.querySelector("#menu-lock i");
+    if (client.scrollLock) {
+      el.title = "Unlock display";
+      el.classList.add("active");
+      text.textContent = "Unlock display";
+      icon.classList.add("fa-unlock");
+      icon.classList.remove("fa-lock");
+    } else {
+      el.title = "Lock display";
+      el.classList.remove("active");
+      text.textContent = "Lock display";
+      icon.classList.remove("fa-unlock");
+      icon.classList.add("fa-lock");
+    }
+  }
 
   // src/interface/adv.editor.ts
   var AdvEditor = class extends EventEmitter {
@@ -26126,10 +28181,10 @@ Devanagari
         };
         const mapColors = (colorMap) => {
           const colors = [];
-          for (let i = 0; i < colorMap.length; i += 2) {
+          for (let i2 = 0; i2 < colorMap.length; i2 += 2) {
             colors.push({
-              text: colorMap[i + 1],
-              value: "#" + colorMap[i],
+              text: colorMap[i2 + 1],
+              value: "#" + colorMap[i2],
               type: "choiceitem"
             });
           }
@@ -26848,19 +28903,19 @@ Devanagari
       var data = this.buildHTMLStack(text);
       var buffer = [];
       var codes = [];
-      var color, d, dl, rgb;
+      var color, d2, dl, rgb;
       if (client.getOption("enableDebug"))
         client.debug("Advanced Editor Get Raw HTML: " + this.getRaw());
-      for (d = data.length - 1; d >= 0; d--) {
-        if (!data[d].startsWith('"') && data[d] != "BR" && data[d] != "RESET")
+      for (d2 = data.length - 1; d2 >= 0; d2--) {
+        if (!data[d2].startsWith('"') && data[d2] != "BR" && data[d2] != "RESET")
           data.pop();
         else
           break;
       }
       if (data[0] === "DIV")
         data.shift();
-      for (d = 0, dl = data.length; d < dl; d++) {
-        switch (data[d]) {
+      for (d2 = 0, dl = data.length; d2 < dl; d2++) {
+        switch (data[d2]) {
           case "BOLD":
           case "ITALIC":
           case "UNDERLINE":
@@ -26869,8 +28924,8 @@ Devanagari
           case "OVERLINE":
           case "FLASH":
           case "REVERSE":
-            codes.push("%^" + data[d] + "%^");
-            buffer.push("%^" + data[d] + "%^");
+            codes.push("%^" + data[d2] + "%^");
+            buffer.push("%^" + data[d2] + "%^");
             break;
           case "/DBLUNDERLINE":
           case "/OVERLINE":
@@ -26910,8 +28965,8 @@ Devanagari
               buffer.push(codes.join(""));
             break;
           default:
-            if (data[d].startsWith("COLOR: #")) {
-              color = data[d].substr(8);
+            if (data[d2].startsWith("COLOR: #")) {
+              color = data[d2].substr(8);
               if (!this._colors[color]) {
                 rgb = new RGBColor(color);
                 color = this.nearestHex(rgb.toHex()).substr(1);
@@ -26921,8 +28976,8 @@ Devanagari
                 color = "mono11";
               codes.push("%^" + color + "%^");
               buffer.push("%^" + color + "%^");
-            } else if (data[d].startsWith("COLOR: ")) {
-              color = new RGBColor(data[d].substr(7)).toHex().substr(1);
+            } else if (data[d2].startsWith("COLOR: ")) {
+              color = new RGBColor(data[d2].substr(7)).toHex().substr(1);
               if (!this._colors[color])
                 color = this.nearestHex("#" + color).substr(1);
               color = this._colors[color];
@@ -26930,14 +28985,14 @@ Devanagari
                 color = "mono11";
               codes.push("%^" + color + "%^");
               buffer.push("%^" + color + "%^");
-            } else if (data[d].startsWith("/COLOR: ")) {
+            } else if (data[d2].startsWith("/COLOR: ")) {
               codes.pop();
               this.cleanReset(buffer);
               buffer.push("%^RESET%^");
               if (codes.length > 0)
                 buffer.push(codes.join(""));
-            } else if (data[d].startsWith("BACKGROUND-COLOR: #")) {
-              color = data[d].substr(19);
+            } else if (data[d2].startsWith("BACKGROUND-COLOR: #")) {
+              color = data[d2].substr(19);
               if (!this._colors[color]) {
                 rgb = new RGBColor(color);
                 color = this.nearestHex(rgb.toHex()).substr(1);
@@ -26949,8 +29004,8 @@ Devanagari
               color = "%^B_" + color + "%^";
               codes.push(color);
               buffer.push(color);
-            } else if (data[d].startsWith("BACKGROUND-COLOR: ")) {
-              color = new RGBColor(data[d].substr(18)).toHex().substr(1);
+            } else if (data[d2].startsWith("BACKGROUND-COLOR: ")) {
+              color = new RGBColor(data[d2].substr(18)).toHex().substr(1);
               if (!this._colors[color])
                 color = this.nearestHex("#" + color).substr(1);
               if (this._colors["B" + color])
@@ -26960,14 +29015,14 @@ Devanagari
               color = "%^B_" + color + "%^";
               codes.push(color);
               buffer.push(color);
-            } else if (data[d].startsWith("/BACKGROUND-COLOR: ")) {
+            } else if (data[d2].startsWith("/BACKGROUND-COLOR: ")) {
               codes.pop();
               this.cleanReset(buffer);
               buffer.push("%^RESET%^");
               if (codes.length > 0)
                 buffer.push(codes.join(""));
-            } else if (data[d].startsWith('"'))
-              buffer.push(data[d].substring(1, data[d].length - 1));
+            } else if (data[d2].startsWith('"'))
+              buffer.push(data[d2].substring(1, data[d2].length - 1));
             break;
         }
       }
@@ -27005,8 +29060,8 @@ Devanagari
         }
         var minDistance = Number.MAX_SAFE_INTEGER;
         var nearestHex = null;
-        for (var i = 0; i < _editor.colorList.length; i++) {
-          var currentColor = _editor.colorList[i];
+        for (var i2 = 0; i2 < _editor.colorList.length; i2++) {
+          var currentColor = _editor.colorList[i2];
           var distance = Math.sqrt(
             Math.pow(rgbObj.r - currentColor.rgb.r, 2) + Math.pow(rgbObj.g - currentColor.rgb.g, 2) + Math.pow(rgbObj.b - currentColor.rgb.b, 2)
           );
@@ -27804,75 +29859,75 @@ Devanagari
           this.$ghostBar.style.cursor = "ew-resize";
         }
         this.$ghostBar.move = (ge) => {
-          let l;
+          let l2;
           if (this.$orientation === 0 /* horizontal */ && this.$anchor === 1 /* panel1 */) {
-            l = ge.pageY - this.$elBounds.top;
-            if (l < this.$panel1MinSize + this.$splitterWidth)
+            l2 = ge.pageY - this.$elBounds.top;
+            if (l2 < this.$panel1MinSize + this.$splitterWidth)
               this.$ghostBar.style.top = this.$panel1MinSize + "px";
-            else if (l > this.parent.clientHeight - this.$panel2MinSize - this.$splitterWidth)
+            else if (l2 > this.parent.clientHeight - this.$panel2MinSize - this.$splitterWidth)
               this.$ghostBar.style.top = this.parent.clientHeight - this.$panel2MinSize - this.$splitterWidth + "px";
             else
-              this.$ghostBar.style.top = l - 2 + "px";
+              this.$ghostBar.style.top = l2 - 2 + "px";
             if (this.live) {
-              if (l < this.$panel1MinSize + this.$splitterWidth)
+              if (l2 < this.$panel1MinSize + this.$splitterWidth)
                 this.SplitterDistance = this.$panel1MinSize + this.$splitterWidth;
-              else if (l > this.parent.clientHeight - this.$panel2MinSize - this.$splitterWidth)
+              else if (l2 > this.parent.clientHeight - this.$panel2MinSize - this.$splitterWidth)
                 this.SplitterDistance = this.parent.clientHeight - this.$panel2MinSize;
               else
-                this.SplitterDistance = l - 2 + this.$splitterWidth;
+                this.SplitterDistance = l2 - 2 + this.$splitterWidth;
             }
           } else if (this.$orientation === 0 /* horizontal */) {
-            l = ge.pageY - this.$elBounds.top;
-            if (l < this.$panel1MinSize)
+            l2 = ge.pageY - this.$elBounds.top;
+            if (l2 < this.$panel1MinSize)
               this.$ghostBar.style.top = this.$panel1MinSize + "px";
-            else if (l > this.parent.clientHeight - this.$panel2MinSize)
+            else if (l2 > this.parent.clientHeight - this.$panel2MinSize)
               this.$ghostBar.style.top = this.parent.clientHeight - this.$panel2MinSize + "px";
             else
-              this.$ghostBar.style.top = l - 2 + "px";
+              this.$ghostBar.style.top = l2 - 2 + "px";
             if (this.live) {
-              if (l < this.$panel1MinSize)
+              if (l2 < this.$panel1MinSize)
                 this.SplitterDistance = this.parent.clientHeight - this.$panel1MinSize;
-              else if (l > this.parent.clientHeight - this.$panel2MinSize)
+              else if (l2 > this.parent.clientHeight - this.$panel2MinSize)
                 this.SplitterDistance = this.$panel2MinSize;
               else
-                this.SplitterDistance = this.parent.clientHeight - l + 2;
+                this.SplitterDistance = this.parent.clientHeight - l2 + 2;
             }
           } else if (this.$orientation === 1 /* vertical */ && this.$anchor === 1 /* panel1 */) {
-            l = ge.pageX - this.$elBounds.left;
-            if (l < this.$panel1MinSize + this.$splitterWidth)
+            l2 = ge.pageX - this.$elBounds.left;
+            if (l2 < this.$panel1MinSize + this.$splitterWidth)
               this.$ghostBar.style.left = this.$panel1MinSize + "px";
-            else if (l >= this.parent.clientWidth - this.$panel2MinSize - this.$splitterWidth)
+            else if (l2 >= this.parent.clientWidth - this.$panel2MinSize - this.$splitterWidth)
               this.$ghostBar.style.left = this.parent.clientWidth - this.$panel2MinSize - this.$splitterWidth + "px";
             else
-              this.$ghostBar.style.left = l - 2 + "px";
+              this.$ghostBar.style.left = l2 - 2 + "px";
             if (this.live) {
-              if (l < this.$panel1MinSize + this.$splitterWidth)
+              if (l2 < this.$panel1MinSize + this.$splitterWidth)
                 this.SplitterDistance = this.$panel1MinSize + this.$splitterWidth;
-              else if (l >= this.parent.clientWidth - this.$panel2MinSize - this.$splitterWidth)
+              else if (l2 >= this.parent.clientWidth - this.$panel2MinSize - this.$splitterWidth)
                 this.SplitterDistance = this.parent.clientWidth - this.$panel2MinSize;
               else
-                this.SplitterDistance = l - 2 + this.$splitterWidth;
+                this.SplitterDistance = l2 - 2 + this.$splitterWidth;
             }
           } else {
-            l = ge.pageX - this.$elBounds.left;
-            if (l < this.$panel1MinSize)
+            l2 = ge.pageX - this.$elBounds.left;
+            if (l2 < this.$panel1MinSize)
               this.$ghostBar.style.left = this.$panel1MinSize + "px";
-            else if (l > this.parent.clientWidth - this.$panel2MinSize)
+            else if (l2 > this.parent.clientWidth - this.$panel2MinSize)
               this.$ghostBar.style.left = this.parent.clientWidth - this.$panel2MinSize + "px";
             else
-              this.$ghostBar.style.left = l - 2 + "px";
+              this.$ghostBar.style.left = l2 - 2 + "px";
             if (this.live) {
-              if (l < this.$panel1MinSize)
+              if (l2 < this.$panel1MinSize)
                 this.SplitterDistance = this.parent.clientWidth - this.$panel1MinSize;
-              else if (l > this.parent.clientWidth - this.$panel2MinSize)
+              else if (l2 > this.parent.clientWidth - this.$panel2MinSize)
                 this.SplitterDistance = this.$panel2MinSize;
               else
-                this.SplitterDistance = this.parent.clientWidth - l + 2;
+                this.SplitterDistance = this.parent.clientWidth - l2 + 2;
             }
           }
-          this.emit("splitter-moving", l);
+          this.emit("splitter-moving", l2);
         };
-        this.parent.appendChild(this.$ghostBar);
+        this.$el.appendChild(this.$ghostBar);
         document.addEventListener("mousemove", this.$ghostBar.move);
       });
       this.$dragBar.addEventListener("dblclick", (e) => {
@@ -27886,39 +29941,39 @@ Devanagari
         e.preventDefault();
         e.stopPropagation();
         e.cancelBubble = true;
-        let l;
+        let l2;
         if (this.$orientation === 0 /* horizontal */) {
-          l = e.pageY - this.$elBounds.top;
+          l2 = e.pageY - this.$elBounds.top;
           if (this.$anchor === 1 /* panel1 */) {
-            if (l < this.$panel1MinSize + this.$splitterWidth)
+            if (l2 < this.$panel1MinSize + this.$splitterWidth)
               this.SplitterDistance = this.$panel1MinSize + this.$splitterWidth;
-            else if (l > this.parent.clientHeight - this.$panel2MinSize - this.$splitterWidth)
+            else if (l2 > this.parent.clientHeight - this.$panel2MinSize - this.$splitterWidth)
               this.SplitterDistance = this.parent.clientHeight - this.$panel2MinSize;
             else
-              this.SplitterDistance = l - 2 + this.$splitterWidth;
-          } else if (l < this.$panel1MinSize)
+              this.SplitterDistance = l2 - 2 + this.$splitterWidth;
+          } else if (l2 < this.$panel1MinSize)
             this.SplitterDistance = this.parent.clientHeight - this.$panel1MinSize - 2;
-          else if (l > this.parent.clientHeight - this.$panel2MinSize)
+          else if (l2 > this.parent.clientHeight - this.$panel2MinSize)
             this.SplitterDistance = this.$panel2MinSize;
           else
-            this.SplitterDistance = this.parent.clientHeight - l + 2;
+            this.SplitterDistance = this.parent.clientHeight - l2 + 2;
         } else {
-          l = e.pageX - this.$elBounds.left;
+          l2 = e.pageX - this.$elBounds.left;
           if (this.$anchor === 1 /* panel1 */) {
-            if (l < this.$panel1MinSize + this.$splitterWidth)
+            if (l2 < this.$panel1MinSize + this.$splitterWidth)
               this.SplitterDistance = this.$panel1MinSize + this.$splitterWidth;
-            else if (l > this.parent.clientWidth - this.$panel2MinSize - this.$splitterWidth)
+            else if (l2 > this.parent.clientWidth - this.$panel2MinSize - this.$splitterWidth)
               this.SplitterDistance = this.parent.clientWidth - this.$panel2MinSize;
             else
-              this.SplitterDistance = l - 2 + this.$splitterWidth;
-          } else if (l < this.$panel1MinSize)
+              this.SplitterDistance = l2 - 2 + this.$splitterWidth;
+          } else if (l2 < this.$panel1MinSize)
             this.SplitterDistance = this.parent.clientWidth - this.$panel1MinSize - 2;
-          else if (l > this.parent.clientWidth - this.$panel2MinSize)
+          else if (l2 > this.parent.clientWidth - this.$panel2MinSize)
             this.SplitterDistance = this.$panel2MinSize;
           else
-            this.SplitterDistance = this.parent.clientWidth - l + 2;
+            this.SplitterDistance = this.parent.clientWidth - l2 + 2;
         }
-        this.parent.removeChild(this.$ghostBar);
+        this.$el.removeChild(this.$ghostBar);
         document.removeEventListener("mousemove", this.$ghostBar.move);
         this.$ghostBar = null;
         this.$dragging = false;
@@ -28117,14 +30172,14 @@ Devanagari
       this.footer.querySelector(`#${this.id}-add-default-buttons a`).addEventListener("click", () => {
         const items = Profile.DefaultButtons;
         let il = items.length;
-        for (let i = 0; i < il; i++)
-          this._addItem("buttons", items[i]);
+        for (let i2 = 0; i2 < il; i2++)
+          this._addItem("buttons", items[i2]);
       });
       this.footer.querySelector(`#${this.id}-add-default-macros a`).addEventListener("click", () => {
         const items = Profile.DefaultMacros;
         let il = items.length;
-        for (let i = 0; i < il; i++)
-          this._addItem("macros", items[i]);
+        for (let i2 = 0; i2 < il; i2++)
+          this._addItem("macros", items[i2]);
       });
       this.footer.querySelector(`#${this.id}-export-current a`).addEventListener("click", () => {
         const data = {
@@ -28149,16 +30204,16 @@ Devanagari
               if (data.version == 2) {
                 if (data.profiles) {
                   var keys = Object.keys(data.profiles);
-                  var n, i, k = 0, kl = keys.length;
+                  var n, i2, k = 0, kl = keys.length;
                   for (; k < kl; k++) {
                     n = keys[k];
-                    i = 0;
+                    i2 = 0;
                     while (this.profiles.contains(n)) {
-                      if (i === 0)
+                      if (i2 === 0)
                         n = keys[k] + " Copy";
                       else
-                        n = keys[k] + " Copy (" + i + ")";
-                      i++;
+                        n = keys[k] + " Copy (" + i2 + ")";
+                      i2++;
                     }
                     data.profiles[keys[k]].name = n;
                     const p = Profile.load(data.profiles[keys[k]]);
@@ -28255,23 +30310,23 @@ Devanagari
       }
       this._menu.innerHTML = '<ul class="nav" id="profile-menu">' + nav + "</ul>";
       let items = this._menu.querySelectorAll("a");
-      for (let i = 0, il = items.length; i < il; i++) {
-        this._profileEvents(items[i]);
+      for (let i2 = 0, il = items.length; i2 < il; i2++) {
+        this._profileEvents(items[i2]);
       }
     }
     _profileEvents(item) {
       let items = item.querySelectorAll(".bi-chevron-right");
-      let i, il;
-      for (i = 0, il = items.length; i < il; i++)
-        items[i].addEventListener("click", (e) => {
+      let i2, il;
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].addEventListener("click", (e) => {
           e.target.closest("li").querySelector(".dropdown-menu").classList.toggle("show");
           e.target.classList.toggle("bi-chevron-right");
           e.target.classList.toggle("bi-chevron-down");
           e.preventDefault();
         });
       items = item.querySelectorAll("input");
-      for (i = 0, il = items.length; i < il; i++)
-        items[i].addEventListener("change", (e) => {
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].addEventListener("change", (e) => {
           const data = e.target.dataset.page.split("/");
           const value = e.target.checked;
           switch (data.length) {
@@ -28309,8 +30364,8 @@ Devanagari
           e.cancelBubble = true;
         });
       items = item.querySelectorAll(".list-badge-button");
-      for (i = 0, il = items.length; i < il; i++)
-        items[i].addEventListener("click", (e) => {
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].addEventListener("click", (e) => {
           this._deleteProfile(e.target.parentElement.dataset.profile);
           e.preventDefault();
         });
@@ -28537,8 +30592,8 @@ Devanagari
         this.footer.querySelector("#profile-page-buttons").innerHTML = b;
         this._setContents(pp + '<div class="list-group">' + p + "</div>");
         let items = this._contents.querySelectorAll(".list-badge-button");
-        for (let i = 0, il = items.length; i < il; i++)
-          items[i].addEventListener("click", (e) => {
+        for (let i2 = 0, il = items.length; i2 < il; i2++)
+          items[i2].addEventListener("click", (e) => {
             this._removeItem(+e.target.parentElement.dataset.index);
             e.stopPropagation();
             e.cancelBubble = true;
@@ -28553,8 +30608,8 @@ Devanagari
             this._addItem();
           });
         items = this._contents.querySelectorAll("input");
-        for (let i = 0, il = items.length; i < il; i++)
-          items[i].addEventListener("change", (e) => {
+        for (let i2 = 0, il = items.length; i2 < il; i2++)
+          items[i2].addEventListener("change", (e) => {
             const target = e.currentTarget || e.target;
             const value = target.checked;
             this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-${this._current.collection}-${target.dataset.index}`).checked = value;
@@ -28812,8 +30867,8 @@ Devanagari
         if (p === last) {
           setTimeout(() => {
             const items = this._menu.querySelectorAll(".active");
-            for (let i = 0, il = items.length; i < il; i++)
-              items[i].classList.remove("active");
+            for (let i2 = 0, il = items.length; i2 < il; i2++)
+              items[i2].classList.remove("active");
             scrollChildIntoView(this._menu, el);
             el.classList.add("active");
             if (select)
@@ -28843,24 +30898,24 @@ Devanagari
         updateHash(pages.slice(0, pages.length - 1).join("/"), this._page);
     }
     _createProfile(defaults) {
-      let i = this.profiles.length;
-      let name2 = "NewProfile" + i;
+      let i2 = this.profiles.length;
+      let name2 = "NewProfile" + i2;
       while (this.profiles.contains(name2)) {
-        i++;
-        name2 = "NewProfile" + i;
+        i2++;
+        name2 = "NewProfile" + i2;
       }
       const profile = new Profile(name2, defaults);
       name2 = name2.toLowerCase();
       this.profiles.add(profile);
       this.profiles.SortByPriority();
       let menuItem = this._profile(name2);
-      i = this.profiles.keys.indexOf(name2);
+      i2 = this.profiles.keys.indexOf(name2);
       const menu = document.getElementById("profile-menu");
-      if (i === -1 || i >= menu.children.length)
-        i = menu.children.length - 1;
-      if (i < 0) i = 0;
-      menu.children[i].insertAdjacentHTML("afterend", menuItem);
-      this._profileEvents(menu.children[i + 1]);
+      if (i2 === -1 || i2 >= menu.children.length)
+        i2 = menu.children.length - 1;
+      if (i2 < 0) i2 = 0;
+      menu.children[i2].insertAdjacentHTML("afterend", menuItem);
+      this._profileEvents(menu.children[i2 + 1]);
       this.changed = true;
       updateHash("profiles/" + name2, this._page);
     }
@@ -28903,41 +30958,41 @@ Devanagari
     }
     _replaceProfileName(container, oldName, newName) {
       let items;
-      let i, il;
+      let i2, il;
       const oldID = this.sanitizeID(oldName);
       const newID = this.sanitizeID(newName);
       items = container.querySelectorAll(`[id*="-${oldID}-"]`);
-      for (i = 0, il = items.length; i < il; i++)
-        items[i].id = items[i].id.replace(`-${oldID}-`, `-${newID}-`);
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].id = items[i2].id.replace(`-${oldID}-`, `-${newID}-`);
       items = container.querySelectorAll(`[id$="-${oldID}"]`);
-      for (i = 0, il = items.length; i < il; i++)
-        items[i].id = items[i].id.replace(`-${oldID}`, `-${newID}`);
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].id = items[i2].id.replace(`-${oldID}`, `-${newID}`);
       items = container.querySelectorAll(`[id^="${oldID}-"]`);
-      for (i = 0, il = items.length; i < il; i++)
-        items[i].id = items[i].id.replace(`${oldID}-`, `${newID}-`);
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].id = items[i2].id.replace(`${oldID}-`, `${newID}-`);
       items = container.querySelectorAll(`[data-profile="${oldID}"]`);
-      for (i = 0, il = items.length; i < il; i++)
-        items[i].dataset.profile = newID;
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].dataset.profile = newID;
       const oldPath = encodeURIComponent(oldName);
-      const newPath = encodeURIComponent(newName);
+      const newPath2 = encodeURIComponent(newName);
       items = container.querySelectorAll(`[href*="/${oldPath}/"]`);
-      for (i = 0, il = items.length; i < il; i++)
-        items[i].href = items[i].getAttribute("href").replace(`/${oldPath}/`, `/${newPath}/`);
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].href = items[i2].getAttribute("href").replace(`/${oldPath}/`, `/${newPath2}/`);
       items = container.querySelectorAll(`[href$="/${oldPath}"]`);
-      for (i = 0, il = items.length; i < il; i++)
-        items[i].href = items[i].getAttribute("href").replace(`/${oldPath}`, `/${newPath}`);
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].href = items[i2].getAttribute("href").replace(`/${oldPath}`, `/${newPath2}`);
       items = container.querySelectorAll(`[href^="${oldPath}/"]`);
-      for (i = 0, il = items.length; i < il; i++)
-        items[i].href = items[i].getAttribute("href").replace(`${oldPath}/`, `${newPath}/`);
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].href = items[i2].getAttribute("href").replace(`${oldPath}/`, `${newPath2}/`);
       items = container.querySelectorAll(`[data-path*="/${oldPath}/"]`);
-      for (i = 0, il = items.length; i < il; i++)
-        items[i].dataset.path = items[i].dataset.path.replace(`/${oldPath}`, `/${newPath}`);
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].dataset.path = items[i2].dataset.path.replace(`/${oldPath}`, `/${newPath2}`);
       items = container.querySelectorAll(`[data-page*="/${oldPath}/"]`);
-      for (i = 0, il = items.length; i < il; i++)
-        items[i].dataset.page = items[i].dataset.page.replace(`/${oldPath}/`, `/${newPath}/`);
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].dataset.page = items[i2].dataset.page.replace(`/${oldPath}/`, `/${newPath2}/`);
       items = container.querySelectorAll(`[data-page$="/${oldPath}"]`);
-      for (i = 0, il = items.length; i < il; i++)
-        items[i].dataset.page = items[i].dataset.page.replace(`/${oldPath}`, `/${newPath}`);
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].dataset.page = items[i2].dataset.page.replace(`/${oldPath}`, `/${newPath2}`);
     }
     _sortProfiles() {
       this.profiles.SortByPriority();
@@ -29085,9 +31140,9 @@ Devanagari
             this._menu.querySelector(`#${id} a`).insertAdjacentHTML("afterbegin", '<i class="align-middle float-start no-icon"></i>');
           } else {
             const menuItems = this._menu.querySelector(`#${id} ul`);
-            let i = menuItems.children.length;
+            let i2 = menuItems.children.length;
             const href = `#profiles/${encodeURIComponent(this._current.profileName)}/${collection}/`;
-            for (; index < i; index++) {
+            for (; index < i2; index++) {
               const item = menuItems.children[index];
               item.id = `${id}-${index}`;
               item.firstChild.href = `${href}${index}`;
@@ -29161,19 +31216,19 @@ Devanagari
     _createMenu() {
       if (!this._menu) {
         let menu = `<ul id="${this._id}" class="dropdown-menu show">`;
-        for (var i = 0, il = this._items.length; i < il; i++) {
-          menu += `<li><a class="dropdown-item" data-index="${i}" href="#">${this._items[i].name}</a></li>`;
+        for (var i2 = 0, il = this._items.length; i2 < il; i2++) {
+          menu += `<li><a class="dropdown-item" data-index="${i2}" href="#">${this._items[i2].name}</a></li>`;
         }
         menu += "</ul>";
         document.body.insertAdjacentHTML("afterend", menu);
         this._menu = document.getElementById(this._id);
       }
       let items = this._menu.querySelectorAll("li a");
-      for (let i2 = 0, il2 = items.length; i2 < il2; i2++) {
-        items[i2].addEventListener("click", (e) => {
+      for (let i3 = 0, il2 = items.length; i3 < il2; i3++) {
+        items[i3].addEventListener("click", (e) => {
           let index = +e.currentTarget.dataset.index;
           if (typeof this._items[index].action === "function")
-            this._items[index].action(this._items[i2], e);
+            this._items[index].action(this._items[i3], e);
           this._cleanUp();
         });
       }
@@ -29181,9 +31236,9 @@ Devanagari
     close() {
       this._cleanUp();
     }
-    show(x, y) {
-      this._menu.style.left = x + "px";
-      this._menu.style.top = y + "px";
+    show(x2, y2) {
+      this._menu.style.left = x2 + "px";
+      this._menu.style.top = y2 + "px";
       this._menu.style.display = "block";
       this._menu.style.position = "absolute";
       setTimeout(() => {
@@ -29192,8 +31247,8 @@ Devanagari
         window.addEventListener("keydown", this._cleanUp);
       }, 100);
     }
-    static popup(items, x, y) {
-      new _Contextmenu(items).show(x, y);
+    static popup(items, x2, y2) {
+      new _Contextmenu(items).show(x2, y2);
     }
   };
 
@@ -29232,27 +31287,27 @@ Devanagari
     var extra = "";
     if (im) {
       var os = offset(im);
-      var x = Math.floor(e.clientX - os.left);
-      var y = Math.floor(e.clientY - os.top);
-      extra = "?" + x + "," + y;
+      var x2 = Math.floor(e.clientX - os.left);
+      var y2 = Math.floor(e.clientY - os.top);
+      extra = "?" + x2 + "," + y2;
     }
     if (url.constructor === Array || url.__proto__.constructor === Array || Object.prototype.toString.call(url) === "[object Array]") {
       let items = [];
-      for (var i = 0, il = url.length; i < il; i++) {
-        url[i] = url[i].replace("&text;", el.textContent);
-        if (i < tt.length)
+      for (var i2 = 0, il = url.length; i2 < il; i2++) {
+        url[i2] = url[i2].replace("&text;", el.textContent);
+        if (i2 < tt.length)
           items.push({
-            name: tt[i],
+            name: tt[i2],
             action: (item) => MXPMenuHandler(item.cmd, item.pmt),
             pmt,
-            cmd: url[i] + extra
+            cmd: url[i2] + extra
           });
         else
           items.push({
-            name: url[i],
+            name: url[i2],
             action: (item) => MXPMenuHandler(item.cmd, item.pmt),
             pmt,
-            cmd: url[i] + extra
+            cmd: url[i2] + extra
           });
       }
       Contextmenu.popup(items, e.clientX, e.clientY);
@@ -29598,8 +31653,8 @@ Devanagari
       let h = "";
       const menu = document.getElementById("command-history-menu");
       let history2 = client.commandHistory;
-      for (let i = 0, il = history2.length; i < il; i++)
-        h += `<li id="command-history-item-${i}"><a data-index="${i}" class="dropdown-item" href="javascript:void(0)">${history2[i]}</a></li>`;
+      for (let i2 = 0, il = history2.length; i2 < il; i2++)
+        h += `<li id="command-history-item-${i2}"><a data-index="${i2}" class="dropdown-item" href="javascript:void(0)">${history2[i2]}</a></li>`;
       if (history2.length) {
         h += '<li><hr class="dropdown-divider"></li>';
         h += `<li><a id="history-clear" class="dropdown-item" href="javascript:void(0)">Clear history</a></li>`;
@@ -29616,8 +31671,8 @@ Devanagari
         });
       menu.querySelector("#history-show").addEventListener("click", () => showDialog("history"));
       const items = document.querySelectorAll('[id^="command-history-item"] a');
-      for (let i = 0, il = items.length; i < il; i++) {
-        items[i].addEventListener("click", (e) => {
+      for (let i2 = 0, il = items.length; i2 < il; i2++) {
+        items[i2].addEventListener("click", (e) => {
           var cmd = client.commandHistory[parseInt(e.currentTarget.dataset.index, 10)];
           client.AddCommandToHistory(cmd);
           client.sendCommand(cmd, null, client.getOption("allowCommentsFromCommand"));
@@ -29633,14 +31688,16 @@ Devanagari
     updateCommandInput();
     if (client.getOption("commandAutoSize") || client.getOption("commandScrollbars"))
       resizeCommandInput();
-    window.addEventListener("keydown", (event) => {
-      if (event.which === 33)
+    window.addEventListener("keydown", (event2) => {
+      if (event2.which === 33)
         client.display.pageUp();
-      else if (event.which === 34)
+      else if (event2.which === 34)
         client.display.pageDown();
     });
     window.addEventListener("error", (e) => {
       const { message, filename, lineno, colno, error } = e;
+      if (message.includes("ResizeObserver loop completed with undelivered notifications"))
+        return;
       if (client) {
         if (error)
           client.error(error);
@@ -29663,8 +31720,8 @@ Devanagari
       }
       return true;
     });
-    window.addEventListener("mousemove", (event) => {
-      lastMouse = event;
+    window.addEventListener("mousemove", (event2) => {
+      lastMouse = event2;
     });
     window.addEventListener("hashchange", hashChange, false);
     window.addEventListener("load", hashChange);
@@ -29704,8 +31761,8 @@ Devanagari
   function hashChange() {
     if (!window.location.hash || window.location.hash.length < 2) return;
     var dialogs = decodeURI(window.location.hash.substring(1)).split(",").map((s) => s.trim());
-    for (let d = dialogs.length - 1; d >= 0; d--)
-      switch (dialogs[d]) {
+    for (let d2 = dialogs.length - 1; d2 >= 0; d2--)
+      switch (dialogs[d2]) {
         case "about":
           showDialog("about");
           break;
@@ -29713,8 +31770,10 @@ Devanagari
           document.getElementById("btn-adv-editor").click();
           break;
         default:
-          if (dialogs[d] === "history" || dialogs[d].startsWith("settings") || dialogs[d].startsWith("profiles"))
-            showDialog(dialogs[d]);
+          if (dialogs[d2] === "history" || dialogs[d2].startsWith("settings") || dialogs[d2].startsWith("profiles"))
+            showDialog(dialogs[d2]);
+          else
+            client.emit("window", dialogs[d2]);
           break;
       }
   }
@@ -29771,7 +31830,7 @@ Devanagari
           footer += `<button id="${_dialogs.history.id}-send" type="button" class="btn-sm float-end btn btn-primary" title="Send"><i class="bi bi-send-fill"></i><span class="icon-only"> Send</span></button>`;
           footer += `<button id="${_dialogs.history.id}-refresh" type="button" class="btn-sm float-start btn btn-light" title="Refresh"><i class="bi bi-arrow-repeat"></i><span class="icon-only"> Refresh</span></button>`;
           _dialogs.history.footer.innerHTML = footer;
-          _dialogs.history.body.innerHTML = `<select id="history-list" multiple="multiple" class="form-control"></select>`;
+          _dialogs.history.body.innerHTML = `<select id="history-list" multiple="multiple" class="form-select"></select>`;
           _dialogs.history.body.querySelector("#history-list").addEventListener("dblclick", (e) => {
             const cmd = e.currentTarget.value;
             client.AddCommandToHistory(cmd);
@@ -29786,9 +31845,9 @@ Devanagari
           _dialogs.history.footer.querySelector(`#${_dialogs.history.id}-send`).addEventListener("click", () => {
             const list = _dialogs.history.body.querySelector("#history-list");
             let cmds = [];
-            for (let l = 0, ll = list.options.length; l < ll; l++) {
-              if (list.options[l].selected) {
-                cmds.push(list.options[l].value);
+            for (let l2 = 0, ll = list.options.length; l2 < ll; l2++) {
+              if (list.options[l2].selected) {
+                cmds.push(list.options[l2].value);
               }
             }
             for (let c = 0, cl = cmds.length; c < cl; c++) {
@@ -29985,10 +32044,10 @@ Devanagari
     list.innerHTML = "";
     let history2 = client.commandHistory;
     var fragment = document.createDocumentFragment();
-    for (var i = 0, l = history2.length; i < l; i++) {
+    for (var i2 = 0, l2 = history2.length; i2 < l2; i2++) {
       var opt = document.createElement("option");
-      opt.appendChild(document.createTextNode(history2[i]));
-      opt.value = history2[i];
+      opt.appendChild(document.createTextNode(history2[i2]));
+      opt.value = history2[i2];
       fragment.append(opt);
     }
     list.appendChild(fragment);
@@ -30215,11 +32274,11 @@ Devanagari
     }
     document.getElementById("buttons").innerHTML = c;
     const items = document.querySelectorAll("#buttons button");
-    for (let i = 0, il = items.length; i < il; i++) {
-      items[i].addEventListener("click", (e) => {
+    for (let i2 = 0, il = items.length; i2 < il; i2++) {
+      items[i2].addEventListener("click", (e) => {
         ExecuteButton(e.currentTarget, +e.currentTarget.dataset.index);
       });
-      dragButton(items[i]);
+      dragButton(items[i2]);
     }
   }
   function ExecuteButton(el, idx) {
@@ -30355,6 +32414,2322 @@ Devanagari
     }
   }
   window.initializeInterface = initializeInterface;
+
+  // src/plugins/mapper.ts
+  var Mapper = class extends Plugin {
+    constructor(options) {
+      super(options instanceof Client ? options : options?.client);
+      this._ready = false;
+      if (options && !(options instanceof Client)) {
+      }
+      this._clientContainer = document.getElementById("client-container");
+      Map.load().then((map) => {
+        this.map = map;
+      }).catch((err) => this.client.error(err));
+    }
+    remove() {
+      if (!this.client) return;
+      this.client.removeListenersFromCaller(this);
+      let idx = this.client.telnet.GMCPSupports.indexOf("Room 1");
+      this.client.telnet.GMCPSupports.splice(idx, 1);
+    }
+    initialize() {
+      if (!this.client) return;
+      this.client.telnet.GMCPSupports.push("Room 1");
+      this.client.on("received-GMCP", this.processGMCP, this);
+      this.client.on("window", (window2) => {
+        if (window2 === "mapper") this.show();
+      });
+      this.on("debug", (e) => this.client.debug(e), this);
+      this.on("error", (e) => this.client.error(e), this);
+      let options = client.getOption("windows.mapper");
+      if (options && options.show)
+        this.show();
+    }
+    get menu() {
+      return [
+        {
+          name: "-",
+          position: 5
+        },
+        {
+          name: " Show mapper",
+          action: (e) => {
+            this.show();
+          },
+          icon: '<i class="bi bi-map"></i>',
+          position: 6
+        }
+      ];
+    }
+    get settings() {
+      return [];
+    }
+    get map() {
+      return this._map;
+    }
+    set map(map) {
+      this._map = map;
+      if (this._dialogMap)
+        this._dialogMap.map = map;
+      this.emit("map-loaded");
+    }
+    /**
+     * processGMCP - process incoming GMCP for Room events
+     * @param {string} mod Client#received-GMCP module
+     * @param {Object} data Client#received-GMCP data object
+     */
+    async processGMCP(mod, data) {
+      if (!this.client.getOption("mapper.enabled")) return;
+      switch (mod) {
+        case "Room.Info":
+          this.processData(data);
+          break;
+        case "Room.WrongDir":
+          break;
+      }
+    }
+    processData(data) {
+      if (!this._map) {
+        setTimeout(() => {
+          this.processData(data);
+        }, 10);
+        return;
+      }
+      try {
+        let room = this._map.getRoom({ ID: "" + data.num });
+        ;
+        if (!room) {
+          room = new Room();
+          room.zone = this._map.current.zone;
+          if (this._map.current.num !== null) {
+            switch (data.prevroom.dir) {
+              case "west":
+                room.x--;
+                break;
+              case "east":
+                room.x++;
+                break;
+              case "north":
+                room.y--;
+                break;
+              case "south":
+                room.y++;
+                break;
+              case "northeast":
+                room.y--;
+                room.x++;
+                break;
+              case "northwest":
+                room.y--;
+                room.x--;
+                break;
+              case "southeast":
+                room.y++;
+                room.x++;
+                break;
+              case "southwest":
+                room.y++;
+                room.x--;
+                break;
+              case "up":
+                room.z++;
+                break;
+              case "down":
+                room.z--;
+                break;
+              //out means you leave a zone
+              case "out":
+                room.zone = this._map.current.zone - 1;
+                break;
+              //enter or unknown exits new zone
+              default:
+                room.zone = this._map.current.zone + 1;
+                break;
+            }
+            room.x += this._map.current.x;
+            room.y += this._map.current.y;
+            room.z += this._map.current.z;
+          }
+          if (data.area === this._map.current.area) {
+            if (this._map.roomExists({ x: room.x, y: room.y, z: room.z, zone: this._map.current.zone, area: this._map.current.area }) || data.prevroom.zone) {
+              room.zone = this._map.getFreeZone(this._map.current.zone);
+              this.updateCurrent(room, data);
+            } else {
+              this.updateCurrent(room, data);
+            }
+          } else if (this._map.roomExists({ x: room.x, y: room.y, z: room.z, zone: this._map.current.zone }) || data.prevroom.zone) {
+            room.zone = this._map.getFreeZone(this._map.current.zone);
+            this.updateCurrent(room, data);
+          } else {
+            this.updateCurrent(room, data);
+          }
+        } else {
+          this.updateCurrent(room, data);
+        }
+        this._map.save().catch((err) => this.client.error(err));
+      } catch (e) {
+        this.emit("error", e);
+      }
+    }
+    updateCurrent(room, data) {
+      room.num = data.num;
+      room.area = data.area;
+      room.name = data.name;
+      room.env = data.environment;
+      room.indoors = data.indoors;
+      let exit;
+      for (exit in data.exits)
+        room.exits[exit] = data.exits[exit];
+      room.details = 0 /* None */;
+      if (typeof data.details === "number")
+        room.details = data.details;
+      else
+        for (let x2 = 0; x2 < data.details.length; x2++) {
+          switch (data.details[x2]) {
+            case "dock":
+              room.details |= 1 /* Dock */;
+              break;
+            case "pier":
+              room.details |= 2 /* Pier */;
+              break;
+            case "bank":
+              room.details |= 4 /* Bank */;
+              break;
+            case "shop":
+              room.details |= 8 /* Shop */;
+              break;
+            case "hospital":
+              room.details |= 16 /* Hospital */;
+              break;
+            case "bar":
+              room.details |= 32 /* Bar */;
+              break;
+            case "restaurant":
+              room.details |= 64 /* Restaurant */;
+              break;
+            case "watersource":
+              room.details |= 128 /* WaterSource */;
+              break;
+            case "trainer":
+            case "training":
+            case "advance":
+              room.details |= 256 /* Trainer */;
+              break;
+            case "stable":
+              room.details |= 512 /* Stable */;
+              break;
+          }
+        }
+      room = this._map.setRoom(room);
+      this._map.current = room.clone();
+      this.emit("current-changed", this._map.current);
+    }
+    /**
+     * debug - emit debug event if enabledDebug on
+     * @param {string | object} e The debug message or an object of data 
+     */
+    debug(e) {
+      this.emit("debug", e);
+    }
+    refresh() {
+    }
+    createDialog() {
+      if (this._dialog) return;
+      this._dialog = new Dialog(Object.assign({}, client.getOption("windows.mapper") || { center: true }, { title: '<i class="bi bi-map"></i><select id="mapper-area" class="form-select form-select-sm me-2 mb-1" title="Select Area"></select>', id: "win-mapper", noFooter: true, minHeight: 350 }));
+      this._dialog.on("resized", (e) => {
+        this.client.setOption("windows.mapper", e);
+        debounce(() => {
+          this._dialogSplitter.panel1.parentElement.style.top = toolbar.offsetHeight + "px";
+        }, 25, "mapper-resize");
+      });
+      this._dialog.on("moved", (e) => {
+        this.client.setOption("windows.mapper", e);
+      });
+      this._dialog.on("maximized", () => {
+        this.client.setOption("windows.mapper", this._dialog.windowState);
+        debounce(() => {
+          this._dialogSplitter.panel1.parentElement.style.top = toolbar.offsetHeight + "px";
+        }, 25, "mapper-resize");
+      });
+      this._dialog.on("restored", () => {
+        this.client.setOption("windows.mapper", this._dialog.windowState);
+        debounce(() => {
+          this._dialogSplitter.panel1.parentElement.style.top = toolbar.offsetHeight + "px";
+        }, 25, "mapper-resize");
+      });
+      this._dialog.on("shown", () => {
+        this.client.setOption("windows.mapper", this._dialog.windowState);
+        this.client.setOption("showMapper", this._dialog.windowState.show !== 0);
+        this._dialogSplitter.panel1.parentElement.style.top = toolbar.offsetHeight + "px";
+      });
+      this._dialog.on("closing", () => {
+      });
+      this._dialog.on("closed", () => {
+        this.client.setOption("windows.mapper", this._dialog.windowState);
+        removeHash("mapper");
+      });
+      this._dialog.on("canceling", () => {
+      });
+      this._dialog.on("canceled", () => {
+        this.client.setOption("windows.mapper", this._dialog.windowState);
+        removeHash("mapper");
+      });
+      this._dialog.on("resizing", () => {
+        this._dialogSplitter.panel1.parentElement.style.top = toolbar.offsetHeight + "px";
+      });
+      const toolbar = document.createElement("nav");
+      toolbar.id = "mapper-toolbar";
+      toolbar.classList.add("navbar", "bg-light", "align-items-center");
+      toolbar.innerHTML = `<form class="container-fluid justify-content-start"><button id="btn-mapper-menu" class="me-2 mb-1 btn-sm btn btn-outline-secondary" type="button" aria-controls="mapper-menu" title="Show menu" aria-expanded="false" data-bs-toggle="offcanvas" data-bs-target="#mapper-menu" aria-controls="mapper-menu"><i class="fa-solid fa-bars"></i></button><button id="btn-mapper-focus" type="button" class="btn btn-sm btn-outline-secondary me-2 mb-1" title="Focus on current room"><i class="fa fa-crosshairs"></i></button><div class="btn-group me-2 mb-1"><label for="mapper-level" class="mt-1 me-1">Level: </label><input id="mapper-level" class="form-control form-control-sm" type="number" title="Map Level"></div><div class="btn-group me-2 mb-1"><label for="mapper-zone" class="mt-1 me-1">Zone: </label><input id="mapper-zone" class="form-control form-control-sm" type="number" title="Map Zone"></div><div class="btn-group me-2 mb-1"><label for="mapper-zoom" class="me-1">Zoom: </label><input id="mapper-zoom" class="form-range" type="range" min="25" max="300" step="5""><label id="mapper-zoom-display">100%</label></div></form>`;
+      this._dialog.body.appendChild(toolbar);
+      this._dialog.body.insertAdjacentHTML("afterbegin", `<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="mapper-menu" aria-labelledby="mapper-menu-Label" style="position: absolute;">
+<div class="offcanvas-body">
+<button type="button" class="btn btn-close text-reset btn-danger btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" style="position: absolute;right: 5px;top: 5px;"></button>
+<ul class="navbar-nav justify-content-end flex-grow-1">
+<li id="mapper-enable" class="nav-item" title="Enable"><a class="nav-link" href="javascript:void(0)"><i class="bi bi-map"></i> <span>Enabled</span></a></li>
+<li id="mapper-legend" class="nav-item" title="Show legend"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-map-marker"></i> <span>Show legend</span></a></li>
+<li id="mapper-room" class="nav-item" title="Show room properties"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-list-alt"></i> <span>Show room properties</span></a></li> 
+<li><hr class="dropdown-divider"></li>     
+<li id="mapper-refresh" class="nav-item" title="Refresh"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-refresh"></i> <span>Refresh</span></a></li>                          
+<li><hr class="dropdown-divider"></li>    
+<li id="mapper-split" class="nav-item" title="Split areas"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-object-ungroup"></i> <span>Split areas</span></a></li> 
+<li id="mapper-fill" class="nav-item" title="Fill walls"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-building"></i> <span>Fill walls</span></a></li>
+<li><hr class="dropdown-divider"></li>
+<li id="mapper-remove" class="nav-item">
+<a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#remove-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="remove-submenu"><i class="fa fa-eraser"></i> <span>Remove</span></a>
+<ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="remove-submenu">
+<li class="nav-item" id="mapper-remove-selected"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Remove selected room</a></li>
+<li class="nav-item" id="mapper-remove-current"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Remove current room</a></li>
+<li><hr class="dropdown-divider"></li>
+<li id="mapper-remove-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Remove current area</a></li>
+<li id="mapper-remove-all" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Remove all</a></li>
+</ul></li>
+<li id="mapper-export" class="nav-item">
+<a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#export-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="export-submenu"><i class="fa fa-exchange"></i> <span>Export/Import</span></a>
+<ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="export-submenu">
+<li id="mapper-export-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export as image</a></li>
+<li id="mapper-export-current-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export current view as image</a></li>
+<li><hr class="dropdown-divider"></li>
+<li id="mapper-export-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export current area</a></li>
+<li id="mapper-export-all" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export all</a></li>
+<li><hr class="dropdown-divider"></li>
+<li id="mapper-import-merge" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Import and merge</a></li>
+<li id="mapper-import-replace" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Import and replace</a></li>
+</ul></li>
+<li><hr class="dropdown-divider"></li>
+<li id="mapper-export" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#actions-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="actions-submenu"><i class="fa-solid fa-shoe-prints"></i> <span>Actions</span></a>
+<ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="actions-submenu">
+<li id="mapper-follow" class="nav-item"><a class="nav-link" href="javascript:void(0)"  style="padding-left: 40px;">Follow</a></li>
+<li><hr class="dropdown-divider"></li>
+<li id="mapper-focus""class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Focus on current room</a></li>
+<li id="mapper-set-current" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Set selected as current</a></li>
+<li><hr class="dropdown-divider"></li>
+<li id="mapper-highlight-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Highlight path</a></li>
+<li id="mapper-clear-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Clear path</a></li>
+<li><hr class="dropdown-divider"></li>
+<li id="mapper-walk-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Walk path</a></li>
+<li id="mapper-walk-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Walk highlighted path</a></li>
+<li><hr class="dropdown-divider"></li>
+<li id="mapper-copy-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy path</a></li>
+<li id="mapper-copy-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy as stacked</a></li>
+<li id="mapper-copy-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy as speedpath</a></li>
+<li id="mapper-copy-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy highlighted path</a></li>
+<li id="mapper-copy-highlighted-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy highlighted as stacked</a></li>
+<li id="mapper-copy-highlighted-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy highlighted as speedpath</a></li>
+</ul></li>
+<li><hr class="dropdown-divider"></li>
+<li id="mapper-about" class="nav-item" title="About map"><a class="nav-link" href="javascript:void(0)"><i class="bi-info-circle"></i> <span>About</span></a></li>
+</ul></div></div>`);
+      this._dialog.body.querySelector("#mapper-enable a").addEventListener("click", () => {
+        this._dialogMap.enabled = !this._dialogMap.enabled;
+        if (this._dialogMap.enabled)
+          this._dialog.body.querySelector("#mapper-enable").classList.add("active");
+        else
+          this._dialog.body.querySelector("#mapper-enable").classList.remove("active");
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-legend a").addEventListener("click", () => {
+        this._dialogMap.showLegend = !this._dialogMap.showLegend;
+        if (this._dialogMap.showLegend)
+          this._dialog.body.querySelector("#mapper-legend").classList.add("active");
+        else
+          this._dialog.body.querySelector("#mapper-legend").classList.remove("active");
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-room a").addEventListener("click", () => {
+        this._dialogSplitter.panel2Collapsed = !this._dialogSplitter.panel2Collapsed;
+        if (this._dialogSplitter.panel2Collapsed) {
+          this._dialog.dialog.dataset.panel = "left";
+          this._dialog.body.querySelector("#mapper-room").classList.remove("active");
+          this._dialog.body.querySelector("#mapper-room").title = "Show room properties";
+          this._dialog.body.querySelector("#mapper-room a span").textContent = "Show room properties";
+        } else {
+          this._dialog.dialog.dataset.panel = "right";
+          this._dialog.body.querySelector("#mapper-room").classList.add("active");
+          this._dialog.body.querySelector("#mapper-room").title = "Hide room properties";
+          this._dialog.body.querySelector("#mapper-room a span").textContent = "Hide room properties";
+        }
+        this._dialogSplitter.panel1.parentElement.style.top = toolbar.offsetHeight + "px";
+        this.client.setOption("mapper.room", !this._dialogSplitter.panel2Collapsed);
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-refresh a").addEventListener("click", () => {
+        this._dialogMap.refresh();
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-split a").addEventListener("click", () => {
+        this._dialogMap.splitArea = !this._dialogMap.splitArea;
+        if (this._dialogMap.splitArea)
+          this._dialog.body.querySelector("#mapper-split").classList.add("active");
+        else
+          this._dialog.body.querySelector("#mapper-split").classList.remove("active");
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-fill a").addEventListener("click", () => {
+        this._dialogMap.fillWalls = !this._dialogMap.fillWalls;
+        if (this._dialogMap.fillWalls)
+          this._dialog.body.querySelector("#mapper-fill").classList.add("active");
+        else
+          this._dialog.body.querySelector("#mapper-fill").classList.remove("active");
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-follow a").addEventListener("click", () => {
+        this._dialogMap.follow = !this._dialogMap.follow;
+        if (this._dialogMap.follow)
+          document.getElementById("mapper-follow").classList.add("active");
+        else
+          document.getElementById("mapper-follow").classList.remove("active");
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-focus a").addEventListener("click", () => {
+        this._dialogMap.focusCurrentRoom();
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-set-current a").addEventListener("click", () => {
+        this._dialogMap.current = this._dialogMap.selected;
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#btn-mapper-focus").addEventListener("click", () => {
+        this._dialogMap.focusCurrentRoom();
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-highlight-path a").addEventListener("click", () => {
+        this._dialogMap.focusCurrentRoom();
+        this._dialogMap.showPath();
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-clear-path a").addEventListener("click", () => {
+        this._dialogMap.clearPath();
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-walk-path a").addEventListener("click", () => {
+        this._dialogMap.walkPath();
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-walk-highlighted-path a").addEventListener("click", () => {
+        this._dialogMap.walkMarkedPath();
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-copy-path a").addEventListener("click", () => {
+        this._dialogMap.copyPath("\n");
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-copy-stacked a").addEventListener("click", () => {
+        this._dialogMap.copyPath(this.client.getOption("commandStackingChar"));
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-copy-speedpath a").addEventListener("click", () => {
+        this._dialogMap.copySpeedpath();
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-copy-highlighted-path a").addEventListener("click", () => {
+        this._dialogMap.copyMarkedPath("\n");
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-copy-highlighted-stacked a").addEventListener("click", () => {
+        this._dialogMap.copyMarkedPath(this.client.getOption("commandStackingChar"));
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-remove-selected a").addEventListener("click", () => {
+        confirm_box("Remove selected room?", `Are you sure you want to remove selected room?`).then((e) => {
+          if (e.button === 4 /* Yes */)
+            this._dialogMap.clearSelectedRoom();
+        });
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-remove-current a").addEventListener("click", () => {
+        confirm_box("Remove current room?", `Are you sure you want to remove current room?`).then((e) => {
+          if (e.button === 4 /* Yes */)
+            this._dialogMap.clearCurrentRoom();
+        });
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-remove-current-area a").addEventListener("click", () => {
+        confirm_box("Remove current area?", `Are you sure you want to remove all rooms from current area?`).then((e) => {
+          if (e.button === 4 /* Yes */)
+            this._dialogMap.clearArea();
+        });
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-remove-all a").addEventListener("click", () => {
+        confirm_box("Remove all rooms and areas?", `Are you sure you want to remove all rooms?`).then((e) => {
+          if (e.button === 4 /* Yes */)
+            this._dialogMap.clearAll();
+        });
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-export-image a").addEventListener("click", () => {
+        this._dialogMap.exportImage();
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-export-current-image a").addEventListener("click", () => {
+        this._dialogMap.exportCurrentImage();
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-export-current-area a").addEventListener("click", () => {
+        this._dialogMap.exportArea();
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-export-all a").addEventListener("click", () => {
+        this._dialogMap.exportAll();
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-import-merge a").addEventListener("click", () => {
+        openFileDialog("Import map and merge", false).then((files) => {
+          readFile(files[0]).then((data) => {
+            this._dialogProgress = progress_box("Importing map");
+            this._dialogProgress.on("canceled", () => {
+              this.map.cancelImport();
+            });
+            this._dialogProgress.on("closed", (reason) => {
+              if (reason === "canceled")
+                this.map.cancelImport();
+            });
+            this._dialogProgress.on("shown", () => {
+              this.map.import(JSON.parse(data), 0 /* Merge */);
+            });
+            this._dialogProgress.showModal();
+          }).catch(client.error);
+        }).catch(() => {
+        });
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-import-replace a").addEventListener("click", () => {
+        confirm_box("Import and Replace?", `Are you sure you want to remove all rooms and replace them?`).then((e) => {
+          if (e.button === 4 /* Yes */)
+            openFileDialog("Import map and replace", false).then((files) => {
+              readFile(files[0]).then((data) => {
+                this._dialogProgress = progress_box("Importing map");
+                this._dialogProgress.showModal();
+                this.map.import(JSON.parse(data), 1 /* Replace */);
+              }).catch(client.error);
+            }).catch(() => {
+            });
+        });
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-copy-highlighted-speedpath a").addEventListener("click", () => {
+        this._dialogMap.copyMarkedSpeedpath();
+        closeMenu2();
+      });
+      this._dialog.body.querySelector("#mapper-about a").addEventListener("click", () => {
+        alert_box({ title: '<i class="fa-solid fa-circle-info"></i> Map information', width: 300, height: 200, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: 1 /* Ok */ }, `Areas: ${this._map.Areas.length}<br>Rooms: ${this._map.count}<br>Highest zone: ${this._map.zone}`, 2);
+        closeMenu2();
+      });
+      this._dialogMap = new MapDisplay(document.createElement("div"), { map: this._map });
+      this._dialogMap.on("error", (e) => this.client.error(e), this);
+      this._dialogMap.on("remove-selected", () => {
+        confirm_box("Remove selected room?", `Are you sure you want to remove selected room?`).then((e) => {
+          if (e.button === 4 /* Yes */)
+            this._dialogMap.clearSelectedRoom();
+        });
+      });
+      this._dialogMap.on("active-room-changed", (room) => {
+        const area = document.getElementById("mapper-area");
+        if (!room.area || room.area.length === 0) {
+          if (area.options.length)
+            area.value = area.options[0].value;
+        } else {
+          if (!area.querySelectorAll(`option[value="${room.area.replace(/"/g, "&quot;")}"]`).length) {
+            area.insertAdjacentHTML("beforeend", `<option value="${room.area.replace(/"/g, "&quot;")}">${room.area}</option>`);
+            document.getElementById("mapper-room-area").insertAdjacentHTML("beforeend", `<option value="${room.area.replace(/"/g, "&quot;")}">${room.area}</option>`);
+          }
+          area.value = room.area;
+        }
+        document.getElementById("mapper-level").value = room.z;
+        document.getElementById("mapper-zone").value = room.zone;
+        room = room.clone();
+        room.ID = room.num;
+        delete room.num;
+        this.client.setOption("mapper.active", room);
+      });
+      this._dialogMap.on("setting-changed", (setting, value) => {
+        if (setting === "active") {
+          document.getElementById("mapper-area").value = value.area;
+          document.getElementById("mapper-level").value = value.z;
+          document.getElementById("mapper-zone").value = value.zone;
+        } else if (setting === "scale") {
+          document.getElementById("mapper-zoom").value = value;
+          document.getElementById("mapper-zoom-display").textContent = value + "%";
+        }
+        this.client.setOption(`mapper.${setting}`, value);
+      });
+      document.getElementById("mapper-area").addEventListener("change", (e) => {
+        this._dialogMap.setArea(e.currentTarget.value);
+      });
+      document.getElementById("mapper-level").addEventListener("change", (e) => {
+        this._dialogMap.setLevel(parseInt(e.currentTarget.value, 10));
+      });
+      document.getElementById("mapper-zone").addEventListener("change", (e) => {
+        this._dialogMap.setZone(parseInt(e.currentTarget.value, 10));
+      });
+      this._dialogSplitter = new Splitter({ id: "mapper", parent: this._dialog.body, orientation: 1 /* vertical */ });
+      this._dialogSplitter.on("splitter-moved", (e) => {
+        this.client.setOption("mapper.roomWidth", e);
+      });
+      this._dialogSplitter.panel2Collapsed = true;
+      if (this.client.getOption("mapper.room"))
+        this._dialog.body.querySelector("#mapper-room a").click();
+      this._dialogSplitter.SplitterDistance = client.getOption("mapper.roomWidth");
+      this._dialogSplitter.panel2.innerHTML = `<div class="dialog-header">
+        <button id="mapper-room-close" style="padding: 4px;" type="button" class="btn btn-close float-end btn-danger" data-dismiss="modal" title="Hide properties"></button>
+        <div><i class="fa fa-list-alt"></i> Room properties</div></div>  
+<div class="accordion" id="mapper-room-accordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-general"
+                aria-expanded="true" aria-controls="General">
+                General
+            </button>
+        </h2>
+        <div id="mapper-room-general" class="accordion-collapse collapse show" data-bs-parent="#mapper-room-accordion">
+            <div class="accordion-body" style="padding: 5px;">
+<div class="mb-3">
+  <label for="mapper-room-name">Name</label>
+  <input type="text" class="form-control" id="mapper-room-name" placeholder="">  
+</div>
+<div class="mb-3">
+<label for="mapper-room-background">Background</label>  
+<input type="text" class="form-control" id="mapper-room-background" placeholder="">  
+</div>
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#mapper-room-location" aria-expanded="true" aria-controls="mapper-room-location">
+                Location
+            </button>
+        </h2>
+        <div id="mapper-room-location" class="accordion-collapse collapse" data-bs-parent="#mapper-room-accordion">
+            <div class="accordion-body" style="padding: 5px;">
+<div class="mb-3">
+    <label for="mapper-room-area" class="form-label">Area</label>
+    <select id="mapper-room-area" class="form-select">
+    </select>
+</div>
+<div class="mb-3">
+    <label for="mapper-room-x" class="form-label">X</label>
+    <input type="number" class="form-control" id="mapper-room-x">
+</div>
+<div class="mb-3">
+    <label for="mapper-room-y" class="form-label">Y</label>
+    <input type="number" class="form-control" id="mapper-room-y">
+</div>
+<div class="mb-3">
+    <label for="mapper-room-z" class="form-label">Z</label>
+    <input type="number" class="form-control" id="mapper-room-z">
+</div>
+<div class="mb-3">
+    <label for="mapper-room-zone" class="form-label">Zone</label>
+    <input type="number" class="form-control" id="mapper-room-zone">
+</div>
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-details"
+                aria-expanded="true" aria-controls="mapper-room-details">
+                Details
+            </button>
+        </h2>
+        <div id="mapper-room-details" class="accordion-collapse collapse" data-bs-parent="#mapper-room-accordion">
+            <div class="accordion-body" style="padding: 5px;">
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="mapper-room-indoors">
+    <label class="form-check-label" for="mapper-room-indoors">Indoors</label>
+</div>
+<div class="mb-3">
+    <label for="font" class="form-label">Terrain</label>
+    <div class="input-group">
+        <input id="mapper-room-env" type="text" class="form-control" aria-label="Room terrain">
+        <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
+            style="border: var(--bs-border-width) solid var(--bs-border-color);" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+        </button>
+        <ul id="mapper-room-terrains" class="dropdown-menu dropdown-menu-end" style="height: 200px;overflow: auto;">
+<li><a class="dropdown-item" href="javascript:void(0)">beach</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">bog</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">city</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">cliff</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">cobble</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">desert</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">dirt</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">dirtroad</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">farmland</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">forest</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">grass</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">grassland</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">highmountain</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">hills</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">icesheet</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">jungle</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">lake</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">mountain</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">ocean</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">pavedroad</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">plains</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">prairie</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">river</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">rockdesert</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">rocky</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">sand</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">sanddesert</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">savannah</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">stone</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">swamp</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">tundra</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">underwater</a></li>
+<li><a class="dropdown-item" href="javascript:void(0)">water</a></li>
+        </ul>
+    </div>
+</div>
+<div>
+    <label for="font" class="form-label">Details</label></div>
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" value="1" id="mapper-room-details-1" name="details" data-enum="true">
+  <label class="form-check-label" for="mapper-room-details-1">Dock</label>
+</div>
+
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" value="2" id="mapper-room-details-2" name="details" data-enum="true">
+  <label class="form-check-label" for="mapper-room-details-2">Pier</label>
+</div>
+
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" value="4" id="mapper-room-details-4" name="details" data-enum="true">
+  <label class="form-check-label" for="mapper-room-details-4">Bank</label>
+</div>
+
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" value="8" id="mapper-room-details-8" name="details" data-enum="true">
+  <label class="form-check-label" for="mapper-room-details-8">Shop</label>
+</div>
+
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" value="16" id="mapper-room-details-16" name="details" data-enum="true">
+  <label class="form-check-label" for="mapper-room-details-16">Hospital</label>
+</div>
+
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" value="32" id="mapper-room-details-32" name="details" data-enum="true">
+  <label class="form-check-label" for="mapper-room-details-32">Bar</label>
+</div>
+
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" value="64" id="mapper-room-details-64" name="details" data-enum="true">
+  <label class="form-check-label" for="mapper-room-details-64">Restaurant</label>
+</div>
+
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" value="128" id="mapper-room-details-128" name="details" data-enum="true">
+  <label class="form-check-label" for="mapper-room-details-128">WaterSource</label>
+</div>
+
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" value="256" id="mapper-room-details-256" name="details" data-enum="true">
+  <label class="form-check-label" for="mapper-room-details-256">Trainer</label>
+</div>
+
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" value="512" id="mapper-room-details-512" name="details" data-enum="true">
+  <label class="form-check-label" for="mapper-room-details-512">Stable</label>
+</div>
+
+</div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-notes"
+                aria-expanded="true" aria-controls="mapper-room-notes">
+                Notes
+            </button>
+        </h2>
+        <div id="mapper-room-notes" class="accordion-collapse collapse" data-bs-parent="#mapper-room-accordion">
+            <div class="accordion-body" style="padding: 5px;">
+                <textarea class="form-control" rows="10" style="width: 100%;" id="mapper-room-notes"></textarea>
+            </div>
+        </div>
+    </div>      
+</div> 
+        `;
+      document.getElementById("mapper-room-close").addEventListener("click", () => {
+        this._dialog.body.querySelector("#mapper-room a").click();
+      });
+      document.getElementById("mapper-room-accordion").querySelectorAll("input,textarea,select,.accordion-body button").forEach((f) => {
+        f.disabled = true;
+        if (f.tagName === "BUTTON") return;
+        if (f.type === "checkbox") {
+          f.addEventListener("change", (e) => {
+            if (this._dialogMap.selected === null || this._dialogMap.selected.num === null) return;
+            const target = e.currentTarget || e.target;
+            const name2 = f.name || f.id.substring(12);
+            if (target.dataset.enum === "true") {
+              const name3 = target.name || target.id.substring(0, target.id.lastIndexOf("-"));
+              const enums = document.getElementById("mapper-room-accordion").querySelectorAll(`[name=${name3}]`);
+              let value = 0;
+              for (let e2 = 0, el2 = enums.length; e2 < el2; e2++) {
+                if (enums[e2].checked)
+                  value |= +enums[e2].value;
+              }
+              this._dialogMap.selected[name3] = value;
+            } else
+              this._dialogMap.selected[name2] = target.checked;
+            this._map.setRoom(this._dialogMap.selected);
+            this._map.save().catch((err) => this.client.error(err));
+          });
+        } else {
+          f.addEventListener("change", (e) => {
+            if (this._dialogMap.selected === null || this._dialogMap.selected.num === null) return;
+            const name2 = f.name || f.id.substring(12);
+            debounce(() => {
+              const target = e.currentTarget || e.target;
+              this._dialogMap.selected[name2] = target.value;
+              this._map.setRoom(this._dialogMap.selected);
+              this._map.save().catch((err) => this.client.error(err));
+            }, 100, name2);
+          });
+          f.addEventListener("input", (e) => {
+            if (this._dialogMap.selected === null || this._dialogMap.selected.num === null) return;
+            const name2 = f.name || f.id.substring(12);
+            debounce(() => {
+              const target = e.currentTarget || e.target;
+              this._dialogMap.selected[name2] = target.value;
+              this._map.setRoom(this._dialogMap.selected);
+            }, 100, name2);
+          });
+        }
+      });
+      this._dialogMap.on("room-selected", (room) => {
+        document.getElementById("mapper-room-accordion").querySelectorAll("input,textarea,select,.accordion-body button").forEach((f) => {
+          if (room === null || room.num === null) {
+            f.disabled = true;
+            if (f.tagName === "BUTTON") return;
+            if (f.type === "checkbox")
+              f.checked = false;
+            else
+              f.value = "";
+          } else {
+            f.disabled = false;
+            if (f.tagName === "BUTTON") return;
+            const name2 = f.name || f.id.substring(12);
+            if (f.type === "checkbox") {
+              if (f.dataset.enum === "true") {
+                const value = +f.value;
+                f.checked = (room[name2] & value) === value;
+              } else
+                f.checked = room[name2];
+            } else
+              f.value = room[name2];
+          }
+        });
+        const selected = room;
+        const current = this._map.current;
+        this.updateMenu("#mapper-remove-selected a", selected === null || selected.num === null);
+        this.updateMenu("#mapper-set-current a", selected === null || selected.num === null);
+        this.updateMenu("#mapper-highlight-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this.updateMenu("#mapper-walk-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this.updateMenu("#mapper-copy-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this.updateMenu("#mapper-copy-stacked a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this.updateMenu("#mapper-copy-speedpath a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+      });
+      this._dialogMap.on("current-changed", (room) => {
+        const selected = this._dialogMap.selected;
+        const current = room;
+        this.updateMenu("#mapper-remove-current a", current === null || current.num === null);
+        this.updateMenu("#mapper-remove-selected a", selected === null || selected.num === null);
+        this.updateMenu("#mapper-set-current a", selected === null || selected.num === null);
+        this.updateMenu("#mapper-highlight-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this.updateMenu("#mapper-walk-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this.updateMenu("#mapper-copy-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this.updateMenu("#mapper-copy-stacked a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this.updateMenu("#mapper-copy-speedpath a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+      });
+      this._dialogMap.on("path-shown", () => {
+        this.updateMenu("#mapper-highlight-path a", false);
+        this.updateMenu("#mapper-walk-path a", false);
+        this.updateMenu("#mapper-walk-highlighted-path a", false);
+        this.updateMenu("#mapper-clear-path a", false);
+        this.updateMenu("#mapper-copy-highlighted-path a", false);
+        this.updateMenu("#mapper-copy-highlighted-stacked a", false);
+        this.updateMenu("#mapper-copy-highlighted-speedpath a", false);
+      });
+      this._dialogMap.on("path-cleared", () => {
+        const selected = this._dialogMap.selected;
+        const current = this._dialogMap.current;
+        this.updateMenu("#mapper-clear-path a", true);
+        this.updateMenu("#mapper-walk-highlighted-path a", true);
+        this.updateMenu("#mapper-copy-highlighted-path a", true);
+        this.updateMenu("#mapper-copy-highlighted-stacked a", true);
+        this.updateMenu("#mapper-copy-highlighted-speedpath a", true);
+      });
+      const el = this._dialog.body.querySelector("#mapper-room-env");
+      let items = this._dialog.body.querySelectorAll("#mapper-room-terrains .active");
+      let i2, il;
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].classList.remove("active");
+      items = this._dialog.body.querySelectorAll("#mapper-room-terrains .dropdown-item");
+      for (i2 = 0, il = items.length; i2 < il; i2++) {
+        items[i2].addEventListener("click", function() {
+          el.value = this.textContent;
+          el.dispatchEvent(new Event("change"));
+        });
+      }
+      el.nextElementSibling.addEventListener("show.bs.dropdown", (event2) => {
+        let items2 = this._dialog.body.querySelectorAll("#mapper-room-terrains .dropdown-item");
+        for (i2 = 0, il = items2.length; i2 < il; i2++) {
+          items2[i2].classList.remove("active");
+          if (el.value === items2[i2].textContent)
+            items2[i2].classList.add("active");
+        }
+        ;
+      });
+      this._dialogSplitter.panel1.append(this._dialogMap.container);
+      this._dialogMap.container.classList.add("map");
+      this._dialogMap.active = client.getOption("mapper.active");
+      this._dialogMap.active.num = this._dialogMap.active.num || this._dialogMap.active.ID;
+      this._dialogMap.commandDelay = client.getOption("commandDelay");
+      this._dialogMap.commandDelayCount = client.getOption("commandDelayCount");
+      this._dialogMap.on("debug", (msg) => {
+        this.client.debug(msg);
+      });
+      document.getElementById("mapper-level").value = "" + this._dialogMap.active.z;
+      document.getElementById("mapper-zone").value = "" + this._dialogMap.active.zone;
+      document.getElementById("mapper-zoom").addEventListener("input", (e) => {
+        this._dialogMap.scale = +e.currentTarget.value;
+      });
+      const initMapper = () => {
+        const m = this._map.Areas.length;
+        const area = document.getElementById("mapper-area");
+        area.addEventListener("mouseup", (e) => {
+          e.stopPropagation();
+          e.cancelBubble = true;
+        });
+        area.addEventListener("touchstart", (e) => {
+          e.stopPropagation();
+          e.cancelBubble = true;
+        }, { passive: true });
+        area.addEventListener("mousedown", (e) => {
+          e.stopPropagation();
+          e.cancelBubble = true;
+        });
+        let h = "";
+        for (var i3 = 0; i3 < m; i3++)
+          h += `<option value="${this._map.Areas[i3].replace(/"/g, "&quot;")}">${this._map.Areas[i3]}</option>`;
+        area.innerHTML = h;
+        document.getElementById("mapper-room-area").innerHTML = h;
+        if (!this._dialogMap.active.area) {
+          this._dialogMap.active.area = this.client.getOption("MapperArea");
+          if (this._dialogMap.active.area !== null && typeof this._dialogMap.active.area != "undefined")
+            area.value = this._dialogMap.active.area;
+        }
+        if (!this._dialogMap.active.area && area.options.length)
+          this._dialogMap.active.area = area.options[0].value;
+        this._dialogMap.setArea(this._dialogMap.active.area);
+        this._dialogMap.refresh();
+        this._dialogMap.enabled = this.client.getOption("mapper.enabled");
+        if (this._dialogMap.enabled)
+          document.getElementById("mapper-enable").classList.add("active");
+        this._dialogMap.showLegend = this.client.getOption("mapper.legend");
+        if (this._dialogMap.showLegend)
+          document.getElementById("mapper-legend").classList.add("active");
+        this._dialogMap.follow = this.client.getOption("mapper.follow");
+        if (this._dialogMap.follow)
+          document.getElementById("mapper-follow").classList.add("active");
+        this._dialogMap.splitArea = this.client.getOption("mapper.split");
+        if (this._dialogMap.splitArea)
+          document.getElementById("mapper-split").classList.add("active");
+        this._dialogMap.fillWalls = this.client.getOption("mapper.fill");
+        if (this._dialogMap.fillWalls)
+          document.getElementById("mapper-fill").classList.add("active");
+        if (this._dialogMap.follow)
+          this._dialogMap.focusCurrentRoom();
+        this._dialogMap.scale = this.client.getOption("mapper.scale");
+        this._map.on("rooms-removed", (rooms) => {
+          this._map.save();
+        });
+        this._map.on("areas-removed", (areas) => {
+          const area2 = document.getElementById("mapper-area");
+          const roomArea = document.getElementById("mapper-room-area");
+          if (this._map.Areas.length === 0) {
+            area2.innerHTML = "";
+            roomArea.innerHTML = "";
+          } else {
+            for (var i4 = area2.length - 1; i4 >= 0; i4--) {
+              if (areas.indexOf(area2.options[i4].value) !== -1)
+                area2.remove(i4);
+            }
+            for (var i4 = roomArea.length - 1; i4 >= 0; i4--) {
+              if (areas.indexOf(roomArea.options[i4].value) !== -1)
+                roomArea.remove(i4);
+            }
+          }
+        });
+        this._map.on("areas-added", (areas) => {
+          let h2 = "";
+          const m2 = this._map.Areas.length;
+          for (let i4 = 0; i4 < m2; i4++)
+            h2 += `<option value="${this._map.Areas[i4].replace(/"/g, "&quot;")}">${this._map.Areas[i4]}</option>`;
+          document.getElementById("mapper-area").innerHTML = h2;
+          document.getElementById("mapper-room-area").innerHTML = h2;
+          document.getElementById("mapper-area").value = this._dialogMap.active.area;
+        });
+        this._map.on("import-progress", (progress) => {
+          if (this._dialogProgress)
+            this._dialogProgress.progress = progress;
+        });
+        this._map.on("import-complete", () => {
+          client.sendGMCP("Room.Info");
+          if (this._dialogProgress)
+            this._dialogProgress.close();
+          this._dialogProgress = null;
+          this._dialogMap.refresh();
+          this._map.save();
+        });
+        this._map.on("import-canceled", () => {
+          client.sendGMCP("Room.Info");
+          if (this._dialogProgress)
+            this._dialogProgress.close();
+          this._dialogProgress = null;
+          this._dialogMap.refresh();
+          this._map.save();
+        });
+      };
+      this.on("map-loaded", () => {
+        initMapper();
+      });
+      if (this.map)
+        initMapper();
+    }
+    show() {
+      this.createDialog();
+      this._dialog.show();
+    }
+    updateMenu(selector, disabled) {
+      if (disabled)
+        this._dialog.body.querySelector(selector).classList.add("disabled");
+      else
+        this._dialog.body.querySelector(selector).classList.remove("disabled");
+    }
+  };
+  function closeMenu2() {
+    const instance = bootstrap.Offcanvas.getInstance(document.getElementById("mapper-menu"));
+    if (!instance) return;
+    instance.hide();
+  }
+
+  // src/client.ts
+  var Client = class extends EventEmitter {
+    constructor(options) {
+      super();
+      //#region Private properties
+      this._enableDebug = false;
+      this._itemCache = {
+        triggers: null,
+        aliases: null,
+        macros: null,
+        buttons: null,
+        contexts: null,
+        defaultContext: null,
+        alarms: null,
+        alarmPatterns: []
+      };
+      this._variables = {};
+      this._options = {};
+      //#endregion
+      //#region Public properties
+      this.active = true;
+      this.connecting = false;
+      this.version = version;
+      this.connectTime = 0;
+      this.disconnectTime = 0;
+      this.lastSendTime = 0;
+      this.defaultTitle = "oiMUD";
+      this.errored = false;
+      window.client = this;
+      window.oiMUD = this;
+      this._plugins = [];
+      options = Object.assign({ display: "#display", commandInput: "#commandInput" }, options || {});
+      if (!("display" in options) || typeof options.display === void 0)
+        options.display = "#display";
+      if (!("commandInput" in options) || typeof options.commandInput === void 0)
+        options.commandInput = "#commandInput";
+      this._display = new Display(options.display);
+      this.display.on("click", (e) => {
+        if (this.getOption("CommandonClick"))
+          this._commandInput.focus();
+      });
+      this.display.on("scroll-lock", (lock) => {
+        this.scrollLock = lock;
+      });
+      this.display.on("update-window", (width, height) => {
+        this.telnet.updateWindow(width, height);
+      });
+      this.display.on("update-window", (width, height) => {
+        this.telnet.updateWindow(width, height);
+      });
+      this.display.on("debug", (msg) => {
+        this.debug(msg);
+      });
+      this.display.on("add-line", (data) => {
+        this.emit("add-line", data);
+      });
+      this.display.on("add-line-done", (data) => {
+        this.emit("add-line-done", data);
+      });
+      this.display.on("MXP-tag-reply", (tag, args) => {
+        const e = { tag, args, preventDefault: false };
+        this.emit("MXP-tag-reply", e);
+        if (e.preventDefault)
+          return;
+        switch (tag) {
+          case "VERSION":
+            if (this.display.MXPStyleVersion && this.display.MXPStyleVersion.length) {
+              this.debug(`MXP Tag REPLY: <VERSION MXP=1.0 STYLE=${this.display.MXPStyleVersion} CLIENT=jiMUD VERSION=${this.version} REGISTERED=no>`);
+              this.send(`\x1B[1z<VERSION MXP=1.0 STYLE=${this.display.MXPStyleVersion} CLIENT=jiMUD VERSION=${this.version} REGISTERED=no>\r
+`);
+            } else {
+              this.debug(`MXP Tag REPLY: <VERSION MXP=1.0 CLIENT=jiMUD VERSION=${this.version} REGISTERED=no>`);
+              this.send(`\x1B[1z<VERSION MXP=1.0 CLIENT=jiMUD VERSION=${this.version} REGISTERED=no>\r
+`);
+            }
+            break;
+          case "SUPPORT":
+            this.debug(`MXP Tag REPLY: <SUPPORTS ${args.join(" ")}>`);
+            this.send(`\x1B[1z<SUPPORTS ${args.join(" ")}>\r
+`);
+            break;
+          case "USER":
+            this.emit("sendUsername", e);
+            break;
+          case "PASSWORD":
+            this.emit("sendPassword", e);
+            break;
+        }
+      });
+      this.display.on("expire-links", (args) => {
+        this.emit("expire-links", args);
+      });
+      this.display.on("parse-done", () => {
+        this.emit("parse-done");
+      });
+      this.display.on("set-title", (title, type) => {
+        if (typeof title === "undefined" || title == null || title.length === 0)
+          this.emit("set-title", this.getOption("title").replace("$t", this.defaultTitle) || this.defaultTitle);
+        else if (type !== 1)
+          this.emit("set-title", this.getOption("title").replace("$t", title) || "");
+      });
+      this.display.on("music", (data) => {
+        this.emit("music", data);
+      });
+      this.display.on("sound", (data) => {
+        this.emit("sound", data);
+      });
+      this.display.on("bell", () => {
+        this.emit("bell");
+      });
+      if (typeof options.commandInput === "string") {
+        this._commandInput = document.querySelector(options.commandInput);
+        if (!this._commandInput)
+          throw new Error("Invalid selector for command input.");
+      } else if (options.commandInput instanceof $)
+        this._commandInput = options.commandInput[0];
+      else if (options.commandInput instanceof HTMLElement)
+        this._commandInput = options.commandInput;
+      else
+        throw new Error("Command input must be a selector, element or jquery object");
+      this._telnet = new Telnet({ protocol: options.protocol, scheme: options.scheme });
+      this._telnet.terminal = "oiMUD";
+      this._telnet.version = this.version;
+      this._telnet.GMCPSupports.push("oMUD 1");
+      this._telnet.on("error", (err) => {
+        if (this.enableDebug) this.debug(err);
+        if (err) {
+          if (err.type === "close" && err.code === 1006)
+            return;
+          const msg = [];
+          if (err.type)
+            msg.push(err.type);
+          if (err.text)
+            msg.push(err.text);
+          if (err.message)
+            msg.push(err.message);
+          if (err.reason)
+            msg.push(err.reason);
+          if (err.code)
+            this.error(err.code + " : " + msg.join(", "));
+          else
+            this.error(msg.join(", "));
+        } else
+          this.error("Unknown telnet error.");
+        if (this.getOption("autoConnect") && !this._telnet.connected)
+          setTimeout(() => {
+            this.connect();
+          }, client.getOption("autoConnectDelay"));
+        this.emit("reconnect");
+      });
+      this.telnet.on("connecting", () => {
+        this.connecting = true;
+        this.echo("Trying to connect to " + this.host + ":" + this.port, -7 /* InfoText */, -8 /* InfoBackground */, true, true);
+      });
+      this.telnet.on("connect", () => {
+        this.connecting = false;
+        this.echo("Connected...", -7 /* InfoText */, -8 /* InfoBackground */, true, true);
+        this.connectTime = Date.now();
+        this.disconnectTime = 0;
+        this.lastSendTime = Date.now();
+        this.emit("connected");
+        this.raise("connected");
+      });
+      this.telnet.on("debug", (msg) => {
+        this.debug(msg);
+      });
+      this.telnet.on("receive-option", (data) => {
+        this.emit("received-option", data);
+      });
+      this.telnet.on("close", () => {
+        this.connecting = false;
+        this.echo("Connection closed to " + this.host + ":" + this.port, -7 /* InfoText */, -8 /* InfoBackground */, true, true);
+        this.disconnectTime = Date.now();
+        this.emit("closed");
+        this.raise("disconnected");
+        this.connectTime = 0;
+        this.lastSendTime = 0;
+      });
+      this.telnet.on("received-data", (data) => {
+        data = { value: data };
+        this.emit("received-data", data);
+        if (data == null || typeof data === "undefined" || data.value == null || typeof data.value === "undefined")
+          return;
+        this.printInternal(data.value, false, true);
+        this.debug("Latency: " + this.telnet.latency + "ms");
+        this.debug("Latency: " + this.telnet.latency / 1e3 + "s");
+      });
+      this.telnet.on("received-MSDP", (data) => {
+        this.emit("received-MSDP", data);
+      });
+      this.telnet.on("received-GMCP", (data) => {
+        let val = data.value;
+        let mod;
+        let idx = 0;
+        const dl = val.length;
+        let c;
+        if (dl === 0) return;
+        for (idx = 0; idx < dl; idx++) {
+          c = val.charAt(idx);
+          if (c === " " || c === "{" || c === "[")
+            break;
+        }
+        mod = val.substr(0, idx).trim();
+        val = val.substr(idx).trim();
+        this.debug("GMCP Module: " + mod);
+        this.debug("GMCP Data: " + val);
+        let obj;
+        if (mod.toLowerCase() === "client.gui") {
+          obj = val.split("/n");
+          if (val.length >= 2) {
+            obj = {
+              version: parseInt(obj[0], 10),
+              url: obj[1]
+            };
+          } else if (val.length > 0) {
+            obj = {
+              version: parseInt(obj[0], 10),
+              url: obj[1]
+            };
+          } else
+            obj = { version: obj, url: "" };
+          this.emit("received-GMCP", mod, obj);
+          return;
+        }
+        try {
+          if (val.length > 0)
+            obj = JSON.parse(val);
+        } catch (e) {
+          this.error("Invalid GMCP");
+          return;
+        }
+        this.emit("received-GMCP", mod, obj);
+      });
+      this.telnet.on("windowSize", () => {
+        this.UpdateWindow();
+      });
+      let tmp = getParameterByName("host");
+      if (tmp !== null && tmp.length)
+        this.host = tmp;
+      else if (options && "host" in options)
+        this.host = options.host;
+      else
+        this.host = "127.0.0.1";
+      tmp = +getParameterByName("port");
+      if (!isNaN(tmp) && tmp > 0)
+        this.port = tmp;
+      else if (options && "port" in options)
+        this.port = options.port;
+      else
+        this.port = 23;
+      this._input = new Input(this);
+      this._input.on("scroll-lock", (lock) => {
+        this.display.scrollLock = lock;
+        this.emit("scroll-lock", lock);
+      });
+      this._input.on("command-history-changed", (history2) => this.emit("command-history-changed", history2));
+      this._input.on("item-added", (type, profile, item) => {
+        this.emit("item-added", type, profile, item);
+      });
+      this._input.on("item-updated", (type, profile, idx, item) => {
+        this.emit("item-updated", type, profile, idx, item);
+      });
+      this._input.on("item-removed", (type, profile, idx) => {
+        this.emit("item-removed", type, profile, idx);
+      });
+      this.loadOptions();
+      this._commandInput.value = "";
+      this._commandInput.focus();
+      window.addEventListener("blur", () => {
+        this.active = false;
+        this.emit("blur");
+        this.raise("blur");
+      });
+      window.addEventListener("focus", () => {
+        this.active = true;
+        this.emit("focus");
+        this.raise("focus");
+      });
+      window.addEventListener("beforeunload", (e) => {
+        if (this.connected) {
+          if (e)
+            e.returnValue = "Closing or reloading will disconnect you from the mud.";
+          return "Closing or reloading will disconnect you from the mud.";
+        }
+        this.raise("closed");
+      });
+      window.addEventListener("unload", () => {
+        if (this.connected)
+          this.close();
+      });
+      this.addPlugin(new MSP(this));
+      this.addPlugin(new Mapper(this));
+      if (true)
+        this.addPlugin(new Test(this));
+      if (this.getOption("autoConnect"))
+        setTimeout(() => {
+          this.connect();
+        }, client.getOption("autoConnectDelay"));
+      this.emit("initialized");
+    }
+    //#endregion
+    //#region Public setter/getters
+    get telnet() {
+      return this._telnet;
+    }
+    get variables() {
+      return this._variables;
+    }
+    get commandInput() {
+      return this._commandInput;
+    }
+    get display() {
+      return this._display;
+    }
+    get profiles() {
+      return this._profiles;
+    }
+    get plugins() {
+      return this._plugins;
+    }
+    get options() {
+      return this._options;
+    }
+    get input() {
+      return this._input;
+    }
+    set simpleAlarms(value) {
+      this.setOption("simpleAlarms", value);
+    }
+    get simpleAlarms() {
+      return this.getOption("simpleAlarms");
+    }
+    set enableParsing(value) {
+      this.setOption("enableParsing", value);
+      this._input.enableParsing = value;
+    }
+    get enableParsing() {
+      return this.getOption("enableParsing");
+    }
+    set enableTriggers(value) {
+      this.setOption("enableTriggers", value);
+      this._input.enableTriggers = value;
+      this.startAlarms();
+    }
+    get enableTriggers() {
+      return this.getOption("enableTriggers");
+    }
+    get enableDebug() {
+      return this._enableDebug;
+    }
+    set enableDebug(enable) {
+      this._enableDebug = enable;
+      this._telnet.enableDebug = enable;
+      this._display.enableDebug = enable;
+    }
+    get host() {
+      return this._telnet.host;
+    }
+    set host(host) {
+      this._telnet.host = host;
+    }
+    get port() {
+      return this._telnet.port;
+    }
+    set port(port) {
+      this._telnet.port = port;
+    }
+    get connected() {
+      return this._telnet.connected;
+    }
+    get activeProfile() {
+      return this._profiles.active;
+    }
+    get commandHistory() {
+      return this._input.commandHistory;
+    }
+    get indices() {
+      return this._input.indices;
+    }
+    get repeatnum() {
+      return this._input.repeatnum;
+    }
+    get aliases() {
+      if (this._itemCache.aliases)
+        return this._itemCache.aliases;
+      const keys = this.profiles.keys;
+      const tmp = [];
+      let k = 0;
+      const kl = keys.length;
+      if (kl === 0) return [];
+      if (kl === 1) {
+        if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableAliases)
+          this._itemCache.aliases = [];
+        else
+          this._itemCache.aliases = SortItemArrayByPriority(this.profiles.items[keys[k]].aliases);
+        return this._itemCache.aliases;
+      }
+      for (; k < kl; k++) {
+        if (!this.profiles.items[keys[k]].enabled || !this.profiles.items[keys[k]].enableAliases || this.profiles.items[keys[k]].aliases.length === 0)
+          continue;
+        tmp.push.apply(tmp, SortItemArrayByPriority(this.profiles.items[keys[k]].aliases));
+      }
+      this._itemCache.aliases = tmp;
+      return this._itemCache.aliases;
+    }
+    get macros() {
+      if (this._itemCache.macros)
+        return this._itemCache.macros;
+      const keys = this.profiles.keys;
+      const tmp = [];
+      let k = 0;
+      const kl = keys.length;
+      if (kl === 0) return [];
+      if (kl === 1) {
+        if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableMacros)
+          this._itemCache.macros = [];
+        else
+          this._itemCache.macros = SortItemArrayByPriority(this.profiles.items[keys[k]].macros);
+        return this._itemCache.macros;
+      }
+      for (; k < kl; k++) {
+        if (!this.profiles.items[keys[k]].enabled || !this.profiles.items[keys[k]].enableMacros || this.profiles.items[keys[k]].macros.length === 0)
+          continue;
+        tmp.push.apply(tmp, SortItemArrayByPriority(this.profiles.items[keys[k]].macros));
+      }
+      this._itemCache.macros = tmp;
+      return this._itemCache.macros;
+    }
+    get triggers() {
+      if (this._itemCache.triggers)
+        return this._itemCache.triggers;
+      const keys = this.profiles.keys;
+      const tmp = [];
+      let k = 0;
+      const kl = keys.length;
+      if (kl === 0) return [];
+      if (kl === 1) {
+        if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableTriggers)
+          this._itemCache.triggers = [];
+        else
+          this._itemCache.triggers = SortItemArrayByPriority(this.profiles.items[keys[0]].triggers);
+        return this._itemCache.triggers;
+      }
+      for (; k < kl; k++) {
+        if (!this.profiles.items[keys[k]].enabled || !this.profiles.items[keys[k]].enableTriggers || this.profiles.items[keys[k]].triggers.length === 0)
+          continue;
+        tmp.push.apply(tmp, SortItemArrayByPriority(this.profiles.items[keys[k]].triggers));
+      }
+      this._itemCache.triggers = tmp;
+      return this._itemCache.triggers;
+    }
+    removeTrigger(trigger) {
+      const keys = this.profiles.keys;
+      let k = 0;
+      const kl = keys.length;
+      let idx = -1;
+      if (kl === 0)
+        return;
+      if (kl === 1) {
+        if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableTriggers)
+          return;
+        idx = this.profiles.items[keys[k]].triggers.indexOf(trigger);
+      } else
+        for (; k < kl && idx !== -1; k++) {
+          if (!this.profiles.items[keys[k]].enabled || !this.profiles.items[keys[k]].enableTriggers || this.profiles.items[keys[k]].triggers.length === 0)
+            continue;
+          idx = this.profiles.items[keys[k]].triggers.indexOf(trigger);
+          if (idx !== -1)
+            break;
+        }
+      if (idx === -1)
+        return;
+      this.profiles.items[keys[k]].triggers.splice(idx, 1);
+      this._itemCache.triggers = null;
+      if ((trigger.triggers.length || trigger.type === 3 /* Alarm */) && this._itemCache.alarms) {
+        idx = this._itemCache.alarms.indexOf(trigger);
+        if (idx !== -1) {
+          this._itemCache.alarms.splice(idx, 1);
+          this._itemCache.alarmPatterns.splice(idx, 1);
+        }
+      }
+      this.saveProfiles();
+      this.emit("item-removed", "trigger", keys[k], idx);
+    }
+    get alarms() {
+      if (this._itemCache.alarms)
+        return this._itemCache.alarms;
+      const keys = this.profiles.keys;
+      const tmp = [];
+      let k = 0;
+      const kl = keys.length;
+      if (kl === 0) return [];
+      if (kl === 1) {
+        if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableTriggers)
+          this._itemCache.alarms = [];
+        else
+          this._itemCache.alarms = SortItemArrayByPriority(this.profiles.items[keys[k]].triggers).filter((a) => {
+            if (a && a.enabled && a.triggers.length) {
+              if (a.type === 3 /* Alarm */) return true;
+              for (let s = 0, sl = a.triggers.length; s < sl; s++)
+                if (a.triggers[s].enabled && a.triggers[s].type === 3 /* Alarm */)
+                  return true;
+              return false;
+            }
+            return a && a.enabled && a.type === 3 /* Alarm */;
+          });
+        this._itemCache.alarms.reverse();
+        return this._itemCache.alarms;
+      }
+      for (; k < kl; k++) {
+        if (!this.profiles.items[keys[k]].enabled || !this.profiles.items[keys[k]].enableTriggers || this.profiles.items[keys[k]].triggers.length === 0)
+          continue;
+        tmp.push.apply(tmp, SortItemArrayByPriority(this.profiles.items[keys[k]].triggers));
+      }
+      this._itemCache.alarms = tmp.filter((a) => {
+        if (a && a.enabled && a.triggers.length) {
+          if (a.type === 3 /* Alarm */) return true;
+          for (let s = 0, sl = a.triggers.length; s < sl; s++)
+            if (a.triggers[s].enabled && a.triggers[s].type === 3 /* Alarm */)
+              return true;
+          return false;
+        }
+        return a && a.enabled && a.type === 3 /* Alarm */;
+      });
+      this._itemCache.alarms.reverse();
+      return this._itemCache.alarms;
+    }
+    get buttons() {
+      if (this._itemCache.buttons)
+        return this._itemCache.buttons;
+      const keys = this.profiles.keys;
+      const tmp = [];
+      let k = 0;
+      const kl = keys.length;
+      if (kl === 0) return [];
+      if (kl === 1) {
+        if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableButtons)
+          this._itemCache.buttons = [];
+        else
+          this._itemCache.buttons = SortItemArrayByPriority(this.profiles.items[keys[k]].buttons);
+        return this._itemCache.buttons;
+      }
+      for (; k < kl; k++) {
+        if (!this.profiles.items[keys[k]].enabled || !this.profiles.items[keys[k]].enableButtons || this.profiles.items[keys[k]].buttons.length === 0)
+          continue;
+        tmp.push.apply(tmp, SortItemArrayByPriority(this.profiles.items[keys[k]].buttons));
+      }
+      this._itemCache.buttons = tmp;
+      return this._itemCache.buttons;
+    }
+    get contexts() {
+      if (this._itemCache.contexts)
+        return this._itemCache.contexts;
+      const keys = this.profiles.keys;
+      const tmp = [];
+      let k = 0;
+      const kl = keys.length;
+      if (kl === 0) return [];
+      if (kl === 1) {
+        if (!this.profiles.items[keys[0]].enabled || !this.profiles.items[keys[0]].enableContexts)
+          this._itemCache.contexts = [];
+        else
+          this._itemCache.contexts = SortItemArrayByPriority(this.profiles.items[keys[k]].contexts);
+        return this._itemCache.contexts;
+      }
+      for (; k < kl; k++) {
+        if (!this.profiles.items[keys[k]].enabled || !this.profiles.items[keys[k]].enableContexts || this.profiles.items[keys[k]].contexts.length === 0)
+          continue;
+        tmp.push.apply(tmp, SortItemArrayByPriority(this.profiles.items[keys[k]].contexts));
+      }
+      this._itemCache.contexts = tmp;
+      return this._itemCache["contexts"];
+    }
+    get defaultContext() {
+      if (this._itemCache.defaultContext !== null)
+        return this._itemCache.defaultContext;
+      this._itemCache.defaultContext = this.profiles.defaultContext;
+      return this._itemCache.defaultContext;
+    }
+    //#endregion    
+    addPlugin(plugin) {
+      if (!plugin) return;
+      this.plugins.push(plugin);
+      plugin.initialize();
+    }
+    removePlugin(plugin) {
+      if (!this.plugins.length) return;
+      const idx = this.plugins.indexOf(plugin);
+      if (idx !== -1) {
+        plugin.remove();
+        this.plugins.splice(idx, 1);
+      }
+    }
+    getVariable(name2) {
+      return this.variables[name2];
+    }
+    setVariable(name2, value) {
+      this.variables[name2] = value;
+    }
+    setVariables(variables) {
+      const names = Object.keys(variables);
+      if (names.length === 0) return;
+      const nl = names.length;
+      let name2;
+      for (let n = 0; n < nl; n++) {
+        name2 = names[n];
+        this.variables[name2] = variables[name2];
+      }
+    }
+    hasVariable(name2) {
+      return this.variables.hasOwnProperty(name2);
+    }
+    removeVariable(name2) {
+      if (!this.variables.hasOwnProperty(name2))
+        return;
+      delete this.variables[name2];
+    }
+    setHistoryIndex(index) {
+      this._input.setHistoryIndex(index);
+    }
+    clearCommandHistory() {
+      this._input.clearCommandHistory();
+    }
+    AddCommandToHistory(txt) {
+      this._input.AddCommandToHistory(txt);
+    }
+    loadProfiles() {
+      return new Promise((resolve, reject) => {
+        ProfileCollection.load().then((profiles) => {
+          this._profiles = profiles;
+          if (!this.profiles.contains("default")) {
+            this.profiles.add(Profile.Default);
+            this.saveProfiles();
+          }
+          this.clearCache();
+          this.startAlarms();
+          this.emit("profiles-loaded");
+          resolve(this._profiles);
+        });
+      });
+    }
+    removeProfile(profile) {
+      if (!profile) return;
+      this.profiles.remove(profile);
+      this.clearCache();
+      this.startAlarms();
+      this.emit("profile-removed", profile);
+    }
+    saveProfiles() {
+      this._profiles.save();
+      this.clearCache();
+      this.emit("profiles-updated");
+    }
+    toggleProfile(profile) {
+      this.profiles.toggle(profile);
+      this.saveProfiles();
+      this.clearCache();
+      this.startAlarms();
+      this.emit("profile-toggled", profile, this.profiles[profile].enabled);
+    }
+    startAlarms() {
+      const al = this.alarms.length;
+      if ((al === 0 || !this.getOption("enableTriggers")) && this._alarm) {
+        clearInterval(this._alarm);
+        this._alarm = null;
+      } else if (al && !this._alarm)
+        this._alarm = setInterval((client2) => {
+          client2.process_alarms();
+        }, 1e3, this);
+    }
+    setAlarmState(idx, state) {
+      if (typeof idx === "object")
+        idx = this.alarms.indexOf(idx);
+      if (idx === -1 || idx >= this.alarms.length)
+        return;
+      let pattern = this._itemCache.alarmPatterns[idx];
+      if (!pattern) {
+        pattern = {};
+        if (this.alarms[idx].type === 3 /* Alarm */)
+          pattern[0] = Alarm.parse(this.alarms[idx]);
+        for (let s = 0, sl = this.alarms[idx].triggers.length; s < sl; s++) {
+          if (this.alarms[idx].triggers[s].enabled && this.alarms[idx].triggers[s].type === 3 /* Alarm */)
+            pattern[s] = Alarm.parse(this.alarms[idx].triggers[s]);
+        }
+        this._itemCache.alarmPatterns[idx] = pattern;
+      }
+      for (const p in pattern) {
+        if (!pattern.hasOwnProperty(p)) continue;
+        if (state) {
+          pattern[p].startTime += Date.now() - pattern[p].suspended;
+          pattern[p].prevTime += Date.now() - pattern[p].suspended;
+          if (pattern[p].tempTime)
+            pattern[p].tempTime += Date.now() - pattern[p].suspended;
+          pattern[p].suspended = 0;
+        } else
+          pattern[p].suspended = Date.now();
+      }
+    }
+    setAlarmTempTime(idx, temp) {
+      if (typeof idx === "object")
+        idx = this.alarms.indexOf(idx);
+      if (idx === -1 || idx >= this.alarms.length)
+        return;
+      let pattern = this._itemCache.alarmPatterns[idx];
+      if (!pattern) {
+        pattern = {};
+        if (this.alarms[idx].type === 3 /* Alarm */)
+          pattern[0] = Alarm.parse(this.alarms[idx]);
+        for (let s = 0, sl = this.alarms[idx].triggers.length; s < sl; s++) {
+          if (this.alarms[idx].triggers[s].enabled && this.alarms[idx].triggers[s].type === 3 /* Alarm */)
+            pattern[s] = Alarm.parse(this.alarms[idx].triggers[s]);
+        }
+        this._itemCache.alarmPatterns[idx] = pattern;
+      }
+      if (pattern[0])
+        pattern[0].setTempTime(temp);
+    }
+    restartAlarmState(idx, oldState, newState) {
+      if (oldState === newState)
+        return;
+      if (typeof idx === "object")
+        idx = this.alarms.indexOf(idx);
+      if (idx === -1 || idx >= this.alarms.length)
+        return;
+      let pattern = this._itemCache.alarmPatterns[idx];
+      if (!pattern) {
+        pattern = {};
+        if (this.alarms[idx].type === 3 /* Alarm */)
+          pattern[0] = Alarm.parse(this.alarms[idx]);
+        for (let s = 0, sl = this.alarms[idx].triggers.length; s < sl; s++) {
+          if (this.alarms[idx].triggers[s].enabled && this.alarms[idx].triggers[s].type === 3 /* Alarm */)
+            pattern[s] = Alarm.parse(this.alarms[idx].triggers[s]);
+        }
+        this._itemCache.alarmPatterns[idx] = pattern;
+      }
+      if (pattern[oldState])
+        pattern[oldState].restart = Date.now();
+      if (pattern[newState])
+        pattern[newState].restart = Date.now();
+    }
+    getRemainingAlarmTime(idx) {
+      if (typeof idx === "object")
+        idx = this.alarms.indexOf(idx);
+      if (idx === -1 || idx >= this.alarms.length)
+        return 0;
+      if (!this.alarms[idx].enabled)
+        return 0;
+      let pattern = this._itemCache.alarmPatterns[idx];
+      if (!pattern) {
+        pattern = {};
+        if (this.alarms[idx].type === 3 /* Alarm */)
+          pattern[0] = Alarm.parse(this.alarms[idx]);
+        for (let s = 0, sl = this.alarms[idx].triggers.length; s < sl; s++) {
+          if (this.alarms[idx].triggers[s].enabled && this.alarms[idx].triggers[s].type === 3 /* Alarm */)
+            pattern[s] = Alarm.parse(this.alarms[idx].triggers[s]);
+        }
+        this._itemCache.alarmPatterns[idx] = pattern;
+      }
+      if (pattern[0]) {
+        const alarm = pattern[0];
+        const now = Date.now();
+        const dNow = /* @__PURE__ */ new Date();
+        let future = now;
+        let fend = future + 9e7;
+        let mod = 1e3;
+        if (alarm.seconds !== -1)
+          mod = 1e3;
+        else if (alarm.minutes !== -1)
+          mod = 6e4;
+        else if (alarm.hours !== -1)
+          mod = 36e5;
+        if (alarm.tempTime) {
+          if (alarm.tempTime - now > 0)
+            return alarm.tempTime - now;
+          return 0;
+        } else {
+          while (future < fend) {
+            if (this.alarm_match(alarm, future, dNow))
+              return future - now;
+            future += mod;
+            dNow.setTime(dNow.getTime() + mod);
+          }
+          return -1;
+        }
+      }
+      return 0;
+    }
+    updateAlarms() {
+      if (this._itemCache.alarmPatterns) {
+        const old = this._itemCache.alarmPatterns;
+        const oAlarms = this.alarms;
+        this._itemCache.alarmPatterns = [];
+        this._itemCache.alarms = null;
+        const al = this.alarms.length;
+        let idx = -1;
+        for (let a = 0; a < al; a++) {
+          idx = oAlarms.indexOf(this.alarms[a]);
+          if (idx !== -1)
+            this._itemCache.alarmPatterns[a] = old[idx];
+        }
+      }
+      this.startAlarms();
+    }
+    process_alarms() {
+      if (!this.getOption("enableTriggers"))
+        return;
+      let a = 0;
+      let changed = false;
+      const al = this.alarms.length;
+      if (al === 0 && this._alarm) {
+        clearInterval(this._alarm);
+        this._alarm = null;
+        return;
+      }
+      const patterns = this._itemCache.alarmPatterns;
+      const now = Date.now();
+      const alarms = this.alarms;
+      const dNow = /* @__PURE__ */ new Date();
+      for (a = al - 1; a >= 0; a--) {
+        let trigger = alarms[a];
+        const parent = trigger;
+        if (!trigger.enabled) continue;
+        if (trigger.state > trigger.triggers.length)
+          trigger.state = 0;
+        if (trigger.state !== 0 && trigger.triggers && trigger.triggers.length) {
+          trigger = trigger.triggers[trigger.state - 1];
+          while (!trigger.enabled && parent.state !== 0) {
+            parent.state++;
+            if (parent.state > parent.triggers.length) {
+              parent.state = 0;
+              trigger = trigger.triggers[parent.state - 1];
+              break;
+            }
+            if (parent.state)
+              trigger = trigger.triggers[parent.state - 1];
+            else
+              trigger = parent;
+            changed = true;
+          }
+          if (changed) {
+            if (this.getOption("saveTriggerStateChanges"))
+              this.saveProfiles();
+            this.emit("item-updated", "trigger", parent.profile.name, parent.profile.triggers.indexOf(parent));
+          }
+          if (!trigger.enabled) continue;
+        }
+        if (trigger.type === 131072 /* ReParse */ || trigger.type === 262144 /* ReParsePattern */) {
+          const val = this._input.adjustLastLine(this.display.lines.length, true);
+          const line2 = this.display.lines[val];
+          a = this._input.TestTrigger(trigger, parent, a, line2, this.display.lines[val].raw || line2, val === this.display.lines.length - 1);
+          continue;
+        }
+        if (trigger.type !== 3 /* Alarm */) continue;
+        let alarm = patterns[a];
+        if (!alarm) {
+          try {
+            patterns[a] = {};
+            if (trigger.type === 3 /* Alarm */)
+              patterns[a][0] = Alarm.parse(trigger);
+            for (let s = 0, sl = trigger.triggers.length; s < sl; s++) {
+              if (trigger.triggers[s].type === 3 /* Alarm */)
+                patterns[a][s] = Alarm.parse(trigger.triggers[s]);
+            }
+          } catch (e) {
+            patterns[a] = null;
+            if (this.getOption("disableTriggerOnError")) {
+              trigger.enabled = false;
+              setTimeout(() => {
+                this.saveProfiles();
+                this.emit("item-updated", "trigger", parent.profile, parent.profile.triggers.indexOf(parent), parent);
+              });
+            }
+            throw e;
+          }
+          alarm = patterns[a];
+          if (!alarm) continue;
+        }
+        alarm = alarm[trigger.state];
+        if (alarm.restart) {
+          alarm.startTime = Date.now();
+          alarm.prevTime = alarm.startTime;
+          if (alarm.tempTime)
+            alarm.tempTime += Date.now() - alarm.restart;
+          alarm.restart = 0;
+        }
+        let match = true;
+        if (alarm.tempTime) {
+          match = now >= alarm.tempTime;
+          if (match)
+            alarm.tempTime = 0;
+        } else
+          match = this.alarm_match(alarm, now, dNow);
+        if (match && !alarm.suspended) {
+          alarm.prevTime = now;
+          const state = parent.state;
+          this._input.lastTriggered = alarm.pattern;
+          this._input.ExecuteTrigger(trigger, [alarm.pattern], false, -a, null, null, parent);
+          if (state !== parent.state)
+            alarm.restart = Date.now();
+          if (alarm.temp) {
+            if (parent.triggers.length) {
+              if (state === 0) {
+                const item = parent.triggers.shift();
+                item.state = state;
+                item.priority = parent.priority;
+                item.name = parent.name;
+                item.profile = parent.profile;
+                if (item.state > item.triggers.length)
+                  item.state = 0;
+                item.triggers = parent.triggers;
+                alarms[a] = item;
+                patterns[a] = null;
+                this.saveProfiles();
+                const idx = parent.profile.triggers.indexOf(parent);
+                parent.profile.triggers[idx] = item;
+                this.emit("item-updated", "trigger", parent.profile.name, idx, item);
+              } else {
+                parent.triggers.splice(state - 1, 1);
+                patterns[a].splice(state - 1, 1);
+                parent.state = state;
+                if (parent.state > parent.triggers.length)
+                  parent.state = 0;
+                this.saveProfiles();
+                const idx = parent.profile.triggers.indexOf(parent);
+                this.emit("item-updated", "trigger", parent.profile.name, idx, parent);
+              }
+            } else {
+              this._input.clearTriggerState(a);
+              this.removeTrigger(parent);
+            }
+          }
+          a = -this._input.cleanUpTriggerState(-a);
+        }
+      }
+    }
+    alarm_match(alarm, now, dNow) {
+      if (!alarm || alarm.suspended) return false;
+      let match = true;
+      let ts;
+      let sec;
+      let min;
+      let hr;
+      let hours;
+      let minutes;
+      let seconds;
+      if (!moment || this.simpleAlarms) {
+        ts = now - this.connectTime;
+        if (ts < 1e3)
+          return false;
+        sec = Math.round(ts / 1e3);
+        min = Math.floor(sec / 60);
+        hr = Math.floor(min / 60);
+        hours = hr;
+        minutes = Math.floor(min % 60);
+        seconds = Math.floor(sec % 60);
+      } else {
+        if (alarm.start)
+          ts = moment.duration(now - this.connectTime);
+        else
+          ts = moment.duration(now - alarm.startTime);
+        if (ts.asMilliseconds() < 1e3)
+          return false;
+        sec = Math.round(ts.asMilliseconds() / 1e3);
+        min = Math.floor(sec / 60);
+        hr = Math.floor(min / 60);
+        hours = ts.hours();
+        minutes = ts.minutes();
+        seconds = ts.seconds();
+      }
+      if (alarm.hoursWildCard) {
+        if (alarm.hours === 0)
+          match = match && hours === 0;
+        else if (alarm.hours !== -1)
+          match = match && hr !== 0 && hr % alarm.hours === 0;
+      } else if (alarm.hours !== -1)
+        match = match && alarm.hours === (alarm.start ? hours : dNow.getHours());
+      if (alarm.minutesWildcard) {
+        if (alarm.minutes === 0)
+          match = match && minutes === 0;
+        else if (alarm.minutes !== -1)
+          match = match && min !== 0 && min % alarm.minutes === 0;
+      } else if (alarm.minutes !== -1)
+        match = match && alarm.minutes === (alarm.start ? minutes : dNow.getMinutes());
+      if (alarm.secondsWildcard) {
+        if (alarm.seconds === 0)
+          match = match && seconds === 0;
+        else if (alarm.seconds !== -1)
+          match = match && sec % alarm.seconds === 0;
+      } else if (alarm.seconds !== -1)
+        match = match && alarm.seconds === (alarm.start ? seconds : dNow.getSeconds());
+      return match;
+    }
+    loadOptions() {
+      this._options = new Settings();
+      this.enableDebug = this._options.enableDebug;
+      this.display.maxLines = this._options.bufferSize;
+      this.display.enableFlashing = this._options.flashing;
+      this.display.enableMXP = this._options.enableMXP;
+      this.display.showInvalidMXPTags = this._options["display.showInvalidMXPTags"];
+      this.display.enableURLDetection = this._options.enableURLDetection;
+      this.display.enableMSP = this._options.enableMSP;
+      this.display.enableColors = this._options["display.enableColors"];
+      this.display.enableBackgroundColors = this._options["display.enableBackgroundColors"];
+      this.display.wordWrap = this._options["display.wordWrap"];
+      this.display.wrapAt = this._options["display.wrapAt"];
+      this.display.indent = this._options["display.indent"];
+      this.display.showTimestamp = this._options["display.showTimestamp"];
+      this.display.tabWidth = this._options["display.tabWidth"];
+      this.display.timestampFormat = this._options["display.timestampFormat"];
+      const colors = this.getOption("colors");
+      if (colors && colors.length > 0) {
+        let c;
+        const cl = colors.length;
+        for (c = 0; c < cl; c++) {
+          if (!colors[c] || colors[c].length === 0) continue;
+          this.display.SetColor(c, colors[c]);
+        }
+      }
+      if (this._telnet) {
+        this._telnet.options.MCCP = this._options.enableMCCP;
+        this._telnet.options.MXP = this._options.enableMXP;
+        this._telnet.UTF8 = this._options.enableUTF8;
+        this._telnet.options.ECHO = this._options.enableEcho;
+        this._telnet.enableLatency = this._options.lagMeter;
+        this._telnet.enablePing = this._options.enablePing;
+      }
+      this._input.scrollLock = this._options.scrollLocked;
+      this._input.enableParsing = this._options.enableParsing;
+      this._input.enableTriggers = this._options.enableTriggers;
+      this.display.scrollLock = this._options.scrollLocked;
+      this.display.hideTrailingEmptyLine = this._options["display.hideTrailingEmptyLine"];
+      this.display.displayControlCodes = this.getOption("display.displayControlCodes");
+      this.display.emulateTerminal = this.getOption("display.emulateTerminal");
+      this.display.emulateControlCodes = this.getOption("display.emulateControlCodes");
+      this._commandInput.wrap = this.getOption("commandWordWrap") ? "on" : "off";
+      if (this.UpdateFonts) this.UpdateFonts();
+      this.display.scrollDisplay();
+      this.loadProfiles();
+      this.emit("options-loaded");
+    }
+    setOption(name2, value) {
+      if (name2 === -1 || name2 === "-1")
+        return;
+      this._options[name2] = value;
+      Settings.setValue(name2, value);
+      this.emit("option=changed", name2, value);
+    }
+    getOption(name2) {
+      if (this._options && name2 in this._options)
+        return this._options[name2];
+      return this._options[name2] = Settings.getValue(name2);
+    }
+    UpdateFonts() {
+      if (!this.display) return;
+      this.display.updateFont(this._options.font + ", monospace", this._options.fontSize);
+      this._commandInput.style.fontSize = this._options.cmdfontSize;
+      this._commandInput.style.fontFamily = this._options.cmdfont + ", monospace";
+    }
+    parse(txt) {
+      this.parseInternal(txt, false, false, true);
+    }
+    parseInternal(txt, remote, force, prependSplit) {
+      this.display.append(txt, remote, force, prependSplit);
+    }
+    error(err) {
+      if (this.enableDebug) this.debug(err);
+      let msg = "";
+      if (err == null || typeof err === "undefined")
+        err = new Error("Unknown");
+      else if (typeof err === "string" && err.length === 0)
+        err = new Error("Unknown");
+      if (err.stack && this.getOption("showErrorsExtended"))
+        msg = err.stack;
+      else if (err instanceof Error || err instanceof TypeError)
+        msg = err.name + ": " + err.message;
+      else if (err.message)
+        msg = err.message;
+      else
+        msg = "" + err;
+      if (msg.match(/^.*Error: /g) || msg.match(/^.*Error - /g))
+        this.echo(msg, -11 /* ErrorText */, -12 /* ErrorBackground */, true, true);
+      else
+        this.echo("Error: " + msg, -11 /* ErrorText */, -12 /* ErrorBackground */, true, true);
+      if (this.getOption("logErrors")) {
+        if (!this.getOption("showErrorsExtended")) {
+          if (err.stack)
+            msg = err.stack;
+          else {
+            err = new Error(err || msg);
+            msg = err.stack;
+          }
+        } else if (!err.stack) {
+          err = new Error(err || msg);
+          msg = err.stack;
+        }
+        window.console.log((/* @__PURE__ */ new Date()).toLocaleString());
+        window.console.log(msg);
+        localforage.getItem("oiMUDErrorLog", function(err2, value) {
+          localforage.setItem("oiMUDErrorLog", value = (value || "") + (/* @__PURE__ */ new Date()).toLocaleString() + "\n" + msg + "\n");
+        });
+      }
+      if (err === "Error: ECONNRESET - read ECONNRESET." && this.telnet.connected)
+        this.close();
+      this.raise("error", msg);
+    }
+    echo(str, fore, back, newline, forceLine) {
+      if (str == null) str = "";
+      if (newline == null) newline = false;
+      if (forceLine == null) forceLine = false;
+      if (fore == null) fore = -3 /* LocalEcho */;
+      if (back == null) back = -4 /* LocalEchoBack */;
+      const codes = "\x1B[0m" + this.display.CurrentAnsiCode() + "\n";
+      str = "" + str;
+      if (str.endsWith("\n"))
+        str = str.substr(0, str.length - 1);
+      if (this.telnet.prompt && forceLine) {
+        this.print("\n\x1B[" + fore + ";" + back + "m" + str + codes, newline);
+        this.telnet.prompt = false;
+      } else
+        this.print("\x1B[" + fore + ";" + back + "m" + str + codes, newline);
+    }
+    print(txt, newline) {
+      this.printInternal(txt, newline, false, true);
+    }
+    printInternal(txt, newline, remote, prependSplit) {
+      if (txt == null || typeof txt === "undefined") return;
+      if (newline == null) newline = false;
+      if (remote == null) remote = false;
+      if (newline && this.display.textLength > 0 && !this.display.EndOfLine && this.display.EndOfLineLength !== 0 && !this.telnet.prompt && !this.display.parseQueueEndOfLine)
+        txt = "\n" + txt;
+      this.emit("print");
+      this.parseInternal(txt, remote, false, prependSplit);
+    }
+    send(data, echo) {
+      this.telnet.sendData(data);
+      this.lastSendTime = Date.now();
+      if (echo && this.telnet.echo && this.getOption("commandEcho"))
+        this.echo(data);
+      else if (echo)
+        this.echo("\n");
+    }
+    sendRaw(data) {
+      this.telnet.sendData(data, true);
+      this.lastSendTime = Date.now();
+    }
+    sendGMCP(data) {
+      this.telnet.sendGMCP(data);
+      this.lastSendTime = Date.now();
+    }
+    debug(str, style) {
+      const data = { value: str };
+      this.emit("debug", data);
+      if (!this._enableDebug || data == null || typeof data === "undefined" || data.value == null || typeof data.value === "undefined" || data.value.length === 0)
+        return;
+      if (window.console) {
+        if (style)
+          window.console.log("%c" + str, style);
+        else
+          window.console.log(data.value);
+      }
+    }
+    sendCommand(txt, noEcho, comments) {
+      if (txt == null) {
+        txt = this._commandInput.value;
+        if (!this.telnet.echo)
+          this._commandInput.value = "";
+        else
+          this._input.AddCommandToHistory(txt);
+      }
+      txt = "" + txt;
+      if (!txt.endsWith("\n"))
+        txt = txt + "\n";
+      const data = { value: txt, handled: false, comments };
+      this.emit("parse-command", data);
+      if (data == null || typeof data === "undefined") return;
+      if (data.handled || data.value == null || typeof data.value === "undefined") return;
+      if (data.value.length > 0)
+        this.send(data.value, !noEcho);
+      if (!this.getOption("keepLastCommand"))
+        this._commandInput.value = "";
+      else if (this.getOption("selectLastCommand"))
+        selectAll(this._commandInput);
+    }
+    sendBackground(txt, noEcho, comments) {
+      if (txt == null) {
+        txt = this._commandInput.value;
+        if (!this.telnet.echo)
+          this._commandInput.value = "";
+        else
+          this._input.AddCommandToHistory(txt);
+      }
+      txt = "" + txt;
+      if (!txt.endsWith("\n"))
+        txt = txt + "\n";
+      const data = { value: txt, handled: false, comments };
+      this.emit("parse-command", data);
+      if (data == null || typeof data === "undefined") return;
+      if (data.value == null || typeof data.value === "undefined") return;
+      if (!data.handled && data.value.length > 0)
+        this.send(data.value, !noEcho);
+    }
+    get scrollLock() {
+      return this._input.scrollLock;
+    }
+    set scrollLock(enabled) {
+      this._input.scrollLock = enabled;
+    }
+    toggleScrollLock() {
+      this._input.toggleScrollLock();
+    }
+    UpdateWindow() {
+      this.display.updateWindow();
+    }
+    close() {
+      this.telnet.close();
+    }
+    connect() {
+      this.errored = false;
+      this.emit("connecting");
+      this.display.ClearMXP();
+      this.display.ResetMXPLine();
+      this.telnet.connect();
+      this.emit("connect");
+      this._commandInput.focus();
+    }
+    receivedData(data) {
+      this.telnet.receivedData(data);
+    }
+    notify(title, message, options) {
+      if (this.enableDebug) {
+        this.emit("debug", "notify title: " + title);
+        this.emit("debug", "notify msg: " + message);
+      }
+      this.emit("notify", title, message, options);
+    }
+    clear() {
+      this.display.clear();
+      this.emit("cleared");
+    }
+    parseInline(text) {
+      return this._input.parseInline(text);
+    }
+    parseOutgoing(text, eAlias, stacking, noFunction) {
+      return this._input.parseOutgoing(text, eAlias, stacking, noFunction);
+    }
+    clearCache() {
+      this._input.clearCaches();
+      this._itemCache = {
+        triggers: null,
+        aliases: null,
+        macros: null,
+        buttons: null,
+        contexts: null,
+        defaultContext: null,
+        alarms: null,
+        alarmPatterns: []
+      };
+    }
+    beep() {
+      this.emit("bell");
+    }
+    raise(event2, args, delay) {
+      if (!this.profiles) {
+        setTimeout(() => {
+          this.raise(event2, args, delay);
+        }, 100);
+        return;
+      }
+      if (!delay || delay < 1)
+        this._input.triggerEvent(event2, args);
+      else
+        setTimeout(() => {
+          this._input.triggerEvent(event2, args);
+        }, delay);
+    }
+    show() {
+      this.emit("show");
+    }
+    hide() {
+      this.emit("hide");
+    }
+    toggle() {
+      this.emit("toggle");
+    }
+  };
+  window.Client = Client;
+  window.Display = Display;
 })();
 /** @license zlib.js 2012 - imaya [ https://github.com/imaya/zlib.js ] The MIT License */
 /**

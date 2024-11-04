@@ -1,4 +1,4 @@
-div.offcanvas-body > ul > li > hr {
+div.offcanvas-body ul li hr {
   border-top: 1px solid;
   margin: 2px;
 }
@@ -35,6 +35,39 @@ div.offcanvas-body > ul > li > hr {
   padding-right: 3px;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out, border-radius 0.15s;
+}
+
+.offcanvas-body [aria-expanded="true"]:after {
+  content: "\f229";
+  display: inline-block;
+  font-family: bootstrap-icons !important;
+  font-style: normal;
+  font-weight: 400 !important;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: -.125em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;  
+  float: right;
+  padding-top: 5px;  
+}
+
+
+.offcanvas-body [aria-expanded="false"]:after {
+  content: "\f231";
+  display: inline-block;
+  font-family: bootstrap-icons !important;
+  font-style: normal;
+  font-weight: 400 !important;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: -.125em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  float: right;
+  padding-top: 5px;     
 }
 
 #adv-editor .dialog-body textarea {

@@ -2566,7 +2566,7 @@ export function openFileDialog(title?: string, multiple?: boolean, accept?: stri
     });
 }
 
-export function readFile(file) {
+export function readFile(file, progress?) {
     return new Promise((resolve, reject) => {
         if (!file) reject(new Error('Invalid file'));
         var reader = new FileReader();
@@ -2575,6 +2575,8 @@ export function readFile(file) {
             resolve(evt.target.result);
         };
         reader.readAsText(file);
+        if (progress)
+            reader.onprogress = progress;
     });
 }
 

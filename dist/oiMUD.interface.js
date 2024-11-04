@@ -106,34 +106,32 @@
     let sl;
     const list = document.querySelector("#clientMenu ul");
     for (let p = 0; p < pl; p++) {
-      if (!client.plugins[p].settings) continue;
-      if (client.plugins[p].settings.length) {
-        sl = client.plugins[p].settings.length;
+      if (!client.plugins[p].menu) continue;
+      if (client.plugins[p].menu.length) {
+        sl = client.plugins[p].menu.length;
         for (s = 0; s < sl; s++) {
-          let item = client.plugins[p].settings[s];
+          let item = client.plugins[p].menu[s];
           let code;
-          let id = "menu-" + (item.name || "").toLowerCase().replace(/ /g, "-");
+          let id = "menu-" + (item.name || s).toLowerCase().replace(/ /g, "-");
           if (item.name === "-")
             code = '<li><hr class="dropdown-divider"></li>';
           else if (typeof item.action === "string")
-            code = `<li id="menu-${id}" class="nav-item" title="${item.name || ""}"><a class="nav-link" href="#${item.action}">${item.icon || ""}${item.name || ""}</i><span>${item.name || ""}</span></a></li>`;
+            code = `<li id="menu-${id}" class="nav-item" title="${item.name || ""}"><a class="nav-link" href="#${item.action}">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
           else
-            code = `<li id="menu-${id}" class="nav-item" title="${item.name || ""}"><a class="nav-link" href="javascript:void(0)">${item.icon || ""}${item.name || ""}<span>${item.name || ""}</span></a></li>`;
+            code = `<li id="menu-${id}" class="nav-item" title="${item.name || ""}"><a class="nav-link" href="javascript:void(0)">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
           if ("position" in item) {
             if (typeof item.position === "string") {
-              if (list.querySelector(item.position)) {
+              if (list.querySelector(item.position))
                 list.querySelector(item.position).insertAdjacentHTML("afterend", code);
-                continue;
-              }
             } else if (item.position >= 0 && item.position < list.children.length) {
               list.children[item.position].insertAdjacentHTML("afterend", code);
-              continue;
-            }
-          }
-          list.insertAdjacentHTML("beforeend", code);
+            } else
+              list.insertAdjacentHTML("beforeend", code);
+          } else
+            list.insertAdjacentHTML("beforeend", code);
           if (item.name === "-") continue;
           if (typeof item.action === "function")
-            document.querySelector(`#${id} a`).addEventListener("click", (e) => {
+            document.querySelector(`#menu-${id} a`).addEventListener("click", (e) => {
               const ie = { client, preventDefault: false };
               item.action(ie);
               if (ie.preventDefault) return;
@@ -1465,7 +1463,7 @@
       dialog.showModal();
     });
   }
-  function readFile(file) {
+  function readFile(file, progress) {
     return new Promise((resolve, reject) => {
       if (!file) reject(new Error("Invalid file"));
       var reader = new FileReader();
@@ -1474,6 +1472,8 @@
         resolve(evt.target.result);
       };
       reader.readAsText(file);
+      if (progress)
+        reader.onprogress = progress;
     });
   }
   var _timers = {};
@@ -1523,6 +1523,7 @@
             this.makeVisible();
           if (this._footer.style.display !== "none")
             this._body.style.bottom = this._footer.clientHeight + 1 + "px";
+          this.emit("resizing");
         }, 250, this._id + "dialogResize");
       };
       this.resizeDoDrag = (e) => {
@@ -1563,6 +1564,7 @@
         }
         if (this._footer.style.display !== "none")
           this._body.style.bottom = this._footer.clientHeight + 1 + "px";
+        this.emit("resizing");
       };
       this.resizeTouchDrag = (e) => {
         if (!e.touches.length) return;
@@ -1603,6 +1605,7 @@
         }
         if (this._footer.style.display !== "none")
           this._body.style.bottom = this._footer.clientHeight + 1 + "px";
+        this.emit("resizing");
       };
       this.resizeStopDrag = (e) => {
         document.documentElement.removeEventListener("mousemove", this.resizeDoDrag);
@@ -1693,6 +1696,7 @@
       this.moveable = true;
       this.resizable = true;
       this._maximizable = true;
+      this._closable = true;
       if (options && "type" in options && options.type == 1) {
         this._dialog = document.createElement("div");
         this._dialog.open = false;
@@ -1708,8 +1712,10 @@
           this._dialog.dataset.show = "" + this._state.show;
           if (!this._dialog._keydown) {
             this._dialog._keydown = (e) => {
-              if (e.key === "Escape" && e.srcElement.tagName !== "TEXTAREA" && e.srcElement.tagName !== "INPUT" && e.srcElement.tagName !== "SELECT")
+              if (e.key === "Escape" && e.srcElement.tagName !== "TEXTAREA" && e.srcElement.tagName !== "INPUT" && e.srcElement.tagName !== "SELECT") {
+                this._dialog.returnValue = "canceled";
                 this.close();
+              }
             };
           }
           if (!this._dialog.backdrop_) {
@@ -1899,6 +1905,8 @@
         this._dialog.querySelector(`#${this._id}-max`).style.display = "";
       else
         this._dialog.querySelector(`#${this._id}-max`).style.display = "none";
+      if (options && "closeable" in options)
+        this.closeable = options.closeable;
       if (options && (options.buttons & 2 /* Cancel */) === 2 /* Cancel */)
         this._dialog.querySelector(`#${this._id}-cancel`).addEventListener("click", () => {
           const e = { preventDefault: false, button: 2 /* Cancel */ };
@@ -2076,6 +2084,17 @@
       else
         this._dialog.querySelector(`#${this._id}-max`).style.display = "none";
     }
+    get closeable() {
+      return this._closable;
+    }
+    set closeable(value) {
+      if (value === this._closable) return;
+      this._closable = value;
+      if (this._closable)
+        this._dialog.querySelector(`#${this._id}-header-close`).style.display = "";
+      else
+        this._dialog.querySelector(`#${this._id}-header-close`).style.display = "none";
+    }
     set maximized(value) {
       if (this._state.maximized === value) return;
       this._state.maximized = value;
@@ -2147,6 +2166,7 @@
       if (!this._dialog.parentElement)
         document.body.appendChild(this._dialog);
       this.makeVisible(true);
+      this._dialog.returnValue = "";
       if (this._dialog.open) {
         this.focus();
         return;
@@ -2162,6 +2182,7 @@
       if (!this._dialog.parentElement)
         document.body.appendChild(this._dialog);
       this.makeVisible(true);
+      this._dialog.returnValue = "";
       if (this._dialog.open) {
         this.focus();
         return;
@@ -2176,12 +2197,14 @@
     get opened() {
       return this._dialog.open;
     }
-    close() {
+    close(returnValue) {
       if (!this._dialog.open) return;
       if (this._dialog.backdrop_)
         this._dialog.parentNode.removeChild(this._dialog.backdrop_);
       if (this._dialog._keydown)
         window.document.removeEventListener("keydown", this._dialog._keydown);
+      if (returnValue)
+        this._dialog.returnValue = returnValue;
       this._dialog.close();
     }
     get header() {
@@ -2422,7 +2445,7 @@
   var AlertDialog = class extends Dialog {
     constructor(title, message, icon) {
       super(typeof title === "string" ? { title: getIcon(icon || 4 /* exclamation */) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: 1 /* Ok */ } : title);
-      this.body.classList.add("d-flex", "justify-content-center", "talign-content-center", "align-items-center");
+      this.body.classList.add("d-flex", "justify-content-center", "align-content-center", "align-items-center");
       if (message)
         this.body.innerHTML = `<div class="text-center" style="width: 64px;height:64px;font-size: 40px;">${getIcon(icon || 4 /* exclamation */)}</div><div class="ms-3 align-self-center flex-fill">${message}</div></div>`;
     }
@@ -2433,6 +2456,34 @@
       this.body.classList.add("d-flex", "justify-content-center", "align-content-center", "align-items-center");
       if (message)
         this.body.innerHTML = `<div class="text-center" style="width: 64px;height:64px;font-size: 40px;">${getIcon(icon || 1 /* question */)}</div><div class="ms-3 align-self-center flex-fill">${message}</div></div>`;
+    }
+  };
+  var ProgressDialog = class extends Dialog {
+    constructor(title, message, icon) {
+      super(typeof title === "string" ? { title: getIcon(icon || 1 /* question */) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: 2 /* Cancel */, closeable: false } : title);
+      this.body.classList.add("text-center", "justify-content-center", "align-content-center", "align-items-center");
+      this.body.innerHTML = `<div class="align-self-center flex-fill" id="progress-message" style="padding:0 5px">${message || ""}</div></div><div class="progress" role="progressbar" aria-label="${title}" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="margin: 5px;"><div class="progress-bar" style="width: 0%"></div></div>`;
+      this._progress = this.body.querySelector(".progress-bar");
+    }
+    set label(value) {
+      this._progress.innerHTML = value;
+    }
+    get label() {
+      return this._progress.innerHTML;
+    }
+    set progress(value) {
+      if (value < 0) value = 0;
+      if (value > 100) value = 100;
+      this._progress.style.width = value + "%";
+    }
+    get progress() {
+      return parseInt(this._progress.style.width, 10);
+    }
+    get message() {
+      return this.body.querySelector("#progress-message").textContent;
+    }
+    set message(value) {
+      this.body.querySelector("#progress-message").textContent = value;
     }
   };
   function getIcon(icon) {
@@ -2459,6 +2510,9 @@
   };
   window.alert_box = (title, message, icon) => {
     new AlertDialog(title, message, icon).showModal();
+  };
+  window.progress_box = (title, message, icon) => {
+    return new ProgressDialog(title, message, icon);
   };
   window.Dialog = Dialog;
 
@@ -4309,7 +4363,7 @@
     ["mapper.importType", 0, 2, 1],
     ["mapper.vscroll", 0, 2, 0],
     ["mapper.hscroll", 0, 2, 0],
-    ["mapper.scale", 0, 2, 1],
+    ["mapper.scale", 0, 2, 100],
     ["mapper.alwaysOnTop", 0, 1, false],
     ["mapper.alwaysOnTopClient", 0, 1, true],
     ["mapper.memory", 0, 1, false],
@@ -4605,7 +4659,14 @@
           case "enableEcho":
           case "enableSpeedpaths":
           case "parseSpeedpaths":
+          case "mapper.enabled":
           case "MapperSplitArea":
+          case "mapper.split":
+          case "MapperFillWalls":
+          case "mapper.fill":
+          case "mapper.follow":
+          case "MapperOpen":
+          case "showMapper":
           case "parseSingleQuotes":
           case "parseDoubleQuotes":
           case "logEnabled":
@@ -4816,7 +4877,7 @@
         case "mapper.hscroll":
           return 0;
         case "mapper.scale":
-          return 1;
+          return 100;
         case "mapper.active":
           return {
             ID: null,
@@ -5904,7 +5965,7 @@
           }
           this.emit("splitter-moving", l);
         };
-        this.parent.appendChild(this.$ghostBar);
+        this.$el.appendChild(this.$ghostBar);
         document.addEventListener("mousemove", this.$ghostBar.move);
       });
       this.$dragBar.addEventListener("dblclick", (e) => {
@@ -5950,7 +6011,7 @@
           else
             this.SplitterDistance = this.parent.clientWidth - l + 2;
         }
-        this.parent.removeChild(this.$ghostBar);
+        this.$el.removeChild(this.$ghostBar);
         document.removeEventListener("mousemove", this.$ghostBar.move);
         this.$ghostBar = null;
         this.$dragging = false;
@@ -8502,6 +8563,8 @@
     });
     window.addEventListener("error", (e) => {
       const { message, filename, lineno, colno, error } = e;
+      if (message.includes("ResizeObserver loop completed with undelivered notifications"))
+        return;
       if (client) {
         if (error)
           client.error(error);
@@ -8576,6 +8639,8 @@
         default:
           if (dialogs[d] === "history" || dialogs[d].startsWith("settings") || dialogs[d].startsWith("profiles"))
             showDialog(dialogs[d]);
+          else
+            client.emit("window", dialogs[d]);
           break;
       }
   }
@@ -8632,7 +8697,7 @@
           footer += `<button id="${_dialogs.history.id}-send" type="button" class="btn-sm float-end btn btn-primary" title="Send"><i class="bi bi-send-fill"></i><span class="icon-only"> Send</span></button>`;
           footer += `<button id="${_dialogs.history.id}-refresh" type="button" class="btn-sm float-start btn btn-light" title="Refresh"><i class="bi bi-arrow-repeat"></i><span class="icon-only"> Refresh</span></button>`;
           _dialogs.history.footer.innerHTML = footer;
-          _dialogs.history.body.innerHTML = `<select id="history-list" multiple="multiple" class="form-control"></select>`;
+          _dialogs.history.body.innerHTML = `<select id="history-list" multiple="multiple" class="form-select"></select>`;
           _dialogs.history.body.querySelector("#history-list").addEventListener("dblclick", (e) => {
             const cmd = e.currentTarget.value;
             client.AddCommandToHistory(cmd);

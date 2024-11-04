@@ -1,5 +1,5 @@
 /* src/css/interface.css */
-div.offcanvas-body > ul > li > hr {
+div.offcanvas-body ul li hr {
   border-top: 1px solid;
   margin: 2px;
 }
@@ -34,6 +34,36 @@ div.offcanvas-body > ul > li > hr {
     background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out,
     border-radius 0.15s;
+}
+.offcanvas-body [aria-expanded=true]:after {
+  content: "\f229";
+  display: inline-block;
+  font-family: bootstrap-icons !important;
+  font-style: normal;
+  font-weight: 400 !important;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: -.125em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  float: right;
+  padding-top: 5px;
+}
+.offcanvas-body [aria-expanded=false]:after {
+  content: "\f231";
+  display: inline-block;
+  font-family: bootstrap-icons !important;
+  font-style: normal;
+  font-weight: 400 !important;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: -.125em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  float: right;
+  padding-top: 5px;
 }
 #adv-editor .dialog-body textarea {
   position: relative;
@@ -1017,6 +1047,82 @@ div.offcanvas-body > ul > li > hr {
 }
 
 /* src/css/nav.css */
+li.submenu ul.dropdown-menu[data-bs-popper] {
+  border-width: 0;
+  padding-top: 0;
+  padding-bottom: 1em;
+}
+li.submenu ul.dropdown-menu[data-bs-popper] li {
+  margin-left: 1.5em;
+}
+li.submenu > a.dropdown-toggle.show::after {
+  transform: rotate(90deg);
+}
+li.submenu.dropinline > a.dropdown-toggle.show::after {
+  transform: rotate(0deg);
+}
+li.submenu.dropinline > a.dropdown-toggle::after {
+  transform: rotate(-90deg);
+}
+li.submenu.dropstart > a.dropdown-toggle::before {
+  display: none;
+}
+li.submenu.dropstart > a.dropdown-toggle::after {
+  display: inline-block;
+  margin-left: 0.255em;
+  vertical-align: 0;
+  content: "";
+  border-top: 0.3em solid transparent;
+  border-right: 0;
+  border-bottom: 0.3em solid transparent;
+  border-left: 0.3em solid;
+}
+@media (min-width: 768px) {
+  li.submenu-md ul.dropdown-menu[data-bs-popper] {
+    border-width: var(--bs-dropdown-border-width);
+    padding-top: var(--bs-dropdown-padding-y);
+    padding-bottom: var(--bs-dropdown-padding-y);
+    margin-top: -0.5em;
+  }
+  li.submenu-md ul.dropdown-menu[data-bs-popper] li {
+    margin-left: 0;
+  }
+  li.submenu-md a[role=button] {
+    display: inline-flex;
+    align-items: center;
+  }
+  li.submenu-md.dropend ul.dropdown-menu[data-bs-popper] {
+    margin-left: -0.3em;
+  }
+  li.submenu-md.dropend a[role=button].show::after {
+    transform: unset;
+  }
+  li.submenu-md.dropend a[role=button]::after {
+    position: absolute;
+    right: 0.4em;
+  }
+  li.submenu-md.dropstart ul.dropdown-menu[data-bs-popper] {
+    margin-right: -0.3em;
+  }
+  li.submenu-md.dropstart a[role=button]::before {
+    display: block;
+    position: absolute;
+    left: 0.4em;
+  }
+  li.submenu-md.dropstart a[role=button]::after {
+    display: none;
+  }
+  li.submenu-md.dropinline ul.dropdown-menu[data-bs-popper] {
+    position: relative;
+    width: 100% !important;
+    border: 0;
+    box-shadow: none;
+    background-color: transparent;
+  }
+  li.submenu-md.dropinline ul.dropdown-menu[data-bs-popper] li {
+    padding-left: 1em;
+  }
+}
 .dropdown-inline {
   position: initial !important;
   transform: none !important;
@@ -1047,10 +1153,10 @@ div.offcanvas-body > ul > li > hr {
   color: black;
 }
 @media (orientation: landscape) and (max-width: 641px), (orientation: landscape) and (max-height: 480px), (orientation: portrait) and (max-width: 480px), (orientation: portrait) and (max-height: 641px) {
-  .nav-item.active > a {
+  .text-bg-dark .nav-item.active > a {
     background-color: white;
   }
-  .nav-item.active > a:hover {
+  .text-bg-dark .nav-item.active > a:hover {
     background-color: white;
   }
 }
@@ -1066,6 +1172,25 @@ div.offcanvas-body > ul > li > hr {
   padding: 0px;
   float: right;
   padding-top: 3px;
+}
+.btn.active:hover {
+  color: var(--bs-btn-color);
+  background-color: transparent;
+  border-color: var(--bs-btn-border-color);
+}
+.dropdown-item-checked::before {
+  position: absolute;
+  left: 0.4rem;
+  content: "\2713";
+  font-weight: 600;
+}
+.dropdown-item {
+  padding-left: 22px;
+  padding-right: 22px;
+}
+.nav-link.disabled,
+.nav-link:disabled {
+  opacity: 0.45;
 }
 
 /* src/css/profiles.css */

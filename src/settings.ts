@@ -92,7 +92,7 @@ export let SettingList: any[] = [
     ['mapper.importType', 0, 2, 1],
     ['mapper.vscroll', 0, 2, 0],
     ['mapper.hscroll', 0, 2, 0],
-    ['mapper.scale', 0, 2, 1.0],
+    ['mapper.scale', 0, 2, 100],
     ['mapper.alwaysOnTop', 0, 1, false],
     ['mapper.alwaysOnTopClient', 0, 1, true],
     ['mapper.memory', 0, 1, false],
@@ -421,7 +421,14 @@ export class Settings {
                 case 'enableEcho':
                 case 'enableSpeedpaths':
                 case 'parseSpeedpaths':
+                case 'mapper.enabled':
                 case 'MapperSplitArea':
+                case 'mapper.split':
+                case 'MapperFillWalls':
+                case 'mapper.fill':
+                case 'mapper.follow':
+                case 'MapperOpen':
+                case 'showMapper':
                 case 'parseSingleQuotes':
                 case 'parseDoubleQuotes':
                 case 'logEnabled':
@@ -568,7 +575,7 @@ export class Settings {
             case 'mapper.importType': return 1;
             case 'mapper.vscroll': return 0;
             case 'mapper.hscroll': return 0;
-            case 'mapper.scale': return 1.0;
+            case 'mapper.scale': return 100;
             case 'mapper.active': return {
                 ID: null,
                 x: 0,

@@ -1397,10 +1397,10 @@ export class ProfileCollection {
     }
 
     public save(key?) {
-        return localforage.setItem(key || 'OoMUDProfiles', JSON.stringify(this.items, (key, value) => {
+        return localforage.setItem(key || 'OoMUDProfiles', JSON.parse(JSON.stringify(this.items, (key, value) => {
             if (key === 'profile') return undefined;
             return value;
-        }));
+        })));
     }
 
     get length(): number {

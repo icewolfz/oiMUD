@@ -135,6 +135,7 @@
     for (i = 0, il = items.length; i < il; i++) {
         items[i].addEventListener('click', function () {
             fontEl.value = this.textContent;
+            fontEl.dispatchEvent(new Event('change'));
         });
     }
     fontEl.nextElementSibling.addEventListener('show.bs.dropdown', event => {

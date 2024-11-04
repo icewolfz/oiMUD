@@ -66,6 +66,7 @@ interface Window {
 	msSaveAs;
 	confirm_box;
 	alert_box;
+	progress_box;
 }
 
 interface Navigator {

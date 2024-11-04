@@ -452,7 +452,7 @@ export class Splitter extends EventEmitter {
                 }
                 this.emit('splitter-moving', l);
             };
-            this.parent.appendChild(this.$ghostBar);
+            this.$el.appendChild(this.$ghostBar);
             document.addEventListener('mousemove', (<any>this.$ghostBar).move);
         });
         this.$dragBar.addEventListener('dblclick', (e) => {
@@ -501,7 +501,7 @@ export class Splitter extends EventEmitter {
                 else
                     this.SplitterDistance = this.parent.clientWidth - l + 2;
             }
-            this.parent.removeChild(this.$ghostBar);
+            this.$el.removeChild(this.$ghostBar);
             document.removeEventListener('mousemove', (<any>this.$ghostBar).move);
             this.$ghostBar = null;
             this.$dragging = false;

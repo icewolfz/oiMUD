@@ -1,8 +1,8 @@
-import { Plugin } from '../plugin.js';
-import { MenuItem, FunctionEvent } from '../types.js';
-import { Client } from '../client.js';
-import { Ansi, AnsiColorCode } from '../ansi.js';
-import { openFileDialog, readFile, StringToUint8Array } from '../library.js'
+import { Plugin } from '../plugin';
+import { MenuItem, FunctionEvent } from '../types';
+import { Client } from '../client';
+import { Ansi, AnsiColorCode } from '../ansi';
+import { openFileDialog, readFile, StringToUint8Array } from '../library'
 
 export class Test extends Plugin {
     /**

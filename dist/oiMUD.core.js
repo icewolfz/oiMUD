@@ -32402,6 +32402,12 @@ Devanagari
   }
   window.initializeInterface = initializeInterface;
 
+  // src/html/mapper.menu.htm
+  var mapper_menu_default = '<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="mapper-menu" aria-labelledby="mapper-menu-Label" style="position: absolute;"><div class="offcanvas-body"><button type="button" class="btn btn-close text-reset btn-danger btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" style="position: absolute;right: 5px;top: 5px;"></button><ul class="navbar-nav justify-content-end flex-grow-1"><li id="mapper-enable" class="nav-item" title="Enable"><a class="nav-link" href="javascript:void(0)"><i class="bi bi-map"></i>&nbsp;<span>Enabled</span></a></li><li id="mapper-legend" class="nav-item" title="Show legend"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-map-marker"></i>&nbsp;<span>Show legend</span></a></li><li id="mapper-room" class="nav-item" title="Show room properties"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-list-alt"></i>&nbsp;<span>Show room properties</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-refresh" class="nav-item" title="Refresh"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-refresh"></i>&nbsp;<span>Refresh</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-split" class="nav-item" title="Split areas"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-object-ungroup"></i>&nbsp;<span>Split areas</span></a></li><li id="mapper-fill" class="nav-item" title="Fill walls"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-building"></i>&nbsp;<span>Fill walls</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-remove" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#remove-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="remove-submenu"><i class="fa fa-eraser"></i>&nbsp;<span>Remove</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="remove-submenu"><li class="nav-item" id="mapper-remove-selected"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Remove selected room</a></li><li class="nav-item" id="mapper-remove-current"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Remove current room</a></li><li><hr class="dropdown-divider"></li><li id="mapper-remove-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Remove current area</a></li><li id="mapper-remove-all" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Remove all</a></li></ul></li><li id="mapper-export" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#export-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="export-submenu"><i class="fa fa-exchange"></i>&nbsp;<span>Export/Import</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="export-submenu"><li id="mapper-export-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export as image</a></li><li id="mapper-export-scaled-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export as scaled image</a></li><li id="mapper-export-current-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export current view as image</a></li><li><hr class="dropdown-divider"></li><li id="mapper-export-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export current area</a></li><li id="mapper-export-all" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export all</a></li><li><hr class="dropdown-divider"></li><li id="mapper-import-merge" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Import and merge</a></li><li id="mapper-import-replace" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Import and replace</a></li></ul></li><li><hr class="dropdown-divider"></li><li id="mapper-export" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#actions-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="actions-submenu"><i class="fa-solid fa-shoe-prints"></i>&nbsp;<span>Actions</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="actions-submenu"><li id="mapper-follow" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Follow</a></li><li><hr class="dropdown-divider"></li><li id="mapper-focus" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Focus on current room</a></li><li id="mapper-set-current" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Set selected as current</a></li><li><hr class="dropdown-divider"></li><li id="mapper-highlight-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Highlight path</a></li><li id="mapper-clear-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Clear path</a></li><li><hr class="dropdown-divider"></li><li id="mapper-walk-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Walk path</a></li><li id="mapper-walk-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Walk highlighted path</a></li><li><hr class="dropdown-divider"></li><li id="mapper-copy-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy path</a></li><li id="mapper-copy-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy as stacked</a></li><li id="mapper-copy-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy as speedpath</a></li><li id="mapper-copy-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy highlighted path</a></li><li id="mapper-copy-highlighted-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy highlighted as stacked</a></li><li id="mapper-copy-highlighted-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy highlighted as speedpath</a></li></ul></li><li><hr class="dropdown-divider"></li><li id="mapper-about" class="nav-item" title="About map"><a class="nav-link" href="javascript:void(0)"><i class="bi-info-circle"></i>&nbsp;<span>About</span></a></li></ul></div></div>';
+
+  // src/html/mapper.room.htm
+  var mapper_room_default = '<div class="dialog-header"><button id="mapper-room-close" style="padding: 4px;" type="button" class="btn btn-close float-end btn-danger" data-dismiss="modal" title="Hide properties"></button><div><i class="fa fa-list-alt"></i>&nbsp;Room properties</div></div><div class="accordion" id="mapper-room-accordion"><div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-general" aria-expanded="true" aria-controls="General">General </button></h2><div id="mapper-room-general" class="accordion-collapse collapse show" data-bs-parent="#mapper-room-accordion"><div class="accordion-body" style="padding: 5px;"><div class="mb-3"><label for="mapper-room-name">Name</label><input type="text" class="form-control" id="mapper-room-name" placeholder=""></div><div class="mb-3"><label for="mapper-room-background">Background</label><input type="text" class="form-control" id="mapper-room-background" placeholder=""></div></div></div></div><div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-location" aria-expanded="true" aria-controls="mapper-room-location">Location </button></h2><div id="mapper-room-location" class="accordion-collapse collapse" data-bs-parent="#mapper-room-accordion"><div class="accordion-body" style="padding: 5px;"><div class="mb-3"><label for="mapper-room-area" class="form-label">Area</label><select id="mapper-room-area" class="form-select"></select></div><div class="mb-3"><label for="mapper-room-x" class="form-label">X</label><input type="number" class="form-control" id="mapper-room-x"></div><div class="mb-3"><label for="mapper-room-y" class="form-label">Y</label><input type="number" class="form-control" id="mapper-room-y"></div><div class="mb-3"><label for="mapper-room-z" class="form-label">Z</label><input type="number" class="form-control" id="mapper-room-z"></div><div class="mb-3"><label for="mapper-room-zone" class="form-label">Zone</label><input type="number" class="form-control" id="mapper-room-zone"></div></div></div></div><div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-details" aria-expanded="true" aria-controls="mapper-room-details">Details </button></h2><div id="mapper-room-details" class="accordion-collapse collapse" data-bs-parent="#mapper-room-accordion"><div class="accordion-body" style="padding: 5px;"><div class="form-check form-switch"><input type="checkbox" class="form-check-input" id="mapper-room-indoors"><label class="form-check-label" for="mapper-room-indoors">Indoors</label></div><div class="mb-3"><label for="font" class="form-label">Terrain</label><div class="input-group"><input id="mapper-room-env" type="text" class="form-control" aria-label="Room terrain"><button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" style="border: var(--bs-border-width) solid var(--bs-border-color);" data-bs-toggle="dropdown" aria-expanded="false"><span class="visually-hidden">Toggle Dropdown</span></button><ul id="mapper-room-terrains" class="dropdown-menu dropdown-menu-end" style="height: 200px;overflow: auto;"><li><a class="dropdown-item" href="javascript:void(0)">beach</a></li><li><a class="dropdown-item" href="javascript:void(0)">bog</a></li><li><a class="dropdown-item" href="javascript:void(0)">city</a></li><li><a class="dropdown-item" href="javascript:void(0)">cliff</a></li><li><a class="dropdown-item" href="javascript:void(0)">cobble</a></li><li><a class="dropdown-item" href="javascript:void(0)">desert</a></li><li><a class="dropdown-item" href="javascript:void(0)">dirt</a></li><li><a class="dropdown-item" href="javascript:void(0)">dirtroad</a></li><li><a class="dropdown-item" href="javascript:void(0)">farmland</a></li><li><a class="dropdown-item" href="javascript:void(0)">forest</a></li><li><a class="dropdown-item" href="javascript:void(0)">grass</a></li><li><a class="dropdown-item" href="javascript:void(0)">grassland</a></li><li><a class="dropdown-item" href="javascript:void(0)">highmountain</a></li><li><a class="dropdown-item" href="javascript:void(0)">hills</a></li><li><a class="dropdown-item" href="javascript:void(0)">icesheet</a></li><li><a class="dropdown-item" href="javascript:void(0)">jungle</a></li><li><a class="dropdown-item" href="javascript:void(0)">lake</a></li><li><a class="dropdown-item" href="javascript:void(0)">mountain</a></li><li><a class="dropdown-item" href="javascript:void(0)">ocean</a></li><li><a class="dropdown-item" href="javascript:void(0)">pavedroad</a></li><li><a class="dropdown-item" href="javascript:void(0)">plains</a></li><li><a class="dropdown-item" href="javascript:void(0)">prairie</a></li><li><a class="dropdown-item" href="javascript:void(0)">river</a></li><li><a class="dropdown-item" href="javascript:void(0)">rockdesert</a></li><li><a class="dropdown-item" href="javascript:void(0)">rocky</a></li><li><a class="dropdown-item" href="javascript:void(0)">sand</a></li><li><a class="dropdown-item" href="javascript:void(0)">sanddesert</a></li><li><a class="dropdown-item" href="javascript:void(0)">savannah</a></li><li><a class="dropdown-item" href="javascript:void(0)">stone</a></li><li><a class="dropdown-item" href="javascript:void(0)">swamp</a></li><li><a class="dropdown-item" href="javascript:void(0)">tundra</a></li><li><a class="dropdown-item" href="javascript:void(0)">underwater</a></li><li><a class="dropdown-item" href="javascript:void(0)">water</a></li></ul></div></div><div><label for="font" class="form-label">Details</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="1" id="mapper-room-details-1" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-1">Dock</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="2" id="mapper-room-details-2" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-2">Pier</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="4" id="mapper-room-details-4" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-4">Bank</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="8" id="mapper-room-details-8" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-8">Shop</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="16" id="mapper-room-details-16" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-16">Hospital</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="32" id="mapper-room-details-32" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-32">Bar</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="64" id="mapper-room-details-64" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-64">Restaurant</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="128" id="mapper-room-details-128" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-128">WaterSource</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="256" id="mapper-room-details-256" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-256">Trainer</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="512" id="mapper-room-details-512" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-512">Stable</label></div></div></div></div><div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-notes" aria-expanded="true" aria-controls="mapper-room-notes">Notes </button></h2><div id="mapper-room-notes" class="accordion-collapse collapse" data-bs-parent="#mapper-room-accordion"><div class="accordion-body" style="padding: 5px;"><textarea class="form-control" rows="10" style="width: 100%;" id="mapper-room-notes"></textarea></div></div></div></div>';
+
   // src/plugins/mapper.ts
   var Mapper = class extends Plugin {
     constructor(options) {
@@ -32669,65 +32675,7 @@ Devanagari
       toolbar.classList.add("navbar", "bg-light", "align-items-center");
       toolbar.innerHTML = `<form class="container-fluid justify-content-start"><button id="btn-mapper-menu" class="me-2 mb-1 btn-sm btn btn-outline-secondary" type="button" aria-controls="mapper-menu" title="Show menu" aria-expanded="false" data-bs-toggle="offcanvas" data-bs-target="#mapper-menu" aria-controls="mapper-menu"><i class="fa-solid fa-bars"></i></button><button id="btn-mapper-focus" type="button" class="btn btn-sm btn-outline-secondary me-2 mb-1" title="Focus on current room"><i class="fa fa-crosshairs"></i></button><div class="btn-group me-2 mb-1"><label for="mapper-level" class="mt-1 me-1">Level: </label><input id="mapper-level" class="form-control form-control-sm" type="number" title="Map Level"></div><div class="btn-group me-2 mb-1"><label for="mapper-zone" class="mt-1 me-1">Zone: </label><input id="mapper-zone" class="form-control form-control-sm" type="number" title="Map Zone"></div><div class="btn-group me-2 mb-1"><label for="mapper-zoom" class="me-1">Zoom: </label><input id="mapper-zoom" class="form-range" type="range" min="25" max="300" step="5""><label id="mapper-zoom-display">100%</label></div></form>`;
       this._dialog.body.appendChild(toolbar);
-      this._dialog.body.insertAdjacentHTML("afterbegin", `<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="mapper-menu" aria-labelledby="mapper-menu-Label" style="position: absolute;">
-<div class="offcanvas-body">
-<button type="button" class="btn btn-close text-reset btn-danger btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" style="position: absolute;right: 5px;top: 5px;"></button>
-<ul class="navbar-nav justify-content-end flex-grow-1">
-<li id="mapper-enable" class="nav-item" title="Enable"><a class="nav-link" href="javascript:void(0)"><i class="bi bi-map"></i> <span>Enabled</span></a></li>
-<li id="mapper-legend" class="nav-item" title="Show legend"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-map-marker"></i> <span>Show legend</span></a></li>
-<li id="mapper-room" class="nav-item" title="Show room properties"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-list-alt"></i> <span>Show room properties</span></a></li> 
-<li><hr class="dropdown-divider"></li>     
-<li id="mapper-refresh" class="nav-item" title="Refresh"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-refresh"></i> <span>Refresh</span></a></li>                          
-<li><hr class="dropdown-divider"></li>    
-<li id="mapper-split" class="nav-item" title="Split areas"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-object-ungroup"></i> <span>Split areas</span></a></li> 
-<li id="mapper-fill" class="nav-item" title="Fill walls"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-building"></i> <span>Fill walls</span></a></li>
-<li><hr class="dropdown-divider"></li>
-<li id="mapper-remove" class="nav-item">
-<a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#remove-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="remove-submenu"><i class="fa fa-eraser"></i> <span>Remove</span></a>
-<ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="remove-submenu">
-<li class="nav-item" id="mapper-remove-selected"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Remove selected room</a></li>
-<li class="nav-item" id="mapper-remove-current"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Remove current room</a></li>
-<li><hr class="dropdown-divider"></li>
-<li id="mapper-remove-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Remove current area</a></li>
-<li id="mapper-remove-all" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Remove all</a></li>
-</ul></li>
-<li id="mapper-export" class="nav-item">
-<a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#export-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="export-submenu"><i class="fa fa-exchange"></i> <span>Export/Import</span></a>
-<ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="export-submenu">
-<li id="mapper-export-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export as image</a></li>
-<li id="mapper-export-scaled-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export as scaled image</a></li>
-<li id="mapper-export-current-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export current view as image</a></li>
-<li><hr class="dropdown-divider"></li>
-<li id="mapper-export-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export current area</a></li>
-<li id="mapper-export-all" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export all</a></li>
-<li><hr class="dropdown-divider"></li>
-<li id="mapper-import-merge" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Import and merge</a></li>
-<li id="mapper-import-replace" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Import and replace</a></li>
-</ul></li>
-<li><hr class="dropdown-divider"></li>
-<li id="mapper-export" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#actions-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="actions-submenu"><i class="fa-solid fa-shoe-prints"></i> <span>Actions</span></a>
-<ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="actions-submenu">
-<li id="mapper-follow" class="nav-item"><a class="nav-link" href="javascript:void(0)"  style="padding-left: 40px;">Follow</a></li>
-<li><hr class="dropdown-divider"></li>
-<li id="mapper-focus""class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Focus on current room</a></li>
-<li id="mapper-set-current" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Set selected as current</a></li>
-<li><hr class="dropdown-divider"></li>
-<li id="mapper-highlight-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Highlight path</a></li>
-<li id="mapper-clear-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Clear path</a></li>
-<li><hr class="dropdown-divider"></li>
-<li id="mapper-walk-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Walk path</a></li>
-<li id="mapper-walk-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Walk highlighted path</a></li>
-<li><hr class="dropdown-divider"></li>
-<li id="mapper-copy-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy path</a></li>
-<li id="mapper-copy-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy as stacked</a></li>
-<li id="mapper-copy-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy as speedpath</a></li>
-<li id="mapper-copy-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy highlighted path</a></li>
-<li id="mapper-copy-highlighted-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy highlighted as stacked</a></li>
-<li id="mapper-copy-highlighted-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy highlighted as speedpath</a></li>
-</ul></li>
-<li><hr class="dropdown-divider"></li>
-<li id="mapper-about" class="nav-item" title="About map"><a class="nav-link" href="javascript:void(0)"><i class="bi-info-circle"></i> <span>About</span></a></li>
-</ul></div></div>`);
+      this._dialog.body.insertAdjacentHTML("afterbegin", mapper_menu_default);
       this._dialog.body.querySelector("#mapper-enable a").addEventListener("click", () => {
         this._dialogMap.enabled = !this._dialogMap.enabled;
         if (this._dialogMap.enabled)
@@ -32983,192 +32931,7 @@ Devanagari
       if (this.client.getOption("mapper.room"))
         this._dialog.body.querySelector("#mapper-room a").click();
       this._dialogSplitter.SplitterDistance = client.getOption("mapper.roomWidth");
-      this._dialogSplitter.panel2.innerHTML = `<div class="dialog-header">
-        <button id="mapper-room-close" style="padding: 4px;" type="button" class="btn btn-close float-end btn-danger" data-dismiss="modal" title="Hide properties"></button>
-        <div><i class="fa fa-list-alt"></i> Room properties</div></div>  
-<div class="accordion" id="mapper-room-accordion">
-    <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-general"
-                aria-expanded="true" aria-controls="General">
-                General
-            </button>
-        </h2>
-        <div id="mapper-room-general" class="accordion-collapse collapse show" data-bs-parent="#mapper-room-accordion">
-            <div class="accordion-body" style="padding: 5px;">
-<div class="mb-3">
-  <label for="mapper-room-name">Name</label>
-  <input type="text" class="form-control" id="mapper-room-name" placeholder="">  
-</div>
-<div class="mb-3">
-<label for="mapper-room-background">Background</label>  
-<input type="text" class="form-control" id="mapper-room-background" placeholder="">  
-</div>
-            </div>
-        </div>
-    </div>
-    <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                data-bs-target="#mapper-room-location" aria-expanded="true" aria-controls="mapper-room-location">
-                Location
-            </button>
-        </h2>
-        <div id="mapper-room-location" class="accordion-collapse collapse" data-bs-parent="#mapper-room-accordion">
-            <div class="accordion-body" style="padding: 5px;">
-<div class="mb-3">
-    <label for="mapper-room-area" class="form-label">Area</label>
-    <select id="mapper-room-area" class="form-select">
-    </select>
-</div>
-<div class="mb-3">
-    <label for="mapper-room-x" class="form-label">X</label>
-    <input type="number" class="form-control" id="mapper-room-x">
-</div>
-<div class="mb-3">
-    <label for="mapper-room-y" class="form-label">Y</label>
-    <input type="number" class="form-control" id="mapper-room-y">
-</div>
-<div class="mb-3">
-    <label for="mapper-room-z" class="form-label">Z</label>
-    <input type="number" class="form-control" id="mapper-room-z">
-</div>
-<div class="mb-3">
-    <label for="mapper-room-zone" class="form-label">Zone</label>
-    <input type="number" class="form-control" id="mapper-room-zone">
-</div>
-            </div>
-        </div>
-    </div>
-    <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-details"
-                aria-expanded="true" aria-controls="mapper-room-details">
-                Details
-            </button>
-        </h2>
-        <div id="mapper-room-details" class="accordion-collapse collapse" data-bs-parent="#mapper-room-accordion">
-            <div class="accordion-body" style="padding: 5px;">
-<div class="form-check form-switch">
-    <input type="checkbox" class="form-check-input" id="mapper-room-indoors">
-    <label class="form-check-label" for="mapper-room-indoors">Indoors</label>
-</div>
-<div class="mb-3">
-    <label for="font" class="form-label">Terrain</label>
-    <div class="input-group">
-        <input id="mapper-room-env" type="text" class="form-control" aria-label="Room terrain">
-        <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
-            style="border: var(--bs-border-width) solid var(--bs-border-color);" data-bs-toggle="dropdown"
-            aria-expanded="false">
-            <span class="visually-hidden">Toggle Dropdown</span>
-        </button>
-        <ul id="mapper-room-terrains" class="dropdown-menu dropdown-menu-end" style="height: 200px;overflow: auto;">
-<li><a class="dropdown-item" href="javascript:void(0)">beach</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">bog</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">city</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">cliff</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">cobble</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">desert</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">dirt</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">dirtroad</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">farmland</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">forest</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">grass</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">grassland</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">highmountain</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">hills</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">icesheet</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">jungle</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">lake</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">mountain</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">ocean</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">pavedroad</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">plains</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">prairie</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">river</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">rockdesert</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">rocky</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">sand</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">sanddesert</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">savannah</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">stone</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">swamp</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">tundra</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">underwater</a></li>
-<li><a class="dropdown-item" href="javascript:void(0)">water</a></li>
-        </ul>
-    </div>
-</div>
-<div>
-    <label for="font" class="form-label">Details</label></div>
-<div class="form-check">
-  <input class="form-check-input" type="checkbox" value="1" id="mapper-room-details-1" name="details" data-enum="true">
-  <label class="form-check-label" for="mapper-room-details-1">Dock</label>
-</div>
-
-<div class="form-check">
-  <input class="form-check-input" type="checkbox" value="2" id="mapper-room-details-2" name="details" data-enum="true">
-  <label class="form-check-label" for="mapper-room-details-2">Pier</label>
-</div>
-
-<div class="form-check">
-  <input class="form-check-input" type="checkbox" value="4" id="mapper-room-details-4" name="details" data-enum="true">
-  <label class="form-check-label" for="mapper-room-details-4">Bank</label>
-</div>
-
-<div class="form-check">
-  <input class="form-check-input" type="checkbox" value="8" id="mapper-room-details-8" name="details" data-enum="true">
-  <label class="form-check-label" for="mapper-room-details-8">Shop</label>
-</div>
-
-<div class="form-check">
-  <input class="form-check-input" type="checkbox" value="16" id="mapper-room-details-16" name="details" data-enum="true">
-  <label class="form-check-label" for="mapper-room-details-16">Hospital</label>
-</div>
-
-<div class="form-check">
-  <input class="form-check-input" type="checkbox" value="32" id="mapper-room-details-32" name="details" data-enum="true">
-  <label class="form-check-label" for="mapper-room-details-32">Bar</label>
-</div>
-
-<div class="form-check">
-  <input class="form-check-input" type="checkbox" value="64" id="mapper-room-details-64" name="details" data-enum="true">
-  <label class="form-check-label" for="mapper-room-details-64">Restaurant</label>
-</div>
-
-<div class="form-check">
-  <input class="form-check-input" type="checkbox" value="128" id="mapper-room-details-128" name="details" data-enum="true">
-  <label class="form-check-label" for="mapper-room-details-128">WaterSource</label>
-</div>
-
-<div class="form-check">
-  <input class="form-check-input" type="checkbox" value="256" id="mapper-room-details-256" name="details" data-enum="true">
-  <label class="form-check-label" for="mapper-room-details-256">Trainer</label>
-</div>
-
-<div class="form-check">
-  <input class="form-check-input" type="checkbox" value="512" id="mapper-room-details-512" name="details" data-enum="true">
-  <label class="form-check-label" for="mapper-room-details-512">Stable</label>
-</div>
-
-</div>
-        </div>
-    </div>
-    <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-notes"
-                aria-expanded="true" aria-controls="mapper-room-notes">
-                Notes
-            </button>
-        </h2>
-        <div id="mapper-room-notes" class="accordion-collapse collapse" data-bs-parent="#mapper-room-accordion">
-            <div class="accordion-body" style="padding: 5px;">
-                <textarea class="form-control" rows="10" style="width: 100%;" id="mapper-room-notes"></textarea>
-            </div>
-        </div>
-    </div>      
-</div> 
-        `;
+      this._dialogSplitter.panel2.innerHTML = mapper_room_default;
       document.getElementById("mapper-room-close").addEventListener("click", () => {
         this._dialog.body.querySelector("#mapper-room a").click();
       });

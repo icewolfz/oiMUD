@@ -19,7 +19,7 @@
   "scripts": {
     "tslint": "tsc -p . --listEmittedFiles  --noEmit",
     "build:all": "node build.js -a --test",
-    "build:all-debug": "node build.js -a -d",  
+    "build:all-debug": "node build.js -a -d",
     "build:css-debug": "node build.js -css -d"
   },
   "devDependencies": {

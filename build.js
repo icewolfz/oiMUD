@@ -16,7 +16,8 @@ let config = {
     bundle: true,
     loader: {
         ['.png']: 'dataurl',
-        ['.svg']: 'dataurl'
+        ['.svg']: 'dataurl',
+        ['.htm']: 'text'
     },
     external: ['moment']
 }

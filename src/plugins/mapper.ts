@@ -484,7 +484,7 @@ export class Mapper extends Plugin {
         this._dialog.body.querySelector('#mapper-export-scaled-image a').addEventListener('click', () => {
             this._dialogMap.exportImage(true);
             closeMenu();
-        });        
+        });
         this._dialog.body.querySelector('#mapper-export-current-image a').addEventListener('click', () => {
             this._dialogMap.exportCurrentImage();
             closeMenu();
@@ -509,7 +509,7 @@ export class Mapper extends Plugin {
                             this.map.cancelImport();
                     });
                     this._dialogProgress.on('shown', () => {
-                        this.map.import(JSON.parse(data), ImportType.Merge);    
+                        this.map.import(JSON.parse(data), ImportType.Merge);
                     });
                     this._dialogProgress.showModal();
                 }).catch(client.error);
@@ -744,7 +744,7 @@ export class Mapper extends Plugin {
         this._dialogSplitter.panel1.append(this._dialogMap.container);
         this._dialogMap.container.classList.add('map');
 
-        this._dialogMap.active = client.getOption('mapper.active');
+        this._dialogMap.active = new Room(client.getOption('mapper.active'));
         this._dialogMap.active.num = this._dialogMap.active.num || (this._dialogMap.active as any).ID;
         this._dialogMap.commandDelay = client.getOption('commandDelay');
         this._dialogMap.commandDelayCount = client.getOption('commandDelayCount');
@@ -778,14 +778,13 @@ export class Mapper extends Plugin {
                 h += `<option value="${this._map.Areas[i].replace(/"/g, '&quot;')}">${this._map.Areas[i]}</option>`;
             area.innerHTML = h;
             document.getElementById('mapper-room-area').innerHTML = h;
-            if (!this._dialogMap.active.area) {
-                this._dialogMap.active.area = this.client.getOption('MapperArea');
-                if (this._dialogMap.active.area !== null && typeof this._dialogMap.active.area != 'undefined')
-                    area.value = this._dialogMap.active.area;
-            }
-            if (!this._dialogMap.active.area && area.options.length)
-                this._dialogMap.active.area = area.options[0].value;
-            this._dialogMap.setArea(this._dialogMap.active.area);
+            if (this._dialogMap.active.area && this._map.Areas.indexOf(this._dialogMap.active.area) !== -1)
+                area.value = this._dialogMap.active.area;
+            else if (m > 0) {
+                this._dialogMap.active.area = this.map.Areas[0];
+                this._dialogMap.emit('setting-changed', 'active', this._dialogMap.active.area);
+                area.value = this._dialogMap.active.area;
+            }           
             this._dialogMap.refresh();
 
             this._dialogMap.enabled = this.client.getOption('mapper.enabled');
@@ -841,7 +840,13 @@ export class Mapper extends Plugin {
                     h += `<option value="${this._map.Areas[i].replace(/"/g, '&quot;')}">${this._map.Areas[i]}</option>`;
                 document.getElementById('mapper-area').innerHTML = h;
                 document.getElementById('mapper-room-area').innerHTML = h;
-                (document.getElementById('mapper-area') as HTMLSelectElement).value = this._dialogMap.active.area;
+                if (this._dialogMap.active.area && this._map.Areas.indexOf(this._dialogMap.active.area) !== -1)
+                    (document.getElementById('mapper-area') as HTMLSelectElement).value = this._dialogMap.active.area;
+                else if (m > 0) {
+                    this._dialogMap.active.area = this.map.Areas[0];
+                    this._dialogMap.emit('setting-changed', 'active', this._dialogMap.active.area);
+                    (document.getElementById('mapper-area') as HTMLSelectElement).value = this._dialogMap.active.area;
+                }
             });
 
             this._map.on('import-progress', progress => {
@@ -863,7 +868,7 @@ export class Mapper extends Plugin {
                 this._dialogProgress = null;
                 this._dialogMap.refresh();
                 this._map.save();
-            });            
+            });
         }
 
         this.on('map-loaded', () => {

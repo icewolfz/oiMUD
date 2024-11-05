@@ -25244,7 +25244,7 @@ Devanagari
         this.emit("current-changed", this._map.current);
       }
       if (!type) {
-        this.setActive(new Room());
+        this.active = new Room();
         this.selected = new Room();
       }
     }
@@ -25255,7 +25255,7 @@ Devanagari
     }
     focusCurrentRoom() {
       if (this._map.current.num) {
-        this.setActive(this._map.current.clone());
+        this.active = this._map.current;
         this.emit("active-room-changed", this.active.clone());
       }
       this.focusActiveRoom();
@@ -25263,9 +25263,12 @@ Devanagari
     focusActiveRoom() {
       this.scrollTo(this.active.x + 1, this.active.y + 1);
     }
-    setActive(room) {
-      this.active = room.clone();
-      this.emit("active-room-changed", this.active);
+    set active(value) {
+      this._active = value && value.clone ? value.clone() : value;
+      this.emit("active-room-changed", this._active);
+    }
+    get active() {
+      return this._active;
     }
     get current() {
       return this._map.current;
@@ -25280,14 +25283,13 @@ Devanagari
     setArea(area) {
       this.active.area = area;
       if (this._map.current.num !== null && this._map.current.area === this.active.area) {
-        this.setActive(this._map.current.clone());
+        this.active = this._map.current;
         this.focusActiveRoom();
         this.emit("setting-changed", "active", this.active);
       } else {
         const room = this._map.getRoom({ area });
         if (room) {
-          this.active = room.clone();
-          this.setActive(this.active);
+          this.active = room;
           this.focusActiveRoom();
           this.emit("setting-changed", "active", this.active);
         }
@@ -25318,7 +25320,7 @@ Devanagari
         } else if (this.markers[room.num])
           this.clearPath();
         if (room.num === this.active.num)
-          this.setActive(new Room());
+          this.active = new Room();
         if (room.num === this.selected.num)
           this.selected = new Room();
         this.refresh();
@@ -25365,7 +25367,7 @@ Devanagari
         if (this.follow)
           this.focusCurrentRoom();
         else
-          this.setActive(room.clone());
+          this.active = room;
         this.refresh();
       });
       map.on("before-room-changed", (room) => {
@@ -25378,7 +25380,7 @@ Devanagari
         if (this.follow)
           this.focusCurrentRoom();
         else
-          this.setActive(this.current.clone());
+          this.active = this.current;
         this.refresh();
       });
       map.on("rooms-changed", (rooms) => {
@@ -25390,7 +25392,7 @@ Devanagari
         if (this.follow)
           this.focusCurrentRoom();
         else
-          this.setActive(this.current.clone());
+          this.active = this.current;
         this.refresh();
       });
       this.refresh();
@@ -33072,7 +33074,7 @@ Devanagari
       });
       this._dialogSplitter.panel1.append(this._dialogMap.container);
       this._dialogMap.container.classList.add("map");
-      this._dialogMap.active = client.getOption("mapper.active");
+      this._dialogMap.active = new Room(client.getOption("mapper.active"));
       this._dialogMap.active.num = this._dialogMap.active.num || this._dialogMap.active.ID;
       this._dialogMap.commandDelay = client.getOption("commandDelay");
       this._dialogMap.commandDelayCount = client.getOption("commandDelayCount");
@@ -33104,14 +33106,13 @@ Devanagari
           h += `<option value="${this._map.Areas[i3].replace(/"/g, "&quot;")}">${this._map.Areas[i3]}</option>`;
         area.innerHTML = h;
         document.getElementById("mapper-room-area").innerHTML = h;
-        if (!this._dialogMap.active.area) {
-          this._dialogMap.active.area = this.client.getOption("MapperArea");
-          if (this._dialogMap.active.area !== null && typeof this._dialogMap.active.area != "undefined")
-            area.value = this._dialogMap.active.area;
+        if (this._dialogMap.active.area && this._map.Areas.indexOf(this._dialogMap.active.area) !== -1)
+          area.value = this._dialogMap.active.area;
+        else if (m > 0) {
+          this._dialogMap.active.area = this.map.Areas[0];
+          this._dialogMap.emit("setting-changed", "active", this._dialogMap.active.area);
+          area.value = this._dialogMap.active.area;
         }
-        if (!this._dialogMap.active.area && area.options.length)
-          this._dialogMap.active.area = area.options[0].value;
-        this._dialogMap.setArea(this._dialogMap.active.area);
         this._dialogMap.refresh();
         this._dialogMap.enabled = this.client.getOption("mapper.enabled");
         if (this._dialogMap.enabled)
@@ -33158,7 +33159,13 @@ Devanagari
             h2 += `<option value="${this._map.Areas[i4].replace(/"/g, "&quot;")}">${this._map.Areas[i4]}</option>`;
           document.getElementById("mapper-area").innerHTML = h2;
           document.getElementById("mapper-room-area").innerHTML = h2;
-          document.getElementById("mapper-area").value = this._dialogMap.active.area;
+          if (this._dialogMap.active.area && this._map.Areas.indexOf(this._dialogMap.active.area) !== -1)
+            document.getElementById("mapper-area").value = this._dialogMap.active.area;
+          else if (m2 > 0) {
+            this._dialogMap.active.area = this.map.Areas[0];
+            this._dialogMap.emit("setting-changed", "active", this._dialogMap.active.area);
+            document.getElementById("mapper-area").value = this._dialogMap.active.area;
+          }
         });
         this._map.on("import-progress", (progress) => {
           if (this._dialogProgress)

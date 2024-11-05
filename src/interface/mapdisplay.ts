@@ -42,7 +42,7 @@ export class MapDisplay extends EventEmitter {
     private _resizeObserverCache;
     private _observer: MutationObserver;
 
-    public active: Room;
+    private _active: Room;
     private _selected: Room;
     public _showLegend: boolean = false;
     public _splitArea: boolean = false;
@@ -603,7 +603,7 @@ export class MapDisplay extends EventEmitter {
             this.emit('current-changed', this._map.current);
         }
         if (!type) {
-            this.setActive(new Room());
+            this.active = new Room();
             this.selected = new Room();
         }
     }
@@ -616,7 +616,7 @@ export class MapDisplay extends EventEmitter {
 
     public focusCurrentRoom() {
         if (this._map.current.num) {
-            this.setActive(this._map.current.clone());
+            this.active = this._map.current;
             this.emit('active-room-changed', this.active.clone());
         }
         this.focusActiveRoom();
@@ -626,10 +626,11 @@ export class MapDisplay extends EventEmitter {
         this.scrollTo(this.active.x + 1, this.active.y + 1);
     }
 
-    public setActive(room) {
-        this.active = room.clone();
-        this.emit('active-room-changed', this.active);
+    public set active(value) {
+        this._active = value && value.clone ? value.clone() : value;
+        this.emit('active-room-changed', this._active);
     }
+    public get active() { return this._active; }
 
     public get current() { return this._map.current; }
     public set current(value) {
@@ -643,15 +644,14 @@ export class MapDisplay extends EventEmitter {
     public setArea(area: string) {
         this.active.area = area;
         if (this._map.current.num !== null && this._map.current.area === this.active.area) {
-            this.setActive(this._map.current.clone());
+            this.active = this._map.current;
             this.focusActiveRoom();
             this.emit('setting-changed', 'active', this.active);
         }
         else {
             const room = this._map.getRoom({ area: area });
             if (room) {
-                this.active = room.clone();
-                this.setActive(this.active);
+                this.active = room;
                 this.focusActiveRoom();
                 this.emit('setting-changed', 'active', this.active);
             }
@@ -686,7 +686,7 @@ export class MapDisplay extends EventEmitter {
             else if (this.markers[room.num])
                 this.clearPath();
             if (room.num === this.active.num)
-                this.setActive(new Room());
+                this.active = new Room();
             if (room.num === this.selected.num)
                 this.selected = new Room();
             this.refresh();
@@ -738,7 +738,7 @@ export class MapDisplay extends EventEmitter {
             if (this.follow)
                 this.focusCurrentRoom();
             else
-                this.setActive(room.clone());
+                this.active = room;
             this.refresh();
         });
         map.on('before-room-changed', room => {
@@ -751,7 +751,7 @@ export class MapDisplay extends EventEmitter {
             if (this.follow)
                 this.focusCurrentRoom();
             else
-                this.setActive(this.current.clone());
+                this.active = this.current;
             this.refresh();
         });
         map.on('rooms-changed', rooms => {
@@ -763,7 +763,7 @@ export class MapDisplay extends EventEmitter {
             if (this.follow)
                 this.focusCurrentRoom();
             else
-                this.setActive(this.current.clone());
+                this.active = this.current;
             this.refresh();
         });
         this.refresh();

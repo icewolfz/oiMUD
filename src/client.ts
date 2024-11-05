@@ -2,7 +2,7 @@ import "./css/client.css";
 import { EventEmitter } from './events';
 import { Telnet } from './telnet';
 import { AnsiColorCode } from './ansi';
-import { SortItemArrayByPriority, selectAll, debounce, getParameterByName } from './library';
+import { SortItemArrayByPriority, selectAll, getParameterByName } from './library';
 import { Settings } from './settings';
 import { Input } from './input';
 import { ProfileCollection, Alias, Trigger, Alarm, Macro, Profile, Button, Context, TriggerType, SubTriggerTypes } from './profile';
@@ -436,7 +436,7 @@ export class Client extends EventEmitter {
     }
 
     public loadProfiles() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             ProfileCollection.load().then((profiles: ProfileCollection) => {
                 this._profiles = profiles;
                 //ensure default exist and is loaded
@@ -632,7 +632,7 @@ export class Client extends EventEmitter {
         this.startAlarms();
     }
 
-    private process_alarms() {
+    public process_alarms() {
         if (!this.getOption('enableTriggers'))
             return;
         let a = 0;

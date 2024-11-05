@@ -192,8 +192,6 @@ export class Display extends EventEmitter {
         });
         this._model.on('expire-links', args => {
             if (this._expireCache.length) {
-                let id;
-                let elLine: HTMLElement;
                 for (let x = 0, xl = this._expireCache.length; x < xl; x++)
                     this.rebuildLine(this._expireCache[x]);
             }
@@ -940,7 +938,6 @@ export class Display extends EventEmitter {
             start = 0;
         if (end === undefined || end === -1 || end >= this.lines.length)
             end = this.lines.length - 1;
-        const lines = this.lines;
         let _html = [];
         let line = start;
         for (; line <= end; line++) {

@@ -1,6 +1,8 @@
 {
     "compileOnSave": true,
     "compilerOptions": {
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
         "resolveJsonModule": true,
         "incremental": true,
         "target": "ES2019",

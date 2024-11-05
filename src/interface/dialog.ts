@@ -693,7 +693,6 @@ export class Dialog extends EventEmitter {
         if (this._id === value) return;
         this._id = value;
         if (this._dialog) {
-            const old = this._dialog.id;
             this._dialog.id = this._id;
             let el = this._dialog.querySelector(`#${this._id}-cancel`);
             if (el) el.id = this._id + '-cancel';

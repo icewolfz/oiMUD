@@ -1875,9 +1875,6 @@ export class Input extends EventEmitter {
         let p;
         let reload;
         let trigger;
-        let avg;
-        let max;
-        let min;
         switch (fun.toLowerCase()) {
             //spell-checker:ignore untrigger unaction
             case 'unaction':
@@ -7984,6 +7981,7 @@ export class Input extends EventEmitter {
         this.scrollLock = !this.scrollLock;
     }
 
+    /*
     private hasTriggerType(types: TriggerTypes | SubTriggerTypes, type: TriggerType | SubTriggerTypes): boolean {
         if (type === TriggerType.Alarm && (types & TriggerTypes.Alarm) == TriggerTypes.Alarm)
             return true;
@@ -8003,6 +8001,7 @@ export class Input extends EventEmitter {
         //return true;            
         return false;
     }
+    */
 
     private isSubTriggerType(type) {
         if ((type & SubTriggerTypes.Skip) == SubTriggerTypes.Skip)
@@ -8692,7 +8691,6 @@ export class Input extends EventEmitter {
         let trigger = this._TriggerCache[idx];
         let oTrigger;
         const parent = trigger;
-        let params;
         let reParse = false;
         if (parent.state !== 0)
             trigger = parent.triggers[parent.state - 1];

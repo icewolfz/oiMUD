@@ -19,7 +19,6 @@ interface MapperOptions {
 }
 
 export class Mapper extends Plugin {
-    private _ready: boolean = false;
     private _map: Map;
     private _clientContainer;
     private miniMap: MapDisplay;
@@ -951,8 +950,6 @@ export class Mapper extends Plugin {
         });
 
         this._dialogMap.on('path-cleared', () => {
-            const selected = this._dialogMap.selected;
-            const current = this._dialogMap.current;
             this.updateMenu('#mapper-clear-path a', true);
             this.updateMenu('#mapper-walk-highlighted-path a', true);
             this.updateMenu('#mapper-copy-highlighted-path a', true);
@@ -1130,8 +1127,4 @@ function closeMenu() {
     const instance = bootstrap.Offcanvas.getInstance(document.getElementById('mapper-menu'));
     if (!instance) return
     instance.hide();
-}
-
-function showMenu() {
-    bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('mapper-menu')).show();
 }

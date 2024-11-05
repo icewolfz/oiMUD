@@ -10263,9 +10263,6 @@
       let p;
       let reload;
       let trigger;
-      let avg;
-      let max2;
-      let min;
       switch (fun.toLowerCase()) {
         //spell-checker:ignore untrigger unaction
         case "unaction":
@@ -15913,23 +15910,27 @@
     toggleScrollLock() {
       this.scrollLock = !this.scrollLock;
     }
-    hasTriggerType(types, type) {
-      if (type === 3 /* Alarm */ && (types & 32 /* Alarm */) == 32 /* Alarm */)
-        return true;
-      if (type === 16 /* CommandInputPattern */ && (types & 16 /* CommandInputPattern */) == 16 /* CommandInputPattern */)
-        return true;
-      if (type === 1 /* CommandInputRegular */ && (types & 1 /* CommandInputRegular */) == 1 /* CommandInputRegular */)
-        return true;
-      if (type === 2 /* Event */ && (types & 2 /* Event */) == 2 /* Event */)
-        return true;
-      if (type === 8 /* Pattern */ && (types & 8 /* Pattern */) == 8 /* Pattern */)
-        return true;
-      if (type === 0 /* Regular */ && (types & 4 /* Regular */) == 4 /* Regular */)
-        return true;
-      if (type === 128 /* LoopExpression */ && (types & 128 /* LoopExpression */) == 128 /* LoopExpression */)
-        return true;
-      return false;
+    /*
+    private hasTriggerType(types: TriggerTypes | SubTriggerTypes, type: TriggerType | SubTriggerTypes): boolean {
+        if (type === TriggerType.Alarm && (types & TriggerTypes.Alarm) == TriggerTypes.Alarm)
+            return true;
+        if (type === TriggerType.CommandInputPattern && (types & TriggerTypes.CommandInputPattern) == TriggerTypes.CommandInputPattern)
+            return true;
+        if (type === TriggerType.CommandInputRegular && (types & TriggerTypes.CommandInputRegular) == TriggerTypes.CommandInputRegular)
+            return true;
+        if (type === TriggerType.Event && (types & TriggerTypes.Event) == TriggerTypes.Event)
+            return true;
+        if (type === TriggerType.Pattern && (types & TriggerTypes.Pattern) == TriggerTypes.Pattern)
+            return true;
+        if (type === TriggerType.Regular && (types & TriggerTypes.Regular) == TriggerTypes.Regular)
+            return true;
+        if (type === TriggerType.LoopExpression && (types & TriggerTypes.LoopExpression) == TriggerTypes.LoopExpression)
+            return true;
+        //if (type === TriggerType.Expression && (types & TriggerTypes.Expression) == TriggerTypes.Expression)
+        //return true;            
+        return false;
     }
+    */
     isSubTriggerType(type) {
       if ((type & 512 /* Skip */) == 512 /* Skip */)
         return true;
@@ -16516,7 +16517,6 @@
       let trigger = this._TriggerCache[idx];
       let oTrigger;
       const parent = trigger;
-      let params;
       let reParse = false;
       if (parent.state !== 0)
         trigger = parent.triggers[parent.state - 1];
@@ -21239,8 +21239,6 @@
       });
       this._model.on("expire-links", (args) => {
         if (this._expireCache.length) {
-          let id;
-          let elLine;
           for (let x2 = 0, xl = this._expireCache.length; x2 < xl; x2++)
             this.rebuildLine(this._expireCache[x2]);
         }
@@ -21793,7 +21791,6 @@
         start = 0;
       if (end === void 0 || end === -1 || end >= this.lines.length)
         end = this.lines.length - 1;
-      const lines = this.lines;
       let _html = [];
       let line2 = start;
       for (; line2 <= end; line2++) {
@@ -27084,7 +27081,6 @@ Devanagari
       if (this._id === value) return;
       this._id = value;
       if (this._dialog) {
-        const old = this._dialog.id;
         this._dialog.id = this._id;
         let el = this._dialog.querySelector(`#${this._id}-cancel`);
         if (el) el.id = this._id + "-cancel";
@@ -32410,7 +32406,6 @@ Devanagari
   var Mapper = class extends Plugin {
     constructor(options) {
       super(options instanceof Client ? options : options?.client);
-      this._ready = false;
       if (options && !(options instanceof Client)) {
       }
       this._clientContainer = document.getElementById("client-container");
@@ -33276,8 +33271,6 @@ Devanagari
         this.updateMenu("#mapper-copy-highlighted-speedpath a", false);
       });
       this._dialogMap.on("path-cleared", () => {
-        const selected = this._dialogMap.selected;
-        const current = this._dialogMap.current;
         this.updateMenu("#mapper-clear-path a", true);
         this.updateMenu("#mapper-walk-highlighted-path a", true);
         this.updateMenu("#mapper-copy-highlighted-path a", true);
@@ -34066,7 +34059,7 @@ Devanagari
       this._input.AddCommandToHistory(txt);
     }
     loadProfiles() {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         ProfileCollection.load().then((profiles) => {
           this._profiles = profiles;
           if (!this.profiles.contains("default")) {

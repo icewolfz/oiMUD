@@ -8819,6 +8819,7 @@
               this._tabIdx = -1;
               this._tabWords = null;
               this._tabSearch = null;
+              event2.preventDefault();
               this.client.sendCommand(null, null, this.client.getOption("allowCommentsFromCommand"));
               this.emit("history-navigate", event2);
             }

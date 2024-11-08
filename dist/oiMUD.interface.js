@@ -112,26 +112,27 @@
         for (s = 0; s < sl; s++) {
           let item = client.plugins[p].menu[s];
           let code;
-          let id = "menu-" + (item.name || s).toLowerCase().replace(/ /g, "-");
+          let id = "menu-" + (item.id || item.name || s).toLowerCase().replace(/ /g, "-");
           if (item.name === "-")
-            code = '<li><hr class="dropdown-divider"></li>';
+            code = `<li id="${id}"><hr class="dropdown-divider"></li>`;
           else if (typeof item.action === "string")
-            code = `<li id="menu-${id}" class="nav-item" title="${item.name || ""}"><a class="nav-link" href="#${item.action}">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
+            code = `<li id="${id}" class="nav-item${item.active ? " active" : ""}" title="${item.name || ""}"><a class="nav-link" href="#${item.action}">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
           else
-            code = `<li id="menu-${id}" class="nav-item" title="${item.name || ""}"><a class="nav-link" href="javascript:void(0)">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
+            code = `<li id="${id}" class="nav-item${item.active ? " active" : ""}" title="${item.name || ""}"><a class="nav-link" href="javascript:void(0)">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
+          if (item.exists && list.querySelector(item.exists)) continue;
           if ("position" in item) {
             if (typeof item.position === "string") {
               if (list.querySelector(item.position))
                 list.querySelector(item.position).insertAdjacentHTML("afterend", code);
-            } else if (item.position >= 0 && item.position < list.children.length) {
+            } else if (item.position >= 0 && item.position < list.children.length)
               list.children[item.position].insertAdjacentHTML("afterend", code);
-            } else
+            else
               list.insertAdjacentHTML("beforeend", code);
           } else
             list.insertAdjacentHTML("beforeend", code);
           if (item.name === "-") continue;
           if (typeof item.action === "function")
-            document.querySelector(`#menu-${id} a`).addEventListener("click", (e) => {
+            document.querySelector(`#${id} a`).addEventListener("click", (e) => {
               const ie = { client, preventDefault: false };
               item.action(ie);
               if (ie.preventDefault) return;
@@ -1497,6 +1498,19 @@
       });
     }
   }
+  function isMobile(userAgent) {
+    if (window.matchMedia("(orientation: landscape) and (max-width: 641px)").matches)
+      return true;
+    if (window.matchMedia("(orientation: landscape) and (max-height: 480px)").matches)
+      return true;
+    if (window.matchMedia("(orientation: portrait) and (max-width: 480px)").matches)
+      return true;
+    if (window.matchMedia(" (orientation: portrait) and (max-height: 641px)").matches)
+      return true;
+    if (userAgent && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Windows Phone/i.test(navigator.userAgent || navigator.vendor || window.opera))
+      return true;
+    return false;
+  }
 
   // src/interface/dialog.ts
   var DialogButtons = /* @__PURE__ */ ((DialogButtons2) => {
@@ -2245,22 +2259,25 @@
     get windowState() {
       return this._state;
     }
-    _width() {
-      let w = this.dialog.offsetWidth || this._dialog.clientWidth;
-      if (!w) {
-        const styles = document.defaultView.getComputedStyle(this._dialog);
-        w = w || parseInt(styles.width, 10);
-      }
-      return w;
-    }
-    _height() {
-      let h = this.dialog.offsetHeight || this._dialog.clientHeight;
-      if (!h) {
-        const styles = document.defaultView.getComputedStyle(this._dialog);
-        h = h || parseInt(styles.height, 10);
-      }
-      return h;
-    }
+    /*
+        private _width() {
+            let w = this.dialog.offsetWidth || this._dialog.clientWidth;
+            if (!w) {
+                const styles = document.defaultView.getComputedStyle(this._dialog);
+                w = w || parseInt(styles.width, 10);
+            }
+            return w;
+        }
+    
+        private _height() {
+            let h = this.dialog.offsetHeight || this._dialog.clientHeight;
+            if (!h) {
+                const styles = document.defaultView.getComputedStyle(this._dialog);
+                h = h || parseInt(styles.height, 10);
+            }
+            return h;
+        }
+        */
     get _size() {
       let w = this.dialog.offsetWidth || this._dialog.clientWidth;
       let h = this.dialog.offsetHeight || this._dialog.clientHeight;
@@ -4322,7 +4339,7 @@
     ["enableMXP", 0, 1, true],
     ["enableMSP", 0, 1, true],
     ["parseCommands", 0, 3, true],
-    ["lagMeter", 0, 1, false],
+    ["lagMeter", 0, 1, true],
     ["enablePing", 0, 1, false],
     ["enableEcho", 0, 1, true],
     ["enableSpeedpaths", 0, 1, true],
@@ -4438,7 +4455,7 @@
     ["backupSave", 0, 2, 30 /* All */],
     ["backupAllProfiles", 0, 1, true],
     ["scrollLocked", 0, 1, false],
-    ["showStatus", 0, 1, true],
+    ["showStatus", 0, 1, !isMobile()],
     ["showCharacterManager", 0, 1, false],
     ["showChat", 0, 1, false],
     ["showEditor", 0, 1, false],
@@ -4491,7 +4508,7 @@
     ["profiles.profileExpandSelected", 0, 1, true],
     ["chat.lines", 0, 4, []],
     ["chat.showInTaskBar", 0, 1, false],
-    ["chat.showTimestamp", 0, 1, false],
+    ["chat.showTimestamp", 0, 2 /* Number */, 0],
     ["chat.timestampFormat", 0, 0, "[[]MM-DD HH:mm:ss.SSS[]] "],
     ["chat.tabWidth", 0, 2, 8],
     ["chat.displayControlCodes", 0, 1, false],
@@ -4555,7 +4572,7 @@
     ["find.highlight", 0, 1 /* Boolean */, false],
     ["find.location", 0, 4 /* Custom */, [5, 20]],
     ["display.showInvalidMXPTags", 0, 1 /* Boolean */, false],
-    ["display.showTimestamp", 0, 1 /* Boolean */, false],
+    ["display.showTimestamp", 0, 2 /* Number */, 0],
     ["display.timestampFormat", 0, 0 /* String */, "[[]MM-DD HH:mm:ss.SSS[]] "],
     ["display.displayControlCodes", 0, 1 /* Boolean */, false],
     ["display.emulateTerminal", 0, 1 /* Boolean */, false],
@@ -4607,6 +4624,8 @@
       for (var s = 0, sl = SettingList.length; s < sl; s++) {
         if (SettingList[s][2] === 4 /* Custom */) continue;
         this[SettingList[s][0]] = _Settings.getValue(SettingList[s][0]);
+        if (SettingList[s][1] && SettingList[s][1].length)
+          this[SettingList[s][1]] = _Settings.getValue(SettingList[s][1]);
       }
       this.colors = _Settings.getValue("colors");
     }
@@ -4688,6 +4707,7 @@
           case "simpleAlarms":
           case "simpleEditor":
           case "selectLastCommand":
+          case "showLagInTitle":
             if (tmp == 1)
               return true;
             return false;
@@ -4799,7 +4819,7 @@
         case "parseCommands":
           return true;
         case "lagMeter":
-          return false;
+          return true;
         case "enablePing":
           return false;
         case "enableEcho":
@@ -4977,7 +4997,7 @@
         case "scrollLocked":
           return false;
         case "showStatus":
-          return true;
+          return !isMobile();
         case "showChat":
           return false;
         case "showEditor":
@@ -5055,7 +5075,7 @@
         case "chat.lines":
           return [];
         case "chat.showTimestamp":
-          return false;
+          return 0;
         case "chat.timestampFormat":
           return "[[]MM-DD HH:mm:ss.SSS[]] ";
         case "chat.tabWidth":
@@ -5137,7 +5157,7 @@
         case "display.showInvalidMXPTags":
           return false;
         case "display.showTimestamp":
-          return false;
+          return 0;
         case "display.timestampFormat":
           return "[[]MM-DD HH:mm:ss.SSS[]] ";
         case "display.displayControlCodes":
@@ -5223,8 +5243,8 @@
       let footer = "";
       footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Cancel dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;
       footer += `<button id="${this.id}-save" type="button" class="btn-sm float-end btn btn-primary" title="Confirm dialog"><i class="bi bi-save"></i><span class="icon-only"> Save</span></button>`;
-      footer += `<button id="${this.id}-reset" type="button" class="btn-sm float-start btn btn-light" title="Reset settings"><i class="bi bi-arrow-clockwise"></i><span class="icon-only"> Reset</span></button>`;
-      footer += `<button id="${this.id}-reset-all" type="button" class="btn-sm float-start btn btn-light" title="Reset All settings"><i class="bi bi-arrow-repeat"></i><span class="icon-only"> Reset All</span></button>`;
+      footer += `<button id="${this.id}-reset" type="button" class="btn-sm float-start btn btn-warning" title="Reset settings"><i class="bi bi-arrow-clockwise"></i><span class="icon-only"> Reset</span></button>`;
+      footer += `<button id="${this.id}-reset-all" type="button" class="btn-sm float-start btn btn-warning" title="Reset All settings"><i class="bi bi-arrow-repeat"></i><span class="icon-only"> Reset All</span></button>`;
       footer += '<div class="vr float-start" style="margin-right: 4px;height: 29px;"></div>';
       footer += `<button id="${this.id}-export" type="button" class="btn-sm float-start btn btn-light" title="Export settings"><i class="bi bi-box-arrow-up"></i><span class="icon-only"> Export</span></button>`;
       footer += `<button id="${this.id}-import" type="button" class="btn-sm float-start btn btn-light" title="Import settings"><i class="bi bi-box-arrow-in-down"></i><span class="icon-only"> Import</span></button>`;
@@ -5291,11 +5311,12 @@
             if (e.button === 4 /* Yes */) {
               const forms = this.body.querySelectorAll("input,select,textarea");
               for (let f = 0, fl = forms.length; f < fl; f++) {
-                this.settings[forms[f].id] = Settings.defaultValue(forms[f].id);
-                if (forms[f].type === "checkbox")
-                  forms[f].checked = this.settings[forms[f].id];
+                let id = forms[f].name || forms[f].id;
+                this.settings[id] = Settings.defaultValue(id);
+                if (forms[f].type === "checkbox" || forms[f].type === "radio")
+                  forms[f].checked = this.settings[id];
                 else
-                  forms[f].value = this.settings[forms[f].id];
+                  forms[f].value = this.settings[id];
               }
             }
           });
@@ -5431,7 +5452,7 @@
               const value = +forms[f].id.substring(forms[f].id.lastIndexOf("-") + 1);
               forms[f].checked = (this.settings[name] & value) === value;
             } else
-              forms[f].checked = this.settings[forms[f].id];
+              forms[f].checked = this.settings[forms[f].name || forms[f].id];
             forms[f].addEventListener("change", (e) => {
               const target = e.currentTarget || e.target;
               if (target.dataset.enum === "true") {
@@ -5444,17 +5465,17 @@
                 }
                 this.settings[name] = value;
               } else
-                this.settings[target.id] = target.checked || false;
+                this.settings[target.name || target.id] = target.checked || false;
             });
           } else {
             forms[f].value = this.settings[forms[f].id];
             forms[f].addEventListener("change", (e) => {
               const target = e.currentTarget || e.target;
-              this.setValue(target.id, target.value);
+              this.setValue(target.name || target.id, target.value);
             });
             forms[f].addEventListener("input", (e) => {
               const target = e.currentTarget || e.target;
-              this.setValue(target.id, target.value);
+              this.setValue(target.name || target.id, target.value);
             });
           }
         }
@@ -8390,6 +8411,16 @@
       if (_dialogs.profiles) _dialogs.profiles.resetState(client.getOption("windows.profiles") || { center: true, width: 400, height: 275 });
     });
     client.on("set-title", (title) => {
+      if (!title || !title.length)
+        title = client.defaultTitle;
+      else if (title.indexOf(client.defaultTitle) === -1)
+        title += " - " + client.defaultTitle;
+      if (client.connecting)
+        title = "Connecting - " + title;
+      else if (client.connected)
+        title = "Connected - " + title;
+      else
+        title = "Disconnected - " + title;
       window.document.title = title;
     });
     client.on("connected", () => _setIcon(1));
@@ -8968,7 +8999,7 @@
     measure.innerHTML = oldMeasure;
     cmd.style.height = height + padding + "px";
     client.commandInput.parentElement.style.height = height + "px";
-    client.commandInput.closest("nav").style.height = height + 6 + "px";
+    client.commandInput.closest("nav").style.height = height + "px";
     client.display.container.style.bottom = height + padding + "px";
     commandInputResize = {
       measure,
@@ -8989,7 +9020,7 @@
     const padding = commandInputResize.padding;
     cmd.style.height = height + padding + "px";
     client.commandInput.parentElement.style.height = height + "px";
-    client.commandInput.closest("nav").style.height = height + 6 + "px";
+    client.commandInput.closest("nav").style.height = height + "px";
     client.display.container.style.bottom = height + padding + "px";
   }
   function _setIcon(ico) {

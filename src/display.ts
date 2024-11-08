@@ -82,6 +82,8 @@ export class Display extends EventEmitter {
     get showTimestamp() { return this._timestamp; }
     set showTimestamp(value: TimeStampStyle) {
         if (value === this._timestamp) return;
+        if(typeof value === 'boolean')
+            this._timestamp = value ? TimeStampStyle.Format : TimeStampStyle.None;
         this._timestamp = value;
         if (!moment || this._timestamp !== TimeStampStyle.Format)
             this._timestampWidth = new Date().toISOString().length + 1;

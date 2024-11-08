@@ -147,7 +147,7 @@ export class Telnet extends EventEmitter {
     public latencyAvg: number = null;
     public enableLatency: boolean = false;
     public enablePing: boolean = false;
-    public GMCPSupports: string[] = ['Core 1', 'Char 1', 'Char.Vitals 1', 'Char.Experience 1'];
+    public GMCPSupports: string[] = ['Core 1'];
     public enableDebug: boolean = false;
     public scheme: string = 'ws://';
     public protocol: string = 'binary';

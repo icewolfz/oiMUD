@@ -14,6 +14,7 @@ import { version } from '../package.json'
 import { MSP } from './plugins/msp';
 import { Test } from './plugins/test';
 import { Mapper } from './plugins/mapper';
+import { Status } from './plugins/status';
 
 declare global {
     interface Window {
@@ -1136,6 +1137,7 @@ export class Client extends EventEmitter {
         //Add core plugins
         this.addPlugin(new MSP(this));
         this.addPlugin(new Mapper(this));
+        this.addPlugin(new Status(this));
         if (DEBUG || TEST)
             this.addPlugin(new Test(this));
         if (this.getOption('autoConnect'))

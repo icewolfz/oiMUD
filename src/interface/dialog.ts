@@ -806,6 +806,7 @@ export class Dialog extends EventEmitter {
         return this._state;
     }
 
+    /*
     private _width() {
         let w = this.dialog.offsetWidth || this._dialog.clientWidth;
         if (!w) {
@@ -823,6 +824,7 @@ export class Dialog extends EventEmitter {
         }
         return h;
     }
+    */
 
     private get _size() {
         let w = this.dialog.offsetWidth || this._dialog.clientWidth;

@@ -389,7 +389,7 @@ export class MSP extends Plugin {
      * @param {Number} type the type of arguments to process, 0 SOUND, 1 MUSIC
      * @returns {Object} return a MUSIC or SOUND argument object
      */
-    private getArguments(text: string, type: number) {
+    public getArguments(text: string, type: number) {
         const e: MSPData = { off: false, file: '', url: '', volume: 100, repeat: 1, priority: 50, type: '', continue: true };
         const args = [];
         let state: number = 0;

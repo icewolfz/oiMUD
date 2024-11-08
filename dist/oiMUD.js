@@ -3892,6 +3892,19 @@
       });
     }
   }
+  function isMobile(userAgent) {
+    if (window.matchMedia("(orientation: landscape) and (max-width: 641px)").matches)
+      return true;
+    if (window.matchMedia("(orientation: landscape) and (max-height: 480px)").matches)
+      return true;
+    if (window.matchMedia("(orientation: portrait) and (max-width: 480px)").matches)
+      return true;
+    if (window.matchMedia(" (orientation: portrait) and (max-height: 641px)").matches)
+      return true;
+    if (userAgent && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Windows Phone/i.test(navigator.userAgent || navigator.vendor || window.opera))
+      return true;
+    return false;
+  }
 
   // src/telnet.ts
   var import_inflate_stream_min = __toESM(require_inflate_stream_min());
@@ -3930,7 +3943,7 @@
       this.latencyAvg = null;
       this.enableLatency = false;
       this.enablePing = false;
-      this.GMCPSupports = ["Core 1", "Char 1", "Char.Vitals 1", "Char.Experience 1"];
+      this.GMCPSupports = ["Core 1"];
       this.enableDebug = false;
       this.scheme = "ws://";
       this.protocol = "binary";
@@ -6071,7 +6084,7 @@
     ["enableMXP", 0, 1, true],
     ["enableMSP", 0, 1, true],
     ["parseCommands", 0, 3, true],
-    ["lagMeter", 0, 1, false],
+    ["lagMeter", 0, 1, true],
     ["enablePing", 0, 1, false],
     ["enableEcho", 0, 1, true],
     ["enableSpeedpaths", 0, 1, true],
@@ -6187,7 +6200,7 @@
     ["backupSave", 0, 2, 30 /* All */],
     ["backupAllProfiles", 0, 1, true],
     ["scrollLocked", 0, 1, false],
-    ["showStatus", 0, 1, true],
+    ["showStatus", 0, 1, !isMobile()],
     ["showCharacterManager", 0, 1, false],
     ["showChat", 0, 1, false],
     ["showEditor", 0, 1, false],
@@ -6240,7 +6253,7 @@
     ["profiles.profileExpandSelected", 0, 1, true],
     ["chat.lines", 0, 4, []],
     ["chat.showInTaskBar", 0, 1, false],
-    ["chat.showTimestamp", 0, 1, false],
+    ["chat.showTimestamp", 0, 2 /* Number */, 0],
     ["chat.timestampFormat", 0, 0, "[[]MM-DD HH:mm:ss.SSS[]] "],
     ["chat.tabWidth", 0, 2, 8],
     ["chat.displayControlCodes", 0, 1, false],
@@ -6304,7 +6317,7 @@
     ["find.highlight", 0, 1 /* Boolean */, false],
     ["find.location", 0, 4 /* Custom */, [5, 20]],
     ["display.showInvalidMXPTags", 0, 1 /* Boolean */, false],
-    ["display.showTimestamp", 0, 1 /* Boolean */, false],
+    ["display.showTimestamp", 0, 2 /* Number */, 0],
     ["display.timestampFormat", 0, 0 /* String */, "[[]MM-DD HH:mm:ss.SSS[]] "],
     ["display.displayControlCodes", 0, 1 /* Boolean */, false],
     ["display.emulateTerminal", 0, 1 /* Boolean */, false],
@@ -6356,6 +6369,8 @@
       for (var s = 0, sl = SettingList.length; s < sl; s++) {
         if (SettingList[s][2] === 4 /* Custom */) continue;
         this[SettingList[s][0]] = _Settings.getValue(SettingList[s][0]);
+        if (SettingList[s][1] && SettingList[s][1].length)
+          this[SettingList[s][1]] = _Settings.getValue(SettingList[s][1]);
       }
       this.colors = _Settings.getValue("colors");
     }
@@ -6437,6 +6452,7 @@
           case "simpleAlarms":
           case "simpleEditor":
           case "selectLastCommand":
+          case "showLagInTitle":
             if (tmp == 1)
               return true;
             return false;
@@ -6548,7 +6564,7 @@
         case "parseCommands":
           return true;
         case "lagMeter":
-          return false;
+          return true;
         case "enablePing":
           return false;
         case "enableEcho":
@@ -6726,7 +6742,7 @@
         case "scrollLocked":
           return false;
         case "showStatus":
-          return true;
+          return !isMobile();
         case "showChat":
           return false;
         case "showEditor":
@@ -6804,7 +6820,7 @@
         case "chat.lines":
           return [];
         case "chat.showTimestamp":
-          return false;
+          return 0;
         case "chat.timestampFormat":
           return "[[]MM-DD HH:mm:ss.SSS[]] ";
         case "chat.tabWidth":
@@ -6886,7 +6902,7 @@
         case "display.showInvalidMXPTags":
           return false;
         case "display.showTimestamp":
-          return false;
+          return 0;
         case "display.timestampFormat":
           return "[[]MM-DD HH:mm:ss.SSS[]] ";
         case "display.displayControlCodes":
@@ -16139,7 +16155,6 @@
       return line2;
     }
     TestTrigger(trigger, parent, t, line2, raw, frag) {
-      let val;
       let pattern;
       try {
         if (trigger.verbatim) {
@@ -16157,7 +16172,7 @@
             return t;
           }
           this._LastTriggered = trigger.raw ? raw : line2;
-          val = this.ExecuteTrigger(trigger, [this._LastTriggered], false, t, [this._LastTriggered], 0, parent);
+          this.ExecuteTrigger(trigger, [this._LastTriggered], false, t, [this._LastTriggered], 0, parent);
         } else {
           let re;
           if (trigger.type === 8 /* Pattern */ || trigger.type === 16 /* CommandInputPattern */ || trigger.type === 262144 /* ReParsePattern */)
@@ -16187,7 +16202,7 @@
           }
           if (res.groups)
             Object.keys(res.groups).map((v) => this.client.variables[v] = res.groups[v]);
-          val = this.ExecuteTrigger(trigger, args, false, t, [this._LastTriggered, re], res.groups, parent);
+          this.ExecuteTrigger(trigger, args, false, t, [this._LastTriggered, re], res.groups, parent);
         }
         t = this.cleanUpTriggerState(t);
       } catch (e) {
@@ -16515,15 +16530,10 @@
       if (idx === -1) return;
       if (idx < 0 || idx >= this._TriggerCache.length) return;
       let trigger = this._TriggerCache[idx];
-      let oTrigger;
       const parent = trigger;
       let reParse = false;
       if (parent.state !== 0)
         trigger = parent.triggers[parent.state - 1];
-      if (oldState === 0)
-        oTrigger = parent;
-      else
-        oTrigger = parent.triggers[oldState - 1];
       if (oldState === parent.state) {
         if (this._TriggerStates[idx]) {
           if (!trigger.fired)
@@ -21134,6 +21144,8 @@
     }
     set showTimestamp(value) {
       if (value === this._timestamp) return;
+      if (typeof value === "boolean")
+        this._timestamp = value ? 2 /* Format */ : 0 /* None */;
       this._timestamp = value;
       if (!moment || this._timestamp !== 2 /* Format */)
         this._timestampWidth = (/* @__PURE__ */ new Date()).toISOString().length + 1;
@@ -22664,7 +22676,7 @@
   };
 
   // package.json
-  var version = "0.0.1-alpha";
+  var version = "1.0.0-alpha";
 
   // src/plugins/msp.ts
   var buzz = __toESM(require_buzz());
@@ -24078,6 +24090,105 @@
           indoors: 0
         });
       };
+      this.functions["teststatus"] = (data) => {
+        this.client.emit("received-GMCP", "Char.Base", {
+          name: "Tester",
+          class: "fighter",
+          subclass: "None",
+          race: "human",
+          level: 1,
+          gender: "male"
+        });
+        this.client.emit("received-GMCP", "Char.Vitals", {
+          hp: 75,
+          hpmax: 100,
+          sp: 50,
+          spmax: 100,
+          mp: 25,
+          mpmax: 100
+        });
+        this.client.emit("received-GMCP", "Char.Experience", {
+          current: 50,
+          need: 100,
+          needPercent: 50,
+          earned: 200,
+          banked: 300
+        });
+        this.client.emit("received-GMCP", "oMUD.limb", {
+          head: 10,
+          torso: 20,
+          "left arm": 30,
+          "right arm": 40,
+          "left hand": 50,
+          "right hand": 60,
+          "left leg": 70,
+          "right leg": 80,
+          "right foot": 90,
+          "left foot": 100,
+          "left wing": 90,
+          "right wing": 80,
+          tail: 70
+        });
+        this.client.emit("received-GMCP", "oMUD.ac", {
+          head: 0,
+          torso: 1,
+          "left arm": 2,
+          "right arm": 3,
+          "left hand": 3.5,
+          "right hand": 4,
+          "left leg": 4.5,
+          "right leg": 5,
+          "right foot": 5.5,
+          "left foot": 6,
+          "left wing": 6.5,
+          "right wing": 5,
+          tail: 4,
+          overall: 4
+        });
+        this.client.emit("received-GMCP", "oMUD.weapons", {
+          "right hand": { "name": "knife", "type": "knife", "subtype": "dagger", "material": "iron", "quality": "pooor", "dominant": 1 },
+          "left hand": { "name": "club", "type": "blunt", "subtype": "club", "material": "wood", "quality": "ordinary", "dominant": 0 }
+        });
+        if (data && data.args && data.args.length && data.args[0] === "night")
+          this.client.emit("received-GMCP", "oMUD.Environment", { tod: "night", moons: ["waning", "full", "waxing"] });
+        else
+          this.client.emit("received-GMCP", "oMUD.Environment", { "tod": "day" });
+        this.client.emit("received-GMCP", "oMUD.skill", { skill: "knife", percent: 60 });
+        this.client.emit("received-GMCP", "oMUD.skill", { skill: "knife", amount: 100, bonus: 5, category: "weapon" });
+        this.client.emit("received-GMCP", "oMUD.skill", { skill: "small sword", percent: 100 });
+        let found = false;
+        this.client.emit("received-GMCP", "oMUD.skill", { skill: "small sword", amount: 1150, bonus: 0, category: "weapon" });
+        if (data && data.args && data.args.length) {
+          data.args.forEach((arg) => {
+            if (arg.startsWith("party:")) {
+              found = true;
+              let s = parseInt(arg.split(":")[1], 10);
+              for (let m = 0; m < s; m++)
+                this.client.emit("received-GMCP", "oMUD.party", { "action": "update", "name": "Party " + (m + 1), "hp": 50, race: "human", "id": m });
+            }
+          });
+        }
+        if (!found) {
+          this.client.emit("received-GMCP", "oMUD.party", { "action": "update", "name": "Elf", "hp": 50, race: "elf", "id": 1 });
+          this.client.emit("received-GMCP", "oMUD.party", { "action": "update", "name": "Dwarf", "hp": 100, race: "dwarf", "id": 2 });
+        }
+        found = false;
+        if (data && data.args && data.args.length) {
+          data.args.forEach((arg) => {
+            if (arg.startsWith("monster:")) {
+              found = true;
+              let s = parseInt(arg.split(":")[1], 10);
+              for (let m = 0; m < s; m++)
+                this.client.emit("received-GMCP", "oMUD.combat", { "action": "update", "name": "Monster " + (m + 1), "hp": 50, race: "orc", "id": m, order: 0 });
+            }
+          });
+        }
+        if (!found) {
+          this.client.emit("received-GMCP", "oMUD.combat", { "action": "update", "name": "Monster", "hp": 50, race: "orc", "id": 3, order: 0 });
+          this.client.emit("received-GMCP", "oMUD.combat", { "action": "update", "name": "Monster 2", "hp": 100, race: "dragon", "id": 4, order: 1 });
+          this.client.emit("received-GMCP", "oMUD.combat", { "action": "update", "name": "Monster with extra super long name to test", "hp": 100, race: "dragon", "id": 5, order: 2 });
+        }
+      };
       this.functions["testfansi"] = () => {
         let sample = "";
         let i2;
@@ -24336,7 +24447,7 @@ Devanagari
         name2 = name2.substring(0, name2.length - 2);
       if (this.functions[name2]) {
         console.time(name2);
-        this.functions[name2].apply(this, data || {});
+        this.functions[name2].apply(this, [data || {}]);
         console.timeEnd(name2);
         data.handled = true;
       }
@@ -25279,6 +25390,7 @@ Devanagari
       this._map.current = value.clone();
       this.markers = {};
       this.markedRooms = 0;
+      this.doUpdate(1 /* draw */);
     }
     setArea(area) {
       this.active.area = area;
@@ -27184,22 +27296,25 @@ Devanagari
     get windowState() {
       return this._state;
     }
-    _width() {
-      let w = this.dialog.offsetWidth || this._dialog.clientWidth;
-      if (!w) {
-        const styles = document.defaultView.getComputedStyle(this._dialog);
-        w = w || parseInt(styles.width, 10);
-      }
-      return w;
-    }
-    _height() {
-      let h = this.dialog.offsetHeight || this._dialog.clientHeight;
-      if (!h) {
-        const styles = document.defaultView.getComputedStyle(this._dialog);
-        h = h || parseInt(styles.height, 10);
-      }
-      return h;
-    }
+    /*
+        private _width() {
+            let w = this.dialog.offsetWidth || this._dialog.clientWidth;
+            if (!w) {
+                const styles = document.defaultView.getComputedStyle(this._dialog);
+                w = w || parseInt(styles.width, 10);
+            }
+            return w;
+        }
+    
+        private _height() {
+            let h = this.dialog.offsetHeight || this._dialog.clientHeight;
+            if (!h) {
+                const styles = document.defaultView.getComputedStyle(this._dialog);
+                h = h || parseInt(styles.height, 10);
+            }
+            return h;
+        }
+        */
     get _size() {
       let w = this.dialog.offsetWidth || this._dialog.clientWidth;
       let h = this.dialog.offsetHeight || this._dialog.clientHeight;
@@ -27567,26 +27682,27 @@ Devanagari
         for (s = 0; s < sl; s++) {
           let item = client.plugins[p].menu[s];
           let code;
-          let id = "menu-" + (item.name || s).toLowerCase().replace(/ /g, "-");
+          let id = "menu-" + (item.id || item.name || s).toLowerCase().replace(/ /g, "-");
           if (item.name === "-")
-            code = '<li><hr class="dropdown-divider"></li>';
+            code = `<li id="${id}"><hr class="dropdown-divider"></li>`;
           else if (typeof item.action === "string")
-            code = `<li id="menu-${id}" class="nav-item" title="${item.name || ""}"><a class="nav-link" href="#${item.action}">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
+            code = `<li id="${id}" class="nav-item${item.active ? " active" : ""}" title="${item.name || ""}"><a class="nav-link" href="#${item.action}">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
           else
-            code = `<li id="menu-${id}" class="nav-item" title="${item.name || ""}"><a class="nav-link" href="javascript:void(0)">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
+            code = `<li id="${id}" class="nav-item${item.active ? " active" : ""}" title="${item.name || ""}"><a class="nav-link" href="javascript:void(0)">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
+          if (item.exists && list.querySelector(item.exists)) continue;
           if ("position" in item) {
             if (typeof item.position === "string") {
               if (list.querySelector(item.position))
                 list.querySelector(item.position).insertAdjacentHTML("afterend", code);
-            } else if (item.position >= 0 && item.position < list.children.length) {
+            } else if (item.position >= 0 && item.position < list.children.length)
               list.children[item.position].insertAdjacentHTML("afterend", code);
-            } else
+            else
               list.insertAdjacentHTML("beforeend", code);
           } else
             list.insertAdjacentHTML("beforeend", code);
           if (item.name === "-") continue;
           if (typeof item.action === "function")
-            document.querySelector(`#menu-${id} a`).addEventListener("click", (e) => {
+            document.querySelector(`#${id} a`).addEventListener("click", (e) => {
               const ie = { client, preventDefault: false };
               item.action(ie);
               if (ie.preventDefault) return;
@@ -29184,8 +29300,8 @@ Devanagari
       let footer = "";
       footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Cancel dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;
       footer += `<button id="${this.id}-save" type="button" class="btn-sm float-end btn btn-primary" title="Confirm dialog"><i class="bi bi-save"></i><span class="icon-only"> Save</span></button>`;
-      footer += `<button id="${this.id}-reset" type="button" class="btn-sm float-start btn btn-light" title="Reset settings"><i class="bi bi-arrow-clockwise"></i><span class="icon-only"> Reset</span></button>`;
-      footer += `<button id="${this.id}-reset-all" type="button" class="btn-sm float-start btn btn-light" title="Reset All settings"><i class="bi bi-arrow-repeat"></i><span class="icon-only"> Reset All</span></button>`;
+      footer += `<button id="${this.id}-reset" type="button" class="btn-sm float-start btn btn-warning" title="Reset settings"><i class="bi bi-arrow-clockwise"></i><span class="icon-only"> Reset</span></button>`;
+      footer += `<button id="${this.id}-reset-all" type="button" class="btn-sm float-start btn btn-warning" title="Reset All settings"><i class="bi bi-arrow-repeat"></i><span class="icon-only"> Reset All</span></button>`;
       footer += '<div class="vr float-start" style="margin-right: 4px;height: 29px;"></div>';
       footer += `<button id="${this.id}-export" type="button" class="btn-sm float-start btn btn-light" title="Export settings"><i class="bi bi-box-arrow-up"></i><span class="icon-only"> Export</span></button>`;
       footer += `<button id="${this.id}-import" type="button" class="btn-sm float-start btn btn-light" title="Import settings"><i class="bi bi-box-arrow-in-down"></i><span class="icon-only"> Import</span></button>`;
@@ -29252,11 +29368,12 @@ Devanagari
             if (e.button === 4 /* Yes */) {
               const forms = this.body.querySelectorAll("input,select,textarea");
               for (let f = 0, fl = forms.length; f < fl; f++) {
-                this.settings[forms[f].id] = Settings.defaultValue(forms[f].id);
-                if (forms[f].type === "checkbox")
-                  forms[f].checked = this.settings[forms[f].id];
+                let id = forms[f].name || forms[f].id;
+                this.settings[id] = Settings.defaultValue(id);
+                if (forms[f].type === "checkbox" || forms[f].type === "radio")
+                  forms[f].checked = this.settings[id];
                 else
-                  forms[f].value = this.settings[forms[f].id];
+                  forms[f].value = this.settings[id];
               }
             }
           });
@@ -29392,7 +29509,7 @@ Devanagari
               const value = +forms[f].id.substring(forms[f].id.lastIndexOf("-") + 1);
               forms[f].checked = (this.settings[name2] & value) === value;
             } else
-              forms[f].checked = this.settings[forms[f].id];
+              forms[f].checked = this.settings[forms[f].name || forms[f].id];
             forms[f].addEventListener("change", (e) => {
               const target = e.currentTarget || e.target;
               if (target.dataset.enum === "true") {
@@ -29405,17 +29522,17 @@ Devanagari
                 }
                 this.settings[name2] = value;
               } else
-                this.settings[target.id] = target.checked || false;
+                this.settings[target.name || target.id] = target.checked || false;
             });
           } else {
             forms[f].value = this.settings[forms[f].id];
             forms[f].addEventListener("change", (e) => {
               const target = e.currentTarget || e.target;
-              this.setValue(target.id, target.value);
+              this.setValue(target.name || target.id, target.value);
             });
             forms[f].addEventListener("input", (e) => {
               const target = e.currentTarget || e.target;
-              this.setValue(target.id, target.value);
+              this.setValue(target.name || target.id, target.value);
             });
           }
         }
@@ -31522,6 +31639,16 @@ Devanagari
       if (_dialogs.profiles) _dialogs.profiles.resetState(client.getOption("windows.profiles") || { center: true, width: 400, height: 275 });
     });
     client.on("set-title", (title) => {
+      if (!title || !title.length)
+        title = client.defaultTitle;
+      else if (title.indexOf(client.defaultTitle) === -1)
+        title += " - " + client.defaultTitle;
+      if (client.connecting)
+        title = "Connecting - " + title;
+      else if (client.connected)
+        title = "Connected - " + title;
+      else
+        title = "Disconnected - " + title;
       window.document.title = title;
     });
     client.on("connected", () => _setIcon(1));
@@ -32100,7 +32227,7 @@ Devanagari
     measure.innerHTML = oldMeasure;
     cmd.style.height = height + padding + "px";
     client.commandInput.parentElement.style.height = height + "px";
-    client.commandInput.closest("nav").style.height = height + 6 + "px";
+    client.commandInput.closest("nav").style.height = height + "px";
     client.display.container.style.bottom = height + padding + "px";
     commandInputResize = {
       measure,
@@ -32121,7 +32248,7 @@ Devanagari
     const padding = commandInputResize.padding;
     cmd.style.height = height + padding + "px";
     client.commandInput.parentElement.style.height = height + "px";
-    client.commandInput.closest("nav").style.height = height + 6 + "px";
+    client.commandInput.closest("nav").style.height = height + "px";
     client.display.container.style.bottom = height + padding + "px";
   }
   function _setIcon(ico) {
@@ -32414,7 +32541,7 @@ Devanagari
   window.initializeInterface = initializeInterface;
 
   // src/html/mapper.menu.htm
-  var mapper_menu_default = '<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="mapper-menu" aria-labelledby="mapper-menu-Label" style="position: absolute;"><div class="offcanvas-body"><button type="button" class="btn btn-close text-reset btn-danger btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" style="position: absolute;right: 5px;top: 5px;"></button><ul class="navbar-nav justify-content-end flex-grow-1"><li id="mapper-enable" class="nav-item" title="Enable"><a class="nav-link" href="javascript:void(0)"><i class="bi bi-map"></i>&nbsp;<span>Enabled</span></a></li><li id="mapper-legend" class="nav-item" title="Show legend"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-map-marker"></i>&nbsp;<span>Show legend</span></a></li><li id="mapper-room" class="nav-item" title="Show room properties"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-list-alt"></i>&nbsp;<span>Show room properties</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-refresh" class="nav-item" title="Refresh"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-refresh"></i>&nbsp;<span>Refresh</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-split" class="nav-item" title="Split areas"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-object-ungroup"></i>&nbsp;<span>Split areas</span></a></li><li id="mapper-fill" class="nav-item" title="Fill walls"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-building"></i>&nbsp;<span>Fill walls</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-remove" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#remove-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="remove-submenu"><i class="fa fa-eraser"></i>&nbsp;<span>Remove</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="remove-submenu"><li class="nav-item" id="mapper-remove-selected"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Remove selected room</a></li><li class="nav-item" id="mapper-remove-current"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Remove current room</a></li><li><hr class="dropdown-divider"></li><li id="mapper-remove-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Remove current area</a></li><li id="mapper-remove-all" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Remove all</a></li></ul></li><li id="mapper-export" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#export-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="export-submenu"><i class="fa fa-exchange"></i>&nbsp;<span>Export/Import</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="export-submenu"><li id="mapper-export-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export as image</a></li><li id="mapper-export-scaled-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export as scaled image</a></li><li id="mapper-export-current-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export current view as image</a></li><li><hr class="dropdown-divider"></li><li id="mapper-export-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export current area</a></li><li id="mapper-export-all" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export all</a></li><li><hr class="dropdown-divider"></li><li id="mapper-import-merge" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Import and merge</a></li><li id="mapper-import-replace" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Import and replace</a></li></ul></li><li><hr class="dropdown-divider"></li><li id="mapper-export" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#actions-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="actions-submenu"><i class="fa-solid fa-shoe-prints"></i>&nbsp;<span>Actions</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="actions-submenu"><li id="mapper-follow" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Follow</a></li><li><hr class="dropdown-divider"></li><li id="mapper-focus" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Focus on current room</a></li><li id="mapper-set-current" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Set selected as current</a></li><li><hr class="dropdown-divider"></li><li id="mapper-highlight-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Highlight path</a></li><li id="mapper-clear-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Clear path</a></li><li><hr class="dropdown-divider"></li><li id="mapper-walk-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Walk path</a></li><li id="mapper-walk-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Walk highlighted path</a></li><li><hr class="dropdown-divider"></li><li id="mapper-copy-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy path</a></li><li id="mapper-copy-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy as stacked</a></li><li id="mapper-copy-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy as speedpath</a></li><li id="mapper-copy-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy highlighted path</a></li><li id="mapper-copy-highlighted-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy highlighted as stacked</a></li><li id="mapper-copy-highlighted-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy highlighted as speedpath</a></li></ul></li><li><hr class="dropdown-divider"></li><li id="mapper-about" class="nav-item" title="About map"><a class="nav-link" href="javascript:void(0)"><i class="bi-info-circle"></i>&nbsp;<span>About</span></a></li></ul></div></div>';
+  var mapper_menu_default = '<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="mapper-menu" aria-labelledby="mapper-menu-Label" style="position: absolute;"><div class="offcanvas-body"><button type="button" class="btn btn-close text-reset btn-danger btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" style="position: absolute;right: 5px;top: 5px;"></button><ul class="navbar-nav justify-content-end flex-grow-1"><li id="mapper-enable" class="nav-item" title="Enable"><a class="nav-link" href="javascript:void(0)"><i class="bi bi-map"></i>&nbsp;<span>Enabled</span></a></li><li id="mapper-legend" class="nav-item" title="Show legend"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-map-marker"></i>&nbsp;<span>Show legend</span></a></li><li id="mapper-room" class="nav-item" title="Show room properties"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-list-alt"></i>&nbsp;<span>Show room properties</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-refresh" class="nav-item" title="Refresh"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-refresh"></i>&nbsp;<span>Refresh</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-split" class="nav-item" title="Split areas"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-object-ungroup"></i>&nbsp;<span>Split areas</span></a></li><li id="mapper-fill" class="nav-item" title="Display walls"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-building"></i>&nbsp;<span>Display walls</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-remove" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#remove-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="remove-submenu"><i class="fa fa-eraser"></i>&nbsp;<span>Remove</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="remove-submenu"><li class="nav-item" id="mapper-remove-selected"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Remove selected room</a></li><li class="nav-item" id="mapper-remove-current"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Remove current room</a></li><li><hr class="dropdown-divider"></li><li id="mapper-remove-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Remove current area</a></li><li id="mapper-remove-all" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Remove all</a></li></ul></li><li id="mapper-export" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#export-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="export-submenu"><i class="fa fa-exchange"></i>&nbsp;<span>Export/Import</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="export-submenu"><li id="mapper-export-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export as image</a></li><li id="mapper-export-scaled-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export as scaled image</a></li><li id="mapper-export-current-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export current view as image</a></li><li><hr class="dropdown-divider"></li><li id="mapper-export-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export current area</a></li><li id="mapper-export-all" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Export all</a></li><li><hr class="dropdown-divider"></li><li id="mapper-import-merge" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Import and merge</a></li><li id="mapper-import-replace" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Import and replace</a></li></ul></li><li><hr class="dropdown-divider"></li><li id="mapper-export" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#actions-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="actions-submenu"><i class="fa-solid fa-shoe-prints"></i>&nbsp;<span>Actions</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="actions-submenu"><li id="mapper-follow" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Follow</a></li><li><hr class="dropdown-divider"></li><li id="mapper-focus" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left: 40px;">Focus on current room</a></li><li id="mapper-set-current" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Set selected as current</a></li><li><hr class="dropdown-divider"></li><li id="mapper-highlight-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Highlight path</a></li><li id="mapper-clear-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Clear path</a></li><li><hr class="dropdown-divider"></li><li id="mapper-walk-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Walk path</a></li><li id="mapper-walk-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Walk highlighted path</a></li><li><hr class="dropdown-divider"></li><li id="mapper-copy-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy path</a></li><li id="mapper-copy-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy as stacked</a></li><li id="mapper-copy-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy as speedpath</a></li><li id="mapper-copy-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy highlighted path</a></li><li id="mapper-copy-highlighted-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy highlighted as stacked</a></li><li id="mapper-copy-highlighted-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left: 40px;">Copy highlighted as speedpath</a></li></ul></li><li><hr class="dropdown-divider"></li><li id="mapper-about" class="nav-item" title="About map"><a class="nav-link" href="javascript:void(0)"><i class="bi-info-circle"></i>&nbsp;<span>About</span></a></li></ul></div></div>';
 
   // src/html/mapper.room.htm
   var mapper_room_default = '<div class="dialog-header"><button id="mapper-room-close" style="padding: 4px;" type="button" class="btn btn-close float-end btn-danger" data-dismiss="modal" title="Hide properties"></button><div><i class="fa fa-list-alt"></i>&nbsp;Room properties</div></div><div class="accordion" id="mapper-room-accordion"><div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-general" aria-expanded="true" aria-controls="General">General </button></h2><div id="mapper-room-general" class="accordion-collapse collapse show" data-bs-parent="#mapper-room-accordion"><div class="accordion-body" style="padding: 5px;"><div class="mb-3"><label for="mapper-room-name">Name</label><input type="text" class="form-control" id="mapper-room-name" placeholder=""></div><div class="mb-3"><label for="mapper-room-background">Background</label><input type="text" class="form-control" id="mapper-room-background" placeholder=""></div></div></div></div><div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-location" aria-expanded="true" aria-controls="mapper-room-location">Location </button></h2><div id="mapper-room-location" class="accordion-collapse collapse" data-bs-parent="#mapper-room-accordion"><div class="accordion-body" style="padding: 5px;"><div class="mb-3"><label for="mapper-room-area" class="form-label">Area</label><select id="mapper-room-area" class="form-select"></select></div><div class="mb-3"><label for="mapper-room-x" class="form-label">X</label><input type="number" class="form-control" id="mapper-room-x"></div><div class="mb-3"><label for="mapper-room-y" class="form-label">Y</label><input type="number" class="form-control" id="mapper-room-y"></div><div class="mb-3"><label for="mapper-room-z" class="form-label">Z</label><input type="number" class="form-control" id="mapper-room-z"></div><div class="mb-3"><label for="mapper-room-zone" class="form-label">Zone</label><input type="number" class="form-control" id="mapper-room-zone"></div></div></div></div><div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-details" aria-expanded="true" aria-controls="mapper-room-details">Details </button></h2><div id="mapper-room-details" class="accordion-collapse collapse" data-bs-parent="#mapper-room-accordion"><div class="accordion-body" style="padding: 5px;"><div class="form-check form-switch"><input type="checkbox" class="form-check-input" id="mapper-room-indoors"><label class="form-check-label" for="mapper-room-indoors">Indoors</label></div><div class="mb-3"><label for="font" class="form-label">Terrain</label><div class="input-group"><input id="mapper-room-env" type="text" class="form-control" aria-label="Room terrain"><button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" style="border: var(--bs-border-width) solid var(--bs-border-color);" data-bs-toggle="dropdown" aria-expanded="false"><span class="visually-hidden">Toggle Dropdown</span></button><ul id="mapper-room-terrains" class="dropdown-menu dropdown-menu-end" style="height: 200px;overflow: auto;"><li><a class="dropdown-item" href="javascript:void(0)">beach</a></li><li><a class="dropdown-item" href="javascript:void(0)">bog</a></li><li><a class="dropdown-item" href="javascript:void(0)">city</a></li><li><a class="dropdown-item" href="javascript:void(0)">cliff</a></li><li><a class="dropdown-item" href="javascript:void(0)">cobble</a></li><li><a class="dropdown-item" href="javascript:void(0)">desert</a></li><li><a class="dropdown-item" href="javascript:void(0)">dirt</a></li><li><a class="dropdown-item" href="javascript:void(0)">dirtroad</a></li><li><a class="dropdown-item" href="javascript:void(0)">farmland</a></li><li><a class="dropdown-item" href="javascript:void(0)">forest</a></li><li><a class="dropdown-item" href="javascript:void(0)">grass</a></li><li><a class="dropdown-item" href="javascript:void(0)">grassland</a></li><li><a class="dropdown-item" href="javascript:void(0)">highmountain</a></li><li><a class="dropdown-item" href="javascript:void(0)">hills</a></li><li><a class="dropdown-item" href="javascript:void(0)">icesheet</a></li><li><a class="dropdown-item" href="javascript:void(0)">jungle</a></li><li><a class="dropdown-item" href="javascript:void(0)">lake</a></li><li><a class="dropdown-item" href="javascript:void(0)">mountain</a></li><li><a class="dropdown-item" href="javascript:void(0)">ocean</a></li><li><a class="dropdown-item" href="javascript:void(0)">pavedroad</a></li><li><a class="dropdown-item" href="javascript:void(0)">plains</a></li><li><a class="dropdown-item" href="javascript:void(0)">prairie</a></li><li><a class="dropdown-item" href="javascript:void(0)">river</a></li><li><a class="dropdown-item" href="javascript:void(0)">rockdesert</a></li><li><a class="dropdown-item" href="javascript:void(0)">rocky</a></li><li><a class="dropdown-item" href="javascript:void(0)">sand</a></li><li><a class="dropdown-item" href="javascript:void(0)">sanddesert</a></li><li><a class="dropdown-item" href="javascript:void(0)">savannah</a></li><li><a class="dropdown-item" href="javascript:void(0)">stone</a></li><li><a class="dropdown-item" href="javascript:void(0)">swamp</a></li><li><a class="dropdown-item" href="javascript:void(0)">tundra</a></li><li><a class="dropdown-item" href="javascript:void(0)">underwater</a></li><li><a class="dropdown-item" href="javascript:void(0)">water</a></li></ul></div></div><div><label for="font" class="form-label">Details</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="1" id="mapper-room-details-1" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-1">Dock</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="2" id="mapper-room-details-2" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-2">Pier</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="4" id="mapper-room-details-4" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-4">Bank</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="8" id="mapper-room-details-8" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-8">Shop</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="16" id="mapper-room-details-16" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-16">Hospital</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="32" id="mapper-room-details-32" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-32">Bar</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="64" id="mapper-room-details-64" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-64">Restaurant</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="128" id="mapper-room-details-128" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-128">WaterSource</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="256" id="mapper-room-details-256" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-256">Trainer</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="512" id="mapper-room-details-512" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-512">Stable</label></div></div></div></div><div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-notes" aria-expanded="true" aria-controls="mapper-room-notes">Notes </button></h2><div id="mapper-room-notes" class="accordion-collapse collapse" data-bs-parent="#mapper-room-accordion"><div class="accordion-body" style="padding: 5px;"><textarea class="form-control" rows="10" style="width: 100%;" id="mapper-room-notes"></textarea></div></div></div></div>';
@@ -32443,17 +32570,57 @@ Devanagari
       this.client.on("window", (window2) => {
         if (window2 === "mapper") this.show();
       });
+      this.client.on("options-loaded", () => {
+        if (this._dialogMap) {
+          this._dialogMap.commandDelay = client.getOption("commandDelay");
+          this._dialogMap.commandDelayCount = client.getOption("commandDelayCount");
+          this._dialogMap.enabled = this.client.getOption("mapper.enabled");
+          if (this._dialogMap.enabled)
+            document.getElementById("mapper-enable").classList.add("active");
+          else
+            document.getElementById("mapper-enable").classList.remove("active");
+          this._dialogMap.showLegend = this.client.getOption("mapper.legend");
+          if (this._dialogMap.showLegend)
+            document.getElementById("mapper-legend").classList.add("active");
+          else
+            document.getElementById("mapper-legend").classList.remove("active");
+          this._dialogMap.follow = this.client.getOption("mapper.follow");
+          if (this._dialogMap.follow)
+            document.getElementById("mapper-follow").classList.add("active");
+          else
+            document.getElementById("mapper-follow").classList.remove("active");
+          this._dialogMap.splitArea = this.client.getOption("mapper.split");
+          if (this._dialogMap.splitArea)
+            document.getElementById("mapper-split").classList.add("active");
+          else
+            document.getElementById("mapper-split").classList.remove("active");
+          this._dialogMap.fillWalls = this.client.getOption("mapper.fill");
+          if (this._dialogMap.fillWalls)
+            document.getElementById("mapper-fill").classList.add("active");
+          else
+            document.getElementById("mapper-fill").classList.remove("active");
+          if (this._dialogMap.follow)
+            this._dialogMap.focusCurrentRoom();
+        }
+        if (this._dialog)
+          this._dialog.resetState(Object.assign({}, client.getOption("windows.mapper") || { center: true }));
+        let options2 = client.getOption("windows.mapper");
+        if (options2 && options2.show || this.client.getOption("showMapper"))
+          this.show();
+      });
       this.on("debug", (e) => this.client.debug(e), this);
       this.on("error", (e) => this.client.error(e), this);
       let options = client.getOption("windows.mapper");
-      if (options && options.show)
+      if (options && options.show || this.client.getOption("showMapper"))
         this.show();
     }
     get menu() {
       return [
         {
           name: "-",
-          position: 5
+          position: 5,
+          exists: "#menu-plugins",
+          id: "plugins"
         },
         {
           name: " Show mapper",
@@ -32466,7 +32633,12 @@ Devanagari
       ];
     }
     get settings() {
-      return [];
+      return [{
+        name: " Mapper",
+        action: "settings-mapper",
+        icon: '<i class="bi bi-map"></i>',
+        position: 7
+      }];
     }
     get map() {
       return this._map;
@@ -32670,12 +32842,14 @@ Devanagari
       });
       this._dialog.on("closed", () => {
         this.client.setOption("windows.mapper", this._dialog.windowState);
+        this.client.setOption("showMapper", this._dialog.windowState.show !== 0);
         removeHash("mapper");
       });
       this._dialog.on("canceling", () => {
       });
       this._dialog.on("canceled", () => {
         this.client.setOption("windows.mapper", this._dialog.windowState);
+        this.client.setOption("showMapper", this._dialog.windowState.show !== 0);
         removeHash("mapper");
       });
       this._dialog.on("resizing", () => {
@@ -33211,6 +33385,860 @@ Devanagari
     instance.hide();
   }
 
+  // src/html/status.htm
+  var status_default = '<div id="status-drag-bar"></div><div id="status" class="d-flex flex-column"><button id="status-close" style="padding: 4px;" type="button" class="btn btn-close btn-danger" title="Hide status"></button><div id="character-name" class="status-panel">&nbsp;</div><div id="environment" class="status-panel day"><div id="environmentleft"></div><div id="environmentcenter"></div><div id="environmentright"></div><div id="environmentweather"></div></div><div id="body" class="status-panel"><div id="limbs"><button id="health" class="button button-sm active" title="Show limb health"><i class="fa fa-heart"></i></button><button id="armor" class="button button-sm" title="Show limb armor protection"><svg width="11" height="17" viewBox="0 0 10 17" preserveAspectRatio="xMidYMid"><path fill="currentColor" d="M5 0c0 0 1 0 1 0 1 0 2 1 3 1 1 1 1 2 1 3 0 2 0 5 0 8 -1 1-2 3-3 3 0-2 0-4 0-6 1-1 2-1 2-1C9 7 9 6 9 6 8 6 7 7 6 7 6 7 5 8 5 8 5 8 4 7 4 7 3 7 2 6 1 6 1 6 1 7 1 8c1 0 2 1 2 1 0 2 0 4 0 6 -1-1-2-1-3-2 0 0-1-1-1-1 0-1 0-1 0-2 0-1 0-1 0-2 0-1 0-3 0-4 0-1 1-2 2-2C3 1 4 0 5 0z" /></svg></button><svg id="fullbody" class="health-full" xmlns="http://www.w3.org/2000/svg" width="128" height="200" viewBox="-0.9 -0.8 179 297"><path id="rightwing" d="M140.5 0.1c7-0.8 8 6.4 7.7 11.8 -0.4 9.2-0.3 18.2 1.1 25.8 0.6 3.1 2 6 2 8.3 0.1 7.6-6.1 11.4-10 14.6 1.9 0.5 4.5 0.3 6 1.1 0.6 1.8 0.3 4.7 0 6.6 1.9 0.5 4.7 0.1 6 1.1 0.4 2.2-0.7 2.4-0.6 4 0.3 3 4.2 4.2 4.3 6.6 0.1 1.8-1.1 2.3-2 4 0.6 1.1 2.2 1.2 2.3 2.9 -2.3 2.3-4.2 4.2-1.4 6.9 5.8 5.6 20.4 8.8 21.8 18.6 -3.5 3.1-7.3-0.6-10-2.6 -3-2.2-5.1-5.5-7.7-7.7 -3.3-2.8-9.4-7.3-12.3-2 -0.3 1.6 0.9 1.8 0.6 3.4 -6-0.7-7.7 3-9.7 6.3 -4.9-0.5-6.6-5.4-12.3-4 -1.1-1-1.8-0.7-3.4-0.3 -0.3-1.5-1.6-2-3.2-2.3 -1.5-7.4-6.6-11.2-11.5-15.2 -1.3 5.8-4.9 9.5-11.8 9.8 -5.8-7.5-8.3-23-5.4-35.6 2-1.4 4.5-2.4 8-2.3C103.8 35.9 114.5 3 140.5 0.1zM138.2 6.1c3.6 0.1 5.2 2.3 4.6 6.6C146.3 8.9 141.8 0.5 138.2 6.1zM129.9 7.2c-7 3.1-12.1 10.6-15.5 18.4 1.6 0.2 2.8-2.6 4.6-4 1.4-1.1 3.6-1.8 4.9-3.2C126.7 15.3 126.6 9.9 129.9 7.2zM139.1 9.8c-6.4 4-8.6 12.1-11.5 19.5C133.3 26 139.7 19.4 139.1 9.8zM140.5 20.4c3.4-0.7 4 4.1 2.3 6C146.7 26.3 144.7 15.9 140.5 20.4zM124.7 20.7c-2.7 4.4-7.3 6.9-10.9 10.6 -7.8 8.1-10.7 20.2-13.2 32.7 4.9-6.8 9.9-13.3 15.8-19.8 1.8-2 4.7-4 5.7-6C124.6 33.4 123.5 27.4 124.7 20.7zM140.5 24.1c-1.2 0-2.6-0.1-3.4 0.3 -2.1 4-5.7 6.6-10 8.3 -0.2 1.1-0.6 2.1-0.9 3.2C132.1 33.1 138.4 30.8 140.5 24.1zM145.9 32.7c-0.9 1.9-1.6 4-2.6 5.7C146.1 38.4 146.3 35.1 145.9 32.7zM119.8 44.2c5.5 0.4 9.9-2.7 15.5-3.2 1.5-3 5.2-3.8 6.3-7.2C131.7 33.5 125.4 39.2 119.8 44.2zM144.2 42.8c0.6 2.8-1.6 4.8-3.7 5.7C144.8 50.7 149.8 43.7 144.2 42.8zM111.5 53.7c5.5-2.1 11.4-3.7 18.1-4.6 1.4-2.5 4.9-2.9 6.9-4.9C125.6 43.5 116.3 48.3 111.5 53.7zM108.7 57.7c4.6 0.6 10.2 0.3 14.3 1.4 2.4-1.8 4.6-3.8 7.5-5.2C122.4 52.3 113.7 54.5 108.7 57.7zM138.2 54.8c-3.6 0.5-4.2 3.8-8 4C133.9 59.7 138 58.4 138.2 54.8zM103.8 63.7c2.7-1.8 11.9 1.9 12-3.2C110.9 60 105.3 60 103.8 63.7zM119 61.7c0.7 1.4-0.4 2.9 0 3.7 2.4 0 3.7-1.1 3.4-3.7C121.8 61.3 119.6 61.3 119 61.7zM126.4 65.1c4.1-0.3 11.1 1.8 14.6-0.6C138.9 59.6 128.5 62.6 126.4 65.1zM130.7 67.7c3.4 3.1 8 5 14.6 4.9C143.7 69 137.3 66.5 130.7 67.7zM110.1 71.7c4.6 4.2 17.8 5.3 23.2 1.1 -3.3-2.2-6.9-4-12-3.2C118.1 70.3 114.1 72.8 110.1 71.7zM108.4 74.3c-0.5 0.2 0 0.5 0 0.9 9.8 7 20.8 12.9 34.7 15.8 -3.7-4.5-6.7-9.5-11.5-12.9C122.6 78.9 114.6 77.2 108.4 74.3zM135.6 76c2.6 2.5 9 2.6 13.8 2C147.2 74.3 140.9 76.5 135.6 76zM109.8 78.3c-0.4 0.1 0 0.3 0 0.6 3.9 3.2 8.4 5.5 12 8.9 3.6 3.3 7.2 6.8 8.9 12 1.5 0.5 2.8 1.2 3.7 2.3 0-6.3-5.4-10.3-9.7-13.8C120 84.6 114.9 81.2 109.8 78.3zM136.2 79.2c1.7 2.9 7.1 4.5 12.3 4.9 0.1-1-0.1-1.6-0.3-2.3C144.9 80.2 139 81.2 136.2 79.2zM152.5 81.2c-0.6 0.2-0.9 0.6-1.4 0.9 -0.1 1.2 0.4 1.9 0.9 2.6C152.5 83.8 152.3 82.3 152.5 81.2zM110.1 81.5c-0.8 0.6 0.1 1.8 0 2.6 4.4 2.6 7.6 6.4 8.9 12 0.5 0 1 0 1.4 0 0.8 2 2.3 3.5 3.4 5.2 1.7-0.2 2-1.9 4.3-1.4C125.3 90.5 116.8 86.9 110.1 81.5zM141.9 85.2c0.5 2.1 3 4.6 6 5.2 0.1-1.3 0-2.5-0.6-3.2C144.9 87.2 143.2 86.4 141.9 85.2zM149.7 86.7c0.1 1.6 0.9 2.5 1.4 3.7 0.8-0.6 1-1.8 1.4-2.9C151.4 87.4 151.1 86.4 149.7 86.7zM127.6 88.1c2.8 2.9 5.3 6.2 10 7.2C135.1 92.1 132.6 88.8 127.6 88.1zM140.5 93.2c0.5 1 0 3 2 2.6 0.3-0.3 0.3-1 0.3-1.7C142 93.9 141.6 93.2 140.5 93.2zM144.2 98.7c1.1-1.2 3.1-3 3.4-4C146 94.4 144.1 96.2 144.2 98.7zM136.8 98.1c-0.7 0.6 0.1 1.1 0 2 0.8 0.2 0.7-0.4 1.4-0.3C138.2 98.8 137.6 98.3 136.8 98.1zM140.5 101.6c-0.9-0.5-2.3 0.9-2.3 2.3C139 103.2 139.3 101.9 140.5 101.6z" /><path id="leftwing" d="M78.9 60c3.6-0.1 6 0.9 8 2.3 2.9 12.6 0.4 28-5.4 35.6 -6.9-0.3-10.4-3.9-11.8-9.7 -4.9 4-10 7.8-11.5 15.2 -1.5 0.3-2.9 0.8-3.2 2.3 -1.6-0.4-2.3-0.7-3.4 0.3 -5.8-1.3-7.5 3.5-12.3 4 -2.1-3.3-3.7-7-9.7-6.3 -0.3-1.6 0.9-1.8 0.6-3.4 -3-5.3-9-0.8-12.3 2 -2.6 2.3-4.7 5.5-7.7 7.7 -2.7 2-6.5 5.7-10 2.6 1.4-9.8 16-13 21.8-18.6 2.8-2.7 0.9-4.6-1.4-6.9 0.1-1.6 1.7-1.7 2.3-2.9 -0.9-1.8-2.1-2.2-2-4 0.1-2.4 4-3.6 4.3-6.6 0.2-1.6-0.9-1.8-0.6-4 1.3-1.1 4.1-0.6 6-1.1 -0.3-1.9-0.6-4.8 0-6.6 1.5-0.9 4.1-0.6 6-1.1 -3.9-3.2-10.2-7.1-10-14.6 0-2.3 1.4-5.2 2-8.3 1.5-7.6 1.6-16.6 1.1-25.8C29.3 6.5 30.3-0.7 37.3 0.1 63.3 3 74 35.9 78.9 60zM35 12.7c-0.6-4.3 1-6.5 4.6-6.6C36 0.5 31.5 8.9 35 12.7zM53.9 18.4c1.3 1.4 3.5 2 4.9 3.2 1.8 1.5 3 4.2 4.6 4C60 17.9 54.9 10.3 47.9 7.2 51.2 9.9 51 15.3 53.9 18.4zM50.2 29.3c-2.9-7.4-5.1-15.5-11.5-19.5C38.1 19.4 44.5 26 50.2 29.3zM35 26.4c-1.7-1.9-1.2-6.7 2.3-6C33 15.9 31.1 26.3 35 26.4zM55.6 38.2c1 2 3.9 4 5.7 6 5.9 6.4 10.9 12.9 15.8 19.8 -2.5-12.5-5.4-24.6-13.2-32.7 -3.6-3.7-8.2-6.2-10.9-10.6C54.3 27.4 53.2 33.4 55.6 38.2zM51.6 35.9c-0.3-1.1-0.6-2-0.9-3.2 -4.4-1.7-8-4.3-10-8.3 -0.9-0.4-2.2-0.3-3.4-0.3C39.3 30.8 45.7 33.1 51.6 35.9zM34.4 38.5c-1-1.8-1.7-3.9-2.6-5.7C31.4 35.1 31.7 38.4 34.4 38.5zM36.1 33.9c1.1 3.4 4.8 4.2 6.3 7.2 5.6 0.4 10 3.6 15.5 3.2C52.4 39.2 46.1 33.5 36.1 33.9zM37.3 48.5c-2.1-1-4.3-2.9-3.7-5.7C27.9 43.7 33 50.7 37.3 48.5zM41.3 44.2c2 1.9 5.4 2.4 6.9 4.9 6.7 0.9 12.6 2.5 18.1 4.6C61.5 48.3 52.2 43.5 41.3 44.2zM47.3 54c2.9 1.3 5.1 3.3 7.5 5.2 4.1-1.1 9.7-0.8 14.3-1.4C64.1 54.5 55.3 52.3 47.3 54zM47.6 58.8c-3.8-0.2-4.5-3.6-8-4C39.8 58.4 43.9 59.7 47.6 58.8zM61.9 60.6c0.2 5.1 9.3 1.3 12 3.2C72.5 60 66.9 60 61.9 60.6zM55.3 61.7c-0.2 2.6 1 3.8 3.4 3.7 0.4-0.8-0.7-2.3 0-3.7C58.1 61.3 56 61.3 55.3 61.7zM36.7 64.6c3.5 2.4 10.5 0.3 14.6 0.6C49.3 62.6 38.9 59.6 36.7 64.6zM32.4 72.6c6.6 0.1 11.2-1.8 14.6-4.9C40.5 66.5 34 69 32.4 72.6zM56.5 69.7c-5.2-0.8-8.7 0.9-12 3.2 5.5 4.1 18.7 3 23.2-1.1C63.7 72.8 59.7 70.3 56.5 69.7zM46.2 78.1c-4.7 3.4-7.8 8.4-11.5 12.9 13.9-2.9 24.9-8.8 34.7-15.8 0-0.3 0.5-0.6 0-0.9C63.2 77.2 55.2 78.9 46.2 78.1zM28.4 78.1c4.8 0.6 11.2 0.5 13.8-2C36.9 76.5 30.5 74.3 28.4 78.1zM53 88.4c-4.3 3.4-9.8 7.4-9.7 13.8 0.9-1.1 2.2-1.8 3.7-2.3 1.7-5.2 5.3-8.7 8.9-12 3.7-3.4 8.1-5.7 12-8.9 0-0.3 0.4-0.4 0-0.6C62.9 81.2 57.8 84.6 53 88.4zM29.5 81.8c-0.2 0.7-0.4 1.3-0.3 2.3 5.2-0.3 10.6-2 12.3-4.9C38.7 81.2 32.8 80.2 29.5 81.8zM25.8 84.6c0.5-0.7 0.9-1.4 0.9-2.6 -0.5-0.3-0.8-0.7-1.4-0.9C25.5 82.3 25.3 83.8 25.8 84.6zM49.6 99.8c2.3-0.4 2.6 1.3 4.3 1.4 1.2-1.7 2.6-3.1 3.4-5.2 0.5 0 1 0 1.4 0 1.3-5.7 4.5-9.5 8.9-12 -0.1-0.8 0.8-2 0-2.6C60.9 86.9 52.4 90.5 49.6 99.8zM30.4 87.2c-0.6 0.7-0.7 1.8-0.6 3.2 3-0.5 5.6-3 6-5.2C34.5 86.4 32.8 87.2 30.4 87.2zM25.2 87.5c0.4 1 0.6 2.2 1.4 2.9 0.5-1.2 1.3-2.1 1.4-3.7C26.6 86.4 26.4 87.4 25.2 87.5zM40.1 95.3c4.7-1 7.2-4.2 10-7.2C45.1 88.8 42.7 92.1 40.1 95.3zM35 94.1c0 0.7 0 1.4 0.3 1.7 2 0.4 1.5-1.6 2-2.6C36.2 93.2 35.8 93.9 35 94.1zM30.1 94.7c0.3 1 2.3 2.9 3.4 4C33.7 96.2 31.8 94.4 30.1 94.7zM39.6 99.8c0.7-0.1 0.6 0.5 1.4 0.3 -0.1-0.9 0.7-1.4 0-2C40.1 98.3 39.5 98.8 39.6 99.8zM39.6 103.9c0.1-1.4-1.4-2.8-2.3-2.3C38.5 101.9 38.7 103.2 39.6 103.9z" /><path id="tail" d="M146 229.8c1.8-3.3 1.5-7.5 4.3-10.1 -2-5.3 0.6-12.5-1.2-17.8 -5.6-7.1-8.8-15.2-18.3-20.7 -6.5-1.7-14.5-9.2-22.2-9.3 -4.7-2.4-5.9-6.3-10.4-8.7 0.8-0.8 1-1.7 0.9-2.6l-13.4-3.7c-0.9 3.9 0.5 6.9-0.2 10.8 4.4 4.3 5.6 10.4 11.7 13.6 3.1 1.6 6.9-0.4 9 3.6 8.4 4.5 18.5 0.8 23.2 10 0 0 0 0 0-0.1 5.3 3.7 6.6 9 9.4 13.7 0.2 3 0.4 6.7 0.6 8.9 0.5 4.1 0 2.9-1.8 6.8 -1 2.2-0.4 2.5-1 5 -4.8 0.9-6.5 6-10.2 8.7 -3.1 2.3-7.5 2.5-9.9 5.6 6.5 0.9 11.8-1.1 17.8-1.2 1.6-4.2 4.7-3.2 6.4-4.9 1.1-1.1 1-3.4 1.9-4.6C143.8 231.2 145.4 231 146 229.8z" /><path id="head" d="M97.5 43.8c0.5-1.7 1.8-3 2.6-4.7 0.4-0.9-0.1-2.1 0.5-3.2 0.1-0.2 0.9 0.1 1.1 0 1.1-1.1-0.1-4.1 1.1-6.3 0.5-2-2.3-0.9-1.6-3.2 1.6-4.8-0.3-12.8-3.2-13.2 1.8-0.6-1.5-0.2-0.5-1.6 -2.5-0.6-5-1.3-7.4-2.1 -1.1 0-2.1 0-3.2 0 -0.2 1.7-3 0.8-4.7 1.1 0.4 1.4-0.9 0.7-1.6 1.1 -0.6 0.4-1.3 1.3-1.6 1.6 -0.1 0.1-1 0.4-1.1 0.5 -0.5 1.2-0.8 3.1-2.1 4.2 0.9 2.7-0.9 6.1 0.5 9 0.3 1.1-0.8 1.1-1.1 1.6 -0.9 1.5-0.4 7.5 2.1 7.9 0 3.3 1.7 5 2.6 7.4 -0.1 1.4 0 3 0 4.6 5.8 0 11.6 0 17.4 0C97.4 46.8 97.5 45.3 97.5 43.8z" /><path id="lefthand" d="M48.4 162.4c0 0.7 0 1.4 0 2.1 0.3 0 0.6 0.4 0 0.5 0 1.6 0 3.2 0 4.7 1.7-0.6 0.8 1.5 1.1 2.1 0.3 0.8 1.2 1.4 1.6 2.1 1.7 3 2.5 4 5.3 5.3 0.9 0.4 1.9 1.6 3.2 1.1 1.3-2.9-0.6-3.8-2.1-5.3 -0.2-1.3 2.4 0.3 1.6-1.6 -2.1-2.3-7.7-3.9-5.3-9 4.1-0.6 1.3 5.7 5.3 5.3 0.5-3 0-7 0.5-11.1 -0.6-1.6-2.4-3.4-2.6-5.3 0 0 0-0.1 0-0.1l-7.3 0C49.4 156.6 49 159.6 48.4 162.4z" /><path id="leftleg" d="M78 266.8c-0.7-4.4-0.5-11.2 0-16.9 0.4-4.1 1.8-7.8 2.1-11.6 0.2-3.3 0.3-6.9 0-10 -0.4-3.5-2.2-6.2-2.1-9 0.1-1.9 1.4-3.7 2.1-5.8 1.1-3.3 2.2-6.8 2.6-10 0.9-6.3 0.6-13.4 1.1-20 0.4-5 1.6-8.6 2.6-12.1 0.3-0.9 0.9-1.4 1.1-2.1 0.7-3.5-0.9-6.7 1.3-8.1 -8.6 0-17.2 0-25.9 0 -0.1 9.7 1.1 19.4 1.5 28.6 0.2 3.8-0.3 7.7 0 11.1 0.3 3.5 0.7 7.9 0 11.1 0 0.2-1 1.3-1.1 1.6 -0.2 1.6-0.3 3.2-0.5 4.7 -0.7 5.4-0.9 12.8-0.5 17.9 0.3 4.6 1.5 7.4 2.6 10.5 1.1 3.2 2 6.1 2.6 9.5 0.2 1 0.9 2 1.1 3.2 0.2 1.3-0.2 2.9 0 4.2 0.2 1.5 0.9 2.4 1.1 3.7 0 0 0 0 0 0h8.5C78 267.1 78 267 78 266.8z" /><path id="leftfoot" d="M78.1 267.3h-8.5c0.5 5.9-1.2 9.3-1.1 14.2 -1.7 3-3.8 7.9-3.2 11.6 2 2.4 9.1-0.4 11.1 2.1 0.7 0 1.4 0 2.1 0 3.9-5-0.7-15.5 2.1-21.1C80 271.9 78.6 269.8 78.1 267.3z" /><path id="leftarm" d="M63.2 59.1c-0.6 0.2-0.7 0.9-1.1 1.1 -0.4 0.2-1.2-0.2-1.6 0 -0.5 0.3-0.2 0.8-0.5 1.1 -0.4 0.2-1.2-0.2-1.6 0 -0.5 0.3-0.2 0.8-0.5 1.1 -0.2 0.2-0.8-0.2-1.1 0 -0.2 0.1-0.4 1-0.5 1.1 -1.2 0.6-0.6 0.5-1.6 1.6 -0.6 0.6-1.5 1.4-2.1 3.2 -0.3 0.8-0.3 1.2-0.5 1.6 -0.8 1.8-1 7-1.6 11.1 -0.5 2.9-1.3 6-1.6 9 -0.7 8 2.4 17.9 0 24.3 0 0.1-0.5 0-0.5 0 0 4.9 0 9.8 0 14.8 0.9 7.7 1.6 16.6 1.1 24.7l7.3 0c-0.1-1.1 0.6-3.1 1.1-5.2 0.7-2.9 1.7-6.3 2.1-7.9 0.8-3.1 1.4-6.1 1.6-9 0.5-6.1-1.2-12.9-0.5-17.9 0.3-1.8 1.2-3.6 1.6-5.3 0.5-2.1 0.8-4.2 1.1-6.3 0.5-4.2 0-8.9 2.5-11.9V59.1C65.2 59 64.1 58.8 63.2 59.1z" /><path id="rightfoot" d="M96.9 274c1.3 2.8 1.2 6.6 1.1 10.1 -0.2 4.2-0.9 8.1 1.1 11.2 0.5 0 1.1 0 1.6 0 0.5-1.3 2.2-0.9 3.7-1.1 3-0.3 6.7 0.3 8.4-1.1 0.3-4.1-2.2-7.7-3.2-11.7 -0.4-1.6-0.2-3-0.5-4.8 -0.3-1.5-1-3.2-1.1-4.8 -0.1-1.3 0-2.6 0.1-4h-9C98.6 270.2 97.9 272.3 96.9 274z" /><path id="torso" d="M89.5 161.7c8.4 0 16.9 0 25.5 0 0-1.2-0.1-2.4-0.1-3.5 -0.5-7.1-1.7-14.2-2.6-21.2 -0.5-3.6-0.9-7.1-1.6-10.6 -1.1-5.7-3-12.3-2.1-19.1 0.3-2.7 1.8-5 2.1-7.4 0.4-3.2-1-6.5 0.8-9.7v-31.1c-0.8 0-1.6 0.1-2.4 0 -1.3-1.7-3.9-1.3-5.8-2.1 -0.3-0.1-1.4-1.2-2.1-1.6 -0.9-0.4-1.9-0.4-2.6-1.1 -0.8-1.5-1-3.7-1.1-6 -5.8 0-11.6 0-17.4 0 0 2 0 4-0.6 5.5 -1 0.3-1.7 1-2.6 1.6 -0.4 0.3-1 0.2-1.6 0.5 -0.5 0.3-0.5 0.8-1.1 1.1 -0.6 0.3-1.5-0.2-2.1 0 -0.4 0.2-0.4 0.9-1.1 1.1 -0.6 0.2-1.5-0.2-2.1 0 -0.2 0.1-0.9 1-1.1 1.1 -0.6 0.1-1.2 0.1-1.8 0v30.9c0.1-0.1 0.1-0.1 0.2-0.2 0.7 2.8 0.1 5.9 0.5 9 0.4 2.8 1.8 5.2 2.1 7.9 0.3 2.8 0.2 6.4 0 9.5 -0.4 4.9-2 9.2-2.6 13.2 -0.2 1.2 0.1 2.5 0 3.7 -0.1 1.2-0.9 2.1-1.1 3.2 -0.2 1.4 0.2 2.8 0 4.2 -0.2 1.1-0.9 2.2-1.1 3.2 -0.2 1.8 0.2 3.5 0 5.3 -0.2 1.5-0.9 3.2-1.1 4.8 -0.3 2.6-0.4 5.2-0.4 7.8 8.7 0 17.3 0 25.9 0H89.5z" /><path id="rightleg" d="M114.9 217.2c-0.5-4.3-2-8.4-2.1-12.7 -0.1-4.3 0.9-9.1 1.1-13.7 0.1-2.8-0.1-5.2 0-7.9 0.3-7.2 1.3-14.5 1.2-21.8 -8.6 0-17 0-25.5 0 -0.4 6.7 3.5 13.3 4.2 20.2 0.3 3.5-0.2 6.7 0 10 0.3 4.6 0.8 9.1 1.6 13.2 0.4 2.1 1 3.9 1.6 5.8 0.2 0.5-0.1 1.1 0 1.6 0.1 0.2 0.9 0.8 1.1 1.1 0.2 0.6-0.3 1.5 0 2.1 0.1 0.1 0.9-0.1 1.1 0 0.1 0.1-0.1 0.8 0 1.1 1.2 4-0.5 6.8-1.1 10.5 -0.6 4.7-0.6 10.8 0 15.8 0.1 1.2 0.8 2.5 1.1 3.7 0.3 1.5 0.4 2.9 0.5 4.2 0.6 6.4 0.5 12.6-0.5 17.6h9c0.2-2.9 0.6-5.9 1-7.6 0.7-3.3 1.3-5.8 2.1-8.4 0.6-2.2 1.5-5 2.1-6.3 0.6-1.3 1.3-3.1 1.6-4.2C116.5 233.7 115.9 225 114.9 217.2z" /><path id="rightarm" d="M128 154c-0.5-11.9 1.1-24.4 1.6-33.7 0-1.4 0-2.8 0-4.2 -3.4-6.7 0.2-18.4-1.1-29 -0.2-2-1.2-3.8-1.6-5.8 -0.9-5.7-0.5-10-2.6-14.2 -0.2-0.3-0.3-1.2-0.5-1.6 -0.1-0.2-0.9 0.2-1.1 0 -0.2-0.2-0.6-1.6-1.1-2.1 -0.6-0.7-1-1.2-2.6-2.1 -0.7-0.4-0.6-0.1-1.1-0.5 -0.7-0.7-1.4 0-3.2-0.5 -0.7-0.2-0.5-0.9-1.6-1.1 -0.6-0.1-1.2-0.1-1.8 0v31c0.1-0.1 0.1-0.3 0.2-0.4 -0.6 0.9 1 0.9 1.1 1.1 0.3 0.6-0.2 1.5 0 2.1 1.5 4.5 1.1 11.6 2.1 15.8 0.4 1.8 1.4 3.5 1.6 5.3 0.8 6.9-1.3 15.2 0 20.6 1.7 6.9 3.4 13.1 4.2 20h7.4C128.1 154.3 128.1 154.1 128 154z" /><path id="righthand" d="M120.7 154.5c0 0 0 0 0 0 -0.9 1.5-1.9 3-2.6 4.7 -0.4 1.7 0.5 3.6 0.5 5.3 0.1 1.9-1.6 4.8 0.5 5.3 2.1 0.7 1.5-5.8 5.3-5.3 0.6 2.2-0.1 3.8-1.1 5.3 -1 1.4-3.4 2.9-4.7 3.2 -0.3 2.7 1.9 0 1.6 2.1 -0.8 0.8-1.8 1.4-2.1 2.6 -1 0.7 1.2 1.1 0 2.6 2.4 0.1 4.9-1.2 5.8-2.1 0.5-0.5 0.5-1.4 1.1-2.1 0.8-1 2-2 2.6-3.2 2.9-5.2 1-10.9 0.6-18.5H120.7z" /></svg><div id="lefthandweapon"></div><div id="righthandweapon"></div><div id="overall" class="health-full">Top Shape</div></div><div id="hp-status"><div><span>HP:</span><div class="progressbar" id="hp-bar"><div class="progressbar-text">0/0</div><div class="progressbar-value"></div></div></div><div><span>SP:</span><div class="progressbar" id="sp-bar"><div class="progressbar-text">0/0</div><div class="progressbar-value"></div></div></div><div><span>MP:</span><div class="progressbar" id="mp-bar"><div class="progressbar-text">0/0</div><div class="progressbar-value"></div></div></div></div></div><div id="experience" class="status-panel"><div><span>XP:</span><span id="xp-value">0</span></div><div><span>Needed:</span><span id="need-value">0</span><div class="progressbar" id="need-percent"><div class="progressbar-text" style="text-align:right;right: 2px;color:black;">0</div><div class="progressbar-value"></div></div></div><div><span>Earned:</span><span id="earn-value">0</span></div><div><span>BankedXP:</span><span id="xp-banked">0</span></div></div><div id="bars" class="flex-grow-1"><div id="party"></div><div id="combat"></div></div><div class="progressbar" id="lagMeter"><div class="progressbar-text">0.000 s</div><div class="progressbar-value" style="width: 100%"></div></div></div>';
+
+  // src/plugins/status.ts
+  var Status = class extends Plugin {
+    constructor(client2) {
+      super(client2);
+      this.info = [];
+      this.infoAC = [];
+      this.infoLimb = [];
+      this._ac = false;
+      this._rTimeout = 0;
+      this.dragging = false;
+      this._clientContainer = document.getElementById("client-container");
+    }
+    get splitterDistance() {
+      return this._splitterDistance;
+    }
+    set splitterDistance(value) {
+      if (value === this._splitterDistance) return;
+      this._splitterDistance = value;
+      this.updateSplitter();
+    }
+    get maxWidth() {
+      return Math.floor(document.body.clientWidth * 0.66);
+    }
+    get currentLag() {
+      if (!this.lagMeter || !this.lagMeter.firstElementChild) return "";
+      return this.lagMeter.firstElementChild.textContent || "";
+    }
+    updateSplitter() {
+      const p = parseInt(this._styles.right, 10) * 2;
+      if (!this._splitterDistance || this._splitterDistance < 1) {
+        const bounds = this._status.getBoundingClientRect();
+        this._splitterDistance = bounds.width + document.body.clientWidth - bounds.right;
+      }
+      if (!this.client.getOption("showStatus"))
+        this.updateInterface();
+      else {
+        this._clientContainer.style.right = this._splitterDistance + "px";
+        this._status.style.width = this._splitterDistance - p + "px";
+        document.getElementById("status-drag-bar").style.right = this.splitterDistance + "px";
+      }
+      this.client.setOption("statusWidth", this._splitterDistance);
+      this.emit("split-moved", this._splitterDistance);
+    }
+    remove() {
+      let idx = this.client.telnet.GMCPSupports.indexOf("Char 1");
+      this.client.telnet.GMCPSupports.splice(idx, 1);
+      idx = this.client.telnet.GMCPSupports.indexOf("Char.Vitals 1");
+      this.client.telnet.GMCPSupports.splice(idx, 1);
+      idx = this.client.telnet.GMCPSupports.indexOf("Char.Experience 1");
+      this.client.telnet.GMCPSupports.splice(idx, 1);
+      idx = this.client.telnet.GMCPSupports.indexOf("oMUD 1");
+      this.client.telnet.GMCPSupports.splice(idx, 1);
+      idx = this.client.telnet.GMCPSupports.indexOf("Char.Skills 1");
+      this.client.telnet.GMCPSupports.splice(idx, 1);
+      this.client.removeListenersFromCaller(this);
+    }
+    initialize() {
+      document.body.insertAdjacentHTML("beforeend", status_default);
+      this._status = document.getElementById("status");
+      this._styles = getComputedStyle(this._status);
+      this.client.telnet.GMCPSupports.push("oMUD 1", "Char 1", "Char.Vitals 1", "Char.Experience 1", "Char.Skills 1");
+      this.client.on("received-GMCP", this.processGMCP, this);
+      this.client.on("window", (window2) => {
+      });
+      this.lagMeter = document.getElementById("lagMeter");
+      this.client.telnet.on("latency-changed", (lag, avg) => {
+        this.updateLagMeter(lag);
+      });
+      this.client.on("closed", () => {
+        this.updateLagMeter(0, true);
+      });
+      this.client.telnet.GMCPSupports.push("oMUD 1");
+      this.client.telnet.GMCPSupports.push("Char.Skills 1");
+      this.client.on("add-line", (data) => {
+        if (data.line === "Connected...")
+          this.init();
+      });
+      this.client.on("options-loaded", () => {
+        this.info["EXPERIENCE_NEED"] = this.info["EXPERIENCE_NEED_RAW"] - this.info["EXPERIENCE"];
+        if (this.client.getOption("showArmor")) {
+          this.ac = true;
+          this._status.querySelector("#health").classList.remove("active");
+          this._status.querySelector("#armor").classList.add("active");
+        }
+        this.splitterDistance = client.getOption("statusWidth");
+        this.updateInterface();
+      });
+      this.on("debug", (e) => this.client.debug(e), this);
+      this.on("error", (e) => this.client.error(e), this);
+      document.getElementById("status-drag-bar").addEventListener("mousedown", (e) => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        this.dragging = true;
+        const main = document.getElementById("status-drag-bar");
+        const w = this._status.style.width;
+        this._status.style.width = "";
+        const bounds = this._status.getBoundingClientRect();
+        this._status.style.width = w;
+        const bounds2 = main.getBoundingClientRect();
+        const ghostBar = document.createElement("div");
+        ghostBar.id = "status-ghost-bar";
+        ghostBar.style.top = "0";
+        ghostBar.style.bottom = "0";
+        ghostBar.style.left = bounds2.left + "px";
+        ghostBar.style.cursor = "ew-resize";
+        document.body.append(ghostBar);
+        const maxWidth = this.maxWidth;
+        this._move = (e2) => {
+          if (e2.pageX < maxWidth)
+            ghostBar.style.left = maxWidth - bounds2.width + "px";
+          else if (e2.pageX > bounds.left - bounds2.width)
+            ghostBar.style.left = bounds.left + parseInt(this._styles.right, 10) - bounds2.width + "px";
+          else
+            ghostBar.style.left = e2.pageX + "px";
+        };
+        document.addEventListener("mousemove", this._move);
+      });
+      window.addEventListener("resize", () => this.resize());
+      document.addEventListener("mouseup", (e) => {
+        if (!this.dragging) return;
+        const w = this._status.style.width;
+        this._status.style.width = "";
+        const bounds = this._status.getBoundingClientRect();
+        const minWidth = bounds.width + parseInt(this._styles.right, 10);
+        const maxWidth = this.maxWidth;
+        const l2 = document.getElementById("status-drag-bar").getBoundingClientRect().width;
+        this._status.style.width = w;
+        if (e.pageX < maxWidth)
+          this.splitterDistance = document.body.clientWidth - maxWidth;
+        else if (e.pageX > bounds.left - l2)
+          this.splitterDistance = minWidth;
+        else
+          this.splitterDistance = document.body.clientWidth - e.pageX - l2;
+        document.getElementById("status-ghost-bar").remove();
+        document.removeEventListener("mousemove", this._move);
+        this.dragging = false;
+        this.updateInterface();
+      });
+      document.getElementById("status-close").addEventListener("click", () => {
+        this.client.setOption("showStatus", false);
+        this.updateInterface();
+        let button = document.querySelector("#menu-status");
+        if (client.getOption("showStatus")) {
+          button.title = "Hide status";
+          button.classList.add("active");
+          document.querySelector("#menu-status a span").textContent = "Hide status";
+        } else {
+          button.title = "Show status";
+          button.classList.remove("active");
+          document.querySelector("#menu-status a span").textContent = "Show status";
+        }
+      });
+      this._status.querySelector("#health").addEventListener("click", () => {
+        if (!this.ac) return;
+        this.ac = false;
+        this._status.querySelector("#health").classList.add("active");
+        this._status.querySelector("#armor").classList.remove("active");
+        this.client.setOption("showArmor", this.ac);
+      });
+      this._status.querySelector("#armor").addEventListener("click", () => {
+        if (this.ac) return;
+        this.ac = true;
+        this._status.querySelector("#health").classList.remove("active");
+        this._status.querySelector("#armor").classList.add("active");
+        this.client.setOption("showArmor", this.ac);
+      });
+      if (this.client.getOption("showArmor")) {
+        this.ac = true;
+        this._status.querySelector("#health").classList.remove("active");
+        this._status.querySelector("#armor").classList.add("active");
+      }
+      this.splitterDistance = client.getOption("statusWidth");
+      Object.defineProperty(window, "$character", {
+        get: function() {
+          if (!this.info) return "";
+          return this.info["name"] || "";
+        },
+        configurable: true
+      });
+      Object.defineProperty(window, "$characterid", {
+        get: function() {
+          return -1;
+        },
+        configurable: true
+      });
+      this.updateSplitter();
+      this.updateInterface();
+      this.init();
+    }
+    get menu() {
+      return [
+        {
+          name: "-",
+          position: 5,
+          exists: "#menu-plugins",
+          id: "plugins"
+        },
+        {
+          id: "status",
+          name: this.client.getOption("showStatus") ? "Hide status" : "Show status",
+          active: this.client.getOption("showStatus"),
+          action: (e) => {
+            this.client.setOption("showStatus", !this.client.getOption("showStatus"));
+            this.updateInterface();
+            let button = document.querySelector("#menu-status");
+            if (client.getOption("showStatus")) {
+              button.title = "Hide status";
+              button.classList.add("active");
+              document.querySelector("#menu-status a span").textContent = "Hide status";
+            } else {
+              button.title = "Show status";
+              button.classList.remove("active");
+              document.querySelector("#menu-status a span").textContent = "Show status";
+            }
+          },
+          icon: '<i class="fa-solid fa-heart"></i>',
+          position: 6
+        }
+      ];
+    }
+    get settings() {
+      return [{
+        name: " Status",
+        action: "settings-status",
+        icon: '<i class="fa-solid fa-heart"></i>',
+        position: 7
+      }];
+    }
+    async processGMCP(mod, obj) {
+      try {
+        let limb;
+        switch (mod.toLowerCase()) {
+          case "char.name":
+            this.info["name"] = obj.name;
+            this.setTitle(obj.name);
+            break;
+          case "char.base":
+            this.init();
+            this.info["name"] = obj.name;
+            this.setTitle(obj.name);
+            break;
+          case "char.vitals":
+            this.updateBar("hp-bar", obj.hp, obj.hpmax);
+            this.updateBar("sp-bar", obj.sp, obj.spmax);
+            this.updateBar("mp-bar", obj.mp, obj.mpmax);
+            this.info["hp"] = obj.hp;
+            this.info["hpmax"] = obj.hpmax;
+            this.info["sp"] = obj.sp;
+            this.info["spmax"] = obj.spmax;
+            this.info["mp"] = obj.mp;
+            this.info["mpmax"] = obj.mpmax;
+            this.doUpdate(4 /* overall */);
+            break;
+          case "char.experience":
+            this.info["EXPERIENCE"] = obj.current;
+            this.info["EXPERIENCE_NEED_RAW"] = obj.need;
+            this.info["EXPERIENCE_NEED"] = obj.need - obj.current;
+            this.info["EXPERIENCE_NEED_P"] = obj.needPercent;
+            this.info["EXPERIENCE_EARNED"] = obj.earned;
+            this.info["EXPERIENCE_BANKED"] = obj.banked;
+            this.doUpdate(8 /* xp */);
+            break;
+          case "omud.ac":
+            for (limb in obj) {
+              if (!obj.hasOwnProperty(limb)) continue;
+              this.setLimbAC(limb, obj[limb]);
+              this.updateLimb(limb);
+            }
+            break;
+          case "omud.limb":
+            for (limb in obj) {
+              if (!obj.hasOwnProperty(limb)) continue;
+              this.setLimbHealth(limb, obj[limb]);
+              this.updateLimb(limb);
+            }
+            break;
+          case "omud.weapons":
+            for (limb in obj) {
+              if (!obj.hasOwnProperty(limb)) continue;
+              this.setWeapon(limb, obj[limb]);
+            }
+            break;
+          case "omud.environment":
+            if (obj.weather) {
+              const env = document.getElementById("environment");
+              env.classList.remove("weather-" + this.info["WEATHER"], "intensity-hard");
+              this.info["WEATHER"] = obj.weather;
+              this.info["WEATHER_INTENSITY"] = obj.weather_intensity;
+              if (obj.weather !== "0" && obj.weather !== "none")
+                env.classList.add("weather-" + obj.weather);
+              if (obj.weather_intensity > 6)
+                env.classList.add("intensity-hard");
+            }
+            if (obj.tod) {
+              const env = document.getElementById("environment");
+              env.classList.remove("day", "night", "twilight", "dawn");
+              env.classList.add(obj.tod);
+              $("#environment").removeClass((index, className) => {
+                return (className.match(/(^|\s)moon\d-\S+/g) || []).join(" ");
+              });
+              if (obj.moons) {
+                env.classList.add("moon1-" + obj.moons[0]);
+                env.classList.add("moon2-" + obj.moons[1]);
+                env.classList.add("moon3-" + obj.moons[2]);
+              }
+            }
+            break;
+          case "omud.combat":
+            if (obj.action === "leave") {
+              this.clear("combat");
+              this.emit("leave combat");
+            } else if (obj.action === "add")
+              this.createIconBar("#combat", this.getID(obj, "combat_"), obj.name, obj.hp, 100, this.livingClass(obj, "monster-"), obj.order);
+            else if (obj.action === "update") {
+              if (obj.hp === 0)
+                this.removeBar(this.getID(obj, "combat_"));
+              else
+                this.createIconBar("#combat", this.getID(obj, "combat_"), obj.name, obj.hp, 100, this.livingClass(obj, "monster-"), obj.order);
+            } else if (obj.action === "remove")
+              this.removeBar(this.getID(obj, "combat_"));
+            break;
+          case "omud.party":
+            if (obj.action === "leave") {
+              this.clear("party");
+              this.emit("leave party");
+            } else if (obj.action === "add") {
+              this.createIconBar("#party", this.getID(obj, "party_"), obj.name, obj.hp, 100, this.livingClass(obj, "party-"), obj.name.replace('"', ""));
+            } else if (obj.action === "update") {
+              if (obj.hp === 0)
+                this.removeBar(this.getID(obj, "party_"), true);
+              else
+                this.createIconBar("#party", this.getID(obj, "party_"), obj.name, obj.hp, 100, this.livingClass(obj, "party-"), obj.name.replace('"', ""));
+            } else if (obj.action === "remove")
+              this.removeBar(this.getID(obj, "party_"), true);
+            if ((limb = document.getElementById("party")).children.length)
+              limb.classList.add("hasmembers");
+            else
+              limb.classList.remove("hasmembers");
+            break;
+          case "omud.skill":
+            if (obj.skill && obj.skill.length) {
+              if (!this.info["skills"][obj.skill]) this.info["skills"][obj.skill] = { amount: 0, bonus: 0, percent: 0 };
+              if (obj.hasOwnProperty("percent"))
+                this.info["skills"][obj.skill].percent = obj.percent || 0;
+              if (obj.hasOwnProperty("amount")) {
+                this.info["skills"][obj.skill].amount = obj.amount;
+                this.info["skills"][obj.skill].bonus = obj.bonus || 0;
+                this.info["skills"][obj.skill].category = obj.category;
+              }
+              this.emit("skill updated", obj.skill, this.info["skills"][obj.skill]);
+            }
+            break;
+        }
+      } catch (e) {
+        this.emit("error", e);
+      }
+    }
+    updateInterface(noSplitter) {
+      if (!this.client.getOption("showStatus")) {
+        this._clientContainer.style.right = "";
+        this._status.style.visibility = "hidden";
+        this._status.style.display = "none";
+        document.getElementById("status-drag-bar").style.display = "none";
+        this.emit("updated-interface");
+        return;
+      }
+      const p = parseInt(this._styles.right, 10) * 2;
+      this._clientContainer.style.right = this._splitterDistance + "px";
+      this._status.style.width = this._splitterDistance - p + "px";
+      this._status.style.visibility = "";
+      this._status.style.display = "";
+      document.getElementById("status-drag-bar").style.display = "";
+      if (this.client.getOption("statusExperienceNeededProgressbar")) {
+        $("#need-value").css("display", "none");
+        $("#need-percent").css("display", "block");
+      } else {
+        $("#need-value").css("display", "");
+        $("#need-percent").css("display", "none");
+      }
+      if (this.client.getOption("showStatusWeather"))
+        $("#environment").css("display", "");
+      else
+        $("#environment").css("display", "none");
+      if (!this.client.getOption("showStatusLimbs") && !this.client.getOption("showStatusHealth"))
+        $("#body").css("display", "none");
+      else
+        $("#body").css("display", "");
+      if (!this.client.getOption("showStatusLimbs"))
+        $("#limbs").css("display", "none");
+      else
+        $("#limbs").css("display", "");
+      if (!this.client.getOption("showStatusHealth"))
+        $("#hp-status").css("display", "none");
+      else
+        $("#hp-status").css("display", "");
+      if (this.client.getOption("showStatusExperience"))
+        $("#experience").css("display", "");
+      else
+        $("#experience").css("display", "none");
+      if (!this.client.getOption("showStatusPartyHealth") && !this.client.getOption("showStatusCombatHealth"))
+        $("#bars").css("min-height", "");
+      else
+        $("#bars").css("min-height", "0");
+      if (this.client.getOption("showStatusPartyHealth"))
+        $("#party").css("display", "");
+      else
+        $("#party").css("display", "none");
+      if (this.client.getOption("showStatusCombatHealth"))
+        $("#combat").css("display", "");
+      else
+        $("#combat").css("display", "none");
+      if (this.lagMeter) {
+        if (this.client.getOption("lagMeter")) {
+          this.lagMeter.style.visibility = "";
+          this.lagMeter.style.display = "";
+          this.updateLagMeter(0, true);
+        } else {
+          this.lagMeter.style.visibility = "hidden";
+          this.lagMeter.style.display = "none";
+        }
+      }
+      if (!noSplitter)
+        this.updateSplitter();
+      this.emit("updated-interface");
+    }
+    setTitle(title, lag) {
+      if (!title || title.length === 0)
+        this._status.querySelector("#character-name").innerHTML = "&nbsp;";
+      else
+        this._status.querySelector("#character-name").textContent = title;
+      if (this.client.connected && lag && lag.length) {
+        if (title && title.length)
+          title = `${title} - ${lag}`;
+        else
+          title = `${lag}`;
+      }
+      client.emit("set-title", title || "");
+    }
+    init() {
+      this.setTitle("");
+      this.info = [];
+      this.info["WEATHER"] = "none";
+      this.info["WEATHER_INTENSITY"] = 0;
+      this.info["EXPERIENCE"] = 0;
+      this.info["EXPERIENCE_NEED"] = 0;
+      this.info["EXPERIENCE_NEED_P"] = 0;
+      this.info["EXPERIENCE_NEED_RAW"] = 0;
+      this.info["EXPERIENCE_EARNED"] = 0;
+      this.info["EXPERIENCE_BANKED"] = 0;
+      this.info["skills"] = {};
+      this.infoAC = [];
+      this.infoAC["head"] = 0;
+      this.infoAC["leftarm"] = 0;
+      this.infoAC["leftfoot"] = 0;
+      this.infoAC["lefthand"] = 0;
+      this.infoAC["leftleg"] = 0;
+      this.infoAC["rightarm"] = 0;
+      this.infoAC["rightfoot"] = 0;
+      this.infoAC["righthand"] = 0;
+      this.infoAC["rightleg"] = 0;
+      this.infoAC["torso"] = 0;
+      this.infoAC["overall"] = 0;
+      this.infoLimb = [];
+      this.infoLimb["head"] = 0;
+      this.infoLimb["leftarm"] = 0;
+      this.infoLimb["leftfoot"] = 0;
+      this.infoLimb["lefthand"] = 0;
+      this.infoLimb["leftleg"] = 0;
+      this.infoLimb["rightarm"] = 0;
+      this.infoLimb["rightfoot"] = 0;
+      this.infoLimb["righthand"] = 0;
+      this.infoLimb["rightleg"] = 0;
+      this.infoLimb["torso"] = 0;
+      document.getElementById("leftwing").style.display = "none";
+      document.getElementById("rightwing").style.display = "none";
+      document.getElementById("tail").style.display = "none";
+      this.updateBar("hp-bar", 0, 0);
+      this.updateBar("sp-bar", 0, 0);
+      this.updateBar("mp-bar", 0, 0);
+      document.getElementById("xp-value").textContent = "0";
+      document.getElementById("xp-banked").textContent = "0";
+      document.getElementById("need-value").textContent = "0";
+      document.getElementById("earn-value").textContent = "0";
+      this.updateBar("need-percent", 0, 0, "0");
+      this.clear("combat");
+      this.clear("party");
+      document.getElementById("party").classList.remove("hasmembers");
+      this.updateOverall();
+      this.updateStatus();
+      this.emit("skill init");
+    }
+    clear(id) {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = "";
+    }
+    updateStatus() {
+      let limb;
+      if (this._ac)
+        for (limb in this.infoAC)
+          this.updateLimb(limb);
+      else
+        for (limb in this.infoLimb)
+          this.updateLimb(limb);
+      this.doUpdate(4 /* overall */ | 8 /* xp */);
+    }
+    updateOverall() {
+      const el = document.getElementById("overall");
+      el.className = "";
+      if (this._ac) {
+        if (this.infoAC["overall"] === 6.5) {
+          el.textContent = "Extensively";
+          el.classList.add("armor-extensively");
+        } else if (this.infoAC["overall"] === 6) {
+          el.textContent = "Completely";
+          el.classList.add("armor-completely");
+        } else if (this.infoAC["overall"] === 5.5) {
+          el.textContent = "Significantly";
+          el.classList.add("armor-significantly");
+        } else if (this.infoAC["overall"] === 5) {
+          el.textContent = "Considerably";
+          el.classList.add("armor-considerably");
+        } else if (this.infoAC["overall"] === 4.5) {
+          el.textContent = "Well";
+          el.classList.add("armor-well");
+        } else if (this.infoAC["overall"] === 4) {
+          el.textContent = "Adequately";
+          el.classList.add("armor-adequately");
+        } else if (this.infoAC["overall"] === 3.5) {
+          el.textContent = "Fairly";
+          el.classList.add("armor-fairly");
+        } else if (this.infoAC["overall"] === 3) {
+          el.textContent = "Moderately";
+          el.classList.add("armor-moderately");
+        } else if (this.infoAC["overall"] === 2.5) {
+          el.textContent = "Somewhat";
+          el.classList.add("armor-somewhat");
+        } else if (this.infoAC["overall"] === 2) {
+          el.textContent = "Slightly";
+          el.classList.add("armor-slightly");
+        } else if (this.infoAC["overall"] === 1) {
+          el.textContent = "Barely";
+          el.classList.add("armor-barely");
+        } else {
+          el.textContent = "UNARMORED";
+          el.classList.add("armor-unarmored");
+        }
+      } else {
+        let v = 100;
+        if (this.info["hpmax"] !== 0 && !isNaN(this.info["hpmax"]))
+          v *= this.info["hp"] / this.info["hpmax"];
+        if (v > 90) {
+          el.textContent = "Top shape";
+          el.classList.add("health-full");
+        } else if (v > 75) {
+          el.textContent = "Decent shape";
+          el.classList.add("health-1-19");
+        } else if (v > 60) {
+          el.textContent = "Slightly injured";
+          el.classList.add("health-20-39");
+        } else if (v > 45) {
+          el.textContent = "Hurting";
+          el.classList.add("health-40-59");
+        } else if (v > 30) {
+          el.textContent = "Badly injured";
+          el.classList.add("health-60-79");
+        } else if (v > 15) {
+          el.textContent = "Terribly injured";
+          el.classList.add("health-80-99");
+        } else {
+          el.textContent = "Near death";
+          el.classList.add("health-100");
+        }
+      }
+    }
+    updateLimb(limb) {
+      limb = limb.replace(/\s/g, "");
+      limb = limb.toLowerCase();
+      if (limb === "overall") {
+        this.doUpdate(4 /* overall */);
+        return;
+      }
+      if (limb === "righthoof")
+        limb = "rightfoot";
+      else if (limb === "lefthoof")
+        limb = "leftfoot";
+      const eLimb = document.getElementById(limb);
+      if (!eLimb)
+        return;
+      eLimb.setAttribute("class", "");
+      eLimb.style.display = "block";
+      if (this._ac) {
+        if (this.infoAC[limb] === 6.5)
+          eLimb.classList.add("armor-extensively");
+        else if (this.infoAC[limb] === 6)
+          eLimb.classList.add("armor-completely");
+        else if (this.infoAC[limb] === 5.5)
+          eLimb.classList.add("armor-significantly");
+        else if (this.infoAC[limb] === 5)
+          eLimb.classList.add("armor-considerably");
+        else if (this.infoAC[limb] === 4.5)
+          eLimb.classList.add("armor-well");
+        else if (this.infoAC[limb] === 4)
+          eLimb.classList.add("armor-adequately");
+        else if (this.infoAC[limb] === 3.5)
+          eLimb.classList.add("armor-fairly");
+        else if (this.infoAC[limb] === 3)
+          eLimb.classList.add("armor-moderately");
+        else if (this.infoAC[limb] === 2.5)
+          eLimb.classList.add("armor-somewhat");
+        else if (this.infoAC[limb] === 2)
+          eLimb.classList.add("armor-slightly");
+        else if (this.infoAC[limb] === 1)
+          eLimb.classList.add("armor-barely");
+        else
+          eLimb.classList.add("armor-unarmored");
+      } else {
+        if (this.infoLimb[limb] === 100)
+          eLimb.classList.add("health-100");
+        else if (this.infoLimb[limb] >= 80)
+          eLimb.classList.add("health-80-99");
+        else if (this.infoLimb[limb] >= 60)
+          eLimb.classList.add("health-60-79");
+        else if (this.infoLimb[limb] >= 40)
+          eLimb.classList.add("health-40-59");
+        else if (this.infoLimb[limb] >= 20)
+          eLimb.classList.add("health-20-39");
+        else if (this.infoLimb[limb] >= 1)
+          eLimb.classList.add("health-1-19");
+        else
+          eLimb.classList.add("health-full");
+      }
+    }
+    updateBar(id, value, max2, text) {
+      const bar = document.getElementById(id);
+      if (!bar)
+        return;
+      else {
+        let p = 100;
+        if (max2 !== 0)
+          p = value / max2 * 100;
+        bar.firstElementChild.textContent = text || value + "/" + max2;
+        bar.lastElementChild.style.width = 100 - p + "%";
+      }
+    }
+    createIconBar(parent, id, label, value, max2, icon, order) {
+      let p = 100;
+      if (max2 !== 0)
+        p = value / max2 * 100;
+      p = Math.floor(p);
+      id = id.replace(" ", "");
+      let bar = document.getElementById(id);
+      if (!bar) {
+        if (!icon)
+          icon = label.replace(/\d+$/, "").trim().replace(" ", "-");
+        bar = '<div title="' + label + '" class="combat-bar" id="' + id + '" data-value="' + (100 - p) / 20 * 20 + '" data-order="' + order + '">';
+        bar += '<div class="combat-icon ' + icon + '"></div>';
+        bar += '<div class="combat-name"> ' + label + "</div>";
+        bar += '<div class="progressbar"><div class="progressbar-text">' + p + "%</div>";
+        bar += '<div class="progressbar-value" style="width: ' + (100 - p) + '%"></div>';
+        bar += "</div></div>";
+        $(parent).append(bar);
+        this.doUpdate(parent === "#party" ? 2 /* sortParty */ : 1 /* sortCombat */);
+      } else {
+        if (order !== +bar.getAttribute("data-order")) {
+          bar.setAttribute("data-order", order);
+          this.doUpdate(parent === "#party" ? 2 /* sortParty */ : 1 /* sortCombat */);
+        }
+        bar.setAttribute("data-value", (100 - p) / 20 * 20);
+        bar.children[1].textContent = label;
+        p = value / max2 * 100;
+        bar.lastElementChild.firstElementChild.textContent = Math.ceil(p) + "%";
+        bar.lastElementChild.lastElementChild.style.width = 100 - p + "%";
+      }
+    }
+    removeBar(id, party) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.parentNode.removeChild(el);
+      this.doUpdate(party ? 2 /* sortParty */ : 1 /* sortCombat */);
+    }
+    sortBars(p) {
+      const listItems = p.children("div").get();
+      listItems.sort((a, b) => {
+        const compA = +a.getAttribute("data-order");
+        const compB = +b.getAttribute("data-order");
+        return compA < compB ? -1 : compA > compB ? 1 : 0;
+      });
+      $.each(listItems, (idx, itm) => {
+        p.append(itm);
+      });
+    }
+    updateLagMeter(lag, force) {
+      if (!this.lagMeter) return;
+      if (this.client.getOption("showLagInTitle"))
+        this.setTitle(this.info["name"] || "", `${lag / 1e3}s`);
+      if (!this.client.getOption("lagMeter") && !force) return;
+      let p = 100;
+      p = lag / 200 * 100;
+      if (p > 100) p = 100;
+      this.lagMeter.lastElementChild.style.width = 100 - p + "%";
+      this.lagMeter.firstElementChild.textContent = lag / 1e3 + "s";
+    }
+    doUpdate(type) {
+      if (!type) return;
+      this._updating |= type;
+      if (this._updating === 0 /* none */ || this._rTimeout)
+        return;
+      this._rTimeout = window.requestAnimationFrame(() => {
+        if ((this._updating & 16 /* status */) === 16 /* status */) {
+          this.updateStatus();
+          this._updating &= ~16 /* status */;
+        }
+        if ((this._updating & 1 /* sortCombat */) === 1 /* sortCombat */) {
+          this.sortBars($("#combat"));
+          this._updating &= ~1 /* sortCombat */;
+        }
+        if ((this._updating & 2 /* sortParty */) === 2 /* sortParty */) {
+          this.sortBars($("#party"));
+          this._updating &= ~2 /* sortParty */;
+        }
+        if ((this._updating & 4 /* overall */) === 4 /* overall */) {
+          this.updateOverall();
+          this._updating &= ~4 /* overall */;
+        }
+        if ((this._updating & 8 /* xp */) === 8 /* xp */) {
+          this.updateXP();
+          this._updating &= ~8 /* xp */;
+        }
+        this._rTimeout = 0;
+        this.doUpdate(this._updating);
+      });
+    }
+    updateXP() {
+      $("#xp-value").text(this.info["EXPERIENCE"]);
+      $("#xp-banked").text(this.info["EXPERIENCE_BANKED"]);
+      if (this.info["EXPERIENCE_NEED"] < 0) {
+        $("#need-value").text(this.client.getOption("allowNegativeNumberNeeded") ? this.info["EXPERIENCE_NEED"] : 0);
+        this.updateBar("need-percent", 100 - this.info["EXPERIENCE_NEED_P"], 100, this.client.getOption("allowNegativeNumberNeeded") ? this.info["EXPERIENCE_NEED"].toString() : "0");
+      } else {
+        $("#need-value").text(this.info["EXPERIENCE_NEED"]);
+        this.updateBar("need-percent", 100 - this.info["EXPERIENCE_NEED_P"], 100, this.info["EXPERIENCE_NEED"].toString());
+      }
+      $("#earn-value").text(this.info["EXPERIENCE_EARNED"]);
+    }
+    resize() {
+      if (!this.client.getOption("showStatus")) return;
+      const w = this._status.style.width;
+      this._status.style.width = "";
+      const bounds = this._status.getBoundingClientRect();
+      const minWidth = bounds.width + parseInt(this._styles.right, 10);
+      const maxWidth = this.maxWidth;
+      this._status.style.width = w;
+      const bounds2 = this._status.getBoundingClientRect();
+      if (bounds2.width < minWidth) {
+        this.splitterDistance = minWidth;
+      } else if (bounds2.width > maxWidth) {
+        this.splitterDistance = maxWidth;
+      }
+    }
+    get skills() {
+      return this.info["skills"];
+    }
+    getSkill(skill) {
+      if (!skill) return 0;
+      return this.info["skills"][skill] || 0;
+    }
+    get name() {
+      return this.info["name"];
+    }
+    get ac() {
+      return this._ac;
+    }
+    set ac(enable) {
+      if (this._ac !== enable) {
+        this._ac = enable;
+        this.doUpdate(16 /* status */);
+        this.emit("display-changed");
+      }
+    }
+    sanitizeID(id) {
+      id = id.replace(/\s/gi, "-");
+      return id.replace(/[^a-zA-Z0-9_-]/gi, "");
+    }
+    getID(obj, prefix) {
+      if (!obj) return;
+      if (!obj.id) return this.sanitizeID(obj.name || "");
+      return (prefix || "obj_") + obj.id;
+    }
+    livingClass(obj, prefix) {
+      const cls = [];
+      if (!prefix) prefix = "";
+      if (obj.class && obj.class.length > 0)
+        cls.push(prefix + this.sanitizeID(obj.class));
+      if (obj.gender && obj.gender.length > 0)
+        cls.push(prefix + this.sanitizeID(obj.gender));
+      if (obj.race && obj.race.length > 0)
+        cls.push(prefix + this.sanitizeID(obj.race));
+      if (obj.guild && obj.guild.length > 0)
+        cls.push(prefix + this.sanitizeID(obj.guild));
+      if (obj.name && obj.name.length > 0)
+        cls.push(prefix + this.sanitizeID(obj.name.replace(/\d+$/, "").trim()));
+      return cls.join(" ").toLowerCase();
+    }
+    setWeapon(limb, weapon) {
+      const l2 = limb;
+      limb = limb.replace(/\s/g, "");
+      limb = limb.toLowerCase();
+      const eLimb = document.getElementById(limb + "weapon");
+      if (!eLimb)
+        return;
+      eLimb.className = "";
+      if (!weapon) return;
+      if (weapon.quality && weapon.quality.length > 0)
+        eLimb.classList.add("weapon-" + this.sanitizeID(weapon.quality));
+      if (weapon.material && weapon.material.length > 0)
+        eLimb.classList.add("weapon-" + this.sanitizeID(weapon.material));
+      if (weapon.type && weapon.type.length > 0)
+        eLimb.classList.add("weapon-" + this.sanitizeID(weapon.type));
+      if (weapon.subtype && weapon.subtype.length > 0)
+        eLimb.classList.add("weapon-" + this.sanitizeID(weapon.subtype));
+      if (weapon.name && weapon.name.length > 0)
+        eLimb.classList.add("weapon-" + this.sanitizeID(weapon.name));
+      if (weapon.dominant)
+        eLimb.classList.add("weapon-dominant");
+      if (weapon.subtype && weapon.subtype.length > 0)
+        eLimb.title = weapon.subtype + " in " + l2;
+      else if (weapon.type && weapon.type.length > 0)
+        eLimb.title = weapon.type + " in " + l2;
+      else
+        eLimb.title = "weapon in " + l2;
+    }
+    setLimbAC(limb, ac) {
+      limb = limb.replace(/\s/g, "");
+      limb = limb.toLowerCase();
+      if (limb === "righthoof")
+        limb = "rightfoot";
+      else if (limb === "lefthoof")
+        limb = "leftfoot";
+      this.infoAC[limb] = ac;
+    }
+    setLimbHealth(limb, health) {
+      limb = limb.replace(/\s/g, "");
+      limb = limb.toLowerCase();
+      if (limb === "righthoof")
+        limb = "rightfoot";
+      else if (limb === "lefthoof")
+        limb = "leftfoot";
+      this.infoLimb[limb] = health;
+    }
+  };
+
   // src/client.ts
   var Client = class extends EventEmitter {
     constructor(options) {
@@ -33503,6 +34531,7 @@ Devanagari
       });
       this.addPlugin(new MSP(this));
       this.addPlugin(new Mapper(this));
+      this.addPlugin(new Status(this));
       if (true)
         this.addPlugin(new Test(this));
       if (this.getOption("autoConnect"))

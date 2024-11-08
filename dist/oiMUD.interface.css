@@ -102,6 +102,166 @@ div.offcanvas-body ul li hr {
   padding: 0;
 }
 
+/* src/css/buttons.css */
+#buttons {
+  z-index: 100;
+  right: 0;
+  top: 0;
+  position: absolute;
+  visibility: hidden;
+  max-width: 50%;
+}
+.user-button {
+  background-color: rgba(169, 169, 169, 0.5);
+  border-radius: 4px;
+  position: absolute;
+  cursor: default;
+  padding: 0 4px;
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  text-shadow:
+    1px 1px 0 black,
+    -1px -1px 0 black,
+    1px -1px 0 black,
+    -1px 1px 0 black,
+    1px 1px 0 black;
+  touch-action: none;
+}
+.user-button svg path {
+  stroke: black;
+  stroke-width: 15px;
+}
+.user-button.active,
+.user-button:active {
+  color: rgba(255, 255, 255) !important;
+  border: 1px solid rgba(255, 255, 255) !important;
+  background-color: rgb(114, 114, 114) !important;
+  text-shadow:
+    1px 1px 0 black,
+    -1px -1px 0 black,
+    1px -1px 0 black,
+    -1px 1px 0 black,
+    1px 1px 0 black !important;
+}
+.user-button:hover {
+  color: rgba(128, 128, 128, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.80);
+  text-shadow:
+    1px 1px 0 #fff,
+    -1px -1px 0 #fff,
+    1px -1px 0 #fff,
+    -1px 1px 0 #fff,
+    1px 1px 0 #fff;
+}
+
+/* src/css/theme.css */
+:root {
+  --theme-bg-color: #d5cdbc;
+  --theme-color: black;
+  --theme-bg-secondary-color: #fbecd3;
+  --theme-bg-secondary-border: #ad5f00;
+  --theme-border-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJBAMAAAASvxsjAAAABGdBTUEAALGPC/xhBQAAABhQTFRFAAAAMykafmM8hWpF67t0jnFI/c6JpoVVtKRWQwAAAAF0Uk5TAEDm2GYAAAA4SURBVAjXYwhSNTVSYAhJcUspYAgJDy8pYDArYAgrYFABkyEBDCFAEWVjMSCZlpZWwFBeXh5eAABk+A37KuvhGQAAAABJRU5ErkJggg==);
+  --theme-border-middle-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJBAMAAAASvxsjAAAABGdBTUEAALGPC/xhBQAAABhQTFRFAAAA37VpoX5R/tCM67Zx98KBpoJVhWhCpbs0wQAAAAF0Uk5TAEDm2GYAAAAlSURBVAjXYyhVLy9NYCgVCTUtYChVS0tNYCiBoWIgWQAiMdQAAKEpD2kRHN1lAAAAAElFTkSuQmCC);
+}
+#display,
+#client-container,
+#command-input-container .btn,
+#command-input-container textarea {
+  border-image: var(--theme-border-image) 3 repeat !important;
+}
+#client-container {
+  border: 3px solid;
+}
+#display {
+  border-bottom: 3px solid;
+}
+#command-input-container {
+  background-color: var(--theme-bg-color) !important;
+  color: var(--theme-color) !important;
+  height: 26px;
+  min-height: 26px;
+}
+#command-input-group {
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+}
+#command-input-container .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%280, 0, 0, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+#btn-command-history {
+  border-right: 0px !important;
+}
+#commandInput:focus {
+  outline: none;
+  box-shadow: none;
+}
+#commandInput {
+  background-color: var(--theme-bg-secondary-color);
+  color: var(--theme-color);
+}
+.button,
+#command-input-container .btn {
+  background-color: #d3b6a0;
+  color: black;
+  fill: black;
+  padding: 4px 7px;
+  border: 1px solid var(--theme-bg-secondary-border);
+  z-index: 1;
+  border: 3px solid;
+  border-image: var(--theme-border-image) 3 repeat;
+  border-radius: 0px;
+}
+.button:hover,
+#command-input-container .btn:hover {
+  background-color: #7da7d9;
+  color: white;
+  fill: white;
+}
+#command-input-container .button:active,
+#command-input-container .btn-check:checked + .btn,
+#command-input-container .btn.active,
+#command-input-container .btn.show,
+#command-input-container .btn:first-child:active,
+#command-input-container :not(.btn-check) + .btn:active {
+  background-color: #e9ad04;
+  color: white;
+  fill: white;
+}
+.button.active,
+#command-input-container .btn.active {
+  background-color: #e9ad04;
+  color: white;
+  fill: white;
+}
+.button.active:hover,
+#command-input-container .btn.active:hover {
+  background-color: #7da7d9;
+  color: white;
+  fill: white;
+}
+.button.active:active,
+#command-input-container .btn.active:active {
+  background-color: #d3b6a0;
+  color: black;
+  fill: black;
+  padding: 4px 7px;
+  border: 1px solid var(--theme-bg-secondary-border);
+  z-index: 1;
+  border: 3px solid;
+  border-image: var(--theme-border-image) 3 repeat;
+}
+#command-input-container .btn,
+#command-input-container textarea {
+  border: 0;
+  border-right: 3px solid;
+}
+#command-input-container .btn:hover .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
 /* src/css/tinymce.css */
 .mce-tinymce,
 .mce-container-body,
@@ -1300,57 +1460,4 @@ li.submenu.dropstart > a.dropdown-toggle::after {
 .splitter.horizontal .spitter-drag-bar {
   border-top: 1px solid rgb(221, 221, 221);
   border-bottom: 1px solid rgb(221, 221, 221);
-}
-
-/* src/css/buttons.css */
-#buttons {
-  z-index: 100;
-  right: 0;
-  top: 0;
-  position: absolute;
-  visibility: hidden;
-  max-width: 50%;
-}
-.user-button {
-  background-color: rgba(169, 169, 169, 0.5);
-  border-radius: 4px;
-  position: absolute;
-  cursor: default;
-  padding: 0 4px;
-  color: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  text-shadow:
-    1px 1px 0 black,
-    -1px -1px 0 black,
-    1px -1px 0 black,
-    -1px 1px 0 black,
-    1px 1px 0 black;
-  touch-action: none;
-}
-.user-button svg path {
-  stroke: black;
-  stroke-width: 15px;
-}
-.user-button.active,
-.user-button:active {
-  color: rgba(255, 255, 255) !important;
-  border: 1px solid rgba(255, 255, 255) !important;
-  background-color: rgb(114, 114, 114) !important;
-  text-shadow:
-    1px 1px 0 black,
-    -1px -1px 0 black,
-    1px -1px 0 black,
-    -1px 1px 0 black,
-    1px 1px 0 black !important;
-}
-.user-button:hover {
-  color: rgba(128, 128, 128, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background-color: rgba(255, 255, 255, 0.80);
-  text-shadow:
-    1px 1px 0 #fff,
-    -1px -1px 0 #fff,
-    1px -1px 0 #fff,
-    -1px 1px 0 #fff,
-    1px 1px 0 #fff;
 }

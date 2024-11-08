@@ -639,6 +639,7 @@ export class MapDisplay extends EventEmitter {
         this._map.current = value.clone();
         this.markers = {};
         this.markedRooms = 0;
+        this.doUpdate(UpdateType.draw);
     }
 
     public setArea(area: string) {

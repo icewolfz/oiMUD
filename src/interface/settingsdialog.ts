@@ -17,8 +17,8 @@ export class SettingsDialog extends Dialog {
         let footer = '';
         footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Cancel dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;
         footer += `<button id="${this.id}-save" type="button" class="btn-sm float-end btn btn-primary" title="Confirm dialog"><i class="bi bi-save"></i><span class="icon-only"> Save</span></button>`;
-        footer += `<button id="${this.id}-reset" type="button" class="btn-sm float-start btn btn-light" title="Reset settings"><i class="bi bi-arrow-clockwise"></i><span class="icon-only"> Reset</span></button>`
-        footer += `<button id="${this.id}-reset-all" type="button" class="btn-sm float-start btn btn-light" title="Reset All settings"><i class="bi bi-arrow-repeat"></i><span class="icon-only"> Reset All</span></button>`
+        footer += `<button id="${this.id}-reset" type="button" class="btn-sm float-start btn btn-warning" title="Reset settings"><i class="bi bi-arrow-clockwise"></i><span class="icon-only"> Reset</span></button>`
+        footer += `<button id="${this.id}-reset-all" type="button" class="btn-sm float-start btn btn-warning" title="Reset All settings"><i class="bi bi-arrow-repeat"></i><span class="icon-only"> Reset All</span></button>`
         footer += '<div class="vr float-start" style="margin-right: 4px;height: 29px;"></div>';
         footer += `<button id="${this.id}-export" type="button" class="btn-sm float-start btn btn-light" title="Export settings"><i class="bi bi-box-arrow-up"></i><span class="icon-only"> Export</span></button>`;
         footer += `<button id="${this.id}-import" type="button" class="btn-sm float-start btn btn-light" title="Import settings"><i class="bi bi-box-arrow-in-down"></i><span class="icon-only"> Import</span></button>`;
@@ -90,11 +90,12 @@ export class SettingsDialog extends Dialog {
                     if (e.button === DialogButtons.Yes) {
                         const forms: HTMLInputElement[] = this.body.querySelectorAll('input,select,textarea');
                         for (let f = 0, fl = forms.length; f < fl; f++) {
-                            this.settings[forms[f].id] = Settings.defaultValue(forms[f].id);
-                            if (forms[f].type === 'checkbox')
-                                forms[f].checked = this.settings[forms[f].id];
+                            let id = forms[f].name || forms[f].id;
+                            this.settings[id] = Settings.defaultValue(id);
+                            if (forms[f].type === 'checkbox' || forms[f].type === 'radio')
+                                forms[f].checked = this.settings[id];
                             else
-                                forms[f].value = this.settings[forms[f].id];
+                                forms[f].value = this.settings[id];
                         }
                     }
                 })
@@ -242,7 +243,7 @@ export class SettingsDialog extends Dialog {
                         forms[f].checked = (this.settings[name] & value) === value;
                     }
                     else
-                        forms[f].checked = this.settings[forms[f].id];
+                        forms[f].checked = this.settings[forms[f].name || forms[f].id];
                     forms[f].addEventListener('change', e => {
                         const target = (e.currentTarget || e.target) as HTMLInputElement;
                         if (target.dataset.enum === 'true') {
@@ -256,18 +257,18 @@ export class SettingsDialog extends Dialog {
                             this.settings[name] = value;
                         }
                         else
-                            this.settings[target.id] = target.checked || false;
+                            this.settings[target.name || target.id] = target.checked || false;
                     });
                 }
                 else {
                     forms[f].value = this.settings[forms[f].id];
                     forms[f].addEventListener('change', e => {
                         const target = (e.currentTarget || e.target) as HTMLInputElement;
-                        this.setValue(target.id, target.value);
+                        this.setValue(target.name || target.id, target.value);
                     });
                     forms[f].addEventListener('input', e => {
                         const target = (e.currentTarget || e.target) as HTMLInputElement;
-                        this.setValue(target.id, target.value);
+                        this.setValue(target.name || target.id, target.value);
                     });
                 }
             }

@@ -1,0 +1,723 @@
+#status {
+  position: absolute;
+  cursor: default;
+  box-sizing: border-box;
+  background-color: var(--theme-bg-color);
+  color: var(--theme-color) !important;
+  width: 184px;
+  text-align: center;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  padding: 2px;
+  z-index: 1;
+  overflow: auto;
+}
+
+#status-close {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  z-index: 6;
+  display: none;
+}
+
+#status:hover #status-close {
+  display: block;
+}
+
+.status-panel {
+  background-color: var(--theme-bg-secondary-color);
+  color: var(--theme-color);
+  border: 1px solid var(--theme-bg-secondary-border);
+}
+
+@media (orientation: landscape) and (max-width: 641px),
+  (orientation: landscape) and (max-height: 480px),
+  (orientation: portrait) and (max-width: 480px),
+  (orientation: portrait) and (max-height: 641px) {
+  #status {
+    /*
+      display: none !important;
+      visibility: hidden !important;
+      */
+    left: 2px;
+    width: auto !important;
+  }
+  #client-container {
+    right: 0 !important;
+  }
+
+  #status-close {
+    display: block !important;
+  }
+}
+
+#character-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 26px;
+  min-height: 26px;
+}
+
+#environment {
+  overflow: hidden;
+  box-sizing: border-box;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 50px;
+  min-height: 50px;
+  position: relative;
+}
+
+/* old */
+#environmentleft {
+  position: absolute;
+  top: 15px;
+  left: calc(50% - 75px);
+  float: left;
+  width: 50px;
+  height: 50px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+#environmentcenter {
+  position: absolute;
+  top: 5px;
+  left: calc(50% - 25px);
+  width: 50px;
+  height: 50px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+#environmentright {
+  position: absolute;
+  top: 15px;
+  right: calc(50% - 75px);
+  width: 50px;
+  height: 50px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+#environmentweather {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  z-index: 100;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100%;
+}
+
+#lefthandweapon {
+  position: absolute;
+}
+
+#righthandweapon {
+  position: absolute;
+}
+
+#experience {
+  font-size: 12px;
+}
+
+#experience div span:first-child {
+  display: inline-block;
+}
+
+#experience div span:nth-child(2) {
+  float: right;
+}
+
+#experience div span:nth-child(2) {
+  text-align: right;
+}
+
+#bars {
+  overflow: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  min-height: 150px;
+}
+
+.combat-bar {
+  position: relative;
+}
+
+.combat-name {
+  position: absolute;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 0.8em;
+}
+
+.combat-bar .progressbar {
+  position: absolute;
+  width: auto;
+}
+
+#body {
+  position: relative;
+  box-sizing: border-box;
+  font-size: 12px;
+}
+
+#body svg {
+  image-rendering: crisp-edges;
+}
+
+#fullbody {
+  -webkit-filter: drop-shadow(0px 0px 1px rgb(0, 0, 0));
+  filter: drop-shadow(0px 0px 1px rgb(0, 0, 0));
+}
+
+#overall {
+  background: #bfb893;
+  border-radius: 5px;
+  border: 1px solid var(--theme-bg-secondary-border);
+  margin: 4px;
+}
+
+#armor,
+#health,
+#health.on:hover,
+#armor.on:hover {
+  position: absolute;
+}
+
+#tail,
+#leftwing,
+#rightwing {
+  display: none;
+}
+
+#hp-status > div {
+  position: relative;
+}
+
+#hp-status > div > .progressbar,
+#need-percent {
+  width: initial;
+  position: absolute;
+  left: 30px;
+  right: 0;
+  top: 0;
+}
+
+#need-percent {
+  left: 50px;
+  display: none;
+  background: rgb(252, 238, 42);
+}
+
+#experience > div {
+  position: relative;
+}
+
+.progressbar {
+  float: right;
+  overflow: hidden;
+}
+
+.progressbar .progressbar-text {
+  position: absolute;
+  z-index: 1;
+}
+
+.progressbar .progressbar-value {
+  float: right;
+}
+
+#lagMeter {
+  width: auto;
+  box-sizing: border-box;
+}
+
+#status-ghost-bar {
+  width: 3px;
+  background-color: #000;
+  opacity: 0.75;
+  position: absolute;
+  cursor: ew-resize;
+  z-index: 999;
+}
+
+.dot {
+  height: 10px;
+  width: 10px;
+  background-color: red;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-container {
+  display: inline-block;
+  bottom: 70px;
+  position: absolute;
+  left: 5px;
+  width: 15px;
+}
+
+#lefthandweapon {
+  top: 85px;
+  background-color: black;
+  border: 1px solid #908271;
+  width: 32px;
+  height: 32px;
+  left: 5px;
+}
+
+#righthandweapon {
+  top: 85px;
+  background-color: black;
+  border: 1px solid #908271;
+  width: 32px;
+  height: 32px;
+  right: 5px;
+}
+
+#experience {
+  padding: 2px;
+  text-align: left;
+}
+
+#experience div span:nth-child(2) {
+  padding-right: 2px;
+}
+
+#bars {
+  padding: 2px;
+  text-align: left;
+}
+
+.combat-bar {
+  height: 34px;
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+.combat-name {
+  right: 1px;
+  /*left: 38px;*/ /*readd to enable icons*/
+  left: 5px; /*remove to readd icons and uncomment above line*/
+}
+
+.combat-icon {
+  height: 32px;
+  width: 32px;
+  float: left;
+  display: none; /*remove to readd icons*/
+}
+
+.combat-bar .progressbar {
+  right: 1px;
+  /*left: 38px;*/ /*readd to enable icons*/
+  left: 5px; /*remove to readd icons and uncomment above line*/
+  bottom: 2px;
+  height: 14px;
+  min-height: 14px;
+  font-size: 0.6em;
+}
+
+#body {
+  padding: 2px;
+}
+
+.progressbar {
+  border: 1px solid #908271;
+}
+
+#hp-status {
+  text-align: left;
+}
+
+.progressbar .progressbar-text {
+  left: 0px;
+  right: 0px;
+  text-align: center;
+  background-color: transparent;
+  color: black;
+}
+
+.progressbar .progressbar-value {
+  height: 100%;
+  width: 0%;
+  background-color: wheat;
+}
+
+#lagMeter {
+  font-size: 0.75em;
+}
+
+#lagMeter.progressbar .progressbar-text {
+  left: 0;
+}
+
+#party.hasmembers {
+  border-bottom: 1px solid #908271;
+  padding-bottom: 4px;
+}
+
+#status-drag-bar {
+  right: 184px;
+  top: 0;
+  height: initial;
+  bottom: 0;
+  transition: 0s background-color;
+  background-color: transparent;
+  height: 100%;
+  width: 3px;
+  cursor: ew-resize;
+  position: absolute;
+  z-index: 10;
+}
+
+#status-drag-bar:hover {
+  background-color: #fdce89;
+  transition-delay: 1s;
+}
+
+#status-ghost-bar {
+  background-color: #fdce89;
+}
+
+.day {
+  background-image: url("../../assets/status/daybg.png");
+}
+
+.day #environmentcenter {
+  background-image: url("../../assets/status/sun.png");
+}
+
+.night {
+  background-image: url("../../assets/status/nightbg.png");
+}
+
+.twilight {
+  background-image: url("../../assets/status/sunsetbg.png");
+}
+
+.dawn {
+  background-image: url("../../assets/status/sunrisebg.png");
+}
+
+.twilight #environmentcenter,
+.dawn #environmentcenter {
+  background-image: url("../../assets/status/sunset.png");
+}
+
+.moon1-full #environmentleft {
+  background-image: url("../../assets/status/redmoonfull.png");
+}
+
+.moon1-waning #environmentleft {
+  background-image: url("../../assets/status/redmoonwaning.png");
+}
+
+.moon1-waxing #environmentleft {
+  background-image: url("../../assets/status/redmoonwaxing.png");
+}
+
+.moon2-full #environmentcenter {
+  background-image: url("../../assets/status/bluemoonfull.png");
+}
+
+.moon2-waning #environmentcenter {
+  background-image: url("../../assets/status/bluemoonwaning.png");
+}
+
+.moon2-waxing #environmentcenter {
+  background-image: url("../../assets/status/bluemoonwaxing.png");
+}
+
+.moon3-full #environmentright {
+  background-image: url("../../assets/status/greenmoonfull.png");
+}
+
+.moon3-waning #environmentright {
+  background-image: url("../../assets/status/greenmoonwaning.png");
+}
+
+.moon3-waxing #environmentright {
+  background-image: url("../../assets/status/greenmoonwaxing.png");
+}
+
+.weather-snow #environmentweather {
+  background-image: url("../../assets/status/weathersnow.png");
+}
+
+.weather-snow.intensity-hard #environmentweather {
+  background-image: url("../../assets/status/weathersnowhard.png");
+}
+
+.weather-hail #environmentweather {
+  background-image: url("../../assets/status/weatherhail.png");
+}
+
+.weather-hail.intensity-hard #environmentweather {
+  background-image: url("../../assets/status/weatherhailhard.png");
+}
+
+.weather-rain #environmentweather,
+.weather-zombie_rain #environmentweather {
+  background-image: url("../../assets/status/weatherrain.png");
+}
+
+.weather-rain.intensity-hard #environmentweather,
+.weather-zombie_rain.intensity-hard #environmentweather {
+  background-image: url("../../assets/status/weatherrainhard.png");
+}
+
+.weather-sand #environmentweather {
+  background-image: url("../../assets/status/weathersand.png");
+}
+
+.weather-sand.intensity-hard #environmentweather {
+  background-image: url("../../assets/status/weathersandhard.png");
+}
+
+.weather-sleet #environmentweather {
+  background-image: url("../../assets/status/weathersleet.png");
+}
+
+.weather-sleet.intensity-hard #environmentweather {
+  background-image: url("../../assets/status/weathersleethard.png");
+}
+
+.weather-blood_rain #environmentweather {
+  background-image: url("../../assets/status/weatherblood_rain.png");
+}
+
+.weather-blood_rain.intensity-hard #environmentweather {
+  background-image: url("../../assets/status/weatherblood_rainhard.png");
+}
+
+.weapon-dominant {
+  border-color: red !important;
+}
+
+.weapon-large-sword {
+  background-image: url(../../assets/status/icon_sword_long2.png);
+}
+
+.weapon-shield {
+  background-image: url(../../assets/status/icon_shield.png);
+}
+
+.weapon-melee {
+  background-image: url(../../assets/status/icon_melee.png);
+}
+
+.weapon-miscellaneous {
+  background-image: url(../../assets/status/icon_misc.png);
+}
+
+.weapon-polearm {
+  background-image: url(../../assets/status/icon_halberd2.png);
+}
+
+.weapon-small-sword {
+  background-image: url(../../assets/status/icon_sword_short3.png);
+}
+
+.weapon-spear {
+  background-image: url(../../assets/status/icon_spear2.png);
+}
+
+.weapon-axe {
+  background-image: url(../../assets/status/icon_axe1.png);
+}
+
+.weapon-blunt {
+  background-image: url(../../assets/status/icon_bigclub1.png);
+}
+
+.weapon-knife {
+  background-image: url(../../assets/status/icon_dagger1.png);
+}
+
+.weapon-bow {
+  background-image: url(../../assets/status/icon_Bow3.png);
+}
+
+.weapon-crossbow {
+  background-image: url(../../assets/status/icon_XBow2.png);
+}
+
+.weapon-flail {
+  background-image: url(../../assets/status/icon_bullwhip.png);
+}
+
+.weapon-staff {
+  background-image: url(../../assets/status/icon_staff2.png);
+}
+
+#health {
+  left: 2px;
+}
+
+#armor {
+  right: 2px;
+}
+
+#character-name::first-letter {
+  text-transform: uppercase;
+}
+
+.health-100 {
+  fill: rgb(255, 0, 0);
+  color: rgb(255, 0, 0);
+  stroke: rgb(255, 0, 0);
+}
+
+.health-80-99 {
+  fill: rgb(252, 71, 29);
+  color: rgb(252, 71, 29);
+  stroke: rgb(252, 71, 29);
+}
+
+.health-60-79 {
+  fill: rgb(252, 165, 40);
+  color: rgb(252, 165, 40);
+  stroke: rgb(252, 165, 40);
+}
+
+.health-40-59 {
+  fill: rgb(251, 217, 48);
+  color: rgb(251, 217, 48);
+  stroke: rgb(251, 217, 48);
+}
+
+.health-20-39 {
+  fill: rgb(251, 255, 55);
+  color: rgb(251, 255, 55);
+  stroke: rgb(251, 255, 55);
+}
+
+.health-1-19 {
+  fill: rgb(167, 255, 69);
+  color: rgb(167, 255, 69);
+  stroke: rgb(167, 255, 69);
+}
+
+.health-full {
+  fill: rgb(0, 255, 31);
+  color: rgb(0, 255, 31);
+  stroke: rgb(0, 255, 31);
+}
+
+.armor-unarmored {
+  fill: rgb(128, 0, 0);
+  color: rgb(128, 0, 0);
+  stroke: rgb(128, 0, 0);
+}
+
+.armor-barely {
+  fill: rgb(255, 0, 0);
+  color: rgb(255, 0, 0);
+  stroke: rgb(255, 0, 0);
+}
+
+.armor-slightly {
+  fill: rgb(128, 128, 0);
+  color: rgb(128, 128, 0);
+  stroke: rgb(128, 128, 0);
+}
+
+.armor-somewhat {
+  fill: rgb(255, 255, 0);
+  color: rgb(255, 255, 0);
+  stroke: rgb(255, 255, 0);
+}
+
+.armor-moderately {
+  fill: rgb(0, 128, 128);
+  color: rgb(0, 128, 128);
+  stroke: rgb(0, 128, 128);
+}
+
+.armor-fairly {
+  fill: rgb(0, 255, 255);
+  color: rgb(0, 255, 255);
+  stroke: rgb(0, 255, 255);
+}
+
+.armor-adequately {
+  fill: rgb(0, 128, 0);
+  color: rgb(0, 128, 0);
+  stroke: rgb(0, 128, 0);
+}
+
+.armor-well {
+  fill: rgb(0, 255, 0);
+  color: rgb(0, 255, 0);
+  stroke: rgb(0, 255, 0);
+}
+
+.armor-considerably {
+  fill: rgb(0, 0, 128);
+  color: rgb(0, 0, 128);
+  stroke: rgb(0, 0, 128);
+}
+
+.armor-significantly {
+  fill: rgb(0, 0, 255);
+  color: rgb(0, 0, 255);
+  stroke: rgb(0, 0, 255);
+}
+
+.armor-completely {
+  fill: rgb(128, 128, 110);
+  color: rgb(128, 128, 110);
+  stroke: rgb(128, 128, 110);
+}
+
+.armor-extensively {
+  fill: rgb(255, 255, 255);
+  color: rgb(255, 255, 255);
+  stroke: rgb(255, 255, 255);
+}
+
+.progressbar {
+  height: 18px;
+  min-height: 18px;
+  width: 118px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px;
+  /* future proofing */
+  background: -webkit-linear-gradient(
+    left,
+    rgba(255, 50, 50, 1) 0%,
+    rgba(255, 157, 0, 1) 25%,
+    rgba(255, 255, 0, 1) 50%,
+    rgba(189, 252, 0, 1) 75%,
+    rgba(0, 255, 0, 1) 100%
+  );
+  background: linear-gradient(
+    to right,
+    rgba(255, 50, 50, 1) 0%,
+    rgba(255, 157, 0, 1) 25%,
+    rgba(255, 255, 0, 1) 50%,
+    rgba(189, 252, 0, 1) 75%,
+    rgba(0, 255, 0, 1) 100%
+  );
+}
+
+.combat-bar .progressbar .progressbar-text {
+  left: 0;
+}
+
+#hp-status span {
+  overflow: hidden;
+  display: inline-block;
+}
+
+.combat-name:first-letter {
+  text-transform: capitalize;
+}

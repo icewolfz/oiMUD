@@ -1,4 +1,4 @@
- - create chat plugin and use on('function') event to add custom chat commnads
+ - create chat plugin and use on('function') event to add custom chat commands
              client.sendChat = updateChat;
 ```
 //spell-checker:ignore chatprompt chatp
@@ -51,42 +51,29 @@ case 'ch':
 
 - logger plugin and all related options
     - ensure add #window support by hooking the client events
+    - hook set-title event and run oiMUDLogger.setLogCharacter('');
 - backup plugin for shadowmud
 - immortal tool plugin for shadowmud            
     - client.telnet.GMCPSupports.push('IED 1');
     - Add #win support if added
-- maybe just a general shadowmud plugin that groups all sm related like backup and immortal tools
+- A general shadowmud plugin that groups all sm related like backup and immortal tools?
+    - Add help for sm mud if create a sm plugin
+    - Add mail compose like jiMUD using advanced editor dialog as a base as exact same code but adds to/cc/subject fields and instead of sending directly it executes a set of commands to open mail and send contents
+    - skip more prompt
+    - skip more prompt delay
 - Profile manager:
     - Add undo system
     - Add options for profile sort order and direction
     - Add option which profile to select on load
     - Add option to expand selected profile on load
     - Add search system
-- status plugin and related and move all lag meter to here
-    - Add option to display lag in title
-- skip more prompt
-- skip more prompt delay
+- status plugin
+    - create skills dialog
+    - add way to reset status width
 - fix hidden windows
+- Add settings to reset windows states to defaults
 - recode advanced editor to not use jquery when possible
 - Add paste special? may not be possible as cant control paste
-
-/// status todo
-```
-    Object.defineProperty(window, '$character', {
-        get: function () {
-            if (_status)
-                return _status.name || _windowState.data.character || '';
-            return _windowState.data.character || '';
-        },
-        configurable: true
-    });
-
-    Object.defineProperty(window, '$characterid', {
-        get: function () {
-            return _windowState.data.characterId || -1;
-        },
-        configurable: true
-    });    
-```
-
 - recode mapper import/export to use web workers
+- Add help docs/help browser
+- See if there is away to minify the inlined html code using esbuild or something to allow saving code formatted for easy mods while using minified code for release

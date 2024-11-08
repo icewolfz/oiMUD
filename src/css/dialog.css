@@ -377,6 +377,7 @@ div.dialog {
   border-right: 1px solid var(--bs-list-group-border-color);
   position: absolute;
   display: block;
+  overflow: auto;
 }
 
 .dialog .splitter-panel {

@@ -61,17 +61,63 @@ export class Mapper extends Plugin {
         this.client.on('window', window => {
             if (window === 'mapper') this.show();
         });
+        this.client.on('options-loaded', () => {
+            if (this._dialogMap) {
+                this._dialogMap.commandDelay = client.getOption('commandDelay');
+                this._dialogMap.commandDelayCount = client.getOption('commandDelayCount');
+
+                this._dialogMap.enabled = this.client.getOption('mapper.enabled');
+                if (this._dialogMap.enabled)
+                    document.getElementById('mapper-enable').classList.add('active');
+                else
+                    document.getElementById('mapper-enable').classList.remove('active');
+
+                this._dialogMap.showLegend = this.client.getOption('mapper.legend');
+                if (this._dialogMap.showLegend)
+                    document.getElementById('mapper-legend').classList.add('active');
+                else
+                    document.getElementById('mapper-legend').classList.remove('active');
+
+                this._dialogMap.follow = this.client.getOption('mapper.follow');
+                if (this._dialogMap.follow)
+                    document.getElementById('mapper-follow').classList.add('active');
+                else
+                    document.getElementById('mapper-follow').classList.remove('active');
+
+                this._dialogMap.splitArea = this.client.getOption('mapper.split');
+                if (this._dialogMap.splitArea)
+                    document.getElementById('mapper-split').classList.add('active');
+                else
+                    document.getElementById('mapper-split').classList.remove('active');
+
+                this._dialogMap.fillWalls = this.client.getOption('mapper.fill');
+                if (this._dialogMap.fillWalls)
+                    document.getElementById('mapper-fill').classList.add('active');
+                else
+                    document.getElementById('mapper-fill').classList.remove('active');
+
+                if (this._dialogMap.follow)
+                    this._dialogMap.focusCurrentRoom();
+            }
+            if (this._dialog)
+                this._dialog.resetState(Object.assign({}, client.getOption('windows.mapper') || { center: true }));
+            let options = client.getOption('windows.mapper');
+            if ((options && options.show) || this.client.getOption('showMapper'))
+                this.show();
+        });
         this.on('debug', e => this.client.debug(e), this);
         this.on('error', e => this.client.error(e), this);
         let options = client.getOption('windows.mapper');
-        if (options && options.show)
+        if ((options && options.show) || this.client.getOption('showMapper'))
             this.show();
     }
     get menu(): MenuItem[] {
         return [
             {
                 name: '-',
-                position: 5
+                position: 5,
+                exists: '#menu-plugins',
+                id: 'plugins'
             },
             {
                 name: ' Show mapper',
@@ -81,7 +127,12 @@ export class Mapper extends Plugin {
             }]
     }
     get settings(): MenuItem[] {
-        return []
+        return [{
+            name: ' Mapper',
+            action: 'settings-mapper',
+            icon: '<i class="bi bi-map"></i>',
+            position: 7
+        }]
     }
 
     get map() { return this._map; }
@@ -300,6 +351,7 @@ export class Mapper extends Plugin {
         });
         this._dialog.on('closed', () => {
             this.client.setOption('windows.mapper', this._dialog.windowState);
+            this.client.setOption('showMapper', this._dialog.windowState.show !== 0);
             removeHash('mapper');
         });
         this._dialog.on('canceling', () => {
@@ -307,6 +359,7 @@ export class Mapper extends Plugin {
         });
         this._dialog.on('canceled', () => {
             this.client.setOption('windows.mapper', this._dialog.windowState);
+            this.client.setOption('showMapper', this._dialog.windowState.show !== 0);
             removeHash('mapper');
         });
         this._dialog.on('resizing', () => {
@@ -784,7 +837,7 @@ export class Mapper extends Plugin {
                 this._dialogMap.active.area = this.map.Areas[0];
                 this._dialogMap.emit('setting-changed', 'active', this._dialogMap.active.area);
                 area.value = this._dialogMap.active.area;
-            }           
+            }
             this._dialogMap.refresh();
 
             this._dialogMap.enabled = this.client.getOption('mapper.enabled');

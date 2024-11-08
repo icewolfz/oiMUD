@@ -21,6 +21,10 @@ declare global {
     interface Object {
         toType;
     }
+
+    interface Window {
+        opera;
+    }
 }
 
 /**
@@ -2651,4 +2655,18 @@ export function getWordAtPosition(x, y) {
     }
 
     return null;
+}
+
+export function isMobile(userAgent?) {
+    if (window.matchMedia('(orientation: landscape) and (max-width: 641px)').matches)
+        return true;
+    if (window.matchMedia('(orientation: landscape) and (max-height: 480px)').matches)
+        return true;
+    if (window.matchMedia('(orientation: portrait) and (max-width: 480px)').matches)
+        return true;
+    if (window.matchMedia(' (orientation: portrait) and (max-height: 641px)').matches)
+        return true;
+    if (userAgent && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Windows Phone/i.test(navigator.userAgent || navigator.vendor || window.opera))
+        return true;
+    return false;
 }

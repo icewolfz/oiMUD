@@ -1,6 +1,7 @@
 //spell-checker:words vscroll, hscroll, askoncancel, askonclose,commandon, cmdfont
 //spell-checker:ignore emoteto, emotetos askonchildren YYYYMMDD Hmmss
 import { NewLineType, Log, BackupSelection, OnDisconnect, ProfileSortOrder, OnProfileChange, OnProfileDeleted, ScriptEngineType, SettingType, Echo, TabCompletion } from './types';
+import { isMobile } from './library'
 
 /**
  * Array that contains details about setting values
@@ -52,7 +53,7 @@ export let SettingList: any[] = [
     ['enableMXP', 0, 1, true],
     ['enableMSP', 0, 1, true],
     ['parseCommands', 0, 3, true],
-    ['lagMeter', 0, 1, false],
+    ['lagMeter', 0, 1, true],
     ['enablePing', 0, 1, false],
     ['enableEcho', 0, 1, true],
     ['enableSpeedpaths', 0, 1, true],
@@ -168,7 +169,7 @@ export let SettingList: any[] = [
     ['backupSave', 0, 2, BackupSelection.All],
     ['backupAllProfiles', 0, 1, true],
     ['scrollLocked', 0, 1, false],
-    ['showStatus', 0, 1, true],
+    ['showStatus', 0, 1, !isMobile()],
     ['showCharacterManager', 0, 1, false],
     ['showChat', 0, 1, false],
     ['showEditor', 0, 1, false],
@@ -221,7 +222,7 @@ export let SettingList: any[] = [
     ['profiles.profileExpandSelected', 0, 1, true],
     ['chat.lines', 0, 4, []],
     ['chat.showInTaskBar', 0, 1, false],
-    ['chat.showTimestamp', 0, 1, false],
+    ['chat.showTimestamp', 0, SettingType.Number, 0],
     ['chat.timestampFormat', 0, 0, '[[]MM-DD HH:mm:ss.SSS[]] '],
     ['chat.tabWidth', 0, 2, 8],
     ['chat.displayControlCodes', 0, 1, false],
@@ -285,7 +286,7 @@ export let SettingList: any[] = [
     ['find.highlight', 0, SettingType.Boolean, false],
     ['find.location', 0, SettingType.Custom, [5, 20]],
     ['display.showInvalidMXPTags', 0, SettingType.Boolean, false],
-    ['display.showTimestamp', 0, SettingType.Boolean, false],
+    ['display.showTimestamp', 0, SettingType.Number, 0],
     ['display.timestampFormat', 0, SettingType.String, '[[]MM-DD HH:mm:ss.SSS[]] '],
     ['display.displayControlCodes', 0, SettingType.Boolean, false],
     ['display.emulateTerminal', 0, SettingType.Boolean, false],
@@ -360,6 +361,8 @@ export class Settings {
         for (var s = 0, sl = SettingList.length; s < sl; s++) {
             if (SettingList[s][2] === SettingType.Custom) continue;
             this[SettingList[s][0]] = Settings.getValue(SettingList[s][0]);
+            if (SettingList[s][1] && SettingList[s][1].length)
+                this[SettingList[s][1]] = Settings.getValue(SettingList[s][1]);
             /*
             subs = SettingList[s][0].split('.');
             if ((kl = subs.length) > 1) {
@@ -451,6 +454,7 @@ export class Settings {
                 case 'simpleAlarms':
                 case 'simpleEditor':
                 case 'selectLastCommand':
+                case 'showLagInTitle':
                     if (tmp == 1)
                         return true;
                     return false;
@@ -536,7 +540,7 @@ export class Settings {
             case 'enableMXP': return true;
             case 'enableMSP': return true;
             case 'parseCommands': return true;
-            case 'lagMeter': return false;
+            case 'lagMeter': return true;
             case 'enablePing': return false;
             case 'enableEcho': return true;
             case 'enableSpeedpaths': return true;
@@ -629,7 +633,7 @@ export class Settings {
             case 'backupAllProfiles': return true;
             case 'backupReplaceCharacters': return true;
             case 'scrollLocked': return false;
-            case 'showStatus': return true;
+            case 'showStatus': return !isMobile();
             case 'showChat': return false;
             case 'showEditor': return false;
             case 'showArmor': return false;
@@ -668,7 +672,7 @@ export class Settings {
             case 'profiles.profileSelected': return 'default';
             case 'profiles.profileExpandSelected': return true;
             case 'chat.lines': return [];
-            case 'chat.showTimestamp': return false;
+            case 'chat.showTimestamp': return 0;
             case 'chat.timestampFormat': return '[[]MM-DD HH:mm:ss.SSS[]] ';
             case 'chat.tabWidth': return 8;
             case 'chat.displayControlCodes': return false;
@@ -709,7 +713,7 @@ export class Settings {
             case 'scriptEngineType': return ScriptEngineType.Simple;
             case 'initializeScriptEngineOnLoad': return false;
             case 'display.showInvalidMXPTags': return false;
-            case 'display.showTimestamp': return false;
+            case 'display.showTimestamp': return 0;
             case 'display.timestampFormat': return '[[]MM-DD HH:mm:ss.SSS[]] ';
             case 'display.displayControlCodes': return false;
             case 'display.emulateTerminal': return false;

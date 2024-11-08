@@ -618,6 +618,106 @@ export class Test extends Plugin {
             });
         };
 
+        this.functions['teststatus'] = data => {
+            this.client.emit('received-GMCP', 'Char.Base', {
+                name: 'Tester',
+                class: 'fighter',
+                subclass: 'None',
+                race: 'human',
+                level: 1,
+                gender: 'male'
+            });
+            this.client.emit('received-GMCP', 'Char.Vitals', {
+                hp: 75,
+                hpmax: 100,
+                sp: 50,
+                spmax: 100,
+                mp: 25,
+                mpmax: 100
+            });
+            this.client.emit('received-GMCP', 'Char.Experience', {
+                current: 50,
+                need: 100,
+                needPercent: 50,
+                earned: 200,
+                banked: 300
+            });
+            this.client.emit('received-GMCP', 'oMUD.limb', {
+                head: 10,
+                torso: 20,
+                'left arm': 30,
+                'right arm': 40,
+                'left hand': 50,
+                'right hand': 60,
+                'left leg': 70,
+                'right leg': 80,
+                'right foot': 90,
+                'left foot': 100,
+                'left wing': 90,
+                'right wing': 80,
+                tail: 70
+            });
+            this.client.emit('received-GMCP', 'oMUD.ac', {
+                head: 0,
+                torso: 1,
+                'left arm': 2,
+                'right arm': 3,
+                'left hand': 3.5,
+                'right hand': 4,
+                'left leg': 4.5,
+                'right leg': 5,
+                'right foot': 5.5,
+                'left foot': 6,
+                'left wing': 6.5,
+                'right wing': 5,
+                tail: 4,
+                overall: 4
+            });
+            this.client.emit('received-GMCP', 'oMUD.weapons', {
+                "right hand": { "name": "knife", "type": "knife", "subtype": "dagger", "material": "iron", "quality": "pooor", "dominant": 1 },
+                "left hand": { "name": "club", "type": "blunt", "subtype": "club", "material": "wood", "quality": "ordinary", "dominant": 0 }
+            });
+            if (data && data.args && data.args.length && data.args[0] === 'night')
+                this.client.emit('received-GMCP', 'oMUD.Environment', { tod: 'night', moons: ['waning', 'full', 'waxing'] });
+            else
+                this.client.emit('received-GMCP', 'oMUD.Environment', { "tod": "day" });
+            this.client.emit('received-GMCP', 'oMUD.skill', { skill: 'knife', percent: 60 });
+            this.client.emit('received-GMCP', 'oMUD.skill', { skill: 'knife', amount: 100, bonus: 5, category: 'weapon' });
+            this.client.emit('received-GMCP', 'oMUD.skill', { skill: 'small sword', percent: 100 });
+            let found = false;
+            this.client.emit('received-GMCP', 'oMUD.skill', { skill: 'small sword', amount: 1150, bonus: 0, category: 'weapon' });
+            if (data && data.args && data.args.length) {
+                data.args.forEach(arg => {
+                    if (arg.startsWith('party:')) {
+                        found = true;
+                        let s = parseInt(arg.split(':')[1], 10);
+                        for (let m = 0; m < s; m++)
+                            this.client.emit('received-GMCP', 'oMUD.party', { "action": "update", "name": "Party " + (m + 1), "hp": 50, race: "human", "id": m });
+                    }
+                });
+            }
+            if (!found) {
+                this.client.emit('received-GMCP', 'oMUD.party', { "action": "update", "name": "Elf", "hp": 50, race: "elf", "id": 1 });
+                this.client.emit('received-GMCP', 'oMUD.party', { "action": "update", "name": "Dwarf", "hp": 100, race: "dwarf", "id": 2 });
+            }
+            found = false
+            if (data && data.args && data.args.length) {
+                data.args.forEach(arg => {
+                    if (arg.startsWith('monster:')) {
+                        found = true;
+                        let s = parseInt(arg.split(':')[1], 10);
+                        for (let m = 0; m < s; m++)
+                            this.client.emit('received-GMCP', 'oMUD.combat', { "action": "update", "name": "Monster " + (m + 1), "hp": 50, race: "orc", "id": m, order: 0 });
+                    }
+                });
+            }
+            if (!found) {
+                this.client.emit('received-GMCP', 'oMUD.combat', { "action": "update", "name": "Monster", "hp": 50, race: "orc", "id": 3, order: 0 });
+                this.client.emit('received-GMCP', 'oMUD.combat', { "action": "update", "name": "Monster 2", "hp": 100, race: "dragon", "id": 4, order: 1 });
+                this.client.emit('received-GMCP', 'oMUD.combat', { "action": "update", "name": "Monster with extra super long name to test", "hp": 100, race: "dragon", "id": 5, order: 2 });
+            }
+        };
+
         this.functions['testfansi'] = () => {
             let sample = '';
             let i;
@@ -889,7 +989,7 @@ Devanagari
             name = name.substring(0, name.length - 2);
         if (this.functions[name]) {
             console.time(name);
-            this.functions[name].apply(this, data || {});
+            this.functions[name].apply(this, [data || {}]);
             console.timeEnd(name);
             data.handled = true;
         }

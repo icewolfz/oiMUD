@@ -4,95 +4,122 @@
 /*@import url(interface.css);*/
 
 table {
-    border-spacing: 0;
+  border-spacing: 0;
 }
 
-pre, code, kbd, samp, tt {
-    font-family: monospace,monospace;
-    font-size: 1em;
+pre,
+code,
+kbd,
+samp,
+tt {
+  font-family: monospace, monospace;
+  font-size: 1em;
 }
 
 * {
-    overflow: none;
+  overflow: none;
 }
 
-html, body {
-    height: 100%;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    position:absolute;
-    background-color: rgb(33, 37, 41);
+html,
+body {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  background-color: rgb(33, 37, 41);
 }
 
 html {
-    height: 100%;
-    width: 100%;
-    margin: 0px;
-    padding: 0px;
-    overflow: hidden;
+  height: 100%;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
 }
 
 textarea {
-    resize: vertical;
-    max-height: 400px;
-    min-height: 200px;
+  resize: vertical;
+  max-height: 400px;
+  min-height: 200px;
 } /* none|horizontal|vertical|both */
 
 .noselect {
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Non-prefixed version, currently
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
        supported by Chrome and Opera */
 }
 
 #client-container {
-    bottom: 0;
-    top: 0;
-    left: 0;
-    right: 0;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-    position: absolute;
-    z-index: 0;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  z-index: 0;
 }
 
 #command-input-container {
-    bottom: 0;
-    left: 0;
-    right: 0;
-    position: absolute;
-    z-index: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+  z-index: 1;
+  min-height: 32px;
+}
+
+#command-input-group {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 3px;
+  bottom: 3px;
+  width: auto;
 }
 
 #commandInput {
-    outline: none;
-    resize: none;
-    overflow: hidden;
-    line-height: 1.2;
-    min-height: 16px;
-    border-color: #6c757d;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  line-height: 1.2;
+  min-height: 16px;
+  border-color: #6c757d;
+  padding: 1px;
+  margin: 0px;
+  height: 100%;
+  outline: none;
+  min-height: 100%;
 }
 
 #commandInput:focus {
-    outline: none;
+  outline: none;
 }
 
 #commandMeasure {
-    white-space: pre;
-    position: absolute;
-    z-index: 1000;
-    max-height: 50%;
-    visibility: hidden;
-    line-height: 1.2;
-    min-height: 26px;
+  white-space: pre;
+  position: absolute;
+  z-index: 1000;
+  max-height: 50%;
+  visibility: hidden;
+  line-height: 1.2;
+  min-height: 26px;
 }
 
 #commandMeasure::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
+  width: 12px;
+  height: 12px;
+}
+
+#btn-menu,
+#btn-adv-editor,
+#btn-command-history {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }

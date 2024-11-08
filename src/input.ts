@@ -8265,7 +8265,6 @@ export class Input extends EventEmitter {
     }
 
     public TestTrigger(trigger, parent, t, line?, raw?, frag?: boolean) {
-        let val;
         let pattern;
         try {
             if (trigger.verbatim) {
@@ -8286,7 +8285,7 @@ export class Input extends EventEmitter {
                     return t;
                 }
                 this._LastTriggered = (trigger.raw ? raw : line);
-                val = this.ExecuteTrigger(trigger, [this._LastTriggered], false, t, [this._LastTriggered], 0, parent);
+                this.ExecuteTrigger(trigger, [this._LastTriggered], false, t, [this._LastTriggered], 0, parent);
             }
             else {
                 let re;
@@ -8319,7 +8318,7 @@ export class Input extends EventEmitter {
                 }
                 if (res.groups)
                     Object.keys(res.groups).map(v => this.client.variables[v] = res.groups[v]);
-                val = this.ExecuteTrigger(trigger, args, false, t, [this._LastTriggered, re], res.groups, parent);
+                this.ExecuteTrigger(trigger, args, false, t, [this._LastTriggered, re], res.groups, parent);
             }
             t = this.cleanUpTriggerState(t);
         }
@@ -8689,15 +8688,17 @@ export class Input extends EventEmitter {
         if (idx === -1) return;
         if (idx < 0 || idx >= this._TriggerCache.length) return;
         let trigger = this._TriggerCache[idx];
-        let oTrigger;
+        //let oTrigger;
         const parent = trigger;
         let reParse = false;
         if (parent.state !== 0)
             trigger = parent.triggers[parent.state - 1];
+        /*
         if (oldState === 0)
             oTrigger = parent;
         else
             oTrigger = parent.triggers[oldState - 1];
+        */
         if (oldState === parent.state) {
             if (this._TriggerStates[idx]) {
                 if (!trigger.fired)

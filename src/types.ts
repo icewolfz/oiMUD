@@ -294,10 +294,13 @@ export enum ProfileSaveType {
 }
 
 export interface MenuItem {
+  id?: string;
   name: string;
   action?: Function | string;
   icon?: string;
   position?: number | string;
+  active?: boolean,
+  exists?
 }
 
 export interface FunctionEvent {

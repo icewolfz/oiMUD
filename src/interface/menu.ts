@@ -121,21 +121,21 @@ export function initMenu() {
             for (s = 0; s < sl; s++) {
                 let item = client.plugins[p].menu[s];
                 let code;
-                let id = 'menu-' + (item.name || s).toLowerCase().replace(/ /g, '-');
+                let id = 'menu-' + (item.id || item.name || s).toLowerCase().replace(/ /g, '-');
                 if (item.name === '-')
-                    code = '<li><hr class="dropdown-divider"></li>';
+                    code = `<li id="${id}"><hr class="dropdown-divider"></li>`;
                 else if (typeof item.action === 'string')
-                    code = `<li id="menu-${id}" class="nav-item" title="${item.name || ''}"><a class="nav-link" href="#${item.action}">${item.icon || ''}<span>${item.name || ''}</span></a></li>`;
+                    code = `<li id="${id}" class="nav-item${item.active ? ' active' : ''}" title="${item.name || ''}"><a class="nav-link" href="#${item.action}">${item.icon || ''}<span>${item.name || ''}</span></a></li>`;
                 else
-                    code = `<li id="menu-${id}" class="nav-item" title="${item.name || ''}"><a class="nav-link" href="javascript:void(0)">${item.icon || ''}<span>${item.name || ''}</span></a></li>`;
+                    code = `<li id="${id}" class="nav-item${item.active ? ' active' : ''}" title="${item.name || ''}"><a class="nav-link" href="javascript:void(0)">${item.icon || ''}<span>${item.name || ''}</span></a></li>`;
+                if (item.exists && list.querySelector(item.exists)) continue;
                 if ('position' in item) {
                     if (typeof item.position === 'string') {
                         if (list.querySelector(item.position))
                             list.querySelector(item.position).insertAdjacentHTML('afterend', code);
                     }
-                    else if (item.position >= 0 && item.position < list.children.length) {
+                    else if (item.position >= 0 && item.position < list.children.length)
                         list.children[item.position].insertAdjacentHTML('afterend', code);
-                    }
                     else
                         list.insertAdjacentHTML('beforeend', code);
                 }
@@ -143,7 +143,7 @@ export function initMenu() {
                     list.insertAdjacentHTML('beforeend', code);
                 if (item.name === '-') continue;
                 if (typeof item.action === 'function')
-                    document.querySelector(`#menu-${id} a`).addEventListener('click', e => {
+                    document.querySelector(`#${id} a`).addEventListener('click', e => {
                         const ie = { client: client, preventDefault: false };
                         item.action(ie);
                         if (ie.preventDefault) return;

@@ -154,6 +154,7 @@ a.disabled-link:hover {
   width: auto;
   left: 26px;
   top: 2px;
+  /*right: 64px;*/
   right: 56px;
   position: absolute;
 }
@@ -164,6 +165,7 @@ a.disabled-link:hover {
   (orientation: portrait) and (max-height: 641px) {
   #mapper-area {
     pointer-events: auto;
+    /*right: 30px;*/
     right: 26px;
   }
   .dialog[data-panel="right"] #mapper-splitter {

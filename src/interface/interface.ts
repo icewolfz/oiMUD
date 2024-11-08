@@ -1,4 +1,6 @@
 import "../css/interface.css";
+import "../css/buttons.css";
+import "../css/theme.css";
 import { initMenu } from './menu';
 import { Client } from '../client';
 import { Dialog, DialogButtons } from "./dialog";
@@ -7,7 +9,7 @@ import { AdvEditor } from './adv.editor';
 import { SettingsDialog } from './settingsdialog';
 import { ProfilesDialog } from "./profilesdialog";
 import { Contextmenu } from './contextmenu';
-import "../css/buttons.css";
+
 declare global {
     interface Window {
         initializeInterface;
@@ -324,6 +326,17 @@ export function initializeInterface() {
         if (_dialogs.profiles) _dialogs.profiles.resetState(client.getOption('windows.profiles') || { center: true, width: 400, height: 275 });
     });
     client.on('set-title', title => {
+        if (!title || !title.length)
+            title = client.defaultTitle;
+        else if (title.indexOf(client.defaultTitle) === -1)
+            title += ' - ' + client.defaultTitle;
+        if (client.connecting)
+            title = 'Connecting - ' + title;
+        else if (client.connected)
+            title = 'Connected - ' + title;
+        else
+            title = 'Disconnected - ' + title;
+
         window.document.title = title;
     });
     client.on('connected', () => _setIcon(1));
@@ -505,7 +518,7 @@ export function initializeInterface() {
     window.addEventListener('error', (e) => {
         const { message, filename, lineno, colno, error } = e;
         //not important so ignore it to prevent error spamming when reizing
-        if (message.includes("ResizeObserver loop completed with undelivered notifications")) 
+        if (message.includes("ResizeObserver loop completed with undelivered notifications"))
             return;
         if (client) {
             if (error)
@@ -939,7 +952,7 @@ function updateCommandInput() {
     may need to walk the chain up til body or until it finds shared container with display and resize each one based on positions/paddings/margins
     */
     client.commandInput.parentElement.style.height = height + 'px';
-    client.commandInput.closest('nav').style.height = height + 6 + 'px';
+    client.commandInput.closest('nav').style.height = height + 'px';
     client.display.container.style.bottom = (height + padding) + 'px';
 
     commandInputResize = {
@@ -962,7 +975,7 @@ function _resizeCommandInput() {
     const padding = commandInputResize.padding;
     cmd.style.height = (height + padding) + 'px';
     client.commandInput.parentElement.style.height = height + 'px';
-    client.commandInput.closest('nav').style.height = height + 6 + 'px';
+    client.commandInput.closest('nav').style.height = height + 'px';
     client.display.container.style.bottom = (height + padding) + 'px';
 }
 

@@ -721,3 +721,101 @@
 .combat-name:first-letter {
   text-transform: capitalize;
 }
+
+#status-simple-lagMeter {
+  background: url(../../assets/status/barr.png);
+  background-size: cover;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  height: 2px;
+
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#00ff00+0,bdfc00+25,ffff00+50,ff9d00+75,ff3232+100 */
+  background: -moz-linear-gradient(
+    left,
+    #00ff00 0%,
+    #bdfc00 25%,
+    #ffff00 50%,
+    #ff9d00 75%,
+    #ff3232 100%
+  ); /* FF3.6-15 */
+  background: -webkit-linear-gradient(
+    left,
+    #00ff00 0%,
+    #bdfc00 25%,
+    #ffff00 50%,
+    #ff9d00 75%,
+    #ff3232 100%
+  ); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(
+    to right,
+    #00ff00 0%,
+    #bdfc00 25%,
+    #ffff00 50%,
+    #ff9d00 75%,
+    #ff3232 100%
+  ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  /*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ff00', endColorstr='#ff3232',GradientType=1 ); /* IE6-9 */
+  visibility: hidden;
+}
+
+#status-simple-lagMeter .progress-bar {
+  color: black;
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: #343a40 !important;
+  width: 100%;
+}
+
+#status-simple-hp,
+#status-simple-sp,
+#status-simple-mp,
+#status-simple-xp {
+  border-top: 1px black solid;
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  height: 4px;
+  z-index: 10;
+}
+
+#status-simple-hp {
+  top: 0px;
+  background-color: rgb(255, 0, 0);
+}
+
+#status-simple-sp {
+  top: 4px;
+  background-color: rgb(0, 255, 0);
+}
+
+#status-simple-mp {
+  top: 8px;
+  background-color: rgb(0, 165, 255);
+}
+
+#status-simple-xp {
+  top: 12px;
+  background-color: rgb(255, 255, 0);
+}
+
+#status-simple-hp .progress-bar,
+#status-simple-sp .progress-bar,
+#status-simple-mp .progress-bar,
+#status-simple-xp .progress-bar {
+  color: black;
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: #343a40 !important;
+  width: 100%;
+}
+
+#status-simple,
+#status-simple-lagMeter {
+  opacity: 0.8;
+}

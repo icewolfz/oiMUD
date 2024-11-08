@@ -4617,7 +4617,8 @@
     ["backupReplaceCharacters", 0, 1 /* Boolean */, true],
     ["simpleAlarms", 0, 1 /* Boolean */, false],
     ["simpleEditor", 0, 1 /* Boolean */, false],
-    ["selectLastCommand", 0, 1 /* Boolean */, true]
+    ["selectLastCommand", 0, 1 /* Boolean */, true],
+    ["statusMode", 0, 2 /* Number */, isMobile() ? 1 : 0]
   ];
   var Settings = class _Settings {
     constructor() {
@@ -5216,6 +5217,8 @@
           return false;
         case "selectLastCommand":
           return true;
+        case "statusMode":
+          isMobile() ? 1 : 0;
       }
       return null;
     }

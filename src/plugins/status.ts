@@ -50,7 +50,8 @@ export class Status extends Plugin {
         if (!this.client.getOption('showStatus'))
             this.updateInterface();
         else {
-            this._clientContainer.style.right = this._splitterDistance + 'px';
+            if (!this.client.getOption('statusMode'))
+                this._clientContainer.style.right = this._splitterDistance + 'px';
             this._status.style.width = this._splitterDistance - p + 'px';
             document.getElementById('status-drag-bar').style.right = this.splitterDistance + 'px'
         }
@@ -204,7 +205,7 @@ export class Status extends Plugin {
 
         Object.defineProperty(window, '$character', {
             get: function () {
-                if(!this.info) return '';
+                if (!this.info) return '';
                 return this.info['name'] || '';
             },
             configurable: true
@@ -217,6 +218,7 @@ export class Status extends Plugin {
             },
             configurable: true
         });
+        this.client.display.container.append(document.getElementById('status-simple-lagMeter'));
         this.updateSplitter();
         this.updateInterface();
         this.init();
@@ -284,6 +286,9 @@ export class Status extends Plugin {
                     this.info['spmax'] = obj.spmax;
                     this.info['mp'] = obj.mp;
                     this.info['mpmax'] = obj.mpmax;
+                    this.updateSimpleBar('status-simple-hp');
+                    this.updateSimpleBar('status-simple-sp');
+                    this.updateSimpleBar('status-simple-mp');
                     this.doUpdate(UpdateType.overall);
                     break;
                 case 'char.experience':
@@ -407,8 +412,23 @@ export class Status extends Plugin {
             this._status.style.display = 'none';
             document.getElementById('status-drag-bar').style.display = 'none';
             this.emit('updated-interface');
+            document.getElementById('status-simple').style.display = 'none';
+            document.getElementById('status-simple-lagMeter').style.visibility = this.client.getOption('lagMeter') ? 'visible' : '';
             return;
         }
+        if (this.client.getOption('statusMode')) {
+            this._clientContainer.style.right = '';
+            this._status.style.visibility = 'hidden';
+            this._status.style.display = 'none';
+            document.getElementById('status-drag-bar').style.display = 'none';
+            document.getElementById('status-simple').style.display = '';
+            document.getElementById('status-simple-lagMeter').style.visibility = this.client.getOption('lagMeter') ? 'visible' : '';
+            this.emit('updated-interface');
+            return;
+        }
+        document.getElementById('status-simple').style.display = 'none';
+        document.getElementById('status-simple-lagMeter').style.visibility = '';
+
         const p = parseInt(this._styles.right, 10) * 2;
         this._clientContainer.style.right = this._splitterDistance + 'px';
         this._status.style.width = this._splitterDistance - p + 'px';
@@ -540,11 +560,15 @@ export class Status extends Plugin {
         this.updateBar('hp-bar', 0, 0);
         this.updateBar('sp-bar', 0, 0);
         this.updateBar('mp-bar', 0, 0);
+        this.updateSimpleBar('status-simple-hp');
+        this.updateSimpleBar('status-simple-sp');
+        this.updateSimpleBar('status-simple-mp');
         document.getElementById('xp-value').textContent = '0';
         document.getElementById('xp-banked').textContent = '0';
         document.getElementById('need-value').textContent = '0';
         document.getElementById('earn-value').textContent = '0';
         this.updateBar('need-percent', 0, 0, '0');
+        this.updateBar('status-simple-xp', 0, 0, '', true);
         this.clear('combat');
         this.clear('party');
         document.getElementById('party').classList.remove('hasmembers');
@@ -717,7 +741,7 @@ export class Status extends Plugin {
                 eLimb.classList.add('health-full');
         }
     }
-    public updateBar(id: string, value: number, max?: number, text?: string) {
+    public updateBar(id: string, value: number, max?: number, text?: string, noText?: boolean) {
         const bar = document.getElementById(id);
         if (!bar)
             return;
@@ -725,9 +749,25 @@ export class Status extends Plugin {
             let p = 100;
             if (max !== 0)
                 p = value / max * 100;
-            bar.firstElementChild.textContent = text || (value + '/' + max);
+            if (!noText)
+                bar.firstElementChild.textContent = text || (value + '/' + max);
             (<HTMLElement>bar.lastElementChild).style.width = (100 - p) + '%';
+            (<HTMLElement>bar.lastElementChild).ariaValueNow = '' + p;
         }
+    }
+
+    public updateSimpleBar(bar) {
+        var p;
+        const el = document.getElementById(bar);
+        if (!el) return;
+        const v = el.dataset.var.toLowerCase();
+        if (!this.info || !this.info[v + 'max'])
+            p = 100;
+        else
+            p = this.info[v] / this.info[v + 'max'] * 100;
+        const progress = (document.querySelector(`#${bar}  .progress-bar`) as HTMLElement);
+        progress.style.width = (100 - p) + '%';
+        progress.ariaValueNow = '' + p;
     }
 
     public createIconBar(parent, id, label, value, max, icon?, order?) {
@@ -789,6 +829,10 @@ export class Status extends Plugin {
         if (p > 100) p = 100;
         (<HTMLElement>this.lagMeter.lastElementChild).style.width = (100 - p) + '%';
         this.lagMeter.firstElementChild.textContent = (lag / 1000) + 's';
+
+        const lm = document.querySelector('#status-simple-lagMeter .progress-bar') as HTMLElement;
+        lm.style.width = (100 - p) + '%';
+        lm.ariaValueNow = '' + p;
     }
 
     private doUpdate(type?: UpdateType) {
@@ -822,17 +866,18 @@ export class Status extends Plugin {
         });
     }
 
-
     public updateXP() {
         $('#xp-value').text(this.info['EXPERIENCE']);
         $('#xp-banked').text(this.info['EXPERIENCE_BANKED']);
         if (this.info['EXPERIENCE_NEED'] < 0) {
             $('#need-value').text(this.client.getOption('allowNegativeNumberNeeded') ? this.info['EXPERIENCE_NEED'] : 0);
             this.updateBar('need-percent', 100 - this.info['EXPERIENCE_NEED_P'], 100, this.client.getOption('allowNegativeNumberNeeded') ? this.info['EXPERIENCE_NEED'].toString() : '0');
+            this.updateBar('status-simple-xp', 100 - this.info['EXPERIENCE_NEED_P'], 100, '', true);
         }
         else {
             $('#need-value').text(this.info['EXPERIENCE_NEED']);
             this.updateBar('need-percent', 100 - this.info['EXPERIENCE_NEED_P'], 100, this.info['EXPERIENCE_NEED'].toString());
+            this.updateBar('status-simple-xp', 100 - this.info['EXPERIENCE_NEED_P'], 100, '', true);
         }
         $('#earn-value').text(this.info['EXPERIENCE_EARNED']);
     }

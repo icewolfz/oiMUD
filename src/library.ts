@@ -98,23 +98,35 @@ export function FilterArrayByKeyValue(array, k, v) {
 const _edCache = document.createElement('div');
 
 export function htmlEncode2(value) {
+    if (!value || !value.length) return '';
     _edCache.textContent = value.replace(/ /g, '\u00A0');
-    return _edCache.innerHTML;
+    value = _edCache.innerHTML;
+    _edCache.textContent = '';
+    return value;
 }
 
 export function htmlDecode2(value) {
+    if (!value || !value.length) return '';
     _edCache.innerHTML = value;
-    return _edCache.textContent.replace(/\u00A0/g, ' ');
+    value = _edCache.textContent.replace(/\u00A0/g, ' ');
+    _edCache.innerHTML = '';
+    return value;
 }
 
 export function htmlEncode(value) {
+    if (!value || !value.length) return '';
     _edCache.textContent = value;
-    return _edCache.innerHTML;
+    value = _edCache.innerHTML;
+    _edCache.textContent = ''
+    return value;
 }
 
 export function htmlDecode(value) {
+    if (!value || !value.length) return '';
     _edCache.innerHTML = value;
-    return _edCache.textContent;
+    value = _edCache.textContent;
+    _edCache.innerHTML = '';
+    return value;
 }
 
 export function htmlEntities(str) {
@@ -123,7 +135,9 @@ export function htmlEntities(str) {
 
 export function stripHTML(html) {
     _edCache.innerHTML = html;
-    return _edCache.textContent || _edCache.innerText || '';
+    html = _edCache.textContent || _edCache.innerText || '';
+    _edCache.innerHTML = '';
+    return html;
 }
 
 export function stripParentheses(str) {

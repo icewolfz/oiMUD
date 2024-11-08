@@ -2435,12 +2435,18 @@
   }
   var _edCache = document.createElement("div");
   function htmlEncode(value) {
+    if (!value || !value.length) return "";
     _edCache.textContent = value;
-    return _edCache.innerHTML;
+    value = _edCache.innerHTML;
+    _edCache.textContent = "";
+    return value;
   }
   function htmlDecode(value) {
+    if (!value || !value.length) return "";
     _edCache.innerHTML = value;
-    return _edCache.textContent;
+    value = _edCache.textContent;
+    _edCache.innerHTML = "";
+    return value;
   }
   function stripQuotes(str) {
     str = str.replace(/^"(.+(?="$))?"$/, "$1");

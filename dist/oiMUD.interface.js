@@ -322,8 +322,11 @@
   }
   var _edCache = document.createElement("div");
   function htmlEncode(value) {
+    if (!value || !value.length) return "";
     _edCache.textContent = value;
-    return _edCache.innerHTML;
+    value = _edCache.innerHTML;
+    _edCache.textContent = "";
+    return value;
   }
   function offset(el) {
     const box = el.getBoundingClientRect();

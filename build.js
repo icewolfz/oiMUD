@@ -1,4 +1,6 @@
 const esbuild = require('esbuild');
+const fs = require('fs/promises');
+const { minify } = require('html-minifier-terser');
 
 let args = {
     all: process.argv.indexOf('-a') !== -1 || process.argv.indexOf('--all') !== -1 || process.argv.indexOf('-all') !== -1,
@@ -12,6 +14,17 @@ let args = {
     test: process.argv.indexOf('-t') !== -1 || process.argv.indexOf('--test') !== -1 || process.argv.indexOf('-test') !== -1,
 }
 
+const HTMLMinifyPlugin = {
+    name: "HTMLMinifyPlugin",
+    setup(build) {
+        build.onLoad({ filter: /\.htm|.html$/ }, async (args) => {
+            const f = await fs.readFile(args.path, { encoding: 'utf8' });
+            const m = await minify(f, { collapseWhitespace: true, conservativeCollapse: true, minifyCSS: true, removeComments: true });
+            return { loader: "text", contents: m };
+        })
+    }
+}
+
 let config = {
     bundle: true,
     loader: {
@@ -19,7 +32,8 @@ let config = {
         ['.svg']: 'dataurl',
         ['.htm']: 'text'
     },
-    external: ['moment']
+    external: ['moment'],
+    plugins: [HTMLMinifyPlugin],
 }
 let release = Object.assign({}, config, { minify: true, sourcemap: true, define: { TEST: args.test ? 'true' : 'false', DEBUG: 'false', TINYMCE: args.all || args.tinymce ? 'true' : 'false' } });
 let debug = Object.assign({}, config, { minify: false, sourcemap: false, define: { TEST: 'true', DEBUG: 'true', TINYMCE: args.all || args.tinymce ? 'true' : 'false' } });

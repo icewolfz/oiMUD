@@ -76,5 +76,4 @@ case 'ch':
 - Add paste special? may not be possible as cant control paste
 - recode mapper import/export to use web workers
 - Add help docs/help browser
-- See if there is away to minify the inlined html code using esbuild or something to allow saving code formatted for easy mods while using minified code for release
 - run firefox/chrome performance tools to optimize code/loading

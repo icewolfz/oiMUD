@@ -312,12 +312,14 @@ export function initializeInterface() {
                 editor.simple = client.getOption('simpleEditor');
                 if (!editor.isSimple) {
                     editorDialog.hideFooter();
-                    editorDialog.header.querySelector('#adv-editor-switch').title = 'Switch to simple';
+                    if (editorDialog.header.querySelector('#adv-editor-switch'))
+                        editorDialog.header.querySelector('#adv-editor-switch').title = 'Switch to simple';
                 }
                 else {
                     editor.value = value;
                     editorDialog.showFooter();
-                    editorDialog.header.querySelector('#adv-editor-switch').title = 'Switch to advanced';
+                    if (editorDialog.header.querySelector('#adv-editor-switch'))
+                        editorDialog.header.querySelector('#adv-editor-switch').title = 'Switch to advanced';
                     setTimeout(() => editor.focus(), 100);
                 }
             }
@@ -752,25 +754,27 @@ export function showDialog(name: string) {
                 editorDialog.footer.innerHTML = `<button id="btn-adv-editor-clear" type="button" class="btn-sm float-start btn btn-light" title="Clear editor"><i class="bi bi-journal-x"></i><span class="icon-only"> Clear</span></button>
                     <button id="btn-adv-editor-append" type="button" class="btn-sm float-start btn btn-light" title="Append file..."><i class="bi bi-box-arrow-in-down"></i><span class="icon-only"> Append file...</span></button>
                     <button id="btn-adv-editor-send" type="button" class="btn-sm float-end btn btn-primary" title="Send"><i class="bi bi-send-fill"></i><span class="icon-only"> Send</span></button>`;
-                if (!editor.isSimple)
-                    editorDialog.header.querySelector('#adv-editor-switch').title = 'Switch to simple';
-                editorDialog.header.querySelector('#adv-editor-switch').addEventListener('click', () => {
-                    client.setOption('simpleEditor', !editor.simple);
-                    let value = '';
+                if (editorDialog.header.querySelector('#adv-editor-switch')) {
                     if (!editor.isSimple)
-                        value = editor.getFormattedText().replace(/(?:\r)/g, '');
-                    editor.simple = !editor.simple;
-                    if (!editor.isSimple) {
-                        editorDialog.hideFooter();
                         editorDialog.header.querySelector('#adv-editor-switch').title = 'Switch to simple';
-                    }
-                    else {
-                        editor.value = value;
-                        editorDialog.showFooter();
-                        editorDialog.header.querySelector('#adv-editor-switch').title = 'Switch to advanced';
-                        setTimeout(() => editor.focus(), 100);
-                    }
-                });
+                    editorDialog.header.querySelector('#adv-editor-switch').addEventListener('click', () => {
+                        client.setOption('simpleEditor', !editor.simple);
+                        let value = '';
+                        if (!editor.isSimple)
+                            value = editor.getFormattedText().replace(/(?:\r)/g, '');
+                        editor.simple = !editor.simple;
+                        if (!editor.isSimple) {
+                            editorDialog.hideFooter();
+                            editorDialog.header.querySelector('#adv-editor-switch').title = 'Switch to simple';
+                        }
+                        else {
+                            editor.value = value;
+                            editorDialog.showFooter();
+                            editorDialog.header.querySelector('#adv-editor-switch').title = 'Switch to advanced';
+                            setTimeout(() => editor.focus(), 100);
+                        }
+                    });
+                }
                 document.getElementById('btn-adv-editor-append').addEventListener('click', () => {
                     openFileDialog('Append file', false).then(files => {
                         readFile(files[0]).then((contents: any) => {

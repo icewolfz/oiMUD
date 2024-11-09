@@ -17,11 +17,11 @@ let args = {
 const HTMLMinifyPlugin = {
     name: "HTMLMinifyPlugin",
     setup(build) {
-        build.onLoad({ filter: /\.htm|.html$/ }, async (args) => {
+        build.onLoad({ filter: /\.htm|.html$/, namespace: 'file' }, async (args) => {
             const f = await fs.readFile(args.path, { encoding: 'utf8' });
-            const m = await minify(f, { collapseWhitespace: true, conservativeCollapse: true, minifyCSS: true, removeComments: true });
+            const m = await minify(f, { collapseWhitespace: true, minifyCSS: true, removeComments: true });
             return { loader: "text", contents: m };
-        })
+        });
     }
 }
 
@@ -38,63 +38,68 @@ let config = {
 let release = Object.assign({}, config, { minify: true, sourcemap: true, define: { TEST: args.test ? 'true' : 'false', DEBUG: 'false', TINYMCE: args.all || args.tinymce ? 'true' : 'false' } });
 let debug = Object.assign({}, config, { minify: false, sourcemap: false, define: { TEST: 'true', DEBUG: 'true', TINYMCE: args.all || args.tinymce ? 'true' : 'false' } });
 
-if (args.all || args.release) {
-    //core
-    if (args.all || args.core) {
-        console.time('Built release core');
-        esbuild.build(Object.assign(release, {
-            entryPoints: ['src/client.ts'],
-            outfile: 'dist/oiMUD.core.min.js'
-        })).then(console.timeEnd('Built release core'));
+async function main() {
+    console.time('Finish building');
+    if (args.all || args.release) {
+        //core
+        if (args.all || args.core) {
+            console.time('Built release core');
+            await esbuild.build(Object.assign(release, {
+                entryPoints: ['src/client.ts'],
+                outfile: 'dist/oiMUD.core.min.js'
+            })).then(console.timeEnd('Built release core'));
+        }
+
+        if (args.all || args.interface) {
+            console.time('Built release interface');
+            await esbuild.build(Object.assign(release, {
+                entryPoints: ['src/interface/interface.ts'],
+                outfile: 'dist/oiMUD.interface.min.js'
+            })).then(console.timeEnd('Built release interface'));
+        }
+
+        if (args.all || args.bundled) {
+            console.time('Built release bundled');
+            await esbuild.build(Object.assign(release, {
+                entryPoints: ['src/all.ts'],
+                outfile: 'dist/oiMUD.min.js'
+            })).then(console.timeEnd('Built release bundled')).catch(err => console.log(err));
+        }
     }
 
-    if (args.all || args.interface) {
-        console.time('Built release interface');
-        esbuild.build(Object.assign(release, {
-            entryPoints: ['src/interface/interface.ts'],
-            outfile: 'dist/oiMUD.interface.min.js'
-        })).then(console.timeEnd('Built release interface'));
+    if (args.all || args.argDebug) {
+        //core debug
+        if (args.all || args.core) {
+            console.time('Built debug core');
+            await esbuild.build(Object.assign(debug, {
+                entryPoints: ['src/client.ts'],
+                outfile: 'dist/oiMUD.core.js'
+            })).then(console.timeEnd('Built debug core'));
+        }
+        //interface
+        if (args.all || args.interface) {
+            console.time('Built debug interface');
+            await esbuild.build(Object.assign(debug, {
+                entryPoints: ['src/interface/interface.ts'],
+                outfile: 'dist/oiMUD.interface.js'
+            })).then(console.timeEnd('Built debug interface'));
+        }
+        if (args.all || args.bundled) {
+            console.time('Built debug bundled');
+            await esbuild.build(Object.assign(debug, {
+                entryPoints: ['src/all.ts'],
+                outfile: 'dist/oiMUD.js'
+            })).then(console.timeEnd('Built debug bundled'));
+        }
     }
 
-    if (args.all || args.bundled) {
-        console.time('Built release bundled');
-        esbuild.build(Object.assign(release, {
-            entryPoints: ['src/all.ts'],
-            outfile: 'dist/oiMUD.min.js'
-        })).then(console.timeEnd('Built release bundled'));
+    if (args.all || args.tinymce) {
+        console.time('Built tinymce.content css');
+        await esbuild.build(Object.assign(release, {
+            entryPoints: ['src/css/tinymce.content.css'],
+            outfile: 'dist/css/tinymce.content.min.css'
+        })).then(console.timeEnd('Built tinymce.content css'));
     }
+    console.timeEnd('Finish building');
 }
-
-if (args.all || args.argDebug) {
-    //core debug
-    if (args.all || args.core) {
-        console.time('Built debug core');
-        esbuild.build(Object.assign(debug, {
-            entryPoints: ['src/client.ts'],
-            outfile: 'dist/oiMUD.core.js'
-        })).then(console.timeEnd('Built debug core'));
-    }
-    //interface
-    if (args.all || args.interface) {
-        console.time('Built debug interface');
-        esbuild.build(Object.assign(debug, {
-            entryPoints: ['src/interface/interface.ts'],
-            outfile: 'dist/oiMUD.interface.js'
-        })).then(console.timeEnd('Built debug interface'));
-    }
-    if (args.all || args.bundled) {
-        console.time('Built debug bundled');
-        esbuild.build(Object.assign(debug, {
-            entryPoints: ['src/all.ts'],
-            outfile: 'dist/oiMUD.js'
-        })).then(console.timeEnd('Built debug bundled'));
-    }
-}
-
-if (args.all || args.tinymce) {
-    console.time('Built tinymce.content css');
-    esbuild.build(Object.assign(release, {
-        entryPoints: ['src/css/tinymce.content.css'],
-        outfile: 'dist/css/tinymce.content.min.css'
-    })).then(console.timeEnd('Built tinymce.content css'));
-}
+main();

@@ -31691,7 +31691,7 @@ Devanagari
           options2.icon = options2.icon || "images/connected.png";
           break;
         case 2:
-          options2.icon = options2.icon || "images/active.png";
+          options2.icon = options2.icon || "images/connectednonactive.png";
           break;
         default:
           options2.icon = options2.icon || "images/disconnected.png";
@@ -32259,7 +32259,7 @@ Devanagari
         icon = "connected";
         break;
       case 2:
-        icon = "active";
+        icon = "connectednonactive";
         break;
     }
     document.getElementById("icon1").remove();
@@ -32670,7 +32670,7 @@ Devanagari
         return;
       }
       try {
-        let room = this._map.getRoom({ ID: "" + data.num });
+        let room = this._map.getRoom({ num: "" + data.num });
         ;
         if (!room) {
           room = new Room();

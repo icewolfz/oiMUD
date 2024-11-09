@@ -376,7 +376,7 @@ export function initializeInterface() {
                 options.icon = options.icon || 'images/connected.png';
                 break;
             case 2:
-                options.icon = options.icon || 'images/active.png';
+                options.icon = options.icon || 'images/connectednonactive.png';
                 break;
             default:
                 options.icon = options.icon || 'images/disconnected.png';
@@ -994,7 +994,7 @@ function _setIcon(ico) {
             icon = 'connected';
             break;
         case 2:
-            icon = 'active';
+            icon = 'connectednonactive';
             break;
     }
     document.getElementById('icon1').remove();

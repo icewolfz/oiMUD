@@ -169,7 +169,7 @@ export class Mapper extends Plugin {
         }
         try {
 
-            let room = this._map.getRoom({ ID: '' + data.num });;
+            let room = this._map.getRoom({ num: '' + data.num });;
             if (!room) {
                 room = new Room();
                 room.zone = this._map.current.zone;

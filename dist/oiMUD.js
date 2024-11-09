@@ -23953,7 +23953,7 @@
         sample += "\x1B[0z";
         this.client.print(sample, true);
       };
-      this.functions["testmxpLines"] = () => {
+      this.functions["testmxplines"] = () => {
         let sample = "\x1B[6z";
         sample += "<!ELEMENT Auction '<FONT COLOR=red>' TAG=20 OPEN>";
         sample += "\x1B[20zA nice shiny sword is being auctioned.\n";

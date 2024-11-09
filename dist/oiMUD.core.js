@@ -33442,6 +33442,9 @@ Devanagari
       idx = this.client.telnet.GMCPSupports.indexOf("Char.Skills 1");
       this.client.telnet.GMCPSupports.splice(idx, 1);
       this.client.removeListenersFromCaller(this);
+      this.client.telnet.removeListenersFromCaller(this);
+      delete window.$character;
+      delete window.$characterid;
     }
     initialize() {
       document.body.insertAdjacentHTML("beforeend", status_default);

@@ -75,6 +75,9 @@ export class Status extends Plugin {
         idx = this.client.telnet.GMCPSupports.indexOf('Char.Skills 1');
         this.client.telnet.GMCPSupports.splice(idx, 1);
         this.client.removeListenersFromCaller(this);
+        this.client.telnet.removeListenersFromCaller(this);
+        delete window.$character;
+        delete window.$characterid;
     }
     public initialize(): void {
         document.body.insertAdjacentHTML('beforeend', statusDisplay);

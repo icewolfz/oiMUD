@@ -51,6 +51,7 @@ interface Window {
 	repeatnum: any;
 	$copied: string;
 	$character: string;
+	$characterid;
 	ResizeObserver: ResizeObserver;
 	UTF8;
 	fileSaveAs;

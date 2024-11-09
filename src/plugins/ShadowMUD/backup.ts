@@ -3,7 +3,6 @@ import { Client } from '../../client';
 import { Mapper } from '../mapper';
 import { Map } from '../../map';
 import { Settings, SettingProperties } from '../../settings';
-import { BackupSelection } from '../../types';
 import { DialogIcon } from '../../interface/dialog';
 import { ProfileCollection, Profile, Alias, Macro, Button, Trigger, Context } from '../../profile';
 import { Log } from '../logger';
@@ -11,6 +10,16 @@ import { Log } from '../logger';
 declare let LZString;
 declare let alert_box;
 declare let progress_box;
+
+export enum BackupSelection {
+    None = 0,
+    Map = 2,
+    Profiles = 4,
+    Settings = 8,
+    Windows = 16,
+    Characters = 32,
+    All = 30
+}
 
 export class Backup extends EventEmitter {
     private _port: number = 1034;
@@ -219,7 +228,7 @@ export class Backup extends EventEmitter {
                     else if (data.msg)
                         this.abort(data.msg || 'Error');
                     else if (data.error)
-                        this.abort(data.error);   
+                        this.abort(data.error);
                     else {
                         this._save[1] = data.chunk || 0;
                         this._save[3] += data.data || '';
@@ -256,7 +265,7 @@ export class Backup extends EventEmitter {
                     else if (data.msg !== 'Successfully saved')
                         this.abort(data.msg || 'Error');
                     else if (data.error)
-                        this.abort(data.error);   
+                        this.abort(data.error);
                     else if (this._save[0].length > 0) {
                         this.updateProgress(this._save[1] / this._save[3] * 100);
                         this._save[1]++;

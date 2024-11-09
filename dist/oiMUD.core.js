@@ -6202,8 +6202,8 @@
     ["display.splitHeight", 0, 2, -1],
     ["display.splitLive", 0, 1, true],
     ["display.roundedOverlays", 0, 1, true],
-    ["backupLoad", 0, 2, 30 /* All */],
-    ["backupSave", 0, 2, 30 /* All */],
+    ["backupLoad", 0, 2, 30],
+    ["backupSave", 0, 2, 30],
     ["backupAllProfiles", 0, 1, true],
     ["scrollLocked", 0, 1, false],
     ["showStatus", 0, 1, !isMobile()],
@@ -6740,9 +6740,9 @@
         case "gamepads":
           return false;
         case "backupLoad":
-          return 30 /* All */;
+          return 30;
         case "backupSave":
-          return 30 /* All */;
+          return 30;
         case "backupAllProfiles":
           return true;
         case "backupReplaceCharacters":
@@ -34746,7 +34746,7 @@ Devanagari
   var ShadowMUD = class extends Plugin {
     constructor(client2) {
       super(client2);
-      this._backup = new Backup(client2);
+      this.backup = new Backup(client2);
     }
     remove() {
     }
@@ -34756,7 +34756,11 @@ Devanagari
       return [];
     }
     get settings() {
-      return [];
+      return [{
+        name: " ShadowMUD",
+        action: "settings-shadowmud",
+        icon: '<i class="shadowmud-icon"></i>'
+      }];
     }
   };
   window.ShadowMUD = ShadowMUD;

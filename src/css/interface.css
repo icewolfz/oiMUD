@@ -110,3 +110,11 @@ div.offcanvas-body ul li hr {
   width: 100%;
   padding: 0;
 }
+
+.shadowmud-icon {
+  background-image: url(../../assets/icons/shadowmud.svg);
+  background-size: 16px;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}

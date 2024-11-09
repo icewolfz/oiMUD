@@ -4454,8 +4454,8 @@
     ["display.splitHeight", 0, 2, -1],
     ["display.splitLive", 0, 1, true],
     ["display.roundedOverlays", 0, 1, true],
-    ["backupLoad", 0, 2, 30 /* All */],
-    ["backupSave", 0, 2, 30 /* All */],
+    ["backupLoad", 0, 2, 30],
+    ["backupSave", 0, 2, 30],
     ["backupAllProfiles", 0, 1, true],
     ["scrollLocked", 0, 1, false],
     ["showStatus", 0, 1, !isMobile()],
@@ -4991,9 +4991,9 @@
         case "gamepads":
           return false;
         case "backupLoad":
-          return 30 /* All */;
+          return 30;
         case "backupSave":
-          return 30 /* All */;
+          return 30;
         case "backupAllProfiles":
           return true;
         case "backupReplaceCharacters":

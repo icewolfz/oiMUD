@@ -831,6 +831,13 @@ div.offcanvas-body ul li hr {
   width: 100%;
   padding: 0;
 }
+.shadowmud-icon {
+  background-image: url('data:image/svg+xml,<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g><path fill="%23000000" d="m 3.267485,30.648467 v -1.5 h 2.5 2.5 v -1 -1 h 2 1.999999 V 15.303454 3.4584414 l 2,-1.8099751 2,-1.80997516 2,1.80997516 2,1.8099751 V 15.303454 27.148467 h 2 2 v 1 1 h 2 2 v 1.5 1.5 h -12.5 -12.499999 z"/></g></svg>');
+  background-size: 16px;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
 
 /* src/css/buttons.css */
 #buttons {

@@ -10,11 +10,11 @@ declare global {
 }
 
 export class ShadowMUD extends Plugin {
-    private _backup: Backup;
+    public backup: Backup;
 
     constructor(client: Client) {
         super(client);
-        this._backup = new Backup(client);
+        this.backup = new Backup(client);
     }
 
     public remove(): void {
@@ -27,7 +27,11 @@ export class ShadowMUD extends Plugin {
         return [];
     }
     get settings(): MenuItem[] {
-        return [];
+        return [{
+            name: ' ShadowMUD',
+            action: 'settings-shadowmud',
+            icon: '<i class="shadowmud-icon"></i>',
+        }]
     }
 }
 

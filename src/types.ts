@@ -20,16 +20,6 @@ export interface WindowState {
   maximized: boolean;
 }
 
-export enum BackupSelection {
-  None = 0,
-  Map = 2,
-  Profiles = 4,
-  Settings = 8,
-  Windows = 16,
-  Characters = 32,
-  All = 30
-}
-
 export enum NewLineType {
   None = 0,
   Ctrl = 1,

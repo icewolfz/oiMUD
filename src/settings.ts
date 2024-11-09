@@ -1,6 +1,6 @@
 //spell-checker:words vscroll, hscroll, askoncancel, askonclose,commandon, cmdfont
 //spell-checker:ignore emoteto, emotetos askonchildren YYYYMMDD Hmmss
-import { NewLineType, BackupSelection, OnDisconnect, ProfileSortOrder, OnProfileChange, OnProfileDeleted, ScriptEngineType, SettingType, Echo, TabCompletion } from './types';
+import { NewLineType, OnDisconnect, ProfileSortOrder, OnProfileChange, OnProfileDeleted, ScriptEngineType, SettingType, Echo, TabCompletion } from './types';
 import { isMobile } from './library'
 
 /**
@@ -165,8 +165,8 @@ export let SettingList: any[] = [
     ['display.splitHeight', 0, 2, -1],
     ['display.splitLive', 0, 1, true],
     ['display.roundedOverlays', 0, 1, true],
-    ['backupLoad', 0, 2, BackupSelection.All],
-    ['backupSave', 0, 2, BackupSelection.All],
+    ['backupLoad', 0, 2, 30],
+    ['backupSave', 0, 2, 30],
     ['backupAllProfiles', 0, 1, true],
     ['scrollLocked', 0, 1, false],
     ['showStatus', 0, 1, !isMobile()],
@@ -629,8 +629,8 @@ export class Settings {
             case 'logPath': return '';
             case 'theme': return '';
             case 'gamepads': return false;
-            case 'backupLoad': return BackupSelection.All;
-            case 'backupSave': return BackupSelection.All;
+            case 'backupLoad': return 30;
+            case 'backupSave': return 30;
             case 'backupAllProfiles': return true;
             case 'backupReplaceCharacters': return true;
             case 'scrollLocked': return false;

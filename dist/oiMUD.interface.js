@@ -174,13 +174,16 @@
   // src/events.ts
   var EventEmitter = class {
     #events = {};
-    bind(type, listener, caller) {
+    bind(type, listener, caller, once) {
       if (!Array.isArray(this.#events[type]) || typeof this.#events[type] === "undefined")
         this.#events[type] = [];
-      this.#events[type].push({ listener, caller });
+      this.#events[type].push({ listener, caller, once: once || false });
     }
     on(type, listener, caller) {
       this.bind(type, listener, caller);
+    }
+    once(type, listener, caller) {
+      this.bind(type, listener, caller, true);
     }
     addEventListener(type, listener, caller) {
       this.bind(type, listener, caller);
@@ -194,9 +197,15 @@
       else if (!Array.isArray(args))
         args = [args];
       caller = caller || this;
-      var events = this.#events[type];
-      for (var i = 0, len = events.length; i < len; i++) {
+      let events = this.#events[type];
+      const once = [];
+      for (let i = 0, len = events.length; i < len; i++) {
         events[i].listener.apply(events[i].caller || caller, args);
+        if (events[i].once)
+          once.push(i);
+      }
+      for (let i = once.length - 1; i >= 0; i--) {
+        events.splice(once[i], 1);
       }
     }
     emit(type, ...args) {

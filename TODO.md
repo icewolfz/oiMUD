@@ -58,8 +58,6 @@ case 'ch':
         - Add #win support if added
     - Add help for sm mud if create a sm plugin
     - Add mail compose like jiMUD using advanced editor dialog as a base as exact same code but adds to/cc/subject fields and instead of sending directly it executes a set of commands to open mail and send contents
-    - skip more prompt
-    - skip more prompt delay
 - Profile manager:
     - Add undo system
     - Add options for profile sort order and direction

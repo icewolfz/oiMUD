@@ -5,14 +5,18 @@
 export class EventEmitter {
     #events = {};
 
-    public bind(type: string, listener: Function, caller?) {
+    public bind(type: string, listener: Function, caller?, once?) {
         if (!Array.isArray(this.#events[type]) || typeof this.#events[type] === 'undefined')
             this.#events[type] = [];
-        this.#events[type].push({ listener: listener, caller: caller });
+        this.#events[type].push({ listener: listener, caller: caller, once: once || false });
     }
 
     public on(type: string, listener: Function, caller?) {
         this.bind(type, listener, caller);
+    }
+
+    public once(type: string, listener: Function, caller?) {
+        this.bind(type, listener, caller, true);
     }
 
     public addEventListener(type: string, listener: Function, caller?) {
@@ -29,9 +33,17 @@ export class EventEmitter {
             args = [args];
 
         caller = caller || this;
-        var events = this.#events[type];
-        for (var i = 0, len = events.length; i < len; i++) {
+        let events = this.#events[type];
+        const once = []
+        for (let i = 0, len = events.length; i < len; i++) {
             events[i].listener.apply(events[i].caller || caller, args);
+            //store the index if once for easy removable
+            if (events[i].once)
+                once.push(i);
+        }
+        //Clean up once events after fired so events are fired in correct order, working last to first due to index manipulations
+        for (let i = once.length - 1; i >= 0; i--) {
+            events.splice(once[i], 1);
         }
     }
 

@@ -2287,13 +2287,16 @@
   // src/events.ts
   var EventEmitter = class {
     #events = {};
-    bind(type, listener, caller) {
+    bind(type, listener, caller, once) {
       if (!Array.isArray(this.#events[type]) || typeof this.#events[type] === "undefined")
         this.#events[type] = [];
-      this.#events[type].push({ listener, caller });
+      this.#events[type].push({ listener, caller, once: once || false });
     }
     on(type, listener, caller) {
       this.bind(type, listener, caller);
+    }
+    once(type, listener, caller) {
+      this.bind(type, listener, caller, true);
     }
     addEventListener(type, listener, caller) {
       this.bind(type, listener, caller);
@@ -2307,9 +2310,15 @@
       else if (!Array.isArray(args))
         args = [args];
       caller = caller || this;
-      var events = this.#events[type];
-      for (var i2 = 0, len = events.length; i2 < len; i2++) {
+      let events = this.#events[type];
+      const once = [];
+      for (let i2 = 0, len = events.length; i2 < len; i2++) {
         events[i2].listener.apply(events[i2].caller || caller, args);
+        if (events[i2].once)
+          once.push(i2);
+      }
+      for (let i2 = once.length - 1; i2 >= 0; i2--) {
+        events.splice(once[i2], 1);
       }
     }
     emit(type, ...args) {
@@ -34749,8 +34758,26 @@ Devanagari
       this.backup = new Backup(client2);
     }
     remove() {
+      this.backup.remove();
+      this.client.removeListenersFromCaller(this);
     }
     initialize() {
+      this.client.on("add-line", (data) => {
+        if (!this._skipMoreTimeout && data.fragment && data.line.startsWith("--More--") && this.client.getOption("skipMore")) {
+          this._skipMoreEvent = (data2) => {
+            clearTimeout(this._skipMoreTimeout || 0);
+            this._skipMoreTimeout = 0;
+            this._skipMoreEvent = 0;
+          };
+          this.client.once("parse-command", this._skipMoreEvent, this);
+          this._skipMoreTimeout = setTimeout(() => {
+            this.client.removeListener("parse-command", this._skipMoreEvent);
+            this._skipMoreTimeout = 0;
+            this._skipMoreEvent = 0;
+            this.client.sendCommand("\n");
+          }, this.client.getOption("skipMoreDelay") >= 0 ? this.client.getOption("skipMoreDelay") : 0);
+        }
+      }, this);
     }
     get menu() {
       return [];

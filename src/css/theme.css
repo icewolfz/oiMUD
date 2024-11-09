@@ -78,7 +78,7 @@
   fill: white;
 }
 
-#command-input-container .button:active,
+.button:active,
 #command-input-container .btn-check:checked + .btn,
 #command-input-container .btn.active,
 #command-input-container .btn.show,

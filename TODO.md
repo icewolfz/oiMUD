@@ -73,4 +73,7 @@ case 'ch':
 - Add paste special? may not be possible as cant control paste
 - recode mapper import/export to use web workers
 - Add help docs/help browser
+    - for built in help use a subfolder under dist and markdown to format that way can be viewed on github or in help browser
+    - <script src=" https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js "></script>
+    - if(!markdownit) { just display } else md = markdownit({ html: true, typographer: true }), see jiMUD help browser for code
 - run firefox/chrome performance tools to optimize code/loading

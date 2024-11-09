@@ -253,7 +253,7 @@ export class ProfilesDialog extends Dialog {
                         }
                         else
                             setTimeout(function () {
-                                alert_box('Invalid file', 'Unable to import file, not a valid profile file', DialogIcon.exclamation)
+                                alert_box('Invalid file', 'Unable to import file, not a valid profile file', DialogIcon.exclamation);
                             }, 50);
                     }
                     catch (err) {

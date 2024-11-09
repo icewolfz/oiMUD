@@ -12,18 +12,6 @@ export interface DisplayOptions extends ParserOptions {
   container?: string | JQuery | HTMLElement;
 }
 
-export interface LogOptions {
-  path?: string;
-  offline?: boolean;
-  gagged?: boolean;
-  enabled?: boolean;
-  unique?: boolean;
-  prepend?: boolean;
-  name?: string;
-  what?: Log;
-  debug?: boolean;
-}
-
 export interface WindowState {
   x: number;
   y: number;
@@ -54,13 +42,6 @@ export enum ScriptEngineType {
   Full = 1,
   Fast = 2,
   Simple = 4
-}
-
-export enum Log {
-  None = 0,
-  Html = 1,
-  Text = 2,
-  Raw = 4
 }
 
 export enum FormatType {

@@ -4419,7 +4419,7 @@
     ["enableKeepAlive", 0, 1, false],
     ["keepAliveDelay", 0, 2, 0],
     ["newlineShortcut", 0, 2, 1 /* Ctrl */],
-    ["logWhat", 0, 2, 1 /* Html */],
+    ["logWhat", 0, 2, 1],
     ["logErrors", 0, 1, true],
     ["showErrorsExtended", 0, 1, false],
     ["reportCrashes", 0, 1, false],
@@ -4965,7 +4965,7 @@
         case "newlineShortcut":
           return 1 /* Ctrl */;
         case "logWhat":
-          return 1 /* Html */;
+          return 1;
         case "logErrors":
           return true;
         case "showErrorsExtended":

@@ -52,11 +52,10 @@ case 'ch':
 - logger plugin and all related options
     - ensure add #window support by hooking the client events
     - hook set-title event and run oiMUDLogger.setLogCharacter('');
-- backup plugin for shadowmud
-- immortal tool plugin for shadowmud            
-    - client.telnet.GMCPSupports.push('IED 1');
-    - Add #win support if added
-- A general shadowmud plugin that groups all sm related like backup and immortal tools?
+- A general shadowmud plugin that groups all sm related
+    - immortal basic tools for shadowmud            
+        - client.telnet.GMCPSupports.push('IED 1');
+        - Add #win support if added
     - Add help for sm mud if create a sm plugin
     - Add mail compose like jiMUD using advanced editor dialog as a base as exact same code but adds to/cc/subject fields and instead of sending directly it executes a set of commands to open mail and send contents
     - skip more prompt

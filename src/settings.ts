@@ -1,6 +1,6 @@
 //spell-checker:words vscroll, hscroll, askoncancel, askonclose,commandon, cmdfont
 //spell-checker:ignore emoteto, emotetos askonchildren YYYYMMDD Hmmss
-import { NewLineType, Log, BackupSelection, OnDisconnect, ProfileSortOrder, OnProfileChange, OnProfileDeleted, ScriptEngineType, SettingType, Echo, TabCompletion } from './types';
+import { NewLineType, BackupSelection, OnDisconnect, ProfileSortOrder, OnProfileChange, OnProfileDeleted, ScriptEngineType, SettingType, Echo, TabCompletion } from './types';
 import { isMobile } from './library'
 
 /**
@@ -130,7 +130,7 @@ export let SettingList: any[] = [
     ['enableKeepAlive', 0, 1, false],
     ['keepAliveDelay', 0, 2, 0],
     ['newlineShortcut', 0, 2, NewLineType.Ctrl],
-    ['logWhat', 0, 2, Log.Html],
+    ['logWhat', 0, 2, 1],
     ['logErrors', 0, 1, true],
     ['showErrorsExtended', 0, 1, false],
     ['reportCrashes', 0, 1, false],
@@ -616,7 +616,7 @@ export class Settings {
             case 'enableKeepAlive': return false;
             case 'keepAliveDelay': return 0;
             case 'newlineShortcut': return NewLineType.Ctrl;
-            case 'logWhat': return Log.Html;
+            case 'logWhat': return 1;
             case 'logErrors': return true;
             case 'showErrorsExtended': return false;
             case 'reportCrashes': return false;

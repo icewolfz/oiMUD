@@ -1325,11 +1325,12 @@ export class ProfileCollection {
         this.SortByPriority();
     }
 
-    public add(profile: Profile) {
+    public add(profile: Profile, noUpdate?:boolean) {
         if (!profile)
             return;
         this.items[profile.name.toLowerCase()] = profile;
-        this.update();
+        if(!noUpdate)
+            this.update();
     }
 
     public remove(profile: (string | Profile | number)) {

@@ -6167,7 +6167,7 @@
     ["enableKeepAlive", 0, 1, false],
     ["keepAliveDelay", 0, 2, 0],
     ["newlineShortcut", 0, 2, 1 /* Ctrl */],
-    ["logWhat", 0, 2, 1 /* Html */],
+    ["logWhat", 0, 2, 1],
     ["logErrors", 0, 1, true],
     ["showErrorsExtended", 0, 1, false],
     ["reportCrashes", 0, 1, false],
@@ -6371,6 +6371,7 @@
     ["selectLastCommand", 0, 1 /* Boolean */, true],
     ["statusMode", 0, 2 /* Number */, isMobile() ? 1 : 0]
   ];
+  var SettingProperties = ["bufferSize", "commandDelay", "commandDelayCount", "commandHistorySize", "fontSize", "cmdfontSize", "commandEcho", "flashing", "autoConnect", "enableAliases", "enableTriggers", "enableMacros", "showScriptErrors", "commandStacking", "commandStackingChar", "htmlLog", "keepLastCommand", "enableMCCP", "enableUTF8", "font", "cmdfont", "mapper.follow", "mapper.enabled", "mapper.split", "mapper.fill", "showMapper", "fullScreen", "enableMXP", "enableMSP", "parseCommands", "lagMeter", "enablePing", "enableEcho", "enableSpeedpaths", "speedpathsChar", "parseSpeedpaths", "profile", "parseSingleQuotes", "parseDoubleQuotes", "logEnabled", "logPrepend", "logOffline", "logUniqueOnConnect", "enableURLDetection", "notifyMSPPlay", "CommandonClick", "allowEval", "allowEscape", "AutoCopySelectedToClipboard", "enableDebug", "editorPersistent", "askonclose", "dev", "chat.captureLines", "chat.captureAllLines", "chat.captureReviews", "chat.captureTells", "chat.captureTalk", "chat.gag", "chat.CaptureOnlyOpen", "checkForUpdates", "autoCreateCharacter", "askonchildren", "mapper.legend", "mapper.room", "mapper.importType", "mapper.vscroll", "mapper.hscroll", "mapper.scale", "mapper.alwaysOnTop", "mapper.alwaysOnTopClient", "mapper.memory", "mapper.memorySavePeriod", "mapper.active.ID", "mapper.active.x", "mapper.active.y", "mapper.active.z", "mapper.active.area", "mapper.active.zone", "mapper.persistent", "profiles.split", "profiles.askoncancel", "profiles.triggersAdvanced", "profiles.aliasesAdvanced", "profiles.buttonsAdvanced", "profiles.macrosAdvanced", "profiles.contextsAdvanced", "profiles.codeEditor", "profiles.watchFiles", "chat.alwaysOnTop", "chat.alwaysOnTopClient", "chat.log", "chat.persistent", "chat.zoom", "chat.font", "chat.fontSize", "title", "logGagged", "logTimeFormat", "autoConnectDelay", "autoLogin", "onDisconnect", "enableKeepAlive", "keepAliveDelay", "newlineShortcut", "logWhat", "logErrors", "showErrorsExtended", "reportCrashes", "enableCommands", "commandChar", "escapeChar", "enableVerbatim", "verbatimChar", "soundPath", "logPath", "theme", "gamepads", "buttons.connect", "buttons.characters", "buttons.preferences", "buttons.log", "buttons.clear", "buttons.lock", "buttons.map", "buttons.user", "buttons.mail", "buttons.compose", "buttons.immortal", "buttons.codeEditor", "find.case", "find.word", "find.reverse", "find.regex", "find.selection", "find.show", "display.split", "display.splitHeight", "display.splitLive", "display.roundedOverlays", "backupLoad", "backupSave", "backupAllProfiles", "backupReplaceCharacters", "scrollLocked", "showStatus", "showCharacterManager", "showChat", "showEditor", "showArmor", "showStatusWeather", "showStatusLimbs", "showStatusHealth", "showStatusExperience", "showStatusPartyHealth", "showStatusCombatHealth", "showButtonBar", "allowNegativeNumberNeeded", "spellchecking", "hideOnMinimize", "showTrayIcon", "statusExperienceNeededProgressbar", "trayClick", "trayDblClick", "pasteSpecialPrefix", "pasteSpecialPostfix", "pasteSpecialReplace", "pasteSpecialPrefixEnabled", "pasteSpecialPostfixEnabled", "pasteSpecialReplaceEnabled", "display.showSplitButton", "chat.split", "chat.splitHeight", "chat.splitLive", "chat.roundedOverlays", "chat.showSplitButton", "chat.bufferSize", "chat.flashing", "display.hideTrailingEmptyLine", "display.enableColors", "display.enableBackgroundColors", "enableSound", "allowHalfOpen", "editorClearOnSend", "editorCloseOnSend", "askOnCloseAll", "askonloadCharacter", "mapper.roomWidth", "mapper.roomGroups", "mapper.showInTaskBar", "profiles.enabled", "profiles.sortOrder", "profiles.sortDirection", "profiles.showInTaskBar", "profiles.profileSelected", "profiles.profileExpandSelected", "chat.lines", "chat.showInTaskBar", "chat.showTimestamp", "chat.timestampFormat", "chat.tabWidth", "chat.displayControlCodes", "chat.emulateTerminal", "chat.emulateControlCodes", "chat.wordWrap", "chat.wrapAt", "chat.indent", "chat.scrollLocked", "chat.find.case", "chat.find.word", "chat.find.reverse", "chat.find.regex", "chat.find.selection", "chat.find.show", "chat.find.highlight", "chat.find.location", "codeEditor.showInTaskBar", "codeEditor.persistent", "codeEditor.alwaysOnTop", "codeEditor.alwaysOnTopClient", "autoTakeoverLogin", "fixHiddenWindows", "maxReconnectDelay", "enableBackgroundThrottling", "enableBackgroundThrottlingClients", "showInTaskBar", "showLagInTitle", "mspMaxRetriesOnError", "logTimestamp", "logTimestampFormat", "disableTriggerOnError", "prependTriggeredLine", "enableParameters", "parametersChar", "enableNParameters", "nParametersChar", "enableParsing", "externalWho", "externalHelp", "watchForProfilesChanges", "onProfileChange", "onProfileDeleted", "enableDoubleParameterEscaping", "ignoreEvalUndefined", "enableInlineComments", "enableBlockComments", "inlineCommentString", "blockCommentString", "allowCommentsFromCommand", "saveTriggerStateChanges", "groupProfileSaves", "groupProfileSaveDelay", "returnNewlineOnEmptyValue", "pathDelay", "pathDelayCount", "echoSpeedpaths", "alwaysShowTabs", "scriptEngineType", "initializeScriptEngineOnLoad", "find.highlight", "find.location", "display.showInvalidMXPTags", "display.showTimestamp", "display.timestampFormat", "display.displayControlCodes", "display.emulateTerminal", "display.emulateControlCodes", "display.wordWrap", "display.tabWidth", "display.wrapAt", "display.indent", "statusWidth", "showEditorInTaskBar", "trayMenu", "lockLayout", "loadLayout", "useSingleInstance", "statusWidth", "characterManagerDblClick", "warnAdvancedSettings", "showAdvancedSettings", "enableTabCompletion", "tabCompletionBufferLimit", "ignoreCaseTabCompletion", "enableNotifications", "commandAutoSize", "commandWordWrap", "commandScrollbars", "tabCompletionList", "tabCompletionLookupType", "tabCompletionReplaceCasing", "characterManagerAddButtonAction", "enableCrashReporting", "characterManagerPanelWidth", "ignoreInputLeadingWhitespace", "profiles.find.case", "profiles.find.word", "profiles.find.reverse", "profiles.find.regex", "profiles.find.selection", "profiles.find.show", "profiles.find.value", "skipMore", "skipMoreDelay", "commandMinLines", "simpleAlarms", "simpleEditor", "selectLastCommand", "statusMode"];
   var Settings = class _Settings {
     constructor() {
       for (var s = 0, sl = SettingList.length; s < sl; s++) {
@@ -6713,7 +6714,7 @@
         case "newlineShortcut":
           return 1 /* Ctrl */;
         case "logWhat":
-          return 1 /* Html */;
+          return 1;
         case "logErrors":
           return true;
         case "showErrorsExtended":
@@ -8187,11 +8188,12 @@
       this.keys = Object.keys(this.items);
       this.SortByPriority();
     }
-    add(profile) {
+    add(profile, noUpdate) {
       if (!profile)
         return;
       this.items[profile.name.toLowerCase()] = profile;
-      this.update();
+      if (!noUpdate)
+        this.update();
     }
     remove(profile) {
       if (!profile || this.keys.length === 0) return;
@@ -33029,18 +33031,7 @@ Devanagari
       this._dialog.body.querySelector("#mapper-import-merge a").addEventListener("click", () => {
         openFileDialog("Import map and merge", false).then((files) => {
           readFile(files[0]).then((data) => {
-            this._dialogProgress = progress_box("Importing map");
-            this._dialogProgress.on("canceled", () => {
-              this.map.cancelImport();
-            });
-            this._dialogProgress.on("closed", (reason) => {
-              if (reason === "canceled")
-                this.map.cancelImport();
-            });
-            this._dialogProgress.on("shown", () => {
-              this.map.import(JSON.parse(data), 0 /* Merge */);
-            });
-            this._dialogProgress.showModal();
+            this.import(data, 0 /* Merge */);
           }).catch(client.error);
         }).catch(() => {
         });
@@ -33051,9 +33042,7 @@ Devanagari
           if (e.button === 4 /* Yes */)
             openFileDialog("Import map and replace", false).then((files) => {
               readFile(files[0]).then((data) => {
-                this._dialogProgress = progress_box("Importing map");
-                this._dialogProgress.showModal();
-                this.map.import(JSON.parse(data), 1 /* Replace */);
+                this.import(data, 1 /* Replace */);
               }).catch(client.error);
             }).catch(() => {
             });
@@ -33384,6 +33373,24 @@ Devanagari
         this._dialog.body.querySelector(selector).classList.add("disabled");
       else
         this._dialog.body.querySelector(selector).classList.remove("disabled");
+    }
+    import(data, type) {
+      if (this._dialogProgress)
+        throw new Error("Import already in progress");
+      if (typeof data === "string")
+        data = JSON.parse(data);
+      this._dialogProgress = progress_box("Importing map");
+      this._dialogProgress.on("canceled", () => {
+        this.map.cancelImport();
+      });
+      this._dialogProgress.on("closed", (reason) => {
+        if (reason === "canceled")
+          this.map.cancelImport();
+      });
+      this._dialogProgress.on("shown", () => {
+        this.map.import(data, type);
+      });
+      this._dialogProgress.showModal();
     }
   };
   function closeMenu2() {
@@ -34291,6 +34298,477 @@ Devanagari
       this.infoLimb[limb] = health;
     }
   };
+
+  // src/plugins/ShadowMUD/backup.ts
+  var Backup = class extends EventEmitter {
+    constructor(client2) {
+      super();
+      this._port = 1034;
+      this._abort = false;
+      this.client = client2;
+      this.initialize();
+    }
+    remove() {
+      this.client.removeListenersFromCaller(this);
+    }
+    initialize() {
+      this.client.telnet.GMCPSupports.push("Client 1");
+      this.client.on("connected", () => {
+        this._port = this.client.port;
+        this.closeDialog();
+        this._save = 0;
+        this._abort = false;
+      }, this);
+      this.client.on("closed", () => {
+        this._port = this.client.port;
+        this.closeDialog();
+        this._save = 0;
+        this._abort = false;
+      }, this);
+      this.client.on("received-GMCP", async (mod, obj) => {
+        if (mod.toLowerCase() !== "client" || !obj) return;
+        this.getMapper();
+        switch (obj.action) {
+          case "save":
+            if (this._abort) return;
+            this._user = obj.user;
+            this.showDialog("Saving data");
+            this._abort = false;
+            if (this._mapper && this._mapper.map.changed) {
+              this._mapper.map.save().then(() => {
+                this.save(2);
+              });
+            } else
+              this.save(2);
+            break;
+          case "load":
+            this.client.debug(`Starting load
+    Chunks: ${obj.chunks}
+    Start chunk: ${obj.chunk}
+    Size: ${obj.size}
+`);
+            this._abort = false;
+            this._user = obj.user;
+            this._save = [obj.chunks || 1, obj.chunk || 0, obj.size, ""];
+            this.showDialog("Loading data");
+            if (this._mapper && this._mapper.map.changed) {
+              this._mapper.map.save().then(() => {
+                this.getChunk();
+              });
+            } else
+              this.getChunk();
+            break;
+          case "error":
+            this.abort(obj.error);
+            break;
+        }
+      });
+      this._port = this.client.port;
+    }
+    get URL() {
+      if (this._port === 1039)
+        return "http://shadowmud.com:1132/client";
+      return "http://shadowmud.com:1130/client";
+    }
+    save(version2) {
+      Map.load().then((map) => {
+        const data = {
+          version: 2,
+          profiles: this.client.profiles.clone(2),
+          settings: new Settings(),
+          map: map ? map.Rooms : {}
+        };
+        let keys, k;
+        const saveSelection = this.client.getOption("backupSave");
+        if ((saveSelection & 2 /* Map */) !== 2 /* Map */) {
+          delete data.map;
+          this.client.debug("Backup save: setting for no mapper data enabled.");
+        }
+        if ((saveSelection & 4 /* Profiles */) !== 4 /* Profiles */) {
+          delete data.profiles;
+          this.client.debug("Backup save: setting for no profiles enabled.");
+        }
+        if ((saveSelection & 16 /* Windows */) !== 16 /* Windows */) {
+          keys = Object.keys(data.settings);
+          for (k = keys.length - 1; k >= 0; k--) {
+            if (keys[k].startsWith("windows."))
+              delete data.settings[keys[k]];
+          }
+          this.client.debug("Backup save: setting for no window data enabled.");
+        }
+        if ((saveSelection & 8 /* Settings */) !== 8 /* Settings */) {
+          let windows;
+          if ((saveSelection & 16 /* Windows */) === 16 /* Windows */) {
+            windows = {};
+            keys = Object.keys(data.settings);
+            for (k = keys.length - 1; k >= 0; k--) {
+              if (keys[k].startsWith("windows."))
+                windows[keys[k]] = data.settings[keys[k]];
+            }
+          }
+          delete data.settings;
+          if ((saveSelection & 16 /* Windows */) === 16 /* Windows */)
+            data.settings = windows;
+          this.client.debug("Backup save: setting for no settings data enabled.");
+        } else {
+          let props = ["chat", "mapper", "profiles", "codeEditor", "buttons", "find", "display", "extensions"];
+          for (let p = 0, pl = props.length; p < pl; p++) {
+            let prop = {};
+            if (data.settings[props[p]])
+              prop = data.settings[props[p]];
+            let sProp = props[p] + ".";
+            keys = Object.keys(data.settings);
+            for (k = keys.length - 1; k >= 0; k--) {
+              if (keys[k].startsWith(sProp))
+                prop[keys[k].substring(sProp.length)] = data.settings[keys[k]];
+            }
+            data.settings[props[p]] = prop;
+          }
+        }
+        let jData = JSON.stringify(data);
+        jData = LZString.compressToEncodedURIComponent(jData);
+        this._save = [jData.match(/((\S|\s|.){1,20000})/g), 0, 0];
+        this._save[3] = this._save[0].length;
+        this.saveChunk();
+      }).catch((err) => this.client.error(err));
+    }
+    abort(err) {
+      if (err)
+        this.client.debug("client load/save aborted for" + err);
+      else
+        this.client.debug("client load/save aborted");
+      this.closeDialog();
+      alert_box("Aborted", err || "Aborted importing or exporting data.", 4 /* exclamation */);
+      this._save = 0;
+      this._abort = true;
+      $.ajax({
+        type: "POST",
+        url: this.URL,
+        data: {
+          user: this._user,
+          a: "abort"
+        }
+      });
+    }
+    close() {
+      this.closeDialog();
+      this._save = 0;
+      this._abort = false;
+      $.ajax({
+        type: "POST",
+        url: this.URL,
+        data: {
+          user: this._user,
+          a: "done"
+        }
+      });
+    }
+    getChunk() {
+      this.client.debug("Requesting client chunk " + this._save[1]);
+      $.ajax(
+        {
+          type: "POST",
+          url: this.URL,
+          data: {
+            user: this._user,
+            a: "get",
+            c: ++this._save[1]
+          },
+          dataType: "json",
+          success: (data) => {
+            if (this._abort) return;
+            if (!data)
+              this.abort("No data returned");
+            else if (data.msg)
+              this.abort(data.msg || "Error");
+            else if (data.error)
+              this.abort(data.error);
+            else {
+              this._save[1] = data.chunk || 0;
+              this._save[3] += data.data || "";
+              this.client.debug("Got client chunk " + this._save[1]);
+              this.updateProgress((this._save[1] + 1) / this._save[0] * 100);
+              if (this._save[1] >= this._save[0] - 1)
+                this.finishLoad();
+              else
+                this.getChunk();
+            }
+          },
+          error: (data, error, errorThrown) => {
+            this.abort(error);
+          }
+        }
+      );
+    }
+    saveChunk() {
+      $.ajax(
+        {
+          type: "POST",
+          url: this.URL,
+          data: {
+            user: this._user,
+            a: "save",
+            data: this._save[0].shift(),
+            append: this._save[1] > 0 ? 1 : 0
+          },
+          dataType: "json",
+          success: (data) => {
+            if (!data)
+              this.abort("No data returned");
+            else if (data.msg !== "Successfully saved")
+              this.abort(data.msg || "Error");
+            else if (data.error)
+              this.abort(data.error);
+            else if (this._save[0].length > 0) {
+              this.updateProgress(this._save[1] / this._save[3] * 100);
+              this._save[1]++;
+              this.saveChunk();
+            } else {
+              if (typeof this._save[2] === "function") this._save[2]();
+              client.raise("backup-saved");
+              this.close();
+            }
+          },
+          error: (data, error, errorThrown) => {
+            this.abort(error);
+          }
+        }
+      );
+    }
+    finishLoad() {
+      this.client.debug("Got last chunk, processing data");
+      let data = LZString.decompressFromEncodedURIComponent(this._save[3]);
+      data = JSON.parse(data);
+      if (data.version === 2) {
+        const loadSelection = this.client.getOption("backupLoad");
+        if (data.map && (loadSelection & 2 /* Map */) === 2 /* Map */)
+          this._mapper.import(data.map, client.getOption("mapper.importType"));
+        if (data.profiles && (loadSelection & 4 /* Profiles */) === 4 /* Profiles */) {
+          const profiles = new ProfileCollection();
+          const keys2 = Object.keys(data.profiles);
+          const kl = keys2.length;
+          let n;
+          let k2 = 0;
+          for (; k2 < kl; k2++) {
+            n = keys2[k2];
+            const p = new Profile(n);
+            p.priority = data.profiles[keys2[k2]].priority;
+            p.enabled = data.profiles[keys2[k2]].enabled ? true : false;
+            p.enableMacros = data.profiles[keys2[k2]].enableMacros ? true : false;
+            p.enableTriggers = data.profiles[keys2[k2]].enableTriggers ? true : false;
+            p.enableAliases = data.profiles[keys2[k2]].enableAliases ? true : false;
+            p.enableDefaultContext = data.profiles[keys2[k2]].enableDefaultContext ? true : false;
+            p.macros = [];
+            let l2 = data.profiles[keys2[k2]].macros.length;
+            let item;
+            if (l2 > 0) {
+              for (let m = 0; m < l2; m++) {
+                item = new Macro();
+                item.key = data.profiles[keys2[k2]].macros[m].key;
+                item.value = data.profiles[keys2[k2]].macros[m].value;
+                item.style = data.profiles[keys2[k2]].macros[m].style;
+                item.append = data.profiles[keys2[k2]].macros[m].append ? true : false;
+                item.send = data.profiles[keys2[k2]].macros[m].send ? true : false;
+                item.name = data.profiles[keys2[k2]].macros[m].name;
+                item.group = data.profiles[keys2[k2]].macros[m].group;
+                item.enabled = data.profiles[keys2[k2]].macros[m].enabled ? true : false;
+                item.modifiers = data.profiles[keys2[k2]].macros[m].modifiers;
+                item.chain = data.profiles[keys2[k2]].macros[m].chain ? true : false;
+                item.notes = data.profiles[keys2[k2]].macros[m].notes || "";
+                p.macros.push(item);
+              }
+            }
+            l2 = data.profiles[keys2[k2]].aliases.length;
+            if (l2 > 0) {
+              for (let m = 0; m < l2; m++) {
+                item = new Alias();
+                item.pattern = data.profiles[keys2[k2]].aliases[m].pattern;
+                item.value = data.profiles[keys2[k2]].aliases[m].value;
+                item.style = data.profiles[keys2[k2]].aliases[m].style;
+                item.multi = data.profiles[keys2[k2]].aliases[m].multi ? true : false;
+                item.append = data.profiles[keys2[k2]].aliases[m].append ? true : false;
+                item.name = data.profiles[keys2[k2]].aliases[m].name;
+                item.group = data.profiles[keys2[k2]].aliases[m].group;
+                item.enabled = data.profiles[keys2[k2]].aliases[m].enabled ? true : false;
+                item.params = data.profiles[keys2[k2]].aliases[m].params;
+                item.priority = data.profiles[keys2[k2]].aliases[m].priority;
+                item.notes = data.profiles[keys2[k2]].aliases[m].notes || "";
+                p.aliases.push(item);
+              }
+            }
+            l2 = data.profiles[keys2[k2]].triggers.length;
+            if (l2 > 0) {
+              for (let m = 0; m < l2; m++) {
+                item = new Trigger();
+                item.pattern = data.profiles[keys2[k2]].triggers[m].pattern;
+                item.value = data.profiles[keys2[k2]].triggers[m].value;
+                item.style = data.profiles[keys2[k2]].triggers[m].style;
+                item.verbatim = data.profiles[keys2[k2]].triggers[m].verbatim ? true : false;
+                item.name = data.profiles[keys2[k2]].triggers[m].name;
+                item.group = data.profiles[keys2[k2]].triggers[m].group;
+                item.enabled = data.profiles[keys2[k2]].triggers[m].enabled ? true : false;
+                item.priority = data.profiles[keys2[k2]].triggers[m].priority;
+                item.triggerNewline = data.profiles[keys2[k2]].triggers[m].triggernewline ? true : false;
+                item.caseSensitive = data.profiles[keys2[k2]].triggers[m].caseSensitive ? true : false;
+                item.triggerPrompt = data.profiles[keys2[k2]].triggers[m].triggerprompt ? true : false;
+                item.raw = data.profiles[keys2[k2]].triggers[m].raw ? true : false;
+                item.temp = data.profiles[keys2[k2]].triggers[m].temp ? true : false;
+                item.type = data.profiles[keys2[k2]].triggers[m].type;
+                item.notes = data.profiles[keys2[k2]].triggers[m].notes || "";
+                item.state = data.profiles[keys2[k2]].triggers[m].state || 0;
+                item.params = data.profiles[keys2[k2]].triggers[m].params || "";
+                item.fired = data.profiles[keys2[k2]].triggers[m].fired ? true : false;
+                if (data.profiles[keys2[k2]].triggers[m].triggers && data.profiles[keys2[k2]].triggers[m].triggers.length) {
+                  const il = data.profiles[keys2[k2]].triggers[m].triggers.length;
+                  for (let i2 = 0; i2 < il; i2++) {
+                    item.triggers.push(new Trigger(data.profiles[keys2[k2]].triggers[m].triggers[i2]));
+                  }
+                }
+                p.triggers.push(item);
+              }
+            }
+            if (data.profiles[keys2[k2]].buttons) {
+              l2 = data.profiles[keys2[k2]].buttons.length;
+              if (l2 > 0) {
+                for (let m = 0; m < l2; m++) {
+                  item = new Button(data.profiles[keys2[k2]].buttons[m]);
+                  p.buttons.push(item);
+                }
+              }
+            }
+            if (data.profiles[keys2[k2]].contexts) {
+              l2 = data.profiles[keys2[k2]].contexts.length;
+              if (l2 > 0) {
+                for (let m = 0; m < l2; m++) {
+                  item = new Context(data.profiles[keys2[k2]].contexts[m]);
+                  p.contexts.push(item);
+                }
+              }
+            }
+            profiles.add(p, true);
+          }
+          profiles.update();
+          profiles.save().then(() => {
+            this.client.loadProfiles();
+          });
+        }
+        let keys, k;
+        if ((loadSelection & 8 /* Settings */) === 8 /* Settings */) {
+          this.client.setOption("mapper.enabled", data.settings.mapEnabled ? true : false);
+          this.client.setOption("mapper.follow", data.settings.mapFollow ? true : false);
+          this.client.setOption("mapper.legend", data.settings.legend ? true : false);
+          this.client.setOption("mapper.split", data.settings.MapperSplitArea ? true : false);
+          this.client.setOption("mapper.fill", data.settings.MapperFillWalls ? true : false);
+          this.client.setOption("mapper.vscroll", data.settings.vscroll);
+          this.client.setOption("mapper.hscroll", data.settings.hscroll);
+          this.client.setOption("mapper.memory", data.settings.mapperMemory ? true : false);
+          this.client.setOption("showScriptErrors", data.settings.showScriptErrors ? true : false);
+          this.client.setOption("logWhat", data.settings ? 1 /* Html */ : 0 /* None */);
+          this.client.setOption("showMapper", data.settings.MapperOpen ? true : false);
+          let p, pl;
+          for (p = 0, pl = SettingProperties.length; p < pl; p++) {
+            let prop = SettingProperties[p];
+            if (!data.settings.hasOwnProperty(prop)) {
+              continue;
+            }
+            if (prop.startsWith("profiles.") || prop.startsWith("codeEditor.") || prop.startsWith("buttons.") || prop.startsWith("find.") || prop.startsWith("extensions.") || prop.startsWith("windows."))
+              continue;
+            this.client.setOption(prop, data.settings[prop]);
+          }
+          if (data.settings.windows && (loadSelection & 16 /* Windows */) === 16 /* Windows */) {
+            if (data.settings["windows"]) {
+              keys = Object.keys(data.settings["windows"]);
+              for (k = keys.length - 1; k >= 0; k--) {
+                this.client.setOption(`windows.${keys[k]}`, data.settings["windows"][keys[k]]);
+              }
+            }
+            keys = Object.keys(data.settings);
+            for (k = keys.length - 1; k >= 0; k--) {
+              if (keys[k].startsWith("windows."))
+                this.client.setOption(keys[k], data.settings[keys[k]]);
+            }
+          }
+          let props = ["chat", "mapper", "profiles", "codeEditor", "buttons", "find", "display", "extensions"];
+          for (p = 0, pl = props.length; p < pl; p++) {
+            if (!data.settings[props[p]] || !data.settings.hasOwnProperty(props[p]))
+              continue;
+            keys = Object.keys(data.settings[props[p]]);
+            for (k = keys.length - 1; k >= 0; k--) {
+              this.client.setOption(`${props[p]}.${keys[k]}`, data.settings[props[p]][keys[k]]);
+            }
+          }
+          this.client.clearCache();
+          this.client.loadOptions();
+        } else if (data.settings && (loadSelection & 16 /* Windows */) === 16 /* Windows */) {
+          if (data.settings["windows"]) {
+            keys = Object.keys(data.settings["windows"]);
+            for (k = keys.length - 1; k >= 0; k--) {
+              this.client.setOption(`windows.${keys[k]}`, data.settings["windows"][keys[k]]);
+            }
+          }
+          keys = Object.keys(data.settings);
+          for (k = keys.length - 1; k >= 0; k--) {
+            if (keys[k].startsWith("windows."))
+              this.client.setOption(keys[k], data.settings[keys[k]]);
+          }
+        }
+      }
+      client.raise("backup-loaded");
+      this.close();
+    }
+    showDialog(title) {
+      if (this._dialogProgress)
+        throw new Error("Client save/load is already in progress");
+      this._dialogProgress = progress_box(title || "Saving data");
+      this._dialogProgress.on("canceled", () => {
+        this.abort();
+      });
+      this._dialogProgress.on("closed", (reason) => {
+        if (reason === "canceled")
+          this.abort();
+      });
+      this._dialogProgress.on("shown", () => {
+      });
+      this._dialogProgress.showModal();
+    }
+    closeDialog() {
+      if (this._dialogProgress)
+        this._dialogProgress.close();
+      this._dialogProgress = null;
+    }
+    updateProgress(progress) {
+      if (this._dialogProgress)
+        this._dialogProgress.progress = progress;
+    }
+    getMapper() {
+      if (this._mapper) return;
+      for (let p = 0, pl = this.client.plugins.length; p < pl; p++) {
+        if (this.client.plugins[p] instanceof Mapper) {
+          this._mapper = this.client.plugins[p];
+          break;
+        }
+      }
+    }
+  };
+
+  // src/plugins/ShadowMUD/shadowmud.ts
+  var ShadowMUD = class extends Plugin {
+    constructor(client2) {
+      super(client2);
+      this._backup = new Backup(client2);
+    }
+    remove() {
+    }
+    initialize() {
+    }
+    get menu() {
+      return [];
+    }
+    get settings() {
+      return [];
+    }
+  };
+  window.ShadowMUD = ShadowMUD;
 
   // src/client.ts
   var Client = class extends EventEmitter {

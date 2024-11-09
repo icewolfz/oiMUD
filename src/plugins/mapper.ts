@@ -135,8 +135,8 @@ export class Mapper extends Plugin {
         }]
     }
 
-    get map() { return this._map; }
-    set map(map) {
+    get map(): Map { return this._map; }
+    set map(map: Map) {
         this._map = map;
         if (this._dialogMap)
             this._dialogMap.map = map;
@@ -553,18 +553,7 @@ export class Mapper extends Plugin {
         this._dialog.body.querySelector('#mapper-import-merge a').addEventListener('click', () => {
             openFileDialog('Import map and merge', false).then(files => {
                 readFile(files[0]).then((data: any) => {
-                    this._dialogProgress = progress_box('Importing map');
-                    this._dialogProgress.on('canceled', () => {
-                        this.map.cancelImport();
-                    });
-                    this._dialogProgress.on('closed', reason => {
-                        if (reason === 'canceled')
-                            this.map.cancelImport();
-                    });
-                    this._dialogProgress.on('shown', () => {
-                        this.map.import(JSON.parse(data), ImportType.Merge);
-                    });
-                    this._dialogProgress.showModal();
+                    this.import(data, ImportType.Merge);
                 }).catch(client.error);
             }).catch(() => { });
             closeMenu();
@@ -574,9 +563,7 @@ export class Mapper extends Plugin {
                 if (e.button === DialogButtons.Yes)
                     openFileDialog('Import map and replace', false).then(files => {
                         readFile(files[0]).then((data: any) => {
-                            this._dialogProgress = progress_box('Importing map');
-                            this._dialogProgress.showModal();
-                            this.map.import(JSON.parse(data), ImportType.Replace);
+                            this.import(data, ImportType.Replace);
                         }).catch(client.error);
                     }).catch(() => { });
             });
@@ -941,6 +928,25 @@ export class Mapper extends Plugin {
             this._dialog.body.querySelector(selector).classList.add('disabled');
         else
             this._dialog.body.querySelector(selector).classList.remove('disabled');
+    }
+
+    public import(data, type: ImportType) {
+        if (this._dialogProgress)
+            throw new Error('Import already in progress');
+        if (typeof data === 'string')
+            data = JSON.parse(data);
+        this._dialogProgress = progress_box('Importing map');
+        this._dialogProgress.on('canceled', () => {
+            this.map.cancelImport();
+        });
+        this._dialogProgress.on('closed', reason => {
+            if (reason === 'canceled')
+                this.map.cancelImport();
+        });
+        this._dialogProgress.on('shown', () => {
+            this.map.import(data, type);
+        });
+        this._dialogProgress.showModal();
     }
 }
 

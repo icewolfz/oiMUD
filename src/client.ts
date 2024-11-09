@@ -15,6 +15,8 @@ import { MSP } from './plugins/msp';
 import { Test } from './plugins/test';
 import { Mapper } from './plugins/mapper';
 import { Status } from './plugins/status';
+import { ShadowMUD } from "./plugins/ShadowMUD/shadowmud";
+export { ShadowMUD };
 
 declare global {
     interface Window {

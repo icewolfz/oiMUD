@@ -136,13 +136,15 @@
 <script src="lib/jstorage.min.js" type="text/javascript"></script>
 <!--Used to store profiles as uses indexDB as larger then local storage and more simple then doing it directly-->
 <script src="lib/localforage.min.js" type="text/javascript"></script>
-<!-- only needed if backup plugin enabled-->
-<!--script src="lib/lz-string.min.js" type="text/javascript"></script-->
+<!-- only needed if ShadowMUD plugin enabled and using backup feature-->
+<script src="lib/lz-string.min.js" type="text/javascript"></script>
 <!--The mud client, contains more the core and interface systems-->
 <script src="oiMUD.js" type="text/javascript"></script>
 <script type="text/javascript">
     //Create a new instance of client, by default will store itself in window.client and window.oiMUD
     new Client({ host: 'shadowmud.com', port: '1034' });
+    //Add ShadowMUD plugin, it is included but not added by default
+    client.addPlugin(new ShadowMUD(client));
     //initialize the client interface
     initializeInterface();
 </script>

@@ -5,7 +5,7 @@
 
 <div class="form-check form-switch">
     <input type="checkbox" class="form-check-input" id="logPrepend">
-    <label class="form-check-label" for="logPrepend">Prepend current buffer starting to log</label>
+    <label class="form-check-label" for="logPrepend">Pre-pend current buffer to log</label>
 </div>
 
 <div class="form-check form-switch">
@@ -15,8 +15,47 @@
 
 <div class="form-check form-switch">
     <input type="checkbox" class="form-check-input" id="logUniqueOnConnect">
-    <label class="form-check-label" for="logUniqueOnConnect">Create logs for every connect session</label>
-    <div class="alert alert-warning" role="alert" style="margin-top: 10px;">
-        If disabled will create one giant log until browser is closed.
+    <label class="form-check-label" for="logUniqueOnConnect">Create log for every connect session</label>
+</div>
+<small class="form-text text-muted alert alert-warning" style="display:block;width:100%;margin-top:3px;padding: 2px">
+    Restart log every new connection, note if character name changes will also restart log
+</small>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="logGagged">
+    <label class="form-check-label" for="logGagged">Log gagged lines</label>
+</div>
+
+<div class="mb-3">
+    <label class="control-label">Log what</label>
+    <div class="form-check ms-4">
+        <input type="checkbox" class="form-check-input" name="logWhat" id="logWhat-1" value="1" data-enum="true">
+        <label class="form-check-label" for="logWhat-1">HTML</label>
     </div>
+    <div class="form-check ms-4">
+        <input type="checkbox" class="form-check-input" name="logWhat" id="logWhat-2" value="2" data-enum="true">
+        <label class="form-check-label" for="logWhat-2">Text</label>
+    </div>
+    <div class="form-check ms-4">
+        <input type="checkbox" class="form-check-input" name="logWhat" id="logWhat-4" value="4" data-enum="true">
+        <label class="form-check-label" for="logWhat-4">Raw</label>
+    </div>
+    <small class="form-text text-muted alert alert-info" style="display:block;width:100%;margin-top:3px;padding: 2px">
+        A log file will be created for each type enabled
+    </small>
+</div>
+<div class="mb-3">
+    <label for="logTimestamp" class="form-label">Timestamp</label>
+    <select id="logTimestamp" class="form-select">
+        <option value="0">None</option>
+        <option value="1">Simple</option>
+        <option value="2">Format</option>
+    </select>
+</div>
+<div class="mb-3">
+    <label for="logTimestampFormat" class="form-label">Timestamp format</label>
+    <input class="form-control" id="logTimestampFormat">
+    <small class="form-text text-muted">
+        Supports all moment time formats if moment enabled, falls back simple
+    </small>
 </div>

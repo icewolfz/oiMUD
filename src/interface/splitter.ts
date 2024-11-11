@@ -38,7 +38,7 @@ export class Splitter extends EventEmitter {
     private $splitterWidth = 4;
     private $dragBar: HTMLElement;
     private $ghostBar: HTMLElement;
-    private $splitterDistance = 200;
+    private $splitterDistance = 204;
     private $dragging = false;
     private $id;
     private $collapsed = 0;
@@ -349,6 +349,9 @@ export class Splitter extends EventEmitter {
         this.$dragBar.addEventListener('mousedown', (e) => {
             this.$dragBar.focus();
             e.preventDefault();
+            //disable pointer events as some elements capture mouse events like iframes
+            this.$panel1.style.pointerEvents = 'none';
+            this.$panel2.style.pointerEvents = 'none';
             this.$dragging = true;
             this.$ghostBar = document.createElement('div');
             this.$ghostBar.id = this.id + '-ghost-bar';
@@ -505,6 +508,8 @@ export class Splitter extends EventEmitter {
             document.removeEventListener('mousemove', (<any>this.$ghostBar).move);
             this.$ghostBar = null;
             this.$dragging = false;
+            this.$panel1.style.pointerEvents = '';
+            this.$panel2.style.pointerEvents = '';
         });
         this.parent.appendChild(this.$el);
         setTimeout(() => {

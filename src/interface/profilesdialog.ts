@@ -88,7 +88,7 @@ export class ProfilesDialog extends Dialog {
             this._splitter.SplitterDistance = client.getOption('profiles.split');
         this._splitter.on('splitter-moved', distance => {
             client.setOption('profiles.split', distance);
-        })
+        });
         this._menu = this._splitter.panel1;
         this._menu.style.overflow = 'hidden';
         this._menu.style.overflowY = 'auto';
@@ -454,9 +454,9 @@ export class ProfilesDialog extends Dialog {
         let breadcrumb = '';
         let last = pages.length - 1;
         if (pages.length === 1)
-            breadcrumb += '<li><i class="float-start fas fa-users" style="padding: 2px;margin-right: 2px;"></i></li>';
+            breadcrumb += '<li class="breadcrumb-icon"><i class="float-start fas fa-users" style="padding: 2px;margin-right: 2px;"></i></li>';
         else
-            breadcrumb += '<li><a href="#' + pages.slice(0, 1).join('-') + '"><i class="float-start fas fa-users" style="padding: 2px;margin-right: 2px;"></i></a></li>';
+            breadcrumb += '<li class="breadcrumb-icon"><a href="#' + pages.slice(0, 1).join('-') + '"><i class="float-start fas fa-users" style="padding: 2px;margin-right: 2px;"></i></a></li>';
         if (pages.length < 4)
             for (let p = 0, pl = pages.length; p < pl; p++) {
                 let title = capitalize(pages[p]);

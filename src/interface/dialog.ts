@@ -432,13 +432,7 @@ export class Dialog extends EventEmitter {
             footer += `<button id="${this._id}-no" type="button" class="btn-sm float-end btn btn-light" title="No">No</button>`
         if (options && (options.buttons & DialogButtons.Yes) === DialogButtons.Yes)
             footer += `<button id="${this._id}-yes" type="button" class="btn-sm float-end btn btn-primary" title="Yes">Yes</button>`;
-        this._dialog.innerHTML = `<div class="dialog-header">
-        <button id="${this._id}-header-close" style="padding: 4px;" type="button" class="btn btn-close float-end btn-danger" data-dismiss="modal" title="Close window"></button>
-        <button type="button" class="btn btn-light float-end maximize" id="${this._id}-max" title="Maximize window" style="padding: 0 4px;margin-top: -1px;"><i class="bi-arrows-fullscreen"></i></button>
-        <div>${options?.title || ''}</div>
-    </div>
-    <div class="dialog-body"></div>
-    <div class="dialog-footer">${footer}</div>`;
+        this._dialog.innerHTML = `<div class="dialog-header"><button id="${this._id}-header-close" style="padding: 4px;" type="button" class="btn btn-close float-end btn-danger" data-dismiss="modal" title="Close window"></button><button type="button" class="btn btn-light float-end maximize" id="${this._id}-max" title="Maximize window" style="padding: 0 4px;margin-top: -1px;"><i class="bi-arrows-fullscreen"></i></button><div>${options?.title || ''}</div></div><div class="dialog-body"></div><div class="dialog-footer">${footer}</div>`;
         this._dialog.querySelector(`#${this._id}-header-close`).addEventListener('click', () => {
             this.close();
         });

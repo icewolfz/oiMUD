@@ -1,5 +1,5 @@
 import { Plugin } from '../../plugin';
-import { MenuItem, } from '../../types';
+import { MenuItem } from '../../types';
 import { Client } from '../../client';
 import { Backup } from './backup';
 

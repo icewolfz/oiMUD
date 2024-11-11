@@ -89,6 +89,10 @@ div.offcanvas-body ul li hr {
 .breadcrumb {
   margin: 0;
 }
+.breadcrumb-icon {
+  text-align: center;
+  margin: auto 0;
+}
 .form-check-input {
   clear: left;
 }
@@ -107,6 +111,47 @@ div.offcanvas-body ul li hr {
   width: 16px;
   height: 16px;
   display: inline-block;
+}
+.active .shadowmud-icon {
+  background-image: url('data:image/svg+xml,<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g><path fill="%23ffffff" d="m 3.267485,30.648467 v -1.5 h 2.5 2.5 v -1 -1 h 2 1.999999 V 15.303454 3.4584414 l 2,-1.8099751 2,-1.80997516 2,1.80997516 2,1.8099751 V 15.303454 27.148467 h 2 2 v 1 1 h 2 2 v 1.5 1.5 h -12.5 -12.499999 z"/></g></svg>');
+  background-size: 16px;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+.loader {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+  z-index: 10000;
+  color: rgb(0, 0, 0);
+}
+.loader .text {
+  width: 100%;
+  text-align: center;
+  font-size: 3em;
+  top: 50%;
+  position: absolute;
+  transform: translateY(-50%);
+}
+.loader .indicator {
+  border: 16px solid #1682b4;
+  border-top: 16px solid #3bb6f0;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+  margin-left: calc(50% - 60px);
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* src/css/buttons.css */

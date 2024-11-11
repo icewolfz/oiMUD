@@ -1,0 +1,52 @@
+#logs-menu .list-badge-button {
+  display: none;
+}
+
+@media (orientation: landscape) and (max-width: 641px),
+  (orientation: landscape) and (max-height: 480px),
+  (orientation: portrait) and (max-width: 480px),
+  (orientation: portrait) and (max-height: 641px) {
+  .dialog[data-panel="left"] #logs-menu a.nav-link i {
+    display: none;
+  }
+
+  .dialog[data-panel="left"] #logs-menu a.nav-link .form-switch {
+    display: block;
+  }
+
+  .dialog[data-panel="left"] #logs-menu a.nav-link span {
+    display: none;
+  }
+
+  .dialog[data-panel="left"] #logs-menu .list-badge-button,
+  .dialog[data-panel="left"] #logs-menu .list-badge-button i {
+    display: inline-block !important;
+  }
+}
+
+#log-viewer-splitter-panel1[data-collapsed="false"]
+  #logs-menu
+  .list-badge-button,
+#log-viewer-splitter-panel1[data-collapsed="false"]
+  #logs-menu
+  .list-badge-button
+  i {
+  display: inline-block !important;
+}
+
+#logs-menu a {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.viewer {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  border: 0;
+}

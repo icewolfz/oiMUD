@@ -1,11 +1,12 @@
-import { Dialog, DialogButtons, AlertDialog, ConfirmDialog, DialogIcon } from "./dialog";
+import { Dialog, DialogButtons, AlertDialog, DialogIcon } from "./dialog";
 import { capitalize, clone, openFileDialog, readFile } from '../library';
 import { Settings, SettingList } from "../settings";
 import { RGBColor } from '../lib/rgbcolor';
 import { removeHash } from "./interface";
 
 declare let fileSaveAs;
-
+declare let confirm_box;
+declare let alert_box;
 export class SettingsDialog extends Dialog {
     private _menu;
     private _page;
@@ -52,13 +53,13 @@ export class SettingsDialog extends Dialog {
                         }
                         else
                             setTimeout(function () {
-                                new AlertDialog('Invalid file', 'Unable to import file, not a valid settings file', DialogIcon.exclamation).showModal();
+                                alert_box('Invalid file', 'Unable to import file, not a valid settings file', DialogIcon.exclamation);
                             }, 50);
                         this.loadPageSettings();
                     }
                     catch (err) {
                         setTimeout(function () {
-                            new AlertDialog('Error importing', 'Error importing file.', DialogIcon.error).showModal();
+                            alert_box('Error importing', 'Error importing file.', DialogIcon.error);
                         }, 50);
                         client.error(err);
                     }
@@ -68,8 +69,7 @@ export class SettingsDialog extends Dialog {
 
         this.footer.querySelector(`#${this.id}-reset`).addEventListener('click', () => {
             if (this._page === 'settings-colors') {
-                const confirm = new ConfirmDialog('Reset colors', 'Reset colors?');
-                confirm.on('button-click', e => {
+                confirm_box('Reset colors', 'Reset colors?').then(e => {
                     if (e.button === DialogButtons.Yes) {
                         var c;
                         var colors = this.settings.colors = [];
@@ -79,14 +79,12 @@ export class SettingsDialog extends Dialog {
                             this.setColor('color' + c, colors[c] || this.getDefaultColor(c));
                         this.body.querySelector(`#colorScheme`).value = 0;
                     }
-                })
-                confirm.showModal();
+                });
             }
             else if (this._page && this._page !== 'settings' && this._page.length) {
                 const pages = this._page.split('-');
                 let title = capitalize(pages[pages.length - 1].match(/([A-Z]|^[a-z])[a-z]+/g).join(' '));
-                const confirm = new ConfirmDialog(`Reset ${title} settings`, `Reset ${title} settings?`);
-                confirm.on('button-click', e => {
+                confirm_box(`Reset ${title} settings`, `Reset ${title} settings?`).then(e => {
                     if (e.button === DialogButtons.Yes) {
                         const forms: HTMLInputElement[] = this.body.querySelectorAll('input,select,textarea');
                         for (let f = 0, fl = forms.length; f < fl; f++) {
@@ -99,25 +97,20 @@ export class SettingsDialog extends Dialog {
                         }
                     }
                 })
-                confirm.showModal();
             }
             else {
-                const confirm = new ConfirmDialog('Reset all settings', 'Reset all settings?');
-                confirm.on('button-click', e => {
+                confirm_box('Reset all settings', 'Reset all settings?').then(e => {
                     if (e.button === DialogButtons.Yes)
                         this.settings.reset();
-                })
-                confirm.showModal();
+                });
             }
         })
 
         this.footer.querySelector(`#${this.id}-reset-all`).addEventListener('click', () => {
-            const confirm = new ConfirmDialog('Reset all settings', 'Reset all settings?');
-            confirm.on('button-click', e => {
+            confirm_box('Reset all settings', 'Reset all settings?').then(e => {
                 if (e.button === DialogButtons.Yes)
                     this.settings.reset();
-            })
-            confirm.showModal();
+            });
         })
         this.footer.querySelector(`#${this.id}-save`).addEventListener('click', () => {
             removeHash(this._page);
@@ -145,9 +138,9 @@ export class SettingsDialog extends Dialog {
         let breadcrumb = '';
         let last = pages.length - 1;
         if (pages.length === 1)
-            breadcrumb += '<li><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></li>';
+            breadcrumb += '<li class="breadcrumb-icon"><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></li>';
         else
-            breadcrumb += '<li><a href="#' + pages.slice(0, 1).join('-') + '"><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></a></li>';
+            breadcrumb += '<li class="breadcrumb-icon"><a href="#' + pages.slice(0, 1).join('-') + '"><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></a></li>';
         for (let p = 0, pl = pages.length; p < pl; p++) {
             let title = capitalize(pages[p].match(/([A-Z]|^[a-z])[a-z]+/g).join(' '));
             if (p === last)
@@ -156,6 +149,13 @@ export class SettingsDialog extends Dialog {
                 breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p + 1).join('-') + '">' + title + '</a></li>';
         }
         this.title = '<ol class="float-start breadcrumb">' + breadcrumb + '</ol>';
+        if (this._menu) {
+            let items = this._menu.querySelectorAll('a.active');
+            items.forEach(item => item.classList.remove('active'));
+            items = this._menu.querySelector(`a[href="#${this._page}"]`);
+            if (items)
+                items.classList.add('active');
+        }
         if (this._page === 'settings') {
             if (this._menu)
                 this._menu.style.display = 'none';

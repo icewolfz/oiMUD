@@ -587,7 +587,7 @@ export function updateHash(add: string | string[], remove?: string | string[]) {
         remove = [remove];
     //remove add, new to ensure no dups
     remove = remove.concat(...add);
-    var hashes = decodeURI(window.location.hash.substring(1)).split(',').filter(s => !remove.includes(s.trim()));
+    var hashes = decodeURI(window.location.hash.substring(1)).split(',').filter(s => s.length && !remove.includes(s.trim()));
     hashes = hashes.concat(...add);
     window.location.hash = hashes.join(',');
 }
@@ -751,9 +751,7 @@ export function showDialog(name: string) {
                 editorDialog.dialog.editor = editor;
                 if (TINYMCE && tinymce)
                     editorDialog.header.querySelector('#adv-editor-max').insertAdjacentHTML('afterend', '<button type="button" class="btn btn-light float-end" id="adv-editor-switch" title="Switch to advanced" style="padding: 0 4px;margin-top: -1px;"><i class="bi-shuffle"></i></button>');
-                editorDialog.footer.innerHTML = `<button id="btn-adv-editor-clear" type="button" class="btn-sm float-start btn btn-light" title="Clear editor"><i class="bi bi-journal-x"></i><span class="icon-only"> Clear</span></button>
-                    <button id="btn-adv-editor-append" type="button" class="btn-sm float-start btn btn-light" title="Append file..."><i class="bi bi-box-arrow-in-down"></i><span class="icon-only"> Append file...</span></button>
-                    <button id="btn-adv-editor-send" type="button" class="btn-sm float-end btn btn-primary" title="Send"><i class="bi bi-send-fill"></i><span class="icon-only"> Send</span></button>`;
+                editorDialog.footer.innerHTML = `<button id="btn-adv-editor-clear" type="button" class="btn-sm float-start btn btn-light" title="Clear editor"><i class="bi bi-journal-x"></i><span class="icon-only"> Clear</span></button><button id="btn-adv-editor-append" type="button" class="btn-sm float-start btn btn-light" title="Append file..."><i class="bi bi-box-arrow-in-down"></i><span class="icon-only"> Append file...</span></button><button id="btn-adv-editor-send" type="button" class="btn-sm float-end btn btn-primary" title="Send"><i class="bi bi-send-fill"></i><span class="icon-only"> Send</span></button>`;
                 if (editorDialog.header.querySelector('#adv-editor-switch')) {
                     if (!editor.isSimple)
                         editorDialog.header.querySelector('#adv-editor-switch').title = 'Switch to simple';
@@ -1000,9 +998,7 @@ function _setIcon(ico) {
     document.getElementById('icon1').remove();
     document.getElementById('icon2').remove();
     document.getElementById('icon3').remove();
-    document.querySelector('head').insertAdjacentHTML('afterbegin', `<link id="icon1" rel="shortcut icon" href="images/${icon}.ico" />
-        <link id="icon2" rel="icon" href="images/${icon}.ico" />
-        <link id="icon3" rel="icon" type="image/x-icon" href="images/${icon}.png" />`);
+    document.querySelector('head').insertAdjacentHTML('afterbegin', `<link id="icon1" rel="shortcut icon" href="images/${icon}.ico" /><link id="icon2" rel="icon" href="images/${icon}.ico" /><link id="icon3" rel="icon" type="image/x-icon" href="images/${icon}.png" />`);
 }
 
 export function toggleButtons() {

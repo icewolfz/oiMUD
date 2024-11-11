@@ -49,13 +49,11 @@ case 'ch':
     });
 ```
 
-- logger plugin and all related options
-    - ensure add #window support by hooking the client events
-    - hook set-title event and run oiMUDLogger.setLogCharacter('');
 - A general shadowmud plugin that groups all sm related
     - immortal basic tools for shadowmud            
         - client.telnet.GMCPSupports.push('IED 1');
         - Add #win support if added
+        - The old web client had a simple upload for uploading a file to current working directory, seems ot have broken at some point
     - Add help for sm mud if create a sm plugin
     - Add mail compose like jiMUD using advanced editor dialog as a base as exact same code but adds to/cc/subject fields and instead of sending directly it executes a set of commands to open mail and send contents
 - Profile manager:
@@ -71,7 +69,7 @@ case 'ch':
 - Add settings to reset windows states to defaults
 - recode advanced editor to not use jquery when possible
 - Add paste special? may not be possible as cant control paste
-- recode mapper import/export to use web workers
+- Recode map backend into a worker to get/set rooms etc... granted localforage does not work in workers so adds extra layer of complexity
 - Add help docs/help browser
     - for built in help use a subfolder under dist and markdown to format that way can be viewed on github or in help browser
     - <script src=" https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js "></script>

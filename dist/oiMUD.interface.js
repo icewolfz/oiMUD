@@ -112,7 +112,7 @@
         for (s = 0; s < sl; s++) {
           let item = client.plugins[p].menu[s];
           let code;
-          let id = "menu-" + (item.id || item.name || s).toLowerCase().replace(/ /g, "-");
+          let id = "menu-" + (item.id || item.name || s).trim().toLowerCase().replace(/ /g, "-");
           if (item.name === "-")
             code = `<li id="${id}"><hr class="dropdown-divider"></li>`;
           else if (typeof item.action === "string")
@@ -1868,13 +1868,7 @@
         footer += `<button id="${this._id}-no" type="button" class="btn-sm float-end btn btn-light" title="No">No</button>`;
       if (options && (options.buttons & 4 /* Yes */) === 4 /* Yes */)
         footer += `<button id="${this._id}-yes" type="button" class="btn-sm float-end btn btn-primary" title="Yes">Yes</button>`;
-      this._dialog.innerHTML = `<div class="dialog-header">
-        <button id="${this._id}-header-close" style="padding: 4px;" type="button" class="btn btn-close float-end btn-danger" data-dismiss="modal" title="Close window"></button>
-        <button type="button" class="btn btn-light float-end maximize" id="${this._id}-max" title="Maximize window" style="padding: 0 4px;margin-top: -1px;"><i class="bi-arrows-fullscreen"></i></button>
-        <div>${options?.title || ""}</div>
-    </div>
-    <div class="dialog-body"></div>
-    <div class="dialog-footer">${footer}</div>`;
+      this._dialog.innerHTML = `<div class="dialog-header"><button id="${this._id}-header-close" style="padding: 4px;" type="button" class="btn btn-close float-end btn-danger" data-dismiss="modal" title="Close window"></button><button type="button" class="btn btn-light float-end maximize" id="${this._id}-max" title="Maximize window" style="padding: 0 4px;margin-top: -1px;"><i class="bi-arrows-fullscreen"></i></button><div>${options?.title || ""}</div></div><div class="dialog-body"></div><div class="dialog-footer">${footer}</div>`;
       this._dialog.querySelector(`#${this._id}-header-close`).addEventListener("click", () => {
         this.close();
       });
@@ -3863,11 +3857,7 @@
             html += "</tr><tr>";
         }
         html += "</tr></tbody></table>";
-        html += `<style>
-.mce-colorbtn-trans div {line-height: 14px;overflow: hidden;}
-.mce-grid td.mce-grid-cell div{border:1px solid #c5c5c5;width:15px;height:15px;margin:0;cursor:pointer}.mce-grid td.mce-grid-cell div:focus{border-color:#91bbe9}.mce-grid td.mce-grid-cell div[disabled]{cursor:not-allowed}            
-.mce-grid{border-spacing:2px;border-collapse:separate}.mce-grid a{display:block;border:1px solid transparent}.mce-grid a:hover,.mce-grid a:focus{border-color:#91bbe9}.mce-grid-border{margin:0 4px 0 4px}.mce-grid-border a{border-color:#c5c5c5;width:13px;height:13px}.mce-grid-border a:hover,.mce-grid-border a.mce-active{border-color:#91bbe9;background:#bdd6f2}            
-            </style>`;
+        html += `<style>.mce-colorbtn-trans div {line-height: 14px;overflow: hidden;}.mce-grid td.mce-grid-cell div{border:1px solid #c5c5c5;width:15px;height:15px;margin:0;cursor:pointer}.mce-grid td.mce-grid-cell div:focus{border-color:#91bbe9}.mce-grid td.mce-grid-cell div[disabled]{cursor:not-allowed}.mce-grid{border-spacing:2px;border-collapse:separate}.mce-grid a{display:block;border:1px solid transparent}.mce-grid a:hover,.mce-grid a:focus{border-color:#91bbe9}.mce-grid-border{margin:0 4px 0 4px}.mce-grid-border a{border-color:#c5c5c5;width:13px;height:13px}.mce-grid-border a:hover,.mce-grid-border a.mce-active{border-color:#91bbe9;background:#bdd6f2}</style>`;
         this._colorDialog.body.innerHTML = html;
         let cells = this._colorDialog.body.querySelectorAll("div");
         for (c = 0, cl = cells.length; c < cl; c++)
@@ -4403,7 +4393,7 @@
     ["mapper.active.area", 0, 0, null],
     ["mapper.active.zone", 0, 2, 0],
     ["mapper.persistent", 0, 1, true],
-    ["profiles.split", 0, 2, 200],
+    ["profiles.split", 0, 2, 204],
     ["profiles.askoncancel", 0, 1, true],
     ["profiles.triggersAdvanced", 0, 1, false],
     ["profiles.aliasesAdvanced", 0, 1, false],
@@ -4550,7 +4540,7 @@
     ["showInTaskBar", 0, 1, true],
     ["showLagInTitle", 0, 1, false],
     ["mspMaxRetriesOnError", 0, 2, 0],
-    ["logTimestamp", 0, 1, false],
+    ["logTimestamp", 0, 2 /* Number */, 0],
     ["logTimestampFormat", 0, 0, "[[]MM-DD HH:mm:ss.SSS[]] "],
     ["disableTriggerOnError", 0, 1, true],
     ["prependTriggeredLine", 0, 1, true],
@@ -4630,7 +4620,8 @@
     ["simpleAlarms", 0, 1 /* Boolean */, false],
     ["simpleEditor", 0, 1 /* Boolean */, false],
     ["selectLastCommand", 0, 1 /* Boolean */, true],
-    ["statusMode", 0, 2 /* Number */, isMobile() ? 1 : 0]
+    ["statusMode", 0, 2 /* Number */, isMobile() ? 1 : 0],
+    ["logger.split", 0, 2 /* Number */, 204]
   ];
   var Settings = class _Settings {
     constructor() {
@@ -4932,7 +4923,9 @@
         case "mapper.active.zone":
           return 0;
         case "profiles.split":
-          return 200;
+          return 204;
+        case "logger.split":
+          return 204;
         case "profiles.askoncancel":
           return true;
         case "profiles.triggersAdvanced":
@@ -5114,7 +5107,7 @@
         case "mspMaxRetriesOnError":
           return 0;
         case "logTimestamp":
-          return false;
+          return 0;
         case "logTimestampFormat":
           return "[[]MM-DD HH:mm:ss.SSS[]] ";
         case "disableTriggerOnError":
@@ -5290,12 +5283,12 @@
                 }
               } else
                 setTimeout(function() {
-                  new AlertDialog("Invalid file", "Unable to import file, not a valid settings file", 4 /* exclamation */).showModal();
+                  alert_box("Invalid file", "Unable to import file, not a valid settings file", 4 /* exclamation */);
                 }, 50);
               this.loadPageSettings();
             } catch (err) {
               setTimeout(function() {
-                new AlertDialog("Error importing", "Error importing file.", 3 /* error */).showModal();
+                alert_box("Error importing", "Error importing file.", 3 /* error */);
               }, 50);
               client.error(err);
             }
@@ -5305,8 +5298,7 @@
       });
       this.footer.querySelector(`#${this.id}-reset`).addEventListener("click", () => {
         if (this._page === "settings-colors") {
-          const confirm = new ConfirmDialog("Reset colors", "Reset colors?");
-          confirm.on("button-click", (e) => {
+          confirm_box("Reset colors", "Reset colors?").then((e) => {
             if (e.button === 4 /* Yes */) {
               var c;
               var colors = this.settings.colors = [];
@@ -5317,12 +5309,10 @@
               this.body.querySelector(`#colorScheme`).value = 0;
             }
           });
-          confirm.showModal();
         } else if (this._page && this._page !== "settings" && this._page.length) {
           const pages = this._page.split("-");
           let title = capitalize(pages[pages.length - 1].match(/([A-Z]|^[a-z])[a-z]+/g).join(" "));
-          const confirm = new ConfirmDialog(`Reset ${title} settings`, `Reset ${title} settings?`);
-          confirm.on("button-click", (e) => {
+          confirm_box(`Reset ${title} settings`, `Reset ${title} settings?`).then((e) => {
             if (e.button === 4 /* Yes */) {
               const forms = this.body.querySelectorAll("input,select,textarea");
               for (let f = 0, fl = forms.length; f < fl; f++) {
@@ -5335,23 +5325,18 @@
               }
             }
           });
-          confirm.showModal();
         } else {
-          const confirm = new ConfirmDialog("Reset all settings", "Reset all settings?");
-          confirm.on("button-click", (e) => {
+          confirm_box("Reset all settings", "Reset all settings?").then((e) => {
             if (e.button === 4 /* Yes */)
               this.settings.reset();
           });
-          confirm.showModal();
         }
       });
       this.footer.querySelector(`#${this.id}-reset-all`).addEventListener("click", () => {
-        const confirm = new ConfirmDialog("Reset all settings", "Reset all settings?");
-        confirm.on("button-click", (e) => {
+        confirm_box("Reset all settings", "Reset all settings?").then((e) => {
           if (e.button === 4 /* Yes */)
             this.settings.reset();
         });
-        confirm.showModal();
       });
       this.footer.querySelector(`#${this.id}-save`).addEventListener("click", () => {
         removeHash(this._page);
@@ -5378,9 +5363,9 @@
       let breadcrumb = "";
       let last = pages.length - 1;
       if (pages.length === 1)
-        breadcrumb += '<li><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></li>';
+        breadcrumb += '<li class="breadcrumb-icon"><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></li>';
       else
-        breadcrumb += '<li><a href="#' + pages.slice(0, 1).join("-") + '"><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></a></li>';
+        breadcrumb += '<li class="breadcrumb-icon"><a href="#' + pages.slice(0, 1).join("-") + '"><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></a></li>';
       for (let p = 0, pl = pages.length; p < pl; p++) {
         let title = capitalize(pages[p].match(/([A-Z]|^[a-z])[a-z]+/g).join(" "));
         if (p === last)
@@ -5389,6 +5374,13 @@
           breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p + 1).join("-") + '">' + title + "</a></li>";
       }
       this.title = '<ol class="float-start breadcrumb">' + breadcrumb + "</ol>";
+      if (this._menu) {
+        let items = this._menu.querySelectorAll("a.active");
+        items.forEach((item) => item.classList.remove("active"));
+        items = this._menu.querySelector(`a[href="#${this._page}"]`);
+        if (items)
+          items.classList.add("active");
+      }
       if (this._page === "settings") {
         if (this._menu)
           this._menu.style.display = "none";
@@ -5617,7 +5609,7 @@
       this.$panel1MinSize = 200;
       this.$panel2MinSize = 200;
       this.$splitterWidth = 4;
-      this.$splitterDistance = 200;
+      this.$splitterDistance = 204;
       this.$dragging = false;
       this.$collapsed = 0;
       this.live = true;
@@ -5901,6 +5893,8 @@
       this.$dragBar.addEventListener("mousedown", (e) => {
         this.$dragBar.focus();
         e.preventDefault();
+        this.$panel1.style.pointerEvents = "none";
+        this.$panel2.style.pointerEvents = "none";
         this.$dragging = true;
         this.$ghostBar = document.createElement("div");
         this.$ghostBar.id = this.id + "-ghost-bar";
@@ -6050,6 +6044,8 @@
         document.removeEventListener("mousemove", this.$ghostBar.move);
         this.$ghostBar = null;
         this.$dragging = false;
+        this.$panel1.style.pointerEvents = "";
+        this.$panel2.style.pointerEvents = "";
       });
       this.parent.appendChild(this.$el);
       setTimeout(() => {
@@ -7333,9 +7329,9 @@
       let breadcrumb = "";
       let last = pages.length - 1;
       if (pages.length === 1)
-        breadcrumb += '<li><i class="float-start fas fa-users" style="padding: 2px;margin-right: 2px;"></i></li>';
+        breadcrumb += '<li class="breadcrumb-icon"><i class="float-start fas fa-users" style="padding: 2px;margin-right: 2px;"></i></li>';
       else
-        breadcrumb += '<li><a href="#' + pages.slice(0, 1).join("-") + '"><i class="float-start fas fa-users" style="padding: 2px;margin-right: 2px;"></i></a></li>';
+        breadcrumb += '<li class="breadcrumb-icon"><a href="#' + pages.slice(0, 1).join("-") + '"><i class="float-start fas fa-users" style="padding: 2px;margin-right: 2px;"></i></a></li>';
       if (pages.length < 4)
         for (let p2 = 0, pl = pages.length; p2 < pl; p2++) {
           let title = capitalize(pages[p2]);
@@ -8668,7 +8664,7 @@
     if (!Array.isArray(remove))
       remove = [remove];
     remove = remove.concat(...add);
-    var hashes = decodeURI(window.location.hash.substring(1)).split(",").filter((s) => !remove.includes(s.trim()));
+    var hashes = decodeURI(window.location.hash.substring(1)).split(",").filter((s) => s.length && !remove.includes(s.trim()));
     hashes = hashes.concat(...add);
     window.location.hash = hashes.join(",");
   }
@@ -8828,9 +8824,7 @@
           editorDialog.dialog.editor = editor;
           if (tinymce)
             editorDialog.header.querySelector("#adv-editor-max").insertAdjacentHTML("afterend", '<button type="button" class="btn btn-light float-end" id="adv-editor-switch" title="Switch to advanced" style="padding: 0 4px;margin-top: -1px;"><i class="bi-shuffle"></i></button>');
-          editorDialog.footer.innerHTML = `<button id="btn-adv-editor-clear" type="button" class="btn-sm float-start btn btn-light" title="Clear editor"><i class="bi bi-journal-x"></i><span class="icon-only"> Clear</span></button>
-                    <button id="btn-adv-editor-append" type="button" class="btn-sm float-start btn btn-light" title="Append file..."><i class="bi bi-box-arrow-in-down"></i><span class="icon-only"> Append file...</span></button>
-                    <button id="btn-adv-editor-send" type="button" class="btn-sm float-end btn btn-primary" title="Send"><i class="bi bi-send-fill"></i><span class="icon-only"> Send</span></button>`;
+          editorDialog.footer.innerHTML = `<button id="btn-adv-editor-clear" type="button" class="btn-sm float-start btn btn-light" title="Clear editor"><i class="bi bi-journal-x"></i><span class="icon-only"> Clear</span></button><button id="btn-adv-editor-append" type="button" class="btn-sm float-start btn btn-light" title="Append file..."><i class="bi bi-box-arrow-in-down"></i><span class="icon-only"> Append file...</span></button><button id="btn-adv-editor-send" type="button" class="btn-sm float-end btn btn-primary" title="Send"><i class="bi bi-send-fill"></i><span class="icon-only"> Send</span></button>`;
           if (editorDialog.header.querySelector("#adv-editor-switch")) {
             if (!editor.isSimple)
               editorDialog.header.querySelector("#adv-editor-switch").title = "Switch to simple";
@@ -9058,9 +9052,7 @@
     document.getElementById("icon1").remove();
     document.getElementById("icon2").remove();
     document.getElementById("icon3").remove();
-    document.querySelector("head").insertAdjacentHTML("afterbegin", `<link id="icon1" rel="shortcut icon" href="images/${icon}.ico" />
-        <link id="icon2" rel="icon" href="images/${icon}.ico" />
-        <link id="icon3" rel="icon" type="image/x-icon" href="images/${icon}.png" />`);
+    document.querySelector("head").insertAdjacentHTML("afterbegin", `<link id="icon1" rel="shortcut icon" href="images/${icon}.ico" /><link id="icon2" rel="icon" href="images/${icon}.ico" /><link id="icon3" rel="icon" type="image/x-icon" href="images/${icon}.png" />`);
   }
   function toggleButtons() {
     client.setOption("showButtons", !client.getOption("showButtons"));

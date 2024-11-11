@@ -207,7 +207,7 @@ export class Status extends Plugin {
         this.splitterDistance = client.getOption('statusWidth');
 
         Object.defineProperty(window, '$character', {
-            get: function () {
+            get: () => {
                 if (!this.info) return '';
                 return this.info['name'] || '';
             },

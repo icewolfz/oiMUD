@@ -82,7 +82,7 @@ export class Display extends EventEmitter {
     get showTimestamp() { return this._timestamp; }
     set showTimestamp(value: TimeStampStyle) {
         if (value === this._timestamp) return;
-        if(typeof value === 'boolean')
+        if (typeof value === 'boolean')
             this._timestamp = value ? TimeStampStyle.Format : TimeStampStyle.None;
         this._timestamp = value;
         if (!moment || this._timestamp !== TimeStampStyle.Format)
@@ -714,7 +714,7 @@ export class Display extends EventEmitter {
         const id = this._model.getLineID(idx);
         if (this._timestamp === TimeStampStyle.Format && moment)
             parts.push('<span class="timestamp" style="color:', this._model.GetColor(-7), ';background:', this._model.GetColor(-8), ';"', fCls, '>', moment(this.lines[idx].timestamp).format(this._timestampFormat), '</span>');
-        else if (this._timestamp === TimeStampStyle.Simple)
+        else if (this._timestamp !== TimeStampStyle.None)
             parts.push('<span class="timestamp" style="color:', this._model.GetColor(-7), ';background:', this._model.GetColor(-8), ';"', fCls, '>', new Date(this.lines[idx].timestamp).toISOString(), ' </span>');
         for (let f = 0; f < fLen; f++) {
             const format = formats[f];
@@ -1287,7 +1287,7 @@ export class DisplayModel extends EventEmitter {
     constructor(options: DisplayOptions) {
         super();
         this._parser = new Parser(options);
-        this._parser.on('debug', (msg) => { this.emit(msg); });
+        this._parser.on('debug', (msg) => { this.emit('debug', msg); });
 
         this._parser.on('bell', () => { this.emit('bell'); });
 

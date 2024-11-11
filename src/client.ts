@@ -15,6 +15,7 @@ import { MSP } from './plugins/msp';
 import { Test } from './plugins/test';
 import { Mapper } from './plugins/mapper';
 import { Status } from './plugins/status';
+import { Logger } from "./plugins/logger";
 import { ShadowMUD } from "./plugins/ShadowMUD/shadowmud";
 export { ShadowMUD };
 
@@ -1140,6 +1141,7 @@ export class Client extends EventEmitter {
         this.addPlugin(new MSP(this));
         this.addPlugin(new Mapper(this));
         this.addPlugin(new Status(this));
+        this.addPlugin(new Logger(this));
         if (DEBUG || TEST)
             this.addPlugin(new Test(this));
         if (this.getOption('autoConnect'))
@@ -1267,9 +1269,9 @@ export class Client extends EventEmitter {
             }
             window.console.log(new Date().toLocaleString());
             window.console.log(msg);
-            localforage.getItem('oiMUDErrorLog', function (err, value) {
+            localforage.getItem('oiMUDErrorLog').then(value => {
                 localforage.setItem('oiMUDErrorLog', value = (value || '') + new Date().toLocaleString() + '\n' + msg + '\n');
-            });
+            }).catch(err => this.error(err));
         }
         if (err === 'Error: ECONNRESET - read ECONNRESET.' && this.telnet.connected)
             this.close();

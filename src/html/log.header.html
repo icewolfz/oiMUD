@@ -1,0 +1,229 @@
+<style>
+    body {
+        font-family: 'Courier New', Courier, monospace;
+        text-align: left;
+        font-size: 1em;
+        white-space: pre;
+        background-color: black;
+    }
+
+    /* --- Start CSS for ansi display --- */
+    /* --- Start CSS for ansi display --- */
+    @-webkit-keyframes blinker {
+        0% {
+            opacity: 1.0;
+        }
+
+        50% {
+            opacity: 0.0;
+        }
+
+        100% {
+            opacity: 1.0;
+        }
+    }
+
+    @keyframes blinker {
+        0% {
+            opacity: 1.0;
+        }
+
+        50% {
+            opacity: 0.0;
+        }
+
+        100% {
+            opacity: 1.0;
+        }
+    }
+
+    .animate .ansi-blink {
+        text-decoration: blink;
+        animation-name: blinker;
+        animation-iteration-count: infinite;
+        animation-timing-function: cubic-bezier(1, 0, 0, 1);
+        animation-duration: 1s;
+        -webkit-animation-name: blinker;
+        -webkit-animation-iteration-count: infinite;
+        -webkit-animation-timing-function: cubic-bezier(1, 0, 0, 1);
+        -webkit-animation-duration: 1s;
+    }
+
+    .line>span {
+        padding: 0px;
+        margin: 0px;
+        display: inline-block;
+        cursor: text;
+        padding-bottom: 1px;
+    }
+
+    .ansi {
+        padding: 0px;
+        margin: 0px;
+        display: inline-block;
+        padding-bottom: 1px;
+        cursor: text;
+        line-height: normal;
+    }
+
+    .line {
+        word-wrap: break-word;
+        word-break: break-all;
+        min-width: 100%;
+        display: block;
+        /*padding-bottom: 1px;*/
+        clear: both;
+        line-height: normal;
+    }
+
+    .line hr {
+        border: 0px;
+    }
+
+    /* --- End CSS for ansi display --- */
+
+    .line a,
+    .line a:link,
+    .line a:link span {
+        color: inherit;
+        font-weight: inherit;
+        text-decoration: underline;
+    }
+
+    .URLLink,
+    .URLLink:link,
+    .URLLink:link span {
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    a.MXPLink:link,
+    a.MXPLink:link span {
+        font-weight: normal;
+        color: inherit;
+        text-decoration: underline;
+    }
+
+    a.MXPLink:visited,
+    a.MXPLink:visited span {
+        text-decoration: underline;
+    }
+
+    a.MXPLink:active,
+    a.MXPLink:active span {
+        text-decoration: underline;
+    }
+
+    a.MXPLink:hover,
+    a.MXPLink:hover span {
+        text-decoration: underline;
+    }
+
+    .line .b {
+        font-weight: bold;
+    }
+
+    .line .i {
+        font-style: italic;
+    }
+
+    .line .o {
+        text-decoration: overline;
+    }
+
+    .line .u {
+        text-decoration: underline;
+    }
+
+    .line .du {
+        text-decoration: underline;
+        border-bottom: 1px solid currentColor;
+        padding-bottom: 1px;
+    }
+
+    .line .s {
+        text-decoration: line-through;
+    }
+
+    .line .o.du {
+        text-decoration: underline overline;
+    }
+
+    .line .u.o {
+        text-decoration: underline overline;
+    }
+
+    .line .o.s {
+        text-decoration: overline line-through;
+    }
+
+    .line .du.s {
+        text-decoration: underline line-through;
+    }
+
+    .line .s.u {
+        text-decoration: underline line-through;
+    }
+
+    .line .du.u.o {
+        text-decoration: underline overline;
+    }
+
+    .line .du.s.u {
+        text-decoration: underline line-through;
+    }
+
+    .line .du.o.s {
+        text-decoration: underline overline line-through;
+    }
+
+    .line .u.s.o {
+        text-decoration: underline overline line-through;
+    }
+
+    .line .du.o.s.u {
+        text-decoration: underline overline line-through;
+    }
+
+</style>
+<script type="text/javascript">
+    function doLink(url) {
+        if (confirm('Open \'' + url + '\'?') === true)
+            window.open(encodeURI(url), '_blank');
+    }
+
+    // eslint-disable-next-line no-unused-vars
+    function doMXPLink(el, url) {
+        if (url.startsWith('OoMUD://') || url.startsWith('jiMUD://') || url.startsWith('client://'))
+            doMXPSend(0, el, url.substring(8));
+        else if (confirm('Open \'' + url + '\'?') === true)
+            window.open(encodeURI(url.replace('&text;', el.textContent || '')), '_blank');
+    }
+
+    function doMXPSend(e, el, url, pmt, tt) {
+        var im = el.querySelector('img[ismap]');
+        var extra = '';
+        if (im && im.length > 0) {
+            var offset = im.offset();
+            var x = Math.floor(e.clientX - offset.left);
+            var y = Math.floor(e.clientY - offset.top);
+            extra = '?' + x + ',' + y;
+        }
+
+        if (url.constructor === Array || url.__proto__.constructor === Array || Object.prototype.toString.call(url) === '[object Array]') {
+            alert('MXP Menu not supported');
+        }
+        else {
+            url = url.replace('&text;', el.textContent || '') + extra;
+            if (!pmt)
+                url += '\n';
+            alert(url);
+            console.log(url);
+        }
+    }
+
+    // eslint-disable-next-line no-unused-vars
+    function doMXPTooltip(el) {
+        el.title = el.title.replace('&test;', el.textContent || '');
+    }
+</script>

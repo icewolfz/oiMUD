@@ -25,6 +25,7 @@ declare let DEBUG: boolean;
 declare let TEST: boolean;
 declare let TINYMCE: boolean;
 declare let tinymce;
+declare let MINIFY: string;
 
 declare let $selected: string;
 declare let $character: string;

@@ -121,7 +121,7 @@ export function initMenu() {
             for (s = 0; s < sl; s++) {
                 let item = client.plugins[p].menu[s];
                 let code;
-                let id = 'menu-' + (item.id || item.name || s).toLowerCase().replace(/ /g, '-');
+                let id = 'menu-' + (item.id || item.name || s).trim().toLowerCase().replace(/ /g, '-');
                 if (item.name === '-')
                     code = `<li id="${id}"><hr class="dropdown-divider"></li>`;
                 else if (typeof item.action === 'string')

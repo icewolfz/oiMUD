@@ -197,15 +197,19 @@
       else if (!Array.isArray(args))
         args = [args];
       caller = caller || this;
-      let events = this.#events[type];
+      let oEvents = this.#events[type];
+      let events = oEvents.slice().reverse();
       const once = [];
-      for (let i = 0, len = events.length; i < len; i++) {
+      for (let i = events.length - 1; i >= 0; i--) {
+        if (oEvents.indexOf(events[i]) === -1) continue;
+        if (events[i] && events[i].once)
+          once.push(events[i]);
         events[i].listener.apply(events[i].caller || caller, args);
-        if (events[i].once)
-          once.push(i);
       }
       for (let i = once.length - 1; i >= 0; i--) {
-        events.splice(once[i], 1);
+        let idx = this.#events[type].indexOf(once[i]);
+        if (idx !== -1)
+          this.#events[type].splice(idx, 1);
       }
     }
     emit(type, ...args) {
@@ -5242,6 +5246,31 @@
     }
   };
 
+  // src/interface/breadcrumb.ts
+  function buildBreadcrumb(pages, small, sep, formatter) {
+    let breadcrumb = "";
+    let last = pages.length - 1;
+    sep = sep || "-";
+    formatter = formatter || ((item) => capitalize(item.match(/([A-Z]|^[a-z])[a-z]+/g).join(" ")));
+    if (pages.length === 1)
+      breadcrumb += '<li class="breadcrumb-icon"><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></li>';
+    else
+      breadcrumb += '<li class="breadcrumb-icon"><a href="#' + pages.slice(0, 1).join("-") + '"><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></a></li>';
+    for (let p = 0, pl = pages.length; p < pl; p++) {
+      let title = formatter(pages[p], p, last);
+      if (p === last)
+        breadcrumb += '<li class="breadcrumb-item active">' + title + "</li>";
+      else
+        breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p + 1).join(sep) + '">' + title + "</a></li>";
+    }
+    if (small)
+      `<ol class="breadcrumb${this._small ? " breadcrumb-sm" : ""}" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;flex-wrap: nowrap;">${breadcrumb}</ol>`;
+    return '<ol class="float-start breadcrumb">' + breadcrumb + "</ol>";
+  }
+
+  // src/html/settings.menu.htm
+  var settings_menu_default = '<div class="contents list-group list-group-flush" style="top:0;position:absolute;left:0;bottom:49px;right:0"><a href="#settings-general" class="list-group-item list-group-item-action"><i class="fas fa-cogs"></i> General</a> <a href="#settings-display" class="list-group-item list-group-item-action"><i class="fas fa-display"></i> Display</a> <a href="#settings-colors" class="list-group-item list-group-item-action"><i class="fas fa-palette"></i> Colors</a> <a href="#settings-commandLine" class="list-group-item list-group-item-action"><i class="fas fa-terminal"></i> Command line</a> <a href="#settings-tabCompletion" class="list-group-item list-group-item-action"><i class="fa-solid fa-arrow-right-to-bracket"></i> Tab completion</a> <a href="#settings-telnet" class="list-group-item list-group-item-action"><i class="fas fa-network-wired"></i> Telnet</a> <a href="#settings-scripting" class="list-group-item list-group-item-action"><i class="fas fa-code"></i> Scripting</a> <a href="#settings-specialCharacters" class="list-group-item list-group-item-action"><i class="fa-regular fa-file-code"></i> Special characters</a> <a href="#settings-advanced" class="list-group-item list-group-item-action"><i class="fa-solid fa-sliders"></i> Advanced</a></div>';
+
   // src/interface/settingsdialog.ts
   var SettingsDialog = class _SettingsDialog extends Dialog {
     constructor() {
@@ -5357,23 +5386,10 @@
       });
     }
     setBody(contents, args) {
-      super.setBody(this.dialog.dataset.path === "settings" ? _SettingsDialog.menuTemplate : contents, args);
+      super.setBody(this.dialog.dataset.path === "settings" ? settings_menu_default : contents, args);
       this._page = this.dialog.dataset.path;
       const pages = this._page.split("-");
-      let breadcrumb = "";
-      let last = pages.length - 1;
-      if (pages.length === 1)
-        breadcrumb += '<li class="breadcrumb-icon"><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></li>';
-      else
-        breadcrumb += '<li class="breadcrumb-icon"><a href="#' + pages.slice(0, 1).join("-") + '"><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></a></li>';
-      for (let p = 0, pl = pages.length; p < pl; p++) {
-        let title = capitalize(pages[p].match(/([A-Z]|^[a-z])[a-z]+/g).join(" "));
-        if (p === last)
-          breadcrumb += '<li class="breadcrumb-item active">' + title + "</li>";
-        else
-          breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p + 1).join("-") + '">' + title + "</a></li>";
-      }
-      this.title = '<ol class="float-start breadcrumb">' + breadcrumb + "</ol>";
+      this.title = buildBreadcrumb(pages);
       if (this._menu) {
         let items = this._menu.querySelectorAll("a.active");
         items.forEach((item) => item.classList.remove("active"));
@@ -5399,7 +5415,7 @@
       this.loadPageSettings();
     }
     buildMenu() {
-      this.dialog.insertAdjacentHTML("beforeend", _SettingsDialog.menuTemplate.replace(' style="top:0;position: absolute;left:0;bottom:49px;right:0;"', ""));
+      this.dialog.insertAdjacentHTML("beforeend", settings_menu_default.replace(' style="top:0;position:absolute;left:0;bottom:49px;right:0"', ""));
       this._menu = this.dialog.querySelector(".contents");
       this._menu.classList.add("settings-menu");
       _SettingsDialog.addPlugins(this._menu);
@@ -5596,9 +5612,6 @@
           }
         }
       }
-    }
-    static get menuTemplate() {
-      return `<div class="contents list-group list-group-flush" style="top:0;position: absolute;left:0;bottom:49px;right:0;"><a href="#settings-general" class="list-group-item list-group-item-action"><i class="fas fa-cogs"></i> General</a><a href="#settings-display" class="list-group-item list-group-item-action"><i class="fas fa-display"></i> Display</a><a href="#settings-colors" class="list-group-item list-group-item-action"><i class="fas fa-palette"></i> Colors</a><a href="#settings-commandLine" class="list-group-item list-group-item-action"><i class="fas fa-terminal"></i> Command line</a><a href="#settings-tabCompletion" class="list-group-item list-group-item-action"><i class="fa-solid fa-arrow-right-to-bracket"></i> Tab completion</a><a href="#settings-telnet" class="list-group-item list-group-item-action"><i class="fas fa-network-wired"></i> Telnet</a><a href="#settings-scripting" class="list-group-item list-group-item-action"><i class="fas fa-code"></i> Scripting</a><a href="#settings-specialCharacters" class="list-group-item list-group-item-action"><i class="fa-regular fa-file-code"></i> Special characters</a><a href="#settings-advanced" class="list-group-item list-group-item-action"><i class="fa-solid fa-sliders"></i> Advanced</a></div>`;
     }
   };
 
@@ -7326,28 +7339,21 @@
       else
         this.dialog.dataset.panel = "right";
       const pages = this._page.split("/");
-      let breadcrumb = "";
-      let last = pages.length - 1;
-      if (pages.length === 1)
-        breadcrumb += '<li class="breadcrumb-icon"><i class="float-start fas fa-users" style="padding: 2px;margin-right: 2px;"></i></li>';
-      else
-        breadcrumb += '<li class="breadcrumb-icon"><a href="#' + pages.slice(0, 1).join("-") + '"><i class="float-start fas fa-users" style="padding: 2px;margin-right: 2px;"></i></a></li>';
-      if (pages.length < 4)
-        for (let p2 = 0, pl = pages.length; p2 < pl; p2++) {
-          let title = capitalize(pages[p2]);
-          if (p2 === last)
-            breadcrumb += '<li class="breadcrumb-item active">' + title + "</li>";
-          else
-            breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p2 + 1).join("/") + '">' + title + "</a></li>";
-        }
       let k, kl, p;
       this._expandPath(pages);
       this.footer.querySelector("#profile-page-buttons").innerHTML = "";
       this.footer.querySelector(`#${this.id}-export-current`).style.display = "";
-      this.title = `<ol class="breadcrumb${this._small ? " breadcrumb-sm" : ""}" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;flex-wrap: nowrap;">${breadcrumb}</ol>`;
       this._contents.scrollTop = 0;
-      if (!this._setCurrent(pages))
+      if (!this._setCurrent(pages)) {
+        this.title = buildBreadcrumb(pages, true, "/");
         return;
+      }
+      if (pages.length === 4)
+        this.title = buildBreadcrumb(pages, true, "/", (item, index, last) => index === last ? htmlEncode(GetDisplay(this._current.item)) : capitalize(item));
+      else if (pages.length === 5)
+        this.title = buildBreadcrumb(pages, true, "/", (item, index, last) => index === last ? htmlEncode(GetDisplay(this._current.parent)) : index === last - 1 ? htmlEncode(GetDisplay(this._current.item)) : capitalize(item));
+      else
+        this.title = buildBreadcrumb(pages, true, "/");
       if (pages.length < 2) {
         this.footer.querySelector(`#${this.id}-export-current`).style.display = "none";
         this.footer.querySelector(`#${this.id}-add-sep`).style.display = "none";
@@ -7523,13 +7529,6 @@
           e.cancelBubble = true;
           e.preventDefault();
         });
-        for (let p2 = 0, pl = pages.length; p2 < pl; p2++) {
-          if (p2 === last)
-            breadcrumb += '<li class="breadcrumb-item active">' + htmlEncode(GetDisplay(this._current.item)) + "</li>";
-          else
-            breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p2 + 1).join("/") + '">' + capitalize(pages[p2]) + "</a></li>";
-        }
-        this.title = `<ol class="breadcrumb${this._small ? " breadcrumb-sm" : ""}" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;flex-wrap: nowrap;">${breadcrumb}</ol>`;
         if (this._contentPage !== this._current.collection) {
           this._contentPage = this._current.collection;
           this._loadPage(this._current.collection).then((contents2) => {
@@ -7548,16 +7547,6 @@
           e.cancelBubble = true;
           e.preventDefault();
         });
-        let last2 = pages.length - 1;
-        for (let p2 = 0, pl = pages.length; p2 < pl; p2++) {
-          if (p2 === last2 - 1)
-            breadcrumb += '<li class="breadcrumb-item"><a href="#' + pages.slice(0, p2 + 1).join("/") + '">' + htmlEncode(GetDisplay(this._current.parent)) + "</a></li>";
-          else if (p2 === last2)
-            breadcrumb += '<li class="breadcrumb-item active">' + htmlEncode(GetDisplay(this._current.item)) + "</li>";
-          else
-            breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p2 + 1).join("/") + '">' + capitalize(pages[p2]) + "</a></li>";
-        }
-        this.title = `<ol class="breadcrumb${this._small ? " breadcrumb-sm" : ""}" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;flex-wrap: nowrap;">${breadcrumb}</ol>`;
         if (this._contentPage !== this._current.collection) {
           this._contentPage = this._current.collection;
           this._loadPage(this._current.collection).then((contents2) => this._setContents(contents2)).catch(() => {

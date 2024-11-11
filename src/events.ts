@@ -33,17 +33,26 @@ export class EventEmitter {
             args = [args];
 
         caller = caller || this;
-        let events = this.#events[type];
-        const once = []
-        for (let i = 0, len = events.length; i < len; i++) {
+        //copy of original events for testing in case an event gets removed mid loop
+        let oEvents = this.#events[type];
+        //story a copy of events incase something changes while looping, and reverse it so we can loop last to first to prevent skipping events if removed        
+        let events = oEvents.slice().reverse();
+
+        const once = [];
+        for (let i = events.length - 1; i >= 0; i--) {
+            //check if event was removed and if so skip it
+            if (oEvents.indexOf(events[i]) === -1) continue;
+            //store the event if once for easy removable, and because events may modify the list of arrays do not use index
+            if (events[i] && events[i].once)
+                once.push(events[i]);
             events[i].listener.apply(events[i].caller || caller, args);
-            //store the index if once for easy removable
-            if (events[i].once)
-                once.push(i);
         }
+
         //Clean up once events after fired so events are fired in correct order, working last to first due to index manipulations
         for (let i = once.length - 1; i >= 0; i--) {
-            events.splice(once[i], 1);
+            let idx = this.#events[type].indexOf(once[i]);
+            if (idx !== -1)
+                this.#events[type].splice(idx, 1);
         }
     }
 

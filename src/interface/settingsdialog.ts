@@ -1,8 +1,12 @@
-import { Dialog, DialogButtons, AlertDialog, DialogIcon } from "./dialog";
+import { Dialog, DialogButtons, DialogIcon } from "./dialog";
 import { capitalize, clone, openFileDialog, readFile } from '../library';
 import { Settings, SettingList } from "../settings";
 import { RGBColor } from '../lib/rgbcolor';
 import { removeHash } from "./interface";
+import { buildBreadcrumb } from './breadcrumb'
+
+// @ts-ignore
+import menuTemplate from '../html/settings.menu.htm'
 
 declare let fileSaveAs;
 declare let confirm_box;
@@ -132,23 +136,10 @@ export class SettingsDialog extends Dialog {
     }
 
     public setBody(contents: string, args?: any) {
-        super.setBody(this.dialog.dataset.path === 'settings' ? SettingsDialog.menuTemplate : contents, args);
+        super.setBody(this.dialog.dataset.path === 'settings' ? menuTemplate : contents, args);
         this._page = this.dialog.dataset.path;
         const pages = this._page.split('-');
-        let breadcrumb = '';
-        let last = pages.length - 1;
-        if (pages.length === 1)
-            breadcrumb += '<li class="breadcrumb-icon"><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></li>';
-        else
-            breadcrumb += '<li class="breadcrumb-icon"><a href="#' + pages.slice(0, 1).join('-') + '"><i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i></a></li>';
-        for (let p = 0, pl = pages.length; p < pl; p++) {
-            let title = capitalize(pages[p].match(/([A-Z]|^[a-z])[a-z]+/g).join(' '));
-            if (p === last)
-                breadcrumb += '<li class="breadcrumb-item active">' + title + '</li>';
-            else
-                breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p + 1).join('-') + '">' + title + '</a></li>';
-        }
-        this.title = '<ol class="float-start breadcrumb">' + breadcrumb + '</ol>';
+        this.title = buildBreadcrumb(pages);
         if (this._menu) {
             let items = this._menu.querySelectorAll('a.active');
             items.forEach(item => item.classList.remove('active'));
@@ -176,7 +167,7 @@ export class SettingsDialog extends Dialog {
     }
 
     private buildMenu() {
-        this.dialog.insertAdjacentHTML("beforeend", SettingsDialog.menuTemplate.replace(' style="top:0;position: absolute;left:0;bottom:49px;right:0;"', ''));
+        this.dialog.insertAdjacentHTML("beforeend", menuTemplate.replace(' style="top:0;position:absolute;left:0;bottom:49px;right:0"', ''));
         this._menu = this.dialog.querySelector('.contents');
         this._menu.classList.add('settings-menu');
         SettingsDialog.addPlugins(this._menu);
@@ -389,19 +380,5 @@ export class SettingsDialog extends Dialog {
                 }
             }
         }
-    }
-
-    static get menuTemplate() {
-        return `<div class="contents list-group list-group-flush" style="top:0;position: absolute;left:0;bottom:49px;right:0;">` +
-            `<a href="#settings-general" class="list-group-item list-group-item-action"><i class="fas fa-cogs"></i> General</a>` +
-            `<a href="#settings-display" class="list-group-item list-group-item-action"><i class="fas fa-display"></i> Display</a>` +
-            `<a href="#settings-colors" class="list-group-item list-group-item-action"><i class="fas fa-palette"></i> Colors</a>` +
-            `<a href="#settings-commandLine" class="list-group-item list-group-item-action"><i class="fas fa-terminal"></i> Command line</a>` +
-            `<a href="#settings-tabCompletion" class="list-group-item list-group-item-action"><i class="fa-solid fa-arrow-right-to-bracket"></i> Tab completion</a>` +
-            `<a href="#settings-telnet" class="list-group-item list-group-item-action"><i class="fas fa-network-wired"></i> Telnet</a>` +
-            `<a href="#settings-scripting" class="list-group-item list-group-item-action"><i class="fas fa-code"></i> Scripting</a>` +
-            `<a href="#settings-specialCharacters" class="list-group-item list-group-item-action"><i class="fa-regular fa-file-code"></i> Special characters</a>` +
-            `<a href="#settings-advanced" class="list-group-item list-group-item-action"><i class="fa-solid fa-sliders"></i> Advanced</a>` +
-            `</div>`;
     }
 }

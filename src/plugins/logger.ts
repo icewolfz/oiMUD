@@ -5,6 +5,7 @@ import { Dialog, DialogButtons } from '../interface/dialog';
 import { Splitter, Orientation, PanelAnchor } from "../interface/splitter";
 import { removeHash, updateHash } from "../interface/interface";
 import { capitalize, scrollChildIntoView } from '../library';
+import { buildBreadcrumb } from "../interface/breadcrumb";
 
 declare let localforage;
 declare let confirm_box;
@@ -353,29 +354,16 @@ class LogManager extends Dialog {
         else
             this.dialog.dataset.panel = 'right';
         const pages = this._page.split('/');
-        let breadcrumb = '';
-        let last = pages.length - 1;
-        if (pages.length === 1)
-            breadcrumb += '<li class="breadcrumb-icon"><i class="float-start fas fa-list" style="padding: 2px;margin-right: 2px;"></i></li>';
-        else
-            breadcrumb += '<li class="breadcrumb-icon"><a href="#' + pages.slice(0, 1).join('-') + '"><i class="float-start fas fa-list" style="padding: 2px;margin-right: 2px;"></i></a></li>';
-        this._current = pages[last];
-        for (let p = 0, pl = pages.length; p < pl; p++) {
-            const key = pages[p];
-            let title = capitalize(key);
-            if (p === last) {
-                if (this._logs[key] && !key.endsWith('.txt') && !key.endsWith('.raw') && !key.endsWith('.htm'))
-                    breadcrumb += `<li class="breadcrumb-item active">${formatDate(key)}${this._logs[key].character ? ', ' + this._logs[key].character : ''}</li>`;
-                else if (this._logs[key] && this._logs[key].timeStamp)
-                    breadcrumb += `<li class="breadcrumb-item active">${formatDate(this._logs[key].timeStamp)}${this._logs[key].character ? ', ' + this._logs[key].character : ''}, ${key.substring(key.length - 3, key.length)}</li>`;
-                else
-                    breadcrumb += '<li class="breadcrumb-item active">' + title + '</li>';
+        this._current = pages[pages.length - 1];
+        this.title = buildBreadcrumb(pages, false, '/', (item, index, last) => {
+            if (index === last) {
+                if (this._logs[item] && !item.endsWith('.txt') && !item.endsWith('.raw') && !item.endsWith('.htm'))
+                    return `${formatDate(item)}${this._logs[item].character ? ', ' + this._logs[item].character : ''}>`;
+                else if (this._logs[item] && this._logs[item].timeStamp)
+                    return `${formatDate(this._logs[item].timeStamp)}${this._logs[item].character ? ', ' + this._logs[item].character : ''}, ${item.substring(item.length - 3, item.length)}`;
             }
-            else
-                breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p + 1).join('/') + '">' + title + '</a></li>';
-        }
-
-        this.title = `<ol class="breadcrumb" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;flex-wrap: nowrap;">${breadcrumb}</ol>`;
+            return capitalize(item);
+        })
         let items = this._menu.querySelectorAll('a.active');
         items.forEach(item => item.classList.remove('active'));
         items = this._menu.querySelector(`a[href="#logs/${this._current}"]`);

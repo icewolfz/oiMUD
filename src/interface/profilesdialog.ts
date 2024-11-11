@@ -5,6 +5,7 @@ import { Splitter, Orientation, PanelAnchor } from "./splitter";
 import { capitalize, openFileDialog, readFile, keyCodeToChar, keyCharToCode, scrollChildIntoView, debounce, FilterArrayByKeyValue, htmlEncode } from '../library';
 import { removeHash, updateHash } from "./interface";
 import { ProfileCollection, MacroDisplay, Profile, Alias, Trigger, Button, Macro, Context } from "../profile";
+import { buildBreadcrumb } from "./breadcrumb";
 
 declare let confirm_box;
 declare let fileSaveAs;
@@ -451,29 +452,21 @@ export class ProfilesDialog extends Dialog {
         else
             this.dialog.dataset.panel = 'right';
         const pages = this._page.split('/');
-        let breadcrumb = '';
-        let last = pages.length - 1;
-        if (pages.length === 1)
-            breadcrumb += '<li class="breadcrumb-icon"><i class="float-start fas fa-users" style="padding: 2px;margin-right: 2px;"></i></li>';
-        else
-            breadcrumb += '<li class="breadcrumb-icon"><a href="#' + pages.slice(0, 1).join('-') + '"><i class="float-start fas fa-users" style="padding: 2px;margin-right: 2px;"></i></a></li>';
-        if (pages.length < 4)
-            for (let p = 0, pl = pages.length; p < pl; p++) {
-                let title = capitalize(pages[p]);
-                if (p === last)
-                    breadcrumb += '<li class="breadcrumb-item active">' + title + '</li>';
-                else
-                    breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p + 1).join('/') + '">' + title + '</a></li>';
-            }
-
         let k, kl, p;
         this._expandPath(pages);
         this.footer.querySelector('#profile-page-buttons').innerHTML = '';
         this.footer.querySelector(`#${this.id}-export-current`).style.display = '';
-        this.title = `<ol class="breadcrumb${this._small ? ' breadcrumb-sm' : ''}" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;flex-wrap: nowrap;">${breadcrumb}</ol>`;
         this._contents.scrollTop = 0;
-        if (!this._setCurrent(pages))
+        if (!this._setCurrent(pages)) {
+            this.title = buildBreadcrumb(pages, true, '/');
             return;
+        }
+        if (pages.length === 4)
+            this.title = buildBreadcrumb(pages, true, '/', (item, index, last) => index === last ? htmlEncode(GetDisplay(this._current.item)) : capitalize(item));
+        else if (pages.length === 5)
+            this.title = buildBreadcrumb(pages, true, '/', (item, index, last) => index === last ? htmlEncode(GetDisplay(this._current.parent)) : index === last - 1 ? htmlEncode(GetDisplay(this._current.item)) : capitalize(item));
+        else
+            this.title = buildBreadcrumb(pages, true, '/');
         if (pages.length < 2) {
             this.footer.querySelector(`#${this.id}-export-current`).style.display = 'none';
             this.footer.querySelector(`#${this.id}-add-sep`).style.display = 'none';
@@ -662,13 +655,6 @@ export class ProfilesDialog extends Dialog {
                 e.cancelBubble = true;
                 e.preventDefault();
             });
-            for (let p = 0, pl = pages.length; p < pl; p++) {
-                if (p === last)
-                    breadcrumb += '<li class="breadcrumb-item active">' + htmlEncode(GetDisplay(this._current.item)) + '</li>';
-                else
-                    breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p + 1).join('/') + '">' + capitalize(pages[p]) + '</a></li>';
-            }
-            this.title = `<ol class="breadcrumb${this._small ? ' breadcrumb-sm' : ''}" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;flex-wrap: nowrap;">${breadcrumb}</ol>`;
             if (this._contentPage !== this._current.collection) {
                 this._contentPage = this._current.collection;
                 this._loadPage(this._current.collection).then(contents => {
@@ -689,16 +675,6 @@ export class ProfilesDialog extends Dialog {
                 e.cancelBubble = true;
                 e.preventDefault();
             });
-            let last = pages.length - 1;
-            for (let p = 0, pl = pages.length; p < pl; p++) {
-                if (p === last - 1)
-                    breadcrumb += '<li class="breadcrumb-item"><a href="#' + pages.slice(0, p + 1).join('/') + '">' + htmlEncode(GetDisplay(this._current.parent)) + '</a></li>';
-                else if (p === last)
-                    breadcrumb += '<li class="breadcrumb-item active">' + htmlEncode(GetDisplay(this._current.item)) + '</li>';
-                else
-                    breadcrumb += '<li class="breadcrumb-item" aria-current="page"><a href="#' + pages.slice(0, p + 1).join('/') + '">' + capitalize(pages[p]) + '</a></li>';
-            }
-            this.title = `<ol class="breadcrumb${this._small ? ' breadcrumb-sm' : ''}" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;flex-wrap: nowrap;">${breadcrumb}</ol>`;
             if (this._contentPage !== this._current.collection) {
                 this._contentPage = this._current.collection;
                 this._loadPage(this._current.collection).then(contents => this._setContents(contents)).catch(() => {
@@ -1258,7 +1234,6 @@ export class ProfilesDialog extends Dialog {
         }
         return value;
     }
-
 }
 
 export function GetDisplay(arr) {

@@ -16682,36 +16682,6 @@
         this.client.send(ret, true);
       }, delay);
     }
-    buildScript(str) {
-      if (!str) return "";
-      let lines;
-      if (this.client.getOption("commandStacking") && this.client.getOption("commandStackingChar") && this.client.getOption("commandStackingChar").length > 0)
-        lines = str.splitQuote("\n" + this.client.getOption("commandStackingChar"));
-      else
-        lines = str.splitQuote("\n");
-      let l2 = 0;
-      const ll = lines.length;
-      const code = [];
-      const b = [];
-      const cmdChar = this.client.getOption("commandChar");
-      for (; l2 < ll; l2++) {
-        if (lines[l2].trim().startsWith(cmdChar + "wait ")) {
-          code.push("setTimeout(()=> {");
-          b.unshift(parseInt(lines[l2].trim().substr(5), 10) || 0);
-        } else {
-          code.push("client.sendCommand('");
-          code.push(lines[l2]);
-          code.push("\\n');");
-        }
-      }
-      const bl = b.length;
-      for (l2 = 0; l2 < bl; l2++) {
-        code.push("}, ");
-        code.push(b[l2]);
-        code.push(");");
-      }
-      return code.join("");
-    }
     stripQuotes(str, force, forceSingle) {
       if (!str || str.length === 0)
         return str;

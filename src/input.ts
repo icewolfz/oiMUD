@@ -8840,44 +8840,6 @@ export class Input extends EventEmitter {
         }, delay);
     }
 
-    public buildScript(str: string) {
-        if (!str) return '';
-        let lines;
-        /*
-        if (this.client.getOption('commandStacking') && this.client.getOption('commandStackingChar') && this.client.getOption('commandStackingChar').length > 0)
-            lines = str.split(new RegExp('\n|' + this.client.getOption('commandStackingChar')));
-        else
-            lines = str.split('\n');
-        */
-        if (this.client.getOption('commandStacking') && this.client.getOption('commandStackingChar') && this.client.getOption('commandStackingChar').length > 0)
-            lines = str.splitQuote('\n' + this.client.getOption('commandStackingChar'));
-        else
-            lines = str.splitQuote('\n');
-        let l = 0;
-        const ll = lines.length;
-        const code = [];
-        const b = [];
-        const cmdChar = this.client.getOption('commandChar');
-        for (; l < ll; l++) {
-            if (lines[l].trim().startsWith(cmdChar + 'wait ')) {
-                code.push('setTimeout(()=> {');
-                b.unshift(parseInt(lines[l].trim().substr(5), 10) || 0);
-            }
-            else {
-                code.push('client.sendCommand(\'');
-                code.push(lines[l]);
-                code.push('\\n\');');
-            }
-        }
-        const bl = b.length;
-        for (l = 0; l < bl; l++) {
-            code.push('}, ');
-            code.push(b[l]);
-            code.push(');');
-        }
-        return code.join('');
-    }
-
     public stripQuotes(str: string, force?: boolean, forceSingle?: boolean) {
         if (!str || str.length === 0)
             return str;

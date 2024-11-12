@@ -608,7 +608,7 @@ export class Client extends EventEmitter {
             }
             else {
                 while (future < fend) {
-                    if (this.alarm_match(alarm, future, dNow))
+                    if (this._alarm_match(alarm, future, dNow))
                         return future - now;
                     future += mod;
                     dNow.setTime(dNow.getTime() + mod);
@@ -742,7 +742,7 @@ export class Client extends EventEmitter {
                     alarm.tempTime = 0;
             }
             else
-                match = this.alarm_match(alarm, now, dNow);
+                match = this._alarm_match(alarm, now, dNow);
             if (match && !alarm.suspended) {
                 alarm.prevTime = now;
                 //save as if temp alarm as execute trigger advances state and temp alarms will need different state shifts
@@ -797,7 +797,7 @@ export class Client extends EventEmitter {
         }
     }
 
-    private alarm_match(alarm, now, dNow) {
+    private _alarm_match(alarm, now, dNow) {
         if (!alarm || alarm.suspended) return false;
         let match: boolean = true;
         let ts;
@@ -1024,7 +1024,7 @@ export class Client extends EventEmitter {
             this.emit('received-data', data);
             if (data == null || typeof data === 'undefined' || data.value == null || typeof data.value === 'undefined')
                 return;
-            this.printInternal(data.value, false, true);
+            this._printInternal(data.value, false, true);
             this.debug('Latency: ' + this.telnet.latency + 'ms');
             this.debug('Latency: ' + (this.telnet.latency / 1000) + 's');
         });
@@ -1226,10 +1226,10 @@ export class Client extends EventEmitter {
     }
 
     public parse(txt: string) {
-        this.parseInternal(txt, false, false, true);
+        this._parseInternal(txt, false, false, true);
     }
 
-    private parseInternal(txt: string, remote: boolean, force?: boolean, prependSplit?: boolean) {
+    private _parseInternal(txt: string, remote: boolean, force?: boolean, prependSplit?: boolean) {
         this.display.append(txt, remote, force, prependSplit);
     }
 
@@ -1298,17 +1298,17 @@ export class Client extends EventEmitter {
     }
 
     public print(txt: string, newline?: boolean) {
-        this.printInternal(txt, newline, false, true);
+        this._printInternal(txt, newline, false, true);
     }
 
-    private printInternal(txt: string, newline?: boolean, remote?: boolean, prependSplit?: boolean) {
+    private _printInternal(txt: string, newline?: boolean, remote?: boolean, prependSplit?: boolean) {
         if (txt == null || typeof txt === 'undefined') return;
         if (newline == null) newline = false;
         if (remote == null) remote = false;
         if (newline && this.display.textLength > 0 && !this.display.EndOfLine && this.display.EndOfLineLength !== 0 && !this.telnet.prompt && !this.display.parseQueueEndOfLine)
             txt = '\n' + txt;
         this.emit('print');
-        this.parseInternal(txt, remote, false, prependSplit);
+        this._parseInternal(txt, remote, false, prependSplit);
     }
 
     public send(data, echo?: boolean) {

@@ -272,7 +272,7 @@ export class Input extends EventEmitter {
         this._LastTriggered = value;
     }
 
-    private getDiceArguments(arg, scope, fun) {
+    private _getDiceArguments(arg, scope, fun) {
         let res = /(\d+)\s*?d(F|f|%|\d+)(\s*?[-|+|*|\/]?\s*?\d+)?/g.exec(arg.toString());
         if (!res || res.length < 3) {
             res = /(\d+)\s*?d\s*?\/\s*?(100)(\s*?[-|+|*|\/]?\s*?\d+)?/g.exec(arg.toString());
@@ -294,7 +294,7 @@ export class Input extends EventEmitter {
         return res;
     }
 
-    private initMathJS() {
+    private _initMathJS() {
         _mathjs = math;
         const functions = {
             esc: '\x1b',
@@ -310,7 +310,7 @@ export class Input extends EventEmitter {
                 let max;
                 if (args.length === 0) throw new Error('Invalid arguments for diceavg');
                 if (args.length === 1) {
-                    res = this.getDiceArguments(args[0], scope, 'diceavg');
+                    res = this._getDiceArguments(args[0], scope, 'diceavg');
                     c = parseInt(res[1]);
                     sides = res[2];
                     if (res.length > 3)
@@ -350,7 +350,7 @@ export class Input extends EventEmitter {
                 let min;
                 if (args.length === 0) throw new Error('Invalid arguments for dicemin');
                 if (args.length === 1) {
-                    res = res = this.getDiceArguments(args[0], scope, 'dicemin');
+                    res = res = this._getDiceArguments(args[0], scope, 'dicemin');
                     c = parseInt(res[1]);
                     sides = res[2];
                     if (res.length > 3)
@@ -383,7 +383,7 @@ export class Input extends EventEmitter {
                 let max;
                 if (args.length === 0) throw new Error('Invalid arguments for dicemax');
                 if (args.length === 1) {
-                    res = this.getDiceArguments(args[0], scope, 'dicemax');
+                    res = this._getDiceArguments(args[0], scope, 'dicemax');
                     c = parseInt(res[1]);
                     sides = res[2];
                     if (res.length > 3)
@@ -418,7 +418,7 @@ export class Input extends EventEmitter {
                 let max;
                 if (args.length === 0) throw new Error('Invalid arguments for dicedev');
                 if (args.length === 1) {
-                    res = this.getDiceArguments(args[0], scope, 'dicedev');
+                    res = this._getDiceArguments(args[0], scope, 'dicedev');
                     c = parseInt(res[1]);
                     sides = res[2];
                     if (res.length > 3)
@@ -452,7 +452,7 @@ export class Input extends EventEmitter {
                 let max;
                 if (args.length === 0) throw new Error('Invalid arguments for zdicedev');
                 if (args.length === 1) {
-                    res = this.getDiceArguments(args[0], scope, 'zdicedev');
+                    res = this._getDiceArguments(args[0], scope, 'zdicedev');
                     c = parseInt(res[1]);
                     sides = res[2];
                     if (res.length > 3)
@@ -485,7 +485,7 @@ export class Input extends EventEmitter {
                 let sides;
                 let mod;
                 if (args.length === 1) {
-                    res = this.getDiceArguments(args[0], scope, 'dice');
+                    res = this._getDiceArguments(args[0], scope, 'dice');
                     c = parseInt(res[1]);
                     sides = res[2];
                     if (res.length > 3)
@@ -1278,7 +1278,7 @@ export class Input extends EventEmitter {
         //wrap mathjs to load on demand for speed as not every may need math
         mathjs = () => {
             if (_mathjs) return _mathjs;
-            this.initMathJS();
+            this._initMathJS();
             return _mathjs;
         }
         this._commandHistory = [];
@@ -1315,8 +1315,8 @@ export class Input extends EventEmitter {
 
         this.client.on('options-loaded', () => {
             if (!_mathjs && this.client.getOption('initializeScriptEngineOnLoad'))
-                this.initMathJS();
-            this.initPads();
+                this._initMathJS();
+            this._initPads();
         });
 
         this.client.commandInput.addEventListener('keyup', event => {
@@ -1534,7 +1534,7 @@ export class Input extends EventEmitter {
                 this._gamepadCaches = [];
             this._controllers[e.gamepad.index] = { pad: e.gamepad, axes: clone(e.gamepad.axes), state: { axes: [], buttons: [] }, pState: { axes: [], buttons: [] } };
             this._controllersCount++;
-            this.updatePads();
+            this._updatePads();
         });
 
         window.addEventListener('gamepaddisconnected', (e) => {
@@ -1542,12 +1542,12 @@ export class Input extends EventEmitter {
             delete this._controllers[e.gamepad.index];
             this._controllersCount--;
         });
-        this.initPads();
+        this._initPads();
     }
 
-    private async initPads() {
+    private async _initPads() {
         if (!this.client || !this.client.options) {
-            setTimeout(this.initPads, 5);
+            setTimeout(this._initPads, 5);
             return;
         }
         this._controllers = [];
@@ -1562,10 +1562,10 @@ export class Input extends EventEmitter {
             this._controllers[controllers[ct].index] = { pad: controllers[ct], axes: clone(controllers[ct].axes), state: { axes: [], buttons: [] }, pState: { axes: [], buttons: [] } };
             this._controllersCount++;
         }
-        this.updatePads();
+        this._updatePads();
     }
 
-    private updatePads() {
+    private _updatePads() {
         if (this._controllersCount === 0 || !this.client.getOption('gamepads'))
             return;
         const controllers = navigator.getGamepads();
@@ -1606,7 +1606,7 @@ export class Input extends EventEmitter {
                                 if (macros[m].key !== i + 1) continue;
                                 if (this.ExecuteMacro(macros[m])) {
                                     if (this._controllersCount > 0 || controllers.length > 0)
-                                        requestAnimationFrame(() => { this.updatePads(); });
+                                        requestAnimationFrame(() => { this._updatePads(); });
                                     return;
                                 }
                             }
@@ -1642,14 +1642,14 @@ export class Input extends EventEmitter {
                         if (macros[m].gamepadAxes !== i + 1) continue;
                         if (this.ExecuteMacro(macros[m])) {
                             if (this._controllersCount > 0 || controllers.length > 0)
-                                requestAnimationFrame(() => { this.updatePads(); });
+                                requestAnimationFrame(() => { this._updatePads(); });
                             return;
                         }
                     }
             }
         }
         if (this._controllersCount > 0 || controllers.length > 0)
-            requestAnimationFrame(() => { this.updatePads(); });
+            requestAnimationFrame(() => { this._updatePads(); });
     }
 
     public adjustLastLine(n, raw?) {
@@ -2073,7 +2073,7 @@ export class Input extends EventEmitter {
                                             tmp = o.trim().split('=');
                                             if (tmp.length !== 2)
                                                 throw new Error(`Invalid trigger type option '${o.trim()}'`);
-                                            if (!this.isTriggerType(tmp[1], TriggerTypeFilter.Main))
+                                            if (!this._isTriggerType(tmp[1], TriggerTypeFilter.Main))
                                                 throw new Error('Invalid trigger type');
                                             item.options['type'] = tmp[1];
                                         }
@@ -2130,7 +2130,7 @@ export class Input extends EventEmitter {
                                             tmp = o.trim().split('=');
                                             if (tmp.length !== 2)
                                                 throw new Error(`Invalid trigger type option '${o.trim()}'`);
-                                            if (!this.isTriggerType(tmp[1], TriggerTypeFilter.Main))
+                                            if (!this._isTriggerType(tmp[1], TriggerTypeFilter.Main))
                                                 throw new Error('Invalid trigger type');
 
                                             item.options['type'] = tmp[1];
@@ -3905,14 +3905,14 @@ export class Input extends EventEmitter {
                 n = this.adjustLastLine(this.client.display.lines.length);
                 if (args[0].trim().match(/^[-|+]?\d+$/g)) {
                     setTimeout(() => {
-                        this.colorPosition(n, parseInt(args[0], 10), null, item);
+                        this._colorPosition(n, parseInt(args[0], 10), null, item);
                     }, 0);
                 }
                 //back,fore from color function
                 else if (args[0].trim().match(/^[-|+]?\d+\s*?,\s*?[-|+]?\d+$/g)) {
                     args[0] = args[0].split(',');
                     setTimeout(() => {
-                        this.colorPosition(n, parseInt(args[0][0], 10), parseInt(args[0][1], 10), item);
+                        this._colorPosition(n, parseInt(args[0][0], 10), parseInt(args[0][1], 10), item);
                     }, 0);
                 }
                 else {
@@ -3934,7 +3934,7 @@ export class Input extends EventEmitter {
                             }
                         }
                         setTimeout(() => {
-                            this.colorPosition(n, i, null, item);
+                            this._colorPosition(n, i, null, item);
                         }, 0);
                     }
                     else if (args.length === 2) {
@@ -3959,7 +3959,7 @@ export class Input extends EventEmitter {
                         }
                         if (args[1] === 'bold') {
                             setTimeout(() => {
-                                this.colorPosition(n, i === 370 ? i : i * 10, null, item);
+                                this._colorPosition(n, i === 370 ? i : i * 10, null, item);
                             }, 0);
                         }
                         else {
@@ -3978,7 +3978,7 @@ export class Input extends EventEmitter {
                                 }
                             }
                             setTimeout(() => {
-                                this.colorPosition(n, p, i, item);
+                                this._colorPosition(n, p, i, item);
                             }, 0);
                         }
                     }
@@ -4022,7 +4022,7 @@ export class Input extends EventEmitter {
                             }
                         }
                         setTimeout(() => {
-                            this.colorPosition(n, p, i, item);
+                            this._colorPosition(n, p, i, item);
                         }, 0);
                     }
                 }
@@ -4164,7 +4164,7 @@ export class Input extends EventEmitter {
                     tmp = parseInt(n[0], 10);
                     if (isNaN(tmp))
                         throw new Error('Invalid loop range \'' + n[0] + '\' must be a number');
-                    return this.executeForLoop(0, tmp, args);
+                    return this._executeForLoop(0, tmp, args);
                 }
                 tmp = parseInt(n[0], 10);
                 if (isNaN(tmp))
@@ -4174,7 +4174,7 @@ export class Input extends EventEmitter {
                     throw new Error('Invalid loop max \'' + n[1] + '\' must be a number');
                 if (tmp > i) tmp++;
                 else tmp--;
-                return this.executeForLoop(tmp, i, args);
+                return this._executeForLoop(tmp, i, args);
             case 'repeat':
             case 'rep':
                 if ((this.client.getOption('echo') & 4) === 4)
@@ -4191,8 +4191,8 @@ export class Input extends EventEmitter {
                 if (args.match(/^\{[\s\S]*\}$/g))
                     args = args.substr(1, args.length - 2);
                 if (i < 1)
-                    return this.executeForLoop((-i) + 1, 1, args);
-                return this.executeForLoop(0, i, args);
+                    return this._executeForLoop((-i) + 1, 1, args);
+                return this._executeForLoop(0, i, args);
             case 'until':
                 if ((this.client.getOption('echo') & 4) === 4)
                     this.client.echo(raw, -3, -4, true, true);
@@ -4883,7 +4883,7 @@ export class Input extends EventEmitter {
                                             tmp = o.trim().split('=');
                                             if (tmp.length !== 2)
                                                 throw new Error(`Invalid trigger type option '${o.trim()}'`);
-                                            if (!this.isTriggerType(tmp[1]))
+                                            if (!this._isTriggerType(tmp[1]))
                                                 throw new Error('Invalid trigger type');
                                             item.options['type'] = tmp[1];
                                         }
@@ -4949,7 +4949,7 @@ export class Input extends EventEmitter {
                                             tmp = o.trim().split('=');
                                             if (tmp.length !== 2)
                                                 throw new Error(`Invalid trigger type option '${o.trim()}'`);
-                                            if (!this.isTriggerType(tmp[1]))
+                                            if (!this._isTriggerType(tmp[1]))
                                                 throw new Error('Invalid trigger type');
 
                                             item.options['type'] = tmp[1];
@@ -5184,7 +5184,7 @@ export class Input extends EventEmitter {
                                             tmp = o.trim().split('=');
                                             if (tmp.length !== 2)
                                                 throw new Error(`Invalid temporary trigger type option '${o.trim()}'`);
-                                            if (!this.isTriggerType(tmp[1], TriggerTypeFilter.Main))
+                                            if (!this._isTriggerType(tmp[1], TriggerTypeFilter.Main))
                                                 throw new Error('Invalid temporary trigger type');
                                             item.options['type'] = tmp[1];
                                         }
@@ -5239,7 +5239,7 @@ export class Input extends EventEmitter {
                                             tmp = o.trim().split('=');
                                             if (tmp.length !== 2)
                                                 throw new Error(`Invalid temporary trigger type option '${o.trim()}'`);
-                                            if (!this.isTriggerType(tmp[1], TriggerTypeFilter.Main))
+                                            if (!this._isTriggerType(tmp[1], TriggerTypeFilter.Main))
                                                 throw new Error('Invalid temporary trigger type');
 
                                             item.options['type'] = tmp[1];
@@ -5347,8 +5347,8 @@ export class Input extends EventEmitter {
             if (args.match(/^\{[\s\S]*\}$/g))
                 args = args.substr(1, args.length - 2);
             if (i < 1)
-                return this.executeForLoop((-i) + 1, 1, args);
-            return this.executeForLoop(0, i, args);
+                return this._executeForLoop((-i) + 1, 1, args);
+            return this._executeForLoop(0, i, args);
         }
         const data: FunctionEvent = { name: fun, args: args, raw: raw, handled: false, return: null };
         this.client.emit('function', data);
@@ -5362,7 +5362,7 @@ export class Input extends EventEmitter {
         return this.parseOutgoing(data.raw + '\n', null, null, null, true);
     }
 
-    private executeForLoop(start: number, end: number, commands: string) {
+    private _executeForLoop(start: number, end: number, commands: string) {
         let tmp = [];
         let r: number;
         if (start > end) {
@@ -7983,7 +7983,7 @@ export class Input extends EventEmitter {
     }
 
     /*
-    private hasTriggerType(types: TriggerTypes | SubTriggerTypes, type: TriggerType | SubTriggerTypes): boolean {
+    private _hasTriggerType(types: TriggerTypes | SubTriggerTypes, type: TriggerType | SubTriggerTypes): boolean {
         if (type === TriggerType.Alarm && (types & TriggerTypes.Alarm) == TriggerTypes.Alarm)
             return true;
         if (type === TriggerType.CommandInputPattern && (types & TriggerTypes.CommandInputPattern) == TriggerTypes.CommandInputPattern)
@@ -8004,7 +8004,7 @@ export class Input extends EventEmitter {
     }
     */
 
-    private isSubTriggerType(type) {
+    private _isSubTriggerType(type) {
         if ((type & SubTriggerTypes.Skip) == SubTriggerTypes.Skip)
             return true;
         if ((type & SubTriggerTypes.Wait) == SubTriggerTypes.Wait)
@@ -8026,7 +8026,7 @@ export class Input extends EventEmitter {
         return false;
     }
 
-    private getTriggerType(type: TriggerType | SubTriggerTypes) {
+    private _getTriggerType(type: TriggerType | SubTriggerTypes) {
         if (type === TriggerType.Regular)
             return TriggerTypes.Regular;
         if (type === TriggerType.Alarm)
@@ -8089,9 +8089,9 @@ export class Input extends EventEmitter {
                 //last check to be 100% sure enabled
                 if (!trigger.enabled) continue;
             }
-            tType = this.getTriggerType(trigger.type);
+            tType = this._getTriggerType(trigger.type);
             if (trigger.type !== undefined && (type & tType) !== tType) {
-                if (!subtypes || (subtypes && !this.isSubTriggerType(trigger.type)))
+                if (!subtypes || (subtypes && !this._isSubTriggerType(trigger.type)))
                     continue;
             }
             //manual can only be fired with #set
@@ -8110,7 +8110,7 @@ export class Input extends EventEmitter {
                     //trigger time has paused, delete it and advance
                     if (states[t].time < Date.now()) {
                         delete states[t];
-                        this.advanceTrigger(trigger, parent, t);
+                        this._advanceTrigger(trigger, parent, t);
                         //need to reparse as the state is no longer valid and the next state might be
                         if (!states[t])
                             states[t] = { reParse: true };
@@ -8129,7 +8129,7 @@ export class Input extends EventEmitter {
                 else if (states[t].type === SubTriggerTypes.LoopLines) {
                     //move on after line count
                     if (states[t].lineCount < 1) {
-                        this.advanceTrigger(trigger, parent, t);
+                        this._advanceTrigger(trigger, parent, t);
                         //reparse as new state may be valid
                         if (!states[t])
                             states[t] = { reParse: true }
@@ -8141,7 +8141,7 @@ export class Input extends EventEmitter {
                 }
                 else if (states[t].type === SubTriggerTypes.WithinLines) {
                     if (states[t].lineCount < 1) {
-                        this.advanceTrigger(trigger, parent, t);
+                        this._advanceTrigger(trigger, parent, t);
                         //reparse as new state may be valid
                         if (!states[t])
                             states[t] = { reParse: true }
@@ -8182,7 +8182,7 @@ export class Input extends EventEmitter {
                     }
                     else {
                         //this.updateTriggerState(trigger, t);
-                        this.advanceTrigger(trigger, parent, t);
+                        this._advanceTrigger(trigger, parent, t);
                         continue;
                     }
                 }
@@ -8190,7 +8190,7 @@ export class Input extends EventEmitter {
                     if (!trigger.caseSensitive && (trigger.raw ? raw : line).toLowerCase() !== trigger.pattern.toLowerCase()) {
                         //if reparse and if failed advance anyways
                         if (!states[t] && (trigger.type === SubTriggerTypes.ReParse || trigger.type === SubTriggerTypes.ReParsePattern)) {
-                            this.advanceTrigger(trigger, parent, t);
+                            this._advanceTrigger(trigger, parent, t);
                             t = this.cleanUpTriggerState(t);
                         }
                         continue;
@@ -8198,7 +8198,7 @@ export class Input extends EventEmitter {
                     else if (trigger.caseSensitive && (trigger.raw ? raw : line) !== trigger.pattern) {
                         //if reparse and if failed advance anyways
                         if (!states[t] && (trigger.type === SubTriggerTypes.ReParse || trigger.type === SubTriggerTypes.ReParsePattern)) {
-                            this.advanceTrigger(trigger, parent, t);
+                            this._advanceTrigger(trigger, parent, t);
                             t = this.cleanUpTriggerState(t);
                         }
                         continue;
@@ -8222,7 +8222,7 @@ export class Input extends EventEmitter {
                     if (!res || !res.length) {
                         //if reparse and if failed advance anyways
                         if (!states[t] && (trigger.type === SubTriggerTypes.ReParse || trigger.type === SubTriggerTypes.ReParsePattern)) {
-                            this.advanceTrigger(trigger, parent, t);
+                            this._advanceTrigger(trigger, parent, t);
                             t = this.cleanUpTriggerState(t);
                         }
                         continue;
@@ -8272,7 +8272,7 @@ export class Input extends EventEmitter {
                 if (!trigger.caseSensitive && (trigger.raw ? raw : line).toLowerCase() !== trigger.pattern.toLowerCase()) {
                     //if reparse and if failed advance anyways
                     if (!this._TriggerStates[t]) {
-                        this.advanceTrigger(trigger, parent, t);
+                        this._advanceTrigger(trigger, parent, t);
                         t = this.cleanUpTriggerState(t);
                     }
                     return t;
@@ -8280,7 +8280,7 @@ export class Input extends EventEmitter {
                 else if (trigger.caseSensitive && (trigger.raw ? raw : line) !== trigger.pattern) {
                     //if reparse and if failed advance anyways
                     if (!this._TriggerStates[t]) {
-                        this.advanceTrigger(trigger, parent, t);
+                        this._advanceTrigger(trigger, parent, t);
                         t = this.cleanUpTriggerState(t);
                     }
                     return t;
@@ -8304,7 +8304,7 @@ export class Input extends EventEmitter {
                 if (!res || !res.length) {
                     //if reparse and if failed advance anyways
                     if (!this._TriggerStates[t] && (trigger.type === SubTriggerTypes.ReParse || trigger.type === SubTriggerTypes.ReParsePattern)) {
-                        this.advanceTrigger(trigger, parent, t);
+                        this._advanceTrigger(trigger, parent, t);
                         t = this.cleanUpTriggerState(t);
                     }
                     return t;
@@ -8346,7 +8346,7 @@ export class Input extends EventEmitter {
             delete this._TriggerStates[idx];
         if (trigger.fired) {
             trigger.fired = false;
-            this.advanceTrigger(trigger, parent, idx);
+            this._advanceTrigger(trigger, parent, idx);
             if (this._TriggerStates[idx])
                 this._TriggerStates[idx].reParse = true;
             else
@@ -8394,7 +8394,7 @@ export class Input extends EventEmitter {
             }
         }
         else if (parent.triggers.length)
-            this.advanceTrigger(trigger, parent, idx);
+            this._advanceTrigger(trigger, parent, idx);
         if ((this.client.getOption('echo') & 8) === 8)
             this.client.echo('Trigger fired: ' + trigger.pattern, -7, -8, true, true);
         if (trigger.value.length)
@@ -8467,7 +8467,7 @@ export class Input extends EventEmitter {
         }
     }
 
-    private advanceTrigger(trigger, parent, idx) {
+    private _advanceTrigger(trigger, parent, idx) {
         if (this._TriggerStates[idx]) {
             if (this._TriggerStates[idx].type === SubTriggerTypes.LoopPattern) {
                 this._TriggerStates[idx].loop--;
@@ -9013,8 +9013,8 @@ export class Input extends EventEmitter {
                 if (options.params)
                     sTrigger.params = options.params;
                 if (options.type) {
-                    if (this.isTriggerType(options.type))
-                        sTrigger.type = this.convertTriggerType(options.type);
+                    if (this._isTriggerType(options.type))
+                        sTrigger.type = this._convertTriggerType(options.type);
                     else
                         throw new Error('Invalid trigger type');
                 }
@@ -9076,8 +9076,8 @@ export class Input extends EventEmitter {
                 if (options.params)
                     trigger.params = options.params;
                 if (options.type) {
-                    if (this.isTriggerType(options.type, TriggerTypeFilter.Main))
-                        trigger.type = this.convertTriggerType(options.type);
+                    if (this._isTriggerType(options.type, TriggerTypeFilter.Main))
+                        trigger.type = this._convertTriggerType(options.type);
                     else
                         throw new Error('Invalid trigger type');
                 }
@@ -9096,7 +9096,7 @@ export class Input extends EventEmitter {
         profile = null;
     }
 
-    private isTriggerType(type, filter?: TriggerTypeFilter) {
+    private _isTriggerType(type, filter?: TriggerTypeFilter) {
         if (!filter) filter = TriggerTypeFilter.All;
         switch (type.replace(/ /g, '').toUpperCase()) {
             case 'REGULAREXPRESSION':
@@ -9142,7 +9142,7 @@ export class Input extends EventEmitter {
         return false;
     }
 
-    private convertTriggerType(type) {
+    private _convertTriggerType(type) {
         switch (type.replace(/ /g, '').toUpperCase()) {
             case 'REGULAREXPRESSION':
                 return TriggerType.Regular;
@@ -9190,7 +9190,7 @@ export class Input extends EventEmitter {
         throw new Error('Invalid trigger type');
     }
 
-    private colorPosition(n: number, fore, back, item) {
+    private _colorPosition(n: number, fore, back, item) {
         n = this.adjustLastLine(n);
         if (!item.hasOwnProperty('yStart'))
             this.client.display.colorSubStringByLine(n, fore, back, item.xStart, item.hasOwnProperty('xEnd') && item.xEnd >= 0 ? item.xEnd : null);

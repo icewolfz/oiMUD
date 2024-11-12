@@ -3245,7 +3245,7 @@
     text = text || "";
     text = text.split("%^");
     if (!_colorCodes)
-      loadColors();
+      _loadColors();
     const stack = [];
     let codes = [];
     let t = 0;
@@ -3338,7 +3338,7 @@
       stack.push(codes[t]);
     return stack.join("");
   }
-  function loadColors() {
+  function _loadColors() {
     let c;
     let color;
     let r;
@@ -3509,10 +3509,10 @@
       return Object.prototype.toString.call(arg) === "[object Array]";
     };
   }
-  var txtDecoder;
+  var _txtDecoder;
   function ArrayBufferToString(buffer) {
     if (window.TextDecoder !== void 0) {
-      return (txtDecoder || (txtDecoder = new TextDecoder())).decode(new Uint8Array(buffer));
+      return (_txtDecoder || (_txtDecoder = new TextDecoder())).decode(new Uint8Array(buffer));
     }
     return BinaryToString(String.fromCharCode.apply(null, Array.prototype.slice.apply(new Uint8Array(buffer))));
   }
@@ -3550,11 +3550,11 @@
       return String.fromCharCode.apply(null, Array.prototype.slice.apply(chars));
     }
   }
-  var txtEncoder;
+  var _txtEncoder;
   function StringToUint8Array(string) {
     var binary, binLen, buffer, chars, i2, _i;
     if (window.TextEncoder !== void 0)
-      return (txtEncoder || (txtEncoder = new TextEncoder())).encode(string);
+      return (_txtEncoder || (_txtEncoder = new TextEncoder())).encode(string);
     binary = StringToBinary(string);
     binLen = binary.length;
     buffer = new ArrayBuffer(binLen);
@@ -3757,9 +3757,9 @@
     }
   }
   window.fileSaveAs = new fSaveAs();
-  function utf8() {
+  function _utf8() {
     var intc, i2;
-    function TryGetCharUTF8(b, count) {
+    function _TryGetCharUTF8(b, count) {
       var c = b.charCodeAt(i2);
       if ((c & 128) === 0)
         intc = c;
@@ -3782,7 +3782,7 @@
       var ss = new StringBuffer();
       var sl = s.length;
       for (i2 = 0; i2 < sl; i2++) {
-        if (TryGetCharUTF8(s, sl))
+        if (_TryGetCharUTF8(s, sl))
           ss.appendCode(intc);
       }
       return ss.toString();
@@ -3811,7 +3811,7 @@
       return ss.toString();
     };
   }
-  window.UTF8 = new utf8();
+  window.UTF8 = new _utf8();
   function printArray(data) {
     if (data === null || typeof data == "undefined") return data;
     var dl, ba;
@@ -3940,7 +3940,7 @@
       this._splitBuffer = [];
       this._connected = false;
       this._MTTS = 0;
-      this.zStream = 0;
+      this._zStream = 0;
       this._latencyTime = null;
       this._doPing = false;
       this._closed = true;
@@ -5278,7 +5278,7 @@
      */
     _endMCCP() {
       this._zlib = false;
-      this.zStream = 0;
+      this._zStream = 0;
     }
     /**
      * @name Telnet#decompressData
@@ -5289,10 +5289,10 @@
      */
     _decompressData(data) {
       if (!this._zlib) return data;
-      if (!this.zStream)
-        this.zStream = new import_inflate_stream_min.Zlib.InflateStream();
+      if (!this._zStream)
+        this._zStream = new import_inflate_stream_min.Zlib.InflateStream();
       if (this.enableDebug) this.emit("debug", "Pre decompress:" + printArray(data), 1);
-      data = this.zStream.decompress(data);
+      data = this._zStream.decompress(data);
       if (this.enableDebug) this.emit("debug", "Post decompress:" + printArray(data), 1);
       return new Uint8Array(data);
     }
@@ -8721,7 +8721,7 @@
       this.client = client2;
       mathjs = () => {
         if (_mathjs) return _mathjs;
-        this.initMathJS();
+        this._initMathJS();
         return _mathjs;
       };
       this._commandHistory = [];
@@ -8750,8 +8750,8 @@
       });
       this.client.on("options-loaded", () => {
         if (!_mathjs && this.client.getOption("initializeScriptEngineOnLoad"))
-          this.initMathJS();
-        this.initPads();
+          this._initMathJS();
+        this._initPads();
       });
       this.client.commandInput.addEventListener("keyup", (event2) => {
         if (event2.key !== "Escape" && event2.key !== "ArrowUp" && event2.key !== "ArrowDown")
@@ -8940,14 +8940,14 @@
           this._gamepadCaches = [];
         this._controllers[e.gamepad.index] = { pad: e.gamepad, axes: clone(e.gamepad.axes), state: { axes: [], buttons: [] }, pState: { axes: [], buttons: [] } };
         this._controllersCount++;
-        this.updatePads();
+        this._updatePads();
       });
       window.addEventListener("gamepaddisconnected", (e) => {
         if (!this.client.getOption("gamepads")) return;
         delete this._controllers[e.gamepad.index];
         this._controllersCount--;
       });
-      this.initPads();
+      this._initPads();
     }
     getScope() {
       let scope = {};
@@ -9061,7 +9061,7 @@
     set lastTriggered(value) {
       this._LastTriggered = value;
     }
-    getDiceArguments(arg, scope, fun) {
+    _getDiceArguments(arg, scope, fun) {
       let res = /(\d+)\s*?d(F|f|%|\d+)(\s*?[-|+|*|\/]?\s*?\d+)?/g.exec(arg.toString());
       if (!res || res.length < 3) {
         res = /(\d+)\s*?d\s*?\/\s*?(100)(\s*?[-|+|*|\/]?\s*?\d+)?/g.exec(arg.toString());
@@ -9079,7 +9079,7 @@
       }
       return res;
     }
-    initMathJS() {
+    _initMathJS() {
       _mathjs = math;
       const functions = {
         esc: "\x1B",
@@ -9095,7 +9095,7 @@
           let max2;
           if (args.length === 0) throw new Error("Invalid arguments for diceavg");
           if (args.length === 1) {
-            res = this.getDiceArguments(args[0], scope, "diceavg");
+            res = this._getDiceArguments(args[0], scope, "diceavg");
             c = parseInt(res[1]);
             sides = res[2];
             if (res.length > 3)
@@ -9130,7 +9130,7 @@
           let min;
           if (args.length === 0) throw new Error("Invalid arguments for dicemin");
           if (args.length === 1) {
-            res = res = this.getDiceArguments(args[0], scope, "dicemin");
+            res = res = this._getDiceArguments(args[0], scope, "dicemin");
             c = parseInt(res[1]);
             sides = res[2];
             if (res.length > 3)
@@ -9161,7 +9161,7 @@
           let max2;
           if (args.length === 0) throw new Error("Invalid arguments for dicemax");
           if (args.length === 1) {
-            res = this.getDiceArguments(args[0], scope, "dicemax");
+            res = this._getDiceArguments(args[0], scope, "dicemax");
             c = parseInt(res[1]);
             sides = res[2];
             if (res.length > 3)
@@ -9193,7 +9193,7 @@
           let max2;
           if (args.length === 0) throw new Error("Invalid arguments for dicedev");
           if (args.length === 1) {
-            res = this.getDiceArguments(args[0], scope, "dicedev");
+            res = this._getDiceArguments(args[0], scope, "dicedev");
             c = parseInt(res[1]);
             sides = res[2];
             if (res.length > 3)
@@ -9225,7 +9225,7 @@
           let max2;
           if (args.length === 0) throw new Error("Invalid arguments for zdicedev");
           if (args.length === 1) {
-            res = this.getDiceArguments(args[0], scope, "zdicedev");
+            res = this._getDiceArguments(args[0], scope, "zdicedev");
             c = parseInt(res[1]);
             sides = res[2];
             if (res.length > 3)
@@ -9256,7 +9256,7 @@
           let sides;
           let mod;
           if (args.length === 1) {
-            res = this.getDiceArguments(args[0], scope, "dice");
+            res = this._getDiceArguments(args[0], scope, "dice");
             c = parseInt(res[1]);
             sides = res[2];
             if (res.length > 3)
@@ -10011,9 +10011,9 @@
       if (!_mathjs) return;
       _mathjs = void 0;
     }
-    async initPads() {
+    async _initPads() {
       if (!this.client || !this.client.options) {
-        setTimeout(this.initPads, 5);
+        setTimeout(this._initPads, 5);
         return;
       }
       this._controllers = [];
@@ -10028,9 +10028,9 @@
         this._controllers[controllers[ct].index] = { pad: controllers[ct], axes: clone(controllers[ct].axes), state: { axes: [], buttons: [] }, pState: { axes: [], buttons: [] } };
         this._controllersCount++;
       }
-      this.updatePads();
+      this._updatePads();
     }
-    updatePads() {
+    _updatePads() {
       if (this._controllersCount === 0 || !this.client.getOption("gamepads"))
         return;
       const controllers = navigator.getGamepads();
@@ -10070,7 +10070,7 @@
                   if (this.ExecuteMacro(macros[m])) {
                     if (this._controllersCount > 0 || controllers.length > 0)
                       requestAnimationFrame(() => {
-                        this.updatePads();
+                        this._updatePads();
                       });
                     return;
                   }
@@ -10103,7 +10103,7 @@
               if (this.ExecuteMacro(macros[m])) {
                 if (this._controllersCount > 0 || controllers.length > 0)
                   requestAnimationFrame(() => {
-                    this.updatePads();
+                    this._updatePads();
                   });
                 return;
               }
@@ -10112,7 +10112,7 @@
       }
       if (this._controllersCount > 0 || controllers.length > 0)
         requestAnimationFrame(() => {
-          this.updatePads();
+          this._updatePads();
         });
     }
     adjustLastLine(n, raw) {
@@ -10495,7 +10495,7 @@
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
                           throw new Error(`Invalid trigger type option '${o.trim()}'`);
-                        if (!this.isTriggerType(tmp[1], 1 /* Main */))
+                        if (!this._isTriggerType(tmp[1], 1 /* Main */))
                           throw new Error("Invalid trigger type");
                         item.options["type"] = tmp[1];
                       } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
@@ -10546,7 +10546,7 @@
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
                           throw new Error(`Invalid trigger type option '${o.trim()}'`);
-                        if (!this.isTriggerType(tmp[1], 1 /* Main */))
+                        if (!this._isTriggerType(tmp[1], 1 /* Main */))
                           throw new Error("Invalid trigger type");
                         item.options["type"] = tmp[1];
                       } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
@@ -12218,12 +12218,12 @@
           n = this.adjustLastLine(this.client.display.lines.length);
           if (args[0].trim().match(/^[-|+]?\d+$/g)) {
             setTimeout(() => {
-              this.colorPosition(n, parseInt(args[0], 10), null, item);
+              this._colorPosition(n, parseInt(args[0], 10), null, item);
             }, 0);
           } else if (args[0].trim().match(/^[-|+]?\d+\s*?,\s*?[-|+]?\d+$/g)) {
             args[0] = args[0].split(",");
             setTimeout(() => {
-              this.colorPosition(n, parseInt(args[0][0], 10), parseInt(args[0][1], 10), item);
+              this._colorPosition(n, parseInt(args[0][0], 10), parseInt(args[0][1], 10), item);
             }, 0);
           } else {
             args = args[0].toLowerCase().split(",");
@@ -12244,7 +12244,7 @@
                 }
               }
               setTimeout(() => {
-                this.colorPosition(n, i2, null, item);
+                this._colorPosition(n, i2, null, item);
               }, 0);
             } else if (args.length === 2) {
               if (args[0] === "bold" && args[1] === "bold")
@@ -12268,7 +12268,7 @@
               }
               if (args[1] === "bold") {
                 setTimeout(() => {
-                  this.colorPosition(n, i2 === 370 ? i2 : i2 * 10, null, item);
+                  this._colorPosition(n, i2 === 370 ? i2 : i2 * 10, null, item);
                 }, 0);
               } else {
                 p = i2;
@@ -12286,7 +12286,7 @@
                   }
                 }
                 setTimeout(() => {
-                  this.colorPosition(n, p, i2, item);
+                  this._colorPosition(n, p, i2, item);
                 }, 0);
               }
             } else if (args.length === 3) {
@@ -12329,7 +12329,7 @@
                 }
               }
               setTimeout(() => {
-                this.colorPosition(n, p, i2, item);
+                this._colorPosition(n, p, i2, item);
               }, 0);
             }
           }
@@ -12468,7 +12468,7 @@
             tmp = parseInt(n[0], 10);
             if (isNaN(tmp))
               throw new Error("Invalid loop range '" + n[0] + "' must be a number");
-            return this.executeForLoop(0, tmp, args);
+            return this._executeForLoop(0, tmp, args);
           }
           tmp = parseInt(n[0], 10);
           if (isNaN(tmp))
@@ -12478,7 +12478,7 @@
             throw new Error("Invalid loop max '" + n[1] + "' must be a number");
           if (tmp > i2) tmp++;
           else tmp--;
-          return this.executeForLoop(tmp, i2, args);
+          return this._executeForLoop(tmp, i2, args);
         case "repeat":
         case "rep":
           if ((this.client.getOption("echo") & 4) === 4)
@@ -12495,8 +12495,8 @@
           if (args.match(/^\{[\s\S]*\}$/g))
             args = args.substr(1, args.length - 2);
           if (i2 < 1)
-            return this.executeForLoop(-i2 + 1, 1, args);
-          return this.executeForLoop(0, i2, args);
+            return this._executeForLoop(-i2 + 1, 1, args);
+          return this._executeForLoop(0, i2, args);
         case "until":
           if ((this.client.getOption("echo") & 4) === 4)
             this.client.echo(raw, -3, -4, true, true);
@@ -13148,7 +13148,7 @@
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
                           throw new Error(`Invalid trigger type option '${o.trim()}'`);
-                        if (!this.isTriggerType(tmp[1]))
+                        if (!this._isTriggerType(tmp[1]))
                           throw new Error("Invalid trigger type");
                         item.options["type"] = tmp[1];
                       } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
@@ -13209,7 +13209,7 @@
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
                           throw new Error(`Invalid trigger type option '${o.trim()}'`);
-                        if (!this.isTriggerType(tmp[1]))
+                        if (!this._isTriggerType(tmp[1]))
                           throw new Error("Invalid trigger type");
                         item.options["type"] = tmp[1];
                       } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
@@ -13434,7 +13434,7 @@
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
                           throw new Error(`Invalid temporary trigger type option '${o.trim()}'`);
-                        if (!this.isTriggerType(tmp[1], 1 /* Main */))
+                        if (!this._isTriggerType(tmp[1], 1 /* Main */))
                           throw new Error("Invalid temporary trigger type");
                         item.options["type"] = tmp[1];
                       } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
@@ -13483,7 +13483,7 @@
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
                           throw new Error(`Invalid temporary trigger type option '${o.trim()}'`);
-                        if (!this.isTriggerType(tmp[1], 1 /* Main */))
+                        if (!this._isTriggerType(tmp[1], 1 /* Main */))
                           throw new Error("Invalid temporary trigger type");
                         item.options["type"] = tmp[1];
                       } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
@@ -13584,8 +13584,8 @@
         if (args.match(/^\{[\s\S]*\}$/g))
           args = args.substr(1, args.length - 2);
         if (i2 < 1)
-          return this.executeForLoop(-i2 + 1, 1, args);
-        return this.executeForLoop(0, i2, args);
+          return this._executeForLoop(-i2 + 1, 1, args);
+        return this._executeForLoop(0, i2, args);
       }
       const data = { name: fun, args, raw, handled: false, return: null };
       this.client.emit("function", data);
@@ -13598,7 +13598,7 @@
         return cmdChar + this.parseOutgoing(data.raw.substr(1), null, null, null, true);
       return this.parseOutgoing(data.raw + "\n", null, null, null, true);
     }
-    executeForLoop(start, end, commands) {
+    _executeForLoop(start, end, commands) {
       let tmp = [];
       let r;
       if (start > end) {
@@ -15955,7 +15955,7 @@
       this.scrollLock = !this.scrollLock;
     }
     /*
-    private hasTriggerType(types: TriggerTypes | SubTriggerTypes, type: TriggerType | SubTriggerTypes): boolean {
+    private _hasTriggerType(types: TriggerTypes | SubTriggerTypes, type: TriggerType | SubTriggerTypes): boolean {
         if (type === TriggerType.Alarm && (types & TriggerTypes.Alarm) == TriggerTypes.Alarm)
             return true;
         if (type === TriggerType.CommandInputPattern && (types & TriggerTypes.CommandInputPattern) == TriggerTypes.CommandInputPattern)
@@ -15975,7 +15975,7 @@
         return false;
     }
     */
-    isSubTriggerType(type) {
+    _isSubTriggerType(type) {
       if ((type & 512 /* Skip */) == 512 /* Skip */)
         return true;
       if ((type & 1024 /* Wait */) == 1024 /* Wait */)
@@ -15996,7 +15996,7 @@
         return true;
       return false;
     }
-    getTriggerType(type) {
+    _getTriggerType(type) {
       if (type === 0 /* Regular */)
         return 4 /* Regular */;
       if (type === 3 /* Alarm */)
@@ -16046,9 +16046,9 @@
           }
           if (!trigger.enabled) continue;
         }
-        tType = this.getTriggerType(trigger.type);
+        tType = this._getTriggerType(trigger.type);
         if (trigger.type !== void 0 && (type & tType) !== tType) {
-          if (!subtypes || subtypes && !this.isSubTriggerType(trigger.type))
+          if (!subtypes || subtypes && !this._isSubTriggerType(trigger.type))
             continue;
         }
         if (trigger.type === 65536 /* Manual */) continue;
@@ -16063,7 +16063,7 @@
           } else if (states[t].type === 16384 /* Duration */) {
             if (states[t].time < Date.now()) {
               delete states[t];
-              this.advanceTrigger(trigger, parent, t);
+              this._advanceTrigger(trigger, parent, t);
               if (!states[t])
                 states[t] = { reParse: true };
               else
@@ -16077,7 +16077,7 @@
             delete states[t];
           } else if (states[t].type === 8192 /* LoopLines */) {
             if (states[t].lineCount < 1) {
-              this.advanceTrigger(trigger, parent, t);
+              this._advanceTrigger(trigger, parent, t);
               if (!states[t])
                 states[t] = { reParse: true };
               else
@@ -16087,7 +16087,7 @@
             }
           } else if (states[t].type === 32768 /* WithinLines */) {
             if (states[t].lineCount < 1) {
-              this.advanceTrigger(trigger, parent, t);
+              this._advanceTrigger(trigger, parent, t);
               if (!states[t])
                 states[t] = { reParse: true };
               else
@@ -16109,19 +16109,19 @@
               this._LastTriggered = trigger.raw ? raw : line2;
               val = this.ExecuteTrigger(trigger, [this._LastTriggered], ret, t, [this._LastTriggered], 0, parent);
             } else {
-              this.advanceTrigger(trigger, parent, t);
+              this._advanceTrigger(trigger, parent, t);
               continue;
             }
           } else if (trigger.verbatim) {
             if (!trigger.caseSensitive && (trigger.raw ? raw : line2).toLowerCase() !== trigger.pattern.toLowerCase()) {
               if (!states[t] && (trigger.type === 131072 /* ReParse */ || trigger.type === 262144 /* ReParsePattern */)) {
-                this.advanceTrigger(trigger, parent, t);
+                this._advanceTrigger(trigger, parent, t);
                 t = this.cleanUpTriggerState(t);
               }
               continue;
             } else if (trigger.caseSensitive && (trigger.raw ? raw : line2) !== trigger.pattern) {
               if (!states[t] && (trigger.type === 131072 /* ReParse */ || trigger.type === 262144 /* ReParsePattern */)) {
-                this.advanceTrigger(trigger, parent, t);
+                this._advanceTrigger(trigger, parent, t);
                 t = this.cleanUpTriggerState(t);
               }
               continue;
@@ -16142,7 +16142,7 @@
             const res = re.exec(trigger.raw ? raw : line2);
             if (!res || !res.length) {
               if (!states[t] && (trigger.type === 131072 /* ReParse */ || trigger.type === 262144 /* ReParsePattern */)) {
-                this.advanceTrigger(trigger, parent, t);
+                this._advanceTrigger(trigger, parent, t);
                 t = this.cleanUpTriggerState(t);
               }
               continue;
@@ -16188,13 +16188,13 @@
         if (trigger.verbatim) {
           if (!trigger.caseSensitive && (trigger.raw ? raw : line2).toLowerCase() !== trigger.pattern.toLowerCase()) {
             if (!this._TriggerStates[t]) {
-              this.advanceTrigger(trigger, parent, t);
+              this._advanceTrigger(trigger, parent, t);
               t = this.cleanUpTriggerState(t);
             }
             return t;
           } else if (trigger.caseSensitive && (trigger.raw ? raw : line2) !== trigger.pattern) {
             if (!this._TriggerStates[t]) {
-              this.advanceTrigger(trigger, parent, t);
+              this._advanceTrigger(trigger, parent, t);
               t = this.cleanUpTriggerState(t);
             }
             return t;
@@ -16215,7 +16215,7 @@
           const res = re.exec(trigger.raw ? raw : line2);
           if (!res || !res.length) {
             if (!this._TriggerStates[t] && (trigger.type === 131072 /* ReParse */ || trigger.type === 262144 /* ReParsePattern */)) {
-              this.advanceTrigger(trigger, parent, t);
+              this._advanceTrigger(trigger, parent, t);
               t = this.cleanUpTriggerState(t);
             }
             return t;
@@ -16255,7 +16255,7 @@
         delete this._TriggerStates[idx];
       if (trigger.fired) {
         trigger.fired = false;
-        this.advanceTrigger(trigger, parent, idx);
+        this._advanceTrigger(trigger, parent, idx);
         if (this._TriggerStates[idx])
           this._TriggerStates[idx].reParse = true;
         else
@@ -16295,7 +16295,7 @@
           this.client.removeTrigger(parent);
         }
       } else if (parent.triggers.length)
-        this.advanceTrigger(trigger, parent, idx);
+        this._advanceTrigger(trigger, parent, idx);
       if ((this.client.getOption("echo") & 8) === 8)
         this.client.echo("Trigger fired: " + trigger.pattern, -7, -8, true, true);
       if (trigger.value.length)
@@ -16358,7 +16358,7 @@
         }, 1);
       }
     }
-    advanceTrigger(trigger, parent, idx) {
+    _advanceTrigger(trigger, parent, idx) {
       if (this._TriggerStates[idx]) {
         if (this._TriggerStates[idx].type === 4096 /* LoopPattern */) {
           this._TriggerStates[idx].loop--;
@@ -16841,8 +16841,8 @@
           if (options.params)
             sTrigger.params = options.params;
           if (options.type) {
-            if (this.isTriggerType(options.type))
-              sTrigger.type = this.convertTriggerType(options.type);
+            if (this._isTriggerType(options.type))
+              sTrigger.type = this._convertTriggerType(options.type);
             else
               throw new Error("Invalid trigger type");
           }
@@ -16899,8 +16899,8 @@
           if (options.params)
             trigger.params = options.params;
           if (options.type) {
-            if (this.isTriggerType(options.type, 1 /* Main */))
-              trigger.type = this.convertTriggerType(options.type);
+            if (this._isTriggerType(options.type, 1 /* Main */))
+              trigger.type = this._convertTriggerType(options.type);
             else
               throw new Error("Invalid trigger type");
           }
@@ -16917,7 +16917,7 @@
         this.emit("item-updated", "trigger", profile.name, profile.triggers.indexOf(trigger), trigger);
       profile = null;
     }
-    isTriggerType(type, filter) {
+    _isTriggerType(type, filter) {
       if (!filter) filter = 3 /* All */;
       switch (type.replace(/ /g, "").toUpperCase()) {
         case "REGULAREXPRESSION":
@@ -16961,7 +16961,7 @@
       }
       return false;
     }
-    convertTriggerType(type) {
+    _convertTriggerType(type) {
       switch (type.replace(/ /g, "").toUpperCase()) {
         case "REGULAREXPRESSION":
           return 0 /* Regular */;
@@ -17006,7 +17006,7 @@
       }
       throw new Error("Invalid trigger type");
     }
-    colorPosition(n, fore, back, item) {
+    _colorPosition(n, fore, back, item) {
       n = this.adjustLastLine(n);
       if (!item.hasOwnProperty("yStart"))
         this.client.display.colorSubStringByLine(n, fore, back, item.xStart, item.hasOwnProperty("xEnd") && item.xEnd >= 0 ? item.xEnd : null);
@@ -17375,10 +17375,10 @@
     constructor(options) {
       super();
       /** @private */
-      this.parsing = [];
+      this._parsing = [];
       /** @private */
       /* Web detection protocols that are just followed by a :*/
-      this.protocols = [["m", "a", "i", "l", "t", "o"], ["s", "k", "y", "p", "e"], ["a", "i", "m"], ["c", "a", "l", "l", "t", "o"], ["g", "t", "a", "l", "k"], ["i", "m"], ["i", "t", "m", "s"], ["m", "s", "n", "i", "m"], ["t", "e", "l"], ["y", "m", "s", "g", "r"]];
+      this._protocols = [["m", "a", "i", "l", "t", "o"], ["s", "k", "y", "p", "e"], ["a", "i", "m"], ["c", "a", "l", "l", "t", "o"], ["g", "t", "a", "l", "k"], ["i", "m"], ["i", "t", "m", "s"], ["m", "s", "n", "i", "m"], ["t", "e", "l"], ["y", "m", "s", "g", "r"]];
       /** @private */
       this._ColorTable = null;
       /** @private */
@@ -17390,17 +17390,17 @@
       /** @private */
       this._SplitBuffer = "";
       /** @private */
-      this.mxpState = new MXPState();
+      this._mxpState = new MXPState();
       /** @private */
-      this.mxpStyles = [];
+      this._mxpStyles = [];
       /** @private */
-      this.mxpEntities = {};
+      this._mxpEntities = {};
       /** @private */
-      this.mxpElements = {};
+      this._mxpElements = {};
       /** @private */
-      this.mxpLines = [];
+      this._mxpLines = [];
       /** @private */
-      this.iMXPDefaultMode = 0 /* Open */;
+      this._iMXPDefaultMode = 0 /* Open */;
       this.displayControlCodes = false;
       this.emulateControlCodes = true;
       this.StyleVersion = "";
@@ -17448,9 +17448,9 @@
           this.enableLinks = options.enableLinks;
       }
     }
-    getColors(mxp) {
+    _getColors(mxp) {
       if (typeof mxp === "undefined")
-        mxp = this.GetCurrentStyle();
+        mxp = this._GetCurrentStyle();
       let f;
       let b;
       let fc = -1;
@@ -17502,9 +17502,9 @@
         return { fore: b, back: f, foreCode: bc, backCode: fc };
       return { fore: f, back: b, foreCode: fc, backCode: bc };
     }
-    getFormatBlock(offset2) {
-      const mxp = this.GetCurrentStyle();
-      const colors = this.getColors(mxp);
+    _getFormatBlock(offset2) {
+      const mxp = this._GetCurrentStyle();
+      const colors = this._getColors(mxp);
       return {
         formatType: 0 /* Normal */,
         offset: offset2,
@@ -17516,12 +17516,12 @@
         unicode: false
       };
     }
-    ResetColors() {
+    _ResetColors() {
       this._CurrentForeColor = 37;
       this._CurrentBackColor = 40;
       this._CurrentAttributes = 0 /* None */;
     }
-    ProcessAnsiColorParams(params) {
+    _ProcessAnsiColorParams(params) {
       let p = 0;
       const pl = params.length;
       let i2;
@@ -17530,7 +17530,7 @@
         i2 = +params[p] || 0;
         switch (i2) {
           case 0:
-            this.ResetColors();
+            this._ResetColors();
             break;
           case 1:
             this._CurrentAttributes |= 1 /* Bold */;
@@ -17752,7 +17752,7 @@
         }
       }
     }
-    buildColorTable() {
+    _buildColorTable() {
       const _ColorTable = [];
       let r;
       let g;
@@ -17830,7 +17830,7 @@
     }
     GetColor(code) {
       if (this._ColorTable == null)
-        this.buildColorTable();
+        this._buildColorTable();
       switch (code) {
         case -12:
           return this._ColorTable[279];
@@ -17993,19 +17993,19 @@
     }
     SetColor(code, color) {
       if (this._ColorTable == null)
-        this.buildColorTable();
+        this._buildColorTable();
       if (code < 0 || code >= this._ColorTable.length)
         return;
       color = new RGBColor(color);
       if (!color.ok) return;
       this._ColorTable[code] = color.toRGB();
     }
-    AddLine(line2, raw, fragment, skip, formats, remote) {
-      const data = { raw, line: line2, fragment, gagged: skip, formats: this.pruneFormats(formats, line2.length, fragment), remote };
+    _AddLine(line2, raw, fragment, skip, formats, remote) {
+      const data = { raw, line: line2, fragment, gagged: skip, formats: this._pruneFormats(formats, line2.length, fragment), remote };
       this.emit("add-line", data);
       this.EndOfLine = !fragment;
     }
-    pruneFormats(formats, textLen, fragment) {
+    _pruneFormats(formats, textLen, fragment) {
       if (!formats || formats.length < 2) return formats;
       const l2 = formats.length;
       const nF = [];
@@ -18029,66 +18029,66 @@
       }
       return nF;
     }
-    GetEntity(entity) {
+    _GetEntity(entity) {
       if (entity === "text")
         return entity;
-      if (this.mxpEntities[entity]) {
-        this.mxpState.expanded = true;
-        return this.mxpEntities[entity].value;
+      if (this._mxpEntities[entity]) {
+        this._mxpState.expanded = true;
+        return this._mxpEntities[entity].value;
       }
       return entity;
     }
-    ClearMXPToTag(tag, custom, secure) {
+    _ClearMXPToTag(tag, custom, secure) {
       if (custom == null) custom = "";
       let tmp = new MXPStyle();
       tmp.tag = 0 /* None */;
-      let ml = this.mxpStyles.length - 1;
+      let ml = this._mxpStyles.length - 1;
       for (; ml >= 0; ml--) {
-        if (this.mxpStyles[ml].tag !== tag && this.mxpStyles[ml].custom !== custom) {
-          if (!this.mxpStyles[ml].open && !secure) continue;
-          tmp = this.mxpStyles.splice(ml, 1)[0];
+        if (this._mxpStyles[ml].tag !== tag && this._mxpStyles[ml].custom !== custom) {
+          if (!this._mxpStyles[ml].open && !secure) continue;
+          tmp = this._mxpStyles.splice(ml, 1)[0];
         } else
           break;
       }
-      if (ml >= 0 && this.mxpStyles.length > 0)
-        tmp = this.mxpStyles.splice(ml, 1)[0];
-      else if (this.mxpStyles.length === 0)
+      if (ml >= 0 && this._mxpStyles.length > 0)
+        tmp = this._mxpStyles.splice(ml, 1)[0];
+      else if (this._mxpStyles.length === 0)
         this.ResetMXP();
       return tmp;
     }
-    ClearMXPOpen() {
-      let ml = this.mxpStyles.length;
+    _ClearMXPOpen() {
+      let ml = this._mxpStyles.length;
       while (ml--) {
-        if (!this.mxpStyles[ml].open) continue;
-        this.mxpStyles.splice(ml, 1);
+        if (!this._mxpStyles[ml].open) continue;
+        this._mxpStyles.splice(ml, 1);
       }
-      if (this.mxpStyles.length === 0)
+      if (this._mxpStyles.length === 0)
         this.ResetMXP();
     }
-    getMXPOpenFormatBlocks() {
-      if (!this.mxpState.on) return [];
+    _getMXPOpenFormatBlocks() {
+      if (!this._mxpState.on) return [];
       let m = 0;
-      const ml = this.mxpStyles.length;
+      const ml = this._mxpStyles.length;
       const formats = [];
       for (; m < ml; m++) {
-        if (this.mxpStyles[m].tag === 22 /* A */ || this.mxpStyles[m].tag === 23 /* SEND */)
-          formats.push(Object.assign({}, this.mxpStyles[m].properties));
+        if (this._mxpStyles[m].tag === 22 /* A */ || this._mxpStyles[m].tag === 23 /* SEND */)
+          formats.push(Object.assign({}, this._mxpStyles[m].properties));
       }
       return formats;
     }
-    getMXPCloseFormatBlocks() {
-      if (!this.mxpState.on) return [];
-      let ml = this.mxpStyles.length;
+    _getMXPCloseFormatBlocks() {
+      if (!this._mxpState.on) return [];
+      let ml = this._mxpStyles.length;
       const formats = [];
       while (ml--) {
-        if (this.mxpStyles[ml].tag === 22 /* A */)
+        if (this._mxpStyles[ml].tag === 22 /* A */)
           formats.push({ formatType: 4 /* MXPLinkEnd */ });
-        else if (this.mxpStyles[ml].tag === 23 /* SEND */)
+        else if (this._mxpStyles[ml].tag === 23 /* SEND */)
           formats.push({ formatType: 8 /* MXPSendEnd */ });
       }
       return formats;
     }
-    getMXPBlock(tag, args, remote, oTag, blocks) {
+    _getMXPBlock(tag, args, remote, oTag, blocks) {
       let tmp;
       let arg;
       let sArg;
@@ -18111,7 +18111,7 @@
       switch (tag) {
         case "C":
         case "COLOR":
-          tmp = this.CloneCurrentStyle();
+          tmp = this._CloneCurrentStyle();
           tmp.tag = MXPTag[tag];
           tmp.open = true;
           if (xl > 0) {
@@ -18145,20 +18145,20 @@
             }
           }
           tmp.custom = "";
-          this.mxpStyles.push(tmp);
+          this._mxpStyles.push(tmp);
           return null;
         case "B":
         case "BOLD":
         case "STRONG":
-          tmp = this.CloneCurrentStyle();
+          tmp = this._CloneCurrentStyle();
           tmp.open = true;
           tmp.tag = MXPTag[tag];
           tmp.style |= 1 /* Bold */;
           tmp.custom = "";
-          this.mxpStyles.push(tmp);
+          this._mxpStyles.push(tmp);
           return null;
         case "FONT":
-          tmp = this.CloneCurrentStyle();
+          tmp = this._CloneCurrentStyle();
           tmp.open = true;
           tmp.tag = MXPTag[tag];
           for (x2 = 0; x2 < xl; x2++) {
@@ -18166,7 +18166,7 @@
             if (arg.length > 1) {
               switch (arg[0].toUpperCase()) {
                 case "SIZE":
-                  if (this.isNumber(arg[1]))
+                  if (this._isNumber(arg[1]))
                     tmp.fontSize = arg[1] + "pt";
                   else
                     tmp.fontSize = arg[1] || 0;
@@ -18221,7 +18221,7 @@
             } else if (x2 === 0) {
               tmp.font = stripQuotes(args[x2]) || 0;
             } else if (x2 === 1) {
-              if (this.isNumber(args[x2]))
+              if (this._isNumber(args[x2]))
                 tmp.fontSize = args[x2] + "pt";
               else
                 tmp.fontSize = args[x2] || 0;
@@ -18234,44 +18234,44 @@
             }
           }
           tmp.custom = "";
-          this.mxpStyles.push(tmp);
+          this._mxpStyles.push(tmp);
           return null;
         case "H":
         case "HIGH":
-          tmp = this.CloneCurrentStyle();
+          tmp = this._CloneCurrentStyle();
           tmp.open = true;
           tmp.tag = MXPTag[tag];
           tmp.high = true;
           tmp.custom = "";
-          this.mxpStyles.push(tmp);
+          this._mxpStyles.push(tmp);
           return null;
         case "I":
         case "ITALIC":
         case "EM":
-          tmp = this.CloneCurrentStyle();
+          tmp = this._CloneCurrentStyle();
           tmp.open = true;
           tmp.tag = MXPTag[tag];
           tmp.style |= 4 /* Italic */;
           tmp.custom = "";
-          this.mxpStyles.push(tmp);
+          this._mxpStyles.push(tmp);
           return null;
         case "U":
         case "UNDERLINE":
-          tmp = this.CloneCurrentStyle();
+          tmp = this._CloneCurrentStyle();
           tmp.open = true;
           tmp.tag = MXPTag[tag];
           tmp.style |= 8 /* Underline */;
           tmp.custom = "";
-          this.mxpStyles.push(tmp);
+          this._mxpStyles.push(tmp);
           return null;
         case "S":
         case "STRIKEOUT":
-          tmp = this.CloneCurrentStyle();
+          tmp = this._CloneCurrentStyle();
           tmp.open = true;
           tmp.tag = MXPTag[tag];
           tmp.style |= 256 /* Strikeout */;
           tmp.custom = "";
-          this.mxpStyles.push(tmp);
+          this._mxpStyles.push(tmp);
           return null;
         case "/B":
         case "/BOLD":
@@ -18288,10 +18288,10 @@
         case "/C":
         case "/COLOR":
         case "/FONT":
-          this.ClearMXPToTag(MXPTag[tag.substring(1)]);
+          this._ClearMXPToTag(MXPTag[tag.substring(1)]);
           return null;
       }
-      if (this.mxpState.lineType === 1 /* Secure */ || this.mxpState.lineType === 6 /* LockSecure */ || this.mxpState.lineType === 4 /* TempSecure */) {
+      if (this._mxpState.lineType === 1 /* Secure */ || this._mxpState.lineType === 6 /* LockSecure */ || this._mxpState.lineType === 4 /* TempSecure */) {
         switch (tag) {
           case "IMAGE":
             e = {
@@ -18365,17 +18365,17 @@
           case "!ATTLIST":
             if (args.length === 0) return null;
             e = args[0];
-            if (!this.mxpElements[e] || this.mxpEntities[e].remote !== e.remote && !this.mxpEntities[e].open)
+            if (!this._mxpElements[e] || this._mxpEntities[e].remote !== e.remote && !this._mxpEntities[e].open)
               return null;
-            this.mxpElements[e].attributes = {};
-            this.mxpElements[e].attributeIndexes = [];
+            this._mxpElements[e].attributes = {};
+            this._mxpElements[e].attributeIndexes = [];
             for (x2 = 1; x2 < xl; x2++) {
               sArgs = args[x2].split("=");
               if (sArgs.length > 1)
-                this.mxpElements[e].attributes[sArgs[0].toLowerCase()] = sArgs[1];
+                this._mxpElements[e].attributes[sArgs[0].toLowerCase()] = sArgs[1];
               else
-                this.mxpElements[e].attributes[sArgs[0].toLowerCase()] = "";
-              this.mxpElements[e].attributeIndexes.push(sArgs[0].toLowerCase());
+                this._mxpElements[e].attributes[sArgs[0].toLowerCase()] = "";
+              this._mxpElements[e].attributeIndexes.push(sArgs[0].toLowerCase());
             }
             break;
           case "!TAG":
@@ -18428,11 +18428,11 @@
               e.definition = `<C BACK="${e.fore}">`;
             if (e.definition.length > 0)
               e.closeDefinition = "</C>";
-            if (this.mxpLines[e.index]) {
-              if (e.remote || this.mxpLines[e.index].remote === e.remote)
-                this.mxpLines[e.index] = e;
+            if (this._mxpLines[e.index]) {
+              if (e.remote || this._mxpLines[e.index].remote === e.remote)
+                this._mxpLines[e.index] = e;
             } else
-              this.mxpLines[e.index] = e;
+              this._mxpLines[e.index] = e;
             break;
           case "!EL":
           case "!ELEMENT":
@@ -18463,8 +18463,8 @@
                   e.open = true;
                   break;
                 case "DELETE":
-                  if (this.mxpElements[e.name] && (this.mxpEntities[e.name].remote === e.remote || this.mxpEntities[e.name].open))
-                    delete this.mxpEntities[e.name];
+                  if (this._mxpElements[e.name] && (this._mxpEntities[e.name].remote === e.remote || this._mxpEntities[e.name].open))
+                    delete this._mxpEntities[e.name];
                   return null;
                 case "EMPTY":
                   e.empty = true;
@@ -18482,7 +18482,7 @@
                     e.name = stripQuotes(args[x2]).toUpperCase();
                   else if (x2 === 1) {
                     e.definition = stripQuotes(args[x2]);
-                    e.closeDefinition = this.GetCloseTags(e.definition);
+                    e.closeDefinition = this._GetCloseTags(e.definition);
                     if (this.enableDebug) this.emit("debug", "MXP close definition: " + e.closeDefinition);
                   } else if (x2 === 2) {
                     arg = args[x2].substring(4).split(" ");
@@ -18505,17 +18505,17 @@
             if (e.tag > 19 && e.tag < 100) {
               tmp = new Tag(e.tag);
               tmp.element = e.name;
-              if (this.mxpLines[tmp.index]) {
-                if (e.remote || this.mxpLines[tmp.index].remote === e.remote)
-                  this.mxpLines[tmp.index] = tmp;
+              if (this._mxpLines[tmp.index]) {
+                if (e.remote || this._mxpLines[tmp.index].remote === e.remote)
+                  this._mxpLines[tmp.index] = tmp;
               } else
-                this.mxpLines[tmp.index] = tmp;
+                this._mxpLines[tmp.index] = tmp;
             }
-            if (this.mxpElements[e.name]) {
-              if (this.mxpElements[e.name].remote === e.remote || this.mxpEntities[e.name].open)
-                this.mxpElements[e.name] = e;
+            if (this._mxpElements[e.name]) {
+              if (this._mxpElements[e.name].remote === e.remote || this._mxpEntities[e.name].open)
+                this._mxpElements[e.name] = e;
             } else
-              this.mxpElements[e.name] = e;
+              this._mxpElements[e.name] = e;
             break;
           case "!EN":
           case "!ENTITY":
@@ -18533,28 +18533,28 @@
                   e.publish = true;
                   break;
                 case "DELETE":
-                  if (this.mxpEntities[e.name] && this.mxpEntities[e.name].remote === e.remote)
-                    delete this.mxpEntities[e.name];
+                  if (this._mxpEntities[e.name] && this._mxpEntities[e.name].remote === e.remote)
+                    delete this._mxpEntities[e.name];
                   return null;
                 case "ADD":
-                  if (this.mxpEntities[e.name] && this.mxpEntities[e.name].remote === e.remote) {
-                    if (!this.mxpEntities[e.name].value)
-                      this.mxpEntities[e.name].value = e.value;
+                  if (this._mxpEntities[e.name] && this._mxpEntities[e.name].remote === e.remote) {
+                    if (!this._mxpEntities[e.name].value)
+                      this._mxpEntities[e.name].value = e.value;
                     else
-                      this.mxpEntities[e.name].value += "|" + e.value;
+                      this._mxpEntities[e.name].value += "|" + e.value;
                     return null;
                   }
                   break;
                 case "REMOVE":
-                  if (this.mxpEntities[e.name] && this.mxpEntities[e.name].remote === e.remote) {
-                    if (this.mxpEntities[e.name].value) {
-                      sArgs = this.mxpEntities[e.name].value.split("|");
+                  if (this._mxpEntities[e.name] && this._mxpEntities[e.name].remote === e.remote) {
+                    if (this._mxpEntities[e.name].value) {
+                      sArgs = this._mxpEntities[e.name].value.split("|");
                       sArg = [];
                       for (s = 0, sl = sArgs.length; s < sl; s++) {
                         if (sArgs[s] !== e.value)
                           sArg.push(sArgs[s]);
                       }
-                      this.mxpEntities[e.name].value = sArg.join("|");
+                      this._mxpEntities[e.name].value = sArg.join("|");
                     }
                   }
                   return null;
@@ -18568,21 +18568,21 @@
                   break;
               }
             }
-            if (this.mxpEntities[e.name]) {
-              if (this.mxpEntities[e.name].remote === e.remote)
-                this.mxpEntities[e.name] = e;
+            if (this._mxpEntities[e.name]) {
+              if (this._mxpEntities[e.name].remote === e.remote)
+                this._mxpEntities[e.name] = e;
             } else
-              this.mxpEntities[e.name] = e;
+              this._mxpEntities[e.name] = e;
             break;
           case "/V":
           case "/VAR":
-            tmp = this.ClearMXPToTag(MXPTag[tag.substring(1)]);
+            tmp = this._ClearMXPToTag(MXPTag[tag.substring(1)]);
             e = new Entity(remote);
-            if (this.mxpState.captured.length > 0)
-              e.value = this.mxpState.captured.pop().join("");
+            if (this._mxpState.captured.length > 0)
+              e.value = this._mxpState.captured.pop().join("");
             else
               e.value = "";
-            this.mxpState.capture--;
+            this._mxpState.capture--;
             if (this.enableDebug) this.emit("debug", "MXP captured: " + e.value);
             args = tmp.obj;
             xl = args.length;
@@ -18599,28 +18599,28 @@
                   e.publish = true;
                   break;
                 case "DELETE":
-                  if (this.mxpEntities[e.name] && this.mxpEntities[e.name].remote === e.remote)
-                    delete this.mxpEntities[e.name];
+                  if (this._mxpEntities[e.name] && this._mxpEntities[e.name].remote === e.remote)
+                    delete this._mxpEntities[e.name];
                   return null;
                 case "ADD":
-                  if (this.mxpEntities[e.name] && this.mxpEntities[e.name].remote === e.remote) {
-                    if (!this.mxpEntities[e.name].value)
-                      this.mxpEntities[e.name].value = e.value;
+                  if (this._mxpEntities[e.name] && this._mxpEntities[e.name].remote === e.remote) {
+                    if (!this._mxpEntities[e.name].value)
+                      this._mxpEntities[e.name].value = e.value;
                     else
-                      this.mxpEntities[e.name].value += "|" + e.value;
+                      this._mxpEntities[e.name].value += "|" + e.value;
                     return null;
                   }
                   break;
                 case "REMOVE":
-                  if (this.mxpEntities[e.name] && this.mxpEntities[e.name].remote === e.remote) {
-                    if (this.mxpEntities[e.name].value) {
-                      sArgs = this.mxpEntities[e.name].value.split("|");
+                  if (this._mxpEntities[e.name] && this._mxpEntities[e.name].remote === e.remote) {
+                    if (this._mxpEntities[e.name].value) {
+                      sArgs = this._mxpEntities[e.name].value.split("|");
                       sArg = [];
                       for (s = 0, sl = sArgs.length; s < sl; s++) {
                         if (sArgs[s] !== e.value)
                           sArg.push(sArgs[s]);
                       }
-                      this.mxpEntities[e.name].value = sArg.join("|");
+                      this._mxpEntities[e.name].value = sArg.join("|");
                     }
                   }
                   return null;
@@ -18632,22 +18632,22 @@
                   break;
               }
             }
-            if (this.mxpEntities[e.name]) {
-              if (this.mxpEntities[e.name].remote === e.remote)
-                this.mxpEntities[e.name] = e;
+            if (this._mxpEntities[e.name]) {
+              if (this._mxpEntities[e.name].remote === e.remote)
+                this._mxpEntities[e.name] = e;
             } else
-              this.mxpEntities[e.name] = e;
+              this._mxpEntities[e.name] = e;
             break;
           case "V":
           case "VAR":
-            this.mxpState.captured.push([]);
-            this.mxpState.capture++;
-            tmp = this.CloneCurrentStyle();
+            this._mxpState.captured.push([]);
+            this._mxpState.capture++;
+            tmp = this._CloneCurrentStyle();
             tmp.open = false;
             tmp.tag = MXPTag[tag];
             tmp.obj = args;
             tmp.custom = "";
-            this.mxpStyles.push(tmp);
+            this._mxpStyles.push(tmp);
             return null;
           case "GAUGE":
             e = { value: 0, max: 1, caption: "", color: 0 };
@@ -18656,15 +18656,15 @@
               if (arg.length > 1) {
                 switch (arg[0].toUpperCase()) {
                   case "VALUE":
-                    tmp = parseFloat(this.GetEntity(arg[1]));
+                    tmp = parseFloat(this._GetEntity(arg[1]));
                     if (isNaN(tmp))
-                      tmp = this.GetEntity(arg[1]);
+                      tmp = this._GetEntity(arg[1]);
                     e.value = tmp;
                     break;
                   case "MAX":
-                    tmp = parseFloat(this.GetEntity(arg[1]));
+                    tmp = parseFloat(this._GetEntity(arg[1]));
                     if (isNaN(tmp))
-                      tmp = this.GetEntity(arg[1]);
+                      tmp = this._GetEntity(arg[1]);
                     e.max = tmp;
                     break;
                   case "CAPTION":
@@ -18677,14 +18677,14 @@
                     break;
                 }
               } else if (x2 === 0) {
-                tmp = parseFloat(this.GetEntity(args[x2]));
+                tmp = parseFloat(this._GetEntity(args[x2]));
                 if (isNaN(tmp))
-                  tmp = this.GetEntity(args[x2]);
+                  tmp = this._GetEntity(args[x2]);
                 e.value = tmp;
               } else if (x2 === 1) {
-                tmp = parseFloat(this.GetEntity(args[x2]));
+                tmp = parseFloat(this._GetEntity(args[x2]));
                 if (isNaN(tmp))
-                  tmp = this.GetEntity(args[x2]);
+                  tmp = this._GetEntity(args[x2]);
                 e.max = tmp;
               } else if (x2 === 2 && args[x2].length > 0)
                 e.caption = stripQuotes(args[x2]);
@@ -18693,7 +18693,7 @@
                 if (color.ok) e.color = color.toRGB();
               }
             }
-            this.mxpState.expanded = false;
+            this._mxpState.expanded = false;
             this.emit("gauge", e);
             break;
           case "STAT":
@@ -18703,15 +18703,15 @@
               if (arg.length > 1) {
                 switch (arg[0].toUpperCase()) {
                   case "VALUE":
-                    tmp = parseFloat(this.GetEntity(arg[1]));
+                    tmp = parseFloat(this._GetEntity(arg[1]));
                     if (isNaN(tmp))
-                      tmp = this.GetEntity(arg[1]);
+                      tmp = this._GetEntity(arg[1]);
                     e.value = tmp;
                     break;
                   case "MAX":
-                    tmp = parseFloat(this.GetEntity(arg[1]));
+                    tmp = parseFloat(this._GetEntity(arg[1]));
                     if (isNaN(tmp))
-                      tmp = this.GetEntity(arg[1]);
+                      tmp = this._GetEntity(arg[1]);
                     e.max = tmp;
                     break;
                   case "CAPTION":
@@ -18720,19 +18720,19 @@
                     break;
                 }
               } else if (x2 === 0) {
-                tmp = parseFloat(this.GetEntity(args[x2]));
+                tmp = parseFloat(this._GetEntity(args[x2]));
                 if (isNaN(tmp))
-                  tmp = this.GetEntity(args[x2]);
+                  tmp = this._GetEntity(args[x2]);
                 e.value = tmp;
               } else if (x2 === 1) {
-                tmp = parseFloat(this.GetEntity(args[x2]));
+                tmp = parseFloat(this._GetEntity(args[x2]));
                 if (isNaN(tmp))
-                  tmp = this.GetEntity(args[x2]);
+                  tmp = this._GetEntity(args[x2]);
                 e.max = tmp;
               } else if (x2 === 2 && args[x2].length > 0)
                 e.caption = stripQuotes(args[x2]);
             }
-            this.mxpState.expanded = false;
+            this._mxpState.expanded = false;
             this.emit("stat", e);
             break;
           case "MUSIC":
@@ -18877,7 +18877,7 @@
             break;
           case "EXPIRE":
             this.emit("expire-links", args);
-            this.cleanMXPExpired(blocks, args?.[0] || "");
+            this._cleanMXPExpired(blocks, args?.[0] || "");
             break;
           case "VERSION":
             if (xl > 0)
@@ -19068,7 +19068,7 @@
             this.emit("MXP-tag-reply", tag, sArgs);
             break;
           case "A":
-            tmp = this.CloneCurrentStyle();
+            tmp = this._CloneCurrentStyle();
             tmp.open = false;
             tmp.tag = MXPTag[tag];
             for (x2 = 0; x2 < xl; x2++) {
@@ -19102,7 +19102,7 @@
               hint,
               expire
             };
-            this.mxpStyles.push(tmp);
+            this._mxpStyles.push(tmp);
             if (hint.length === 0)
               hint = href;
             return {
@@ -19115,7 +19115,7 @@
               text: null
             };
           case "SEND":
-            tmp = this.CloneCurrentStyle();
+            tmp = this._CloneCurrentStyle();
             tmp.open = false;
             tmp.tag = MXPTag[tag];
             for (x2 = 0; x2 < xl; x2++) {
@@ -19150,7 +19150,7 @@
                 expire = stripQuotes(args[x2]);
             }
             tmp.custom = "";
-            this.mxpStyles.push(tmp);
+            this._mxpStyles.push(tmp);
             if (href.length === 0)
               href = "&text;";
             if (hint.length === 0)
@@ -19192,15 +19192,15 @@
           case "H4":
           case "H5":
           case "H6":
-            tmp = this.CloneCurrentStyle();
+            tmp = this._CloneCurrentStyle();
             tmp.open = true;
             tmp.tag = MXPTag[tag];
             tmp.style |= 1 /* Bold */;
             tmp.custom = "";
-            this.mxpStyles.push(tmp);
+            this._mxpStyles.push(tmp);
             return null;
           case "/A":
-            this.ClearMXPToTag(MXPTag[tag.substring(1)]);
+            this._ClearMXPToTag(MXPTag[tag.substring(1)]);
             return {
               format: {
                 formatType: 4 /* MXPLinkEnd */
@@ -19208,7 +19208,7 @@
               text: null
             };
           case "/SEND":
-            this.ClearMXPToTag(MXPTag[tag.substring(1)]);
+            this._ClearMXPToTag(MXPTag[tag.substring(1)]);
             return {
               format: {
                 formatType: 8 /* MXPSendEnd */
@@ -19221,22 +19221,22 @@
           case "/H4":
           case "/H5":
           case "/H6":
-            this.ClearMXPToTag(MXPTag[tag.substring(1)]);
+            this._ClearMXPToTag(MXPTag[tag.substring(1)]);
             return null;
           case "NOBR":
-            this.mxpState.noBreak = true;
+            this._mxpState.noBreak = true;
             return null;
           case "/P":
-            this.ClearMXPToTag(MXPTag[tag.substring(1)]);
-            this.mxpState.paragraph = false;
+            this._ClearMXPToTag(MXPTag[tag.substring(1)]);
+            this._mxpState.paragraph = false;
             return null;
           case "P":
-            tmp = this.CloneCurrentStyle();
+            tmp = this._CloneCurrentStyle();
             tmp.open = false;
             tmp.tag = MXPTag[tag];
             tmp.custom = "";
-            this.mxpStyles.push(tmp);
-            this.mxpState.paragraph = true;
+            this._mxpStyles.push(tmp);
+            this._mxpState.paragraph = true;
             return null;
           case "SBR":
             return {
@@ -19247,8 +19247,8 @@
             this.ResetMXP();
             return null;
           case "HR":
-            const mxp = this.GetCurrentStyle();
-            const colors = this.getColors(mxp);
+            const mxp = this._GetCurrentStyle();
+            const colors = this._getColors(mxp);
             return {
               format: {
                 formatType: 0 /* Normal */,
@@ -19264,11 +19264,11 @@
             };
         }
       }
-      if (this.mxpElements[tag]) {
-        e = this.mxpElements[tag];
-        if (!e.open && this.mxpState.lineType !== 1 /* Secure */ && this.mxpState.lineType !== 6 /* LockSecure */ && this.mxpState.lineType !== 4 /* TempSecure */)
+      if (this._mxpElements[tag]) {
+        e = this._mxpElements[tag];
+        if (!e.open && this._mxpState.lineType !== 1 /* Secure */ && this._mxpState.lineType !== 6 /* LockSecure */ && this._mxpState.lineType !== 4 /* TempSecure */)
           return null;
-        tmp = this.CloneCurrentStyle();
+        tmp = this._CloneCurrentStyle();
         tmp.open = e.open;
         tmp.tag = 38 /* Custom */;
         tmp.custom = e.name;
@@ -19289,25 +19289,25 @@
           arg = arg.replace("&" + sArg + ";", sArgs[sArg]);
         }
         if (!e.empty) {
-          this.mxpState.captured.push([]);
-          this.mxpState.capture++;
+          this._mxpState.captured.push([]);
+          this._mxpState.capture++;
         }
-        if (e.tag > 19 && e.tag < 100 && this.mxpLines[e.tag].enabled && this.mxpLines[e.tag].definition.length > 0) {
-          arg = this.mxpLines[e.tag].definition + arg;
-          tmp.gagged = this.mxpLines[e.tag].gag;
+        if (e.tag > 19 && e.tag < 100 && this._mxpLines[e.tag].enabled && this._mxpLines[e.tag].definition.length > 0) {
+          arg = this._mxpLines[e.tag].definition + arg;
+          tmp.gagged = this._mxpLines[e.tag].gag;
         }
-        this.mxpState.gagged = tmp.gagged;
-        this.mxpState.expanded = true;
+        this._mxpState.gagged = tmp.gagged;
+        this._mxpState.expanded = true;
         return { format: null, text: arg };
-      } else if (tag.startsWith("/") && this.mxpElements[tag.substring(1)] && !this.mxpElements[tag.substring(1)].empty) {
+      } else if (tag.startsWith("/") && this._mxpElements[tag.substring(1)] && !this._mxpElements[tag.substring(1)].empty) {
         tag = tag.substring(1);
-        e = this.mxpElements[tag];
-        if (!e.open && this.mxpState.lineType !== 1 /* Secure */ && this.mxpState.lineType !== 6 /* LockSecure */ && this.mxpState.lineType !== 4 /* TempSecure */)
+        e = this._mxpElements[tag];
+        if (!e.open && this._mxpState.lineType !== 1 /* Secure */ && this._mxpState.lineType !== 6 /* LockSecure */ && this._mxpState.lineType !== 4 /* TempSecure */)
           return null;
-        if (!e.empty && this.mxpState.capture > 0) {
-          if (this.mxpState.captured.length > 0)
-            sArg = this.mxpState.captured.pop().join("");
-          this.mxpState.capture--;
+        if (!e.empty && this._mxpState.capture > 0) {
+          if (this._mxpState.captured.length > 0)
+            sArg = this._mxpState.captured.pop().join("");
+          this._mxpState.capture--;
         }
         arg = e.closeDefinition;
         if (e.flag.length > 0) {
@@ -19315,12 +19315,12 @@
             this.emit("set-variable", e.flag.substring(4), sArg);
           this.emit("MXP-flag", e.flag, sArg);
         }
-        if (e.tag > 19 && e.tag < 100 && this.mxpLines[e.tag].enabled && this.mxpLines[e.tag].closeDefinition.length > 0)
-          arg += this.mxpLines[e.tag].closeDefinition;
-        this.mxpState.gagged = !e.gagged;
+        if (e.tag > 19 && e.tag < 100 && this._mxpLines[e.tag].enabled && this._mxpLines[e.tag].closeDefinition.length > 0)
+          arg += this._mxpLines[e.tag].closeDefinition;
+        this._mxpState.gagged = !e.gagged;
         if (e.empty)
           return null;
-        this.mxpState.expanded = true;
+        this._mxpState.expanded = true;
         return { format: null, text: arg };
       }
       if (this.showInvalidMXPTags) {
@@ -19374,7 +19374,7 @@
       }
       return null;
     }
-    cleanMXPExpired(blocks, args) {
+    _cleanMXPExpired(blocks, args) {
       if (!blocks || blocks.length === 0 || args === null)
         return;
       const bl = blocks.length;
@@ -19403,7 +19403,7 @@
         }
       }
     }
-    GetCloseTags(tag) {
+    _GetCloseTags(tag) {
       if (typeof tag === "undefined" || tag.length === 0)
         return "";
       let idx = 0;
@@ -19443,22 +19443,22 @@
         return "";
       return "</" + ts.reverse().join("></") + ">";
     }
-    CloneCurrentStyle() {
+    _CloneCurrentStyle() {
       let tmp;
-      if (this.mxpStyles.length === 0)
-        this.mxpStyles.push(new MXPStyle(0 /* None */, "", "", false));
-      tmp = this.mxpStyles[this.mxpStyles.length - 1];
-      if (this.mxpLines[this.mxpState.lineType] && this.mxpLines[this.mxpState.lineType].enabled)
-        tmp.gagged = this.mxpLines[this.mxpState.lineType].gag;
+      if (this._mxpStyles.length === 0)
+        this._mxpStyles.push(new MXPStyle(0 /* None */, "", "", false));
+      tmp = this._mxpStyles[this._mxpStyles.length - 1];
+      if (this._mxpLines[this._mxpState.lineType] && this._mxpLines[this._mxpState.lineType].enabled)
+        tmp.gagged = this._mxpLines[this._mxpState.lineType].gag;
       return Object.assign({}, tmp);
     }
-    GetCurrentStyle() {
+    _GetCurrentStyle() {
       let tmp;
-      if (this.mxpStyles.length === 0)
-        this.mxpStyles.push(new MXPStyle(0 /* None */, "", "", false));
-      tmp = this.mxpStyles[this.mxpStyles.length - 1];
-      if (this.mxpLines[this.mxpState.lineType] && this.mxpLines[this.mxpState.lineType].enabled)
-        tmp.gagged = this.mxpLines[this.mxpState.lineType].gag;
+      if (this._mxpStyles.length === 0)
+        this._mxpStyles.push(new MXPStyle(0 /* None */, "", "", false));
+      tmp = this._mxpStyles[this._mxpStyles.length - 1];
+      if (this._mxpLines[this._mxpState.lineType] && this._mxpLines[this._mxpState.lineType].enabled)
+        tmp.gagged = this._mxpLines[this._mxpState.lineType].gag;
       return tmp;
     }
     DecreaseColor(clr, p) {
@@ -19489,21 +19489,21 @@
         color.r = 255;
       return color.toRGB();
     }
-    MXPCapture(str) {
-      if (this.mxpState.capture < 1) return;
-      const il = this.mxpState.captured.length;
+    _MXPCapture(str) {
+      if (this._mxpState.capture < 1) return;
+      const il = this._mxpState.captured.length;
       for (let i2 = 0; i2 < il; i2++)
-        this.mxpState.captured[i2].push(str);
+        this._mxpState.captured[i2].push(str);
     }
-    MXPDeCapture(cnt) {
-      if (this.mxpState.capture < 1) return;
-      const il = this.mxpState.captured.length;
+    _MXPDeCapture(cnt) {
+      if (this._mxpState.capture < 1) return;
+      const il = this._mxpState.captured.length;
       for (let i2 = 0; i2 < il; i2++) {
         for (let p = 0; p < cnt; p++)
-          this.mxpState.captured[i2].pop();
+          this._mxpState.captured[i2].pop();
       }
     }
-    isNumber(str) {
+    _isNumber(str) {
       return /^\d+$/.test(str);
     }
     /**
@@ -19550,19 +19550,19 @@
       return ansi + "m";
     }
     get parseQueueLength() {
-      return this.parsing.length;
+      return this._parsing.length;
     }
     get parseQueueEndOfLine() {
-      if (this.parsing.length)
-        return this.parsing[this.parsing.length - 1][0].endsWith("\n");
+      if (this._parsing.length)
+        return this._parsing[this._parsing.length - 1][0].endsWith("\n");
       return false;
     }
     parse(text, remote, force, prependSplit) {
       if (text == null || text.length === 0)
         return text;
       if (remote == null) remote = false;
-      if (this.parsing.length > 0 && !force) {
-        this.parsing.push([text, remote, prependSplit]);
+      if (this._parsing.length > 0 && !force) {
+        this._parsing.push([text, remote, prependSplit]);
         return;
       }
       let _TermTitle = "";
@@ -19583,7 +19583,7 @@
       let _MXPArgs;
       let skip = false;
       this.busy = true;
-      this.parsing.unshift([text, remote, prependSplit]);
+      this._parsing.unshift([text, remote, prependSplit]);
       let format;
       if (this._SplitBuffer.length > 0) {
         if (prependSplit)
@@ -19612,11 +19612,11 @@
           if (format.offset !== 0) {
             stringBuilder.push(iTmp.substring(0, format.offset));
             iTmp = iTmp.substring(format.offset);
-            if (this.mxpState.locked || this.mxpState.on)
+            if (this._mxpState.locked || this._mxpState.on)
               mOffset = iTmp.length;
             text = iTmp + text;
           } else {
-            if (this.mxpState.locked || this.mxpState.on)
+            if (this._mxpState.locked || this._mxpState.on)
               mOffset = iTmp.length;
             text = iTmp + text;
           }
@@ -19625,10 +19625,10 @@
           else
             rawBuilder.push(_MXPComment);
         } else
-          formatBuilder.push(format = this.getFormatBlock(lineLength));
+          formatBuilder.push(format = this._getFormatBlock(lineLength));
         lines = null;
       } else
-        formatBuilder.push(format = this.getFormatBlock(lineLength));
+        formatBuilder.push(format = this._getFormatBlock(lineLength));
       let idx = 0;
       let tl = text.length;
       let c;
@@ -19645,7 +19645,7 @@
       let lLnk = 0;
       let lNest = null;
       let p;
-      const pl = this.protocols.length;
+      const pl = this._protocols.length;
       try {
         for (idx = 0; idx < tl; idx++) {
           c = text.charAt(idx);
@@ -19673,7 +19673,7 @@
               c === "S" || //Scroll whole page up by n (default 1) lines. New lines are added at the bottom. (not ANSI.SYS)
               c === "T" || //Scroll whole page down by n (default 1) lines. New lines are added at the top. (not ANSI.SYS)
               c === "r") {
-                this.ClearMXPOpen();
+                this._ClearMXPOpen();
                 this._SplitBuffer = "";
                 _AnsiParams = null;
                 state = 0 /* None */;
@@ -19688,65 +19688,65 @@
                 }
                 iTmp = +_AnsiParams;
                 if (isNaN(iTmp)) iTmp = 0;
-                this.mxpState.on = true;
-                this.mxpState.noBreak = false;
-                this.mxpState.paragraph = false;
-                if (this.mxpState.lineType === 0 /* Open */)
-                  this.ClearMXPOpen();
+                this._mxpState.on = true;
+                this._mxpState.noBreak = false;
+                this._mxpState.paragraph = false;
+                if (this._mxpState.lineType === 0 /* Open */)
+                  this._ClearMXPOpen();
                 switch (iTmp) {
                   case 2:
-                    this.mxpState.on = false;
-                    this.mxpState.locked = false;
-                    this.mxpState.lineType = 2 /* Locked */;
-                    this.ClearMXPOpen();
+                    this._mxpState.on = false;
+                    this._mxpState.locked = false;
+                    this._mxpState.lineType = 2 /* Locked */;
+                    this._ClearMXPOpen();
                     break;
                   case 3:
                     this.ResetMXP();
                     break;
                   case 4:
-                    this.mxpState.lineType = 4 /* TempSecure */;
+                    this._mxpState.lineType = 4 /* TempSecure */;
                     if (idx + 1 >= tl) {
                       this._SplitBuffer += c;
                       break;
                     }
                     const ct = text.charAt(idx + 1);
                     if (ct !== "<") {
-                      this.mxpState.lineType = 0 /* Open */;
-                      this.mxpState.on = false;
+                      this._mxpState.lineType = 0 /* Open */;
+                      this._mxpState.on = false;
                     }
-                    this.mxpState.locked = false;
-                    this.ClearMXPOpen();
+                    this._mxpState.locked = false;
+                    this._ClearMXPOpen();
                     break;
                   case 5:
-                    this.iMXPDefaultMode = 0 /* Open */;
-                    this.mxpState.locked = true;
-                    this.mxpState.lineType = 5 /* LockOpen */;
-                    this.ClearMXPOpen();
+                    this._iMXPDefaultMode = 0 /* Open */;
+                    this._mxpState.locked = true;
+                    this._mxpState.lineType = 5 /* LockOpen */;
+                    this._ClearMXPOpen();
                     break;
                   case 6:
-                    this.iMXPDefaultMode = 1 /* Secure */;
-                    this.mxpState.lineType = 6 /* LockSecure */;
-                    this.mxpState.locked = true;
-                    this.ClearMXPOpen();
+                    this._iMXPDefaultMode = 1 /* Secure */;
+                    this._mxpState.lineType = 6 /* LockSecure */;
+                    this._mxpState.locked = true;
+                    this._ClearMXPOpen();
                     break;
                   case 7:
-                    this.iMXPDefaultMode = 2 /* Locked */;
-                    this.mxpState.lineType = 7 /* LockLocked */;
-                    this.mxpState.locked = true;
-                    this.ClearMXPOpen();
+                    this._iMXPDefaultMode = 2 /* Locked */;
+                    this._mxpState.lineType = 7 /* LockLocked */;
+                    this._mxpState.locked = true;
+                    this._ClearMXPOpen();
                     break;
                   default:
                     if (iTmp < 0 || iTmp > 99)
-                      this.ClearMXPOpen();
+                      this._ClearMXPOpen();
                     else {
-                      this.mxpState.lineType = iTmp;
-                      this.mxpState.locked = false;
-                      if (this.mxpLines[this.mxpState.lineType] && this.mxpLines[this.mxpState.lineType].enabled) {
+                      this._mxpState.lineType = iTmp;
+                      this._mxpState.locked = false;
+                      if (this._mxpLines[this._mxpState.lineType] && this._mxpLines[this._mxpState.lineType].enabled) {
                         iTmp = "";
-                        if (this.mxpLines[this.mxpState.lineType].element.length > 0)
-                          iTmp += "<" + this.mxpLines[this.mxpState.lineType].element + ">";
-                        if (this.mxpLines[this.mxpState.lineType].definition.length > 0)
-                          iTmp += this.mxpLines[this.mxpState.lineType].definition;
+                        if (this._mxpLines[this._mxpState.lineType].element.length > 0)
+                          iTmp += "<" + this._mxpLines[this._mxpState.lineType].element + ">";
+                        if (this._mxpLines[this._mxpState.lineType].definition.length > 0)
+                          iTmp += this._mxpLines[this._mxpState.lineType].definition;
                         if (iTmp.length > 0) {
                           text = text.splice(idx + 1, iTmp);
                           tl = text.length;
@@ -19759,31 +19759,31 @@
                 _AnsiParams = null;
                 state = 0 /* None */;
               } else if (c === "J") {
-                this.ClearMXPOpen();
+                this._ClearMXPOpen();
                 if (_AnsiParams.length > 0) {
                   if (+_AnsiParams === 2) {
                     lineLength = 0;
                     iTmp = this.window.height;
-                    formatBuilder.push(...this.getMXPCloseFormatBlocks());
-                    this.AddLine(stringBuilder.join(""), rawBuilder.join(""), false, false, formatBuilder, remote);
+                    formatBuilder.push(...this._getMXPCloseFormatBlocks());
+                    this._AddLine(stringBuilder.join(""), rawBuilder.join(""), false, false, formatBuilder, remote);
                     stringBuilder = [];
                     rawBuilder = [];
-                    formatBuilder = [...this.getMXPOpenFormatBlocks(), format = this.getFormatBlock(lineLength), ...this.getMXPCloseFormatBlocks()];
+                    formatBuilder = [...this._getMXPOpenFormatBlocks(), format = this._getFormatBlock(lineLength), ...this._getMXPCloseFormatBlocks()];
                     for (let j2 = 0; j2 < iTmp; j2++) {
-                      this.AddLine("", "\n", false, false, formatBuilder, remote);
-                      this.MXPCapture("\n");
+                      this._AddLine("", "\n", false, false, formatBuilder, remote);
+                      this._MXPCapture("\n");
                     }
                     this.textLength += iTmp;
-                    this.mxpState.noBreak = false;
+                    this._mxpState.noBreak = false;
                   }
                 }
-                formatBuilder = [...this.getMXPOpenFormatBlocks(), format = this.getFormatBlock(lineLength)];
+                formatBuilder = [...this._getMXPOpenFormatBlocks(), format = this._getFormatBlock(lineLength)];
                 this._SplitBuffer = "";
                 _AnsiParams = null;
                 state = 0 /* None */;
               } else if (c === "m") {
-                this.ProcessAnsiColorParams(_AnsiParams.split(";"));
-                formatBuilder.push(format = this.getFormatBlock(lineLength));
+                this._ProcessAnsiColorParams(_AnsiParams.split(";"));
+                formatBuilder.push(format = this._getFormatBlock(lineLength));
                 this._SplitBuffer = "";
                 _AnsiParams = null;
                 state = 0 /* None */;
@@ -19793,8 +19793,8 @@
                 this.rawLength--;
                 state = 0 /* None */;
                 this._SplitBuffer = "";
-                if (this.mxpState.on && c === "\n")
-                  this.ClearMXPOpen();
+                if (this._mxpState.on && c === "\n")
+                  this._ClearMXPOpen();
               } else {
                 this._SplitBuffer += c;
                 _AnsiParams += c;
@@ -19851,14 +19851,14 @@
                   stringBuilder.push("\u241B");
                   if (i2 < 16) {
                     stringBuilder.push(String.fromCharCode(parseInt("240" + i2.toString(16), 16)));
-                    this.MXPCapture("&#x241B&#x240" + i2.toString(16) + ";");
+                    this._MXPCapture("&#x241B&#x240" + i2.toString(16) + ";");
                   } else {
                     stringBuilder.push(String.fromCharCode(parseInt("24" + i2.toString(16), 16)));
-                    this.MXPCapture("&#x241B&#x24" + i2.toString(16) + ";");
+                    this._MXPCapture("&#x241B&#x24" + i2.toString(16) + ";");
                   }
                   lineLength += 2;
                   this.textLength += 2;
-                  this.mxpState.noBreak = false;
+                  this._mxpState.noBreak = false;
                 }
                 state = 0 /* None */;
                 this._SplitBuffer = "";
@@ -19902,8 +19902,8 @@
                 this.rawLength--;
                 state = 0 /* None */;
                 this._SplitBuffer = "";
-                if (this.mxpState.on && c === "\n")
-                  this.ClearMXPOpen();
+                if (this._mxpState.on && c === "\n")
+                  this._ClearMXPOpen();
               } else if (c === " ") {
                 state = 9 /* MXPTagArg */;
                 _MXPArgs.push("");
@@ -19911,52 +19911,52 @@
               } else if (c === ">") {
                 _MXPOTag = _MXPTag;
                 _MXPTag = _MXPTag.toUpperCase();
-                if (_MXPTag === "HR" && (this.mxpState.lineType === 1 /* Secure */ || this.mxpState.lineType === 6 /* LockSecure */ || this.mxpState.lineType === 4 /* TempSecure */)) {
+                if (_MXPTag === "HR" && (this._mxpState.lineType === 1 /* Secure */ || this._mxpState.lineType === 6 /* LockSecure */ || this._mxpState.lineType === 4 /* TempSecure */)) {
                   if (lineLength > 0) {
                     lineLength = 0;
-                    this.MXPCapture("\n");
-                    formatBuilder.push(...this.getMXPCloseFormatBlocks());
-                    this.AddLine(stringBuilder.join(""), rawBuilder.join(""), false, false, formatBuilder, remote);
+                    this._MXPCapture("\n");
+                    formatBuilder.push(...this._getMXPCloseFormatBlocks());
+                    this._AddLine(stringBuilder.join(""), rawBuilder.join(""), false, false, formatBuilder, remote);
                     stringBuilder = [];
                     rawBuilder = [];
-                    formatBuilder = [...this.getMXPOpenFormatBlocks(), format = this.getFormatBlock(lineLength)];
+                    formatBuilder = [...this._getMXPOpenFormatBlocks(), format = this._getFormatBlock(lineLength)];
                   }
-                  _MXPTag = this.getMXPBlock(_MXPTag, [], remote);
+                  _MXPTag = this._getMXPBlock(_MXPTag, [], remote);
                   if (_MXPTag && _MXPTag.format) {
                     _MXPTag.format.offset = lineLength;
                     formatBuilder.push(_MXPTag.format);
                     formatBuilder[0].hr = _MXPTag.format.hr;
                   }
-                  formatBuilder.push(...this.getMXPCloseFormatBlocks());
-                  this.AddLine(stringBuilder.join(""), rawBuilder.join(""), false, false, formatBuilder, remote);
+                  formatBuilder.push(...this._getMXPCloseFormatBlocks());
+                  this._AddLine(stringBuilder.join(""), rawBuilder.join(""), false, false, formatBuilder, remote);
                   this.textLength++;
                   stringBuilder = [];
                   rawBuilder = [];
-                  formatBuilder = [...this.getMXPOpenFormatBlocks(), format = this.getFormatBlock(lineLength)];
-                } else if (_MXPTag === "BR" && (this.mxpState.lineType === 1 /* Secure */ || this.mxpState.lineType === 6 /* LockSecure */ || this.mxpState.lineType === 4 /* TempSecure */)) {
-                  this.MXPCapture("\n");
-                  formatBuilder.push(...this.getMXPCloseFormatBlocks());
-                  this.AddLine(stringBuilder.join(""), rawBuilder.join(""), false, false, formatBuilder, remote);
+                  formatBuilder = [...this._getMXPOpenFormatBlocks(), format = this._getFormatBlock(lineLength)];
+                } else if (_MXPTag === "BR" && (this._mxpState.lineType === 1 /* Secure */ || this._mxpState.lineType === 6 /* LockSecure */ || this._mxpState.lineType === 4 /* TempSecure */)) {
+                  this._MXPCapture("\n");
+                  formatBuilder.push(...this._getMXPCloseFormatBlocks());
+                  this._AddLine(stringBuilder.join(""), rawBuilder.join(""), false, false, formatBuilder, remote);
                   skip = false;
                   lineLength = 0;
                   stringBuilder = [];
                   rawBuilder = [];
-                  formatBuilder = [...this.getMXPOpenFormatBlocks(), format = this.getFormatBlock(lineLength)];
+                  formatBuilder = [...this._getMXPOpenFormatBlocks(), format = this._getFormatBlock(lineLength)];
                   this.textLength++;
-                } else if (_MXPTag === "IMAGE" && (this.mxpState.lineType === 1 /* Secure */ || this.mxpState.lineType === 6 /* LockSecure */ || this.mxpState.lineType === 4 /* TempSecure */)) {
-                  _MXPTag = this.getMXPBlock(_MXPTag, _MXPArgs, remote);
+                } else if (_MXPTag === "IMAGE" && (this._mxpState.lineType === 1 /* Secure */ || this._mxpState.lineType === 6 /* LockSecure */ || this._mxpState.lineType === 4 /* TempSecure */)) {
+                  _MXPTag = this._getMXPBlock(_MXPTag, _MXPArgs, remote);
                   if (_MXPTag && _MXPTag.format !== null) {
                     formatBuilder.push(_MXPTag.format);
                     lineLength += _MXPTag.length;
                     this.textLength += _MXPTag.length;
                   }
-                  formatBuilder.push(format = this.getFormatBlock(lineLength));
+                  formatBuilder.push(format = this._getFormatBlock(lineLength));
                 } else {
-                  _MXPTag = this.getMXPBlock(_MXPTag, [], remote, _MXPOTag, formatBuilder);
-                  if (this.mxpState.expanded) {
+                  _MXPTag = this._getMXPBlock(_MXPTag, [], remote, _MXPOTag, formatBuilder);
+                  if (this._mxpState.expanded) {
                     if (_MXPTag && _MXPTag.text !== null) text = text.splice(idx + 1, _MXPTag.text);
                     tl = text.length;
-                    this.mxpState.expanded = false;
+                    this._mxpState.expanded = false;
                     state = 0 /* None */;
                     _MXPTag = "";
                     this._SplitBuffer = "";
@@ -19967,14 +19967,14 @@
                       _MXPTag.format.offset = lineLength;
                       formatBuilder.push(_MXPTag.format);
                     }
-                    formatBuilder.push(format = this.getFormatBlock(lineLength));
+                    formatBuilder.push(format = this._getFormatBlock(lineLength));
                     if (_MXPTag.text !== null && _MXPTag.text.length > 0) {
                       stringBuilder.push(_MXPTag.text);
                       lineLength += _MXPTag.text.length;
                       this.textLength += _MXPTag.text.length;
                     }
                   } else
-                    formatBuilder.push(format = this.getFormatBlock(lineLength));
+                    formatBuilder.push(format = this._getFormatBlock(lineLength));
                 }
                 state = 0 /* None */;
                 this._SplitBuffer = "";
@@ -20029,26 +20029,26 @@
                 this.rawLength--;
                 state = 0 /* None */;
                 this._SplitBuffer = "";
-                if (this.mxpState.on && c === "\n")
-                  this.ClearMXPOpen();
+                if (this._mxpState.on && c === "\n")
+                  this._ClearMXPOpen();
               } else if (c === " ") {
                 state = 9 /* MXPTagArg */;
                 _MXPArgs.push("");
                 this._SplitBuffer += c;
               } else if (c === ">") {
-                if (_MXPTag.toUpperCase() === "IMAGE" && (this.mxpState.lineType === 1 /* Secure */ || this.mxpState.lineType === 6 /* LockSecure */ || this.mxpState.lineType === 4 /* TempSecure */)) {
-                  _MXPTag = this.getMXPBlock(_MXPTag, _MXPArgs, remote, _MXPTag);
+                if (_MXPTag.toUpperCase() === "IMAGE" && (this._mxpState.lineType === 1 /* Secure */ || this._mxpState.lineType === 6 /* LockSecure */ || this._mxpState.lineType === 4 /* TempSecure */)) {
+                  _MXPTag = this._getMXPBlock(_MXPTag, _MXPArgs, remote, _MXPTag);
                   if (_MXPTag !== null && _MXPTag.format !== null) {
                     _MXPTag.format.offset = lineLength;
                     formatBuilder.push(_MXPTag.format);
                   }
-                  formatBuilder.push(format = this.getFormatBlock(lineLength));
+                  formatBuilder.push(format = this._getFormatBlock(lineLength));
                 } else {
-                  _MXPTag = this.getMXPBlock(_MXPTag, _MXPArgs, remote, _MXPTag, formatBuilder);
-                  if (this.mxpState.expanded) {
+                  _MXPTag = this._getMXPBlock(_MXPTag, _MXPArgs, remote, _MXPTag, formatBuilder);
+                  if (this._mxpState.expanded) {
                     if (_MXPTag !== null) text = text.splice(idx + 1, _MXPTag.text);
                     tl = text.length;
-                    this.mxpState.expanded = false;
+                    this._mxpState.expanded = false;
                     state = 0 /* None */;
                     this._SplitBuffer = "";
                     continue;
@@ -20058,14 +20058,14 @@
                       _MXPTag.format.offset = lineLength;
                       formatBuilder.push(_MXPTag.format);
                     }
-                    formatBuilder.push(format = this.getFormatBlock(lineLength));
+                    formatBuilder.push(format = this._getFormatBlock(lineLength));
                     if (_MXPTag.text !== null) {
                       stringBuilder.push(_MXPTag.text);
                       lineLength += _MXPTag.text.length;
                       this.textLength += _MXPTag.text.length;
                     }
                   } else
-                    formatBuilder.push(format = this.getFormatBlock(lineLength));
+                    formatBuilder.push(format = this._getFormatBlock(lineLength));
                 }
                 state = 0 /* None */;
                 this._SplitBuffer = "";
@@ -20084,48 +20084,48 @@
                   _MXPTag += "&" + _MXPEntity;
                   state = pState;
                 } else {
-                  _MXPEntity = this.GetEntity(_MXPEntity);
-                  if (this.mxpState.expanded) {
+                  _MXPEntity = this._GetEntity(_MXPEntity);
+                  if (this._mxpState.expanded) {
                     if (_MXPTag !== null)
                       text = text.splice(idx + 1, _MXPEntity);
                     tl = text.length;
-                    this.mxpState.expanded = false;
+                    this._mxpState.expanded = false;
                     state = 0 /* None */;
                     this._SplitBuffer = "";
                     continue;
                   }
                   _MXPOTag = htmlDecode("&" + _MXPEntity);
                   stringBuilder.push(_MXPOTag);
-                  this.MXPCapture("&" + _MXPEntity);
+                  this._MXPCapture("&" + _MXPEntity);
                   lineLength += _MXPOTag.length;
                   this.textLength += _MXPOTag.length;
-                  this.mxpState.noBreak = false;
+                  this._mxpState.noBreak = false;
                   state = 0 /* None */;
                   this._SplitBuffer = "";
                   format.unicode = true;
                 }
-                if (this.mxpState.on && c === "\n")
-                  this.ClearMXPOpen();
+                if (this._mxpState.on && c === "\n")
+                  this._ClearMXPOpen();
               } else if (c === ";") {
                 if (this.enableDebug) this.emit("debug", "MXP Entity: " + _MXPEntity);
                 if (pState !== 4 /* MXPTag */) {
-                  _MXPEntity = this.GetEntity(_MXPEntity);
-                  if (this.mxpState.expanded) {
+                  _MXPEntity = this._GetEntity(_MXPEntity);
+                  if (this._mxpState.expanded) {
                     text = text.splice(idx + 1, _MXPEntity);
                     tl = text.length;
-                    this.mxpState.expanded = false;
+                    this._mxpState.expanded = false;
                     state = pState;
                     this._SplitBuffer = "";
                     continue;
                   }
                   _MXPOTag = htmlDecode("&" + _MXPEntity + ";");
                   stringBuilder.push(_MXPOTag);
-                  this.MXPCapture("&");
-                  this.MXPCapture(_MXPEntity);
-                  this.MXPCapture(";");
+                  this._MXPCapture("&");
+                  this._MXPCapture(_MXPEntity);
+                  this._MXPCapture(";");
                   lineLength += _MXPOTag.length;
                   this.textLength += _MXPOTag.length;
-                  this.mxpState.noBreak = false;
+                  this._mxpState.noBreak = false;
                   this._SplitBuffer = "";
                 } else
                   _MXPTag += "&" + _MXPEntity + ";";
@@ -20135,11 +20135,11 @@
                 if (this.enableDebug) this.emit("debug", "Malformed MXP Entity: " + _MXPEntity);
                 if (pState !== 4 /* MXPTag */) {
                   stringBuilder.push("&" + _MXPEntity);
-                  this.MXPCapture("&");
-                  this.MXPCapture(_MXPEntity);
+                  this._MXPCapture("&");
+                  this._MXPCapture(_MXPEntity);
                   lineLength += _MXPEntity.length + 1;
                   this.textLength += _MXPEntity.length + 1;
-                  this.mxpState.noBreak = false;
+                  this._mxpState.noBreak = false;
                   this._SplitBuffer = "";
                   idx--;
                   rawBuilder.pop();
@@ -20170,8 +20170,8 @@
                 this.rawLength--;
                 state = pState;
                 _MXPComment = "";
-                if (this.mxpState.on && c === "\n")
-                  this.ClearMXPOpen();
+                if (this._mxpState.on && c === "\n")
+                  this._ClearMXPOpen();
               } else
                 _MXPComment += c;
               break;
@@ -20184,12 +20184,12 @@
                 this.rawLength -= 2;
                 lineLength -= 2;
                 this.textLength -= 2;
-                this.MXPDeCapture(2);
+                this._MXPDeCapture(2);
                 idx = lnk;
                 state = 0 /* None */;
               } else if (c === "/") {
                 stringBuilder.push(c);
-                this.MXPCapture(c);
+                this._MXPCapture(c);
                 lineLength++;
                 this.textLength++;
                 if (idx === lnk + 2) {
@@ -20218,7 +20218,7 @@
                 this.rawLength--;
                 lineLength--;
                 this.textLength--;
-                this.MXPDeCapture(1);
+                this._MXPDeCapture(1);
                 idx = lnk;
                 state = 0 /* None */;
               } else {
@@ -20247,7 +20247,7 @@
                     offset: lineLength,
                     href: _MXPComment
                   });
-                  formatBuilder.push(format = this.getFormatBlock(lineLength));
+                  formatBuilder.push(format = this._getFormatBlock(lineLength));
                 }
                 state = 0 /* None */;
                 idx--;
@@ -20257,7 +20257,7 @@
                 if (lNest.length > 1 && lNest[lNest.length - 1] === c) {
                   lNest.pop();
                   stringBuilder.push(c);
-                  this.MXPCapture(c);
+                  this._MXPCapture(c);
                   lineLength++;
                   this.textLength++;
                   if (i2 > 255)
@@ -20265,7 +20265,7 @@
                 } else if (lNest.length > 0 && c === "(") {
                   lNest.push(")");
                   stringBuilder.push(c);
-                  this.MXPCapture(c);
+                  this._MXPCapture(c);
                   lineLength++;
                   this.textLength++;
                   if (i2 > 255)
@@ -20273,7 +20273,7 @@
                 } else if (lNest.length > 0 && c === "[") {
                   lNest.push("]");
                   stringBuilder.push(c);
-                  this.MXPCapture(c);
+                  this._MXPCapture(c);
                   lineLength++;
                   this.textLength++;
                   if (i2 > 255)
@@ -20296,7 +20296,7 @@
                       href: _MXPComment,
                       offset: lineLength
                     });
-                    formatBuilder.push(format = this.getFormatBlock(lineLength));
+                    formatBuilder.push(format = this._getFormatBlock(lineLength));
                   }
                   state = 0 /* None */;
                   idx--;
@@ -20306,7 +20306,7 @@
                   if (i2 > 255)
                     format.unicode = true;
                   stringBuilder.push(c);
-                  this.MXPCapture(c);
+                  this._MXPCapture(c);
                   lineLength++;
                   this.textLength++;
                 }
@@ -20314,24 +20314,24 @@
               break;
             case 12 /* MSPSound */:
               if (c === ")") {
-                lnk = this.mxpState.lineType;
-                this.mxpState.lineType = 4 /* TempSecure */;
-                this.getMXPBlock("SOUND", _MXPArgs, remote);
-                this.mxpState.lineType = lnk;
+                lnk = this._mxpState.lineType;
+                this._mxpState.lineType = 4 /* TempSecure */;
+                this._getMXPBlock("SOUND", _MXPArgs, remote);
+                this._mxpState.lineType = lnk;
                 state = 0 /* None */;
                 if (idx + 1 < tl && text.charAt(idx + 1) === "\n") {
                   idx++;
                   skip = false;
                   stringBuilder = [];
-                  formatBuilder = [...this.getMXPOpenFormatBlocks(), format = this.getFormatBlock(lineLength)];
-                  this.mxpState.noBreak = false;
+                  formatBuilder = [...this._getMXPOpenFormatBlocks(), format = this._getFormatBlock(lineLength)];
+                  this._mxpState.noBreak = false;
                   lineLength = 0;
                 } else if (idx + 2 < tl && text[idx + 1] === "\r" && text[idx + 2] === "\n") {
                   idx += 2;
                   skip = false;
                   stringBuilder = [];
-                  formatBuilder = [...this.getMXPOpenFormatBlocks(), format = this.getFormatBlock(lineLength)];
-                  this.mxpState.noBreak = false;
+                  formatBuilder = [...this._getMXPOpenFormatBlocks(), format = this._getFormatBlock(lineLength)];
+                  this._mxpState.noBreak = false;
                   lineLength = 0;
                 }
               } else if (c === " ")
@@ -20341,24 +20341,24 @@
               break;
             case 13 /* MSPMusic */:
               if (c === ")") {
-                lnk = this.mxpState.lineType;
-                this.mxpState.lineType = 4 /* TempSecure */;
-                this.getMXPBlock("MUSIC", _MXPArgs, remote);
-                this.mxpState.lineType = lnk;
+                lnk = this._mxpState.lineType;
+                this._mxpState.lineType = 4 /* TempSecure */;
+                this._getMXPBlock("MUSIC", _MXPArgs, remote);
+                this._mxpState.lineType = lnk;
                 state = 0 /* None */;
                 if (idx + 1 < tl && text.charAt(idx + 1) === "\n") {
                   idx++;
                   skip = false;
                   stringBuilder = [];
-                  formatBuilder = [...this.getMXPOpenFormatBlocks(), format = this.getFormatBlock(lineLength)];
-                  this.mxpState.noBreak = false;
+                  formatBuilder = [...this._getMXPOpenFormatBlocks(), format = this._getFormatBlock(lineLength)];
+                  this._mxpState.noBreak = false;
                   lineLength = 0;
                 } else if (idx + 2 < tl && text[idx + 1] === "\r" && text[idx + 2] === "\n") {
                   idx += 2;
                   skip = false;
                   stringBuilder = [];
-                  formatBuilder = [...this.getMXPOpenFormatBlocks(), format = this.getFormatBlock(lineLength)];
-                  this.mxpState.noBreak = false;
+                  formatBuilder = [...this._getMXPOpenFormatBlocks(), format = this._getFormatBlock(lineLength)];
+                  this._mxpState.noBreak = false;
                   lineLength = 0;
                 }
               } else if (c === " ")
@@ -20371,16 +20371,16 @@
                 if (f) {
                   c = "\u2407";
                   stringBuilder.push(c);
-                  this.MXPCapture(c);
+                  this._MXPCapture(c);
                   lineLength++;
                   this.textLength++;
-                  this.mxpState.noBreak = false;
+                  this._mxpState.noBreak = false;
                 } else if (d2) {
                   stringBuilder.push(c);
-                  this.MXPCapture("&#x2407;");
+                  this._MXPCapture("&#x2407;");
                   lineLength++;
                   this.textLength++;
-                  this.mxpState.noBreak = false;
+                  this._mxpState.noBreak = false;
                 }
                 this.emit("bell");
               } else if (e && c === "\b") {
@@ -20402,66 +20402,66 @@
                 if (d2) {
                   c = "\u25D8";
                   stringBuilder.push(c);
-                  this.MXPCapture(c);
+                  this._MXPCapture(c);
                   lineLength++;
                   this.textLength++;
                 }
-                this.mxpState.noBreak = false;
+                this._mxpState.noBreak = false;
               } else if (e && c === "	") {
                 const _Tab = tabWidth - lineLength % tabWidth;
                 if (_Tab > 0) {
                   stringBuilder.push(Array(_Tab + 1).join(" "));
-                  this.MXPCapture(Array(_Tab + 1).join(" "));
+                  this._MXPCapture(Array(_Tab + 1).join(" "));
                   lineLength += _Tab;
                   this.textLength += _Tab;
-                  this.mxpState.noBreak = false;
+                  this._mxpState.noBreak = false;
                 }
               } else if (c === "\n") {
-                if (this.mxpState.noBreak || this.mxpState.paragraph) continue;
-                if (!this.mxpState.locked) {
-                  if (this.mxpState.lineType !== 0 /* Open */)
-                    this.emit("MXP-tag-end", this.mxpState.lineType, stringBuilder.join(""), formatBuilder);
-                  if (!this.mxpState.lineExpanded && this.mxpLines[this.mxpState.lineType] && this.mxpLines[this.mxpState.lineType].enabled) {
+                if (this._mxpState.noBreak || this._mxpState.paragraph) continue;
+                if (!this._mxpState.locked) {
+                  if (this._mxpState.lineType !== 0 /* Open */)
+                    this.emit("MXP-tag-end", this._mxpState.lineType, stringBuilder.join(""), formatBuilder);
+                  if (!this._mxpState.lineExpanded && this._mxpLines[this._mxpState.lineType] && this._mxpLines[this._mxpState.lineType].enabled) {
                     iTmp = "";
-                    if (this.mxpLines[this.mxpState.lineType].element.length > 0)
-                      iTmp += "</" + this.mxpLines[this.mxpState.lineType].element + ">";
-                    if (this.mxpLines[this.mxpState.lineType].closeDefinition.length > 0)
-                      iTmp += this.mxpLines[this.mxpState.lineType].closeDefinition;
+                    if (this._mxpLines[this._mxpState.lineType].element.length > 0)
+                      iTmp += "</" + this._mxpLines[this._mxpState.lineType].element + ">";
+                    if (this._mxpLines[this._mxpState.lineType].closeDefinition.length > 0)
+                      iTmp += this._mxpLines[this._mxpState.lineType].closeDefinition;
                     if (iTmp.length > 0) {
                       text = text.splice(idx, iTmp);
                       tl = text.length;
                       idx--;
                       rawBuilder.pop();
                       this.rawLength--;
-                      this.mxpState.lineExpanded = true;
+                      this._mxpState.lineExpanded = true;
                       continue;
                     }
                   }
-                  this.mxpState.lineExpanded = false;
-                  formatBuilder.push(...this.getMXPCloseFormatBlocks());
-                  if (this.mxpState.on)
-                    this.ClearMXPOpen();
-                  this.mxpState.on = false;
-                  if (this.mxpLines[this.mxpState.lineType] && this.mxpLines[this.mxpState.lineType].enabled && this.mxpLines[this.mxpState.lineType].gag)
+                  this._mxpState.lineExpanded = false;
+                  formatBuilder.push(...this._getMXPCloseFormatBlocks());
+                  if (this._mxpState.on)
+                    this._ClearMXPOpen();
+                  this._mxpState.on = false;
+                  if (this._mxpLines[this._mxpState.lineType] && this._mxpLines[this._mxpState.lineType].enabled && this._mxpLines[this._mxpState.lineType].gag)
                     skip = true;
-                  this.mxpState.lineType = this.iMXPDefaultMode;
-                  if (this.mxpState.lineType !== 2 && !this.enableMXP)
+                  this._mxpState.lineType = this._iMXPDefaultMode;
+                  if (this._mxpState.lineType !== 2 && !this.enableMXP)
                     this.ResetMXP();
                 } else {
-                  formatBuilder.push(...this.getMXPCloseFormatBlocks());
-                  if (this.mxpState.on)
-                    this.ClearMXPOpen();
+                  formatBuilder.push(...this._getMXPCloseFormatBlocks());
+                  if (this._mxpState.on)
+                    this._ClearMXPOpen();
                 }
                 lineLength = 0;
                 if (!skip)
-                  this.MXPCapture("\n");
-                this.AddLine(stringBuilder.join(""), rawBuilder.join(""), false, skip, formatBuilder, remote);
+                  this._MXPCapture("\n");
+                this._AddLine(stringBuilder.join(""), rawBuilder.join(""), false, skip, formatBuilder, remote);
                 skip = false;
                 stringBuilder = [];
                 rawBuilder = [];
-                formatBuilder = [...this.getMXPOpenFormatBlocks(), format = this.getFormatBlock(lineLength)];
+                formatBuilder = [...this._getMXPOpenFormatBlocks(), format = this._getFormatBlock(lineLength)];
                 this.textLength++;
-                this.mxpState.noBreak = false;
+                this._mxpState.noBreak = false;
               } else if (e && c === "\r") {
                 continue;
               } else if (e && c === "\x1B") {
@@ -20534,47 +20534,47 @@
                   else if (i2 === 127)
                     c = "\u2302";
                   stringBuilder.push(c);
-                  this.MXPCapture(c);
+                  this._MXPCapture(c);
                   lineLength++;
                   this.textLength++;
-                  this.mxpState.noBreak = false;
+                  this._mxpState.noBreak = false;
                 } else if (d2) {
                   i2 = 9216 + i2;
                   stringBuilder.push(String.fromCharCode(i2));
-                  this.MXPCapture("&#");
-                  this.MXPCapture(i2.toString());
-                  this.MXPCapture(";");
+                  this._MXPCapture("&#");
+                  this._MXPCapture(i2.toString());
+                  this._MXPCapture(";");
                   lineLength++;
                   this.textLength++;
-                  this.mxpState.noBreak = false;
+                  this._mxpState.noBreak = false;
                 } else
                   continue;
               } else if (c === " " || this._CurrentAttributes > 0 && (this._CurrentAttributes & 128 /* Hidden */) === 128 /* Hidden */) {
                 stringBuilder.push(" ");
-                this.MXPCapture(" ");
+                this._MXPCapture(" ");
                 lineLength++;
                 this.textLength++;
-                this.mxpState.noBreak = false;
+                this._mxpState.noBreak = false;
               } else if (c === "<" && idx >= mOffset) {
-                if (this.enableMXP && this.mxpState.on) {
+                if (this.enableMXP && this._mxpState.on) {
                   _MXPTag = "";
                   _MXPArgs = [];
                   this._SplitBuffer += c;
                   state = 4 /* MXPTag */;
                 } else {
                   stringBuilder.push("<");
-                  this.MXPCapture("&lt;");
+                  this._MXPCapture("&lt;");
                   lineLength++;
                   this.textLength++;
                 }
               } else if (c === ">") {
                 stringBuilder.push(">");
-                this.MXPCapture("&gt;");
+                this._MXPCapture("&gt;");
                 lineLength++;
                 this.textLength++;
-                this.mxpState.noBreak = false;
+                this._mxpState.noBreak = false;
               } else if (c === "&" && idx >= mOffset) {
-                if (this.enableMXP && this.mxpState.on) {
+                if (this.enableMXP && this._mxpState.on) {
                   _MXPEntity = "";
                   this._SplitBuffer += c;
                   pState = state;
@@ -20583,37 +20583,37 @@
                   stringBuilder.push(c);
                   lineLength++;
                   this.textLength++;
-                  this.mxpState.noBreak = false;
+                  this._mxpState.noBreak = false;
                 }
               } else if (c === '"') {
                 stringBuilder.push(c);
-                this.MXPCapture("&quot;");
+                this._MXPCapture("&quot;");
                 lineLength++;
                 this.textLength++;
-                this.mxpState.noBreak = false;
+                this._mxpState.noBreak = false;
               } else if (c === "'") {
                 stringBuilder.push(c);
-                this.MXPCapture("&apos;");
+                this._MXPCapture("&apos;");
                 lineLength++;
                 this.textLength++;
-                this.mxpState.noBreak = false;
+                this._mxpState.noBreak = false;
               } else if (c === ":") {
                 stringBuilder.push(c);
-                this.MXPCapture(c);
+                this._MXPCapture(c);
                 lineLength++;
                 this.textLength++;
-                this.mxpState.noBreak = false;
+                this._mxpState.noBreak = false;
                 if (u) {
                   _MXPComment = "";
                   let psk;
                   let pFnd = false;
                   for (p = 0; p < pl; p++) {
-                    if (idx - this.protocols[p].length < 0)
+                    if (idx - this._protocols[p].length < 0)
                       continue;
                     psk = false;
-                    const nl = this.protocols[p].length;
+                    const nl = this._protocols[p].length;
                     for (let n = 0; n < nl; n++) {
-                      if (text[idx - (nl - n)] !== this.protocols[p][n]) {
+                      if (text[idx - (nl - n)] !== this._protocols[p][n]) {
                         psk = true;
                         break;
                       }
@@ -20646,10 +20646,10 @@
                 }
               } else if (c === ".") {
                 stringBuilder.push(c);
-                this.MXPCapture(c);
+                this._MXPCapture(c);
                 lineLength++;
                 this.textLength++;
-                this.mxpState.noBreak = false;
+                this._mxpState.noBreak = false;
                 if (u && idx - 3 >= 0) {
                   _MXPComment = "http://";
                   if ((text[idx - 1] === "w" || idx[lnk - 1] === "W") && (text[idx - 2] === "w" || idx[lnk - 2] === "W") && (text[idx - 3] === "w" || idx[lnk - 3] === "W")) {
@@ -20673,12 +20673,12 @@
                 _MXPArgs = [""];
                 state = 13 /* MSPMusic */;
                 idx += 7;
-                this.mxpState.noBreak = false;
+                this._mxpState.noBreak = false;
               } else if (s && lineLength === 0 && text.substring(idx, idx + 8) === "!!SOUND(") {
                 _MXPArgs = [""];
                 state = 12 /* MSPSound */;
                 idx += 7;
-                this.mxpState.noBreak = false;
+                this._mxpState.noBreak = false;
               } else {
                 if (f && i2 > 127 && i2 < 255) {
                   if (i2 === 128)
@@ -20938,10 +20938,10 @@
                 } else if (i2 > 255)
                   format.unicode = true;
                 stringBuilder.push(c);
-                this.MXPCapture(c);
+                this._MXPCapture(c);
                 lineLength++;
                 this.textLength++;
-                this.mxpState.noBreak = false;
+                this._mxpState.noBreak = false;
               }
               break;
           }
@@ -20950,7 +20950,7 @@
           this.rawLength -= this._SplitBuffer.length;
           rawBuilder.splice(rawBuilder.length - this._SplitBuffer.length, this._SplitBuffer.length);
         }
-        formatBuilder.push(...this.getMXPCloseFormatBlocks());
+        formatBuilder.push(...this._getMXPCloseFormatBlocks());
         if (state === 11 /* URLFound */) {
           formatBuilder.splice(
             fLnk,
@@ -20962,18 +20962,18 @@
             }
           );
         }
-        this.AddLine(stringBuilder.join(""), rawBuilder.join(""), true, false, formatBuilder, remote);
+        this._AddLine(stringBuilder.join(""), rawBuilder.join(""), true, false, formatBuilder, remote);
       } catch (ex2) {
         if (this.enableDebug) this.emit("debug", ex2);
       }
       this.busy = false;
       this.emit("parse-done");
-      this.parsing.shift();
-      if (this.parsing.length > 0)
-        setTimeout(this.parseNext(), 0);
+      this._parsing.shift();
+      if (this._parsing.length > 0)
+        setTimeout(this._parseNext(), 0);
     }
-    parseNext() {
-      const iTmp = this.parsing.shift();
+    _parseNext() {
+      const iTmp = this._parsing.shift();
       return () => {
         this.parse(iTmp[0], iTmp[1], true, iTmp[2]);
       };
@@ -20982,28 +20982,28 @@
       this.window = { width, height };
     }
     Clear() {
-      this.ResetColors();
+      this._ResetColors();
       this.textLength = 0;
       this._SplitBuffer = "";
     }
     ClearMXP() {
-      this.mxpEntities = {};
+      this._mxpEntities = {};
       this.ResetMXP();
-      this.mxpElements = {};
-      this.mxpState = new MXPState();
+      this._mxpElements = {};
+      this._mxpState = new MXPState();
     }
     ResetMXP() {
-      this.mxpStyles = [];
-      this.mxpStyles.push(new MXPStyle(0 /* None */, "", "", false));
+      this._mxpStyles = [];
+      this._mxpStyles.push(new MXPStyle(0 /* None */, "", "", false));
     }
     ResetMXPLine() {
-      this.iMXPDefaultMode = 0 /* Open */;
-      this.mxpState.lineType = 0 /* Open */;
+      this._iMXPDefaultMode = 0 /* Open */;
+      this._mxpState.lineType = 0 /* Open */;
     }
     //public interface, as client can only access publicly marked entities
     GetPublicEntity(entity) {
-      if (this.mxpEntities[entity] && this.mxpEntities[entity].publish)
-        return this.mxpEntities[entity].value;
+      if (this._mxpEntities[entity] && this._mxpEntities[entity].publish)
+        return this._mxpEntities[entity].value;
       return entity;
     }
   };
@@ -21093,7 +21093,7 @@
         if (this._scrollAtEnd)
           this.scrollDisplay();
         debounce(() => {
-          this.doUpdate(1 /* update */ | 16 /* updateWindow */);
+          this._doUpdate(1 /* update */ | 16 /* updateWindow */);
         }, 250, "resize");
       };
       this._selection = (e) => {
@@ -21113,7 +21113,7 @@
             if (this._scrollAtEnd)
               this.scrollDisplay();
             this._resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
-            this.doUpdate(1 /* update */ | 16 /* updateWindow */);
+            this._doUpdate(1 /* update */ | 16 /* updateWindow */);
             this.emit("resize");
           }
         }, 250, "resize");
@@ -21125,7 +21125,7 @@
           if (mutation.type === "attributes" && mutation.attributeName === "style") {
             if (this._scrollAtEnd)
               this.scrollDisplay();
-            this.doUpdate(1 /* update */ | 16 /* updateWindow */);
+            this._doUpdate(1 /* update */ | 16 /* updateWindow */);
             this.emit("resize");
           }
         }
@@ -21149,8 +21149,8 @@
         this._timestampWidth = (/* @__PURE__ */ new Date()).toISOString().length + 1;
       else
         this._timestampWidth = moment().format(this._timestampFormat).length;
-      this.buildStyleSheet();
-      this.doUpdate(2 /* display */ | 1 /* update */ | 32 /* rebuildLines */);
+      this._buildStyleSheet();
+      this._doUpdate(2 /* display */ | 1 /* update */ | 32 /* rebuildLines */);
     }
     get timestampFormat() {
       return this._timestampFormat;
@@ -21162,7 +21162,7 @@
         this._timestampWidth = (/* @__PURE__ */ new Date()).toISOString().length + 1;
       else
         this._timestampWidth = moment().format(this._timestampFormat).length;
-      this.doUpdate(2 /* display */ | 32 /* rebuildLines */ | 16 /* updateWindow */ | 1 /* update */);
+      this._doUpdate(2 /* display */ | 32 /* rebuildLines */ | 16 /* updateWindow */ | 1 /* update */);
     }
     get wordWrap() {
       return this._wordWrap;
@@ -21170,8 +21170,8 @@
     set wordWrap(value) {
       if (value === this._wordWrap) return;
       this._wordWrap = value;
-      this.buildStyleSheet();
-      this.doUpdate(1 /* update */);
+      this._buildStyleSheet();
+      this._doUpdate(1 /* update */);
     }
     get wrapAt() {
       return this._wrapAt;
@@ -21179,8 +21179,8 @@
     set wrapAt(value) {
       if (value === this._wrapAt) return;
       this._wrapAt = value;
-      this.buildStyleSheet();
-      this.doUpdate(1 /* update */ | 2 /* display */);
+      this._buildStyleSheet();
+      this._doUpdate(1 /* update */ | 2 /* display */);
     }
     get indent() {
       return this._indent;
@@ -21189,8 +21189,8 @@
       if (value === this._indent)
         return;
       this._indent = value;
-      this.buildStyleSheet();
-      this.doUpdate(1 /* update */ | 2 /* display */);
+      this._buildStyleSheet();
+      this._doUpdate(1 /* update */ | 2 /* display */);
     }
     get linkFunction() {
       return this._linkFunction || "doLink";
@@ -21250,7 +21250,7 @@
       this._model.on("expire-links", (args) => {
         if (this._expireCache.length) {
           for (let x2 = 0, xl = this._expireCache.length; x2 < xl; x2++)
-            this.rebuildLine(this._expireCache[x2]);
+            this._rebuildLine(this._expireCache[x2]);
         }
         this._expireCache = [];
         this.emit("expire-links");
@@ -21258,7 +21258,7 @@
       this._model.on("parse-done", () => {
         this._view.insertAdjacentHTML("beforeend", this._lineCache.join(""));
         this._lineCache = [];
-        this.doUpdate(2 /* display */);
+        this._doUpdate(2 /* display */);
         this.emit("parse-done");
       });
       this._model.on("set-title", (title, type) => {
@@ -21275,7 +21275,7 @@
       });
       this._model.on("expire-link-line", (idx) => {
         this._expireCache.push(idx);
-        this.doUpdate(2 /* display */);
+        this._doUpdate(2 /* display */);
       });
     }
     get maxLines() {
@@ -21284,7 +21284,7 @@
     set maxLines(value) {
       if (value !== this._maxLines) {
         this._maxLines = value;
-        this.doUpdate(4 /* trim */);
+        this._doUpdate(4 /* trim */);
       }
     }
     get enableDebug() {
@@ -21296,7 +21296,7 @@
     set enableColors(value) {
       if (value === this._enableColors) return;
       this._enableColors = value;
-      this.buildStyleSheet();
+      this._buildStyleSheet();
     }
     get enableBackgroundColors() {
       return this._enableBackgroundColors;
@@ -21304,7 +21304,7 @@
     set enableBackgroundColors(value) {
       if (value === this._enableBackgroundColors) return;
       this._enableBackgroundColors = value;
-      this.buildStyleSheet();
+      this._buildStyleSheet();
     }
     get hideTrailingEmptyLine() {
       return this._hideTrailingEmptyLine;
@@ -21312,7 +21312,7 @@
     set hideTrailingEmptyLine(value) {
       if (value === this._hideTrailingEmptyLine) return;
       this._hideTrailingEmptyLine = value;
-      this.doUpdate(2 /* display */);
+      this._doUpdate(2 /* display */);
     }
     set enableDebug(enable) {
       this._enableDebug = enable;
@@ -21488,12 +21488,12 @@
       this._view.replaceChildren(...[].slice.call(this._view.children, 0, line2), ...[].slice.call(this._view.children, line2 + amt));
       this._model.removeLines(line2, amt);
     }
-    updateDisplay() {
+    _updateDisplay() {
       this._view.classList.remove("animate");
-      this.doUpdate(4 /* trim */);
+      this._doUpdate(4 /* trim */);
       if (this._hideTrailingEmptyLine && this.lines.length && this.lines[this.lines.length - 1].text.length === 0)
         this._view.lastChild.style.display = "none";
-      this.doUpdate(8 /* scrollEnd */ | 16 /* updateWindow */);
+      this._doUpdate(8 /* scrollEnd */ | 16 /* updateWindow */);
       this._view.classList.add("animate");
     }
     updateWindow(width, height) {
@@ -21516,7 +21516,7 @@
       window.removeEventListener("resize", this._wResize);
       document.removeEventListener("selectionchange", this._selection);
     }
-    update() {
+    _update() {
       const scrollWidth = getScrollbarWidth();
       this._maxView = this._view.clientWidth - this._padding[1] - this._padding[3] - scrollWidth - this._indentPadding;
       if (this._timestamp !== 0 /* None */)
@@ -21541,8 +21541,8 @@
           this._charHeight = parseFloat(window.getComputedStyle(this._character).height);
           this._charWidth = parseFloat(window.getComputedStyle(this._character.firstElementChild).width);
         }, 250);
-        this.buildStyleSheet();
-        this.doUpdate(8 /* scrollEnd */ | 16 /* updateWindow */ | 1 /* update */);
+        this._buildStyleSheet();
+        this._doUpdate(8 /* scrollEnd */ | 16 /* updateWindow */ | 1 /* update */);
       }
       const pc = window.getComputedStyle(this._view);
       const padding = [
@@ -21553,10 +21553,10 @@
       ];
       if (padding[0] !== this._padding[0] || padding[1] !== this._padding[1] || padding[2] !== this._padding[2] || padding[3] !== this._padding[3]) {
         this._padding = padding;
-        this.doUpdate(1 /* update */);
+        this._doUpdate(1 /* update */);
       }
     }
-    buildStyleSheet() {
+    _buildStyleSheet() {
       let styles = "";
       if (!this._enableColors)
         styles += ".view > span span {color: inherit !important;}";
@@ -21792,10 +21792,10 @@
       if (line2 < 0 || line2 >= this.lines.length || !this.lines[line2]) return "";
       return this.lines[line2].text;
     }
-    rebuildLine(start) {
-      this.rebuildLines(start, start);
+    _rebuildLine(start) {
+      this._rebuildLines(start, start);
     }
-    rebuildLines(start, end) {
+    _rebuildLines(start, end) {
       if (!this.lines.length) return;
       if (start === void 0 || start < 0)
         start = 0;
@@ -21817,7 +21817,7 @@
         }
       }
     }
-    doUpdate(type) {
+    _doUpdate(type) {
       if (!type) return;
       this._updating |= type;
       if (this._updating === 0 /* none */)
@@ -21826,15 +21826,15 @@
         if (this._updating === 0 /* none */)
           return;
         if ((this._updating & 32 /* rebuildLines */) === 32 /* rebuildLines */) {
-          this.rebuildLines();
+          this._rebuildLines();
           this._updating &= ~32 /* rebuildLines */;
         }
         if ((this._updating & 1 /* update */) === 1 /* update */) {
-          this.update();
+          this._update();
           this._updating &= ~1 /* update */;
         }
         if ((this._updating & 2 /* display */) === 2 /* display */) {
-          this.updateDisplay();
+          this._updateDisplay();
           this._updating &= ~2 /* display */;
         }
         if ((this._updating & 4 /* trim */) === 4 /* trim */) {
@@ -21849,7 +21849,7 @@
           this.updateWindow();
           this._updating &= ~16 /* updateWindow */;
         }
-        this.doUpdate(this._updating);
+        this._doUpdate(this._updating);
       });
     }
     colorSubStrByLine(idx, fore, back, start, len, style) {
@@ -21858,7 +21858,7 @@
     colorSubStringByLine(idx, fore, back, start, end, style) {
       if (!this._model.colorSubStringByLine(idx, fore, back, start, end, style))
         return;
-      this.rebuildLine(idx);
+      this._rebuildLine(idx);
     }
     removeStyleSubStrByLine(idx, style, start, len) {
       this.removeStyleSubStringByLine(idx, style, start, (start || 0) + (len || 0));
@@ -21867,7 +21867,7 @@
     removeStyleSubStringByLine(idx, style, start, end) {
       if (!this._model.removeStyleSubStringByLine(idx, style, start, end))
         return;
-      this.rebuildLine(idx);
+      this._rebuildLine(idx);
     }
     highlightSubStrByLine(idx, start, len) {
       this.highlightStyleSubStringByLine(idx, start, (start || 0) + (len || 0));
@@ -21876,7 +21876,7 @@
     highlightStyleSubStringByLine(idx, start, end, color) {
       if (!this._model.highlightStyleSubStringByLine(idx, start, end, color))
         return;
-      this.rebuildLine(idx);
+      this._rebuildLine(idx);
     }
     SetColor(code, color) {
       this._model.SetColor(code, color);
@@ -22001,7 +22001,7 @@
       super();
       this._lineID = 0;
       this.lines = [];
-      this.lineIDs = [];
+      this._lineIDs = [];
       this._expire = {};
       this._expire2 = [];
       this._parser = new Parser(options);
@@ -22022,7 +22022,7 @@
           for (line2 in this._expire2) {
             if (!this._expire2.hasOwnProperty(line2))
               continue;
-            this.expireLineLinkFormat(this._expire2[line2], +line2);
+            this._expireLineLinkFormat(this._expire2[line2], +line2);
           }
           for (expire in this._expire) {
             if (!this._expire.hasOwnProperty(expire))
@@ -22031,7 +22031,7 @@
             for (line2 in lines) {
               if (!lines.hasOwnProperty(line2))
                 continue;
-              this.expireLineLinkFormat(lines[line2], +line2);
+              this._expireLineLinkFormat(lines[line2], +line2);
             }
           }
           this._expire2 = [];
@@ -22042,7 +22042,7 @@
           for (line2 in lines) {
             if (!lines.hasOwnProperty(line2))
               continue;
-            this.expireLineLinkFormat(lines[line2], +line2);
+            this._expireLineLinkFormat(lines[line2], +line2);
           }
           delete this._expire[args];
           this.emit("expire-links", args);
@@ -22164,12 +22164,12 @@
         timestamp: data.timestamp
       };
       this.lines.push(line2);
-      this.lineIDs.push(this._lineID);
+      this._lineIDs.push(this._lineID);
       this._lineID++;
-      this.buildLineExpires(this.lines.length - 1);
+      this._buildLineExpires(this.lines.length - 1);
       this.emit("line-added", data, noUpdate);
     }
-    expireLineLinkFormat(formats, idx) {
+    _expireLineLinkFormat(formats, idx) {
       let f;
       let fs;
       let fl;
@@ -22207,7 +22207,7 @@
       this.lines = [];
       this._expire = {};
       this._expire2 = [];
-      this.lineIDs = [];
+      this._lineIDs = [];
       this._lineID = 0;
     }
     IncreaseColor(color, percent) {
@@ -22239,12 +22239,12 @@
     }
     removeLine(line2) {
       this.lines.splice(line2, 1);
-      this.lineIDs.splice(line2, 1);
+      this._lineIDs.splice(line2, 1);
       this._expire2.splice(line2, 1);
     }
     removeLines(line2, amt) {
       this.lines.splice(line2, amt);
-      this.lineIDs.splice(line2, amt);
+      this._lineIDs.splice(line2, amt);
       this._expire2.splice(line2, amt);
       for (let ol in this._expire) {
         if (!this._expire.hasOwnProperty(ol) || this._expire[ol].length === 0 || line2 >= this._expire[ol].length)
@@ -22253,16 +22253,16 @@
       }
     }
     getLineID(line2) {
-      if (line2 < 0 || line2 >= this.lineIDs.length) return -1;
-      return this.lineIDs[line2];
+      if (line2 < 0 || line2 >= this._lineIDs.length) return -1;
+      return this._lineIDs[line2];
     }
     get getNextLineID() {
       return this._lineID;
     }
     getLineFromID(id) {
-      return this.lineIDs.indexOf(id);
+      return this._lineIDs.indexOf(id);
     }
-    buildLineExpires(idx) {
+    _buildLineExpires(idx) {
       if (idx === void 0)
         idx = this.lines.length - 1;
       const formats = this.lines[idx].formats;
@@ -22399,7 +22399,7 @@
           if (end > formatEnd)
             start = formatEnd;
         }
-        this.lines[idx].formats = this.pruneFormats(formats, this.textLength);
+        this.lines[idx].formats = this._pruneFormats(formats, this.textLength);
       }
       return true;
     }
@@ -22503,7 +22503,7 @@
           if (end > formatEnd)
             start = formatEnd;
         }
-        this.lines[idx].formats = this.pruneFormats(formats, this.textLength);
+        this.lines[idx].formats = this._pruneFormats(formats, this.textLength);
       }
       return true;
     }
@@ -22625,11 +22625,11 @@
           if (end > formatEnd)
             start = formatEnd;
         }
-        this.lines[idx].formats = this.pruneFormats(formats, this.textLength);
+        this.lines[idx].formats = this._pruneFormats(formats, this.textLength);
       }
       return true;
     }
-    pruneFormats(formats, textLen) {
+    _pruneFormats(formats, textLen) {
       if (!formats || formats.length < 2) return formats;
       const l2 = formats.length;
       const nF = [];
@@ -24526,9 +24526,9 @@ Devanagari
         this._rooms = rooms;
       } else
         this._rooms = value || {};
-      this.buildKeys();
+      this._buildKeys();
       this._keys.forEach((key) => {
-        this._rooms[key] = this.normalizeRoom(this._rooms[key]);
+        this._rooms[key] = this._normalizeRoom(this._rooms[key]);
         if (this._rooms[key].zone > this._zone)
           this._zone = this._rooms[key].zone;
         if (this._areas.indexOf(this._rooms[key].area) === -1)
@@ -24537,7 +24537,7 @@ Devanagari
       this._areas.sort();
     }
     get Areas() {
-      if (!this._areas) this.buildAreas();
+      if (!this._areas) this._buildAreas();
       return this._areas;
     }
     get zone() {
@@ -24682,12 +24682,12 @@ Devanagari
     setRoom(room) {
       if (!room) return;
       this.changed = true;
-      room = this.normalizeRoom(room);
+      room = this._normalizeRoom(room);
       this.emit("before-room-changed", this._rooms[room.num]);
       this._rooms[room.num] = room;
       if (room.zone > this._zone)
         this._zone = room.zone;
-      this.buildKeys();
+      this._buildKeys();
       this.addArea(room.area);
       this.emit("room-changed", this._rooms[room.num]);
       return this._rooms[room.num];
@@ -24705,7 +24705,7 @@ Devanagari
         return zone;
       return ++this.zone;
     }
-    normalizeRoom(r) {
+    _normalizeRoom(r) {
       const id = "" + (r.num || r.ID);
       const room = {
         area: r.Area || r.area || "",
@@ -24737,7 +24737,7 @@ Devanagari
       }
       return new Room(room);
     }
-    buildKeys() {
+    _buildKeys() {
       this._keys = Object.keys(this._rooms).sort((a, b) => {
         const aRoom = this._rooms[a];
         const bRoom = this._rooms[b];
@@ -24759,7 +24759,7 @@ Devanagari
         return a.localeCompare(b);
       });
     }
-    buildAreas() {
+    _buildAreas() {
       this._areas = [];
       this._keys.forEach((key) => {
         if (this._areas.indexOf(this._rooms[key].area) === -1)
@@ -24790,7 +24790,7 @@ Devanagari
           break;
         this.emit("import-progress", Math.floor(r / rl * 100));
         if (data[r] === null) continue;
-        room = this.normalizeRoom(data[r]);
+        room = this._normalizeRoom(data[r]);
         this._rooms[room.num] = room;
         if (room.zone > this._zone)
           this._zone = room.zone;
@@ -24801,7 +24801,7 @@ Devanagari
       this._areas = Object.keys(areas);
       this._areas.sort();
       this.emit("areas-added", Object.keys(areas));
-      this.buildKeys();
+      this._buildKeys();
       this.changed = true;
       if (this._cancel)
         this.emit("import-canceled");
@@ -24814,14 +24814,14 @@ Devanagari
   var MapDisplay = class extends EventEmitter {
     constructor(container, options) {
       super();
-      this.MouseDrag = { x: 0, y: 0, button: 0, state: false };
-      this.drag = false;
-      this.vscroll = 0;
-      this.hscroll = 0;
-      this.markers = {};
+      this._MouseDrag = { x: 0, y: 0, button: 0, state: false };
+      this._drag = false;
+      this._vscroll = 0;
+      this._hscroll = 0;
+      this._markers = {};
       this._updating = 0 /* none */;
       this._rTimeout = 0;
-      this.$focused = false;
+      this._focused = false;
       this._showLegend = false;
       this._splitArea = false;
       this._fillWalls = false;
@@ -24884,9 +24884,9 @@ Devanagari
           this._mapperNavDown = true;
           const target = e2.currentTarget || e2.target;
           if (e2.deltaY >= 0)
-            this.mapperNavClick(-parseInt(target.dataset.x, 10), -parseInt(target.dataset.y, 10));
+            this._mapperNavClick(-parseInt(target.dataset.x, 10), -parseInt(target.dataset.y, 10));
           else
-            this.mapperNavClick(parseInt(target.dataset.x, 10), parseInt(target.dataset.y, 10));
+            this._mapperNavClick(parseInt(target.dataset.x, 10), parseInt(target.dataset.y, 10));
           this._mapperNavDown = false;
         }, { passive: true });
         e.addEventListener("mouseleave", () => this._mapperNavDown = false);
@@ -24894,7 +24894,7 @@ Devanagari
         e.addEventListener("mousedown", (e2) => {
           this._mapperNavDown = true;
           const target = e2.currentTarget || e2.target;
-          this.mapperNavClick(parseInt(target.dataset.x, 10), parseInt(target.dataset.y, 10));
+          this._mapperNavClick(parseInt(target.dataset.x, 10), parseInt(target.dataset.y, 10));
         });
       });
       this._context = this._canvas.getContext("2d");
@@ -24938,22 +24938,22 @@ Devanagari
       this._canvas.addEventListener("pointerout", pointerUp);
       this._canvas.addEventListener("pointerleave", pointerUp);
       this._canvas.addEventListener("touchstart", (e) => {
-        this.Mouse = this.getMapMousePos(e);
-        this.MouseDown = this.getMapMousePos(e);
-        this.MouseDrag.state = true;
-        this.drag = e.touches.length === 1;
+        this._Mouse = this.getMapMousePos(e);
+        this._MouseDown = this.getMapMousePos(e);
+        this._MouseDrag.state = true;
+        this._drag = e.touches.length === 1;
       }, { passive: true });
       this._canvas.addEventListener("touchmove", (e) => {
-        this.MousePrev = this.Mouse;
-        this.Mouse = this.getMapMousePos(event);
-        if (this.drag) {
-          this.MouseDrag.x += this.MousePrev.x - this.Mouse.x;
-          this.MouseDrag.y += this.MousePrev.y - this.Mouse.y;
-          const x2 = Math.floor(this.MouseDrag.x / 32 / this._scale);
-          const y2 = Math.floor(this.MouseDrag.y / 32 / this._scale);
+        this._MousePrev = this._Mouse;
+        this._Mouse = this.getMapMousePos(event);
+        if (this._drag) {
+          this._MouseDrag.x += this._MousePrev.x - this._Mouse.x;
+          this._MouseDrag.y += this._MousePrev.y - this._Mouse.y;
+          const x2 = Math.floor(this._MouseDrag.x / 32 / this._scale);
+          const y2 = Math.floor(this._MouseDrag.y / 32 / this._scale);
           if (x2 > 0 || x2 < 0 || y2 < 0 || y2 > 0) {
-            this.MouseDrag.x -= x2 * 32 * this._scale;
-            this.MouseDrag.y -= y2 * 32 * this._scale;
+            this._MouseDrag.x -= x2 * 32 * this._scale;
+            this._MouseDrag.y -= y2 * 32 * this._scale;
             this.scrollBy(x2, y2);
           }
           this._canvas.style.cursor = "move";
@@ -24961,31 +24961,31 @@ Devanagari
         e.preventDefault();
       }, { passive: true });
       this._canvas.addEventListener("touchend", (e) => {
-        this.Mouse = this.getMapMousePos(e);
-        if (!this.MouseDown)
-          this.MouseDown = this.getMapMousePos(e);
-        if (this.Mouse.button === 0 && Math.floor(this.Mouse.x / 32 / this._scale) === Math.floor(this.MouseDown.x / 32 / this._scale) && Math.floor(this.Mouse.y / 32 / this._scale) === Math.floor(this.MouseDown.y / 32 / this._scale)) {
-          const x2 = this.Mouse.x;
-          const y2 = this.Mouse.y;
+        this._Mouse = this.getMapMousePos(e);
+        if (!this._MouseDown)
+          this._MouseDown = this.getMapMousePos(e);
+        if (this._Mouse.button === 0 && Math.floor(this._Mouse.x / 32 / this._scale) === Math.floor(this._MouseDown.x / 32 / this._scale) && Math.floor(this._Mouse.y / 32 / this._scale) === Math.floor(this._MouseDown.y / 32 / this._scale)) {
+          const x2 = this._Mouse.x;
+          const y2 = this._Mouse.y;
           const room = this.findActiveRoomByCoords(x2, y2);
           if (!this.selected || room && room.num !== this.selected.num)
             this.selected = room;
         }
-        this.MouseDrag.state = false;
-        this.drag = false;
+        this._MouseDrag.state = false;
+        this._drag = false;
         this._canvas.style.cursor = "default;";
       }, { passive: true });
       this._canvas.addEventListener("mousemove", (event2) => {
-        this.MousePrev = this.Mouse;
-        this.Mouse = this.getMapMousePos(event2);
-        if (this.drag) {
-          this.MouseDrag.x += this.MousePrev.x - this.Mouse.x;
-          this.MouseDrag.y += this.MousePrev.y - this.Mouse.y;
-          const x2 = Math.floor(this.MouseDrag.x / 32 / this._scale);
-          const y2 = Math.floor(this.MouseDrag.y / 32 / this._scale);
+        this._MousePrev = this._Mouse;
+        this._Mouse = this.getMapMousePos(event2);
+        if (this._drag) {
+          this._MouseDrag.x += this._MousePrev.x - this._Mouse.x;
+          this._MouseDrag.y += this._MousePrev.y - this._Mouse.y;
+          const x2 = Math.floor(this._MouseDrag.x / 32 / this._scale);
+          const y2 = Math.floor(this._MouseDrag.y / 32 / this._scale);
           if (x2 > 0 || x2 < 0 || y2 < 0 || y2 > 0) {
-            this.MouseDrag.x -= x2 * 32 * this._scale;
-            this.MouseDrag.y -= y2 * 32 * this._scale;
+            this._MouseDrag.x -= x2 * 32 * this._scale;
+            this._MouseDrag.y -= y2 * 32 * this._scale;
             this.scrollBy(x2, y2);
           }
           this._canvas.style.cursor = "move";
@@ -24993,24 +24993,24 @@ Devanagari
         event2.preventDefault();
       });
       this._canvas.addEventListener("mousedown", (event2) => {
-        this.Mouse = this.getMapMousePos(event2);
-        this.MouseDown = this.getMapMousePos(event2);
-        this.MouseDrag.state = true;
-        this.drag = this.MouseDown.button === 0;
+        this._Mouse = this.getMapMousePos(event2);
+        this._MouseDown = this.getMapMousePos(event2);
+        this._MouseDrag.state = true;
+        this._drag = this._MouseDown.button === 0;
       });
       this._canvas.addEventListener("mouseup", (event2) => {
-        this.Mouse = this.getMapMousePos(event2);
-        if (!this.MouseDown)
-          this.MouseDown = this.getMapMousePos(event2);
-        if (this.Mouse.button === 0 && Math.floor(this.Mouse.x / 32 / this._scale) === Math.floor(this.MouseDown.x / 32 / this._scale) && Math.floor(this.Mouse.y / 32 / this._scale) === Math.floor(this.MouseDown.y / 32 / this._scale)) {
-          const x2 = this.Mouse.x;
-          const y2 = this.Mouse.y;
+        this._Mouse = this.getMapMousePos(event2);
+        if (!this._MouseDown)
+          this._MouseDown = this.getMapMousePos(event2);
+        if (this._Mouse.button === 0 && Math.floor(this._Mouse.x / 32 / this._scale) === Math.floor(this._MouseDown.x / 32 / this._scale) && Math.floor(this._Mouse.y / 32 / this._scale) === Math.floor(this._MouseDown.y / 32 / this._scale)) {
+          const x2 = this._Mouse.x;
+          const y2 = this._Mouse.y;
           const room = this.findActiveRoomByCoords(x2, y2);
           if (!this.selected || room && room.num !== this.selected.num)
             this.selected = room;
         }
-        this.MouseDrag.state = false;
-        this.drag = false;
+        this._MouseDrag.state = false;
+        this._drag = false;
         this._canvas.style.cursor = "default;";
       });
       this._canvas.addEventListener("wheel", (e) => {
@@ -25020,13 +25020,13 @@ Devanagari
           this.scale += 5;
       }, { passive: true });
       this._canvas.addEventListener("mouseenter", (event2) => {
-        this.Mouse = this.getMapMousePos(event2);
+        this._Mouse = this.getMapMousePos(event2);
       });
       this._canvas.addEventListener("mouseleave", (event2) => {
-        this.Mouse = this.getMapMousePos(event2);
-        if (this.drag) {
-          this.doUpdate(1 /* draw */);
-          this.drag = false;
+        this._Mouse = this.getMapMousePos(event2);
+        if (this._drag) {
+          this._doUpdate(1 /* draw */);
+          this._drag = false;
           $(this._canvas).css("cursor", "default");
         }
       });
@@ -25038,34 +25038,34 @@ Devanagari
       });
       this._canvas.addEventListener("click", (event2) => {
         event2.preventDefault();
-        this.MouseDrag.state = false;
-        this.drag = false;
+        this._MouseDrag.state = false;
+        this._drag = false;
         $(this._canvas).css("cursor", "default");
       });
       this._canvas.addEventListener("dblclick", (event2) => {
         event2.preventDefault();
-        this.Mouse = this.getMapMousePos(event2);
-        this.MouseDown = this.getMapMousePos(event2);
-        this.MouseDrag.state = true;
-        this.drag = true;
+        this._Mouse = this.getMapMousePos(event2);
+        this._MouseDown = this.getMapMousePos(event2);
+        this._MouseDrag.state = true;
+        this._drag = true;
         $(this._canvas).css("cursor", "move");
       });
       this._canvas.onselectstart = () => {
         return false;
       };
       this._canvas.addEventListener("focus", (e) => {
-        this.setFocus(true);
+        this._setFocus(true);
       });
       this._canvas.addEventListener("blur", (e) => {
-        this.setFocus(false);
+        this._setFocus(false);
       });
       this._canvas.addEventListener("keydown", (e) => {
-        if (!this.$focused) return;
+        if (!this._focused) return;
         switch (e.which) {
           case 27:
             e.preventDefault();
-            this.MouseDrag.state = false;
-            this.drag = false;
+            this._MouseDrag.state = false;
+            this._drag = false;
             $(this._canvas).css("cursor", "default");
             break;
           case 38:
@@ -25169,7 +25169,7 @@ Devanagari
       this.emit("room-before-selected", this._selected ? this._selected.clone() : null);
       this._selected = value.clone();
       this.emit("room-selected", value.clone());
-      this.doUpdate(1 /* draw */);
+      this._doUpdate(1 /* draw */);
     }
     get container() {
       return this._container;
@@ -25182,8 +25182,8 @@ Devanagari
       if (this._scale !== value) {
         this._scale = value / 100;
         this.emit("setting-changed", "scale", value);
-        this.$drawCache = 0;
-        this.doUpdate(1 /* draw */);
+        this._drawCache = 0;
+        this._doUpdate(1 /* draw */);
       }
     }
     get scale() {
@@ -25210,8 +25210,8 @@ Devanagari
     set showLegend(value) {
       if (this._showLegend !== value) {
         this._showLegend = value;
-        this.$drawCache = 0;
-        this.doUpdate(1 /* draw */);
+        this._drawCache = 0;
+        this._doUpdate(1 /* draw */);
         this.emit("setting-changed", "legend", value);
       }
     }
@@ -25221,8 +25221,8 @@ Devanagari
     set splitArea(value) {
       if (this._splitArea !== value) {
         this._splitArea = value;
-        this.$drawCache = 0;
-        this.doUpdate(1 /* draw */);
+        this._drawCache = 0;
+        this._doUpdate(1 /* draw */);
         this.emit("setting-changed", "split", value);
       }
     }
@@ -25232,8 +25232,8 @@ Devanagari
     set fillWalls(value) {
       if (this._fillWalls !== value) {
         this._fillWalls = value;
-        this.$drawCache = 0;
-        this.doUpdate(1 /* draw */);
+        this._drawCache = 0;
+        this._doUpdate(1 /* draw */);
         this.emit("setting-changed", "fill", value);
       }
     }
@@ -25257,22 +25257,22 @@ Devanagari
       };
     }
     scrollBy(x2, y2) {
-      this.vscroll += x2;
-      this.hscroll += y2;
-      this.doUpdate(1 /* draw */);
-      this.emit("setting-changed", "vscroll", this.vscroll);
-      this.emit("setting-changed", "hscroll", this.hscroll);
+      this._vscroll += x2;
+      this._hscroll += y2;
+      this._doUpdate(1 /* draw */);
+      this.emit("setting-changed", "vscroll", this._vscroll);
+      this.emit("setting-changed", "hscroll", this._hscroll);
     }
     scrollTo(x2, y2) {
-      this.vscroll = x2;
-      this.hscroll = y2;
-      this.doUpdate(1 /* draw */);
-      this.emit("setting-changed", "vscroll", this.vscroll);
-      this.emit("setting-changed", "hscroll", this.hscroll);
+      this._vscroll = x2;
+      this._hscroll = y2;
+      this._doUpdate(1 /* draw */);
+      this.emit("setting-changed", "vscroll", this._vscroll);
+      this.emit("setting-changed", "hscroll", this._hscroll);
     }
     findActiveRoomByCoords(rx, ry) {
-      let x2 = this.vscroll - this._canvas.width / 32 / 2 / this._scale;
-      let y2 = this.hscroll - this._canvas.height / 32 / 2 / this._scale;
+      let x2 = this._vscroll - this._canvas.width / 32 / 2 / this._scale;
+      let y2 = this._hscroll - this._canvas.height / 32 / 2 / this._scale;
       let ox = 15.5 * this._scale;
       let oy = 15.5 * this._scale;
       if (this._canvas.width % 2 !== 0)
@@ -25298,8 +25298,8 @@ Devanagari
           reject();
           return;
         }
-        const x2 = this.vscroll - canvas.width / 32 / 2 / this._scale;
-        const y2 = this.hscroll - canvas.height / 32 / 2 / this._scale;
+        const x2 = this._vscroll - canvas.width / 32 / 2 / this._scale;
+        const y2 = this._hscroll - canvas.height / 32 / 2 / this._scale;
         const z2 = this.active.z || 0;
         const area = this.active.area || "";
         const zone = this.active.zone || 0;
@@ -25351,8 +25351,8 @@ Devanagari
       }
     }
     refresh() {
-      this.$drawCache = 0;
-      this.doUpdate(1 /* draw */);
+      this._drawCache = 0;
+      this._doUpdate(1 /* draw */);
       this.emit("refresh");
     }
     focusCurrentRoom() {
@@ -25379,9 +25379,9 @@ Devanagari
       this.emit("path-cleared");
       if (!value || !value.num) value = this.selected;
       this._map.current = value.clone();
-      this.markers = {};
-      this.markedRooms = 0;
-      this.doUpdate(1 /* draw */);
+      this._markers = {};
+      this._markedRooms = 0;
+      this._doUpdate(1 /* draw */);
     }
     setArea(area) {
       this.active.area = area;
@@ -25401,14 +25401,14 @@ Devanagari
     setLevel(level) {
       if (level !== this.active.z) {
         this.active.z = level;
-        this.doUpdate(1 /* draw */);
+        this._doUpdate(1 /* draw */);
         this.emit("setting-changed", "active", this.active);
       }
     }
     setZone(zone) {
       if (zone !== this.active.zone) {
         this.active.zone = zone;
-        this.doUpdate(1 /* draw */);
+        this._doUpdate(1 /* draw */);
         this.emit("setting-changed", "active", this.active);
       }
     }
@@ -25420,7 +25420,7 @@ Devanagari
           this._map.current = new Room();
           this.emit("current-changed", this._map.current);
           this.clearPath();
-        } else if (this.markers[room.num])
+        } else if (this._markers[room.num])
           this.clearPath();
         if (room.num === this.active.num)
           this.active = new Room();
@@ -25475,7 +25475,7 @@ Devanagari
       });
       map.on("before-room-changed", (room) => {
         if (room)
-          delete this.$drawCache[(room.background ? room.background : room.env) + "," + room.indoors + "," + room.exitsID + "," + room.details];
+          delete this._drawCache[(room.background ? room.background : room.env) + "," + room.indoors + "," + room.exitsID + "," + room.details];
       });
       map.on("room-changed", (room) => {
         if (this.selected && this.selected.num === room.num)
@@ -25611,23 +25611,23 @@ Devanagari
       ctx.fillText("\u2658", x2 + 38, y2 + 200);
       ctx.closePath();
     }
-    translate(ctx, amt, scale) {
+    _translate(ctx, amt, scale) {
       if (scale === 2) return;
       const o = amt - amt * scale;
       ctx.translate(amt * scale + o, amt * scale + o);
     }
     DrawRoom(ctx, x2, y2, room, ex2, scale) {
-      if (!this.$drawCache)
-        this.$drawCache = {};
+      if (!this._drawCache)
+        this._drawCache = {};
       if (!scale) scale = this._scale;
       const key = (room.background ? room.background : room.env) + "," + room.indoors + "," + room.exitsID + "," + room.details;
-      if (!this.$drawCache[key]) {
-        this.$drawCache[key] = document.createElement("canvas");
-        this.$drawCache[key].classList.add("map-canvas");
-        this.$drawCache[key].height = 32 * scale;
-        this.$drawCache[key].width = 32 * scale;
-        const tx = this.$drawCache[key].getContext("2d");
-        this.translate(tx, 0.5, scale);
+      if (!this._drawCache[key]) {
+        this._drawCache[key] = document.createElement("canvas");
+        this._drawCache[key].classList.add("map-canvas");
+        this._drawCache[key].height = 32 * scale;
+        this._drawCache[key].width = 32 * scale;
+        const tx = this._drawCache[key].getContext("2d");
+        this._translate(tx, 0.5, scale);
         tx.beginPath();
         let f = false;
         if (room.background) {
@@ -25919,9 +25919,9 @@ Devanagari
           tx.closePath();
         }
         tx.setTransform(1, 0, 0, 1, 0, 0);
-        this.translate(tx, -0.5, scale);
+        this._translate(tx, -0.5, scale);
       }
-      ctx.drawImage(this.$drawCache[key], x2 | 0, y2 | 0);
+      ctx.drawImage(this._drawCache[key], x2 | 0, y2 | 0);
       this.DrawDoor(ctx, x2 + 12 * scale, y2 - 2 * scale, 8 * scale, 3 * scale, room.exits.north);
       this.DrawDoor(ctx, x2 + 31 * scale, y2 + 12 * scale, 3 * scale, 8 * scale, room.exits.east);
       this.DrawDoor(ctx, x2 - 1 * scale, y2 + 12 * scale, 3 * scale, 8 * scale, room.exits.west);
@@ -25931,7 +25931,7 @@ Devanagari
       this.DrawDDoor(ctx, x2 + 32 * scale, y2 + 32 * scale, -5 * scale, -5 * scale, room.exits.southeast);
       this.DrawDDoor(ctx, x2, y2 + 32 * scale, 5 * scale, -5 * scale, room.exits.southwest);
       if (!ex2 && this.selected.num === room.num) {
-        if (this.$focused) {
+        if (this._focused) {
           ctx.fillStyle = "rgba(135, 206, 250, 0.5)";
           ctx.strokeStyle = "LightSkyBlue";
         } else {
@@ -25941,11 +25941,11 @@ Devanagari
         ctx.fillRoundedRect(x2, y2, 32 * scale, 32 * scale, 8 * scale);
         ctx.strokeRoundedRect(x2, y2, 32 * scale, 32 * scale, 8 * scale);
       }
-      if (this.markers[room.num] === 2)
+      if (this._markers[room.num] === 2)
         this.drawMarker(ctx, x2, y2, "green", scale);
-      else if (this.markers[room.num] === 3)
+      else if (this._markers[room.num] === 3)
         this.drawMarker(ctx, x2, y2, "blue", scale);
-      else if (this.markers[room.num])
+      else if (this._markers[room.num])
         this.drawMarker(ctx, x2, y2, "yellow", scale);
       if (!ex2 && room.num === this._map.current.num)
         this.drawMarker(ctx, x2, y2, "red", scale);
@@ -26106,47 +26106,47 @@ Devanagari
       cz = destRoom.z - oz;
       const fPath = finder.findPath(x2, y2, z2, cx, cy, cz, grid);
       rl = fPath.length;
-      this.markers = {};
-      this.markedRooms = [this._map.current, destRoom];
+      this._markers = {};
+      this._markedRooms = [this._map.current, destRoom];
       for (r = 0; r < rl; r++) {
         x2 = Math.floor(fPath[r][0]);
         y2 = Math.floor(fPath[r][1]);
         z2 = Math.floor(fPath[r][2]);
         if (roomsC[y2] && roomsC[y2][x2] && roomsC[y2][x2][z2]) {
           if (roomsC[y2][x2][z2].num === this._map.current.num)
-            this.markers[roomsC[y2][x2][z2].num] = 2;
+            this._markers[roomsC[y2][x2][z2].num] = 2;
           else if (roomsC[y2][x2][z2].num === destRoom.num)
-            this.markers[roomsC[y2][x2][z2].num] = 3;
+            this._markers[roomsC[y2][x2][z2].num] = 3;
           else
-            this.markers[roomsC[y2][x2][z2].num] = 1;
+            this._markers[roomsC[y2][x2][z2].num] = 1;
         }
       }
       this.emit("path-shown");
-      this.doUpdate(1 /* draw */);
+      this._doUpdate(1 /* draw */);
     }
     clearPath() {
       this.emit("path-cleared");
-      this.markers = {};
-      this.markedRooms = 0;
-      this.doUpdate(1 /* draw */);
+      this._markers = {};
+      this._markedRooms = 0;
+      this._doUpdate(1 /* draw */);
     }
     get hasMarked() {
-      return this.markedRooms && this.markedRooms.length !== 0;
+      return this._markedRooms && this._markedRooms.length !== 0;
     }
     get markedStart() {
-      if (!this.markedRooms) return 0;
-      return this.markedRooms[0];
+      if (!this._markedRooms) return 0;
+      return this._markedRooms[0];
     }
     get markedEnd() {
-      if (!this.markedRooms) return 0;
-      return this.markedRooms[1];
+      if (!this._markedRooms) return 0;
+      return this._markedRooms[1];
     }
     getMarkedPath() {
       return new Promise((resolve, reject) => {
-        if (!this.markedRooms)
+        if (!this._markedRooms)
           this.getPath().then(resolve).catch(reject);
         else
-          this.getPath(this.markedRooms[1], this.markedRooms[0]).then(resolve).catch(reject);
+          this.getPath(this._markedRooms[1], this._markedRooms[0]).then(resolve).catch(reject);
       });
     }
     getPath(destRoom, startRoom) {
@@ -26298,8 +26298,8 @@ Devanagari
       });
     }
     walkMarkedPath() {
-      const destRoom = this.markedRooms ? this.markedRooms[1] : 0;
-      const startRoom = this.markedRooms ? this.markedRooms[0] : 0;
+      const destRoom = this._markedRooms ? this._markedRooms[1] : 0;
+      const startRoom = this._markedRooms ? this._markedRooms[0] : 0;
       return new Promise((resolve, reject) => {
         this.getPath(destRoom, startRoom).then((walk) => {
           this.SendCommands(walk);
@@ -26320,7 +26320,7 @@ Devanagari
       }
       this.emit("send-commands", cmds.join("\n") + "\n");
     }
-    doUpdate(type) {
+    _doUpdate(type) {
       if (!type) return;
       this._updating |= type;
       if (this._updating === 0 /* none */ || this._rTimeout)
@@ -26332,13 +26332,13 @@ Devanagari
           this._updating &= ~1 /* draw */;
         }
         this._rTimeout = 0;
-        this.doUpdate(this._updating);
+        this._doUpdate(this._updating);
       });
     }
-    setFocus(value) {
-      if (this.$focused === value) return;
-      this.$focused = value;
-      this.doUpdate(1 /* draw */);
+    _setFocus(value) {
+      if (this._focused === value) return;
+      this._focused = value;
+      this._doUpdate(1 /* draw */);
     }
     updateOptions(options) {
       if (!options) return;
@@ -26369,13 +26369,13 @@ Devanagari
         this._canvas.height = this.container.clientHeight - borderTopWidth - borderBottomWidth;
       }
       this._context.drawImage(tempCanvas, 0, 0);
-      this.doUpdate(1 /* draw */);
+      this._doUpdate(1 /* draw */);
     }
-    mapperNavClick(x2, y2) {
+    _mapperNavClick(x2, y2) {
       if (!this._mapperNavDown) return;
       this.scrollBy(x2, y2);
       setTimeout(() => {
-        this.mapperNavClick(x2, y2);
+        this._mapperNavClick(x2, y2);
       }, 100);
     }
     copyPath(separator) {
@@ -26568,7 +26568,7 @@ Devanagari
           this.emit("resizing");
         }, 250, this._id + "dialogResize");
       };
-      this.resizeDoDrag = (e) => {
+      this._resizeDoDrag = (e) => {
         let t;
         if ((this._resize.type & 1 /* Right */) === 1 /* Right */) {
           t = this._resize.width + e.clientX - this._resize.x;
@@ -26608,7 +26608,7 @@ Devanagari
           this._body.style.bottom = this._footer.clientHeight + 1 + "px";
         this.emit("resizing");
       };
-      this.resizeTouchDrag = (e) => {
+      this._resizeTouchDrag = (e) => {
         if (!e.touches.length) return;
         let t;
         if ((this._resize.type & 1 /* Right */) === 1 /* Right */) {
@@ -26649,11 +26649,11 @@ Devanagari
           this._body.style.bottom = this._footer.clientHeight + 1 + "px";
         this.emit("resizing");
       };
-      this.resizeStopDrag = (e) => {
-        document.documentElement.removeEventListener("mousemove", this.resizeDoDrag);
-        document.documentElement.removeEventListener("mouseup", this.resizeStopDrag);
-        document.documentElement.removeEventListener("touchmove", this.resizeTouchDrag);
-        document.documentElement.removeEventListener("touchend", this.resizeStopDrag);
+      this._resizeStopDrag = (e) => {
+        document.documentElement.removeEventListener("mousemove", this._resizeDoDrag);
+        document.documentElement.removeEventListener("mouseup", this._resizeStopDrag);
+        document.documentElement.removeEventListener("touchmove", this._resizeTouchDrag);
+        document.documentElement.removeEventListener("touchend", this._resizeStopDrag);
         const styles = document.defaultView.getComputedStyle(this._dialog);
         this._state.x = parseInt(styles.left, 10);
         ;
@@ -26664,23 +26664,23 @@ Devanagari
         this._body.style.pointerEvents = "";
         this.emit("resized", this._state);
       };
-      this.dragMouseDown = (e) => {
+      this._dragMouseDown = (e) => {
         if (this.maximized) return;
         this._dragPosition.x = e.clientX;
         this._dragPosition.y = e.clientY;
-        document.documentElement.addEventListener("mouseup", this.dragMouseUp);
-        document.documentElement.addEventListener("mousemove", this.dragMouseMove);
+        document.documentElement.addEventListener("mouseup", this._dragMouseUp);
+        document.documentElement.addEventListener("mousemove", this._dragMouseMove);
         this._header.style.cursor = "move";
       };
-      this.dragTouchStart = (e) => {
+      this._dragTouchStart = (e) => {
         if (this.maximized) return;
         this._dragPosition.x = e.clientX;
         this._dragPosition.y = e.clientY;
-        document.documentElement.addEventListener("touchend", this.dragMouseUp);
-        document.documentElement.addEventListener("touchmove", this.dragTouchMove);
+        document.documentElement.addEventListener("touchend", this._dragMouseUp);
+        document.documentElement.addEventListener("touchmove", this._dragTouchMove);
         this._header.style.cursor = "move";
       };
-      this.dragMouseMove = (e) => {
+      this._dragMouseMove = (e) => {
         let x2 = this._dragPosition.x - e.clientX;
         let y2 = this._dragPosition.y - e.clientY;
         this._dragPosition.x = e.clientX;
@@ -26699,7 +26699,7 @@ Devanagari
         this._dialog.style.left = this._state.x + "px";
         this._dialog.style.top = this._state.y + "px";
       };
-      this.dragTouchMove = (e) => {
+      this._dragTouchMove = (e) => {
         if (!e.touches.length) return;
         let x2 = this._dragPosition.x - e.touches[0].clientX;
         let y2 = this._dragPosition.y - e.touches[0].clientY;
@@ -26719,11 +26719,11 @@ Devanagari
         this._dialog.style.left = this._state.x + "px";
         this._dialog.style.top = this._state.y + "px";
       };
-      this.dragMouseUp = () => {
-        document.documentElement.removeEventListener("mouseup", this.dragMouseUp);
-        document.documentElement.removeEventListener("mousemove", this.dragMouseMove);
-        document.documentElement.removeEventListener("touchend", this.dragMouseUp);
-        document.documentElement.removeEventListener("touchmove", this.dragTouchMove);
+      this._dragMouseUp = () => {
+        document.documentElement.removeEventListener("mouseup", this._dragMouseUp);
+        document.documentElement.removeEventListener("mousemove", this._dragMouseMove);
+        document.documentElement.removeEventListener("touchend", this._dragMouseUp);
+        document.documentElement.removeEventListener("touchmove", this._dragTouchMove);
         this._header.style.cursor = "";
         const styles = document.defaultView.getComputedStyle(this._dialog);
         this._state.x = parseInt(styles.left, 10);
@@ -26985,81 +26985,81 @@ Devanagari
         right.className = "resizer-right";
         this._dialog.appendChild(right);
         right.addEventListener("mousedown", (e) => {
-          this.initResize(e, 1 /* Right */);
+          this._initResize(e, 1 /* Right */);
         }, false);
         right.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 1 /* Right */);
+          this._initResizeTouch(e, 1 /* Right */);
         }, { passive: true });
         var bottom = document.createElement("div");
         bottom.className = "resizer-bottom";
         this._dialog.appendChild(bottom);
         bottom.addEventListener("mousedown", (e) => {
-          this.initResize(e, 2 /* Bottom */);
+          this._initResize(e, 2 /* Bottom */);
         }, false);
         bottom.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 2 /* Bottom */);
+          this._initResizeTouch(e, 2 /* Bottom */);
         }, { passive: true });
         var corner = document.createElement("div");
         corner.className = "resizer-se";
         this._dialog.appendChild(corner);
         corner.addEventListener("mousedown", (e) => {
-          this.initResize(e, 1 /* Right */ | 2 /* Bottom */);
+          this._initResize(e, 1 /* Right */ | 2 /* Bottom */);
         }, false);
         corner.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 1 /* Right */ | 2 /* Bottom */);
+          this._initResizeTouch(e, 1 /* Right */ | 2 /* Bottom */);
         }, { passive: true });
         corner = document.createElement("div");
         corner.className = "resizer-ne";
         this._dialog.appendChild(corner);
         corner.addEventListener("mousedown", (e) => {
-          this.initResize(e, 1 /* Right */ | 8 /* Top */);
+          this._initResize(e, 1 /* Right */ | 8 /* Top */);
         }, false);
         corner.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 1 /* Right */ | 8 /* Top */);
+          this._initResizeTouch(e, 1 /* Right */ | 8 /* Top */);
         }, { passive: true });
         corner = document.createElement("div");
         corner.className = "resizer-nw";
         this._dialog.appendChild(corner);
         corner.addEventListener("mousedown", (e) => {
-          this.initResize(e, 4 /* Left */ | 8 /* Top */);
+          this._initResize(e, 4 /* Left */ | 8 /* Top */);
         }, false);
         corner.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 4 /* Left */ | 8 /* Top */);
+          this._initResizeTouch(e, 4 /* Left */ | 8 /* Top */);
         }, { passive: true });
         corner = document.createElement("div");
         corner.className = "resizer-sw";
         this._dialog.appendChild(corner);
         corner.addEventListener("mousedown", (e) => {
-          this.initResize(e, 4 /* Left */ | 2 /* Bottom */);
+          this._initResize(e, 4 /* Left */ | 2 /* Bottom */);
         }, false);
         corner.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 4 /* Left */ | 2 /* Bottom */);
+          this._initResizeTouch(e, 4 /* Left */ | 2 /* Bottom */);
         }, { passive: true });
         var left = document.createElement("div");
         left.className = "resizer-left";
         this._dialog.appendChild(left);
         left.addEventListener("mousedown", (e) => {
-          this.initResize(e, 4 /* Left */);
+          this._initResize(e, 4 /* Left */);
         }, false);
         left.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 4 /* Left */);
+          this._initResizeTouch(e, 4 /* Left */);
         }, { passive: true });
         var top = document.createElement("div");
         top.className = "resizer-top";
         this._dialog.appendChild(top);
         top.addEventListener("mousedown", (e) => {
-          this.initResize(e, 8 /* Top */);
+          this._initResize(e, 8 /* Top */);
         }, false);
         top.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 8 /* Top */);
+          this._initResizeTouch(e, 8 /* Top */);
         }, { passive: true });
       }
       if (this.moveable) {
         this._dialog.addEventListener("mousedown", () => {
           this.focus();
         });
-        this._header.addEventListener("mousedown", this.dragMouseDown);
-        this._header.addEventListener("touchstart", this.dragTouchStart, { passive: true });
+        this._header.addEventListener("mousedown", this._dragMouseDown);
+        this._header.addEventListener("touchstart", this._dragTouchStart, { passive: true });
       }
       const styles = document.defaultView.getComputedStyle(this._dialog);
       this._state.x = this._resize.x = parseInt(styles.left, 10);
@@ -27138,7 +27138,7 @@ Devanagari
     get maximized() {
       return this._state.maximized;
     }
-    initResize(e, type) {
+    _initResize(e, type) {
       if (this.maximized) return;
       const styles = document.defaultView.getComputedStyle(this._dialog);
       this._resize.x = e.clientX;
@@ -27151,10 +27151,10 @@ Devanagari
       this._resize.borderHeight = e.offsetY + parseInt(styles.borderTopWidth);
       this._resize.borderWidth = e.offsetX + parseInt(styles.borderLeftWidth);
       this._body.style.pointerEvents = "none";
-      document.documentElement.addEventListener("mousemove", this.resizeDoDrag, false);
-      document.documentElement.addEventListener("mouseup", this.resizeStopDrag, false);
+      document.documentElement.addEventListener("mousemove", this._resizeDoDrag, false);
+      document.documentElement.addEventListener("mouseup", this._resizeStopDrag, false);
     }
-    initResizeTouch(e, type) {
+    _initResizeTouch(e, type) {
       if (!e.touches.length || this.maximized) return;
       const styles = document.defaultView.getComputedStyle(this._dialog);
       this._resize.x = e.touches[0].clientX;
@@ -27170,8 +27170,8 @@ Devanagari
       this._resize.borderHeight = y2 + parseInt(styles.borderTopWidth);
       this._resize.borderWidth = x2 + parseInt(styles.borderLeftWidth);
       this._body.style.pointerEvents = "none";
-      document.documentElement.addEventListener("touchmove", this.resizeTouchDrag, false);
-      document.documentElement.addEventListener("touchend", this.resizeStopDrag, false);
+      document.documentElement.addEventListener("touchmove", this._resizeTouchDrag, false);
+      document.documentElement.addEventListener("touchend", this._resizeStopDrag, false);
     }
     get id() {
       return this._id;
@@ -27350,7 +27350,7 @@ Devanagari
       this._dialog.querySelector(`#${this._id}-max`).firstElementChild.classList.remove("bi-arrows-angle-contract");
       this.emit("restored");
     }
-    getMaxZIndex(forceReset) {
+    _getMaxZIndex(forceReset) {
       const dialogs = document.getElementsByTagName("dialog");
       let d2 = 0;
       const dl = dialogs.length;
@@ -27386,7 +27386,7 @@ Devanagari
     }
     focus() {
       this._dialog.focus();
-      this.getMaxZIndex();
+      this._getMaxZIndex();
       this._dialog.style.zIndex = "" + ++this._state.zIndex;
       this.emit("focus");
     }
@@ -27733,7 +27733,7 @@ Devanagari
       this._simple = true;
       this._init = false;
       //private _colorCodes;
-      this.colorNames = {
+      this._colorNames = {
         "No color": "Default",
         "BLACK": "Black",
         "RED": "Maroon",
@@ -27995,7 +27995,7 @@ Devanagari
         "mono23": "Grey 93"
       };
       //{ color: 'red', hex: '#EA4235', rgb: { r: 234, g: 66, b: 53 } },
-      this.colorList = [];
+      this._colorList = [];
       if (!element)
         throw new Error("AdvEditor must be a selector, element or jquery object");
       if (typeof element === "string") {
@@ -28075,7 +28075,7 @@ Devanagari
     get isSimple() {
       return this._simple || !this.tinymceExist;
     }
-    loadColors() {
+    _loadColors() {
       var _dColors = getColors();
       var c, color, r, g, b, idx, _bold = [], bl;
       this._ColorTable = [];
@@ -28163,7 +28163,7 @@ Devanagari
             color = color.toUpperCase();
             if (!this._colors[color])
               this._colors[color] = idx;
-            this.colorList.push({ color: idx, hex: "#" + color, rgb: { r: r * 40 + 55, g: g * 40 + 55, b: b * 40 + 55 } });
+            this._colorList.push({ color: idx, hex: "#" + color, rgb: { r: r * 40 + 55, g: g * 40 + 55, b: b * 40 + 55 } });
           }
         }
       }
@@ -28183,12 +28183,12 @@ Devanagari
         }
       }
       for (b = 0, bl = _bold.length; b < bl; b++) {
-        this._colors["B" + _bold[b]] = this._colors[this.nearestHex("#" + _bold[b]).substr(1)].toUpperCase();
+        this._colors["B" + _bold[b]] = this._colors[this._nearestHex("#" + _bold[b]).substr(1)].toUpperCase();
       }
       this._colors["BFFFFFF"] = "RGB555";
       tinymce.activeEditor.options.set("color_map", this._ColorTable);
     }
-    initPlugins() {
+    _initPlugins() {
       if (false) return;
       const _editor = this;
       tinymce.PluginManager.add("pinkfishtextcolor", function(editor2, url) {
@@ -28269,7 +28269,7 @@ Devanagari
         };
         const applyColor = (editor3, format, value, onChoice) => {
           if (value === "custom") {
-            _editor.openColorDialog(format, "");
+            _editor._openColorDialog(format, "");
           } else if (value === "remove") {
             onChoice("");
             editor3.execCommand("mceRemovePinkfishcolor", format);
@@ -28363,21 +28363,21 @@ Devanagari
         editor2.addCommand("mceApplyFormat", (format, value) => {
           editor2.undoManager.transact(() => {
             editor2.focus();
-            _editor.clearReverse($(".reverse", $(editor2.getDoc()).contents()));
+            _editor._clearReverse($(".reverse", $(editor2.getDoc()).contents()));
             if (value)
               editor2.formatter.apply(format, { value });
             else
               editor2.formatter.apply(format);
-            _editor.addReverse($(".reverse", $(editor2.getDoc()).contents()));
+            _editor._addReverse($(".reverse", $(editor2.getDoc()).contents()));
             editor2.nodeChanged();
           });
         });
         editor2.addCommand("mceRemoveFormat", (format) => {
           editor2.undoManager.transact(() => {
             editor2.focus();
-            _editor.clearReverse($(".reverse", $(editor2.getDoc()).contents()));
+            _editor._clearReverse($(".reverse", $(editor2.getDoc()).contents()));
             editor2.formatter.remove(format, { value: null }, null, true);
-            _editor.addReverse($(".reverse", $(editor2.getDoc()).contents()));
+            _editor._addReverse($(".reverse", $(editor2.getDoc()).contents()));
             editor2.nodeChanged();
           });
         });
@@ -28522,7 +28522,7 @@ Devanagari
         editor2.ui.registry.addButton("append", {
           icon: "browse",
           tooltip: "Append file...",
-          onAction: () => _editor.appendFile()
+          onAction: () => _editor._appendFile()
         });
         editor2.ui.registry.addButton("clear", {
           icon: "remove",
@@ -28534,7 +28534,7 @@ Devanagari
           tooltip: "Paste formatted",
           onAction: (buttonApi) => {
             pasteText().then((text) => {
-              _editor.insertFormatted(text || "");
+              _editor._insertFormatted(text || "");
             }).catch((err) => {
               if (client.enableDebug)
                 client.debug(err);
@@ -28656,7 +28656,7 @@ Devanagari
           onpostrender: buttonPostRender
         });
         editor2.on("Change", () => {
-          _editor.addReverse($(".reverse", $(editor2.getDoc()).contents()));
+          _editor._addReverse($(".reverse", $(editor2.getDoc()).contents()));
         });
         editor2.addShortcut("ctrl+s", "Strikethrough", () => {
           toggleFormat("strikethrough");
@@ -28675,7 +28675,7 @@ Devanagari
         });
       });
     }
-    clearReverse(els, c) {
+    _clearReverse(els, c) {
       els.each(
         function() {
           if (!$(this).data("reverse"))
@@ -28701,7 +28701,7 @@ Devanagari
         }
       );
     }
-    addReverse(els, c) {
+    _addReverse(els, c) {
       els.each(
         function() {
           if (c && $(this).hasClass("reverse"))
@@ -28728,15 +28728,15 @@ Devanagari
         }
       );
     }
-    colorCell(color, idx) {
+    _colorCell(color, idx) {
       var cell = '<td class="mce-grid-cell' + (color === "transparent" ? " mce-colorbtn-trans" : "") + '">';
       cell += '<div id="' + idx + '"';
       cell += ' data-mce-color="' + color + '"';
       cell += ' role="option"';
       cell += ' tabIndex="-1"';
       cell += ' style="background-color: ' + (color === "transparent" ? color : "#" + color) + '"';
-      if (this.colorNames[idx])
-        cell += ' title="' + idx + ", " + this.colorNames[idx] + '">';
+      if (this._colorNames[idx])
+        cell += ' title="' + idx + ", " + this._colorNames[idx] + '">';
       else
         cell += ' title="' + idx + '">';
       if (color === "transparent") cell += "&#215;";
@@ -28744,7 +28744,7 @@ Devanagari
       cell += "</td>";
       return cell;
     }
-    openColorDialog(type, color) {
+    _openColorDialog(type, color) {
       if (!this._colorDialog) {
         this._colorDialog = new Dialog({ noFooter: true, title: '<i class="fas fa-palette"></i> Pick color', center: true, resizable: false, moveable: false, maximizable: false, width: 380, height: 340 });
         this._colorDialog.body.style.alignItems = "center";
@@ -28757,12 +28757,12 @@ Devanagari
         let idx;
         var html = '<table style="margin : auto !important;" class="mce-grid mce-grid-border mce-colorbutton-grid" role="list" cellspacing="0"><tbody><tr>';
         for (c = 0, cl = this._ColorTable.length; c < cl; c += 2) {
-          html += this.colorCell(this._ColorTable[c], this._ColorTable[c + 1]);
+          html += this._colorCell(this._ColorTable[c], this._ColorTable[c + 1]);
           if (c / 2 % 6 === 5)
             html += '<td class="mce-grid-cell"></td>';
         }
         html += '<td class="mce-grid-cell"></td>';
-        html += this.colorCell("transparent", "No color");
+        html += this._colorCell("transparent", "No color");
         html += "</tr><tr><td></td></tr>";
         var html2 = "";
         for (r = 0; r < 6; r++) {
@@ -28791,9 +28791,9 @@ Devanagari
               color += c.toString(16);
               color = color.toUpperCase();
               if (g < 3)
-                html += this.colorCell(color, idx);
+                html += this._colorCell(color, idx);
               else
-                html2 += this.colorCell(color, idx);
+                html2 += this._colorCell(color, idx);
             }
             if (g === 2)
               html += "</tr>";
@@ -28816,7 +28816,7 @@ Devanagari
           else
             g = g.toString(16).toUpperCase();
           g = g + g + g;
-          html += this.colorCell(g, color);
+          html += this._colorCell(g, color);
           if (r === 237 || r === 249)
             html += '<td class="mce-grid-cell"></td>';
           if (r === 243)
@@ -28840,7 +28840,7 @@ Devanagari
       this._colorDialog.dialog.dataset.type = type;
       this._colorDialog.showModal();
     }
-    appendFile() {
+    _appendFile() {
       openFileDialog("Append file(s)", true).then((files) => {
         for (var f = 0, fl = files.length; f < fl; f++)
           readFile(files[f]).then((contents) => {
@@ -28849,7 +28849,7 @@ Devanagari
       }).catch(() => {
       });
     }
-    insertFormatted(text) {
+    _insertFormatted(text) {
       if (this.isSimple)
         insertValue(this._element, text);
       else
@@ -28862,7 +28862,7 @@ Devanagari
         tinymce.activeEditor.getBody().innerHTML = pinkfishToHTML(text).replace(/(\r\n|\r|\n)/g, "<br/>");
       }
     }
-    buildHTMLStack(els) {
+    _buildHTMLStack(els) {
       var tag, $el, t, tl;
       var stack = [];
       var tags;
@@ -28921,7 +28921,7 @@ Devanagari
             if (!tags[t].length) continue;
             stack.push(tags[t].trim());
           }
-          stack = stack.concat(this.buildHTMLStack($el.contents()));
+          stack = stack.concat(this._buildHTMLStack($el.contents()));
           for (t = tl - 1; t >= 0; t--) {
             if (!tags[t].length) continue;
             stack.push("/" + tags[t].trim());
@@ -28930,7 +28930,7 @@ Devanagari
           stack.push("RESET");
         else {
           stack.push(tag);
-          stack = stack.concat(this.buildHTMLStack($el.contents()));
+          stack = stack.concat(this._buildHTMLStack($el.contents()));
           stack.push("/" + tag);
         }
       }
@@ -28971,12 +28971,12 @@ Devanagari
           break;
         }
       }
-      return this.formatHtml($(start + tinymce.activeEditor.selection.getContent({ format: "raw" }).replace(/<\/div><div>/g, "<br>") + end));
+      return this._formatHtml($(start + tinymce.activeEditor.selection.getContent({ format: "raw" }).replace(/<\/div><div>/g, "<br>") + end));
     }
     getFormattedText() {
       if (this.isSimple)
         return this._element.value;
-      return this.formatHtml($("<html>" + this.getRaw() + "</html>"));
+      return this._formatHtml($("<html>" + this.getRaw() + "</html>"));
     }
     getText() {
       if (this.isSimple)
@@ -28994,8 +28994,8 @@ Devanagari
         return this._element.value;
       return tinymce.activeEditor.getContent({ format: "raw" });
     }
-    formatHtml(text) {
-      var data = this.buildHTMLStack(text);
+    _formatHtml(text) {
+      var data = this._buildHTMLStack(text);
       var buffer = [];
       var codes = [];
       var color, d2, dl, rgb;
@@ -29031,7 +29031,7 @@ Devanagari
           case "/ITALIC":
           case "/STRIKEOUT":
             codes.pop();
-            this.cleanReset(buffer);
+            this._cleanReset(buffer);
             buffer.push("%^RESET%^");
             if (codes.length > 0)
               buffer.push(codes.join(""));
@@ -29044,7 +29044,7 @@ Devanagari
           case "DIV":
           case "BR":
             if (codes.length > 0 && buffer.length > 0 && !buffer[buffer.length - 1].endsWith("%^RESET%^")) {
-              this.cleanReset(buffer);
+              this._cleanReset(buffer);
               buffer.push("%^RESET%^");
             }
             buffer.push("\n");
@@ -29053,7 +29053,7 @@ Devanagari
             break;
           case "RESET":
             if (codes.length > 0 && buffer.length > 0 && !buffer[buffer.length - 1].endsWith("%^RESET%^")) {
-              this.cleanReset(buffer);
+              this._cleanReset(buffer);
               buffer.push("%^RESET%^");
             }
             if (codes.length > 0)
@@ -29064,7 +29064,7 @@ Devanagari
               color = data[d2].substr(8);
               if (!this._colors[color]) {
                 rgb = new RGBColor(color);
-                color = this.nearestHex(rgb.toHex()).substr(1);
+                color = this._nearestHex(rgb.toHex()).substr(1);
               }
               color = this._colors[color];
               if (color === "BOLD BLACK" || color === "BOLD%^%^BLACK")
@@ -29074,7 +29074,7 @@ Devanagari
             } else if (data[d2].startsWith("COLOR: ")) {
               color = new RGBColor(data[d2].substr(7)).toHex().substr(1);
               if (!this._colors[color])
-                color = this.nearestHex("#" + color).substr(1);
+                color = this._nearestHex("#" + color).substr(1);
               color = this._colors[color];
               if (color === "BOLD BLACK" || color === "BOLD%^%^BLACK")
                 color = "mono11";
@@ -29082,7 +29082,7 @@ Devanagari
               buffer.push("%^" + color + "%^");
             } else if (data[d2].startsWith("/COLOR: ")) {
               codes.pop();
-              this.cleanReset(buffer);
+              this._cleanReset(buffer);
               buffer.push("%^RESET%^");
               if (codes.length > 0)
                 buffer.push(codes.join(""));
@@ -29090,7 +29090,7 @@ Devanagari
               color = data[d2].substr(19);
               if (!this._colors[color]) {
                 rgb = new RGBColor(color);
-                color = this.nearestHex(rgb.toHex()).substr(1);
+                color = this._nearestHex(rgb.toHex()).substr(1);
               }
               if (this._colors["B" + color])
                 color = this._colors["B" + color];
@@ -29102,7 +29102,7 @@ Devanagari
             } else if (data[d2].startsWith("BACKGROUND-COLOR: ")) {
               color = new RGBColor(data[d2].substr(18)).toHex().substr(1);
               if (!this._colors[color])
-                color = this.nearestHex("#" + color).substr(1);
+                color = this._nearestHex("#" + color).substr(1);
               if (this._colors["B" + color])
                 color = this._colors["B" + color];
               else
@@ -29112,7 +29112,7 @@ Devanagari
               buffer.push(color);
             } else if (data[d2].startsWith("/BACKGROUND-COLOR: ")) {
               codes.pop();
-              this.cleanReset(buffer);
+              this._cleanReset(buffer);
               buffer.push("%^RESET%^");
               if (codes.length > 0)
                 buffer.push(codes.join(""));
@@ -29123,7 +29123,7 @@ Devanagari
       }
       return buffer.join("");
     }
-    cleanReset(buffer) {
+    _cleanReset(buffer) {
       let b = buffer.length - 1;
       for (; b >= 0; b--) {
         if (buffer[b].startsWith("%^"))
@@ -29133,7 +29133,7 @@ Devanagari
       }
       return buffer;
     }
-    nearestHex(hex) {
+    _nearestHex(hex) {
       var _editor = this;
       var hexToRgb = function(hex2) {
         var shortRegEx = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
@@ -29155,8 +29155,8 @@ Devanagari
         }
         var minDistance = Number.MAX_SAFE_INTEGER;
         var nearestHex = null;
-        for (var i2 = 0; i2 < _editor.colorList.length; i2++) {
-          var currentColor = _editor.colorList[i2];
+        for (var i2 = 0; i2 < _editor._colorList.length; i2++) {
+          var currentColor = _editor._colorList[i2];
           var distance = Math.sqrt(
             Math.pow(rgbObj.r - currentColor.rgb.r, 2) + Math.pow(rgbObj.g - currentColor.rgb.g, 2) + Math.pow(rgbObj.b - currentColor.rgb.b, 2)
           );
@@ -29174,7 +29174,7 @@ Devanagari
     }
     initialize() {
       if (this.isSimple) return;
-      this.initPlugins();
+      this._initPlugins();
       tinymce.init({
         license_key: "gpl",
         custom_colors: false,
@@ -29190,7 +29190,7 @@ Devanagari
         forced_root_block: "div",
         plugins: "pinkfish insertdatetime pinkfishtextcolor nonbreaking",
         color_picker_callback: (editor2, color, format) => {
-          this.openColorDialog(format, color || "");
+          this._openColorDialog(format, color || "");
         },
         color_picker_caption: "More&hellip;",
         textcolor_rows: "3",
@@ -29217,7 +29217,7 @@ Devanagari
           editor2.on("PastePreProcess", (e) => {
             if (client.getOption("enableDebug"))
               client.debug("Advanced Before Editor PastePreProcess: " + e.content);
-            this.clearReverse($(".reverse", $(editor2.getDoc()).contents()));
+            this._clearReverse($(".reverse", $(editor2.getDoc()).contents()));
             e.content = e.content.replace(/<\/p>/g, "<br>");
             e.content = e.content.replace(/<\/h[1-6]>/g, "<br>");
             e.content = e.content.replace(/<\/li>/g, "<br>");
@@ -29239,7 +29239,7 @@ Devanagari
               client.debug("Advanced After Editor PastePreProcess: " + e.content);
           });
           editor2.on("PastePreProcess", () => {
-            this.addReverse($(".reverse", $(editor2.getDoc()).contents()));
+            this._addReverse($(".reverse", $(editor2.getDoc()).contents()));
           });
           $(".mce-content-body", tinymce.activeEditor.getDoc()).css("font-size", client.getOption("cmdfontSize"));
           $(".mce-content-body", tinymce.activeEditor.getDoc()).css("font-family", client.getOption("cmdfont") + ", monospace");
@@ -29247,7 +29247,7 @@ Devanagari
             tinymce.activeEditor.formatter.register("flash", { inline: "span", "classes": client.getOption("flashing") ? "flash" : "noflash", links: true, remove_similar: true });
           else
             tinymce.activeEditor.settings.formats["flash"] = { inline: "span", "classes": client.getOption("flashing") ? "flash" : "noflash", links: true, remove_similar: true };
-          this.loadColors();
+          this._loadColors();
           this.setFormatted(this._element.value);
           editor2.on("click", (e) => {
             this.emit("click", e);
@@ -29302,7 +29302,7 @@ Devanagari
     constructor() {
       super({ title: '<i class="fas fa-cogs"></i> Settings', keepCentered: true, resizable: false, moveable: false, center: true, maximizable: false });
       this.body.style.padding = "10px";
-      this.buildMenu();
+      this._buildMenu();
       let footer = "";
       footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Cancel dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;
       footer += `<button id="${this.id}-save" type="button" class="btn-sm float-end btn btn-primary" title="Confirm dialog"><i class="bi bi-save"></i><span class="icon-only"> Save</span></button>`;
@@ -29340,7 +29340,7 @@ Devanagari
                 setTimeout(function() {
                   alert_box("Invalid file", "Unable to import file, not a valid settings file", 4 /* exclamation */);
                 }, 50);
-              this.loadPageSettings();
+              this._loadPageSettings();
             } catch (err) {
               setTimeout(function() {
                 alert_box("Error importing", "Error importing file.", 3 /* error */);
@@ -29438,9 +29438,9 @@ Devanagari
         this.body.style.left = "200px";
       }
       this.body.scrollTop = 0;
-      this.loadPageSettings();
+      this._loadPageSettings();
     }
-    buildMenu() {
+    _buildMenu() {
       this.dialog.insertAdjacentHTML("beforeend", settings_menu_default.replace(' style="top:0;position:absolute;left:0;bottom:49px;right:0"', ""));
       this._menu = this.dialog.querySelector(".contents");
       this._menu.classList.add("settings-menu");
@@ -29449,7 +29449,7 @@ Devanagari
         this._menu.style.display = "none";
       this.body.style.left = "200px";
     }
-    loadPageSettings() {
+    _loadPageSettings() {
       const forms = this.body.querySelectorAll("input,select,textarea");
       if (this._page === "settings-colors") {
         var c;
@@ -29706,7 +29706,7 @@ Devanagari
         this.$parent = parent;
       if (!this.$parent)
         this.$parent = document.body;
-      this.createControl();
+      this._createControl();
     }
     get parent() {
       return this.$parent;
@@ -29723,13 +29723,13 @@ Devanagari
     set anchor(value) {
       if (this.$anchor === value) return;
       this.$anchor = 2;
-      this.updatePanels();
+      this._updatePanels();
     }
     set SplitterDistance(value) {
       if (this.$splitterDistance === value)
         return;
       this.$splitterDistance = value;
-      this.updatePanels();
+      this._updatePanels();
       this.emit("splitter-moved", value);
     }
     get SplitterDistance() {
@@ -29744,7 +29744,7 @@ Devanagari
           this.$splitterDistance = this.parent.clientWidth - this.$panel1MinSize;
       } else if (this.$panel1.clientHeight < value)
         this.$splitterDistance = this.parent.clientHeight - this.$panel1MinSize;
-      this.updatePanels();
+      this._updatePanels();
     }
     get Panel1MinSize() {
       return this.$panel1MinSize;
@@ -29758,7 +29758,7 @@ Devanagari
           this.$splitterDistance = value;
       } else if (this.$panel2.clientHeight < value)
         this.$splitterDistance = value;
-      this.updatePanels();
+      this._updatePanels();
     }
     get Panel2MinSize() {
       return this.$panel2MinSize;
@@ -29769,7 +29769,7 @@ Devanagari
     set orientation(value) {
       if (value === this.$orientation) return;
       this.$orientation = value;
-      this.updatePanels();
+      this._updatePanels();
     }
     get panel1Collapsed() {
       return this.$collapsed === 1;
@@ -29781,13 +29781,13 @@ Devanagari
         this.panel1.dataset.collapsed = "true";
         this.panel2.dataset.collapsed = "false";
         this.emit("collapsed", 1);
-        this.updatePanels();
+        this._updatePanels();
       } else if (this.$collapsed === 1) {
         this.$collapsed = 0;
         delete this.panel1.dataset.collapsed;
         delete this.panel2.dataset.collapsed;
         this.emit("collapsed", 0);
-        this.updatePanels();
+        this._updatePanels();
       }
     }
     get panel2Collapsed() {
@@ -29800,16 +29800,16 @@ Devanagari
         this.panel1.dataset.collapsed = "false";
         this.panel2.dataset.collapsed = "true";
         this.emit("collapsed", 2);
-        this.updatePanels();
+        this._updatePanels();
       } else if (this.$collapsed === 2) {
         this.$collapsed = 0;
         delete this.panel1.dataset.collapsed;
         delete this.panel2.dataset.collapsed;
         this.emit("collapsed", 0);
-        this.updatePanels();
+        this._updatePanels();
       }
     }
-    updatePanels() {
+    _updatePanels() {
       if (this.$orientation === 0 /* horizontal */) {
         this.$panel1.style.left = "0";
         this.$panel1.style.top = "0";
@@ -29908,7 +29908,7 @@ Devanagari
         this.$el.classList.add("vertical");
       }
     }
-    createControl() {
+    _createControl() {
       this.$el = document.createElement("div");
       this.$el.id = this.id + "-splitter";
       this.$el.classList.add("splitter");
@@ -30392,12 +30392,12 @@ Devanagari
       let menu = "";
       indent = indent || 0;
       let padding = indent * 20 + 16;
-      menu += `<li class="nav-item" title="${htmlEncode(GetDisplay(collection[index]))}" id="${idPrefix + "-" + (collection[index].useName ? this.sanitizeID(collection[index].name.toLowerCase()) : index)}">`;
+      menu += `<li class="nav-item" title="${htmlEncode(GetDisplay(collection[index]))}" id="${idPrefix + "-" + (collection[index].useName ? this._sanitizeID(collection[index].name.toLowerCase()) : index)}">`;
       if (collection[index].items && collection[index].items.length) {
-        menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark" href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start bi bi-chevron-right"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this.sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? " checked" : ""}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
-        menu += this._getItems(collection[index].items, idPrefix + "-" + this.sanitizeID(collection[index].name.toLowerCase()), hrefPrefix + "/" + encodeURIComponent(collection[index].name.toLowerCase()), indent + 1);
+        menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark" href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start bi bi-chevron-right"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this._sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? " checked" : ""}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
+        menu += this._getItems(collection[index].items, idPrefix + "-" + this._sanitizeID(collection[index].name.toLowerCase()), hrefPrefix + "/" + encodeURIComponent(collection[index].name.toLowerCase()), indent + 1);
       } else if (collection[index].useName)
-        menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark " href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start no-icon"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this.sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? " checked" : ""}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
+        menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark " href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start no-icon"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this._sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? " checked" : ""}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
       else
         menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark" href="#${hrefPrefix}/${index}"><i class="align-middle float-start no-icon"></i><input type="checkbox" class="form-check-input" data-page="${hrefPrefix}/${index}" id="enabled-${idPrefix}-${index}"${collection[index].enabled ? " checked" : ""}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
       menu += "</li>";
@@ -30444,22 +30444,22 @@ Devanagari
                 e.target.checked = true;
                 return;
               }
-              this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}`).checked = value;
-              this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}-switch`).checked = value;
+              this._menu.querySelector(`#enabled-${this._sanitizeID(data[1])}`).checked = value;
+              this._menu.querySelector(`#enabled-${this._sanitizeID(data[1])}-switch`).checked = value;
               if (this._page === e.target.dataset.page)
                 this._contents.querySelector("#enabled").checked = value;
               this.profiles.items[data[1]].enabled = value;
               this.changed = true;
               break;
             case 3:
-              this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}-${data[2]}`).checked = value;
+              this._menu.querySelector(`#enabled-${this._sanitizeID(data[1])}-${data[2]}`).checked = value;
               if (this._page === `profiles/${data[1]}`)
                 this._contents.querySelector("#enable" + capitalize(data[2])).checked = value;
               this.profiles.items[data[1]]["enable" + capitalize(data[2])] = value;
               this.changed = true;
               break;
             case 4:
-              this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}-${data[2]}-${data[3]}`).checked = value;
+              this._menu.querySelector(`#enabled-${this._sanitizeID(data[1])}-${data[2]}-${data[3]}`).checked = value;
               if (this._page === e.target.dataset.page)
                 this._contents.querySelector("#enabled").checked = value;
               else if (this._page === `profiles/${data[1]}/${data[2]}`)
@@ -30479,7 +30479,7 @@ Devanagari
         });
     }
     _profile(profile) {
-      let nav = `<li class="nav-item" data-profile="${profile}" title="${capitalize(profile)}" id="${this.sanitizeID(profile)}">`;
+      let nav = `<li class="nav-item" data-profile="${profile}" title="${capitalize(profile)}" id="${this._sanitizeID(profile)}">`;
       nav += `<a class="nav-link text-dark" href="#profiles/${encodeURIComponent(profile)}">`;
       if (profile !== "default")
         nav += `<span class="list-badge-button badge text-bg-danger" data-profile="${profile}"><i class="bi bi-trash"></i></span>`;
@@ -30511,12 +30511,12 @@ Devanagari
           useName: true,
           enabled: this.profiles.items[profile].enableButtons
         }
-      ], this.sanitizeID(profile), "profiles/" + encodeURIComponent(profile), 1);
+      ], this._sanitizeID(profile), "profiles/" + encodeURIComponent(profile), 1);
       nav += "</li>";
       return nav;
     }
     _item(title, id, enabled) {
-      return `<span><input type="checkbox" data-page="profiles/${title.toLowerCase()}" class="form-check-input" id="${this.sanitizeID(id)}"${enabled ? " checked" : ""}> ${title}</span><div class="form-check form-switch"><input type="checkbox" class="form-check-input" id="${id}-switch"${enabled ? " checked" : ""}> ${title}</div>`;
+      return `<span><input type="checkbox" data-page="profiles/${title.toLowerCase()}" class="form-check-input" id="${this._sanitizeID(id)}"${enabled ? " checked" : ""}> ${title}</span><div class="form-check form-switch"><input type="checkbox" class="form-check-input" id="${id}-switch"${enabled ? " checked" : ""}> ${title}</div>`;
     }
     setBody(contents, args) {
       if (!this.profiles) {
@@ -30594,14 +30594,14 @@ Devanagari
                         e.target.checked = true;
                         return;
                       }
-                      this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}`).checked = value;
-                      this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-switch`).checked = value;
+                      this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}`).checked = value;
+                      this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}-switch`).checked = value;
                       if (this._page === e.target.dataset.page)
                         this._contents.querySelector("#enabled").checked = value;
                       this.profiles.items[this._current.profileName].enabled = value;
                     } else {
                       this._current.profile[e.target.id] = value;
-                      this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-${e.target.id.substring(6).toLowerCase()}`).checked = value;
+                      this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}-${e.target.id.substring(6).toLowerCase()}`).checked = value;
                       this.changed = true;
                     }
                     this.changed = true;
@@ -30713,7 +30713,7 @@ Devanagari
           items[i2].addEventListener("change", (e) => {
             const target = e.currentTarget || e.target;
             const value = target.checked;
-            this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-${this._current.collection}-${target.dataset.index}`).checked = value;
+            this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}-${this._current.collection}-${target.dataset.index}`).checked = value;
             this._current.profile[this._current.collection][+target.dataset.index].enabled = value;
             this.changed = true;
           });
@@ -30878,7 +30878,7 @@ Devanagari
               } else {
                 this._current.item[target.id] = target.checked || false;
                 if (target.id === "enabled")
-                  this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-${this._current.collection}-${this._current.itemIdx}`).checked = this._current.item[target.id];
+                  this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}-${this._current.collection}-${this._current.itemIdx}`).checked = this._current.item[target.id];
               }
               this.changed = true;
               this._updateItemMenu();
@@ -30916,7 +30916,7 @@ Devanagari
       const currentParent = this._current.parent;
       currentItem = currentItem || this._current.item;
       debounce(() => {
-        let item = this.body.querySelector(`#${this.sanitizeID(profile)}-${collection}-${index}`);
+        let item = this.body.querySelector(`#${this._sanitizeID(profile)}-${collection}-${index}`);
         if (!item) return;
         let display;
         display = GetDisplay(currentParent || currentItem);
@@ -30945,7 +30945,7 @@ Devanagari
         po = 1;
       let last = pages.length - 1;
       for (let p = po, pl = pages.length; p < pl; p++) {
-        id = this.sanitizeID(pages.slice(po, p + 1).join("-"));
+        id = this._sanitizeID(pages.slice(po, p + 1).join("-"));
         el = document.getElementById(id);
         if (!el) continue;
         if (p === last) {
@@ -31026,8 +31026,8 @@ Devanagari
       this._current.profile.name = name2;
       this._current.profileName = name2;
       this.profiles.add(this._current.profile);
-      const oldID = this.sanitizeID(oldProfile);
-      const newID = this.sanitizeID(name2);
+      const oldID = this._sanitizeID(oldProfile);
+      const newID = this._sanitizeID(name2);
       let items;
       items = this.body.querySelector(`#${oldID} a`);
       items.children[2].childNodes[1].textContent = " " + capitalize(name2);
@@ -31043,8 +31043,8 @@ Devanagari
     _replaceProfileName(container, oldName, newName) {
       let items;
       let i2, il;
-      const oldID = this.sanitizeID(oldName);
-      const newID = this.sanitizeID(newName);
+      const oldID = this._sanitizeID(oldName);
+      const newID = this._sanitizeID(newName);
       items = container.querySelectorAll(`[id*="-${oldID}-"]`);
       for (i2 = 0, il = items.length; i2 < il; i2++)
         items[i2].id = items[i2].id.replace(`-${oldID}-`, `-${newID}-`);
@@ -31118,7 +31118,7 @@ Devanagari
     }
     close() {
       if (!this._canClose) {
-        this.confirmSave().then((r) => {
+        this._confirmSave().then((r) => {
           if (r) {
             if (!this._save()) return;
           }
@@ -31136,7 +31136,7 @@ Devanagari
       this._loadItem();
       this._updateItemMenu();
     }
-    confirmSave() {
+    _confirmSave() {
       return new Promise((resolve, reject) => {
         if (this._profilesChanged) {
           confirm_box("Save changes?", `Save changes to profiles?`, null, 12 /* YesNo */ | 2 /* Cancel */).then((e) => {
@@ -31153,7 +31153,7 @@ Devanagari
           resolve(true);
       });
     }
-    sanitizeID(name2) {
+    _sanitizeID(name2) {
       return name2.toLowerCase().replace(/[^a-z0-9:.-]+/gi, "_");
     }
     _getItemType(collection) {
@@ -31180,14 +31180,14 @@ Devanagari
           item = new Context();
       }
       this._current.profile[collection].push(item);
-      let m = this._menu.querySelector(`#${this.sanitizeID(this._current.profileName)}-${collection}`);
+      let m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
       if (index === 0) {
         menuItem = this._getItem([{
           name: capitalize(collection),
           items: this._current.profile[collection],
           useName: true,
           enabled: this._current.profile[collection]
-        }], 0, this.sanitizeID(this._current.profileName), "profiles/" + encodeURIComponent(this._current.profileName), 1);
+        }], 0, this._sanitizeID(this._current.profileName), "profiles/" + encodeURIComponent(this._current.profileName), 1);
         var newNode = document.createElement("div");
         newNode.innerHTML = menuItem;
         if (m.replaceWith)
@@ -31196,13 +31196,13 @@ Devanagari
           m.parentNode.replaceChild(newNode.firstChild, m);
         else
           m.outerHTML = menuItem;
-        m = this._menu.querySelector(`#${this.sanitizeID(this._current.profileName)}-${collection}`);
+        m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
         this._profileEvents(m);
       } else {
-        menuItem = this._getItem(this._current.profile[collection], index, `${this.sanitizeID(this._current.profileName)}-${collection}`, `profiles/${encodeURIComponent(this._current.profileName)}/${collection}`, 2);
+        menuItem = this._getItem(this._current.profile[collection], index, `${this._sanitizeID(this._current.profileName)}-${collection}`, `profiles/${encodeURIComponent(this._current.profileName)}/${collection}`, 2);
         m = m.querySelector("ul");
         m.insertAdjacentHTML("beforeend", menuItem);
-        m = this._menu.querySelector(`#${this.sanitizeID(this._current.profileName)}-${collection}`);
+        m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
         this._profileEvents(m.lastChild);
       }
       updateHash(`profiles/${encodeURIComponent(this._current.profileName)}/${collection}/${index}`, this._page);
@@ -31213,7 +31213,7 @@ Devanagari
       if (!collection) return;
       confirm_box("Remove profile?", `Delete ${this._getItemType()}?`).then((e) => {
         if (e.button === 4 /* Yes */) {
-          const id = `${this.sanitizeID(this._current.profileName)}-${collection}`;
+          const id = `${this._sanitizeID(this._current.profileName)}-${collection}`;
           const items = this._current.profile[collection];
           items.splice(index, 1);
           this._menu.querySelector(`#${id}-${index}`).remove();
@@ -32689,25 +32689,25 @@ Devanagari
           if (data.area === this._map.current.area) {
             if (this._map.roomExists({ x: room.x, y: room.y, z: room.z, zone: this._map.current.zone, area: this._map.current.area }) || data.prevroom.zone) {
               room.zone = this._map.getFreeZone(this._map.current.zone);
-              this.updateCurrent(room, data);
+              this._updateCurrent(room, data);
             } else {
-              this.updateCurrent(room, data);
+              this._updateCurrent(room, data);
             }
           } else if (this._map.roomExists({ x: room.x, y: room.y, z: room.z, zone: this._map.current.zone }) || data.prevroom.zone) {
             room.zone = this._map.getFreeZone(this._map.current.zone);
-            this.updateCurrent(room, data);
+            this._updateCurrent(room, data);
           } else {
-            this.updateCurrent(room, data);
+            this._updateCurrent(room, data);
           }
         } else {
-          this.updateCurrent(room, data);
+          this._updateCurrent(room, data);
         }
         this._map.save().catch((err) => this.client.error(err));
       } catch (e) {
         this.emit("error", e);
       }
     }
-    updateCurrent(room, data) {
+    _updateCurrent(room, data) {
       room.num = data.num;
       room.area = data.area;
       room.name = data.name;
@@ -33136,41 +33136,41 @@ Devanagari
         });
         const selected = room;
         const current = this._map.current;
-        this.updateMenu("#mapper-remove-selected a", selected === null || selected.num === null);
-        this.updateMenu("#mapper-set-current a", selected === null || selected.num === null);
-        this.updateMenu("#mapper-highlight-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-        this.updateMenu("#mapper-walk-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-        this.updateMenu("#mapper-copy-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-        this.updateMenu("#mapper-copy-stacked a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-        this.updateMenu("#mapper-copy-speedpath a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this._updateMenu("#mapper-remove-selected a", selected === null || selected.num === null);
+        this._updateMenu("#mapper-set-current a", selected === null || selected.num === null);
+        this._updateMenu("#mapper-highlight-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this._updateMenu("#mapper-walk-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this._updateMenu("#mapper-copy-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this._updateMenu("#mapper-copy-stacked a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this._updateMenu("#mapper-copy-speedpath a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
       });
       this._dialogMap.on("current-changed", (room) => {
         const selected = this._dialogMap.selected;
         const current = room;
-        this.updateMenu("#mapper-remove-current a", current === null || current.num === null);
-        this.updateMenu("#mapper-remove-selected a", selected === null || selected.num === null);
-        this.updateMenu("#mapper-set-current a", selected === null || selected.num === null);
-        this.updateMenu("#mapper-highlight-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-        this.updateMenu("#mapper-walk-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-        this.updateMenu("#mapper-copy-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-        this.updateMenu("#mapper-copy-stacked a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-        this.updateMenu("#mapper-copy-speedpath a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this._updateMenu("#mapper-remove-current a", current === null || current.num === null);
+        this._updateMenu("#mapper-remove-selected a", selected === null || selected.num === null);
+        this._updateMenu("#mapper-set-current a", selected === null || selected.num === null);
+        this._updateMenu("#mapper-highlight-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this._updateMenu("#mapper-walk-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this._updateMenu("#mapper-copy-path a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this._updateMenu("#mapper-copy-stacked a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+        this._updateMenu("#mapper-copy-speedpath a", selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
       });
       this._dialogMap.on("path-shown", () => {
-        this.updateMenu("#mapper-highlight-path a", false);
-        this.updateMenu("#mapper-walk-path a", false);
-        this.updateMenu("#mapper-walk-highlighted-path a", false);
-        this.updateMenu("#mapper-clear-path a", false);
-        this.updateMenu("#mapper-copy-highlighted-path a", false);
-        this.updateMenu("#mapper-copy-highlighted-stacked a", false);
-        this.updateMenu("#mapper-copy-highlighted-speedpath a", false);
+        this._updateMenu("#mapper-highlight-path a", false);
+        this._updateMenu("#mapper-walk-path a", false);
+        this._updateMenu("#mapper-walk-highlighted-path a", false);
+        this._updateMenu("#mapper-clear-path a", false);
+        this._updateMenu("#mapper-copy-highlighted-path a", false);
+        this._updateMenu("#mapper-copy-highlighted-stacked a", false);
+        this._updateMenu("#mapper-copy-highlighted-speedpath a", false);
       });
       this._dialogMap.on("path-cleared", () => {
-        this.updateMenu("#mapper-clear-path a", true);
-        this.updateMenu("#mapper-walk-highlighted-path a", true);
-        this.updateMenu("#mapper-copy-highlighted-path a", true);
-        this.updateMenu("#mapper-copy-highlighted-stacked a", true);
-        this.updateMenu("#mapper-copy-highlighted-speedpath a", true);
+        this._updateMenu("#mapper-clear-path a", true);
+        this._updateMenu("#mapper-walk-highlighted-path a", true);
+        this._updateMenu("#mapper-copy-highlighted-path a", true);
+        this._updateMenu("#mapper-copy-highlighted-stacked a", true);
+        this._updateMenu("#mapper-copy-highlighted-speedpath a", true);
       });
       const el = this._dialog.body.querySelector("#mapper-room-env");
       let items = this._dialog.body.querySelectorAll("#mapper-room-terrains .active");
@@ -33319,7 +33319,7 @@ Devanagari
       this.createDialog();
       this._dialog.show();
     }
-    updateMenu(selector, disabled) {
+    _updateMenu(selector, disabled) {
       if (disabled)
         this._dialog.body.querySelector(selector).classList.add("disabled");
       else
@@ -33357,12 +33357,12 @@ Devanagari
   var Status = class extends Plugin {
     constructor(client2) {
       super(client2);
-      this.info = [];
-      this.infoAC = [];
-      this.infoLimb = [];
+      this._info = [];
+      this._infoAC = [];
+      this._infoLimb = [];
       this._ac = false;
       this._rTimeout = 0;
-      this.dragging = false;
+      this._dragging = false;
       this._clientContainer = document.getElementById("client-container");
     }
     get splitterDistance() {
@@ -33371,16 +33371,16 @@ Devanagari
     set splitterDistance(value) {
       if (value === this._splitterDistance) return;
       this._splitterDistance = value;
-      this.updateSplitter();
+      this._updateSplitter();
     }
     get maxWidth() {
       return Math.floor(document.body.clientWidth * 0.66);
     }
     get currentLag() {
-      if (!this.lagMeter || !this.lagMeter.firstElementChild) return "";
-      return this.lagMeter.firstElementChild.textContent || "";
+      if (!this._lagMeter || !this._lagMeter.firstElementChild) return "";
+      return this._lagMeter.firstElementChild.textContent || "";
     }
-    updateSplitter() {
+    _updateSplitter() {
       const p = parseInt(this._styles.right, 10) * 2;
       if (!this._splitterDistance || this._splitterDistance < 1) {
         const bounds = this._status.getBoundingClientRect();
@@ -33421,7 +33421,7 @@ Devanagari
       this.client.on("received-GMCP", this.processGMCP, this);
       this.client.on("window", (window2) => {
       });
-      this.lagMeter = document.getElementById("lagMeter");
+      this._lagMeter = document.getElementById("lagMeter");
       this.client.telnet.on("latency-changed", (lag, avg) => {
         this.updateLagMeter(lag);
       });
@@ -33435,7 +33435,7 @@ Devanagari
           this.init();
       });
       this.client.on("options-loaded", () => {
-        this.info["EXPERIENCE_NEED"] = this.info["EXPERIENCE_NEED_RAW"] - this.info["EXPERIENCE"];
+        this._info["EXPERIENCE_NEED"] = this._info["EXPERIENCE_NEED_RAW"] - this._info["EXPERIENCE"];
         if (this.client.getOption("showArmor")) {
           this.ac = true;
           this._status.querySelector("#health").classList.remove("active");
@@ -33449,7 +33449,7 @@ Devanagari
       document.getElementById("status-drag-bar").addEventListener("mousedown", (e) => {
         if (e.button !== 0) return;
         e.preventDefault();
-        this.dragging = true;
+        this._dragging = true;
         const main = document.getElementById("status-drag-bar");
         const w = this._status.style.width;
         this._status.style.width = "";
@@ -33476,7 +33476,7 @@ Devanagari
       });
       window.addEventListener("resize", () => this.resize());
       document.addEventListener("mouseup", (e) => {
-        if (!this.dragging) return;
+        if (!this._dragging) return;
         const w = this._status.style.width;
         this._status.style.width = "";
         const bounds = this._status.getBoundingClientRect();
@@ -33492,7 +33492,7 @@ Devanagari
           this.splitterDistance = document.body.clientWidth - e.pageX - l2;
         document.getElementById("status-ghost-bar").remove();
         document.removeEventListener("mousemove", this._move);
-        this.dragging = false;
+        this._dragging = false;
         this.updateInterface();
       });
       document.getElementById("status-close").addEventListener("click", () => {
@@ -33531,8 +33531,8 @@ Devanagari
       this.splitterDistance = client.getOption("statusWidth");
       Object.defineProperty(window, "$character", {
         get: () => {
-          if (!this.info) return "";
-          return this.info["name"] || "";
+          if (!this._info) return "";
+          return this._info["name"] || "";
         },
         configurable: true
       });
@@ -33543,7 +33543,7 @@ Devanagari
         configurable: true
       });
       this.client.display.container.append(document.getElementById("status-simple-lagMeter"));
-      this.updateSplitter();
+      this._updateSplitter();
       this.updateInterface();
       this.init();
     }
@@ -33591,37 +33591,37 @@ Devanagari
         let limb;
         switch (mod.toLowerCase()) {
           case "char.name":
-            this.info["name"] = obj.name;
+            this._info["name"] = obj.name;
             this.setTitle(obj.name);
             break;
           case "char.base":
             this.init();
-            this.info["name"] = obj.name;
+            this._info["name"] = obj.name;
             this.setTitle(obj.name);
             break;
           case "char.vitals":
             this.updateBar("hp-bar", obj.hp, obj.hpmax);
             this.updateBar("sp-bar", obj.sp, obj.spmax);
             this.updateBar("mp-bar", obj.mp, obj.mpmax);
-            this.info["hp"] = obj.hp;
-            this.info["hpmax"] = obj.hpmax;
-            this.info["sp"] = obj.sp;
-            this.info["spmax"] = obj.spmax;
-            this.info["mp"] = obj.mp;
-            this.info["mpmax"] = obj.mpmax;
+            this._info["hp"] = obj.hp;
+            this._info["hpmax"] = obj.hpmax;
+            this._info["sp"] = obj.sp;
+            this._info["spmax"] = obj.spmax;
+            this._info["mp"] = obj.mp;
+            this._info["mpmax"] = obj.mpmax;
             this.updateSimpleBar("status-simple-hp");
             this.updateSimpleBar("status-simple-sp");
             this.updateSimpleBar("status-simple-mp");
-            this.doUpdate(4 /* overall */);
+            this._doUpdate(4 /* overall */);
             break;
           case "char.experience":
-            this.info["EXPERIENCE"] = obj.current;
-            this.info["EXPERIENCE_NEED_RAW"] = obj.need;
-            this.info["EXPERIENCE_NEED"] = obj.need - obj.current;
-            this.info["EXPERIENCE_NEED_P"] = obj.needPercent;
-            this.info["EXPERIENCE_EARNED"] = obj.earned;
-            this.info["EXPERIENCE_BANKED"] = obj.banked;
-            this.doUpdate(8 /* xp */);
+            this._info["EXPERIENCE"] = obj.current;
+            this._info["EXPERIENCE_NEED_RAW"] = obj.need;
+            this._info["EXPERIENCE_NEED"] = obj.need - obj.current;
+            this._info["EXPERIENCE_NEED_P"] = obj.needPercent;
+            this._info["EXPERIENCE_EARNED"] = obj.earned;
+            this._info["EXPERIENCE_BANKED"] = obj.banked;
+            this._doUpdate(8 /* xp */);
             break;
           case "omud.ac":
             for (limb in obj) {
@@ -33646,9 +33646,9 @@ Devanagari
           case "omud.environment":
             if (obj.weather) {
               const env = document.getElementById("environment");
-              env.classList.remove("weather-" + this.info["WEATHER"], "intensity-hard");
-              this.info["WEATHER"] = obj.weather;
-              this.info["WEATHER_INTENSITY"] = obj.weather_intensity;
+              env.classList.remove("weather-" + this._info["WEATHER"], "intensity-hard");
+              this._info["WEATHER"] = obj.weather;
+              this._info["WEATHER_INTENSITY"] = obj.weather_intensity;
               if (obj.weather !== "0" && obj.weather !== "none")
                 env.classList.add("weather-" + obj.weather);
               if (obj.weather_intensity > 6)
@@ -33670,31 +33670,31 @@ Devanagari
             break;
           case "omud.combat":
             if (obj.action === "leave") {
-              this.clear("combat");
+              this._clear("combat");
               this.emit("leave combat");
             } else if (obj.action === "add")
-              this.createIconBar("#combat", this.getID(obj, "combat_"), obj.name, obj.hp, 100, this.livingClass(obj, "monster-"), obj.order);
+              this.createIconBar("#combat", this._getID(obj, "combat_"), obj.name, obj.hp, 100, this._livingClass(obj, "monster-"), obj.order);
             else if (obj.action === "update") {
               if (obj.hp === 0)
-                this.removeBar(this.getID(obj, "combat_"));
+                this.removeBar(this._getID(obj, "combat_"));
               else
-                this.createIconBar("#combat", this.getID(obj, "combat_"), obj.name, obj.hp, 100, this.livingClass(obj, "monster-"), obj.order);
+                this.createIconBar("#combat", this._getID(obj, "combat_"), obj.name, obj.hp, 100, this._livingClass(obj, "monster-"), obj.order);
             } else if (obj.action === "remove")
-              this.removeBar(this.getID(obj, "combat_"));
+              this.removeBar(this._getID(obj, "combat_"));
             break;
           case "omud.party":
             if (obj.action === "leave") {
-              this.clear("party");
+              this._clear("party");
               this.emit("leave party");
             } else if (obj.action === "add") {
-              this.createIconBar("#party", this.getID(obj, "party_"), obj.name, obj.hp, 100, this.livingClass(obj, "party-"), obj.name.replace('"', ""));
+              this.createIconBar("#party", this._getID(obj, "party_"), obj.name, obj.hp, 100, this._livingClass(obj, "party-"), obj.name.replace('"', ""));
             } else if (obj.action === "update") {
               if (obj.hp === 0)
-                this.removeBar(this.getID(obj, "party_"), true);
+                this.removeBar(this._getID(obj, "party_"), true);
               else
-                this.createIconBar("#party", this.getID(obj, "party_"), obj.name, obj.hp, 100, this.livingClass(obj, "party-"), obj.name.replace('"', ""));
+                this.createIconBar("#party", this._getID(obj, "party_"), obj.name, obj.hp, 100, this._livingClass(obj, "party-"), obj.name.replace('"', ""));
             } else if (obj.action === "remove")
-              this.removeBar(this.getID(obj, "party_"), true);
+              this.removeBar(this._getID(obj, "party_"), true);
             if ((limb = document.getElementById("party")).children.length)
               limb.classList.add("hasmembers");
             else
@@ -33702,15 +33702,15 @@ Devanagari
             break;
           case "omud.skill":
             if (obj.skill && obj.skill.length) {
-              if (!this.info["skills"][obj.skill]) this.info["skills"][obj.skill] = { amount: 0, bonus: 0, percent: 0 };
+              if (!this._info["skills"][obj.skill]) this._info["skills"][obj.skill] = { amount: 0, bonus: 0, percent: 0 };
               if (obj.hasOwnProperty("percent"))
-                this.info["skills"][obj.skill].percent = obj.percent || 0;
+                this._info["skills"][obj.skill].percent = obj.percent || 0;
               if (obj.hasOwnProperty("amount")) {
-                this.info["skills"][obj.skill].amount = obj.amount;
-                this.info["skills"][obj.skill].bonus = obj.bonus || 0;
-                this.info["skills"][obj.skill].category = obj.category;
+                this._info["skills"][obj.skill].amount = obj.amount;
+                this._info["skills"][obj.skill].bonus = obj.bonus || 0;
+                this._info["skills"][obj.skill].category = obj.category;
               }
-              this.emit("skill updated", obj.skill, this.info["skills"][obj.skill]);
+              this.emit("skill updated", obj.skill, this._info["skills"][obj.skill]);
             }
             break;
         }
@@ -33786,18 +33786,18 @@ Devanagari
         $("#combat").css("display", "");
       else
         $("#combat").css("display", "none");
-      if (this.lagMeter) {
+      if (this._lagMeter) {
         if (this.client.getOption("lagMeter")) {
-          this.lagMeter.style.visibility = "";
-          this.lagMeter.style.display = "";
+          this._lagMeter.style.visibility = "";
+          this._lagMeter.style.display = "";
           this.updateLagMeter(0, true);
         } else {
-          this.lagMeter.style.visibility = "hidden";
-          this.lagMeter.style.display = "none";
+          this._lagMeter.style.visibility = "hidden";
+          this._lagMeter.style.display = "none";
         }
       }
       if (!noSplitter)
-        this.updateSplitter();
+        this._updateSplitter();
       this.emit("updated-interface");
     }
     setTitle(title, lag) {
@@ -33815,39 +33815,39 @@ Devanagari
     }
     init() {
       this.setTitle("");
-      this.info = [];
-      this.info["WEATHER"] = "none";
-      this.info["WEATHER_INTENSITY"] = 0;
-      this.info["EXPERIENCE"] = 0;
-      this.info["EXPERIENCE_NEED"] = 0;
-      this.info["EXPERIENCE_NEED_P"] = 0;
-      this.info["EXPERIENCE_NEED_RAW"] = 0;
-      this.info["EXPERIENCE_EARNED"] = 0;
-      this.info["EXPERIENCE_BANKED"] = 0;
-      this.info["skills"] = {};
-      this.infoAC = [];
-      this.infoAC["head"] = 0;
-      this.infoAC["leftarm"] = 0;
-      this.infoAC["leftfoot"] = 0;
-      this.infoAC["lefthand"] = 0;
-      this.infoAC["leftleg"] = 0;
-      this.infoAC["rightarm"] = 0;
-      this.infoAC["rightfoot"] = 0;
-      this.infoAC["righthand"] = 0;
-      this.infoAC["rightleg"] = 0;
-      this.infoAC["torso"] = 0;
-      this.infoAC["overall"] = 0;
-      this.infoLimb = [];
-      this.infoLimb["head"] = 0;
-      this.infoLimb["leftarm"] = 0;
-      this.infoLimb["leftfoot"] = 0;
-      this.infoLimb["lefthand"] = 0;
-      this.infoLimb["leftleg"] = 0;
-      this.infoLimb["rightarm"] = 0;
-      this.infoLimb["rightfoot"] = 0;
-      this.infoLimb["righthand"] = 0;
-      this.infoLimb["rightleg"] = 0;
-      this.infoLimb["torso"] = 0;
+      this._info = [];
+      this._info["WEATHER"] = "none";
+      this._info["WEATHER_INTENSITY"] = 0;
+      this._info["EXPERIENCE"] = 0;
+      this._info["EXPERIENCE_NEED"] = 0;
+      this._info["EXPERIENCE_NEED_P"] = 0;
+      this._info["EXPERIENCE_NEED_RAW"] = 0;
+      this._info["EXPERIENCE_EARNED"] = 0;
+      this._info["EXPERIENCE_BANKED"] = 0;
+      this._info["skills"] = {};
+      this._infoAC = [];
+      this._infoAC["head"] = 0;
+      this._infoAC["leftarm"] = 0;
+      this._infoAC["leftfoot"] = 0;
+      this._infoAC["lefthand"] = 0;
+      this._infoAC["leftleg"] = 0;
+      this._infoAC["rightarm"] = 0;
+      this._infoAC["rightfoot"] = 0;
+      this._infoAC["righthand"] = 0;
+      this._infoAC["rightleg"] = 0;
+      this._infoAC["torso"] = 0;
+      this._infoAC["overall"] = 0;
+      this._infoLimb = [];
+      this._infoLimb["head"] = 0;
+      this._infoLimb["leftarm"] = 0;
+      this._infoLimb["leftfoot"] = 0;
+      this._infoLimb["lefthand"] = 0;
+      this._infoLimb["leftleg"] = 0;
+      this._infoLimb["rightarm"] = 0;
+      this._infoLimb["rightfoot"] = 0;
+      this._infoLimb["righthand"] = 0;
+      this._infoLimb["rightleg"] = 0;
+      this._infoLimb["torso"] = 0;
       document.getElementById("leftwing").style.display = "none";
       document.getElementById("rightwing").style.display = "none";
       document.getElementById("tail").style.display = "none";
@@ -33863,62 +33863,62 @@ Devanagari
       document.getElementById("earn-value").textContent = "0";
       this.updateBar("need-percent", 0, 0, "0");
       this.updateBar("status-simple-xp", 0, 0, "", true);
-      this.clear("combat");
-      this.clear("party");
+      this._clear("combat");
+      this._clear("party");
       document.getElementById("party").classList.remove("hasmembers");
       this.updateOverall();
       this.updateStatus();
       this.emit("skill init");
     }
-    clear(id) {
+    _clear(id) {
       const el = document.getElementById(id);
       if (el) el.innerHTML = "";
     }
     updateStatus() {
       let limb;
       if (this._ac)
-        for (limb in this.infoAC)
+        for (limb in this._infoAC)
           this.updateLimb(limb);
       else
-        for (limb in this.infoLimb)
+        for (limb in this._infoLimb)
           this.updateLimb(limb);
-      this.doUpdate(4 /* overall */ | 8 /* xp */);
+      this._doUpdate(4 /* overall */ | 8 /* xp */);
     }
     updateOverall() {
       const el = document.getElementById("overall");
       el.className = "";
       if (this._ac) {
-        if (this.infoAC["overall"] === 6.5) {
+        if (this._infoAC["overall"] === 6.5) {
           el.textContent = "Extensively";
           el.classList.add("armor-extensively");
-        } else if (this.infoAC["overall"] === 6) {
+        } else if (this._infoAC["overall"] === 6) {
           el.textContent = "Completely";
           el.classList.add("armor-completely");
-        } else if (this.infoAC["overall"] === 5.5) {
+        } else if (this._infoAC["overall"] === 5.5) {
           el.textContent = "Significantly";
           el.classList.add("armor-significantly");
-        } else if (this.infoAC["overall"] === 5) {
+        } else if (this._infoAC["overall"] === 5) {
           el.textContent = "Considerably";
           el.classList.add("armor-considerably");
-        } else if (this.infoAC["overall"] === 4.5) {
+        } else if (this._infoAC["overall"] === 4.5) {
           el.textContent = "Well";
           el.classList.add("armor-well");
-        } else if (this.infoAC["overall"] === 4) {
+        } else if (this._infoAC["overall"] === 4) {
           el.textContent = "Adequately";
           el.classList.add("armor-adequately");
-        } else if (this.infoAC["overall"] === 3.5) {
+        } else if (this._infoAC["overall"] === 3.5) {
           el.textContent = "Fairly";
           el.classList.add("armor-fairly");
-        } else if (this.infoAC["overall"] === 3) {
+        } else if (this._infoAC["overall"] === 3) {
           el.textContent = "Moderately";
           el.classList.add("armor-moderately");
-        } else if (this.infoAC["overall"] === 2.5) {
+        } else if (this._infoAC["overall"] === 2.5) {
           el.textContent = "Somewhat";
           el.classList.add("armor-somewhat");
-        } else if (this.infoAC["overall"] === 2) {
+        } else if (this._infoAC["overall"] === 2) {
           el.textContent = "Slightly";
           el.classList.add("armor-slightly");
-        } else if (this.infoAC["overall"] === 1) {
+        } else if (this._infoAC["overall"] === 1) {
           el.textContent = "Barely";
           el.classList.add("armor-barely");
         } else {
@@ -33927,8 +33927,8 @@ Devanagari
         }
       } else {
         let v = 100;
-        if (this.info["hpmax"] !== 0 && !isNaN(this.info["hpmax"]))
-          v *= this.info["hp"] / this.info["hpmax"];
+        if (this._info["hpmax"] !== 0 && !isNaN(this._info["hpmax"]))
+          v *= this._info["hp"] / this._info["hpmax"];
         if (v > 90) {
           el.textContent = "Top shape";
           el.classList.add("health-full");
@@ -33957,7 +33957,7 @@ Devanagari
       limb = limb.replace(/\s/g, "");
       limb = limb.toLowerCase();
       if (limb === "overall") {
-        this.doUpdate(4 /* overall */);
+        this._doUpdate(4 /* overall */);
         return;
       }
       if (limb === "righthoof")
@@ -33970,42 +33970,42 @@ Devanagari
       eLimb.setAttribute("class", "");
       eLimb.style.display = "block";
       if (this._ac) {
-        if (this.infoAC[limb] === 6.5)
+        if (this._infoAC[limb] === 6.5)
           eLimb.classList.add("armor-extensively");
-        else if (this.infoAC[limb] === 6)
+        else if (this._infoAC[limb] === 6)
           eLimb.classList.add("armor-completely");
-        else if (this.infoAC[limb] === 5.5)
+        else if (this._infoAC[limb] === 5.5)
           eLimb.classList.add("armor-significantly");
-        else if (this.infoAC[limb] === 5)
+        else if (this._infoAC[limb] === 5)
           eLimb.classList.add("armor-considerably");
-        else if (this.infoAC[limb] === 4.5)
+        else if (this._infoAC[limb] === 4.5)
           eLimb.classList.add("armor-well");
-        else if (this.infoAC[limb] === 4)
+        else if (this._infoAC[limb] === 4)
           eLimb.classList.add("armor-adequately");
-        else if (this.infoAC[limb] === 3.5)
+        else if (this._infoAC[limb] === 3.5)
           eLimb.classList.add("armor-fairly");
-        else if (this.infoAC[limb] === 3)
+        else if (this._infoAC[limb] === 3)
           eLimb.classList.add("armor-moderately");
-        else if (this.infoAC[limb] === 2.5)
+        else if (this._infoAC[limb] === 2.5)
           eLimb.classList.add("armor-somewhat");
-        else if (this.infoAC[limb] === 2)
+        else if (this._infoAC[limb] === 2)
           eLimb.classList.add("armor-slightly");
-        else if (this.infoAC[limb] === 1)
+        else if (this._infoAC[limb] === 1)
           eLimb.classList.add("armor-barely");
         else
           eLimb.classList.add("armor-unarmored");
       } else {
-        if (this.infoLimb[limb] === 100)
+        if (this._infoLimb[limb] === 100)
           eLimb.classList.add("health-100");
-        else if (this.infoLimb[limb] >= 80)
+        else if (this._infoLimb[limb] >= 80)
           eLimb.classList.add("health-80-99");
-        else if (this.infoLimb[limb] >= 60)
+        else if (this._infoLimb[limb] >= 60)
           eLimb.classList.add("health-60-79");
-        else if (this.infoLimb[limb] >= 40)
+        else if (this._infoLimb[limb] >= 40)
           eLimb.classList.add("health-40-59");
-        else if (this.infoLimb[limb] >= 20)
+        else if (this._infoLimb[limb] >= 20)
           eLimb.classList.add("health-20-39");
-        else if (this.infoLimb[limb] >= 1)
+        else if (this._infoLimb[limb] >= 1)
           eLimb.classList.add("health-1-19");
         else
           eLimb.classList.add("health-full");
@@ -34030,10 +34030,10 @@ Devanagari
       const el = document.getElementById(bar);
       if (!el) return;
       const v = el.dataset.var.toLowerCase();
-      if (!this.info || !this.info[v + "max"])
+      if (!this._info || !this._info[v + "max"])
         p = 100;
       else
-        p = this.info[v] / this.info[v + "max"] * 100;
+        p = this._info[v] / this._info[v + "max"] * 100;
       const progress = document.querySelector(`#${bar}  .progress-bar`);
       progress.style.width = 100 - p + "%";
       progress.ariaValueNow = "" + p;
@@ -34055,11 +34055,11 @@ Devanagari
         bar += '<div class="progressbar-value" style="width: ' + (100 - p) + '%"></div>';
         bar += "</div></div>";
         $(parent).append(bar);
-        this.doUpdate(parent === "#party" ? 2 /* sortParty */ : 1 /* sortCombat */);
+        this._doUpdate(parent === "#party" ? 2 /* sortParty */ : 1 /* sortCombat */);
       } else {
         if (order !== +bar.getAttribute("data-order")) {
           bar.setAttribute("data-order", order);
-          this.doUpdate(parent === "#party" ? 2 /* sortParty */ : 1 /* sortCombat */);
+          this._doUpdate(parent === "#party" ? 2 /* sortParty */ : 1 /* sortCombat */);
         }
         bar.setAttribute("data-value", (100 - p) / 20 * 20);
         bar.children[1].textContent = label;
@@ -34072,7 +34072,7 @@ Devanagari
       const el = document.getElementById(id);
       if (!el) return;
       el.parentNode.removeChild(el);
-      this.doUpdate(party ? 2 /* sortParty */ : 1 /* sortCombat */);
+      this._doUpdate(party ? 2 /* sortParty */ : 1 /* sortCombat */);
     }
     sortBars(p) {
       const listItems = p.children("div").get();
@@ -34086,20 +34086,20 @@ Devanagari
       });
     }
     updateLagMeter(lag, force) {
-      if (!this.lagMeter) return;
+      if (!this._lagMeter) return;
       if (this.client.getOption("showLagInTitle"))
-        this.setTitle(this.info["name"] || "", `${lag / 1e3}s`);
+        this.setTitle(this._info["name"] || "", `${lag / 1e3}s`);
       if (!this.client.getOption("lagMeter") && !force) return;
       let p = 100;
       p = lag / 200 * 100;
       if (p > 100) p = 100;
-      this.lagMeter.lastElementChild.style.width = 100 - p + "%";
-      this.lagMeter.firstElementChild.textContent = lag / 1e3 + "s";
+      this._lagMeter.lastElementChild.style.width = 100 - p + "%";
+      this._lagMeter.firstElementChild.textContent = lag / 1e3 + "s";
       const lm = document.querySelector("#status-simple-lagMeter .progress-bar");
       lm.style.width = 100 - p + "%";
       lm.ariaValueNow = "" + p;
     }
-    doUpdate(type) {
+    _doUpdate(type) {
       if (!type) return;
       this._updating |= type;
       if (this._updating === 0 /* none */ || this._rTimeout)
@@ -34126,22 +34126,22 @@ Devanagari
           this._updating &= ~8 /* xp */;
         }
         this._rTimeout = 0;
-        this.doUpdate(this._updating);
+        this._doUpdate(this._updating);
       });
     }
     updateXP() {
-      $("#xp-value").text(this.info["EXPERIENCE"]);
-      $("#xp-banked").text(this.info["EXPERIENCE_BANKED"]);
-      if (this.info["EXPERIENCE_NEED"] < 0) {
-        $("#need-value").text(this.client.getOption("allowNegativeNumberNeeded") ? this.info["EXPERIENCE_NEED"] : 0);
-        this.updateBar("need-percent", 100 - this.info["EXPERIENCE_NEED_P"], 100, this.client.getOption("allowNegativeNumberNeeded") ? this.info["EXPERIENCE_NEED"].toString() : "0");
-        this.updateBar("status-simple-xp", 100 - this.info["EXPERIENCE_NEED_P"], 100, "", true);
+      $("#xp-value").text(this._info["EXPERIENCE"]);
+      $("#xp-banked").text(this._info["EXPERIENCE_BANKED"]);
+      if (this._info["EXPERIENCE_NEED"] < 0) {
+        $("#need-value").text(this.client.getOption("allowNegativeNumberNeeded") ? this._info["EXPERIENCE_NEED"] : 0);
+        this.updateBar("need-percent", 100 - this._info["EXPERIENCE_NEED_P"], 100, this.client.getOption("allowNegativeNumberNeeded") ? this._info["EXPERIENCE_NEED"].toString() : "0");
+        this.updateBar("status-simple-xp", 100 - this._info["EXPERIENCE_NEED_P"], 100, "", true);
       } else {
-        $("#need-value").text(this.info["EXPERIENCE_NEED"]);
-        this.updateBar("need-percent", 100 - this.info["EXPERIENCE_NEED_P"], 100, this.info["EXPERIENCE_NEED"].toString());
-        this.updateBar("status-simple-xp", 100 - this.info["EXPERIENCE_NEED_P"], 100, "", true);
+        $("#need-value").text(this._info["EXPERIENCE_NEED"]);
+        this.updateBar("need-percent", 100 - this._info["EXPERIENCE_NEED_P"], 100, this._info["EXPERIENCE_NEED"].toString());
+        this.updateBar("status-simple-xp", 100 - this._info["EXPERIENCE_NEED_P"], 100, "", true);
       }
-      $("#earn-value").text(this.info["EXPERIENCE_EARNED"]);
+      $("#earn-value").text(this._info["EXPERIENCE_EARNED"]);
     }
     resize() {
       if (!this.client.getOption("showStatus")) return;
@@ -34159,14 +34159,14 @@ Devanagari
       }
     }
     get skills() {
-      return this.info["skills"];
+      return this._info["skills"];
     }
     getSkill(skill) {
       if (!skill) return 0;
-      return this.info["skills"][skill] || 0;
+      return this._info["skills"][skill] || 0;
     }
     get name() {
-      return this.info["name"];
+      return this._info["name"];
     }
     get ac() {
       return this._ac;
@@ -34174,32 +34174,32 @@ Devanagari
     set ac(enable) {
       if (this._ac !== enable) {
         this._ac = enable;
-        this.doUpdate(16 /* status */);
+        this._doUpdate(16 /* status */);
         this.emit("display-changed");
       }
     }
-    sanitizeID(id) {
+    _sanitizeID(id) {
       id = id.replace(/\s/gi, "-");
       return id.replace(/[^a-zA-Z0-9_-]/gi, "");
     }
-    getID(obj, prefix) {
+    _getID(obj, prefix) {
       if (!obj) return;
-      if (!obj.id) return this.sanitizeID(obj.name || "");
+      if (!obj.id) return this._sanitizeID(obj.name || "");
       return (prefix || "obj_") + obj.id;
     }
-    livingClass(obj, prefix) {
+    _livingClass(obj, prefix) {
       const cls = [];
       if (!prefix) prefix = "";
       if (obj.class && obj.class.length > 0)
-        cls.push(prefix + this.sanitizeID(obj.class));
+        cls.push(prefix + this._sanitizeID(obj.class));
       if (obj.gender && obj.gender.length > 0)
-        cls.push(prefix + this.sanitizeID(obj.gender));
+        cls.push(prefix + this._sanitizeID(obj.gender));
       if (obj.race && obj.race.length > 0)
-        cls.push(prefix + this.sanitizeID(obj.race));
+        cls.push(prefix + this._sanitizeID(obj.race));
       if (obj.guild && obj.guild.length > 0)
-        cls.push(prefix + this.sanitizeID(obj.guild));
+        cls.push(prefix + this._sanitizeID(obj.guild));
       if (obj.name && obj.name.length > 0)
-        cls.push(prefix + this.sanitizeID(obj.name.replace(/\d+$/, "").trim()));
+        cls.push(prefix + this._sanitizeID(obj.name.replace(/\d+$/, "").trim()));
       return cls.join(" ").toLowerCase();
     }
     setWeapon(limb, weapon) {
@@ -34212,15 +34212,15 @@ Devanagari
       eLimb.className = "";
       if (!weapon) return;
       if (weapon.quality && weapon.quality.length > 0)
-        eLimb.classList.add("weapon-" + this.sanitizeID(weapon.quality));
+        eLimb.classList.add("weapon-" + this._sanitizeID(weapon.quality));
       if (weapon.material && weapon.material.length > 0)
-        eLimb.classList.add("weapon-" + this.sanitizeID(weapon.material));
+        eLimb.classList.add("weapon-" + this._sanitizeID(weapon.material));
       if (weapon.type && weapon.type.length > 0)
-        eLimb.classList.add("weapon-" + this.sanitizeID(weapon.type));
+        eLimb.classList.add("weapon-" + this._sanitizeID(weapon.type));
       if (weapon.subtype && weapon.subtype.length > 0)
-        eLimb.classList.add("weapon-" + this.sanitizeID(weapon.subtype));
+        eLimb.classList.add("weapon-" + this._sanitizeID(weapon.subtype));
       if (weapon.name && weapon.name.length > 0)
-        eLimb.classList.add("weapon-" + this.sanitizeID(weapon.name));
+        eLimb.classList.add("weapon-" + this._sanitizeID(weapon.name));
       if (weapon.dominant)
         eLimb.classList.add("weapon-dominant");
       if (weapon.subtype && weapon.subtype.length > 0)
@@ -34237,7 +34237,7 @@ Devanagari
         limb = "rightfoot";
       else if (limb === "lefthoof")
         limb = "leftfoot";
-      this.infoAC[limb] = ac;
+      this._infoAC[limb] = ac;
     }
     setLimbHealth(limb, health) {
       limb = limb.replace(/\s/g, "");
@@ -34246,7 +34246,7 @@ Devanagari
         limb = "rightfoot";
       else if (limb === "lefthoof")
         limb = "leftfoot";
-      this.infoLimb[limb] = health;
+      this._infoLimb[limb] = health;
     }
   };
 
@@ -34305,13 +34305,13 @@ Devanagari
     }
     initialize() {
       if (this.client.getOption("logEnabled"))
-        this.createLogger();
+        this._createLogger();
       this.client.on("cleared", () => {
-        this.post({ action: "flush", args: true });
+        this._post({ action: "flush", args: true });
       }, this);
       this.client.on("connecting", () => {
-        this.post({ action: "connected", args: this.client.connected });
-        this.post({
+        this._post({ action: "connected", args: this.client.connected });
+        this._post({
           action: "start",
           args: {
             lines: this.client.display.lines,
@@ -34321,26 +34321,26 @@ Devanagari
       }, this);
       this.client.on("add-line-done", async (data) => {
         if (this.client.getOption("logEnabled"))
-          this.post({ action: "add-line", args: data });
+          this._post({ action: "add-line", args: data });
       }, this);
       this.client.on("set-title", (title, lag) => {
-        this.post({ action: "name", args: $character });
+        this._post({ action: "name", args: $character });
       }, this);
       this.client.on("options-loaded", () => {
         this._updateMenuItem(this.client.getOption("logEnabled"));
         if (this.client.getOption("logEnabled"))
-          this.createLogger();
+          this._createLogger();
         else
-          this.loadLoggerOptions();
+          this._loadLoggerOptions();
       }, this);
       this.client.on("closed", () => {
-        this.post({ action: "connected", args: client.connected });
-        this.post({ action: "stop" });
+        this._post({ action: "connected", args: client.connected });
+        this._post({ action: "stop" });
       }, this);
       this.client.on("reconnect", () => {
         if (this.client.connected) return;
-        this.post({ action: "connected", args: client.connected });
-        this.post({ action: "stop" });
+        this._post({ action: "connected", args: client.connected });
+        this._post({ action: "stop" });
       }, this);
       client.on("window", (window2, args, name2) => {
         let pages = window2.split("/");
@@ -34363,9 +34363,9 @@ Devanagari
             break;
         }
       });
-      this.post({ action: "name", args: $character || "" });
+      this._post({ action: "name", args: $character || "" });
       window.addEventListener("beforeunload", () => {
-        this.post({ action: "flush" });
+        this._post({ action: "flush" });
       });
     }
     get menu() {
@@ -34377,8 +34377,8 @@ Devanagari
           active: this.client.getOption("logEnabled"),
           action: () => {
             if (!client.getOption("logEnabled"))
-              this.createLogger();
-            this.post({ action: "toggle" });
+              this._createLogger();
+            this._post({ action: "toggle" });
           }
         },
         {
@@ -34401,11 +34401,11 @@ Devanagari
         position: 2
       }];
     }
-    post(data) {
+    _post(data) {
       if (!this._logger) return;
       this._logger.postMessage(data);
     }
-    createLogger() {
+    _createLogger() {
       if (this._logger) return;
       this._logger = new Worker(logger_worker_default);
       this._logger.addEventListener("message", (e) => {
@@ -34415,7 +34415,7 @@ Devanagari
             break;
           case "stopped":
             this._updateMenuItem(false);
-            this.post({ action: "flush" });
+            this._post({ action: "flush" });
             this._logger.terminate();
             this._logger = null;
             break;
@@ -34435,14 +34435,14 @@ Devanagari
               this.client.setOption("logEnabled", e.data.args);
             this._updateMenuItem(e.data.args);
             if (!e.data.args) {
-              this.post({ action: "flush" });
+              this._post({ action: "flush" });
               this._logger.terminate();
               this._logger = null;
             }
             break;
           case "startInternal":
           case "start":
-            this.post({ action: e.data.event, args: { lines: this.client.display.lines || [], fragment: this.client.display.EndOfLine || this.client.telnet.prompt } });
+            this._post({ action: e.data.event, args: { lines: this.client.display.lines || [], fragment: this.client.display.EndOfLine || this.client.telnet.prompt } });
             break;
           case "write":
             this._updateKey(e.data);
@@ -34451,7 +34451,7 @@ Devanagari
               value += e.data.data;
               localforage.setItem("OoMUDLog" + e.data.file, value).then(() => {
                 if (this._manager) this._manager.logChanged(e.data.file, e.data.data);
-                this.post({ action: "write-done", file: e.data.file });
+                this._post({ action: "write-done", file: e.data.file });
               });
             });
             break;
@@ -34463,7 +34463,7 @@ Devanagari
         else
           this.client.error(e);
       });
-      this.loadLoggerOptions();
+      this._loadLoggerOptions();
     }
     _updateKey(data) {
       this._keyQueue.push(data);
@@ -34483,8 +34483,8 @@ Devanagari
         localforage.setItem("OoMUDLogKeys", _keys);
       });
     }
-    loadLoggerOptions() {
-      this.post({
+    _loadLoggerOptions() {
+      this._post({
         action: "options",
         args: {
           offline: this.client.getOption("logOffline"),
@@ -34798,24 +34798,24 @@ Devanagari
       this.client.telnet.GMCPSupports.push("Client 1");
       this.client.on("connected", () => {
         this._port = this.client.port;
-        this.closeDialog();
+        this._closeDialog();
         this._save = 0;
         this._abort = false;
       }, this);
       this.client.on("closed", () => {
         this._port = this.client.port;
-        this.closeDialog();
+        this._closeDialog();
         this._save = 0;
         this._abort = false;
       }, this);
       this.client.on("received-GMCP", async (mod, obj) => {
         if (mod.toLowerCase() !== "client" || !obj) return;
-        this.getMapper();
+        this._getMapper();
         switch (obj.action) {
           case "save":
             if (this._abort) return;
             this._user = obj.user;
-            this.showDialog("Saving data");
+            this._showDialog("Saving data");
             this._abort = false;
             if (this._mapper && this._mapper.map.changed) {
               this._mapper.map.save().then(() => {
@@ -34833,7 +34833,7 @@ Devanagari
             this._abort = false;
             this._user = obj.user;
             this._save = [obj.chunks || 1, obj.chunk || 0, obj.size, ""];
-            this.showDialog("Loading data");
+            this._showDialog("Loading data");
             if (this._mapper && this._mapper.map.changed) {
               this._mapper.map.save().then(() => {
                 this.getChunk();
@@ -34920,7 +34920,7 @@ Devanagari
         this.client.debug("client load/save aborted for" + err);
       else
         this.client.debug("client load/save aborted");
-      this.closeDialog();
+      this._closeDialog();
       alert_box("Aborted", err || "Aborted importing or exporting data.", 4 /* exclamation */);
       this._save = 0;
       this._abort = true;
@@ -34934,7 +34934,7 @@ Devanagari
       });
     }
     close() {
-      this.closeDialog();
+      this._closeDialog();
       this._save = 0;
       this._abort = false;
       $.ajax({
@@ -34970,7 +34970,7 @@ Devanagari
               this._save[1] = data.chunk || 0;
               this._save[3] += data.data || "";
               this.client.debug("Got client chunk " + this._save[1]);
-              this.updateProgress((this._save[1] + 1) / this._save[0] * 100);
+              this._updateProgress((this._save[1] + 1) / this._save[0] * 100);
               if (this._save[1] >= this._save[0] - 1)
                 this.finishLoad();
               else
@@ -35003,7 +35003,7 @@ Devanagari
             else if (data.error)
               this.abort(data.error);
             else if (this._save[0].length > 0) {
-              this.updateProgress(this._save[1] / this._save[3] * 100);
+              this._updateProgress(this._save[1] / this._save[3] * 100);
               this._save[1]++;
               this.saveChunk();
             } else {
@@ -35199,7 +35199,7 @@ Devanagari
       client.raise("backup-loaded");
       this.close();
     }
-    showDialog(title) {
+    _showDialog(title) {
       if (this._dialogProgress)
         throw new Error("Client save/load is already in progress");
       this._dialogProgress = progress_box(title || "Saving data");
@@ -35214,16 +35214,16 @@ Devanagari
       });
       this._dialogProgress.showModal();
     }
-    closeDialog() {
+    _closeDialog() {
       if (this._dialogProgress)
         this._dialogProgress.close();
       this._dialogProgress = null;
     }
-    updateProgress(progress) {
+    _updateProgress(progress) {
       if (this._dialogProgress)
         this._dialogProgress.progress = progress;
     }
-    getMapper() {
+    _getMapper() {
       if (this._mapper) return;
       for (let p = 0, pl = this.client.plugins.length; p < pl; p++) {
         if (this.client.plugins[p] instanceof Mapper) {
@@ -35458,7 +35458,7 @@ Devanagari
         this.emit("received-data", data);
         if (data == null || typeof data === "undefined" || data.value == null || typeof data.value === "undefined")
           return;
-        this.printInternal(data.value, false, true);
+        this._printInternal(data.value, false, true);
         this.debug("Latency: " + this.telnet.latency + "ms");
         this.debug("Latency: " + this.telnet.latency / 1e3 + "s");
       });
@@ -36054,7 +36054,7 @@ Devanagari
           return 0;
         } else {
           while (future < fend) {
-            if (this.alarm_match(alarm, future, dNow))
+            if (this._alarm_match(alarm, future, dNow))
               return future - now;
             future += mod;
             dNow.setTime(dNow.getTime() + mod);
@@ -36168,7 +36168,7 @@ Devanagari
           if (match)
             alarm.tempTime = 0;
         } else
-          match = this.alarm_match(alarm, now, dNow);
+          match = this._alarm_match(alarm, now, dNow);
         if (match && !alarm.suspended) {
           alarm.prevTime = now;
           const state = parent.state;
@@ -36212,7 +36212,7 @@ Devanagari
         }
       }
     }
-    alarm_match(alarm, now, dNow) {
+    _alarm_match(alarm, now, dNow) {
       if (!alarm || alarm.suspended) return false;
       let match = true;
       let ts;
@@ -36336,9 +36336,9 @@ Devanagari
       this._commandInput.style.fontFamily = this._options.cmdfont + ", monospace";
     }
     parse(txt) {
-      this.parseInternal(txt, false, false, true);
+      this._parseInternal(txt, false, false, true);
     }
-    parseInternal(txt, remote, force, prependSplit) {
+    _parseInternal(txt, remote, force, prependSplit) {
       this.display.append(txt, remote, force, prependSplit);
     }
     error(err) {
@@ -36399,16 +36399,16 @@ Devanagari
         this.print("\x1B[" + fore + ";" + back + "m" + str + codes, newline);
     }
     print(txt, newline) {
-      this.printInternal(txt, newline, false, true);
+      this._printInternal(txt, newline, false, true);
     }
-    printInternal(txt, newline, remote, prependSplit) {
+    _printInternal(txt, newline, remote, prependSplit) {
       if (txt == null || typeof txt === "undefined") return;
       if (newline == null) newline = false;
       if (remote == null) remote = false;
       if (newline && this.display.textLength > 0 && !this.display.EndOfLine && this.display.EndOfLineLength !== 0 && !this.telnet.prompt && !this.display.parseQueueEndOfLine)
         txt = "\n" + txt;
       this.emit("print");
-      this.parseInternal(txt, remote, false, prependSplit);
+      this._parseInternal(txt, remote, false, prependSplit);
     }
     send(data, echo) {
       this.telnet.sendData(data);

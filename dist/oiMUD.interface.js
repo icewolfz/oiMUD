@@ -955,7 +955,7 @@
     text = text || "";
     text = text.split("%^");
     if (!_colorCodes)
-      loadColors();
+      _loadColors();
     const stack = [];
     let codes = [];
     let t = 0;
@@ -1048,7 +1048,7 @@
       stack.push(codes[t]);
     return stack.join("");
   }
-  function loadColors() {
+  function _loadColors() {
     let c;
     let color;
     let r;
@@ -1386,9 +1386,9 @@
     }
   }
   window.fileSaveAs = new fSaveAs();
-  function utf8() {
+  function _utf8() {
     var intc, i;
-    function TryGetCharUTF8(b, count) {
+    function _TryGetCharUTF8(b, count) {
       var c = b.charCodeAt(i);
       if ((c & 128) === 0)
         intc = c;
@@ -1411,7 +1411,7 @@
       var ss = new StringBuffer();
       var sl = s.length;
       for (i = 0; i < sl; i++) {
-        if (TryGetCharUTF8(s, sl))
+        if (_TryGetCharUTF8(s, sl))
           ss.appendCode(intc);
       }
       return ss.toString();
@@ -1440,7 +1440,7 @@
       return ss.toString();
     };
   }
-  window.UTF8 = new utf8();
+  window.UTF8 = new _utf8();
   function openFileDialog(title, multiple, accept) {
     return new Promise((resolve, reject) => {
       let dialog = document.createElement("dialog");
@@ -1556,7 +1556,7 @@
           this.emit("resizing");
         }, 250, this._id + "dialogResize");
       };
-      this.resizeDoDrag = (e) => {
+      this._resizeDoDrag = (e) => {
         let t;
         if ((this._resize.type & 1 /* Right */) === 1 /* Right */) {
           t = this._resize.width + e.clientX - this._resize.x;
@@ -1596,7 +1596,7 @@
           this._body.style.bottom = this._footer.clientHeight + 1 + "px";
         this.emit("resizing");
       };
-      this.resizeTouchDrag = (e) => {
+      this._resizeTouchDrag = (e) => {
         if (!e.touches.length) return;
         let t;
         if ((this._resize.type & 1 /* Right */) === 1 /* Right */) {
@@ -1637,11 +1637,11 @@
           this._body.style.bottom = this._footer.clientHeight + 1 + "px";
         this.emit("resizing");
       };
-      this.resizeStopDrag = (e) => {
-        document.documentElement.removeEventListener("mousemove", this.resizeDoDrag);
-        document.documentElement.removeEventListener("mouseup", this.resizeStopDrag);
-        document.documentElement.removeEventListener("touchmove", this.resizeTouchDrag);
-        document.documentElement.removeEventListener("touchend", this.resizeStopDrag);
+      this._resizeStopDrag = (e) => {
+        document.documentElement.removeEventListener("mousemove", this._resizeDoDrag);
+        document.documentElement.removeEventListener("mouseup", this._resizeStopDrag);
+        document.documentElement.removeEventListener("touchmove", this._resizeTouchDrag);
+        document.documentElement.removeEventListener("touchend", this._resizeStopDrag);
         const styles = document.defaultView.getComputedStyle(this._dialog);
         this._state.x = parseInt(styles.left, 10);
         ;
@@ -1652,23 +1652,23 @@
         this._body.style.pointerEvents = "";
         this.emit("resized", this._state);
       };
-      this.dragMouseDown = (e) => {
+      this._dragMouseDown = (e) => {
         if (this.maximized) return;
         this._dragPosition.x = e.clientX;
         this._dragPosition.y = e.clientY;
-        document.documentElement.addEventListener("mouseup", this.dragMouseUp);
-        document.documentElement.addEventListener("mousemove", this.dragMouseMove);
+        document.documentElement.addEventListener("mouseup", this._dragMouseUp);
+        document.documentElement.addEventListener("mousemove", this._dragMouseMove);
         this._header.style.cursor = "move";
       };
-      this.dragTouchStart = (e) => {
+      this._dragTouchStart = (e) => {
         if (this.maximized) return;
         this._dragPosition.x = e.clientX;
         this._dragPosition.y = e.clientY;
-        document.documentElement.addEventListener("touchend", this.dragMouseUp);
-        document.documentElement.addEventListener("touchmove", this.dragTouchMove);
+        document.documentElement.addEventListener("touchend", this._dragMouseUp);
+        document.documentElement.addEventListener("touchmove", this._dragTouchMove);
         this._header.style.cursor = "move";
       };
-      this.dragMouseMove = (e) => {
+      this._dragMouseMove = (e) => {
         let x = this._dragPosition.x - e.clientX;
         let y = this._dragPosition.y - e.clientY;
         this._dragPosition.x = e.clientX;
@@ -1687,7 +1687,7 @@
         this._dialog.style.left = this._state.x + "px";
         this._dialog.style.top = this._state.y + "px";
       };
-      this.dragTouchMove = (e) => {
+      this._dragTouchMove = (e) => {
         if (!e.touches.length) return;
         let x = this._dragPosition.x - e.touches[0].clientX;
         let y = this._dragPosition.y - e.touches[0].clientY;
@@ -1707,11 +1707,11 @@
         this._dialog.style.left = this._state.x + "px";
         this._dialog.style.top = this._state.y + "px";
       };
-      this.dragMouseUp = () => {
-        document.documentElement.removeEventListener("mouseup", this.dragMouseUp);
-        document.documentElement.removeEventListener("mousemove", this.dragMouseMove);
-        document.documentElement.removeEventListener("touchend", this.dragMouseUp);
-        document.documentElement.removeEventListener("touchmove", this.dragTouchMove);
+      this._dragMouseUp = () => {
+        document.documentElement.removeEventListener("mouseup", this._dragMouseUp);
+        document.documentElement.removeEventListener("mousemove", this._dragMouseMove);
+        document.documentElement.removeEventListener("touchend", this._dragMouseUp);
+        document.documentElement.removeEventListener("touchmove", this._dragTouchMove);
         this._header.style.cursor = "";
         const styles = document.defaultView.getComputedStyle(this._dialog);
         this._state.x = parseInt(styles.left, 10);
@@ -1973,81 +1973,81 @@
         right.className = "resizer-right";
         this._dialog.appendChild(right);
         right.addEventListener("mousedown", (e) => {
-          this.initResize(e, 1 /* Right */);
+          this._initResize(e, 1 /* Right */);
         }, false);
         right.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 1 /* Right */);
+          this._initResizeTouch(e, 1 /* Right */);
         }, { passive: true });
         var bottom = document.createElement("div");
         bottom.className = "resizer-bottom";
         this._dialog.appendChild(bottom);
         bottom.addEventListener("mousedown", (e) => {
-          this.initResize(e, 2 /* Bottom */);
+          this._initResize(e, 2 /* Bottom */);
         }, false);
         bottom.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 2 /* Bottom */);
+          this._initResizeTouch(e, 2 /* Bottom */);
         }, { passive: true });
         var corner = document.createElement("div");
         corner.className = "resizer-se";
         this._dialog.appendChild(corner);
         corner.addEventListener("mousedown", (e) => {
-          this.initResize(e, 1 /* Right */ | 2 /* Bottom */);
+          this._initResize(e, 1 /* Right */ | 2 /* Bottom */);
         }, false);
         corner.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 1 /* Right */ | 2 /* Bottom */);
+          this._initResizeTouch(e, 1 /* Right */ | 2 /* Bottom */);
         }, { passive: true });
         corner = document.createElement("div");
         corner.className = "resizer-ne";
         this._dialog.appendChild(corner);
         corner.addEventListener("mousedown", (e) => {
-          this.initResize(e, 1 /* Right */ | 8 /* Top */);
+          this._initResize(e, 1 /* Right */ | 8 /* Top */);
         }, false);
         corner.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 1 /* Right */ | 8 /* Top */);
+          this._initResizeTouch(e, 1 /* Right */ | 8 /* Top */);
         }, { passive: true });
         corner = document.createElement("div");
         corner.className = "resizer-nw";
         this._dialog.appendChild(corner);
         corner.addEventListener("mousedown", (e) => {
-          this.initResize(e, 4 /* Left */ | 8 /* Top */);
+          this._initResize(e, 4 /* Left */ | 8 /* Top */);
         }, false);
         corner.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 4 /* Left */ | 8 /* Top */);
+          this._initResizeTouch(e, 4 /* Left */ | 8 /* Top */);
         }, { passive: true });
         corner = document.createElement("div");
         corner.className = "resizer-sw";
         this._dialog.appendChild(corner);
         corner.addEventListener("mousedown", (e) => {
-          this.initResize(e, 4 /* Left */ | 2 /* Bottom */);
+          this._initResize(e, 4 /* Left */ | 2 /* Bottom */);
         }, false);
         corner.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 4 /* Left */ | 2 /* Bottom */);
+          this._initResizeTouch(e, 4 /* Left */ | 2 /* Bottom */);
         }, { passive: true });
         var left = document.createElement("div");
         left.className = "resizer-left";
         this._dialog.appendChild(left);
         left.addEventListener("mousedown", (e) => {
-          this.initResize(e, 4 /* Left */);
+          this._initResize(e, 4 /* Left */);
         }, false);
         left.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 4 /* Left */);
+          this._initResizeTouch(e, 4 /* Left */);
         }, { passive: true });
         var top = document.createElement("div");
         top.className = "resizer-top";
         this._dialog.appendChild(top);
         top.addEventListener("mousedown", (e) => {
-          this.initResize(e, 8 /* Top */);
+          this._initResize(e, 8 /* Top */);
         }, false);
         top.addEventListener("touchstart", (e) => {
-          this.initResizeTouch(e, 8 /* Top */);
+          this._initResizeTouch(e, 8 /* Top */);
         }, { passive: true });
       }
       if (this.moveable) {
         this._dialog.addEventListener("mousedown", () => {
           this.focus();
         });
-        this._header.addEventListener("mousedown", this.dragMouseDown);
-        this._header.addEventListener("touchstart", this.dragTouchStart, { passive: true });
+        this._header.addEventListener("mousedown", this._dragMouseDown);
+        this._header.addEventListener("touchstart", this._dragTouchStart, { passive: true });
       }
       const styles = document.defaultView.getComputedStyle(this._dialog);
       this._state.x = this._resize.x = parseInt(styles.left, 10);
@@ -2126,7 +2126,7 @@
     get maximized() {
       return this._state.maximized;
     }
-    initResize(e, type) {
+    _initResize(e, type) {
       if (this.maximized) return;
       const styles = document.defaultView.getComputedStyle(this._dialog);
       this._resize.x = e.clientX;
@@ -2139,10 +2139,10 @@
       this._resize.borderHeight = e.offsetY + parseInt(styles.borderTopWidth);
       this._resize.borderWidth = e.offsetX + parseInt(styles.borderLeftWidth);
       this._body.style.pointerEvents = "none";
-      document.documentElement.addEventListener("mousemove", this.resizeDoDrag, false);
-      document.documentElement.addEventListener("mouseup", this.resizeStopDrag, false);
+      document.documentElement.addEventListener("mousemove", this._resizeDoDrag, false);
+      document.documentElement.addEventListener("mouseup", this._resizeStopDrag, false);
     }
-    initResizeTouch(e, type) {
+    _initResizeTouch(e, type) {
       if (!e.touches.length || this.maximized) return;
       const styles = document.defaultView.getComputedStyle(this._dialog);
       this._resize.x = e.touches[0].clientX;
@@ -2158,8 +2158,8 @@
       this._resize.borderHeight = y + parseInt(styles.borderTopWidth);
       this._resize.borderWidth = x + parseInt(styles.borderLeftWidth);
       this._body.style.pointerEvents = "none";
-      document.documentElement.addEventListener("touchmove", this.resizeTouchDrag, false);
-      document.documentElement.addEventListener("touchend", this.resizeStopDrag, false);
+      document.documentElement.addEventListener("touchmove", this._resizeTouchDrag, false);
+      document.documentElement.addEventListener("touchend", this._resizeStopDrag, false);
     }
     get id() {
       return this._id;
@@ -2338,7 +2338,7 @@
       this._dialog.querySelector(`#${this._id}-max`).firstElementChild.classList.remove("bi-arrows-angle-contract");
       this.emit("restored");
     }
-    getMaxZIndex(forceReset) {
+    _getMaxZIndex(forceReset) {
       const dialogs = document.getElementsByTagName("dialog");
       let d = 0;
       const dl = dialogs.length;
@@ -2374,7 +2374,7 @@
     }
     focus() {
       this._dialog.focus();
-      this.getMaxZIndex();
+      this._getMaxZIndex();
       this._dialog.style.zIndex = "" + ++this._state.zIndex;
       this.emit("focus");
     }
@@ -2771,7 +2771,7 @@
       this._simple = true;
       this._init = false;
       //private _colorCodes;
-      this.colorNames = {
+      this._colorNames = {
         "No color": "Default",
         "BLACK": "Black",
         "RED": "Maroon",
@@ -3033,7 +3033,7 @@
         "mono23": "Grey 93"
       };
       //{ color: 'red', hex: '#EA4235', rgb: { r: 234, g: 66, b: 53 } },
-      this.colorList = [];
+      this._colorList = [];
       if (!element)
         throw new Error("AdvEditor must be a selector, element or jquery object");
       if (typeof element === "string") {
@@ -3113,7 +3113,7 @@
     get isSimple() {
       return this._simple || !this.tinymceExist;
     }
-    loadColors() {
+    _loadColors() {
       var _dColors = getColors();
       var c, color, r, g, b, idx, _bold = [], bl;
       this._ColorTable = [];
@@ -3201,7 +3201,7 @@
             color = color.toUpperCase();
             if (!this._colors[color])
               this._colors[color] = idx;
-            this.colorList.push({ color: idx, hex: "#" + color, rgb: { r: r * 40 + 55, g: g * 40 + 55, b: b * 40 + 55 } });
+            this._colorList.push({ color: idx, hex: "#" + color, rgb: { r: r * 40 + 55, g: g * 40 + 55, b: b * 40 + 55 } });
           }
         }
       }
@@ -3221,12 +3221,12 @@
         }
       }
       for (b = 0, bl = _bold.length; b < bl; b++) {
-        this._colors["B" + _bold[b]] = this._colors[this.nearestHex("#" + _bold[b]).substr(1)].toUpperCase();
+        this._colors["B" + _bold[b]] = this._colors[this._nearestHex("#" + _bold[b]).substr(1)].toUpperCase();
       }
       this._colors["BFFFFFF"] = "RGB555";
       tinymce.activeEditor.options.set("color_map", this._ColorTable);
     }
-    initPlugins() {
+    _initPlugins() {
       if (false) return;
       const _editor = this;
       tinymce.PluginManager.add("pinkfishtextcolor", function(editor2, url) {
@@ -3307,7 +3307,7 @@
         };
         const applyColor = (editor3, format, value, onChoice) => {
           if (value === "custom") {
-            _editor.openColorDialog(format, "");
+            _editor._openColorDialog(format, "");
           } else if (value === "remove") {
             onChoice("");
             editor3.execCommand("mceRemovePinkfishcolor", format);
@@ -3401,21 +3401,21 @@
         editor2.addCommand("mceApplyFormat", (format, value) => {
           editor2.undoManager.transact(() => {
             editor2.focus();
-            _editor.clearReverse($(".reverse", $(editor2.getDoc()).contents()));
+            _editor._clearReverse($(".reverse", $(editor2.getDoc()).contents()));
             if (value)
               editor2.formatter.apply(format, { value });
             else
               editor2.formatter.apply(format);
-            _editor.addReverse($(".reverse", $(editor2.getDoc()).contents()));
+            _editor._addReverse($(".reverse", $(editor2.getDoc()).contents()));
             editor2.nodeChanged();
           });
         });
         editor2.addCommand("mceRemoveFormat", (format) => {
           editor2.undoManager.transact(() => {
             editor2.focus();
-            _editor.clearReverse($(".reverse", $(editor2.getDoc()).contents()));
+            _editor._clearReverse($(".reverse", $(editor2.getDoc()).contents()));
             editor2.formatter.remove(format, { value: null }, null, true);
-            _editor.addReverse($(".reverse", $(editor2.getDoc()).contents()));
+            _editor._addReverse($(".reverse", $(editor2.getDoc()).contents()));
             editor2.nodeChanged();
           });
         });
@@ -3560,7 +3560,7 @@
         editor2.ui.registry.addButton("append", {
           icon: "browse",
           tooltip: "Append file...",
-          onAction: () => _editor.appendFile()
+          onAction: () => _editor._appendFile()
         });
         editor2.ui.registry.addButton("clear", {
           icon: "remove",
@@ -3572,7 +3572,7 @@
           tooltip: "Paste formatted",
           onAction: (buttonApi) => {
             pasteText().then((text) => {
-              _editor.insertFormatted(text || "");
+              _editor._insertFormatted(text || "");
             }).catch((err) => {
               if (client.enableDebug)
                 client.debug(err);
@@ -3694,7 +3694,7 @@
           onpostrender: buttonPostRender
         });
         editor2.on("Change", () => {
-          _editor.addReverse($(".reverse", $(editor2.getDoc()).contents()));
+          _editor._addReverse($(".reverse", $(editor2.getDoc()).contents()));
         });
         editor2.addShortcut("ctrl+s", "Strikethrough", () => {
           toggleFormat("strikethrough");
@@ -3713,7 +3713,7 @@
         });
       });
     }
-    clearReverse(els, c) {
+    _clearReverse(els, c) {
       els.each(
         function() {
           if (!$(this).data("reverse"))
@@ -3739,7 +3739,7 @@
         }
       );
     }
-    addReverse(els, c) {
+    _addReverse(els, c) {
       els.each(
         function() {
           if (c && $(this).hasClass("reverse"))
@@ -3766,15 +3766,15 @@
         }
       );
     }
-    colorCell(color, idx) {
+    _colorCell(color, idx) {
       var cell = '<td class="mce-grid-cell' + (color === "transparent" ? " mce-colorbtn-trans" : "") + '">';
       cell += '<div id="' + idx + '"';
       cell += ' data-mce-color="' + color + '"';
       cell += ' role="option"';
       cell += ' tabIndex="-1"';
       cell += ' style="background-color: ' + (color === "transparent" ? color : "#" + color) + '"';
-      if (this.colorNames[idx])
-        cell += ' title="' + idx + ", " + this.colorNames[idx] + '">';
+      if (this._colorNames[idx])
+        cell += ' title="' + idx + ", " + this._colorNames[idx] + '">';
       else
         cell += ' title="' + idx + '">';
       if (color === "transparent") cell += "&#215;";
@@ -3782,7 +3782,7 @@
       cell += "</td>";
       return cell;
     }
-    openColorDialog(type, color) {
+    _openColorDialog(type, color) {
       if (!this._colorDialog) {
         this._colorDialog = new Dialog({ noFooter: true, title: '<i class="fas fa-palette"></i> Pick color', center: true, resizable: false, moveable: false, maximizable: false, width: 380, height: 340 });
         this._colorDialog.body.style.alignItems = "center";
@@ -3795,12 +3795,12 @@
         let idx;
         var html = '<table style="margin : auto !important;" class="mce-grid mce-grid-border mce-colorbutton-grid" role="list" cellspacing="0"><tbody><tr>';
         for (c = 0, cl = this._ColorTable.length; c < cl; c += 2) {
-          html += this.colorCell(this._ColorTable[c], this._ColorTable[c + 1]);
+          html += this._colorCell(this._ColorTable[c], this._ColorTable[c + 1]);
           if (c / 2 % 6 === 5)
             html += '<td class="mce-grid-cell"></td>';
         }
         html += '<td class="mce-grid-cell"></td>';
-        html += this.colorCell("transparent", "No color");
+        html += this._colorCell("transparent", "No color");
         html += "</tr><tr><td></td></tr>";
         var html2 = "";
         for (r = 0; r < 6; r++) {
@@ -3829,9 +3829,9 @@
               color += c.toString(16);
               color = color.toUpperCase();
               if (g < 3)
-                html += this.colorCell(color, idx);
+                html += this._colorCell(color, idx);
               else
-                html2 += this.colorCell(color, idx);
+                html2 += this._colorCell(color, idx);
             }
             if (g === 2)
               html += "</tr>";
@@ -3854,7 +3854,7 @@
           else
             g = g.toString(16).toUpperCase();
           g = g + g + g;
-          html += this.colorCell(g, color);
+          html += this._colorCell(g, color);
           if (r === 237 || r === 249)
             html += '<td class="mce-grid-cell"></td>';
           if (r === 243)
@@ -3878,7 +3878,7 @@
       this._colorDialog.dialog.dataset.type = type;
       this._colorDialog.showModal();
     }
-    appendFile() {
+    _appendFile() {
       openFileDialog("Append file(s)", true).then((files) => {
         for (var f = 0, fl = files.length; f < fl; f++)
           readFile(files[f]).then((contents) => {
@@ -3887,7 +3887,7 @@
       }).catch(() => {
       });
     }
-    insertFormatted(text) {
+    _insertFormatted(text) {
       if (this.isSimple)
         insertValue(this._element, text);
       else
@@ -3900,7 +3900,7 @@
         tinymce.activeEditor.getBody().innerHTML = pinkfishToHTML(text).replace(/(\r\n|\r|\n)/g, "<br/>");
       }
     }
-    buildHTMLStack(els) {
+    _buildHTMLStack(els) {
       var tag, $el, t, tl;
       var stack = [];
       var tags;
@@ -3959,7 +3959,7 @@
             if (!tags[t].length) continue;
             stack.push(tags[t].trim());
           }
-          stack = stack.concat(this.buildHTMLStack($el.contents()));
+          stack = stack.concat(this._buildHTMLStack($el.contents()));
           for (t = tl - 1; t >= 0; t--) {
             if (!tags[t].length) continue;
             stack.push("/" + tags[t].trim());
@@ -3968,7 +3968,7 @@
           stack.push("RESET");
         else {
           stack.push(tag);
-          stack = stack.concat(this.buildHTMLStack($el.contents()));
+          stack = stack.concat(this._buildHTMLStack($el.contents()));
           stack.push("/" + tag);
         }
       }
@@ -4009,12 +4009,12 @@
           break;
         }
       }
-      return this.formatHtml($(start + tinymce.activeEditor.selection.getContent({ format: "raw" }).replace(/<\/div><div>/g, "<br>") + end));
+      return this._formatHtml($(start + tinymce.activeEditor.selection.getContent({ format: "raw" }).replace(/<\/div><div>/g, "<br>") + end));
     }
     getFormattedText() {
       if (this.isSimple)
         return this._element.value;
-      return this.formatHtml($("<html>" + this.getRaw() + "</html>"));
+      return this._formatHtml($("<html>" + this.getRaw() + "</html>"));
     }
     getText() {
       if (this.isSimple)
@@ -4032,8 +4032,8 @@
         return this._element.value;
       return tinymce.activeEditor.getContent({ format: "raw" });
     }
-    formatHtml(text) {
-      var data = this.buildHTMLStack(text);
+    _formatHtml(text) {
+      var data = this._buildHTMLStack(text);
       var buffer = [];
       var codes = [];
       var color, d, dl, rgb;
@@ -4069,7 +4069,7 @@
           case "/ITALIC":
           case "/STRIKEOUT":
             codes.pop();
-            this.cleanReset(buffer);
+            this._cleanReset(buffer);
             buffer.push("%^RESET%^");
             if (codes.length > 0)
               buffer.push(codes.join(""));
@@ -4082,7 +4082,7 @@
           case "DIV":
           case "BR":
             if (codes.length > 0 && buffer.length > 0 && !buffer[buffer.length - 1].endsWith("%^RESET%^")) {
-              this.cleanReset(buffer);
+              this._cleanReset(buffer);
               buffer.push("%^RESET%^");
             }
             buffer.push("\n");
@@ -4091,7 +4091,7 @@
             break;
           case "RESET":
             if (codes.length > 0 && buffer.length > 0 && !buffer[buffer.length - 1].endsWith("%^RESET%^")) {
-              this.cleanReset(buffer);
+              this._cleanReset(buffer);
               buffer.push("%^RESET%^");
             }
             if (codes.length > 0)
@@ -4102,7 +4102,7 @@
               color = data[d].substr(8);
               if (!this._colors[color]) {
                 rgb = new RGBColor(color);
-                color = this.nearestHex(rgb.toHex()).substr(1);
+                color = this._nearestHex(rgb.toHex()).substr(1);
               }
               color = this._colors[color];
               if (color === "BOLD BLACK" || color === "BOLD%^%^BLACK")
@@ -4112,7 +4112,7 @@
             } else if (data[d].startsWith("COLOR: ")) {
               color = new RGBColor(data[d].substr(7)).toHex().substr(1);
               if (!this._colors[color])
-                color = this.nearestHex("#" + color).substr(1);
+                color = this._nearestHex("#" + color).substr(1);
               color = this._colors[color];
               if (color === "BOLD BLACK" || color === "BOLD%^%^BLACK")
                 color = "mono11";
@@ -4120,7 +4120,7 @@
               buffer.push("%^" + color + "%^");
             } else if (data[d].startsWith("/COLOR: ")) {
               codes.pop();
-              this.cleanReset(buffer);
+              this._cleanReset(buffer);
               buffer.push("%^RESET%^");
               if (codes.length > 0)
                 buffer.push(codes.join(""));
@@ -4128,7 +4128,7 @@
               color = data[d].substr(19);
               if (!this._colors[color]) {
                 rgb = new RGBColor(color);
-                color = this.nearestHex(rgb.toHex()).substr(1);
+                color = this._nearestHex(rgb.toHex()).substr(1);
               }
               if (this._colors["B" + color])
                 color = this._colors["B" + color];
@@ -4140,7 +4140,7 @@
             } else if (data[d].startsWith("BACKGROUND-COLOR: ")) {
               color = new RGBColor(data[d].substr(18)).toHex().substr(1);
               if (!this._colors[color])
-                color = this.nearestHex("#" + color).substr(1);
+                color = this._nearestHex("#" + color).substr(1);
               if (this._colors["B" + color])
                 color = this._colors["B" + color];
               else
@@ -4150,7 +4150,7 @@
               buffer.push(color);
             } else if (data[d].startsWith("/BACKGROUND-COLOR: ")) {
               codes.pop();
-              this.cleanReset(buffer);
+              this._cleanReset(buffer);
               buffer.push("%^RESET%^");
               if (codes.length > 0)
                 buffer.push(codes.join(""));
@@ -4161,7 +4161,7 @@
       }
       return buffer.join("");
     }
-    cleanReset(buffer) {
+    _cleanReset(buffer) {
       let b = buffer.length - 1;
       for (; b >= 0; b--) {
         if (buffer[b].startsWith("%^"))
@@ -4171,7 +4171,7 @@
       }
       return buffer;
     }
-    nearestHex(hex) {
+    _nearestHex(hex) {
       var _editor = this;
       var hexToRgb = function(hex2) {
         var shortRegEx = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
@@ -4193,8 +4193,8 @@
         }
         var minDistance = Number.MAX_SAFE_INTEGER;
         var nearestHex = null;
-        for (var i = 0; i < _editor.colorList.length; i++) {
-          var currentColor = _editor.colorList[i];
+        for (var i = 0; i < _editor._colorList.length; i++) {
+          var currentColor = _editor._colorList[i];
           var distance = Math.sqrt(
             Math.pow(rgbObj.r - currentColor.rgb.r, 2) + Math.pow(rgbObj.g - currentColor.rgb.g, 2) + Math.pow(rgbObj.b - currentColor.rgb.b, 2)
           );
@@ -4212,7 +4212,7 @@
     }
     initialize() {
       if (this.isSimple) return;
-      this.initPlugins();
+      this._initPlugins();
       tinymce.init({
         license_key: "gpl",
         custom_colors: false,
@@ -4228,7 +4228,7 @@
         forced_root_block: "div",
         plugins: "pinkfish insertdatetime pinkfishtextcolor nonbreaking",
         color_picker_callback: (editor2, color, format) => {
-          this.openColorDialog(format, color || "");
+          this._openColorDialog(format, color || "");
         },
         color_picker_caption: "More&hellip;",
         textcolor_rows: "3",
@@ -4255,7 +4255,7 @@
           editor2.on("PastePreProcess", (e) => {
             if (client.getOption("enableDebug"))
               client.debug("Advanced Before Editor PastePreProcess: " + e.content);
-            this.clearReverse($(".reverse", $(editor2.getDoc()).contents()));
+            this._clearReverse($(".reverse", $(editor2.getDoc()).contents()));
             e.content = e.content.replace(/<\/p>/g, "<br>");
             e.content = e.content.replace(/<\/h[1-6]>/g, "<br>");
             e.content = e.content.replace(/<\/li>/g, "<br>");
@@ -4277,7 +4277,7 @@
               client.debug("Advanced After Editor PastePreProcess: " + e.content);
           });
           editor2.on("PastePreProcess", () => {
-            this.addReverse($(".reverse", $(editor2.getDoc()).contents()));
+            this._addReverse($(".reverse", $(editor2.getDoc()).contents()));
           });
           $(".mce-content-body", tinymce.activeEditor.getDoc()).css("font-size", client.getOption("cmdfontSize"));
           $(".mce-content-body", tinymce.activeEditor.getDoc()).css("font-family", client.getOption("cmdfont") + ", monospace");
@@ -4285,7 +4285,7 @@
             tinymce.activeEditor.formatter.register("flash", { inline: "span", "classes": client.getOption("flashing") ? "flash" : "noflash", links: true, remove_similar: true });
           else
             tinymce.activeEditor.settings.formats["flash"] = { inline: "span", "classes": client.getOption("flashing") ? "flash" : "noflash", links: true, remove_similar: true };
-          this.loadColors();
+          this._loadColors();
           this.setFormatted(this._element.value);
           editor2.on("click", (e) => {
             this.emit("click", e);
@@ -5276,7 +5276,7 @@
     constructor() {
       super({ title: '<i class="fas fa-cogs"></i> Settings', keepCentered: true, resizable: false, moveable: false, center: true, maximizable: false });
       this.body.style.padding = "10px";
-      this.buildMenu();
+      this._buildMenu();
       let footer = "";
       footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Cancel dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;
       footer += `<button id="${this.id}-save" type="button" class="btn-sm float-end btn btn-primary" title="Confirm dialog"><i class="bi bi-save"></i><span class="icon-only"> Save</span></button>`;
@@ -5314,7 +5314,7 @@
                 setTimeout(function() {
                   alert_box("Invalid file", "Unable to import file, not a valid settings file", 4 /* exclamation */);
                 }, 50);
-              this.loadPageSettings();
+              this._loadPageSettings();
             } catch (err) {
               setTimeout(function() {
                 alert_box("Error importing", "Error importing file.", 3 /* error */);
@@ -5412,9 +5412,9 @@
         this.body.style.left = "200px";
       }
       this.body.scrollTop = 0;
-      this.loadPageSettings();
+      this._loadPageSettings();
     }
-    buildMenu() {
+    _buildMenu() {
       this.dialog.insertAdjacentHTML("beforeend", settings_menu_default.replace(' style="top:0;position:absolute;left:0;bottom:49px;right:0"', ""));
       this._menu = this.dialog.querySelector(".contents");
       this._menu.classList.add("settings-menu");
@@ -5423,7 +5423,7 @@
         this._menu.style.display = "none";
       this.body.style.left = "200px";
     }
-    loadPageSettings() {
+    _loadPageSettings() {
       const forms = this.body.querySelectorAll("input,select,textarea");
       if (this._page === "settings-colors") {
         var c;
@@ -5680,7 +5680,7 @@
         this.$parent = parent;
       if (!this.$parent)
         this.$parent = document.body;
-      this.createControl();
+      this._createControl();
     }
     get parent() {
       return this.$parent;
@@ -5697,13 +5697,13 @@
     set anchor(value) {
       if (this.$anchor === value) return;
       this.$anchor = 2;
-      this.updatePanels();
+      this._updatePanels();
     }
     set SplitterDistance(value) {
       if (this.$splitterDistance === value)
         return;
       this.$splitterDistance = value;
-      this.updatePanels();
+      this._updatePanels();
       this.emit("splitter-moved", value);
     }
     get SplitterDistance() {
@@ -5718,7 +5718,7 @@
           this.$splitterDistance = this.parent.clientWidth - this.$panel1MinSize;
       } else if (this.$panel1.clientHeight < value)
         this.$splitterDistance = this.parent.clientHeight - this.$panel1MinSize;
-      this.updatePanels();
+      this._updatePanels();
     }
     get Panel1MinSize() {
       return this.$panel1MinSize;
@@ -5732,7 +5732,7 @@
           this.$splitterDistance = value;
       } else if (this.$panel2.clientHeight < value)
         this.$splitterDistance = value;
-      this.updatePanels();
+      this._updatePanels();
     }
     get Panel2MinSize() {
       return this.$panel2MinSize;
@@ -5743,7 +5743,7 @@
     set orientation(value) {
       if (value === this.$orientation) return;
       this.$orientation = value;
-      this.updatePanels();
+      this._updatePanels();
     }
     get panel1Collapsed() {
       return this.$collapsed === 1;
@@ -5755,13 +5755,13 @@
         this.panel1.dataset.collapsed = "true";
         this.panel2.dataset.collapsed = "false";
         this.emit("collapsed", 1);
-        this.updatePanels();
+        this._updatePanels();
       } else if (this.$collapsed === 1) {
         this.$collapsed = 0;
         delete this.panel1.dataset.collapsed;
         delete this.panel2.dataset.collapsed;
         this.emit("collapsed", 0);
-        this.updatePanels();
+        this._updatePanels();
       }
     }
     get panel2Collapsed() {
@@ -5774,16 +5774,16 @@
         this.panel1.dataset.collapsed = "false";
         this.panel2.dataset.collapsed = "true";
         this.emit("collapsed", 2);
-        this.updatePanels();
+        this._updatePanels();
       } else if (this.$collapsed === 2) {
         this.$collapsed = 0;
         delete this.panel1.dataset.collapsed;
         delete this.panel2.dataset.collapsed;
         this.emit("collapsed", 0);
-        this.updatePanels();
+        this._updatePanels();
       }
     }
-    updatePanels() {
+    _updatePanels() {
       if (this.$orientation === 0 /* horizontal */) {
         this.$panel1.style.left = "0";
         this.$panel1.style.top = "0";
@@ -5882,7 +5882,7 @@
         this.$el.classList.add("vertical");
       }
     }
-    createControl() {
+    _createControl() {
       this.$el = document.createElement("div");
       this.$el.id = this.id + "-splitter";
       this.$el.classList.add("splitter");
@@ -7195,12 +7195,12 @@
       let menu = "";
       indent = indent || 0;
       let padding = indent * 20 + 16;
-      menu += `<li class="nav-item" title="${htmlEncode(GetDisplay(collection[index]))}" id="${idPrefix + "-" + (collection[index].useName ? this.sanitizeID(collection[index].name.toLowerCase()) : index)}">`;
+      menu += `<li class="nav-item" title="${htmlEncode(GetDisplay(collection[index]))}" id="${idPrefix + "-" + (collection[index].useName ? this._sanitizeID(collection[index].name.toLowerCase()) : index)}">`;
       if (collection[index].items && collection[index].items.length) {
-        menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark" href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start bi bi-chevron-right"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this.sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? " checked" : ""}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
-        menu += this._getItems(collection[index].items, idPrefix + "-" + this.sanitizeID(collection[index].name.toLowerCase()), hrefPrefix + "/" + encodeURIComponent(collection[index].name.toLowerCase()), indent + 1);
+        menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark" href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start bi bi-chevron-right"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this._sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? " checked" : ""}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
+        menu += this._getItems(collection[index].items, idPrefix + "-" + this._sanitizeID(collection[index].name.toLowerCase()), hrefPrefix + "/" + encodeURIComponent(collection[index].name.toLowerCase()), indent + 1);
       } else if (collection[index].useName)
-        menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark " href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start no-icon"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this.sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? " checked" : ""}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
+        menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark " href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start no-icon"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this._sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? " checked" : ""}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
       else
         menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark" href="#${hrefPrefix}/${index}"><i class="align-middle float-start no-icon"></i><input type="checkbox" class="form-check-input" data-page="${hrefPrefix}/${index}" id="enabled-${idPrefix}-${index}"${collection[index].enabled ? " checked" : ""}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
       menu += "</li>";
@@ -7247,22 +7247,22 @@
                 e.target.checked = true;
                 return;
               }
-              this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}`).checked = value;
-              this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}-switch`).checked = value;
+              this._menu.querySelector(`#enabled-${this._sanitizeID(data[1])}`).checked = value;
+              this._menu.querySelector(`#enabled-${this._sanitizeID(data[1])}-switch`).checked = value;
               if (this._page === e.target.dataset.page)
                 this._contents.querySelector("#enabled").checked = value;
               this.profiles.items[data[1]].enabled = value;
               this.changed = true;
               break;
             case 3:
-              this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}-${data[2]}`).checked = value;
+              this._menu.querySelector(`#enabled-${this._sanitizeID(data[1])}-${data[2]}`).checked = value;
               if (this._page === `profiles/${data[1]}`)
                 this._contents.querySelector("#enable" + capitalize(data[2])).checked = value;
               this.profiles.items[data[1]]["enable" + capitalize(data[2])] = value;
               this.changed = true;
               break;
             case 4:
-              this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}-${data[2]}-${data[3]}`).checked = value;
+              this._menu.querySelector(`#enabled-${this._sanitizeID(data[1])}-${data[2]}-${data[3]}`).checked = value;
               if (this._page === e.target.dataset.page)
                 this._contents.querySelector("#enabled").checked = value;
               else if (this._page === `profiles/${data[1]}/${data[2]}`)
@@ -7282,7 +7282,7 @@
         });
     }
     _profile(profile) {
-      let nav = `<li class="nav-item" data-profile="${profile}" title="${capitalize(profile)}" id="${this.sanitizeID(profile)}">`;
+      let nav = `<li class="nav-item" data-profile="${profile}" title="${capitalize(profile)}" id="${this._sanitizeID(profile)}">`;
       nav += `<a class="nav-link text-dark" href="#profiles/${encodeURIComponent(profile)}">`;
       if (profile !== "default")
         nav += `<span class="list-badge-button badge text-bg-danger" data-profile="${profile}"><i class="bi bi-trash"></i></span>`;
@@ -7314,12 +7314,12 @@
           useName: true,
           enabled: this.profiles.items[profile].enableButtons
         }
-      ], this.sanitizeID(profile), "profiles/" + encodeURIComponent(profile), 1);
+      ], this._sanitizeID(profile), "profiles/" + encodeURIComponent(profile), 1);
       nav += "</li>";
       return nav;
     }
     _item(title, id, enabled) {
-      return `<span><input type="checkbox" data-page="profiles/${title.toLowerCase()}" class="form-check-input" id="${this.sanitizeID(id)}"${enabled ? " checked" : ""}> ${title}</span><div class="form-check form-switch"><input type="checkbox" class="form-check-input" id="${id}-switch"${enabled ? " checked" : ""}> ${title}</div>`;
+      return `<span><input type="checkbox" data-page="profiles/${title.toLowerCase()}" class="form-check-input" id="${this._sanitizeID(id)}"${enabled ? " checked" : ""}> ${title}</span><div class="form-check form-switch"><input type="checkbox" class="form-check-input" id="${id}-switch"${enabled ? " checked" : ""}> ${title}</div>`;
     }
     setBody(contents, args) {
       if (!this.profiles) {
@@ -7397,14 +7397,14 @@
                         e.target.checked = true;
                         return;
                       }
-                      this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}`).checked = value;
-                      this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-switch`).checked = value;
+                      this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}`).checked = value;
+                      this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}-switch`).checked = value;
                       if (this._page === e.target.dataset.page)
                         this._contents.querySelector("#enabled").checked = value;
                       this.profiles.items[this._current.profileName].enabled = value;
                     } else {
                       this._current.profile[e.target.id] = value;
-                      this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-${e.target.id.substring(6).toLowerCase()}`).checked = value;
+                      this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}-${e.target.id.substring(6).toLowerCase()}`).checked = value;
                       this.changed = true;
                     }
                     this.changed = true;
@@ -7516,7 +7516,7 @@
           items[i].addEventListener("change", (e) => {
             const target = e.currentTarget || e.target;
             const value = target.checked;
-            this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-${this._current.collection}-${target.dataset.index}`).checked = value;
+            this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}-${this._current.collection}-${target.dataset.index}`).checked = value;
             this._current.profile[this._current.collection][+target.dataset.index].enabled = value;
             this.changed = true;
           });
@@ -7681,7 +7681,7 @@
               } else {
                 this._current.item[target.id] = target.checked || false;
                 if (target.id === "enabled")
-                  this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-${this._current.collection}-${this._current.itemIdx}`).checked = this._current.item[target.id];
+                  this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}-${this._current.collection}-${this._current.itemIdx}`).checked = this._current.item[target.id];
               }
               this.changed = true;
               this._updateItemMenu();
@@ -7719,7 +7719,7 @@
       const currentParent = this._current.parent;
       currentItem = currentItem || this._current.item;
       debounce(() => {
-        let item = this.body.querySelector(`#${this.sanitizeID(profile)}-${collection}-${index}`);
+        let item = this.body.querySelector(`#${this._sanitizeID(profile)}-${collection}-${index}`);
         if (!item) return;
         let display;
         display = GetDisplay(currentParent || currentItem);
@@ -7748,7 +7748,7 @@
         po = 1;
       let last = pages.length - 1;
       for (let p = po, pl = pages.length; p < pl; p++) {
-        id = this.sanitizeID(pages.slice(po, p + 1).join("-"));
+        id = this._sanitizeID(pages.slice(po, p + 1).join("-"));
         el = document.getElementById(id);
         if (!el) continue;
         if (p === last) {
@@ -7829,8 +7829,8 @@
       this._current.profile.name = name;
       this._current.profileName = name;
       this.profiles.add(this._current.profile);
-      const oldID = this.sanitizeID(oldProfile);
-      const newID = this.sanitizeID(name);
+      const oldID = this._sanitizeID(oldProfile);
+      const newID = this._sanitizeID(name);
       let items;
       items = this.body.querySelector(`#${oldID} a`);
       items.children[2].childNodes[1].textContent = " " + capitalize(name);
@@ -7846,8 +7846,8 @@
     _replaceProfileName(container, oldName, newName) {
       let items;
       let i, il;
-      const oldID = this.sanitizeID(oldName);
-      const newID = this.sanitizeID(newName);
+      const oldID = this._sanitizeID(oldName);
+      const newID = this._sanitizeID(newName);
       items = container.querySelectorAll(`[id*="-${oldID}-"]`);
       for (i = 0, il = items.length; i < il; i++)
         items[i].id = items[i].id.replace(`-${oldID}-`, `-${newID}-`);
@@ -7921,7 +7921,7 @@
     }
     close() {
       if (!this._canClose) {
-        this.confirmSave().then((r) => {
+        this._confirmSave().then((r) => {
           if (r) {
             if (!this._save()) return;
           }
@@ -7939,7 +7939,7 @@
       this._loadItem();
       this._updateItemMenu();
     }
-    confirmSave() {
+    _confirmSave() {
       return new Promise((resolve, reject) => {
         if (this._profilesChanged) {
           confirm_box("Save changes?", `Save changes to profiles?`, null, 12 /* YesNo */ | 2 /* Cancel */).then((e) => {
@@ -7956,7 +7956,7 @@
           resolve(true);
       });
     }
-    sanitizeID(name) {
+    _sanitizeID(name) {
       return name.toLowerCase().replace(/[^a-z0-9:.-]+/gi, "_");
     }
     _getItemType(collection) {
@@ -7983,14 +7983,14 @@
           item = new Context();
       }
       this._current.profile[collection].push(item);
-      let m = this._menu.querySelector(`#${this.sanitizeID(this._current.profileName)}-${collection}`);
+      let m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
       if (index === 0) {
         menuItem = this._getItem([{
           name: capitalize(collection),
           items: this._current.profile[collection],
           useName: true,
           enabled: this._current.profile[collection]
-        }], 0, this.sanitizeID(this._current.profileName), "profiles/" + encodeURIComponent(this._current.profileName), 1);
+        }], 0, this._sanitizeID(this._current.profileName), "profiles/" + encodeURIComponent(this._current.profileName), 1);
         var newNode = document.createElement("div");
         newNode.innerHTML = menuItem;
         if (m.replaceWith)
@@ -7999,13 +7999,13 @@
           m.parentNode.replaceChild(newNode.firstChild, m);
         else
           m.outerHTML = menuItem;
-        m = this._menu.querySelector(`#${this.sanitizeID(this._current.profileName)}-${collection}`);
+        m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
         this._profileEvents(m);
       } else {
-        menuItem = this._getItem(this._current.profile[collection], index, `${this.sanitizeID(this._current.profileName)}-${collection}`, `profiles/${encodeURIComponent(this._current.profileName)}/${collection}`, 2);
+        menuItem = this._getItem(this._current.profile[collection], index, `${this._sanitizeID(this._current.profileName)}-${collection}`, `profiles/${encodeURIComponent(this._current.profileName)}/${collection}`, 2);
         m = m.querySelector("ul");
         m.insertAdjacentHTML("beforeend", menuItem);
-        m = this._menu.querySelector(`#${this.sanitizeID(this._current.profileName)}-${collection}`);
+        m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
         this._profileEvents(m.lastChild);
       }
       updateHash(`profiles/${encodeURIComponent(this._current.profileName)}/${collection}/${index}`, this._page);
@@ -8016,7 +8016,7 @@
       if (!collection) return;
       confirm_box("Remove profile?", `Delete ${this._getItemType()}?`).then((e) => {
         if (e.button === 4 /* Yes */) {
-          const id = `${this.sanitizeID(this._current.profileName)}-${collection}`;
+          const id = `${this._sanitizeID(this._current.profileName)}-${collection}`;
           const items = this._current.profile[collection];
           items.splice(index, 1);
           this._menu.querySelector(`#${id}-${index}`).remove();

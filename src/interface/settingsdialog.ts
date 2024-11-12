@@ -18,7 +18,7 @@ export class SettingsDialog extends Dialog {
     constructor() {
         super(({ title: '<i class="fas fa-cogs"></i> Settings', keepCentered: true, resizable: false, moveable: false, center: true, maximizable: false }));
         this.body.style.padding = '10px';
-        this.buildMenu();
+        this._buildMenu();
         let footer = '';
         footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Cancel dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;
         footer += `<button id="${this.id}-save" type="button" class="btn-sm float-end btn btn-primary" title="Confirm dialog"><i class="bi bi-save"></i><span class="icon-only"> Save</span></button>`;
@@ -59,7 +59,7 @@ export class SettingsDialog extends Dialog {
                             setTimeout(function () {
                                 alert_box('Invalid file', 'Unable to import file, not a valid settings file', DialogIcon.exclamation);
                             }, 50);
-                        this.loadPageSettings();
+                        this._loadPageSettings();
                     }
                     catch (err) {
                         setTimeout(function () {
@@ -163,10 +163,10 @@ export class SettingsDialog extends Dialog {
             this.body.style.left = '200px';
         }
         this.body.scrollTop = 0;
-        this.loadPageSettings();
+        this._loadPageSettings();
     }
 
-    private buildMenu() {
+    private _buildMenu() {
         this.dialog.insertAdjacentHTML("beforeend", menuTemplate.replace(' style="top:0;position:absolute;left:0;bottom:49px;right:0"', ''));
         this._menu = this.dialog.querySelector('.contents');
         this._menu.classList.add('settings-menu');
@@ -176,7 +176,7 @@ export class SettingsDialog extends Dialog {
         this.body.style.left = '200px';
     }
 
-    private loadPageSettings() {
+    private _loadPageSettings() {
         const forms: HTMLInputElement[] = this.body.querySelectorAll('input,select,textarea');
         if (this._page === 'settings-colors') {
             var c;

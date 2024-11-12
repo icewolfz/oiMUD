@@ -24,19 +24,19 @@ export class MapDisplay extends EventEmitter {
     private _container: HTMLElement;
     private _canvas: HTMLCanvasElement;
     private _context: CanvasRenderingContext2D;
-    private MousePrev: MouseData;
-    private Mouse: MouseData;
-    private MouseDown: MouseData;
-    private MouseDrag: MouseData = { x: 0, y: 0, button: 0, state: false };
-    private drag: boolean = false;
-    private vscroll: number = 0;
-    private hscroll: number = 0;
-    private markers = {};
-    private markedRooms;
+    private _MousePrev: MouseData;
+    private _Mouse: MouseData;
+    private _MouseDown: MouseData;
+    private _MouseDrag: MouseData = { x: 0, y: 0, button: 0, state: false };
+    private _drag: boolean = false;
+    private _vscroll: number = 0;
+    private _hscroll: number = 0;
+    private _markers = {};
+    private _markedRooms;
     private _updating: UpdateType = UpdateType.none;
     private _rTimeout = 0;
-    private $drawCache;
-    private $focused = false;
+    private _drawCache;
+    private _focused = false;
 
     private _resizeObserver;
     private _resizeObserverCache;
@@ -77,7 +77,7 @@ export class MapDisplay extends EventEmitter {
         this.emit('room-before-selected', this._selected ? this._selected.clone() : null);
         this._selected = value.clone();
         this.emit('room-selected', value.clone());
-        this.doUpdate(UpdateType.draw);
+        this._doUpdate(UpdateType.draw);
     }
 
     get container() { return this._container; }
@@ -90,8 +90,8 @@ export class MapDisplay extends EventEmitter {
         if (this._scale !== value) {
             this._scale = value / 100;
             this.emit('setting-changed', 'scale', value);
-            this.$drawCache = 0;
-            this.doUpdate(UpdateType.draw);
+            this._drawCache = 0;
+            this._doUpdate(UpdateType.draw);
         }
     }
     get scale(): number { return Math.round(this._scale * 100); }
@@ -113,8 +113,8 @@ export class MapDisplay extends EventEmitter {
     set showLegend(value: boolean) {
         if (this._showLegend !== value) {
             this._showLegend = value;
-            this.$drawCache = 0;
-            this.doUpdate(UpdateType.draw);
+            this._drawCache = 0;
+            this._doUpdate(UpdateType.draw);
             this.emit('setting-changed', 'legend', value);
         }
     }
@@ -123,8 +123,8 @@ export class MapDisplay extends EventEmitter {
     set splitArea(value: boolean) {
         if (this._splitArea !== value) {
             this._splitArea = value;
-            this.$drawCache = 0;
-            this.doUpdate(UpdateType.draw);
+            this._drawCache = 0;
+            this._doUpdate(UpdateType.draw);
             this.emit('setting-changed', 'split', value);
         }
     }
@@ -134,8 +134,8 @@ export class MapDisplay extends EventEmitter {
     set fillWalls(value: boolean) {
         if (this._fillWalls !== value) {
             this._fillWalls = value;
-            this.$drawCache = 0;
-            this.doUpdate(UpdateType.draw);
+            this._drawCache = 0;
+            this._doUpdate(UpdateType.draw);
             this.emit('setting-changed', 'fill', value);
         }
     }
@@ -201,9 +201,9 @@ export class MapDisplay extends EventEmitter {
                 this._mapperNavDown = true;
                 const target = (e.currentTarget || e.target) as HTMLElement;
                 if (e.deltaY >= 0)
-                    this.mapperNavClick(-parseInt(target.dataset.x, 10), -parseInt(target.dataset.y, 10));
+                    this._mapperNavClick(-parseInt(target.dataset.x, 10), -parseInt(target.dataset.y, 10));
                 else
-                    this.mapperNavClick(parseInt(target.dataset.x, 10), parseInt(target.dataset.y, 10));
+                    this._mapperNavClick(parseInt(target.dataset.x, 10), parseInt(target.dataset.y, 10));
                 this._mapperNavDown = false;
             }, { passive: true });
             e.addEventListener('mouseleave', () => this._mapperNavDown = false);
@@ -211,7 +211,7 @@ export class MapDisplay extends EventEmitter {
             e.addEventListener('mousedown', e => {
                 this._mapperNavDown = true;
                 const target = (e.currentTarget || e.target) as HTMLElement;
-                this.mapperNavClick(parseInt(target.dataset.x, 10), parseInt(target.dataset.y, 10));
+                this._mapperNavClick(parseInt(target.dataset.x, 10), parseInt(target.dataset.y, 10));
             });
         });
 
@@ -268,22 +268,22 @@ export class MapDisplay extends EventEmitter {
 
 
         this._canvas.addEventListener('touchstart', e => {
-            this.Mouse = this.getMapMousePos(e);
-            this.MouseDown = this.getMapMousePos(e);
-            this.MouseDrag.state = true;
-            this.drag = e.touches.length === 1;
+            this._Mouse = this.getMapMousePos(e);
+            this._MouseDown = this.getMapMousePos(e);
+            this._MouseDrag.state = true;
+            this._drag = e.touches.length === 1;
         }, { passive: true });
         this._canvas.addEventListener('touchmove', e => {
-            this.MousePrev = this.Mouse;
-            this.Mouse = this.getMapMousePos(event);
-            if (this.drag) {
-                this.MouseDrag.x += this.MousePrev.x - this.Mouse.x;
-                this.MouseDrag.y += this.MousePrev.y - this.Mouse.y;
-                const x = Math.floor(this.MouseDrag.x / 32 / this._scale);
-                const y = Math.floor(this.MouseDrag.y / 32 / this._scale);
+            this._MousePrev = this._Mouse;
+            this._Mouse = this.getMapMousePos(event);
+            if (this._drag) {
+                this._MouseDrag.x += this._MousePrev.x - this._Mouse.x;
+                this._MouseDrag.y += this._MousePrev.y - this._Mouse.y;
+                const x = Math.floor(this._MouseDrag.x / 32 / this._scale);
+                const y = Math.floor(this._MouseDrag.y / 32 / this._scale);
                 if (x > 0 || x < 0 || y < 0 || y > 0) {
-                    this.MouseDrag.x -= x * 32 * this._scale;
-                    this.MouseDrag.y -= y * 32 * this._scale;
+                    this._MouseDrag.x -= x * 32 * this._scale;
+                    this._MouseDrag.y -= y * 32 * this._scale;
                     this.scrollBy(x, y);
                 }
                 this._canvas.style.cursor = 'move';
@@ -291,31 +291,31 @@ export class MapDisplay extends EventEmitter {
             e.preventDefault();
         }, { passive: true });
         this._canvas.addEventListener('touchend', e => {
-            this.Mouse = this.getMapMousePos(e);
-            if (!this.MouseDown)
-                this.MouseDown = this.getMapMousePos(e);
-            if (this.Mouse.button === 0 && Math.floor(this.Mouse.x / 32 / this._scale) === Math.floor(this.MouseDown.x / 32 / this._scale) && Math.floor(this.Mouse.y / 32 / this._scale) === Math.floor(this.MouseDown.y / 32 / this._scale)) {
-                const x = this.Mouse.x;
-                const y = this.Mouse.y;
+            this._Mouse = this.getMapMousePos(e);
+            if (!this._MouseDown)
+                this._MouseDown = this.getMapMousePos(e);
+            if (this._Mouse.button === 0 && Math.floor(this._Mouse.x / 32 / this._scale) === Math.floor(this._MouseDown.x / 32 / this._scale) && Math.floor(this._Mouse.y / 32 / this._scale) === Math.floor(this._MouseDown.y / 32 / this._scale)) {
+                const x = this._Mouse.x;
+                const y = this._Mouse.y;
                 const room = this.findActiveRoomByCoords(x, y);
                 if (!this.selected || (room && room.num !== this.selected.num))
                     this.selected = room;
             }
-            this.MouseDrag.state = false;
-            this.drag = false;
+            this._MouseDrag.state = false;
+            this._drag = false;
             this._canvas.style.cursor = 'default;'
         }, { passive: true });
         this._canvas.addEventListener('mousemove', event => {
-            this.MousePrev = this.Mouse;
-            this.Mouse = this.getMapMousePos(event);
-            if (this.drag) {
-                this.MouseDrag.x += this.MousePrev.x - this.Mouse.x;
-                this.MouseDrag.y += this.MousePrev.y - this.Mouse.y;
-                const x = Math.floor(this.MouseDrag.x / 32 / this._scale);
-                const y = Math.floor(this.MouseDrag.y / 32 / this._scale);
+            this._MousePrev = this._Mouse;
+            this._Mouse = this.getMapMousePos(event);
+            if (this._drag) {
+                this._MouseDrag.x += this._MousePrev.x - this._Mouse.x;
+                this._MouseDrag.y += this._MousePrev.y - this._Mouse.y;
+                const x = Math.floor(this._MouseDrag.x / 32 / this._scale);
+                const y = Math.floor(this._MouseDrag.y / 32 / this._scale);
                 if (x > 0 || x < 0 || y < 0 || y > 0) {
-                    this.MouseDrag.x -= x * 32 * this._scale;
-                    this.MouseDrag.y -= y * 32 * this._scale;
+                    this._MouseDrag.x -= x * 32 * this._scale;
+                    this._MouseDrag.y -= y * 32 * this._scale;
                     this.scrollBy(x, y);
                 }
                 this._canvas.style.cursor = 'move';
@@ -323,24 +323,24 @@ export class MapDisplay extends EventEmitter {
             event.preventDefault();
         });
         this._canvas.addEventListener('mousedown', event => {
-            this.Mouse = this.getMapMousePos(event);
-            this.MouseDown = this.getMapMousePos(event);
-            this.MouseDrag.state = true;
-            this.drag = this.MouseDown.button === 0;
+            this._Mouse = this.getMapMousePos(event);
+            this._MouseDown = this.getMapMousePos(event);
+            this._MouseDrag.state = true;
+            this._drag = this._MouseDown.button === 0;
         });
         this._canvas.addEventListener('mouseup', event => {
-            this.Mouse = this.getMapMousePos(event);
-            if (!this.MouseDown)
-                this.MouseDown = this.getMapMousePos(event);
-            if (this.Mouse.button === 0 && Math.floor(this.Mouse.x / 32 / this._scale) === Math.floor(this.MouseDown.x / 32 / this._scale) && Math.floor(this.Mouse.y / 32 / this._scale) === Math.floor(this.MouseDown.y / 32 / this._scale)) {
-                const x = this.Mouse.x;
-                const y = this.Mouse.y;
+            this._Mouse = this.getMapMousePos(event);
+            if (!this._MouseDown)
+                this._MouseDown = this.getMapMousePos(event);
+            if (this._Mouse.button === 0 && Math.floor(this._Mouse.x / 32 / this._scale) === Math.floor(this._MouseDown.x / 32 / this._scale) && Math.floor(this._Mouse.y / 32 / this._scale) === Math.floor(this._MouseDown.y / 32 / this._scale)) {
+                const x = this._Mouse.x;
+                const y = this._Mouse.y;
                 const room = this.findActiveRoomByCoords(x, y);
                 if (!this.selected || (room && room.num !== this.selected.num))
                     this.selected = room;
             }
-            this.MouseDrag.state = false;
-            this.drag = false;
+            this._MouseDrag.state = false;
+            this._drag = false;
             this._canvas.style.cursor = 'default;'
         });
         this._canvas.addEventListener('wheel', e => {
@@ -350,13 +350,13 @@ export class MapDisplay extends EventEmitter {
                 this.scale += 5;
         }, { passive: true });
         this._canvas.addEventListener('mouseenter', event => {
-            this.Mouse = this.getMapMousePos(event);
+            this._Mouse = this.getMapMousePos(event);
         });
         this._canvas.addEventListener('mouseleave', event => {
-            this.Mouse = this.getMapMousePos(event);
-            if (this.drag) {
-                this.doUpdate(UpdateType.draw);
-                this.drag = false;
+            this._Mouse = this.getMapMousePos(event);
+            if (this._drag) {
+                this._doUpdate(UpdateType.draw);
+                this._drag = false;
                 $(this._canvas).css('cursor', 'default');
             }
         });
@@ -368,32 +368,32 @@ export class MapDisplay extends EventEmitter {
         });
         this._canvas.addEventListener('click', event => {
             event.preventDefault();
-            this.MouseDrag.state = false;
-            this.drag = false;
+            this._MouseDrag.state = false;
+            this._drag = false;
             $(this._canvas).css('cursor', 'default');
         });
         this._canvas.addEventListener('dblclick', event => {
             event.preventDefault();
-            this.Mouse = this.getMapMousePos(event);
-            this.MouseDown = this.getMapMousePos(event);
-            this.MouseDrag.state = true;
-            this.drag = true;
+            this._Mouse = this.getMapMousePos(event);
+            this._MouseDown = this.getMapMousePos(event);
+            this._MouseDrag.state = true;
+            this._drag = true;
             $(this._canvas).css('cursor', 'move');
         });
         this._canvas.onselectstart = () => { return false; };
         this._canvas.addEventListener('focus', (e) => {
-            this.setFocus(true);
+            this._setFocus(true);
         });
         this._canvas.addEventListener('blur', (e) => {
-            this.setFocus(false);
+            this._setFocus(false);
         });
         this._canvas.addEventListener('keydown', (e) => {
-            if (!this.$focused) return;
+            if (!this._focused) return;
             switch (e.which) {
                 case 27:
                     e.preventDefault();
-                    this.MouseDrag.state = false;
-                    this.drag = false;
+                    this._MouseDrag.state = false;
+                    this._drag = false;
                     $(this._canvas).css('cursor', 'default');
                     break;
                 case 38: //up
@@ -495,24 +495,24 @@ export class MapDisplay extends EventEmitter {
     }
 
     public scrollBy(x: number, y: number) {
-        this.vscroll += x;
-        this.hscroll += y;
-        this.doUpdate(UpdateType.draw);
-        this.emit('setting-changed', 'vscroll', this.vscroll);
-        this.emit('setting-changed', 'hscroll', this.hscroll);
+        this._vscroll += x;
+        this._hscroll += y;
+        this._doUpdate(UpdateType.draw);
+        this.emit('setting-changed', 'vscroll', this._vscroll);
+        this.emit('setting-changed', 'hscroll', this._hscroll);
     }
 
     public scrollTo(x: number, y: number) {
-        this.vscroll = x;
-        this.hscroll = y;
-        this.doUpdate(UpdateType.draw);
-        this.emit('setting-changed', 'vscroll', this.vscroll);
-        this.emit('setting-changed', 'hscroll', this.hscroll);
+        this._vscroll = x;
+        this._hscroll = y;
+        this._doUpdate(UpdateType.draw);
+        this.emit('setting-changed', 'vscroll', this._vscroll);
+        this.emit('setting-changed', 'hscroll', this._hscroll);
     }
 
     public findActiveRoomByCoords(rx: number, ry: number) {
-        let x = this.vscroll - (this._canvas.width / 32 / 2 / this._scale);
-        let y = this.hscroll - (this._canvas.height / 32 / 2 / this._scale);
+        let x = this._vscroll - (this._canvas.width / 32 / 2 / this._scale);
+        let y = this._hscroll - (this._canvas.height / 32 / 2 / this._scale);
         let ox = 15.5 * this._scale;
         let oy = 15.5 * this._scale;
         if (this._canvas.width % 2 !== 0)
@@ -541,8 +541,8 @@ export class MapDisplay extends EventEmitter {
                 return;
             }
 
-            const x = this.vscroll - (canvas.width / 32 / 2 / this._scale);
-            const y = this.hscroll - (canvas.height / 32 / 2 / this._scale);
+            const x = this._vscroll - (canvas.width / 32 / 2 / this._scale);
+            const y = this._hscroll - (canvas.height / 32 / 2 / this._scale);
             const z = this.active.z || 0;
             const area = this.active.area || '';
             const zone = this.active.zone || 0;
@@ -602,8 +602,8 @@ export class MapDisplay extends EventEmitter {
     }
 
     public refresh() {
-        this.$drawCache = 0;
-        this.doUpdate(UpdateType.draw);
+        this._drawCache = 0;
+        this._doUpdate(UpdateType.draw);
         this.emit('refresh');
     }
 
@@ -630,9 +630,9 @@ export class MapDisplay extends EventEmitter {
         this.emit('path-cleared');
         if (!value || !value.num) value = this.selected;
         this._map.current = value.clone();
-        this.markers = {};
-        this.markedRooms = 0;
-        this.doUpdate(UpdateType.draw);
+        this._markers = {};
+        this._markedRooms = 0;
+        this._doUpdate(UpdateType.draw);
     }
 
     public setArea(area: string) {
@@ -655,7 +655,7 @@ export class MapDisplay extends EventEmitter {
     public setLevel(level: number) {
         if (level !== this.active.z) {
             this.active.z = level;
-            this.doUpdate(UpdateType.draw);
+            this._doUpdate(UpdateType.draw);
             this.emit('setting-changed', 'active', this.active);
         }
     }
@@ -663,7 +663,7 @@ export class MapDisplay extends EventEmitter {
     public setZone(zone: number) {
         if (zone !== this.active.zone) {
             this.active.zone = zone;
-            this.doUpdate(UpdateType.draw);
+            this._doUpdate(UpdateType.draw);
             this.emit('setting-changed', 'active', this.active);
         }
     }
@@ -677,7 +677,7 @@ export class MapDisplay extends EventEmitter {
                 this.emit('current-changed', this._map.current);
                 this.clearPath();
             }
-            else if (this.markers[room.num])
+            else if (this._markers[room.num])
                 this.clearPath();
             if (room.num === this.active.num)
                 this.active = new Room();
@@ -737,7 +737,7 @@ export class MapDisplay extends EventEmitter {
         });
         map.on('before-room-changed', room => {
             if (room)
-                delete this.$drawCache[(room.background ? room.background : room.env) + ',' + room.indoors + ',' + room.exitsID + ',' + room.details];
+                delete this._drawCache[(room.background ? room.background : room.env) + ',' + room.indoors + ',' + room.exitsID + ',' + room.details];
         });
         map.on('room-changed', room => {
             if (this.selected && this.selected.num === room.num)
@@ -878,7 +878,7 @@ export class MapDisplay extends EventEmitter {
 
     }
 
-    private translate(ctx, amt, scale) {
+    private _translate(ctx, amt, scale) {
         if (scale === 2) return;
         //if (scale < 1) {
         const o = amt - amt * scale;
@@ -893,18 +893,18 @@ export class MapDisplay extends EventEmitter {
     }
 
     public DrawRoom(ctx, x, y, room, ex, scale?) {
-        if (!this.$drawCache)
-            this.$drawCache = {};
+        if (!this._drawCache)
+            this._drawCache = {};
         if (!scale) scale = this._scale;
         const key = (room.background ? room.background : room.env) + ',' + room.indoors + ',' + room.exitsID + ',' + room.details;
 
-        if (!this.$drawCache[key]) {
-            this.$drawCache[key] = document.createElement('canvas');
-            this.$drawCache[key].classList.add('map-canvas');
-            this.$drawCache[key].height = 32 * scale;
-            this.$drawCache[key].width = 32 * scale;
-            const tx = this.$drawCache[key].getContext('2d');
-            this.translate(tx, 0.5, scale);
+        if (!this._drawCache[key]) {
+            this._drawCache[key] = document.createElement('canvas');
+            this._drawCache[key].classList.add('map-canvas');
+            this._drawCache[key].height = 32 * scale;
+            this._drawCache[key].width = 32 * scale;
+            const tx = this._drawCache[key].getContext('2d');
+            this._translate(tx, 0.5, scale);
             tx.beginPath();
             let f = false;
             if (room.background) {
@@ -1216,10 +1216,10 @@ export class MapDisplay extends EventEmitter {
                 tx.closePath();
             }
             tx.setTransform(1, 0, 0, 1, 0, 0);
-            this.translate(tx, -0.5, scale);
+            this._translate(tx, -0.5, scale);
         }
         //this.translate(ctx, -0.5, scale);
-        ctx.drawImage(this.$drawCache[key], x | 0, y | 0);
+        ctx.drawImage(this._drawCache[key], x | 0, y | 0);
         //this.translate(ctx, 0.5, scale);
         this.DrawDoor(ctx, x + 12 * scale, y - 2 * scale, 8 * scale, 3 * scale, room.exits.north);
         this.DrawDoor(ctx, x + 31 * scale, y + 12 * scale, 3 * scale, 8 * scale, room.exits.east);
@@ -1231,7 +1231,7 @@ export class MapDisplay extends EventEmitter {
         this.DrawDDoor(ctx, x, y + 32 * scale, 5 * scale, -5 * scale, room.exits.southwest);
 
         if (!ex && this.selected.num === room.num) {
-            if (this.$focused) {
+            if (this._focused) {
                 ctx.fillStyle = 'rgba(135, 206, 250, 0.5)';
                 ctx.strokeStyle = 'LightSkyBlue';
             }
@@ -1242,11 +1242,11 @@ export class MapDisplay extends EventEmitter {
             ctx.fillRoundedRect(x, y, 32 * scale, 32 * scale, 8 * scale);
             ctx.strokeRoundedRect(x, y, 32 * scale, 32 * scale, 8 * scale);
         }
-        if (this.markers[room.num] === 2)
+        if (this._markers[room.num] === 2)
             this.drawMarker(ctx, x, y, 'green', scale);
-        else if (this.markers[room.num] === 3)
+        else if (this._markers[room.num] === 3)
             this.drawMarker(ctx, x, y, 'blue', scale);
-        else if (this.markers[room.num])
+        else if (this._markers[room.num])
             this.drawMarker(ctx, x, y, 'yellow', scale);
         if (!ex && room.num === this._map.current.num)
             this.drawMarker(ctx, x, y, 'red', scale);
@@ -1432,52 +1432,52 @@ export class MapDisplay extends EventEmitter {
         cz = (destRoom.z - oz);
         const fPath = finder.findPath(x, y, z, cx, cy, cz, grid);
         rl = fPath.length;
-        this.markers = {};
-        this.markedRooms = [this._map.current, destRoom];
+        this._markers = {};
+        this._markedRooms = [this._map.current, destRoom];
         for (r = 0; r < rl; r++) {
             x = Math.floor(fPath[r][0]);
             y = Math.floor(fPath[r][1]);
             z = Math.floor(fPath[r][2]);
             if (roomsC[y] && roomsC[y][x] && roomsC[y][x][z]) {
                 if (roomsC[y][x][z].num === this._map.current.num)
-                    this.markers[roomsC[y][x][z].num] = 2;
+                    this._markers[roomsC[y][x][z].num] = 2;
                 else if (roomsC[y][x][z].num === destRoom.num)
-                    this.markers[roomsC[y][x][z].num] = 3;
+                    this._markers[roomsC[y][x][z].num] = 3;
                 else
-                    this.markers[roomsC[y][x][z].num] = 1;
+                    this._markers[roomsC[y][x][z].num] = 1;
             }
         }
         this.emit('path-shown');
-        this.doUpdate(UpdateType.draw);
+        this._doUpdate(UpdateType.draw);
     }
 
     public clearPath() {
         this.emit('path-cleared');
-        this.markers = {};
-        this.markedRooms = 0;
-        this.doUpdate(UpdateType.draw);
+        this._markers = {};
+        this._markedRooms = 0;
+        this._doUpdate(UpdateType.draw);
     }
 
     public get hasMarked() {
-        return this.markedRooms && this.markedRooms.length !== 0;
+        return this._markedRooms && this._markedRooms.length !== 0;
     }
 
     public get markedStart() {
-        if (!this.markedRooms) return 0;
-        return this.markedRooms[0];
+        if (!this._markedRooms) return 0;
+        return this._markedRooms[0];
     }
 
     public get markedEnd() {
-        if (!this.markedRooms) return 0;
-        return this.markedRooms[1];
+        if (!this._markedRooms) return 0;
+        return this._markedRooms[1];
     }
 
     public getMarkedPath() {
         return new Promise((resolve, reject) => {
-            if (!this.markedRooms)
+            if (!this._markedRooms)
                 this.getPath().then(resolve).catch(reject);
             else
-                this.getPath(this.markedRooms[1], this.markedRooms[0]).then(resolve).catch(reject);
+                this.getPath(this._markedRooms[1], this._markedRooms[0]).then(resolve).catch(reject);
         });
     }
 
@@ -1634,8 +1634,8 @@ export class MapDisplay extends EventEmitter {
     }
 
     public walkMarkedPath() {
-        const destRoom = this.markedRooms ? this.markedRooms[1] : 0;
-        const startRoom = this.markedRooms ? this.markedRooms[0] : 0;
+        const destRoom = this._markedRooms ? this._markedRooms[1] : 0;
+        const startRoom = this._markedRooms ? this._markedRooms[0] : 0;
         return new Promise((resolve, reject) => {
             this.getPath(destRoom, startRoom).then(walk => {
                 this.SendCommands(walk);
@@ -1655,7 +1655,7 @@ export class MapDisplay extends EventEmitter {
         this.emit('send-commands', cmds.join('\n') + '\n');
     }
 
-    private doUpdate(type?: UpdateType) {
+    private _doUpdate(type?: UpdateType) {
         if (!type) return;
         this._updating |= type;
         if (this._updating === UpdateType.none || this._rTimeout)
@@ -1666,14 +1666,14 @@ export class MapDisplay extends EventEmitter {
                 this._updating &= ~UpdateType.draw;
             }
             this._rTimeout = 0;
-            this.doUpdate(this._updating);
+            this._doUpdate(this._updating);
         });
     }
 
-    private setFocus(value) {
-        if (this.$focused === value) return;
-        this.$focused = value;
-        this.doUpdate(UpdateType.draw);
+    private _setFocus(value) {
+        if (this._focused === value) return;
+        this._focused = value;
+        this._doUpdate(UpdateType.draw);
     }
 
     public updateOptions(options) {
@@ -1717,13 +1717,13 @@ export class MapDisplay extends EventEmitter {
         //restore stae
         this._context.drawImage(tempCanvas, 0, 0);
         //redraw to ensure any new exposed areas are drawn
-        this.doUpdate(UpdateType.draw);
+        this._doUpdate(UpdateType.draw);
     }
 
-    private mapperNavClick(x, y) {
+    private _mapperNavClick(x, y) {
         if (!this._mapperNavDown) return;
         this.scrollBy(x, y);
-        setTimeout(() => { this.mapperNavClick(x, y); }, 100);
+        setTimeout(() => { this._mapperNavClick(x, y); }, 100);
     }
 
     public copyPath(separator?) {

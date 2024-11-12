@@ -46,26 +46,26 @@ export class Backup extends EventEmitter {
 
         this.client.on('connected', () => {
             this._port = this.client.port;
-            this.closeDialog();
+            this._closeDialog();
             this._save = 0;
             this._abort = false;
         }, this);
 
         this.client.on('closed', () => {
             this._port = this.client.port;
-            this.closeDialog();
+            this._closeDialog();
             this._save = 0;
             this._abort = false;
         }, this);
 
         this.client.on('received-GMCP', async (mod, obj) => {
             if (mod.toLowerCase() !== 'client' || !obj) return;
-            this.getMapper();
+            this._getMapper();
             switch (obj.action) {
                 case 'save':
                     if (this._abort) return;
                     this._user = obj.user;
-                    this.showDialog('Saving data');
+                    this._showDialog('Saving data');
                     this._abort = false;
                     //if mapper make sure open map saved
                     if (this._mapper && this._mapper.map.changed) {
@@ -81,7 +81,7 @@ export class Backup extends EventEmitter {
                     this._abort = false;
                     this._user = obj.user;
                     this._save = [obj.chunks || 1, obj.chunk || 0, obj.size, ''];
-                    this.showDialog('Loading data');
+                    this._showDialog('Loading data');
                     //if mapper make sure open map saved
                     if (this._mapper && this._mapper.map.changed) {
                         this._mapper.map.save().then(() => {
@@ -178,7 +178,7 @@ export class Backup extends EventEmitter {
             this.client.debug('client load/save aborted for' + err);
         else
             this.client.debug('client load/save aborted');
-        this.closeDialog();
+        this._closeDialog();
         alert_box('Aborted', err || 'Aborted importing or exporting data.', DialogIcon.exclamation);
         this._save = 0;
         this._abort = true;
@@ -194,7 +194,7 @@ export class Backup extends EventEmitter {
     }
 
     public close() {
-        this.closeDialog();
+        this._closeDialog();
         this._save = 0;
         this._abort = false;
         $.ajax({
@@ -233,7 +233,7 @@ export class Backup extends EventEmitter {
                         this._save[1] = data.chunk || 0;
                         this._save[3] += data.data || '';
                         this.client.debug('Got client chunk ' + this._save[1]);
-                        this.updateProgress((this._save[1] + 1) / this._save[0] * 100);
+                        this._updateProgress((this._save[1] + 1) / this._save[0] * 100);
                         if (this._save[1] >= this._save[0] - 1)
                             this.finishLoad();
                         else
@@ -267,7 +267,7 @@ export class Backup extends EventEmitter {
                     else if (data.error)
                         this.abort(data.error);
                     else if (this._save[0].length > 0) {
-                        this.updateProgress(this._save[1] / this._save[3] * 100);
+                        this._updateProgress(this._save[1] / this._save[3] * 100);
                         this._save[1]++;
                         this.saveChunk();
                     }
@@ -472,7 +472,7 @@ export class Backup extends EventEmitter {
         this.close();
     }
 
-    private showDialog(title) {
+    private _showDialog(title) {
         if (this._dialogProgress)
             throw new Error('Client save/load is already in progress');
         this._dialogProgress = progress_box(title || 'Saving data');
@@ -489,18 +489,18 @@ export class Backup extends EventEmitter {
         this._dialogProgress.showModal();
     }
 
-    private closeDialog() {
+    private _closeDialog() {
         if (this._dialogProgress)
             this._dialogProgress.close();
         this._dialogProgress = null;
     }
 
-    private updateProgress(progress) {
+    private _updateProgress(progress) {
         if (this._dialogProgress)
             this._dialogProgress.progress = progress;
     }
 
-    private getMapper() {
+    private _getMapper() {
         if (this._mapper) return;
         for (let p = 0, pl = this.client.plugins.length; p < pl; p++) {
             if (this.client.plugins[p] instanceof Mapper) {

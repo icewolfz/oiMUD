@@ -11,7 +11,7 @@ export class AdvEditor extends EventEmitter {
     private _ColorTable;
     private _init = false;
     //private _colorCodes;
-    private colorNames = {
+    private _colorNames = {
         'No color': 'Default',
         'BLACK': 'Black',
         'RED': 'Maroon',
@@ -366,7 +366,7 @@ export class AdvEditor extends EventEmitter {
         return this._simple || !this.tinymceExist;
     }
 
-    private loadColors() {
+    private _loadColors() {
         var _dColors = getColors();
         var c, color, r, g, b, idx, _bold = [], bl;
         this._ColorTable = [];
@@ -463,7 +463,7 @@ export class AdvEditor extends EventEmitter {
                     //_ColorTable.push(idx);
                     if (!this._colors[color])
                         this._colors[color] = idx;
-                    this.colorList.push({ color: idx, hex: '#' + color, rgb: { r: r * 40 + 55, g: g * 40 + 55, b: b * 40 + 55 } });
+                    this._colorList.push({ color: idx, hex: '#' + color, rgb: { r: r * 40 + 55, g: g * 40 + 55, b: b * 40 + 55 } });
                 }
             }
         }
@@ -489,13 +489,13 @@ export class AdvEditor extends EventEmitter {
         }
         //this._colorCodes = invert(this._colors);
         for (b = 0, bl = _bold.length; b < bl; b++) {
-            this._colors['B' + _bold[b]] = this._colors[this.nearestHex('#' + _bold[b]).substr(1)].toUpperCase();
+            this._colors['B' + _bold[b]] = this._colors[this._nearestHex('#' + _bold[b]).substr(1)].toUpperCase();
         }
         this._colors['BFFFFFF'] = 'RGB555';
         tinymce.activeEditor.options.set('color_map', this._ColorTable);
     }
 
-    private initPlugins() {
+    private _initPlugins() {
         if (!TINYMCE) return
         const _editor = this;
         tinymce.PluginManager.add('pinkfishtextcolor', function (editor, url) {
@@ -600,7 +600,7 @@ export class AdvEditor extends EventEmitter {
 
             const applyColor = (editor, format, value, onChoice: (v: string) => void) => {
                 if (value === 'custom') {
-                    _editor.openColorDialog(format, '');
+                    _editor._openColorDialog(format, '');
                 } else if (value === 'remove') {
                     onChoice('');
                     editor.execCommand('mceRemovePinkfishcolor', format);
@@ -706,12 +706,12 @@ export class AdvEditor extends EventEmitter {
             editor.addCommand('mceApplyFormat', (format, value) => {
                 editor.undoManager.transact(() => {
                     editor.focus();
-                    _editor.clearReverse($('.reverse', $(editor.getDoc()).contents()));
+                    _editor._clearReverse($('.reverse', $(editor.getDoc()).contents()));
                     if (value)
                         editor.formatter.apply(format, { value: value });
                     else
                         editor.formatter.apply(format);
-                    _editor.addReverse($('.reverse', $(editor.getDoc()).contents()));
+                    _editor._addReverse($('.reverse', $(editor.getDoc()).contents()));
                     editor.nodeChanged();
                 });
             });
@@ -719,9 +719,9 @@ export class AdvEditor extends EventEmitter {
             editor.addCommand('mceRemoveFormat', (format) => {
                 editor.undoManager.transact(() => {
                     editor.focus();
-                    _editor.clearReverse($('.reverse', $(editor.getDoc()).contents()));
+                    _editor._clearReverse($('.reverse', $(editor.getDoc()).contents()));
                     editor.formatter.remove(format, { value: null }, null, true);
-                    _editor.addReverse($('.reverse', $(editor.getDoc()).contents()));
+                    _editor._addReverse($('.reverse', $(editor.getDoc()).contents()));
                     editor.nodeChanged();
                 });
             });
@@ -871,7 +871,7 @@ export class AdvEditor extends EventEmitter {
             editor.ui.registry.addButton('append', {
                 icon: 'browse',
                 tooltip: 'Append file...',
-                onAction: () => _editor.appendFile()
+                onAction: () => _editor._appendFile()
             });
             editor.ui.registry.addButton('clear', {
                 icon: 'remove',
@@ -883,7 +883,7 @@ export class AdvEditor extends EventEmitter {
                 tooltip: 'Paste formatted',
                 onAction: buttonApi => {
                     pasteText().then(text => {
-                        _editor.insertFormatted(text || '');
+                        _editor._insertFormatted(text || '');
                     }).catch(err => {
                         if (client.enableDebug)
                             client.debug(err);
@@ -1011,7 +1011,7 @@ export class AdvEditor extends EventEmitter {
             });
 
             editor.on('Change', () => {
-                _editor.addReverse($('.reverse', $(editor.getDoc()).contents()));
+                _editor._addReverse($('.reverse', $(editor.getDoc()).contents()));
             });
             editor.addShortcut('ctrl+s', 'Strikethrough', () => {
                 toggleFormat('strikethrough');
@@ -1031,7 +1031,7 @@ export class AdvEditor extends EventEmitter {
         });
     }
 
-    private clearReverse(els, c?) {
+    private _clearReverse(els, c?) {
         els.each(
             function () {
                 if (!$(this).data('reverse'))
@@ -1059,7 +1059,7 @@ export class AdvEditor extends EventEmitter {
         );
     }
 
-    private addReverse(els, c?) {
+    private _addReverse(els, c?) {
         els.each(
             function () {
                 if (c && $(this).hasClass('reverse'))
@@ -1089,15 +1089,15 @@ export class AdvEditor extends EventEmitter {
         );
     }
 
-    private colorCell(color, idx) {
+    private _colorCell(color, idx) {
         var cell = '<td class="mce-grid-cell' + (color === 'transparent' ? ' mce-colorbtn-trans' : '') + '">';
         cell += '<div id="' + idx + '"';
         cell += ' data-mce-color="' + color + '"';
         cell += ' role="option"';
         cell += ' tabIndex="-1"';
         cell += ' style="background-color: ' + (color === 'transparent' ? color : '#' + color) + '"';
-        if (this.colorNames[idx])
-            cell += ' title="' + idx + ', ' + this.colorNames[idx] + '">';
+        if (this._colorNames[idx])
+            cell += ' title="' + idx + ', ' + this._colorNames[idx] + '">';
         else
             cell += ' title="' + idx + '">';
         if (color === 'transparent') cell += '&#215;';
@@ -1106,7 +1106,7 @@ export class AdvEditor extends EventEmitter {
         return cell;
     }
 
-    private openColorDialog(type, color) {
+    private _openColorDialog(type, color) {
         if (!this._colorDialog) {
             this._colorDialog = new Dialog({ noFooter: true, title: '<i class="fas fa-palette"></i> Pick color', center: true, resizable: false, moveable: false, maximizable: false, width: 380, height: 340 });
             this._colorDialog.body.style.alignItems = 'center';
@@ -1119,12 +1119,12 @@ export class AdvEditor extends EventEmitter {
             let idx;
             var html = '<table style="margin : auto !important;" class="mce-grid mce-grid-border mce-colorbutton-grid" role="list" cellspacing="0"><tbody><tr>';
             for (c = 0, cl = this._ColorTable.length; c < cl; c += 2) {
-                html += this.colorCell(this._ColorTable[c], this._ColorTable[c + 1]);
+                html += this._colorCell(this._ColorTable[c], this._ColorTable[c + 1]);
                 if (c / 2 % 6 === 5)
                     html += '<td class="mce-grid-cell"></td>';
             }
             html += '<td class="mce-grid-cell"></td>';
-            html += this.colorCell('transparent', 'No color');
+            html += this._colorCell('transparent', 'No color');
             html += '</tr><tr><td></td></tr>';
             var html2 = '';
             for (r = 0; r < 6; r++) {
@@ -1153,9 +1153,9 @@ export class AdvEditor extends EventEmitter {
                         color += c.toString(16);
                         color = color.toUpperCase();
                         if (g < 3)
-                            html += this.colorCell(color, idx);
+                            html += this._colorCell(color, idx);
                         else
-                            html2 += this.colorCell(color, idx);
+                            html2 += this._colorCell(color, idx);
                     }
                     if (g === 2)
                         html += '</tr>';
@@ -1178,7 +1178,7 @@ export class AdvEditor extends EventEmitter {
                 else
                     g = g.toString(16).toUpperCase();
                 g = g + g + g;
-                html += this.colorCell(g, color);
+                html += this._colorCell(g, color);
                 if (r === 237 || r === 249)
                     html += '<td class="mce-grid-cell"></td>';
                 if (r === 243)
@@ -1203,7 +1203,7 @@ export class AdvEditor extends EventEmitter {
         this._colorDialog.showModal();
     }
 
-    private appendFile() {
+    private _appendFile() {
         openFileDialog('Append file(s)', true).then(files => {
             for (var f = 0, fl = files.length; f < fl; f++)
                 readFile(files[f]).then((contents: any) => {
@@ -1212,7 +1212,7 @@ export class AdvEditor extends EventEmitter {
         }).catch(() => { });
     }
 
-    private insertFormatted(text) {
+    private _insertFormatted(text) {
         if (this.isSimple)
             insertValue(this._element, text);
         else
@@ -1228,7 +1228,7 @@ export class AdvEditor extends EventEmitter {
         }
     }
 
-    private buildHTMLStack(els) {
+    private _buildHTMLStack(els) {
         var tag, $el, t, tl;
         var stack = [];
         var tags;
@@ -1288,7 +1288,7 @@ export class AdvEditor extends EventEmitter {
                     if (!tags[t].length) continue;
                     stack.push(tags[t].trim());
                 }
-                stack = stack.concat(this.buildHTMLStack($el.contents()));
+                stack = stack.concat(this._buildHTMLStack($el.contents()));
                 for (t = tl - 1; t >= 0; t--) {
                     if (!tags[t].length) continue;
                     stack.push('/' + tags[t].trim());
@@ -1298,7 +1298,7 @@ export class AdvEditor extends EventEmitter {
                 stack.push('RESET');
             else {
                 stack.push(tag);
-                stack = stack.concat(this.buildHTMLStack($el.contents()));
+                stack = stack.concat(this._buildHTMLStack($el.contents()));
                 stack.push('/' + tag);
             }
         }
@@ -1343,13 +1343,13 @@ export class AdvEditor extends EventEmitter {
                 break;
             }
         }
-        return this.formatHtml($(start + tinymce.activeEditor.selection.getContent({ format: 'raw' }).replace(/<\/div><div>/g, '<br>') + end));
+        return this._formatHtml($(start + tinymce.activeEditor.selection.getContent({ format: 'raw' }).replace(/<\/div><div>/g, '<br>') + end));
     }
 
     public getFormattedText() {
         if (this.isSimple)
             return this._element.value;
-        return this.formatHtml($('<html>' + this.getRaw() + '</html>'));
+        return this._formatHtml($('<html>' + this.getRaw() + '</html>'));
         //return this.formatHtml($('<html>' + this.getRaw().replace(/<\/div><div>/g, '<br>') + '</html>'));
     }
 
@@ -1372,8 +1372,8 @@ export class AdvEditor extends EventEmitter {
         return tinymce.activeEditor.getContent({ format: 'raw' });
     }
 
-    private formatHtml(text) {
-        var data = this.buildHTMLStack(text);
+    private _formatHtml(text) {
+        var data = this._buildHTMLStack(text);
         var buffer = [];
         var codes = [];
         var color, d, dl, rgb;
@@ -1410,7 +1410,7 @@ export class AdvEditor extends EventEmitter {
                 case '/ITALIC':
                 case '/STRIKEOUT':
                     codes.pop();
-                    this.cleanReset(buffer);
+                    this._cleanReset(buffer);
                     buffer.push('%^RESET%^');
                     if (codes.length > 0)
                         buffer.push(codes.join(''));
@@ -1423,7 +1423,7 @@ export class AdvEditor extends EventEmitter {
                 case 'DIV':
                 case 'BR':
                     if (codes.length > 0 && buffer.length > 0 && !buffer[buffer.length - 1].endsWith('%^RESET%^')) {
-                        this.cleanReset(buffer);
+                        this._cleanReset(buffer);
                         buffer.push('%^RESET%^');
                     }
                     buffer.push('\n');
@@ -1432,7 +1432,7 @@ export class AdvEditor extends EventEmitter {
                     break;
                 case 'RESET':
                     if (codes.length > 0 && buffer.length > 0 && !buffer[buffer.length - 1].endsWith('%^RESET%^')) {
-                        this.cleanReset(buffer);
+                        this._cleanReset(buffer);
                         buffer.push('%^RESET%^');
                     }
                     if (codes.length > 0)
@@ -1443,7 +1443,7 @@ export class AdvEditor extends EventEmitter {
                         color = data[d].substr(8);
                         if (!this._colors[color]) {
                             rgb = new RGBColor(color);
-                            color = this.nearestHex(rgb.toHex()).substr(1);
+                            color = this._nearestHex(rgb.toHex()).substr(1);
                         }
                         color = this._colors[color];
                         if (color === 'BOLD BLACK' || color === 'BOLD%^%^BLACK')
@@ -1454,7 +1454,7 @@ export class AdvEditor extends EventEmitter {
                     else if (data[d].startsWith('COLOR: ')) {
                         color = new RGBColor(data[d].substr(7)).toHex().substr(1);
                         if (!this._colors[color])
-                            color = this.nearestHex('#' + color).substr(1);
+                            color = this._nearestHex('#' + color).substr(1);
                         color = this._colors[color];
                         if (color === 'BOLD BLACK' || color === 'BOLD%^%^BLACK')
                             color = 'mono11';
@@ -1464,7 +1464,7 @@ export class AdvEditor extends EventEmitter {
                     }
                     else if (data[d].startsWith('/COLOR: ')) {
                         codes.pop();
-                        this.cleanReset(buffer);
+                        this._cleanReset(buffer);
                         buffer.push('%^RESET%^');
                         if (codes.length > 0)
                             buffer.push(codes.join(''));
@@ -1473,7 +1473,7 @@ export class AdvEditor extends EventEmitter {
                         color = data[d].substr(19);
                         if (!this._colors[color]) {
                             rgb = new RGBColor(color);
-                            color = this.nearestHex(rgb.toHex()).substr(1);
+                            color = this._nearestHex(rgb.toHex()).substr(1);
                         }
                         if (this._colors['B' + color])
                             color = this._colors['B' + color];
@@ -1486,7 +1486,7 @@ export class AdvEditor extends EventEmitter {
                     else if (data[d].startsWith('BACKGROUND-COLOR: ')) {
                         color = new RGBColor(data[d].substr(18)).toHex().substr(1);
                         if (!this._colors[color])
-                            color = this.nearestHex('#' + color).substr(1);
+                            color = this._nearestHex('#' + color).substr(1);
                         if (this._colors['B' + color])
                             color = this._colors['B' + color];
                         else
@@ -1497,7 +1497,7 @@ export class AdvEditor extends EventEmitter {
                     }
                     else if (data[d].startsWith('/BACKGROUND-COLOR: ')) {
                         codes.pop();
-                        this.cleanReset(buffer);
+                        this._cleanReset(buffer);
                         buffer.push('%^RESET%^');
                         if (codes.length > 0)
                             buffer.push(codes.join(''));
@@ -1510,7 +1510,7 @@ export class AdvEditor extends EventEmitter {
         return buffer.join('');
     }
 
-    private cleanReset(buffer) {
+    private _cleanReset(buffer) {
         let b = buffer.length - 1;
         for (; b >= 0; b--) {
             if (buffer[b].startsWith('%^'))
@@ -1522,9 +1522,9 @@ export class AdvEditor extends EventEmitter {
     }
 
     //{ color: 'red', hex: '#EA4235', rgb: { r: 234, g: 66, b: 53 } },
-    private colorList = [];
+    private _colorList = [];
 
-    private nearestHex(hex) {
+    private _nearestHex(hex) {
         var _editor = this;
         //https://codereview.stackexchange.com/questions/132225/given-hexadecimal-rgb-color-find-the-closest-predefined-color
         var hexToRgb = function (hex) {
@@ -1551,8 +1551,8 @@ export class AdvEditor extends EventEmitter {
             var minDistance = Number.MAX_SAFE_INTEGER;
             var nearestHex = null;
 
-            for (var i = 0; i < _editor.colorList.length; i++) {
-                var currentColor = _editor.colorList[i];
+            for (var i = 0; i < _editor._colorList.length; i++) {
+                var currentColor = _editor._colorList[i];
                 var distance = Math.sqrt(
                     Math.pow((rgbObj.r - currentColor.rgb.r), 2) +
                     Math.pow((rgbObj.g - currentColor.rgb.g), 2) +
@@ -1576,7 +1576,7 @@ export class AdvEditor extends EventEmitter {
 
     public initialize() {
         if (this.isSimple) return;
-        this.initPlugins();
+        this._initPlugins();
         tinymce.init({
             license_key: 'gpl',
             custom_colors: false,
@@ -1591,7 +1591,7 @@ export class AdvEditor extends EventEmitter {
             force_br_newlines: true,
             forced_root_block: 'div',
             plugins: 'pinkfish insertdatetime pinkfishtextcolor nonbreaking',
-            color_picker_callback: (editor, color, format) => { this.openColorDialog(format, color || ''); },
+            color_picker_callback: (editor, color, format) => { this._openColorDialog(format, color || ''); },
             color_picker_caption: 'More&hellip;',
             textcolor_rows: '3',
             textcolor_cols: '8',
@@ -1616,7 +1616,7 @@ export class AdvEditor extends EventEmitter {
                 editor.shortcuts.add('ctrl+shift+c', 'Copy formatted', () => copyText(this.getFormattedSelection().replace(/(?:\r)/g, '')));
                 /*
                 editor.shortcuts.add('ctrl+shift+p', 'Paste formatted', () => {
-                    //insertFormatted(clipboard.readText('selection') || '');
+                    //this._insertFormatted(clipboard.readText('selection') || '');
                 });
                 editor.shortcuts.add('ctrl+alt+p', 'Paste as text', () => {
                     //tinymce.activeEditor.execCommand('mceInsertContent', false, (clipboard.readText('selection') || '').replace(/(\r\n|\r|\n)/g, '<br/>').replaceAll('  ', '&nbsp;&nbsp;'));
@@ -1625,7 +1625,7 @@ export class AdvEditor extends EventEmitter {
                 editor.on('PastePreProcess', e => {
                     if (client.getOption('enableDebug'))
                         client.debug('Advanced Before Editor PastePreProcess: ' + e.content);
-                    this.clearReverse($('.reverse', $(editor.getDoc()).contents()));
+                    this._clearReverse($('.reverse', $(editor.getDoc()).contents()));
                     e.content = e.content.replace(/<\/p>/g, '<br>');
                     e.content = e.content.replace(/<\/h[1-6]>/g, '<br>');
                     e.content = e.content.replace(/<\/li>/g, '<br>');
@@ -1647,7 +1647,7 @@ export class AdvEditor extends EventEmitter {
                         client.debug('Advanced After Editor PastePreProcess: ' + e.content);
                 });
                 editor.on('PastePreProcess', () => {
-                    this.addReverse($('.reverse', $(editor.getDoc()).contents()));
+                    this._addReverse($('.reverse', $(editor.getDoc()).contents()));
                 });
                 $('.mce-content-body', tinymce.activeEditor.getDoc()).css('font-size', client.getOption('cmdfontSize'));
                 $('.mce-content-body', tinymce.activeEditor.getDoc()).css('font-family', client.getOption('cmdfont') + ', monospace');
@@ -1655,7 +1655,7 @@ export class AdvEditor extends EventEmitter {
                     tinymce.activeEditor.formatter.register('flash', { inline: 'span', 'classes': client.getOption('flashing') ? 'flash' : 'noflash', links: true, remove_similar: true });
                 else
                     tinymce.activeEditor.settings.formats['flash'] = { inline: 'span', 'classes': client.getOption('flashing') ? 'flash' : 'noflash', links: true, remove_similar: true };
-                this.loadColors();
+                this._loadColors();
                 this.setFormatted(this._element.value);
                 editor.on('click', e => {
                     this.emit('click', e);

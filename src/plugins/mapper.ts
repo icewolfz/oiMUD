@@ -27,7 +27,7 @@ interface MapperOptions {
 export class Mapper extends Plugin {
     private _map: Map;
     private _clientContainer;
-    private miniMap: MapDisplay;
+    private _miniMap: MapDisplay;
     private _dialog: Dialog;
     private _dialogMap: MapDisplay;
     private _dialogSplitter: Splitter;
@@ -226,22 +226,22 @@ export class Mapper extends Plugin {
                 if (data.area === this._map.current.area) {
                     if (this._map.roomExists({ x: room.x, y: room.y, z: room.z, zone: this._map.current.zone, area: this._map.current.area }) || data.prevroom.zone) {
                         room.zone = this._map.getFreeZone(this._map.current.zone);
-                        this.updateCurrent(room, data);
+                        this._updateCurrent(room, data);
                     }
                     else {
-                        this.updateCurrent(room, data);
+                        this._updateCurrent(room, data);
                     }
                 }
                 else if (this._map.roomExists({ x: room.x, y: room.y, z: room.z, zone: this._map.current.zone }) || data.prevroom.zone) {
                     room.zone = this._map.getFreeZone(this._map.current.zone);
-                    this.updateCurrent(room, data);
+                    this._updateCurrent(room, data);
                 }
                 else {
-                    this.updateCurrent(room, data);
+                    this._updateCurrent(room, data);
                 }
             }
             else {
-                this.updateCurrent(room, data);
+                this._updateCurrent(room, data);
             }
             this._map.save().catch(err => this.client.error(err));
         }
@@ -250,7 +250,7 @@ export class Mapper extends Plugin {
         }
     }
 
-    private updateCurrent(room, data) {
+    private _updateCurrent(room, data) {
         room.num = data.num;
         room.area = data.area;
         room.name = data.name;
@@ -721,43 +721,43 @@ export class Mapper extends Plugin {
             });
             const selected = room;
             const current = this._map.current;
-            this.updateMenu('#mapper-remove-selected a', selected === null || selected.num === null);
-            this.updateMenu('#mapper-set-current a', selected === null || selected.num === null);
-            this.updateMenu('#mapper-highlight-path a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-            this.updateMenu('#mapper-walk-path a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-            this.updateMenu('#mapper-copy-path a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-            this.updateMenu('#mapper-copy-stacked a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-            this.updateMenu('#mapper-copy-speedpath a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+            this._updateMenu('#mapper-remove-selected a', selected === null || selected.num === null);
+            this._updateMenu('#mapper-set-current a', selected === null || selected.num === null);
+            this._updateMenu('#mapper-highlight-path a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+            this._updateMenu('#mapper-walk-path a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+            this._updateMenu('#mapper-copy-path a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+            this._updateMenu('#mapper-copy-stacked a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+            this._updateMenu('#mapper-copy-speedpath a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
         });
         this._dialogMap.on('current-changed', room => {
             const selected = this._dialogMap.selected;
             const current = room;
-            this.updateMenu('#mapper-remove-current a', current === null || current.num === null);
-            this.updateMenu('#mapper-remove-selected a', selected === null || selected.num === null);
-            this.updateMenu('#mapper-set-current a', selected === null || selected.num === null);
-            this.updateMenu('#mapper-highlight-path a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-            this.updateMenu('#mapper-walk-path a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-            this.updateMenu('#mapper-copy-path a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-            this.updateMenu('#mapper-copy-stacked a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
-            this.updateMenu('#mapper-copy-speedpath a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+            this._updateMenu('#mapper-remove-current a', current === null || current.num === null);
+            this._updateMenu('#mapper-remove-selected a', selected === null || selected.num === null);
+            this._updateMenu('#mapper-set-current a', selected === null || selected.num === null);
+            this._updateMenu('#mapper-highlight-path a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+            this._updateMenu('#mapper-walk-path a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+            this._updateMenu('#mapper-copy-path a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+            this._updateMenu('#mapper-copy-stacked a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
+            this._updateMenu('#mapper-copy-speedpath a', selected === null || selected.num === null || !current || current.num === null || selected.num === current.num);
         });
 
         this._dialogMap.on('path-shown', () => {
-            this.updateMenu('#mapper-highlight-path a', false);
-            this.updateMenu('#mapper-walk-path a', false);
-            this.updateMenu('#mapper-walk-highlighted-path a', false);
-            this.updateMenu('#mapper-clear-path a', false);
-            this.updateMenu('#mapper-copy-highlighted-path a', false);
-            this.updateMenu('#mapper-copy-highlighted-stacked a', false);
-            this.updateMenu('#mapper-copy-highlighted-speedpath a', false);
+            this._updateMenu('#mapper-highlight-path a', false);
+            this._updateMenu('#mapper-walk-path a', false);
+            this._updateMenu('#mapper-walk-highlighted-path a', false);
+            this._updateMenu('#mapper-clear-path a', false);
+            this._updateMenu('#mapper-copy-highlighted-path a', false);
+            this._updateMenu('#mapper-copy-highlighted-stacked a', false);
+            this._updateMenu('#mapper-copy-highlighted-speedpath a', false);
         });
 
         this._dialogMap.on('path-cleared', () => {
-            this.updateMenu('#mapper-clear-path a', true);
-            this.updateMenu('#mapper-walk-highlighted-path a', true);
-            this.updateMenu('#mapper-copy-highlighted-path a', true);
-            this.updateMenu('#mapper-copy-highlighted-stacked a', true);
-            this.updateMenu('#mapper-copy-highlighted-speedpath a', true);
+            this._updateMenu('#mapper-clear-path a', true);
+            this._updateMenu('#mapper-walk-highlighted-path a', true);
+            this._updateMenu('#mapper-copy-highlighted-path a', true);
+            this._updateMenu('#mapper-copy-highlighted-stacked a', true);
+            this._updateMenu('#mapper-copy-highlighted-speedpath a', true);
         });
 
         const el = this._dialog.body.querySelector('#mapper-room-env')
@@ -923,7 +923,7 @@ export class Mapper extends Plugin {
         this._dialog.show();
     }
 
-    private updateMenu(selector, disabled) {
+    private _updateMenu(selector, disabled) {
         if (disabled)
             this._dialog.body.querySelector(selector).classList.add('disabled');
         else

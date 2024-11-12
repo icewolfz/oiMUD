@@ -44,13 +44,13 @@ export class Logger extends Plugin {
     }
     public initialize(): void {
         if (this.client.getOption('logEnabled'))
-            this.createLogger();
+            this._createLogger();
         this.client.on('cleared', () => {
-            this.post({ action: 'flush', args: true });
+            this._post({ action: 'flush', args: true });
         }, this);
         this.client.on('connecting', () => {
-            this.post({ action: 'connected', args: this.client.connected });
-            this.post({
+            this._post({ action: 'connected', args: this.client.connected });
+            this._post({
                 action: 'start', args: {
                     lines: this.client.display.lines,
                     fragment: this.client.display.EndOfLine || this.client.telnet.prompt
@@ -59,26 +59,26 @@ export class Logger extends Plugin {
         }, this);
         this.client.on('add-line-done', async data => {
             if (this.client.getOption('logEnabled'))
-                this.post({ action: 'add-line', args: data });
+                this._post({ action: 'add-line', args: data });
         }, this);
         this.client.on('set-title', (title, lag) => {
-            this.post({ action: 'name', args: $character });
+            this._post({ action: 'name', args: $character });
         }, this);
         this.client.on('options-loaded', () => {
             this._updateMenuItem(this.client.getOption('logEnabled'));
             if (this.client.getOption('logEnabled'))
-                this.createLogger();
+                this._createLogger();
             else
-                this.loadLoggerOptions();
+                this._loadLoggerOptions();
         }, this);
         this.client.on('closed', () => {
-            this.post({ action: 'connected', args: client.connected });
-            this.post({ action: 'stop' });
+            this._post({ action: 'connected', args: client.connected });
+            this._post({ action: 'stop' });
         }, this);
         this.client.on('reconnect', () => {
             if (this.client.connected) return;
-            this.post({ action: 'connected', args: client.connected });
-            this.post({ action: 'stop' });
+            this._post({ action: 'connected', args: client.connected });
+            this._post({ action: 'stop' });
         }, this);
         client.on('window', (window, args, name) => {
             let pages = window.split('/');
@@ -103,9 +103,9 @@ export class Logger extends Plugin {
                     break;
             }
         });
-        this.post({ action: 'name', args: $character || '' });
+        this._post({ action: 'name', args: $character || '' });
         window.addEventListener('beforeunload', () => {
-            this.post({ action: 'flush' });
+            this._post({ action: 'flush' });
         });
     }
     get menu(): MenuItem[] {
@@ -116,8 +116,8 @@ export class Logger extends Plugin {
             active: this.client.getOption('logEnabled'),
             action: () => {
                 if (!client.getOption('logEnabled'))
-                    this.createLogger();
-                this.post({ action: 'toggle' });
+                    this._createLogger();
+                this._post({ action: 'toggle' });
             }
         },
         {
@@ -141,12 +141,12 @@ export class Logger extends Plugin {
         }]
     }
 
-    private post(data) {
+    private _post(data) {
         if (!this._logger) return;
         this._logger.postMessage(data);
     }
 
-    private createLogger() {
+    private _createLogger() {
         if (this._logger) return;
         this._logger = new Worker(workerSrc);
         this._logger.addEventListener('message', e => {
@@ -156,7 +156,7 @@ export class Logger extends Plugin {
                     break;
                 case 'stopped':
                     this._updateMenuItem(false);
-                    this.post({ action: 'flush' });
+                    this._post({ action: 'flush' });
                     this._logger.terminate();
                     this._logger = null;
                     break;
@@ -176,14 +176,14 @@ export class Logger extends Plugin {
                         this.client.setOption('logEnabled', e.data.args);
                     this._updateMenuItem(e.data.args);
                     if (!e.data.args) {
-                        this.post({ action: 'flush' });
+                        this._post({ action: 'flush' });
                         this._logger.terminate();
                         this._logger = null;
                     }
                     break;
                 case 'startInternal':
                 case 'start':
-                    this.post({ action: e.data.event, args: { lines: this.client.display.lines || [], fragment: this.client.display.EndOfLine || this.client.telnet.prompt } });
+                    this._post({ action: e.data.event, args: { lines: this.client.display.lines || [], fragment: this.client.display.EndOfLine || this.client.telnet.prompt } });
                     break;
                 case 'write':
                     this._updateKey(e.data)
@@ -192,7 +192,7 @@ export class Logger extends Plugin {
                         value += e.data.data;
                         localforage.setItem('OoMUDLog' + e.data.file, value).then(() => {
                             if (this._manager) this._manager.logChanged(e.data.file, e.data.data);
-                            this.post({ action: 'write-done', file: e.data.file });
+                            this._post({ action: 'write-done', file: e.data.file });
                         });
                     });
                     break;
@@ -204,7 +204,7 @@ export class Logger extends Plugin {
             else
                 this.client.error(e);
         });
-        this.loadLoggerOptions();
+        this._loadLoggerOptions();
     }
 
     private _keyQueue = [];
@@ -228,8 +228,8 @@ export class Logger extends Plugin {
         });
     }
 
-    private loadLoggerOptions() {
-        this.post({
+    private _loadLoggerOptions() {
+        this._post({
             action: 'options', args: {
                 offline: this.client.getOption('logOffline'),
                 gagged: this.client.getOption('logGagged'),

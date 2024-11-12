@@ -1104,15 +1104,15 @@ export function capitalize(s, first?) {
 }
 
 export function capitalizePinkfish(s) {
-    const p = string_parts(s);
+    const p = _string_parts(s);
     if (p.length !== 3)
         return capitalize(s, true);
     return p[0] + capitalize(p[1], true) + p[2];
 }
 
-function is_color(str) {
+function _is_color(str) {
     if (!_colorCodes)
-        loadColors();
+        _loadColors();
     if (!str)
         return false;
     if (_colorCodes[str])
@@ -1133,7 +1133,7 @@ function is_color(str) {
     return false;
 }
 
-function string_parts(str) {
+function _string_parts(str) {
     let tmp;
     let t2;
     let ss;
@@ -1153,7 +1153,7 @@ function string_parts(str) {
         for (s = 0; s < c; s++) {
             t2 = tmp[s];
             if (!t2.length) continue;
-            if (!is_color(t2)) {
+            if (!_is_color(t2)) {
                 s--;
                 break;
             }
@@ -1165,7 +1165,7 @@ function string_parts(str) {
         for (e = c - 1; e > s; e--) {
             t2 = tmp[e];
             if (!t2.length) continue;
-            if (!is_color(t2)) {
+            if (!_is_color(t2)) {
                 e++;
                 break;
             }
@@ -1325,7 +1325,7 @@ export function wordwrap(str, maxWidth, newLineStr?) {
         found = false;
         // Inserts new line at first whitespace of the line
         for (i = maxWidth - 1; i >= 0; i--) {
-            if (testWhite(str.charAt(i))) {
+            if (_testWhite(str.charAt(i))) {
                 res = res + [str.slice(0, i + 1), newLineStr].join('');
                 str = str.slice(i + 1);
                 found = true;
@@ -1346,7 +1346,7 @@ export function wordwrap(str, maxWidth, newLineStr?) {
     return res;
 }
 
-function testWhite(x) {
+function _testWhite(x) {
     return /^\s$/.test(x.charAt(0));
 }
 
@@ -1733,9 +1733,9 @@ export function stripPinkfish(text) {
     let t = 0;
     const tl = text.length;
     for (; t < tl; t++) {
-        if (text[t].startsWith('B_') && is_color(text[t].substr(2)))
+        if (text[t].startsWith('B_') && _is_color(text[t].substr(2)))
             continue;
-        else if (is_color(text[t]))
+        else if (_is_color(text[t]))
             continue;
         stack.push(text[t]);
     }
@@ -1747,7 +1747,7 @@ export function pinkfishToHTML(text) {
     text = text || '';
     text = text.split('%^');
     if (!_colorCodes)
-        loadColors();
+        _loadColors();
     const stack = [];
     let codes = [];
     let t = 0;
@@ -1844,7 +1844,7 @@ export function pinkfishToHTML(text) {
     return stack.join('');
 }
 
-function loadColors() {
+function _loadColors() {
     let c;
     let color;
     let r;
@@ -2044,17 +2044,17 @@ if (!Array.isArray) {
     };
 }
 
-let txtDecoder;
+let _txtDecoder;
 export function ArrayBufferToString(buffer) {
     if (window.TextDecoder !== undefined) {
-        return (txtDecoder || (txtDecoder = new TextDecoder())).decode(new Uint8Array(buffer));
+        return (_txtDecoder || (_txtDecoder = new TextDecoder())).decode(new Uint8Array(buffer));
     }
     return BinaryToString(String.fromCharCode.apply(null, Array.prototype.slice.apply(new Uint8Array(buffer))));
 }
 
 export function Uint8ArrayToString(buffer) {
     if (window.TextDecoder !== undefined)
-        return (txtDecoder || (txtDecoder = new TextDecoder())).decode(buffer);
+        return (_txtDecoder || (_txtDecoder = new TextDecoder())).decode(buffer);
     return BinaryToString(String.fromCharCode.apply(null, Array.prototype.slice.apply(buffer)));
 }
 
@@ -2100,11 +2100,11 @@ export function StringToBinary(string) {
     }
 }
 
-let txtEncoder;
+let _txtEncoder;
 export function StringToUint8Array(string) {
     var binary, binLen, buffer, chars, i, _i;
     if (window.TextEncoder !== undefined)
-        return (txtEncoder || (txtEncoder = new TextEncoder())).encode(string);
+        return (_txtEncoder || (_txtEncoder = new TextEncoder())).encode(string);
     binary = StringToBinary(string);
     binLen = binary.length;
     buffer = new ArrayBuffer(binLen);
@@ -2421,11 +2421,11 @@ export function fSaveAs() {
 window.fileSaveAs = new fSaveAs();
 
 
-function utf8() {
+function _utf8() {
     var intc, i;
 
     //http://siphon9.net/loune/2009/10/javascript-snippet-to-convert-raw-utf8-to-unicode/
-    function TryGetCharUTF8(b, count) {
+    function _TryGetCharUTF8(b, count) {
         var c = b.charCodeAt(i);
         /*
          * 10000000 80
@@ -2467,7 +2467,7 @@ function utf8() {
         var ss = new StringBuffer();
         var sl = s.length;
         for (i = 0; i < sl; i++) {
-            if (TryGetCharUTF8(s, sl))
+            if (_TryGetCharUTF8(s, sl))
                 ss.appendCode(intc);
         }
         return ss.toString();
@@ -2502,7 +2502,7 @@ function utf8() {
 
 }
 
-window.UTF8 = new utf8();
+window.UTF8 = new _utf8();
 
 export function printArray(data) {
     if (data === null || typeof data == 'undefined') return data;

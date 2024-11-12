@@ -89,8 +89,8 @@ export class Display extends EventEmitter {
             this._timestampWidth = new Date().toISOString().length + 1;
         else
             this._timestampWidth = moment().format(this._timestampFormat).length;
-        this.buildStyleSheet();
-        this.doUpdate(UpdateType.display | UpdateType.update | UpdateType.rebuildLines);
+        this._buildStyleSheet();
+        this._doUpdate(UpdateType.display | UpdateType.update | UpdateType.rebuildLines);
     }
 
     get timestampFormat() { return this._timestampFormat; }
@@ -101,7 +101,7 @@ export class Display extends EventEmitter {
             this._timestampWidth = new Date().toISOString().length + 1;
         else
             this._timestampWidth = moment().format(this._timestampFormat).length;
-        this.doUpdate(UpdateType.display | UpdateType.rebuildLines | UpdateType.updateWindow | UpdateType.update);
+        this._doUpdate(UpdateType.display | UpdateType.rebuildLines | UpdateType.updateWindow | UpdateType.update);
     }
     z
     get wordWrap(): boolean {
@@ -111,16 +111,16 @@ export class Display extends EventEmitter {
     set wordWrap(value: boolean) {
         if (value === this._wordWrap) return;
         this._wordWrap = value;
-        this.buildStyleSheet();
-        this.doUpdate(UpdateType.update);
+        this._buildStyleSheet();
+        this._doUpdate(UpdateType.update);
     }
 
     get wrapAt() { return this._wrapAt; }
     set wrapAt(value: number) {
         if (value === this._wrapAt) return;
         this._wrapAt = value;
-        this.buildStyleSheet();
-        this.doUpdate(UpdateType.update | UpdateType.display);
+        this._buildStyleSheet();
+        this._doUpdate(UpdateType.update | UpdateType.display);
     }
 
     get indent() { return this._indent; }
@@ -128,8 +128,8 @@ export class Display extends EventEmitter {
         if (value === this._indent)
             return;
         this._indent = value;
-        this.buildStyleSheet();
-        this.doUpdate(UpdateType.update | UpdateType.display);
+        this._buildStyleSheet();
+        this._doUpdate(UpdateType.update | UpdateType.display);
     }
 
     get linkFunction(): string {
@@ -195,7 +195,7 @@ export class Display extends EventEmitter {
         this._model.on('expire-links', args => {
             if (this._expireCache.length) {
                 for (let x = 0, xl = this._expireCache.length; x < xl; x++)
-                    this.rebuildLine(this._expireCache[x]);
+                    this._rebuildLine(this._expireCache[x]);
             }
             this._expireCache = [];
             this.emit('expire-links');
@@ -203,7 +203,7 @@ export class Display extends EventEmitter {
         this._model.on('parse-done', () => {
             this._view.insertAdjacentHTML('beforeend', this._lineCache.join(''));
             this._lineCache = [];
-            this.doUpdate(UpdateType.display);
+            this._doUpdate(UpdateType.display);
             this.emit('parse-done');
         });
 
@@ -223,7 +223,7 @@ export class Display extends EventEmitter {
 
         this._model.on('expire-link-line', idx => {
             this._expireCache.push(idx);
-            this.doUpdate(UpdateType.display);
+            this._doUpdate(UpdateType.display);
         });
     }
 
@@ -231,7 +231,7 @@ export class Display extends EventEmitter {
     set maxLines(value: number) {
         if (value !== this._maxLines) {
             this._maxLines = value;
-            this.doUpdate(UpdateType.trim);
+            this._doUpdate(UpdateType.trim);
         }
     }
 
@@ -243,21 +243,21 @@ export class Display extends EventEmitter {
     set enableColors(value) {
         if (value === this._enableColors) return;
         this._enableColors = value;
-        this.buildStyleSheet();
+        this._buildStyleSheet();
     }
 
     get enableBackgroundColors() { return this._enableBackgroundColors; }
     set enableBackgroundColors(value) {
         if (value === this._enableBackgroundColors) return;
         this._enableBackgroundColors = value;
-        this.buildStyleSheet();
+        this._buildStyleSheet();
     }
 
     get hideTrailingEmptyLine() { return this._hideTrailingEmptyLine; }
     set hideTrailingEmptyLine(value) {
         if (value === this._hideTrailingEmptyLine) return;
         this._hideTrailingEmptyLine = value;
-        this.doUpdate(UpdateType.display);
+        this._doUpdate(UpdateType.display);
     }
 
     set enableDebug(enable: boolean) {
@@ -464,7 +464,7 @@ export class Display extends EventEmitter {
             if (this._scrollAtEnd)
                 this.scrollDisplay();
             debounce(() => {
-                this.doUpdate(UpdateType.update | UpdateType.updateWindow);
+                this._doUpdate(UpdateType.update | UpdateType.updateWindow);
             }, 250, 'resize');
         };
         this._selection = e => {
@@ -485,7 +485,7 @@ export class Display extends EventEmitter {
                     if (this._scrollAtEnd)
                         this.scrollDisplay();
                     this._resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
-                    this.doUpdate(UpdateType.update | UpdateType.updateWindow);
+                    this._doUpdate(UpdateType.update | UpdateType.updateWindow);
                     this.emit('resize');
                 }
             }, 250, 'resize');
@@ -497,7 +497,7 @@ export class Display extends EventEmitter {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                     if (this._scrollAtEnd)
                         this.scrollDisplay();
-                    this.doUpdate(UpdateType.update | UpdateType.updateWindow);
+                    this._doUpdate(UpdateType.update | UpdateType.updateWindow);
                     this.emit('resize');
                 }
             }
@@ -587,13 +587,13 @@ export class Display extends EventEmitter {
         this._model.removeLines(line, amt);
     }
 
-    private updateDisplay() {
+    private _updateDisplay() {
         //disable animation
         this._view.classList.remove('animate');
-        this.doUpdate(UpdateType.trim);
+        this._doUpdate(UpdateType.trim);
         if (this._hideTrailingEmptyLine && this.lines.length && this.lines[this.lines.length - 1].text.length === 0)
             (<HTMLElement>this._view.lastChild).style.display = 'none';
-        this.doUpdate(UpdateType.scrollEnd | UpdateType.updateWindow);
+        this._doUpdate(UpdateType.scrollEnd | UpdateType.updateWindow);
         //re-enable animation so they are all synced
         this._view.classList.add('animate');
     }
@@ -621,7 +621,7 @@ export class Display extends EventEmitter {
         document.removeEventListener("selectionchange", this._selection);
     }
 
-    private update() {
+    private _update() {
         const scrollWidth = getScrollbarWidth();
         this._maxView = this._view.clientWidth - this._padding[1] - this._padding[3] - scrollWidth - this._indentPadding;
         if (this._timestamp !== TimeStampStyle.None)
@@ -649,8 +649,8 @@ export class Display extends EventEmitter {
                 this._charHeight = parseFloat(window.getComputedStyle(this._character).height);
                 this._charWidth = parseFloat(window.getComputedStyle(this._character.firstElementChild).width);
             }, 250);
-            this.buildStyleSheet();
-            this.doUpdate(UpdateType.scrollEnd | UpdateType.updateWindow | UpdateType.update);
+            this._buildStyleSheet();
+            this._doUpdate(UpdateType.scrollEnd | UpdateType.updateWindow | UpdateType.update);
         }
         const pc = window.getComputedStyle(this._view);
         const padding = [
@@ -665,11 +665,11 @@ export class Display extends EventEmitter {
             padding[3] !== this._padding[3]
         ) {
             this._padding = padding;
-            this.doUpdate(UpdateType.update);
+            this._doUpdate(UpdateType.update);
         }
     }
 
-    private buildStyleSheet() {
+    private _buildStyleSheet() {
         let styles = ''; // `.background > span, .view > span, .line, .background-line { height: ${this._charHeight}px; line-height: ${this._charHeight - 2}px; }`;
         if (!this._enableColors)
             styles += '.view > span span {color: inherit !important;}';
@@ -930,11 +930,11 @@ export class Display extends EventEmitter {
         return this.lines[line].text;
     }
 
-    private rebuildLine(start: number) {
-        this.rebuildLines(start, start);
+    private _rebuildLine(start: number) {
+        this._rebuildLines(start, start);
     }
 
-    private rebuildLines(start?: number, end?: number) {
+    private _rebuildLines(start?: number, end?: number) {
         if (!this.lines.length) return;
         if (start === undefined || start < 0)
             start = 0;
@@ -960,7 +960,7 @@ export class Display extends EventEmitter {
         }
     }
 
-    private doUpdate(type?: UpdateType) {
+    private _doUpdate(type?: UpdateType) {
         if (!type) return;
         this._updating |= type;
         if (this._updating === UpdateType.none)
@@ -969,15 +969,15 @@ export class Display extends EventEmitter {
             if (this._updating === UpdateType.none)
                 return;
             if ((this._updating & UpdateType.rebuildLines) === UpdateType.rebuildLines) {
-                this.rebuildLines();
+                this._rebuildLines();
                 this._updating &= ~UpdateType.rebuildLines;
             }
             if ((this._updating & UpdateType.update) === UpdateType.update) {
-                this.update();
+                this._update();
                 this._updating &= ~UpdateType.update;
             }
             if ((this._updating & UpdateType.display) === UpdateType.display) {
-                this.updateDisplay();
+                this._updateDisplay();
                 this._updating &= ~UpdateType.display;
             }
             if ((this._updating & UpdateType.trim) === UpdateType.trim) {
@@ -992,7 +992,7 @@ export class Display extends EventEmitter {
                 this.updateWindow();
                 this._updating &= ~UpdateType.updateWindow;
             }
-            this.doUpdate(this._updating);
+            this._doUpdate(this._updating);
         });
     }
 
@@ -1004,7 +1004,7 @@ export class Display extends EventEmitter {
         //only update if something changed
         if (!this._model.colorSubStringByLine(idx, fore, back, start, end, style))
             return;
-        this.rebuildLine(idx);
+        this._rebuildLine(idx);
     }
 
     public removeStyleSubStrByLine(idx: number, style: FontStyle, start?: number, len?: number) {
@@ -1016,7 +1016,7 @@ export class Display extends EventEmitter {
         //only update if something changed
         if (!this._model.removeStyleSubStringByLine(idx, style, start, end))
             return;
-        this.rebuildLine(idx);
+        this._rebuildLine(idx);
     }
 
     public highlightSubStrByLine(idx: number, start?: number, len?: number) {
@@ -1028,7 +1028,7 @@ export class Display extends EventEmitter {
         //only update if something changed
         if (!this._model.highlightStyleSubStringByLine(idx, start, end, color))
             return;
-        this.rebuildLine(idx);
+        this._rebuildLine(idx);
     }
 
     public SetColor(code: number, color) {
@@ -1178,7 +1178,7 @@ export class DisplayModel extends EventEmitter {
     private _lineID = 0;
     private _parser: Parser;
     public lines: LineData[] = [];
-    private lineIDs: number[] = [];
+    private _lineIDs: number[] = [];
     private _expire = {};
     private _expire2 = [];
 
@@ -1303,7 +1303,7 @@ export class DisplayModel extends EventEmitter {
                 for (line in this._expire2) {
                     if (!this._expire2.hasOwnProperty(line))
                         continue;
-                    this.expireLineLinkFormat(this._expire2[line], +line);
+                    this._expireLineLinkFormat(this._expire2[line], +line);
                 }
                 for (expire in this._expire) {
                     if (!this._expire.hasOwnProperty(expire))
@@ -1312,7 +1312,7 @@ export class DisplayModel extends EventEmitter {
                     for (line in lines) {
                         if (!lines.hasOwnProperty(line))
                             continue;
-                        this.expireLineLinkFormat(lines[line], +line);
+                        this._expireLineLinkFormat(lines[line], +line);
                     }
                 }
                 this._expire2 = [];
@@ -1324,7 +1324,7 @@ export class DisplayModel extends EventEmitter {
                 for (line in lines) {
                     if (!lines.hasOwnProperty(line))
                         continue;
-                    this.expireLineLinkFormat(lines[line], +line);
+                    this._expireLineLinkFormat(lines[line], +line);
                 }
                 delete this._expire[args];
                 this.emit('expire-links', args);
@@ -1367,13 +1367,13 @@ export class DisplayModel extends EventEmitter {
             timestamp: data.timestamp
         }
         this.lines.push(line);
-        this.lineIDs.push(this._lineID);
+        this._lineIDs.push(this._lineID);
         this._lineID++;
-        this.buildLineExpires(this.lines.length - 1);
+        this._buildLineExpires(this.lines.length - 1);
         this.emit('line-added', data, noUpdate);
     }
 
-    private expireLineLinkFormat(formats, idx: number) {
+    private _expireLineLinkFormat(formats, idx: number) {
         let f;
         let fs;
         let fl;
@@ -1414,7 +1414,7 @@ export class DisplayModel extends EventEmitter {
         this.lines = [];
         this._expire = {};
         this._expire2 = [];
-        this.lineIDs = [];
+        this._lineIDs = [];
         this._lineID = 0;
     }
 
@@ -1456,13 +1456,13 @@ export class DisplayModel extends EventEmitter {
 
     public removeLine(line: number) {
         this.lines.splice(line, 1);
-        this.lineIDs.splice(line, 1);
+        this._lineIDs.splice(line, 1);
         this._expire2.splice(line, 1);
     }
 
     public removeLines(line: number, amt: number) {
         this.lines.splice(line, amt);
-        this.lineIDs.splice(line, amt);
+        this._lineIDs.splice(line, amt);
         this._expire2.splice(line, amt);
         for (let ol in this._expire) {
             if (!this._expire.hasOwnProperty(ol) || this._expire[ol].length === 0 || line >= this._expire[ol].length)
@@ -1472,8 +1472,8 @@ export class DisplayModel extends EventEmitter {
     }
 
     public getLineID(line: number) {
-        if (line < 0 || line >= this.lineIDs.length) return -1;
-        return this.lineIDs[line];
+        if (line < 0 || line >= this._lineIDs.length) return -1;
+        return this._lineIDs[line];
     }
 
     public get getNextLineID() {
@@ -1481,10 +1481,10 @@ export class DisplayModel extends EventEmitter {
     }
 
     public getLineFromID(id) {
-        return this.lineIDs.indexOf(id);
+        return this._lineIDs.indexOf(id);
     }
 
-    private buildLineExpires(idx) {
+    private _buildLineExpires(idx) {
         if (idx === undefined)
             idx = this.lines.length - 1;
         const formats = this.lines[idx].formats;
@@ -1645,7 +1645,7 @@ export class DisplayModel extends EventEmitter {
                     start = formatEnd;
             }
             //clean out duplicates and other no longer needed blocks
-            this.lines[idx].formats = this.pruneFormats(formats, this.textLength);
+            this.lines[idx].formats = this._pruneFormats(formats, this.textLength);
         }
         return true;
     }
@@ -1773,7 +1773,7 @@ export class DisplayModel extends EventEmitter {
                     start = formatEnd;
             }
             //clean out duplicates and other no longer needed blocks
-            this.lines[idx].formats = this.pruneFormats(formats, this.textLength);
+            this.lines[idx].formats = this._pruneFormats(formats, this.textLength);
         }
         return true;
     }
@@ -1923,12 +1923,12 @@ export class DisplayModel extends EventEmitter {
                     start = formatEnd;
             }
             //clean out duplicates and other no longer needed blocks
-            this.lines[idx].formats = this.pruneFormats(formats, this.textLength);
+            this.lines[idx].formats = this._pruneFormats(formats, this.textLength);
         }
         return true;
     }
 
-    private pruneFormats(formats, textLen) {
+    private _pruneFormats(formats, textLen) {
         //no formats or only 1 format
         if (!formats || formats.length < 2) return formats;
         const l = formats.length;

@@ -98,9 +98,9 @@ export class Map extends EventEmitter {
         }
         else
             this._rooms = value || {};
-        this.buildKeys();
+        this._buildKeys();
         this._keys.forEach(key => {
-            this._rooms[key] = this.normalizeRoom(this._rooms[key]);
+            this._rooms[key] = this._normalizeRoom(this._rooms[key]);
             if (this._rooms[key].zone > this._zone)
                 this._zone = this._rooms[key].zone;
             if (this._areas.indexOf(this._rooms[key].area) === -1)
@@ -109,7 +109,7 @@ export class Map extends EventEmitter {
         this._areas.sort();
     }
     public get Areas() {
-        if (!this._areas) this.buildAreas();
+        if (!this._areas) this._buildAreas();
         return this._areas;
     }
     public get zone() { return this._zone; }
@@ -269,12 +269,12 @@ export class Map extends EventEmitter {
     public setRoom(room: Room) {
         if (!room) return;
         this.changed = true;
-        room = this.normalizeRoom(room);
+        room = this._normalizeRoom(room);
         this.emit('before-room-changed', this._rooms[room.num]);
         this._rooms[room.num] = room;
         if (room.zone > this._zone)
             this._zone = room.zone;
-        this.buildKeys();
+        this._buildKeys();
         this.addArea(room.area);
         this.emit('room-changed', this._rooms[room.num]);
         return this._rooms[room.num];
@@ -295,7 +295,7 @@ export class Map extends EventEmitter {
         return ++this.zone;
     }
 
-    private normalizeRoom(r) {
+    private _normalizeRoom(r) {
         const id = '' + (r.num || r.ID);
         const room = {
             area: r.Area || r.area || '',
@@ -328,7 +328,7 @@ export class Map extends EventEmitter {
         return new Room(room);
     }
 
-    private buildKeys() {
+    private _buildKeys() {
         this._keys = Object.keys(this._rooms).sort((a, b) => {
             const aRoom = this._rooms[a];
             const bRoom = this._rooms[b];
@@ -351,7 +351,7 @@ export class Map extends EventEmitter {
         });
     }
 
-    private buildAreas() {
+    private _buildAreas() {
         this._areas = [];
         this._keys.forEach(key => {
             if (this._areas.indexOf(this._rooms[key].area) === -1)
@@ -385,7 +385,7 @@ export class Map extends EventEmitter {
                 break;
             this.emit('import-progress', Math.floor(r / rl * 100));
             if (data[r] === null) continue;
-            room = this.normalizeRoom(data[r]);
+            room = this._normalizeRoom(data[r]);
             this._rooms[room.num] = room;
             if (room.zone > this._zone)
                 this._zone = room.zone;
@@ -396,7 +396,7 @@ export class Map extends EventEmitter {
         this._areas = Object.keys(areas);
         this._areas.sort();
         this.emit('areas-added', Object.keys(areas));
-        this.buildKeys();
+        this._buildKeys();
         this.changed = true;
         if (this._cancel)
             this.emit('import-canceled');

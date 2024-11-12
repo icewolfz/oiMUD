@@ -124,7 +124,7 @@ export class Telnet extends EventEmitter {
     private _splitBuffer: number[] = [];
     private _connected: boolean = false;
     private _MTTS: number = 0;
-    private zStream: any = 0;
+    private _zStream: any = 0;
     private _latencyTime: Date = null;
     private _doPing: boolean = false;
     private _closed: boolean = true;
@@ -1692,7 +1692,7 @@ export class Telnet extends EventEmitter {
      */
     private _endMCCP() {
         this._zlib = false;
-        this.zStream = 0;
+        this._zStream = 0;
     }
 
     /**
@@ -1704,10 +1704,10 @@ export class Telnet extends EventEmitter {
      */
     private _decompressData(data) {
         if (!this._zlib) return data;
-        if (!this.zStream)
-            this.zStream = new Zlib.InflateStream();
+        if (!this._zStream)
+            this._zStream = new Zlib.InflateStream();
         if (this.enableDebug) this.emit('debug', 'Pre decompress:' + printArray(data), 1);
-        data = this.zStream.decompress(data);
+        data = this._zStream.decompress(data);
         if (this.enableDebug) this.emit('debug', 'Post decompress:' + printArray(data), 1);
         return new Uint8Array(data);
     }

@@ -293,13 +293,13 @@ export class ProfilesDialog extends Dialog {
         let menu = '';
         indent = indent || 0;
         let padding = indent * 20 + 16;
-        menu += `<li class="nav-item" title="${htmlEncode(GetDisplay(collection[index]))}" id="${idPrefix + '-' + (collection[index].useName ? this.sanitizeID(collection[index].name.toLowerCase()) : index)}">`;
+        menu += `<li class="nav-item" title="${htmlEncode(GetDisplay(collection[index]))}" id="${idPrefix + '-' + (collection[index].useName ? this._sanitizeID(collection[index].name.toLowerCase()) : index)}">`;
         if (collection[index].items && collection[index].items.length) {
-            menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark" href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start bi bi-chevron-right"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this.sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? ' checked' : ''}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
-            menu += this._getItems(collection[index].items, idPrefix + '-' + this.sanitizeID(collection[index].name.toLowerCase()), hrefPrefix + '/' + encodeURIComponent(collection[index].name.toLowerCase()), indent + 1);
+            menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark" href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start bi bi-chevron-right"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this._sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? ' checked' : ''}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
+            menu += this._getItems(collection[index].items, idPrefix + '-' + this._sanitizeID(collection[index].name.toLowerCase()), hrefPrefix + '/' + encodeURIComponent(collection[index].name.toLowerCase()), indent + 1);
         }
         else if (collection[index].useName)
-            menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark " href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start no-icon"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this.sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? ' checked' : ''}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
+            menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark " href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start no-icon"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this._sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? ' checked' : ''}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
         else
             menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark" href="#${hrefPrefix}/${index}"><i class="align-middle float-start no-icon"></i><input type="checkbox" class="form-check-input" data-page="${hrefPrefix}/${index}" id="enabled-${idPrefix}-${index}"${collection[index].enabled ? ' checked' : ''}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
         menu += '</li>';
@@ -351,22 +351,22 @@ export class ProfilesDialog extends Dialog {
                             e.target.checked = true;
                             return;
                         }
-                        this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}`).checked = value;
-                        this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}-switch`).checked = value;
+                        this._menu.querySelector(`#enabled-${this._sanitizeID(data[1])}`).checked = value;
+                        this._menu.querySelector(`#enabled-${this._sanitizeID(data[1])}-switch`).checked = value;
                         if (this._page === e.target.dataset.page)
                             this._contents.querySelector('#enabled').checked = value;
                         this.profiles.items[data[1]].enabled = value;
                         this.changed = true;
                         break;
                     case 3:
-                        this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}-${data[2]}`).checked = value;
+                        this._menu.querySelector(`#enabled-${this._sanitizeID(data[1])}-${data[2]}`).checked = value;
                         if (this._page === `profiles/${data[1]}`)
                             this._contents.querySelector('#enable' + capitalize(data[2])).checked = value;
                         this.profiles.items[data[1]]['enable' + capitalize(data[2])] = value;
                         this.changed = true;
                         break;
                     case 4:
-                        this._menu.querySelector(`#enabled-${this.sanitizeID(data[1])}-${data[2]}-${data[3]}`).checked = value;
+                        this._menu.querySelector(`#enabled-${this._sanitizeID(data[1])}-${data[2]}-${data[3]}`).checked = value;
                         if (this._page === e.target.dataset.page)
                             this._contents.querySelector('#enabled').checked = value;
                         else if (this._page === `profiles/${data[1]}/${data[2]}`)
@@ -387,7 +387,7 @@ export class ProfilesDialog extends Dialog {
     }
 
     public _profile(profile) {
-        let nav = `<li class="nav-item" data-profile="${profile}" title="${capitalize(profile)}" id="${this.sanitizeID(profile)}">`;
+        let nav = `<li class="nav-item" data-profile="${profile}" title="${capitalize(profile)}" id="${this._sanitizeID(profile)}">`;
         nav += `<a class="nav-link text-dark" href="#profiles/${encodeURIComponent(profile)}">`;
         if (profile !== 'default')
             nav += `<span class="list-badge-button badge text-bg-danger" data-profile="${profile}"><i class="bi bi-trash"></i></span>`;
@@ -417,13 +417,13 @@ export class ProfilesDialog extends Dialog {
             items: this.profiles.items[profile].buttons,
             useName: true,
             enabled: this.profiles.items[profile].enableButtons
-        }], this.sanitizeID(profile), 'profiles/' + encodeURIComponent(profile), 1);
+        }], this._sanitizeID(profile), 'profiles/' + encodeURIComponent(profile), 1);
         nav += '</li>';
         return nav;
     }
 
     public _item(title, id, enabled) {
-        return `<span><input type="checkbox" data-page="profiles/${title.toLowerCase()}" class="form-check-input" id="${this.sanitizeID(id)}"${enabled ? ' checked' : ''}> ${title}</span><div class="form-check form-switch"><input type="checkbox" class="form-check-input" id="${id}-switch"${enabled ? ' checked' : ''}> ${title}</div>`;
+        return `<span><input type="checkbox" data-page="profiles/${title.toLowerCase()}" class="form-check-input" id="${this._sanitizeID(id)}"${enabled ? ' checked' : ''}> ${title}</span><div class="form-check form-switch"><input type="checkbox" class="form-check-input" id="${id}-switch"${enabled ? ' checked' : ''}> ${title}</div>`;
     }
 
     public setBody(contents: string, args?: any) {
@@ -511,15 +511,15 @@ export class ProfilesDialog extends Dialog {
                                         e.target.checked = true;
                                         return;
                                     }
-                                    this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}`).checked = value;
-                                    this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-switch`).checked = value;
+                                    this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}`).checked = value;
+                                    this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}-switch`).checked = value;
                                     if (this._page === e.target.dataset.page)
                                         this._contents.querySelector('#enabled').checked = value;
                                     this.profiles.items[this._current.profileName].enabled = value;
                                 }
                                 else {
                                     this._current.profile[e.target.id] = value;
-                                    this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-${e.target.id.substring(6).toLowerCase()}`).checked = value;
+                                    this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}-${e.target.id.substring(6).toLowerCase()}`).checked = value;
                                     this.changed = true;
                                 }
                                 this.changed = true;
@@ -640,7 +640,7 @@ export class ProfilesDialog extends Dialog {
                 items[i].addEventListener('change', (e: MouseEvent) => {
                     const target = (e.currentTarget || e.target) as HTMLInputElement;
                     const value = target.checked;
-                    this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-${this._current.collection}-${target.dataset.index}`).checked = value;
+                    this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}-${this._current.collection}-${target.dataset.index}`).checked = value;
                     this._current.profile[this._current.collection][+target.dataset.index].enabled = value;
                     this.changed = true;
                 });
@@ -821,7 +821,7 @@ export class ProfilesDialog extends Dialog {
                         else {
                             this._current.item[target.id] = target.checked || false;
                             if (target.id === 'enabled')
-                                this._menu.querySelector(`#enabled-${this.sanitizeID(this._current.profileName)}-${this._current.collection}-${this._current.itemIdx}`).checked = this._current.item[target.id];
+                                this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}-${this._current.collection}-${this._current.itemIdx}`).checked = this._current.item[target.id];
                         }
                         this.changed = true;
                         this._updateItemMenu();
@@ -861,7 +861,7 @@ export class ProfilesDialog extends Dialog {
         const currentParent = this._current.parent;
         currentItem = currentItem || this._current.item;
         debounce(() => {
-            let item = this.body.querySelector(`#${this.sanitizeID(profile)}-${collection}-${index}`);
+            let item = this.body.querySelector(`#${this._sanitizeID(profile)}-${collection}-${index}`);
             if (!item) return;
             let display
             display = GetDisplay(currentParent || currentItem);
@@ -891,7 +891,7 @@ export class ProfilesDialog extends Dialog {
             po = 1;
         let last = pages.length - 1;
         for (let p = po, pl = pages.length; p < pl; p++) {
-            id = this.sanitizeID(pages.slice(po, p + 1).join('-'));
+            id = this._sanitizeID(pages.slice(po, p + 1).join('-'));
             el = document.getElementById(id);
             if (!el) continue;
             if (p === last) {
@@ -978,8 +978,8 @@ export class ProfilesDialog extends Dialog {
         this._current.profile.name = name;
         this._current.profileName = name;
         this.profiles.add(this._current.profile);
-        const oldID = this.sanitizeID(oldProfile);
-        const newID = this.sanitizeID(name);
+        const oldID = this._sanitizeID(oldProfile);
+        const newID = this._sanitizeID(name);
         let items;
         items = this.body.querySelector(`#${oldID} a`);
         items.children[2].childNodes[1].textContent = ' ' + capitalize(name);
@@ -996,8 +996,8 @@ export class ProfilesDialog extends Dialog {
     private _replaceProfileName(container, oldName, newName) {
         let items;
         let i, il;
-        const oldID = this.sanitizeID(oldName);
-        const newID = this.sanitizeID(newName);
+        const oldID = this._sanitizeID(oldName);
+        const newID = this._sanitizeID(newName);
         items = container.querySelectorAll(`[id*="-${oldID}-"]`);
         for (i = 0, il = items.length; i < il; i++)
             items[i].id = items[i].id.replace(`-${oldID}-`, `-${newID}-`);
@@ -1076,7 +1076,7 @@ export class ProfilesDialog extends Dialog {
 
     public close() {
         if (!this._canClose) {
-            this.confirmSave().then(r => {
+            this._confirmSave().then(r => {
                 if (r)
                     if (!this._save()) return;
                 this._canClose = true;
@@ -1096,7 +1096,7 @@ export class ProfilesDialog extends Dialog {
         this._updateItemMenu();
     }
 
-    private confirmSave() {
+    private _confirmSave() {
         return new Promise((resolve, reject) => {
             if (this._profilesChanged) {
                 confirm_box('Save changes?', `Save changes to profiles?`, null, DialogButtons.YesNo | DialogButtons.Cancel).then(e => {
@@ -1115,7 +1115,7 @@ export class ProfilesDialog extends Dialog {
         });
     }
 
-    private sanitizeID(name) {
+    private _sanitizeID(name) {
         return name.toLowerCase().replace(/[^a-z0-9:.-]+/gi, '_');
     }
 
@@ -1144,14 +1144,14 @@ export class ProfilesDialog extends Dialog {
                 item = new Context();
         }
         this._current.profile[collection].push(item);
-        let m = this._menu.querySelector(`#${this.sanitizeID(this._current.profileName)}-${collection}`);
+        let m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
         if (index === 0) {
             menuItem = this._getItem([{
                 name: capitalize(collection),
                 items: this._current.profile[collection],
                 useName: true,
                 enabled: this._current.profile[collection],
-            }], 0, this.sanitizeID(this._current.profileName), 'profiles/' + encodeURIComponent(this._current.profileName), 1);
+            }], 0, this._sanitizeID(this._current.profileName), 'profiles/' + encodeURIComponent(this._current.profileName), 1);
             var newNode = document.createElement('div');
             newNode.innerHTML = menuItem;
             if (m.replaceWith)
@@ -1160,14 +1160,14 @@ export class ProfilesDialog extends Dialog {
                 m.parentNode.replaceChild(newNode.firstChild, m);
             else
                 m.outerHTML = menuItem;
-            m = this._menu.querySelector(`#${this.sanitizeID(this._current.profileName)}-${collection}`);
+            m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
             this._profileEvents(m);
         }
         else {
-            menuItem = this._getItem(this._current.profile[collection], index, `${this.sanitizeID(this._current.profileName)}-${collection}`, `profiles/${encodeURIComponent(this._current.profileName)}/${collection}`, 2);
+            menuItem = this._getItem(this._current.profile[collection], index, `${this._sanitizeID(this._current.profileName)}-${collection}`, `profiles/${encodeURIComponent(this._current.profileName)}/${collection}`, 2);
             m = m.querySelector('ul');
             m.insertAdjacentHTML("beforeend", menuItem);
-            m = this._menu.querySelector(`#${this.sanitizeID(this._current.profileName)}-${collection}`);
+            m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
             this._profileEvents(m.lastChild);
         }
         updateHash(`profiles/${encodeURIComponent(this._current.profileName)}/${collection}/${index}`, this._page);
@@ -1179,7 +1179,7 @@ export class ProfilesDialog extends Dialog {
         if (!collection) return;
         confirm_box('Remove profile?', `Delete ${this._getItemType()}?`).then(e => {
             if (e.button === DialogButtons.Yes) {
-                const id = `${this.sanitizeID(this._current.profileName)}-${collection}`;
+                const id = `${this._sanitizeID(this._current.profileName)}-${collection}`;
                 const items = this._current.profile[collection];
                 items.splice(index, 1);
                 this._menu.querySelector(`#${id}-${index}`).remove();

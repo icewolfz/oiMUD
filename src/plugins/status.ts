@@ -12,14 +12,14 @@ import statusDisplay from '../html/status.htm'
 
 export class Status extends Plugin {
     private _clientContainer;
-    private info = [];
-    private infoAC = [];
-    private infoLimb = [];
+    private _info = [];
+    private _infoAC = [];
+    private _infoLimb = [];
     private _ac: boolean = false;
-    private lagMeter: HTMLElement;
+    private _lagMeter: HTMLElement;
     private _updating: UpdateType;
     private _rTimeout = 0;
-    private dragging = false;
+    private _dragging = false;
     private _splitterDistance;
     private _status: HTMLElement;
     private _styles: CSSStyleDeclaration;
@@ -29,7 +29,7 @@ export class Status extends Plugin {
     set splitterDistance(value: number) {
         if (value === this._splitterDistance) return;
         this._splitterDistance = value;
-        this.updateSplitter();
+        this._updateSplitter();
     }
 
     get maxWidth() {
@@ -37,11 +37,11 @@ export class Status extends Plugin {
     }
 
     get currentLag(): string {
-        if (!this.lagMeter || !this.lagMeter.firstElementChild) return '';
-        return this.lagMeter.firstElementChild.textContent || '';
+        if (!this._lagMeter || !this._lagMeter.firstElementChild) return '';
+        return this._lagMeter.firstElementChild.textContent || '';
     }
 
-    private updateSplitter() {
+    private _updateSplitter() {
         const p = parseInt(this._styles.right, 10) * 2;
         if (!this._splitterDistance || this._splitterDistance < 1) {
             const bounds = this._status.getBoundingClientRect();
@@ -89,7 +89,7 @@ export class Status extends Plugin {
             //TODO add skills dialog
             //if (window === 'skills') 
         });
-        this.lagMeter = document.getElementById('lagMeter');
+        this._lagMeter = document.getElementById('lagMeter');
         this.client.telnet.on('latency-changed', (lag, avg) => {
             this.updateLagMeter(lag);
         });
@@ -103,7 +103,7 @@ export class Status extends Plugin {
                 this.init();
         });
         this.client.on('options-loaded', () => {
-            this.info['EXPERIENCE_NEED'] = this.info['EXPERIENCE_NEED_RAW'] - this.info['EXPERIENCE'];
+            this._info['EXPERIENCE_NEED'] = this._info['EXPERIENCE_NEED_RAW'] - this._info['EXPERIENCE'];
 
             if (this.client.getOption('showArmor')) {
                 this.ac = true;
@@ -118,7 +118,7 @@ export class Status extends Plugin {
         document.getElementById('status-drag-bar').addEventListener('mousedown', (e: MouseEvent) => {
             if (e.button !== 0) return;
             e.preventDefault();
-            this.dragging = true;
+            this._dragging = true;
             const main = document.getElementById('status-drag-bar');
             const w = this._status.style.width;
             this._status.style.width = '';
@@ -146,7 +146,7 @@ export class Status extends Plugin {
 
         window.addEventListener('resize', () => this.resize());
         document.addEventListener('mouseup', e => {
-            if (!this.dragging) return;
+            if (!this._dragging) return;
             const w = this._status.style.width;
             this._status.style.width = '';
             const bounds = this._status.getBoundingClientRect();
@@ -164,7 +164,7 @@ export class Status extends Plugin {
             //this.splitterDistance = document.body.clientWidth - e.pageX + Math.abs(parseInt((this._status.querySelector('#status-drag-bar') as HTMLElement).style.left, 10) || 0);
             document.getElementById('status-ghost-bar').remove();
             document.removeEventListener('mousemove', this._move);
-            this.dragging = false;
+            this._dragging = false;
             this.updateInterface();
         });
         document.getElementById('status-close').addEventListener('click', () => {
@@ -208,8 +208,8 @@ export class Status extends Plugin {
 
         Object.defineProperty(window, '$character', {
             get: () => {
-                if (!this.info) return '';
-                return this.info['name'] || '';
+                if (!this._info) return '';
+                return this._info['name'] || '';
             },
             configurable: true
         });
@@ -222,7 +222,7 @@ export class Status extends Plugin {
             configurable: true
         });
         this.client.display.container.append(document.getElementById('status-simple-lagMeter'));
-        this.updateSplitter();
+        this._updateSplitter();
         this.updateInterface();
         this.init();
     }
@@ -271,37 +271,37 @@ export class Status extends Plugin {
             let limb;
             switch (mod.toLowerCase()) {
                 case 'char.name':
-                    this.info['name'] = obj.name;
+                    this._info['name'] = obj.name;
                     this.setTitle(obj.name);
                     break;
                 case 'char.base':
                     this.init();
-                    this.info['name'] = obj.name;
+                    this._info['name'] = obj.name;
                     this.setTitle(obj.name);
                     break;
                 case 'char.vitals':
                     this.updateBar('hp-bar', obj.hp, obj.hpmax);
                     this.updateBar('sp-bar', obj.sp, obj.spmax);
                     this.updateBar('mp-bar', obj.mp, obj.mpmax);
-                    this.info['hp'] = obj.hp;
-                    this.info['hpmax'] = obj.hpmax;
-                    this.info['sp'] = obj.sp;
-                    this.info['spmax'] = obj.spmax;
-                    this.info['mp'] = obj.mp;
-                    this.info['mpmax'] = obj.mpmax;
+                    this._info['hp'] = obj.hp;
+                    this._info['hpmax'] = obj.hpmax;
+                    this._info['sp'] = obj.sp;
+                    this._info['spmax'] = obj.spmax;
+                    this._info['mp'] = obj.mp;
+                    this._info['mpmax'] = obj.mpmax;
                     this.updateSimpleBar('status-simple-hp');
                     this.updateSimpleBar('status-simple-sp');
                     this.updateSimpleBar('status-simple-mp');
-                    this.doUpdate(UpdateType.overall);
+                    this._doUpdate(UpdateType.overall);
                     break;
                 case 'char.experience':
-                    this.info['EXPERIENCE'] = obj.current;
-                    this.info['EXPERIENCE_NEED_RAW'] = obj.need;
-                    this.info['EXPERIENCE_NEED'] = obj.need - obj.current;
-                    this.info['EXPERIENCE_NEED_P'] = obj.needPercent;
-                    this.info['EXPERIENCE_EARNED'] = obj.earned;
-                    this.info['EXPERIENCE_BANKED'] = obj.banked;
-                    this.doUpdate(UpdateType.xp);
+                    this._info['EXPERIENCE'] = obj.current;
+                    this._info['EXPERIENCE_NEED_RAW'] = obj.need;
+                    this._info['EXPERIENCE_NEED'] = obj.need - obj.current;
+                    this._info['EXPERIENCE_NEED_P'] = obj.needPercent;
+                    this._info['EXPERIENCE_EARNED'] = obj.earned;
+                    this._info['EXPERIENCE_BANKED'] = obj.banked;
+                    this._doUpdate(UpdateType.xp);
                     break;
                 case 'omud.ac':
                     for (limb in obj) {
@@ -327,9 +327,9 @@ export class Status extends Plugin {
                     if (obj.weather) {
                         const env = document.getElementById('environment');
                         //env.className = env.className.split(' ').filter(c => !c.match(/^(weather-.*|intensity-hard)$/)).join(' ');
-                        env.classList.remove('weather-' + this.info['WEATHER'], 'intensity-hard');
-                        this.info['WEATHER'] = obj.weather;
-                        this.info['WEATHER_INTENSITY'] = obj.weather_intensity;
+                        env.classList.remove('weather-' + this._info['WEATHER'], 'intensity-hard');
+                        this._info['WEATHER'] = obj.weather;
+                        this._info['WEATHER_INTENSITY'] = obj.weather_intensity;
                         if (obj.weather !== '0' && obj.weather !== 'none')
                             env.classList.add('weather-' + obj.weather);
                         if (obj.weather_intensity > 6)
@@ -351,36 +351,36 @@ export class Status extends Plugin {
                     break;
                 case 'omud.combat':
                     if (obj.action === 'leave') {
-                        this.clear('combat');
+                        this._clear('combat');
                         this.emit('leave combat');
                     }
                     else if (obj.action === 'add')
-                        this.createIconBar('#combat', this.getID(obj, 'combat_'), obj.name, obj.hp, 100, this.livingClass(obj, 'monster-'), obj.order);
+                        this.createIconBar('#combat', this._getID(obj, 'combat_'), obj.name, obj.hp, 100, this._livingClass(obj, 'monster-'), obj.order);
                     else if (obj.action === 'update') {
                         if (obj.hp === 0)
-                            this.removeBar(this.getID(obj, 'combat_'));
+                            this.removeBar(this._getID(obj, 'combat_'));
                         else
-                            this.createIconBar('#combat', this.getID(obj, 'combat_'), obj.name, obj.hp, 100, this.livingClass(obj, 'monster-'), obj.order);
+                            this.createIconBar('#combat', this._getID(obj, 'combat_'), obj.name, obj.hp, 100, this._livingClass(obj, 'monster-'), obj.order);
                     }
                     else if (obj.action === 'remove')
-                        this.removeBar(this.getID(obj, 'combat_'));
+                        this.removeBar(this._getID(obj, 'combat_'));
                     break;
                 case 'omud.party':
                     if (obj.action === 'leave') {
-                        this.clear('party');
+                        this._clear('party');
                         this.emit('leave party');
                     }
                     else if (obj.action === 'add') {
-                        this.createIconBar('#party', this.getID(obj, 'party_'), obj.name, obj.hp, 100, this.livingClass(obj, 'party-'), obj.name.replace('"', ''));
+                        this.createIconBar('#party', this._getID(obj, 'party_'), obj.name, obj.hp, 100, this._livingClass(obj, 'party-'), obj.name.replace('"', ''));
                     }
                     else if (obj.action === 'update') {
                         if (obj.hp === 0)
-                            this.removeBar(this.getID(obj, 'party_'), true);
+                            this.removeBar(this._getID(obj, 'party_'), true);
                         else
-                            this.createIconBar('#party', this.getID(obj, 'party_'), obj.name, obj.hp, 100, this.livingClass(obj, 'party-'), obj.name.replace('"', ''));
+                            this.createIconBar('#party', this._getID(obj, 'party_'), obj.name, obj.hp, 100, this._livingClass(obj, 'party-'), obj.name.replace('"', ''));
                     }
                     else if (obj.action === 'remove')
-                        this.removeBar(this.getID(obj, 'party_'), true);
+                        this.removeBar(this._getID(obj, 'party_'), true);
 
                     if ((limb = document.getElementById('party')).children.length)
                         limb.classList.add('hasmembers');
@@ -389,15 +389,15 @@ export class Status extends Plugin {
                     break;
                 case 'omud.skill':
                     if (obj.skill && obj.skill.length) {
-                        if (!this.info['skills'][obj.skill]) this.info['skills'][obj.skill] = { amount: 0, bonus: 0, percent: 0 };
+                        if (!this._info['skills'][obj.skill]) this._info['skills'][obj.skill] = { amount: 0, bonus: 0, percent: 0 };
                         if (obj.hasOwnProperty('percent'))
-                            this.info['skills'][obj.skill].percent = obj.percent || 0;
+                            this._info['skills'][obj.skill].percent = obj.percent || 0;
                         if (obj.hasOwnProperty('amount')) {
-                            this.info['skills'][obj.skill].amount = obj.amount;
-                            this.info['skills'][obj.skill].bonus = obj.bonus || 0;
-                            this.info['skills'][obj.skill].category = obj.category;
+                            this._info['skills'][obj.skill].amount = obj.amount;
+                            this._info['skills'][obj.skill].bonus = obj.bonus || 0;
+                            this._info['skills'][obj.skill].category = obj.category;
                         }
-                        this.emit('skill updated', obj.skill, this.info['skills'][obj.skill]);
+                        this.emit('skill updated', obj.skill, this._info['skills'][obj.skill]);
                     }
                     break;
             }
@@ -488,19 +488,19 @@ export class Status extends Plugin {
         else
             $('#combat').css('display', 'none');
 
-        if (this.lagMeter) {
+        if (this._lagMeter) {
             if (this.client.getOption('lagMeter')) {
-                this.lagMeter.style.visibility = '';
-                this.lagMeter.style.display = '';
+                this._lagMeter.style.visibility = '';
+                this._lagMeter.style.display = '';
                 this.updateLagMeter(0, true);
             }
             else {
-                this.lagMeter.style.visibility = 'hidden';
-                this.lagMeter.style.display = 'none';
+                this._lagMeter.style.visibility = 'hidden';
+                this._lagMeter.style.display = 'none';
             }
         }
         if (!noSplitter)
-            this.updateSplitter();
+            this._updateSplitter();
         this.emit('updated-interface');
     }
 
@@ -521,41 +521,41 @@ export class Status extends Plugin {
 
     public init() {
         this.setTitle('');
-        this.info = [];
-        this.info['WEATHER'] = 'none';
-        this.info['WEATHER_INTENSITY'] = 0;
-        this.info['EXPERIENCE'] = 0;
-        this.info['EXPERIENCE_NEED'] = 0;
-        this.info['EXPERIENCE_NEED_P'] = 0;
-        this.info['EXPERIENCE_NEED_RAW'] = 0;
-        this.info['EXPERIENCE_EARNED'] = 0;
-        this.info['EXPERIENCE_BANKED'] = 0;
-        this.info['skills'] = {};
+        this._info = [];
+        this._info['WEATHER'] = 'none';
+        this._info['WEATHER_INTENSITY'] = 0;
+        this._info['EXPERIENCE'] = 0;
+        this._info['EXPERIENCE_NEED'] = 0;
+        this._info['EXPERIENCE_NEED_P'] = 0;
+        this._info['EXPERIENCE_NEED_RAW'] = 0;
+        this._info['EXPERIENCE_EARNED'] = 0;
+        this._info['EXPERIENCE_BANKED'] = 0;
+        this._info['skills'] = {};
 
-        this.infoAC = [];
-        this.infoAC['head'] = 0;
-        this.infoAC['leftarm'] = 0;
-        this.infoAC['leftfoot'] = 0;
-        this.infoAC['lefthand'] = 0;
-        this.infoAC['leftleg'] = 0;
-        this.infoAC['rightarm'] = 0;
-        this.infoAC['rightfoot'] = 0;
-        this.infoAC['righthand'] = 0;
-        this.infoAC['rightleg'] = 0;
-        this.infoAC['torso'] = 0;
-        this.infoAC['overall'] = 0;
+        this._infoAC = [];
+        this._infoAC['head'] = 0;
+        this._infoAC['leftarm'] = 0;
+        this._infoAC['leftfoot'] = 0;
+        this._infoAC['lefthand'] = 0;
+        this._infoAC['leftleg'] = 0;
+        this._infoAC['rightarm'] = 0;
+        this._infoAC['rightfoot'] = 0;
+        this._infoAC['righthand'] = 0;
+        this._infoAC['rightleg'] = 0;
+        this._infoAC['torso'] = 0;
+        this._infoAC['overall'] = 0;
 
-        this.infoLimb = [];
-        this.infoLimb['head'] = 0;
-        this.infoLimb['leftarm'] = 0;
-        this.infoLimb['leftfoot'] = 0;
-        this.infoLimb['lefthand'] = 0;
-        this.infoLimb['leftleg'] = 0;
-        this.infoLimb['rightarm'] = 0;
-        this.infoLimb['rightfoot'] = 0;
-        this.infoLimb['righthand'] = 0;
-        this.infoLimb['rightleg'] = 0;
-        this.infoLimb['torso'] = 0;
+        this._infoLimb = [];
+        this._infoLimb['head'] = 0;
+        this._infoLimb['leftarm'] = 0;
+        this._infoLimb['leftfoot'] = 0;
+        this._infoLimb['lefthand'] = 0;
+        this._infoLimb['leftleg'] = 0;
+        this._infoLimb['rightarm'] = 0;
+        this._infoLimb['rightfoot'] = 0;
+        this._infoLimb['righthand'] = 0;
+        this._infoLimb['rightleg'] = 0;
+        this._infoLimb['torso'] = 0;
 
         document.getElementById('leftwing').style.display = 'none';
         document.getElementById('rightwing').style.display = 'none';
@@ -572,15 +572,15 @@ export class Status extends Plugin {
         document.getElementById('earn-value').textContent = '0';
         this.updateBar('need-percent', 0, 0, '0');
         this.updateBar('status-simple-xp', 0, 0, '', true);
-        this.clear('combat');
-        this.clear('party');
+        this._clear('combat');
+        this._clear('party');
         document.getElementById('party').classList.remove('hasmembers');
         this.updateOverall();
         this.updateStatus();
         this.emit('skill init');
     }
 
-    private clear(id) {
+    private _clear(id) {
         const el = document.getElementById(id);
         if (el) el.innerHTML = '';
     }
@@ -588,59 +588,59 @@ export class Status extends Plugin {
     public updateStatus() {
         let limb;
         if (this._ac)
-            for (limb in this.infoAC)
+            for (limb in this._infoAC)
                 this.updateLimb(limb);
         else
-            for (limb in this.infoLimb)
+            for (limb in this._infoLimb)
                 this.updateLimb(limb);
-        this.doUpdate(UpdateType.overall | UpdateType.xp);
+        this._doUpdate(UpdateType.overall | UpdateType.xp);
     }
 
     public updateOverall() {
         const el = document.getElementById('overall');
         el.className = '';
         if (this._ac) {
-            if (this.infoAC['overall'] === 6.5) {
+            if (this._infoAC['overall'] === 6.5) {
                 el.textContent = 'Extensively';
                 el.classList.add('armor-extensively');
             }
-            else if (this.infoAC['overall'] === 6) {
+            else if (this._infoAC['overall'] === 6) {
                 el.textContent = 'Completely';
                 el.classList.add('armor-completely');
             }
-            else if (this.infoAC['overall'] === 5.5) {
+            else if (this._infoAC['overall'] === 5.5) {
                 el.textContent = 'Significantly';
                 el.classList.add('armor-significantly');
             }
-            else if (this.infoAC['overall'] === 5) {
+            else if (this._infoAC['overall'] === 5) {
                 el.textContent = 'Considerably';
                 el.classList.add('armor-considerably');
             }
-            else if (this.infoAC['overall'] === 4.5) {
+            else if (this._infoAC['overall'] === 4.5) {
                 el.textContent = 'Well';
                 el.classList.add('armor-well');
             }
-            else if (this.infoAC['overall'] === 4) {
+            else if (this._infoAC['overall'] === 4) {
                 el.textContent = 'Adequately';
                 el.classList.add('armor-adequately');
             }
-            else if (this.infoAC['overall'] === 3.5) {
+            else if (this._infoAC['overall'] === 3.5) {
                 el.textContent = 'Fairly';
                 el.classList.add('armor-fairly');
             }
-            else if (this.infoAC['overall'] === 3) {
+            else if (this._infoAC['overall'] === 3) {
                 el.textContent = 'Moderately';
                 el.classList.add('armor-moderately');
             }
-            else if (this.infoAC['overall'] === 2.5) {
+            else if (this._infoAC['overall'] === 2.5) {
                 el.textContent = 'Somewhat';
                 el.classList.add('armor-somewhat');
             }
-            else if (this.infoAC['overall'] === 2) {
+            else if (this._infoAC['overall'] === 2) {
                 el.textContent = 'Slightly';
                 el.classList.add('armor-slightly');
             }
-            else if (this.infoAC['overall'] === 1) {
+            else if (this._infoAC['overall'] === 1) {
                 el.textContent = 'Barely';
                 el.classList.add('armor-barely');
             }
@@ -651,8 +651,8 @@ export class Status extends Plugin {
         }
         else {
             let v = 100;
-            if (this.info['hpmax'] !== 0 && !isNaN(this.info['hpmax']))
-                v *= this.info['hp'] / this.info['hpmax'];
+            if (this._info['hpmax'] !== 0 && !isNaN(this._info['hpmax']))
+                v *= this._info['hp'] / this._info['hpmax'];
             if (v > 90) {
                 el.textContent = 'Top shape';
                 el.classList.add('health-full');
@@ -688,7 +688,7 @@ export class Status extends Plugin {
         limb = limb.replace(/\s/g, '');
         limb = limb.toLowerCase();
         if (limb === 'overall') {
-            this.doUpdate(UpdateType.overall);
+            this._doUpdate(UpdateType.overall);
             return;
         }
         if (limb === 'righthoof')
@@ -702,43 +702,43 @@ export class Status extends Plugin {
         eLimb.style.display = 'block';
         //eLimb.style.visibility = 'visible';
         if (this._ac) {
-            if (this.infoAC[limb] === 6.5)
+            if (this._infoAC[limb] === 6.5)
                 eLimb.classList.add('armor-extensively');
-            else if (this.infoAC[limb] === 6)
+            else if (this._infoAC[limb] === 6)
                 eLimb.classList.add('armor-completely');
-            else if (this.infoAC[limb] === 5.5)
+            else if (this._infoAC[limb] === 5.5)
                 eLimb.classList.add('armor-significantly');
-            else if (this.infoAC[limb] === 5)
+            else if (this._infoAC[limb] === 5)
                 eLimb.classList.add('armor-considerably');
-            else if (this.infoAC[limb] === 4.5)
+            else if (this._infoAC[limb] === 4.5)
                 eLimb.classList.add('armor-well');
-            else if (this.infoAC[limb] === 4)
+            else if (this._infoAC[limb] === 4)
                 eLimb.classList.add('armor-adequately');
-            else if (this.infoAC[limb] === 3.5)
+            else if (this._infoAC[limb] === 3.5)
                 eLimb.classList.add('armor-fairly');
-            else if (this.infoAC[limb] === 3)
+            else if (this._infoAC[limb] === 3)
                 eLimb.classList.add('armor-moderately');
-            else if (this.infoAC[limb] === 2.5)
+            else if (this._infoAC[limb] === 2.5)
                 eLimb.classList.add('armor-somewhat');
-            else if (this.infoAC[limb] === 2)
+            else if (this._infoAC[limb] === 2)
                 eLimb.classList.add('armor-slightly');
-            else if (this.infoAC[limb] === 1)
+            else if (this._infoAC[limb] === 1)
                 eLimb.classList.add('armor-barely');
             else
                 eLimb.classList.add('armor-unarmored');
         }
         else {
-            if (this.infoLimb[limb] === 100)
+            if (this._infoLimb[limb] === 100)
                 eLimb.classList.add('health-100');
-            else if (this.infoLimb[limb] >= 80)
+            else if (this._infoLimb[limb] >= 80)
                 eLimb.classList.add('health-80-99');
-            else if (this.infoLimb[limb] >= 60)
+            else if (this._infoLimb[limb] >= 60)
                 eLimb.classList.add('health-60-79');
-            else if (this.infoLimb[limb] >= 40)
+            else if (this._infoLimb[limb] >= 40)
                 eLimb.classList.add('health-40-59');
-            else if (this.infoLimb[limb] >= 20)
+            else if (this._infoLimb[limb] >= 20)
                 eLimb.classList.add('health-20-39');
-            else if (this.infoLimb[limb] >= 1)
+            else if (this._infoLimb[limb] >= 1)
                 eLimb.classList.add('health-1-19');
             else
                 eLimb.classList.add('health-full');
@@ -764,10 +764,10 @@ export class Status extends Plugin {
         const el = document.getElementById(bar);
         if (!el) return;
         const v = el.dataset.var.toLowerCase();
-        if (!this.info || !this.info[v + 'max'])
+        if (!this._info || !this._info[v + 'max'])
             p = 100;
         else
-            p = this.info[v] / this.info[v + 'max'] * 100;
+            p = this._info[v] / this._info[v + 'max'] * 100;
         const progress = (document.querySelector(`#${bar}  .progress-bar`) as HTMLElement);
         progress.style.width = (100 - p) + '%';
         progress.ariaValueNow = '' + p;
@@ -790,12 +790,12 @@ export class Status extends Plugin {
             bar += '<div class="progressbar-value" style="width: ' + (100 - p) + '%"></div>';
             bar += '</div></div>';
             $(parent).append(bar);
-            this.doUpdate(parent === '#party' ? UpdateType.sortParty : UpdateType.sortCombat);
+            this._doUpdate(parent === '#party' ? UpdateType.sortParty : UpdateType.sortCombat);
         }
         else {
             if (order !== +bar.getAttribute('data-order')) {
                 bar.setAttribute('data-order', order);
-                this.doUpdate(parent === '#party' ? UpdateType.sortParty : UpdateType.sortCombat);
+                this._doUpdate(parent === '#party' ? UpdateType.sortParty : UpdateType.sortCombat);
             }
             bar.setAttribute('data-value', (100 - p) / 20 * 20);
             bar.children[1].textContent = label;
@@ -809,7 +809,7 @@ export class Status extends Plugin {
         const el = document.getElementById(id);
         if (!el) return;
         el.parentNode.removeChild(el);
-        this.doUpdate(party ? UpdateType.sortParty : UpdateType.sortCombat);
+        this._doUpdate(party ? UpdateType.sortParty : UpdateType.sortCombat);
     }
 
     public sortBars(p) {
@@ -823,22 +823,22 @@ export class Status extends Plugin {
     }
 
     public updateLagMeter(lag: number, force?: boolean) {
-        if (!this.lagMeter) return;
+        if (!this._lagMeter) return;
         if (this.client.getOption('showLagInTitle'))
-            this.setTitle(this.info['name'] || '', `${lag / 1000}s`);
+            this.setTitle(this._info['name'] || '', `${lag / 1000}s`);
         if (!this.client.getOption('lagMeter') && !force) return;
         let p = 100;
         p = lag / 200 * 100;
         if (p > 100) p = 100;
-        (<HTMLElement>this.lagMeter.lastElementChild).style.width = (100 - p) + '%';
-        this.lagMeter.firstElementChild.textContent = (lag / 1000) + 's';
+        (<HTMLElement>this._lagMeter.lastElementChild).style.width = (100 - p) + '%';
+        this._lagMeter.firstElementChild.textContent = (lag / 1000) + 's';
 
         const lm = document.querySelector('#status-simple-lagMeter .progress-bar') as HTMLElement;
         lm.style.width = (100 - p) + '%';
         lm.ariaValueNow = '' + p;
     }
 
-    private doUpdate(type?: UpdateType) {
+    private _doUpdate(type?: UpdateType) {
         if (!type) return;
         this._updating |= type;
         if (this._updating === UpdateType.none || this._rTimeout)
@@ -865,24 +865,24 @@ export class Status extends Plugin {
                 this._updating &= ~UpdateType.xp;
             }
             this._rTimeout = 0;
-            this.doUpdate(this._updating);
+            this._doUpdate(this._updating);
         });
     }
 
     public updateXP() {
-        $('#xp-value').text(this.info['EXPERIENCE']);
-        $('#xp-banked').text(this.info['EXPERIENCE_BANKED']);
-        if (this.info['EXPERIENCE_NEED'] < 0) {
-            $('#need-value').text(this.client.getOption('allowNegativeNumberNeeded') ? this.info['EXPERIENCE_NEED'] : 0);
-            this.updateBar('need-percent', 100 - this.info['EXPERIENCE_NEED_P'], 100, this.client.getOption('allowNegativeNumberNeeded') ? this.info['EXPERIENCE_NEED'].toString() : '0');
-            this.updateBar('status-simple-xp', 100 - this.info['EXPERIENCE_NEED_P'], 100, '', true);
+        $('#xp-value').text(this._info['EXPERIENCE']);
+        $('#xp-banked').text(this._info['EXPERIENCE_BANKED']);
+        if (this._info['EXPERIENCE_NEED'] < 0) {
+            $('#need-value').text(this.client.getOption('allowNegativeNumberNeeded') ? this._info['EXPERIENCE_NEED'] : 0);
+            this.updateBar('need-percent', 100 - this._info['EXPERIENCE_NEED_P'], 100, this.client.getOption('allowNegativeNumberNeeded') ? this._info['EXPERIENCE_NEED'].toString() : '0');
+            this.updateBar('status-simple-xp', 100 - this._info['EXPERIENCE_NEED_P'], 100, '', true);
         }
         else {
-            $('#need-value').text(this.info['EXPERIENCE_NEED']);
-            this.updateBar('need-percent', 100 - this.info['EXPERIENCE_NEED_P'], 100, this.info['EXPERIENCE_NEED'].toString());
-            this.updateBar('status-simple-xp', 100 - this.info['EXPERIENCE_NEED_P'], 100, '', true);
+            $('#need-value').text(this._info['EXPERIENCE_NEED']);
+            this.updateBar('need-percent', 100 - this._info['EXPERIENCE_NEED_P'], 100, this._info['EXPERIENCE_NEED'].toString());
+            this.updateBar('status-simple-xp', 100 - this._info['EXPERIENCE_NEED_P'], 100, '', true);
         }
-        $('#earn-value').text(this.info['EXPERIENCE_EARNED']);
+        $('#earn-value').text(this._info['EXPERIENCE_EARNED']);
     }
 
     public resize() {
@@ -903,16 +903,16 @@ export class Status extends Plugin {
     }
 
     get skills() {
-        return this.info['skills'];
+        return this._info['skills'];
     }
 
     public getSkill(skill: string) {
         if (!skill) return 0;
-        return this.info['skills'][skill] || 0;
+        return this._info['skills'][skill] || 0;
     }
 
     get name() {
-        return this.info['name'];
+        return this._info['name'];
     }
 
     get ac(): boolean {
@@ -922,35 +922,35 @@ export class Status extends Plugin {
     set ac(enable: boolean) {
         if (this._ac !== enable) {
             this._ac = enable;
-            this.doUpdate(UpdateType.status);
+            this._doUpdate(UpdateType.status);
             this.emit('display-changed');
         }
     }
 
-    private sanitizeID(id: string): string {
+    private _sanitizeID(id: string): string {
         id = id.replace(/\s/gi, '-');
         return id.replace(/[^a-zA-Z0-9_-]/gi, '');
     }
 
-    private getID(obj, prefix?: string): string {
+    private _getID(obj, prefix?: string): string {
         if (!obj) return;
-        if (!obj.id) return this.sanitizeID(obj.name || '');
+        if (!obj.id) return this._sanitizeID(obj.name || '');
         return (prefix || 'obj_') + obj.id;
     }
 
-    private livingClass(obj, prefix?: string): string {
+    private _livingClass(obj, prefix?: string): string {
         const cls = [];
         if (!prefix) prefix = '';
         if (obj.class && obj.class.length > 0)
-            cls.push(prefix + this.sanitizeID(obj.class));
+            cls.push(prefix + this._sanitizeID(obj.class));
         if (obj.gender && obj.gender.length > 0)
-            cls.push(prefix + this.sanitizeID(obj.gender));
+            cls.push(prefix + this._sanitizeID(obj.gender));
         if (obj.race && obj.race.length > 0)
-            cls.push(prefix + this.sanitizeID(obj.race));
+            cls.push(prefix + this._sanitizeID(obj.race));
         if (obj.guild && obj.guild.length > 0)
-            cls.push(prefix + this.sanitizeID(obj.guild));
+            cls.push(prefix + this._sanitizeID(obj.guild));
         if (obj.name && obj.name.length > 0)
-            cls.push(prefix + this.sanitizeID(obj.name.replace(/\d+$/, '').trim()));
+            cls.push(prefix + this._sanitizeID(obj.name.replace(/\d+$/, '').trim()));
         return cls.join(' ').toLowerCase();
     }
 
@@ -964,15 +964,15 @@ export class Status extends Plugin {
         eLimb.className = '';
         if (!weapon) return;
         if (weapon.quality && weapon.quality.length > 0)
-            eLimb.classList.add('weapon-' + this.sanitizeID(weapon.quality));
+            eLimb.classList.add('weapon-' + this._sanitizeID(weapon.quality));
         if (weapon.material && weapon.material.length > 0)
-            eLimb.classList.add('weapon-' + this.sanitizeID(weapon.material));
+            eLimb.classList.add('weapon-' + this._sanitizeID(weapon.material));
         if (weapon.type && weapon.type.length > 0)
-            eLimb.classList.add('weapon-' + this.sanitizeID(weapon.type));
+            eLimb.classList.add('weapon-' + this._sanitizeID(weapon.type));
         if (weapon.subtype && weapon.subtype.length > 0)
-            eLimb.classList.add('weapon-' + this.sanitizeID(weapon.subtype));
+            eLimb.classList.add('weapon-' + this._sanitizeID(weapon.subtype));
         if (weapon.name && weapon.name.length > 0)
-            eLimb.classList.add('weapon-' + this.sanitizeID(weapon.name));
+            eLimb.classList.add('weapon-' + this._sanitizeID(weapon.name));
         if (weapon.dominant)
             eLimb.classList.add('weapon-dominant');
         if (weapon.subtype && weapon.subtype.length > 0)
@@ -990,7 +990,7 @@ export class Status extends Plugin {
             limb = 'rightfoot';
         else if (limb === 'lefthoof')
             limb = 'leftfoot';
-        this.infoAC[limb] = ac;
+        this._infoAC[limb] = ac;
     }
 
     public setLimbHealth(limb, health) {
@@ -1000,6 +1000,6 @@ export class Status extends Plugin {
             limb = 'rightfoot';
         else if (limb === 'lefthoof')
             limb = 'leftfoot';
-        this.infoLimb[limb] = health;
+        this._infoLimb[limb] = health;
     }
 }

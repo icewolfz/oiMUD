@@ -27701,7 +27701,11 @@ Devanagari
                 list.querySelector(item.position).insertAdjacentHTML("afterend", code);
             } else if (item.position >= 0 && item.position < list.children.length)
               list.children[item.position].insertAdjacentHTML("afterend", code);
-            else
+            else if (item.position < 0) {
+              let pos = list.children.length - item.position;
+              if (pos >= 0 && pos < list.children.length)
+                list.children[pos].insertAdjacentHTML("afterend", code);
+            } else
               list.insertAdjacentHTML("beforeend", code);
           } else
             list.insertAdjacentHTML("beforeend", code);

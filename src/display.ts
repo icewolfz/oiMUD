@@ -75,6 +75,8 @@ export class Display extends EventEmitter {
     private _timestampFormat: string = '[[]MM-DD HH:mm:ss.SSS[]] ';
     private _timestampWidth: number = new Date().toISOString().length + 1;
     private _mouseDown = false;
+    private _document;
+    private _window;
     //#endregion
     //#region Public properties
     public scrollLock: boolean = false;
@@ -417,18 +419,24 @@ export class Display extends EventEmitter {
             this._container = container[0];
         else if (container instanceof HTMLElement)
             this._container = container;
+        else if ((<HTMLElement>container).ownerDocument.defaultView && container instanceof (<HTMLElement>container).ownerDocument.defaultView.HTMLElement)
+            this._container = container;
         else
             throw new Error('Container must be a selector, element or jquery object');
-        this._styles = document.createElement('style');
+
+        this._document = this._container.ownerDocument;
+        this._window = this._document.defaultView;
+
+        this._styles = this._document.createElement('style');
         this._container.appendChild(this._styles);
-        this._character = document.createElement('span');
+        this._character = this._document.createElement('span');
         this._character.id = this.id + '-Character';
         this._character.className = 'line';
         this._character.innerHTML = '<span style="border-bottom: 1px solid rgb(0, 0, 0);">W</span>';
         this._character.style.visibility = 'hidden';
         this._container.appendChild(this._character);
 
-        this._view = document.createElement('div');
+        this._view = this._document.createElement('div');
         this._view.className = 'view';
         this._view.addEventListener('scroll', () => {
             this._scrollAtEnd = this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight;
@@ -452,8 +460,8 @@ export class Display extends EventEmitter {
         });
         this._container.appendChild(this._view);
 
-        this._charHeight = parseFloat(window.getComputedStyle(this._character).height);
-        this._charWidth = parseFloat(window.getComputedStyle(this._character.firstElementChild).width);
+        this._charHeight = parseFloat(this._window.getComputedStyle(this._character).height);
+        this._charWidth = parseFloat(this._window.getComputedStyle(this._character.firstElementChild).width);
         if (!options)
             options = { display: this };
         else
@@ -473,8 +481,8 @@ export class Display extends EventEmitter {
                     this.emit('selection-changed');
                 }, 250, 'selection-changed');
         };
-        window.addEventListener('resize', this._wResize.bind(this));
-        document.addEventListener("selectionchange", this._selection.bind(this));
+        this._window.addEventListener('resize', this._wResize.bind(this));
+        this._document.addEventListener("selectionchange", this._selection.bind(this));
 
         this._resizeObserver = new ResizeObserver((entries, observer) => {
             if (entries.length === 0) return;
@@ -571,7 +579,7 @@ export class Display extends EventEmitter {
         if (line < 0 || line >= this.lines.length) return;
         this.emit('line-removed', line, this.lines[line].text);
         const id = this._model.getLineID(line);
-        const elLine = document.querySelector(`[data-id="${id}"]`);
+        const elLine = this._document.querySelector(`[data-id="${id}"]`);
         this._view.removeChild(elLine);
         this._model.removeLine(line);
     }
@@ -581,7 +589,7 @@ export class Display extends EventEmitter {
         if (amt < 1) amt = 1;
         this.emit('lines-removed', line, this.lines.slice(line, line + amt - 1));
         //const id = this._model.getLineID(line);
-        //const elLine = document.querySelector(`[data-id="${id}"]`);
+        //const elLine = this._document.querySelector(`[data-id="${id}"]`);
         //this._view.removeChild(elLine);
         this._view.replaceChildren(...[].slice.call(this._view.children, 0, line), ...[].slice.call(this._view.children, line + amt));
         this._model.removeLines(line, amt);
@@ -613,12 +621,12 @@ export class Display extends EventEmitter {
     }
 
     public dispose() {
-        document.body.removeChild(this._character);
-        document.body.removeChild(this._styles);
+        this._document.body.removeChild(this._character);
+        this._document.body.removeChild(this._styles);
         while (this._container.firstChild)
             this._view.removeChild(this._view.firstChild);
-        window.removeEventListener('resize', this._wResize);
-        document.removeEventListener("selectionchange", this._selection);
+        this._window.removeEventListener('resize', this._wResize);
+        this._document.removeEventListener("selectionchange", this._selection);
     }
 
     private _update() {
@@ -643,16 +651,16 @@ export class Display extends EventEmitter {
             this._character.style.fontSize = size;
             this._character.style.fontFamily = font;
             //recalculate height/width of characters so display can be calculated
-            this._charHeight = parseFloat(window.getComputedStyle(this._character).height);
-            this._charWidth = parseFloat(window.getComputedStyle(this._character.firstElementChild).width);
+            this._charHeight = parseFloat(this._window.getComputedStyle(this._character).height);
+            this._charWidth = parseFloat(this._window.getComputedStyle(this._character.firstElementChild).width);
             setTimeout(() => {
-                this._charHeight = parseFloat(window.getComputedStyle(this._character).height);
-                this._charWidth = parseFloat(window.getComputedStyle(this._character.firstElementChild).width);
+                this._charHeight = parseFloat(this._window.getComputedStyle(this._character).height);
+                this._charWidth = parseFloat(this._window.getComputedStyle(this._character.firstElementChild).width);
             }, 250);
             this._buildStyleSheet();
             this._doUpdate(UpdateType.scrollEnd | UpdateType.updateWindow | UpdateType.update);
         }
-        const pc = window.getComputedStyle(this._view);
+        const pc = this._window.getComputedStyle(this._view);
         const padding = [
             parseInt(pc.getPropertyValue('padding-top')) || 0,
             parseInt(pc.getPropertyValue('padding-right')) || 0,
@@ -689,7 +697,7 @@ export class Display extends EventEmitter {
         //styles += '.timestamp { display: none !important; }';
         this._styles.innerHTML = styles;
         if ((this._wordWrap || this._wrapAt > 0) && this._indent > 0)
-            this._indentPadding = parseFloat(window.getComputedStyle(this._view).paddingLeft) / 2;
+            this._indentPadding = parseFloat(this._window.getComputedStyle(this._view).paddingLeft) / 2;
         else
             this._indentPadding = 0;
     }
@@ -965,7 +973,7 @@ export class Display extends EventEmitter {
         this._updating |= type;
         if (this._updating === UpdateType.none)
             return;
-        window.requestAnimationFrame(() => {
+        this._window.requestAnimationFrame(() => {
             if (this._updating === UpdateType.none)
                 return;
             if ((this._updating & UpdateType.rebuildLines) === UpdateType.rebuildLines) {
@@ -1044,7 +1052,7 @@ export class Display extends EventEmitter {
     }
 
     get hasSelection(): boolean {
-        const selection = window.getSelection();
+        const selection = this._window.getSelection();
         if (selection.rangeCount > 0) {
             const range = selection.getRangeAt(0);
             return this._view.contains(range.commonAncestorContainer) && selection.toString().length !== 0;
@@ -1053,8 +1061,8 @@ export class Display extends EventEmitter {
     }
 
     get selection(): string {
-        if (window.getSelection) {
-            const selection = window.getSelection();
+        if (this._window.getSelection) {
+            const selection = this._window.getSelection();
             if (selection.rangeCount > 0) {
                 const range = selection.getRangeAt(0);
                 if (this._view.contains(range.startContainer) || this._view.contains(range.endContainer)) {
@@ -1067,14 +1075,14 @@ export class Display extends EventEmitter {
 
     get selectionAsHTML(): string {
         var range;
-        if (window.getSelection) {
-            var selection = window.getSelection();
+        if (this._window.getSelection) {
+            var selection = this._window.getSelection();
             if (selection.rangeCount > 0) {
                 range = selection.getRangeAt(0);
                 if (!this._view.contains(range.startContainer) && !this._view.contains(range.endContainer))
                     return '';
                 var clonedSelection = range.cloneContents();
-                var div = document.createElement('div');
+                var div = this._document.createElement('div');
                 div.appendChild(clonedSelection);
                 return div.innerHTML;
             }
@@ -1082,8 +1090,8 @@ export class Display extends EventEmitter {
                 return '';
             }
         }
-        else if ((document as any).selection && (document as any).selection.createRange) {
-            range = (document as any).selection.createRange();
+        else if ((this._document as any).selection && (this._document as any).selection.createRange) {
+            range = (this._document as any).selection.createRange();
             return range.htmlText;
         }
         else {
@@ -1093,24 +1101,24 @@ export class Display extends EventEmitter {
 
     public selectAll() {
         let range;
-        if (window.getSelection) {
-            if (window.getSelection().selectAllChildren)
-                window.getSelection().selectAllChildren(this._view);
+        if (this._window.getSelection) {
+            if (this._window.getSelection().selectAllChildren)
+                this._window.getSelection().selectAllChildren(this._view);
             else {
-                range = document.createRange();
+                range = this._document.createRange();
                 range.selectNode(this._view);
-                window.getSelection().addRange(range);
+                this._window.getSelection().addRange(range);
             }
         }
-        else if ((document as any).selection) { //IE
-            range = (document.body as any).createTextRange();
+        else if ((this._document as any).selection) { //IE
+            range = (this._document.body as any).createTextRange();
             range.moveToElementText(this._view);
             range.select();
         }
     }
 
     public clearSelection() {
-        const selection = window.getSelection();
+        const selection = this._window.getSelection();
         if (selection.rangeCount > 0) {
             const range = selection.getRangeAt(0);
             if (this._view.contains(range.startContainer) || this._view.contains(range.endContainer)) {
@@ -1120,7 +1128,7 @@ export class Display extends EventEmitter {
     }
 
     public getLineOffset(x, y): Point {
-        const elements = document.elementsFromPoint(x, y);
+        const elements = this._document.elementsFromPoint(x, y);
         let element;
         for (let e = 0, el = elements.length; e < el; e++) {
             if (this._view === elements[e]) break;
@@ -1142,7 +1150,7 @@ export class Display extends EventEmitter {
 
     public getWordFromPosition(x, y): string {
         // Get the element at the specified coordinates
-        const elements = document.elementsFromPoint(x, y);
+        const elements = this._document.elementsFromPoint(x, y);
         let element;
         for (let e = 0, el = elements.length; e < el; e++) {
             if (this._view === elements[e]) return '';

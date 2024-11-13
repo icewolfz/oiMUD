@@ -23,6 +23,7 @@ export interface DialogOptions {
     noFooter?: boolean;
     position?: Position;
     closeable?: boolean;
+    document?: Document;
 }
 
 enum ResizeType {
@@ -74,6 +75,9 @@ export class Dialog extends EventEmitter {
     private _resizeObserver;
     private _resizeObserverCache;
     private _observer: MutationObserver;
+
+    private _document;
+    private _window;
 
     private _windowResize = () => {
         //if window resized ensure top left corner is visible
@@ -172,11 +176,11 @@ export class Dialog extends EventEmitter {
     };
 
     private _resizeStopDrag = e => {
-        document.documentElement.removeEventListener("mousemove", this._resizeDoDrag);
-        document.documentElement.removeEventListener("mouseup", this._resizeStopDrag);
-        document.documentElement.removeEventListener("touchmove", this._resizeTouchDrag);
-        document.documentElement.removeEventListener("touchend", this._resizeStopDrag);
-        const styles = document.defaultView.getComputedStyle(this._dialog);
+        this._document.documentElement.removeEventListener("mousemove", this._resizeDoDrag);
+        this._document.documentElement.removeEventListener("mouseup", this._resizeStopDrag);
+        this._document.documentElement.removeEventListener("touchmove", this._resizeTouchDrag);
+        this._document.documentElement.removeEventListener("touchend", this._resizeStopDrag);
+        const styles = this._window.getComputedStyle(this._dialog);
         this._state.x = parseInt(styles.left, 10);;
         this._state.width = parseInt(styles.width, 10);
         this._state.y = parseInt(styles.top, 10);;
@@ -189,8 +193,8 @@ export class Dialog extends EventEmitter {
         if (this.maximized) return;
         this._dragPosition.x = e.clientX;
         this._dragPosition.y = e.clientY;
-        document.documentElement.addEventListener('mouseup', this._dragMouseUp);
-        document.documentElement.addEventListener('mousemove', this._dragMouseMove);
+        this._document.documentElement.addEventListener('mouseup', this._dragMouseUp);
+        this._document.documentElement.addEventListener('mousemove', this._dragMouseMove);
         this._header.style.cursor = 'move';
     };
 
@@ -198,8 +202,8 @@ export class Dialog extends EventEmitter {
         if (this.maximized) return;
         this._dragPosition.x = e.clientX;
         this._dragPosition.y = e.clientY;
-        document.documentElement.addEventListener('touchend', this._dragMouseUp);
-        document.documentElement.addEventListener('touchmove', this._dragTouchMove);
+        this._document.documentElement.addEventListener('touchend', this._dragMouseUp);
+        this._document.documentElement.addEventListener('touchmove', this._dragTouchMove);
         this._header.style.cursor = 'move';
     };
 
@@ -245,12 +249,12 @@ export class Dialog extends EventEmitter {
     };
 
     private _dragMouseUp = () => {
-        document.documentElement.removeEventListener('mouseup', this._dragMouseUp);
-        document.documentElement.removeEventListener('mousemove', this._dragMouseMove);
-        document.documentElement.removeEventListener('touchend', this._dragMouseUp);
-        document.documentElement.removeEventListener('touchmove', this._dragTouchMove);
+        this._document.documentElement.removeEventListener('mouseup', this._dragMouseUp);
+        this._document.documentElement.removeEventListener('mousemove', this._dragMouseMove);
+        this._document.documentElement.removeEventListener('touchend', this._dragMouseUp);
+        this._document.documentElement.removeEventListener('touchmove', this._dragTouchMove);
         this._header.style.cursor = '';
-        const styles = document.defaultView.getComputedStyle(this._dialog);
+        const styles = this._window.getComputedStyle(this._dialog);
         this._state.x = parseInt(styles.left, 10);;
         this._state.width = parseInt(styles.width, 10);
         this._state.y = parseInt(styles.top, 10);;
@@ -294,12 +298,15 @@ export class Dialog extends EventEmitter {
 
     constructor(options?: DialogOptions) {
         super();
+        this._window = window;
+        this._document = options ? options.document || document : document;
+        this._window = this._document.defaultView;
         if (options && 'type' in options && options.type == 1) {
-            this._dialog = document.createElement('div');
+            this._dialog = this._document.createElement('div');
             this._dialog.open = false;
         }
         else
-            this._dialog = document.createElement('dialog');
+            this._dialog = this._document.createElement('dialog');
 
         if (typeof this._dialog.showModal !== "function") {
             this._dialog.showModal = () => {
@@ -318,11 +325,11 @@ export class Dialog extends EventEmitter {
                     }
                 }
                 if (!this._dialog.backdrop_) {
-                    this._dialog.backdrop_ = document.createElement('div');
+                    this._dialog.backdrop_ = this._document.createElement('div');
                     this._dialog.backdrop_.className = 'backdrop';
                     this._dialog.backdrop_MouseEvent = function (e) {
                         if (!this.hasAttribute('tabindex')) {
-                            var fake = document.createElement('div');
+                            var fake = this._document.createElement('div');
                             this.insertBefore(fake, this.firstChild);
                             fake.tabIndex = -1;
                             fake.focus();
@@ -330,7 +337,7 @@ export class Dialog extends EventEmitter {
                         }
                         else
                             this.focus();
-                        var redirectedEvent = document.createEvent('MouseEvents');
+                        var redirectedEvent = this._document.createEvent('MouseEvents');
                         redirectedEvent.initMouseEvent(e.type, e.bubbles, e.cancelable, window,
                             e.detail, e.screenX, e.screenY, e.clientX, e.clientY, e.ctrlKey,
                             e.altKey, e.shiftKey, e.metaKey, e.button, e.relatedTarget);
@@ -342,7 +349,7 @@ export class Dialog extends EventEmitter {
                     this._dialog.backdrop_.addEventListener('click', this._dialog.backdrop_MouseEvent.bind(this._dialog));
                 }
                 this._dialog.parentNode.insertBefore(this._dialog.backdrop_, this._dialog.nextSibling);
-                window.document.addEventListener('keydown', this._dialog._keydown);
+                this._document.addEventListener('keydown', this._dialog._keydown);
             };
         }
         //poly fill functions if not found to fake dialog
@@ -363,7 +370,7 @@ export class Dialog extends EventEmitter {
                 this._dialog.open = false;
                 this._state.show = 0;
                 this._dialog.dataset.show = '' + this._state.show;
-                window.removeEventListener('resize', this._windowResize);
+                this._window.removeEventListener('resize', this._windowResize);
                 this.emit('closed');
             };
         }
@@ -450,14 +457,14 @@ export class Dialog extends EventEmitter {
                 e.preventDefault();
                 return;
             }
-            document.body.removeChild(this._dialog);
+            this._document.body.removeChild(this._dialog);
             this._state.show = 0;
             this._dialog.dataset.show = '' + this._state.show;
             if (this._dialog.backdrop_)
                 this._dialog.parentNode.removeChild(this._dialog.backdrop_);
             if (this._dialog._keydown)
-                window.document.removeEventListener('keydown', this._dialog._keydown);
-            window.removeEventListener('resize', this._windowResize);
+                this._window.document.removeEventListener('keydown', this._dialog._keydown);
+            this._window.removeEventListener('resize', this._windowResize);
             this.emit('closed', this._dialog.returnValue);
         });
         this._dialog.addEventListener('cancel', e => {
@@ -469,27 +476,27 @@ export class Dialog extends EventEmitter {
                 return;
             }
             //prevent closing ig in edit field, note this does not stop chrome from closing dialog if esc is pressed multiple times
-            if (document.activeElement && (document.activeElement.tagName === 'TEXTAREA' ||
-                document.activeElement.tagName === 'iNPUT' ||
-                document.activeElement.tagName === 'SELECT')
+            if (this._document.activeElement && (this._document.activeElement.tagName === 'TEXTAREA' ||
+                this._document.activeElement.tagName === 'iNPUT' ||
+                this._document.activeElement.tagName === 'SELECT')
             ) {
                 e.preventDefault();
                 return;
             }
             //left true sometimes so lets just always make it false to ensure modal dialogs open right
             this._dialog.open = false;
-            document.body.removeChild(this._dialog);
+            this._document.body.removeChild(this._dialog);
             this._state.show = 0;
             this._dialog.dataset.show = '' + this._state.show;
             if (this._dialog.backdrop_)
                 this._dialog.parentNode.removeChild(this._dialog.backdrop_);
             if (this._dialog._keydown)
-                window.document.removeEventListener('keydown', this._dialog._keydown);
-            window.removeEventListener('resize', this._windowResize);
+                this._window.document.removeEventListener('keydown', this._dialog._keydown);
+            this._window.removeEventListener('resize', this._windowResize);
             if (this._dialog.returnValue !== 'ok')
                 this.emit('canceled');
         });
-        document.body.appendChild(this._dialog);
+        this._document.body.appendChild(this._dialog);
 
         if (this._maximizable)
             this._dialog.querySelector(`#${this._id}-max`).style.display = '';
@@ -536,49 +543,49 @@ export class Dialog extends EventEmitter {
 
         if (this.resizable) {
             this._dialog.classList.add('resizable');
-            var right = document.createElement("div");
+            var right = this._document.createElement("div");
             right.className = "resizer-right";
             this._dialog.appendChild(right);
             right.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Right) }, false);
             right.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Right) }, { passive: true });
 
-            var bottom = document.createElement("div");
+            var bottom = this._document.createElement("div");
             bottom.className = "resizer-bottom";
             this._dialog.appendChild(bottom);
             bottom.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Bottom) }, false);
             bottom.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Bottom) }, { passive: true });
 
-            var corner = document.createElement("div");
+            var corner = this._document.createElement("div");
             corner.className = "resizer-se";
             this._dialog.appendChild(corner);
             corner.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Right | ResizeType.Bottom) }, false);
             corner.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Right | ResizeType.Bottom) }, { passive: true });
 
-            corner = document.createElement("div");
+            corner = this._document.createElement("div");
             corner.className = "resizer-ne";
             this._dialog.appendChild(corner);
             corner.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Right | ResizeType.Top) }, false);
             corner.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Right | ResizeType.Top) }, { passive: true });
 
-            corner = document.createElement("div");
+            corner = this._document.createElement("div");
             corner.className = "resizer-nw";
             this._dialog.appendChild(corner);
             corner.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Left | ResizeType.Top) }, false);
             corner.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Left | ResizeType.Top) }, { passive: true });
 
-            corner = document.createElement("div");
+            corner = this._document.createElement("div");
             corner.className = "resizer-sw";
             this._dialog.appendChild(corner);
             corner.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Left | ResizeType.Bottom) }, false);
             corner.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Left | ResizeType.Bottom) }, { passive: true });
 
-            var left = document.createElement("div");
+            var left = this._document.createElement("div");
             left.className = "resizer-left";
             this._dialog.appendChild(left);
             left.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Left) }, false);
             left.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Left) }, { passive: true });
 
-            var top = document.createElement("div");
+            var top = this._document.createElement("div");
             top.className = "resizer-top";
             this._dialog.appendChild(top);
             top.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Top) }, false);
@@ -593,7 +600,7 @@ export class Dialog extends EventEmitter {
             this._header.addEventListener('touchstart', this._dragTouchStart, { passive: true });
         }
 
-        const styles = document.defaultView.getComputedStyle(this._dialog);
+        const styles = this._window.getComputedStyle(this._dialog);
         this._state.x = this._resize.x = parseInt(styles.left, 10);;
         this._state.width = this._resize.width = parseInt(styles.width, 10);
         this._state.y = this._resize.y = parseInt(styles.top, 10);;
@@ -644,7 +651,7 @@ export class Dialog extends EventEmitter {
 
     private _initResize(e, type) {
         if (this.maximized) return;
-        const styles = document.defaultView.getComputedStyle(this._dialog);
+        const styles = this._window.getComputedStyle(this._dialog);
         this._resize.x = e.clientX;
         this._resize.width = parseInt(styles.width, 10);
         this._resize.y = e.clientY;
@@ -655,13 +662,13 @@ export class Dialog extends EventEmitter {
         this._resize.borderHeight = e.offsetY + parseInt(styles.borderTopWidth);
         this._resize.borderWidth = e.offsetX + parseInt(styles.borderLeftWidth);
         this._body.style.pointerEvents = 'none';
-        document.documentElement.addEventListener("mousemove", this._resizeDoDrag, false);
-        document.documentElement.addEventListener("mouseup", this._resizeStopDrag, false);
+        this._document.documentElement.addEventListener("mousemove", this._resizeDoDrag, false);
+        this._document.documentElement.addEventListener("mouseup", this._resizeStopDrag, false);
     }
 
     private _initResizeTouch(e, type) {
         if (!e.touches.length || this.maximized) return;
-        const styles = document.defaultView.getComputedStyle(this._dialog);
+        const styles = this._window.getComputedStyle(this._dialog);
         this._resize.x = e.touches[0].clientX;
         this._resize.width = parseInt(styles.width, 10);
         this._resize.y = e.touches[0].clientY;
@@ -675,8 +682,8 @@ export class Dialog extends EventEmitter {
         this._resize.borderHeight = y + parseInt(styles.borderTopWidth);
         this._resize.borderWidth = x + parseInt(styles.borderLeftWidth);
         this._body.style.pointerEvents = 'none';
-        document.documentElement.addEventListener("touchmove", this._resizeTouchDrag, false);
-        document.documentElement.addEventListener("touchend", this._resizeStopDrag, false);
+        this._document.documentElement.addEventListener("touchmove", this._resizeTouchDrag, false);
+        this._document.documentElement.addEventListener("touchend", this._resizeStopDrag, false);
     }
 
     public get id() {
@@ -708,7 +715,7 @@ export class Dialog extends EventEmitter {
 
     public showModal() {
         if (!this._dialog.parentElement)
-            document.body.appendChild(this._dialog);
+            this._document.body.appendChild(this._dialog);
         this.makeVisible(true);
         this._dialog.returnValue = '';
         if (this._dialog.open) {
@@ -718,14 +725,14 @@ export class Dialog extends EventEmitter {
         this._dialog.showModal();
         this._state.show = 2;
         this._dialog.dataset.show = '' + this._state.show;
-        window.addEventListener('resize', this._windowResize);
+        this._window.addEventListener('resize', this._windowResize);
         this.emit('shown', true);
         this.focus();
     }
 
     public show() {
         if (!this._dialog.parentElement)
-            document.body.appendChild(this._dialog);
+            this._document.body.appendChild(this._dialog);
         this.makeVisible(true);
         this._dialog.returnValue = '';
         if (this._dialog.open) {
@@ -735,7 +742,7 @@ export class Dialog extends EventEmitter {
         this._dialog.show();
         this._state.show = 1;
         this._dialog.dataset.show = '' + this._state.show;
-        window.addEventListener('resize', this._windowResize);
+        this._window.addEventListener('resize', this._windowResize);
         this.emit('shown', false);
         this.focus();
     }
@@ -749,7 +756,7 @@ export class Dialog extends EventEmitter {
         if (this._dialog.backdrop_)
             this._dialog.parentNode.removeChild(this._dialog.backdrop_);
         if (this._dialog._keydown)
-            window.document.removeEventListener('keydown', this._dialog._keydown);
+            this._document.removeEventListener('keydown', this._dialog._keydown);
         if (returnValue)
             this._dialog.returnValue = returnValue;
         this._dialog.close();
@@ -804,7 +811,7 @@ export class Dialog extends EventEmitter {
     private _width() {
         let w = this.dialog.offsetWidth || this._dialog.clientWidth;
         if (!w) {
-            const styles = document.defaultView.getComputedStyle(this._dialog);
+            const styles = this._window.getComputedStyle(this._dialog);
             w = w || parseInt(styles.width, 10);
         }
         return w;
@@ -813,7 +820,7 @@ export class Dialog extends EventEmitter {
     private _height() {
         let h = this.dialog.offsetHeight || this._dialog.clientHeight;
         if (!h) {
-            const styles = document.defaultView.getComputedStyle(this._dialog);
+            const styles = this._window.getComputedStyle(this._dialog);
             h = h || parseInt(styles.height, 10);
         }
         return h;
@@ -824,7 +831,7 @@ export class Dialog extends EventEmitter {
         let w = this.dialog.offsetWidth || this._dialog.clientWidth;
         let h = this.dialog.offsetHeight || this._dialog.clientHeight;
         if (!w || !h) {
-            const styles = document.defaultView.getComputedStyle(this._dialog);
+            const styles = this._window.getComputedStyle(this._dialog);
             w = w || parseInt(styles.width, 10);
             h = h || parseInt(styles.height, 10);
         }
@@ -842,16 +849,16 @@ export class Dialog extends EventEmitter {
         if ((position & Position.Top) === Position.Top)
             this._state.y = 0;
         else if ((position & Position.Bottom) === Position.Bottom)
-            this._state.y = window.innerHeight - size.height;
+            this._state.y = this._window.innerHeight - size.height;
         else if ((position & Position.CenterVertical) === Position.CenterVertical)
-            this._state.y = (window.innerHeight / 2 - size.height / 2);
+            this._state.y = (this._window.innerHeight / 2 - size.height / 2);
 
         if ((position & Position.Left) === Position.Left)
             this._state.x = 0;
         else if ((position & Position.Right) === Position.Right)
-            this._state.x = window.innerWidth - size.width;
+            this._state.x = this._window.innerWidth - size.width;
         else if ((position & Position.CenterHorizontal) === Position.CenterHorizontal)
-            this._state.x = (window.innerWidth / 2 - size.width / 2);
+            this._state.x = (this._window.innerWidth / 2 - size.width / 2);
 
         this._dialog.style.left = this._state.x + 'px';
         this._dialog.style.top = this._state.y + 'px';
@@ -879,7 +886,7 @@ export class Dialog extends EventEmitter {
     }
 
     private _getMaxZIndex(forceReset?: boolean) {
-        const dialogs = document.getElementsByTagName('dialog');
+        const dialogs = this._document.getElementsByTagName('dialog');
         let d = 0;
         const dl = dialogs.length;
         let i = parseInt(this._dialog.style.zIndex, 10);;
@@ -925,24 +932,24 @@ export class Dialog extends EventEmitter {
     public makeVisible(full?, silent?) {
         var rect = this._dialog.getBoundingClientRect();
         if (full) {
-            if (rect.right > window.innerWidth) {
-                this._state.x = window.innerWidth - this._state.width - 16;
+            if (rect.right > this._window.innerWidth) {
+                this._state.x = this._window.innerWidth - this._state.width - 16;
                 if (rect.left < 0) this._state.x = 0;
                 this._dialog.style.left = this._state.x + "px";
             }
-            if (rect.bottom > window.innerHeight) {
-                this._state.y = window.innerHeight - this._state.height - 16;
+            if (rect.bottom > this._window.innerHeight) {
+                this._state.y = this._window.innerHeight - this._state.height - 16;
                 if (rect.top < 0) this._state.y = 0;
                 this._dialog.style.top = this._state.y + "px";
             }
         }
         else {
-            if (rect.left > window.innerWidth - 16) {
-                this._state.x = (window.innerWidth - 16);
+            if (rect.left > this._window.innerWidth - 16) {
+                this._state.x = (this._window.innerWidth - 16);
                 this._dialog.style.left = this._state.x + "px";
             }
-            if (rect.top > window.innerHeight - 16) {
-                this._state.y = (window.innerHeight - 16);
+            if (rect.top > this._window.innerHeight - 16) {
+                this._state.y = (this._window.innerHeight - 16);
                 this._dialog.style.top = this._state.y + "px";
             }
         }
@@ -991,7 +998,7 @@ export class Dialog extends EventEmitter {
         else
             this._dialog.style.left = '0';
 
-        const styles = document.defaultView.getComputedStyle(this._dialog);
+        const styles = this._window.getComputedStyle(this._dialog);
         this._state.x = this._resize.x = parseInt(styles.left, 10);;
         this._state.width = this._resize.width = parseInt(styles.width, 10);
         this._state.y = this._resize.y = parseInt(styles.top, 10);;
@@ -1020,8 +1027,8 @@ export class Dialog extends EventEmitter {
 }
 
 export class AlertDialog extends Dialog {
-    constructor(title: string | DialogOptions, message?, icon?: string | DialogIcon) {
-        super(typeof title === 'string' ? { title: getIcon(icon || DialogIcon.exclamation) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: DialogButtons.Ok } : title);
+    constructor(title: string | DialogOptions, message?, icon?: string | DialogIcon, win?: Window) {
+        super(typeof title === 'string' ? { title: getIcon(icon || DialogIcon.exclamation) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: DialogButtons.Ok, document: win ? win.document : document } : title);
         this.body.classList.add('d-flex', 'justify-content-center', 'align-content-center', 'align-items-center');
         if (message)
             this.body.innerHTML = `<div class="text-center" style="width: 64px;height:64px;font-size: 40px;">${getIcon(icon || DialogIcon.exclamation)}</div><div class="ms-3 align-self-center flex-fill">${message}</div></div>`;
@@ -1030,8 +1037,8 @@ export class AlertDialog extends Dialog {
 
 
 export class ConfirmDialog extends Dialog {
-    constructor(title: string | DialogOptions, message?, icon?: string | DialogIcon, buttons?: DialogButtons) {
-        super(typeof title === 'string' ? { title: getIcon(icon || DialogIcon.question) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: buttons === undefined ? DialogButtons.YesNo : buttons } : title);
+    constructor(title: string | DialogOptions, message?, icon?: string | DialogIcon, buttons?: DialogButtons, win?: Window) {
+        super(typeof title === 'string' ? { title: getIcon(icon || DialogIcon.question) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: buttons === undefined ? DialogButtons.YesNo : buttons, document: win ? win.document : document } : title);
         this.body.classList.add('d-flex', 'justify-content-center', 'align-content-center', 'align-items-center');
         if (message)
             this.body.innerHTML = `<div class="text-center" style="width: 64px;height:64px;font-size: 40px;">${getIcon(icon || DialogIcon.question)}</div><div class="ms-3 align-self-center flex-fill">${message}</div></div>`;
@@ -1040,8 +1047,8 @@ export class ConfirmDialog extends Dialog {
 
 export class ProgressDialog extends Dialog {
     private _progress;
-    constructor(title: string | DialogOptions, message?, icon?: string | DialogIcon) {
-        super(typeof title === 'string' ? { title: getIcon(icon || DialogIcon.question) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: DialogButtons.Cancel, closeable: false } : title);
+    constructor(title: string | DialogOptions, message?, icon?: string | DialogIcon, win?: Window) {
+        super(typeof title === 'string' ? { title: getIcon(icon || DialogIcon.question) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: DialogButtons.Cancel, closeable: false, document: win ? win.document : document } : title);
         this.body.classList.add('text-center', 'justify-content-center', 'align-content-center', 'align-items-center');
         this.body.innerHTML = `<div class="align-self-center flex-fill" id="progress-message" style="padding:0 5px">${message || ''}</div></div><div class="progress" role="progressbar" aria-label="${title}" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="margin: 5px;"><div class="progress-bar" style="width: 0%"></div></div>`;
         this._progress = this.body.querySelector('.progress-bar');
@@ -1078,9 +1085,9 @@ function getIcon(icon: string | DialogIcon) {
     return '<i class="fa-solid fa-circle-info"></i> ';
 }
 
-window.confirm_box = (title, message?, icon?, buttons?) => {
+window.confirm_box = (title, message?, icon?, buttons?, win?) => {
     return new Promise((resolve, reject) => {
-        const confirm = new ConfirmDialog(title, message, icon, buttons);
+        const confirm = new ConfirmDialog(title, message, icon, buttons, win);
         confirm.showModal();
         confirm.on('button-click', e => resolve(e));
         confirm.on('canceled', () => reject(null));
@@ -1088,11 +1095,11 @@ window.confirm_box = (title, message?, icon?, buttons?) => {
     });
 
 }
-window.alert_box = (title, message?, icon?) => {
-    new AlertDialog(title, message, icon).showModal();
+window.alert_box = (title, message?, icon?, win?) => {
+    new AlertDialog(title, message, icon, win).showModal();
 }
-window.progress_box = (title, message?, icon?) => {
-    return new ProgressDialog(title, message, icon);
+window.progress_box = (title, message?, icon?, win?) => {
+    return new ProgressDialog(title, message, icon, win);
 }
 
 window.Dialog = Dialog;

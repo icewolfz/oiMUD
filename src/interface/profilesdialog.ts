@@ -76,6 +76,9 @@ export class ProfilesDialog extends Dialog {
         client.on('profiles-updated', () => {
 
         });
+        client.on('options-loaded', () => {
+            this.resetState(client.getOption('windows.profiles') || { center: true });
+        })
         client.on('initialized', () => {
             if (!this.profiles) {
                 this.profiles = client.profiles.clone();

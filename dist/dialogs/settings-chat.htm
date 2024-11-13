@@ -1,0 +1,88 @@
+<div class="mb-3">
+    <label for="showChatWindow" class="form-label">Window Type</label>
+    <select id="showChatWindow" class="form-select">
+        <option value="0">Default</option>
+        <option value="1">Window</option>
+        <option value="2">Dialog</option>
+        <option value="3">Both</option>
+    </select>
+</div>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="chat.captureTells">
+    <label class="form-check-label" for="chat.captureTells">Capture tells</label>
+</div>
+<small class="form-text text-muted alert alert-info" style="display:block;width:100%;margin-top:3px;padding: 2px">
+    Tell, emoteto, and shouts
+</small>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="chat.captureTalk">
+    <label class="form-check-label" for="chat.captureTalk">Capture talk</label>
+</div>
+<small class="form-text text-muted alert alert-info" style="display:block;width:100%;margin-top:3px;padding: 2px">
+    Say, yell, whisper and speak
+</small>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="chat.captureReviews">
+    <label class="form-check-label" for="chat.captureReviews">Capture reviews</label>
+</div>
+<small class="form-text text-muted alert alert-info" style="display:block;width:100%;margin-top:3px;padding: 2px">
+    Captures based on enabled captures
+</small>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="chat.gag">
+    <label class="form-check-label" for="chat.gag">Gag</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="chat.log">
+    <label class="form-check-label" for="chat.log">Log</label>
+</div>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="chat.CaptureOnlyOpen">
+    <label class="form-check-label" for="chat.CaptureOnlyOpen">Capture only when open</label>
+</div>
+
+<hr style="height: 0;border: 1px solid #808080;margin-bottom:3px;">
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="chat.captureLines">
+    <label class="form-check-label" for="chat.captureLines">Capture lines</label>
+</div>
+
+<div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="chat.captureAllLines" id="chat.captureAllLines" value="true"
+        disabled data-require="chat.captureLines">
+    <label class="form-check-label" for="chat.captureAllLines">All</label>
+</div>
+<div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="chat.captureAllLines" id="chat.captureSelective" value="false"
+        disabled data-require="chat.captureLines">
+    <label class="form-check-label" for="chat.captureSelective">Selective</label>
+</div>
+
+<div class="mb-3">
+    <label for="chat.lines" class="form-label">Selective Lines</label>
+    <textarea class="form-control" id="chat.lines" rows="3" data-join="," disabled
+        ></textarea>
+    <small class="form-text text-muted alert alert-info" style="display:block;width:100%;margin-top:3px;padding: 2px">
+        Separate each name with a comma(,) for example: chat,rp
+    </small>
+</div>
+
+<script>
+    body.querySelector('[id="chat.captureAllLines"]').addEventListener('change', e => {
+        body.querySelector('[id="chat.lines"]').disabled = !body.querySelector('[id="chat.captureSelective"]').checked || !body.querySelector('[id="chat.captureLines"]').checked;
+    });
+    body.querySelector('[id="chat.captureSelective"]').addEventListener('change', e => {
+        body.querySelector('[id="chat.lines"]').disabled = !body.querySelector('[id="chat.captureSelective"]').checked || !body.querySelector('[id="chat.captureLines"]').checked;
+    });    
+    body.querySelector('[id="chat.captureLines"]').addEventListener('change', e => {
+        body.querySelector('[id="chat.lines"]').disabled = !body.querySelector('[id="chat.captureSelective"]').checked || !body.querySelector('[id="chat.captureLines"]').checked;
+    });    
+    body.querySelector('[id="chat.lines"]').disabled = !body.querySelector('[id="chat.captureSelective"]').checked || !body.querySelector('[id="chat.captureLines"]').checked;
+
+</script>

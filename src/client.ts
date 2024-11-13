@@ -16,6 +16,7 @@ import { Test } from './plugins/test';
 import { Mapper } from './plugins/mapper';
 import { Status } from './plugins/status';
 import { Logger } from "./plugins/logger";
+import { Chat } from "./plugins/chat";
 import { ShadowMUD } from "./plugins/ShadowMUD/shadowmud";
 export { ShadowMUD };
 
@@ -1142,6 +1143,7 @@ export class Client extends EventEmitter {
         this.addPlugin(new Mapper(this));
         this.addPlugin(new Status(this));
         this.addPlugin(new Logger(this));
+        this.addPlugin(new Chat(this));
         if (DEBUG || TEST)
             this.addPlugin(new Test(this));
         if (this.getOption('autoConnect'))

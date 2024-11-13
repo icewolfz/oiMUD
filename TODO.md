@@ -1,61 +1,16 @@
- - create chat plugin and use on('function') event to add custom chat commands
-             client.sendChat = updateChat;
-```
-//spell-checker:ignore chatprompt chatp
-case 'chatprompt':
-case 'chatp':
-    if ((this.client.getOption('echo') & 4) === 4)
-        this.client.echo(raw, -3, -4, true, true);
-    args = this.parseInline(args.join(' '));
-    if ((<any>this.client).sendChat)
-        (<any>this.client).sendChat(args);
-    return null;
-case 'chat':
-case 'ch':
-    if ((this.client.getOption('echo') & 4) === 4)
-        this.client.echo(raw, -3, -4, true, true);
-    args = this.parseInline(args.join(' ') + '\n');
-    if ((<any>this.client).sendChat)
-        (<any>this.client).sendChat(args);
-    return null;
-```
--Add on disconnect option and dialog
-
+- Chat capture
+    - Add chat side panel
+- Add on disconnect option and dialog
 - New options
     - enableParsing - quick enabled triggered by interface?
     - enableTriggers - quick enabled triggered by interface?
-
-```
-//sample contextmenu
-    client.display.on('contextmenu', e => {
-        e.preventDefault();
-        let menu = document.getElementById('context-menu');
-        if (!menu) {
-            document.body.insertAdjacentHTML('afterend', `<ul id="context-menu" class="dropdown-menu show">
-                    <li><a class="dropdown-item" href="#">Action</a></li>
-                    <li><a class="dropdown-item" href="#">Another action</a></li>
-                    <li><a class="dropdown-item" href="#">Something else here</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li><a class="dropdown-item" href="#">Separated link</a></li>
-                </ul>`);
-            menu = document.getElementById('context-menu');
-        }
-        menu.style.left = e.clientX + 'px';
-        menu.style.top = e.clientY + 'px';
-        menu.style.display = 'block';
-        menu.style.position = 'absolute';
-    });
-```
-
 - A general shadowmud plugin that groups all sm related
     - immortal basic tools for shadowmud            
         - client.telnet.GMCPSupports.push('IED 1');
         - Add #win support if added
         - The old web client had a simple upload for uploading a file to current working directory, seems ot have broken at some point
     - Add help for sm mud if create a sm plugin
-    - Add mail compose like jiMUD using advanced editor dialog as a base as exact same code but adds to/cc/subject fields and instead of sending directly it executes a set of commands to open mail and send contents
+    - Add mail composer like jiMUD using advanced editor dialog as a base as exact same code but adds to/cc/subject fields and instead of sending directly it executes a set of commands to open mail and send contents
 - Profile manager:
     - Add undo system
     - Add options for profile sort order and direction
@@ -69,7 +24,10 @@ case 'ch':
 - Add settings to reset windows states to defaults
 - recode advanced editor to not use jquery when possible
 - Add paste special? may not be possible as cant control paste
-- Recode map backend into a worker to get/set rooms etc... granted localforage does not work in workers so adds extra layer of complexity
+- Mapper
+    - Add mini map panel on left side above chat panel
+    - Recode map backend into a worker to get/set rooms etc... granted localforage does not work in workers so adds extra layer of complexity
+    - Add true mapper window
 - Add help docs/help browser
     - for built in help use a subfolder under dist and markdown to format that way can be viewed on github or in help browser
     - <script src=" https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js "></script>

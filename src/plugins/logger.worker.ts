@@ -303,7 +303,7 @@ function appendFile(file, data, force?) {
             return;
         }
         buffer[file].unshift({ file: file, data: data });
-        postMessage({ event: 'write', file: file, data: data, character: options.name || '', timeStamp: timeStamp });
+        postMessage({ event: 'write', file: file, data: data, character: options.name || '', timeStamp: timeStamp, postfix: options.postfix, prefix: options.prefix });
     }
     catch (err) {
         postMessage({ event: 'error', args: err });

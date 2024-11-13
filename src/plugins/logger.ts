@@ -39,12 +39,14 @@ export class Logger extends Plugin {
     private _logger;
     private _manager: LogManager
 
+    public get manager(): LogManager { return this._manager; }
+
     public remove(): void {
         this.client.removeListenersFromCaller(this);
     }
     public initialize(): void {
         if (this.client.getOption('logEnabled'))
-            this._createLogger();
+            this._initializeLogger();
         this.client.on('cleared', () => {
             this._post({ action: 'flush', args: true });
         }, this);
@@ -67,9 +69,11 @@ export class Logger extends Plugin {
         this.client.on('options-loaded', () => {
             this._updateMenuItem(this.client.getOption('logEnabled'));
             if (this.client.getOption('logEnabled'))
-                this._createLogger();
+                this._initializeLogger();
             else
                 this._loadLoggerOptions();
+            if (this._manager)
+                this._manager.resetState(client.getOption('windows.log-viewer') || { center: true });
         }, this);
         this.client.on('closed', () => {
             this._post({ action: 'connected', args: client.connected });
@@ -80,7 +84,7 @@ export class Logger extends Plugin {
             this._post({ action: 'connected', args: client.connected });
             this._post({ action: 'stop' });
         }, this);
-        client.on('window', (window, args, name) => {
+        this.client.on('window', (window, args, name) => {
             let pages = window.split('/');
             if (!pages.length) return;
             switch (pages[0]) {
@@ -110,13 +114,13 @@ export class Logger extends Plugin {
     }
     get menu(): MenuItem[] {
         return [{
-            name: 'Enable logging',
-            icon: '<i class="far fa-file-alt"></i>',
+            name: ' Enable logging',
+            icon: '<i class="bi bi-file-text"></i>',
             position: '#menu-connect',
             active: this.client.getOption('logEnabled'),
             action: () => {
                 if (!client.getOption('logEnabled'))
-                    this._createLogger();
+                    this._initializeLogger();
                 this._post({ action: 'toggle' });
             }
         },
@@ -146,9 +150,13 @@ export class Logger extends Plugin {
         this._logger.postMessage(data);
     }
 
-    private _createLogger() {
+    public createLogger() {
+        return new Worker(workerSrc);
+    }
+
+    private _initializeLogger() {
         if (this._logger) return;
-        this._logger = new Worker(workerSrc);
+        this._logger = this.createLogger();
         this._logger.addEventListener('message', e => {
             switch (e.data.event) {
                 case 'started':
@@ -186,7 +194,7 @@ export class Logger extends Plugin {
                     this._post({ action: e.data.event, args: { lines: this.client.display.lines || [], fragment: this.client.display.EndOfLine || this.client.telnet.prompt } });
                     break;
                 case 'write':
-                    this._updateKey(e.data)
+                    this.updateKey(e.data);
                     localforage.getItem('OoMUDLog' + e.data.file).then(value => {
                         if (!value) value = '';
                         value += e.data.data;
@@ -209,7 +217,7 @@ export class Logger extends Plugin {
 
     private _keyQueue = [];
     private _keyPromise;
-    private _updateKey(data) {
+    public updateKey(data) {
         this._keyQueue.push(data);
         if (this._keyPromise) return;
         this._keyPromise = localforage.getItem('OoMUDLogKeys').then(value => {
@@ -220,7 +228,7 @@ export class Logger extends Plugin {
             else
                 _keys = value;
             this._keyQueue.forEach(key => {
-                _keys[key.file] = { character: key.character, timeStamp: key.timeStamp };
+                _keys[key.file] = { character: key.character, timeStamp: key.timeStamp, postfix: data.postfix, prefix: data.prefix };
             });
             this._keyQueue = [];
             this._keyPromise = null;
@@ -360,7 +368,7 @@ class LogManager extends Dialog {
                 if (this._logs[item] && !item.endsWith('.txt') && !item.endsWith('.raw') && !item.endsWith('.htm'))
                     return `${formatDate(item)}${this._logs[item].character ? ', ' + this._logs[item].character : ''}>`;
                 else if (this._logs[item] && this._logs[item].timeStamp)
-                    return `${formatDate(this._logs[item].timeStamp)}${this._logs[item].character ? ', ' + this._logs[item].character : ''}, ${item.substring(item.length - 3, item.length)}`;
+                    return `${formatDate(this._logs[item].timeStamp)}${this._logs[item].character ? ', ' + this._logs[item].character : ''}, ${item.substring(item.length - 3, item.length)}${this._logs[item].prefix ? ', ' + this._logs[item].prefix : ''}${this._logs[item].postfix ? ', ' + this._logs[item].postfix : ''}`;
             }
             return capitalize(item);
         })
@@ -462,7 +470,7 @@ class LogManager extends Dialog {
                         if (!keys[k].endsWith('.txt') && !keys[k].endsWith('.raw') && !keys[k].endsWith('.htm'))
                             title = `${formatDate(keys[k])}${this._logs[keys[k]].character ? ', ' + this._logs[keys[k]].character : ''}`;
                         else if (this._logs[keys[k]].timeStamp)
-                            title = `${formatDate(this._logs[keys[k]].timeStamp)}${this._logs[keys[k]].character ? ', ' + this._logs[keys[k]].character : ''}, ${keys[k].substring(keys[k].length - 3, keys[k].length)}`;
+                            title = `${formatDate(this._logs[keys[k]].timeStamp)}${this._logs[keys[k]].character ? ', ' + this._logs[keys[k]].character : ''}, ${keys[k].substring(keys[k].length - 3, keys[k].length)}${this._logs[keys[k]].prefix ? ', ' + this._logs[keys[k]].prefix : ''}${this._logs[keys[k]].postfix ? ', ' + this._logs[keys[k]].postfix : ''}`;
                         p += `<a id="${keys[k]}" href="#logs/${encodeURIComponent(keys[k])}" class="list-group-item list-group-item-action" title="${title}"><span class="list-badge-button badge text-bg-danger" data-key="${keys[k]}" data-type="delete" title="Remove log"><i class="bi bi-trash"></i></span><span class="me-1 list-badge-button badge text-bg-secondary" data-key="${keys[k]}" data-type="export" title="Export log"><i class="bi bi-box-arrow-up"></i></span><i class="bi bi-file-${icon}"></i>${title}</a>`;
                     }
                     this._menu.innerHTML = '<div class="list-group" id="logs-menu">' + p + '</div>';

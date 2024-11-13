@@ -1638,11 +1638,11 @@
         this.emit("resizing");
       };
       this._resizeStopDrag = (e) => {
-        document.documentElement.removeEventListener("mousemove", this._resizeDoDrag);
-        document.documentElement.removeEventListener("mouseup", this._resizeStopDrag);
-        document.documentElement.removeEventListener("touchmove", this._resizeTouchDrag);
-        document.documentElement.removeEventListener("touchend", this._resizeStopDrag);
-        const styles = document.defaultView.getComputedStyle(this._dialog);
+        this._document.documentElement.removeEventListener("mousemove", this._resizeDoDrag);
+        this._document.documentElement.removeEventListener("mouseup", this._resizeStopDrag);
+        this._document.documentElement.removeEventListener("touchmove", this._resizeTouchDrag);
+        this._document.documentElement.removeEventListener("touchend", this._resizeStopDrag);
+        const styles = this._window.getComputedStyle(this._dialog);
         this._state.x = parseInt(styles.left, 10);
         ;
         this._state.width = parseInt(styles.width, 10);
@@ -1656,16 +1656,16 @@
         if (this.maximized) return;
         this._dragPosition.x = e.clientX;
         this._dragPosition.y = e.clientY;
-        document.documentElement.addEventListener("mouseup", this._dragMouseUp);
-        document.documentElement.addEventListener("mousemove", this._dragMouseMove);
+        this._document.documentElement.addEventListener("mouseup", this._dragMouseUp);
+        this._document.documentElement.addEventListener("mousemove", this._dragMouseMove);
         this._header.style.cursor = "move";
       };
       this._dragTouchStart = (e) => {
         if (this.maximized) return;
         this._dragPosition.x = e.clientX;
         this._dragPosition.y = e.clientY;
-        document.documentElement.addEventListener("touchend", this._dragMouseUp);
-        document.documentElement.addEventListener("touchmove", this._dragTouchMove);
+        this._document.documentElement.addEventListener("touchend", this._dragMouseUp);
+        this._document.documentElement.addEventListener("touchmove", this._dragTouchMove);
         this._header.style.cursor = "move";
       };
       this._dragMouseMove = (e) => {
@@ -1708,12 +1708,12 @@
         this._dialog.style.top = this._state.y + "px";
       };
       this._dragMouseUp = () => {
-        document.documentElement.removeEventListener("mouseup", this._dragMouseUp);
-        document.documentElement.removeEventListener("mousemove", this._dragMouseMove);
-        document.documentElement.removeEventListener("touchend", this._dragMouseUp);
-        document.documentElement.removeEventListener("touchmove", this._dragTouchMove);
+        this._document.documentElement.removeEventListener("mouseup", this._dragMouseUp);
+        this._document.documentElement.removeEventListener("mousemove", this._dragMouseMove);
+        this._document.documentElement.removeEventListener("touchend", this._dragMouseUp);
+        this._document.documentElement.removeEventListener("touchmove", this._dragTouchMove);
         this._header.style.cursor = "";
-        const styles = document.defaultView.getComputedStyle(this._dialog);
+        const styles = this._window.getComputedStyle(this._dialog);
         this._state.x = parseInt(styles.left, 10);
         ;
         this._state.width = parseInt(styles.width, 10);
@@ -1727,11 +1727,14 @@
       this.resizable = true;
       this._maximizable = true;
       this._closable = true;
+      this._window = window;
+      this._document = options ? options.document || document : document;
+      this._window = this._document.defaultView;
       if (options && "type" in options && options.type == 1) {
-        this._dialog = document.createElement("div");
+        this._dialog = this._document.createElement("div");
         this._dialog.open = false;
       } else
-        this._dialog = document.createElement("dialog");
+        this._dialog = this._document.createElement("dialog");
       if (typeof this._dialog.showModal !== "function") {
         this._dialog.showModal = () => {
           if (this._dialog.open) return;
@@ -1749,18 +1752,18 @@
             };
           }
           if (!this._dialog.backdrop_) {
-            this._dialog.backdrop_ = document.createElement("div");
+            this._dialog.backdrop_ = this._document.createElement("div");
             this._dialog.backdrop_.className = "backdrop";
             this._dialog.backdrop_MouseEvent = function(e) {
               if (!this.hasAttribute("tabindex")) {
-                var fake = document.createElement("div");
+                var fake = this._document.createElement("div");
                 this.insertBefore(fake, this.firstChild);
                 fake.tabIndex = -1;
                 fake.focus();
                 this.removeChild(fake);
               } else
                 this.focus();
-              var redirectedEvent = document.createEvent("MouseEvents");
+              var redirectedEvent = this._document.createEvent("MouseEvents");
               redirectedEvent.initMouseEvent(
                 e.type,
                 e.bubbles,
@@ -1786,7 +1789,7 @@
             this._dialog.backdrop_.addEventListener("click", this._dialog.backdrop_MouseEvent.bind(this._dialog));
           }
           this._dialog.parentNode.insertBefore(this._dialog.backdrop_, this._dialog.nextSibling);
-          window.document.addEventListener("keydown", this._dialog._keydown);
+          this._document.addEventListener("keydown", this._dialog._keydown);
         };
       }
       if (typeof this._dialog.show !== "function") {
@@ -1806,7 +1809,7 @@
           this._dialog.open = false;
           this._state.show = 0;
           this._dialog.dataset.show = "" + this._state.show;
-          window.removeEventListener("resize", this._windowResize);
+          this._window.removeEventListener("resize", this._windowResize);
           this.emit("closed");
         };
       }
@@ -1890,14 +1893,14 @@
           e.preventDefault();
           return;
         }
-        document.body.removeChild(this._dialog);
+        this._document.body.removeChild(this._dialog);
         this._state.show = 0;
         this._dialog.dataset.show = "" + this._state.show;
         if (this._dialog.backdrop_)
           this._dialog.parentNode.removeChild(this._dialog.backdrop_);
         if (this._dialog._keydown)
-          window.document.removeEventListener("keydown", this._dialog._keydown);
-        window.removeEventListener("resize", this._windowResize);
+          this._window.document.removeEventListener("keydown", this._dialog._keydown);
+        this._window.removeEventListener("resize", this._windowResize);
         this.emit("closed", this._dialog.returnValue);
       });
       this._dialog.addEventListener("cancel", (e) => {
@@ -1908,23 +1911,23 @@
           e.preventDefault();
           return;
         }
-        if (document.activeElement && (document.activeElement.tagName === "TEXTAREA" || document.activeElement.tagName === "iNPUT" || document.activeElement.tagName === "SELECT")) {
+        if (this._document.activeElement && (this._document.activeElement.tagName === "TEXTAREA" || this._document.activeElement.tagName === "iNPUT" || this._document.activeElement.tagName === "SELECT")) {
           e.preventDefault();
           return;
         }
         this._dialog.open = false;
-        document.body.removeChild(this._dialog);
+        this._document.body.removeChild(this._dialog);
         this._state.show = 0;
         this._dialog.dataset.show = "" + this._state.show;
         if (this._dialog.backdrop_)
           this._dialog.parentNode.removeChild(this._dialog.backdrop_);
         if (this._dialog._keydown)
-          window.document.removeEventListener("keydown", this._dialog._keydown);
-        window.removeEventListener("resize", this._windowResize);
+          this._window.document.removeEventListener("keydown", this._dialog._keydown);
+        this._window.removeEventListener("resize", this._windowResize);
         if (this._dialog.returnValue !== "ok")
           this.emit("canceled");
       });
-      document.body.appendChild(this._dialog);
+      this._document.body.appendChild(this._dialog);
       if (this._maximizable)
         this._dialog.querySelector(`#${this._id}-max`).style.display = "";
       else
@@ -1969,7 +1972,7 @@
       this._header = this._dialog.querySelector('[class="dialog-header"]');
       if (this.resizable) {
         this._dialog.classList.add("resizable");
-        var right = document.createElement("div");
+        var right = this._document.createElement("div");
         right.className = "resizer-right";
         this._dialog.appendChild(right);
         right.addEventListener("mousedown", (e) => {
@@ -1978,7 +1981,7 @@
         right.addEventListener("touchstart", (e) => {
           this._initResizeTouch(e, 1 /* Right */);
         }, { passive: true });
-        var bottom = document.createElement("div");
+        var bottom = this._document.createElement("div");
         bottom.className = "resizer-bottom";
         this._dialog.appendChild(bottom);
         bottom.addEventListener("mousedown", (e) => {
@@ -1987,7 +1990,7 @@
         bottom.addEventListener("touchstart", (e) => {
           this._initResizeTouch(e, 2 /* Bottom */);
         }, { passive: true });
-        var corner = document.createElement("div");
+        var corner = this._document.createElement("div");
         corner.className = "resizer-se";
         this._dialog.appendChild(corner);
         corner.addEventListener("mousedown", (e) => {
@@ -1996,7 +1999,7 @@
         corner.addEventListener("touchstart", (e) => {
           this._initResizeTouch(e, 1 /* Right */ | 2 /* Bottom */);
         }, { passive: true });
-        corner = document.createElement("div");
+        corner = this._document.createElement("div");
         corner.className = "resizer-ne";
         this._dialog.appendChild(corner);
         corner.addEventListener("mousedown", (e) => {
@@ -2005,7 +2008,7 @@
         corner.addEventListener("touchstart", (e) => {
           this._initResizeTouch(e, 1 /* Right */ | 8 /* Top */);
         }, { passive: true });
-        corner = document.createElement("div");
+        corner = this._document.createElement("div");
         corner.className = "resizer-nw";
         this._dialog.appendChild(corner);
         corner.addEventListener("mousedown", (e) => {
@@ -2014,7 +2017,7 @@
         corner.addEventListener("touchstart", (e) => {
           this._initResizeTouch(e, 4 /* Left */ | 8 /* Top */);
         }, { passive: true });
-        corner = document.createElement("div");
+        corner = this._document.createElement("div");
         corner.className = "resizer-sw";
         this._dialog.appendChild(corner);
         corner.addEventListener("mousedown", (e) => {
@@ -2023,7 +2026,7 @@
         corner.addEventListener("touchstart", (e) => {
           this._initResizeTouch(e, 4 /* Left */ | 2 /* Bottom */);
         }, { passive: true });
-        var left = document.createElement("div");
+        var left = this._document.createElement("div");
         left.className = "resizer-left";
         this._dialog.appendChild(left);
         left.addEventListener("mousedown", (e) => {
@@ -2032,7 +2035,7 @@
         left.addEventListener("touchstart", (e) => {
           this._initResizeTouch(e, 4 /* Left */);
         }, { passive: true });
-        var top = document.createElement("div");
+        var top = this._document.createElement("div");
         top.className = "resizer-top";
         this._dialog.appendChild(top);
         top.addEventListener("mousedown", (e) => {
@@ -2049,7 +2052,7 @@
         this._header.addEventListener("mousedown", this._dragMouseDown);
         this._header.addEventListener("touchstart", this._dragTouchStart, { passive: true });
       }
-      const styles = document.defaultView.getComputedStyle(this._dialog);
+      const styles = this._window.getComputedStyle(this._dialog);
       this._state.x = this._resize.x = parseInt(styles.left, 10);
       ;
       this._state.width = this._resize.width = parseInt(styles.width, 10);
@@ -2128,7 +2131,7 @@
     }
     _initResize(e, type) {
       if (this.maximized) return;
-      const styles = document.defaultView.getComputedStyle(this._dialog);
+      const styles = this._window.getComputedStyle(this._dialog);
       this._resize.x = e.clientX;
       this._resize.width = parseInt(styles.width, 10);
       this._resize.y = e.clientY;
@@ -2139,12 +2142,12 @@
       this._resize.borderHeight = e.offsetY + parseInt(styles.borderTopWidth);
       this._resize.borderWidth = e.offsetX + parseInt(styles.borderLeftWidth);
       this._body.style.pointerEvents = "none";
-      document.documentElement.addEventListener("mousemove", this._resizeDoDrag, false);
-      document.documentElement.addEventListener("mouseup", this._resizeStopDrag, false);
+      this._document.documentElement.addEventListener("mousemove", this._resizeDoDrag, false);
+      this._document.documentElement.addEventListener("mouseup", this._resizeStopDrag, false);
     }
     _initResizeTouch(e, type) {
       if (!e.touches.length || this.maximized) return;
-      const styles = document.defaultView.getComputedStyle(this._dialog);
+      const styles = this._window.getComputedStyle(this._dialog);
       this._resize.x = e.touches[0].clientX;
       this._resize.width = parseInt(styles.width, 10);
       this._resize.y = e.touches[0].clientY;
@@ -2158,8 +2161,8 @@
       this._resize.borderHeight = y + parseInt(styles.borderTopWidth);
       this._resize.borderWidth = x + parseInt(styles.borderLeftWidth);
       this._body.style.pointerEvents = "none";
-      document.documentElement.addEventListener("touchmove", this._resizeTouchDrag, false);
-      document.documentElement.addEventListener("touchend", this._resizeStopDrag, false);
+      this._document.documentElement.addEventListener("touchmove", this._resizeTouchDrag, false);
+      this._document.documentElement.addEventListener("touchend", this._resizeStopDrag, false);
     }
     get id() {
       return this._id;
@@ -2187,7 +2190,7 @@
     }
     showModal() {
       if (!this._dialog.parentElement)
-        document.body.appendChild(this._dialog);
+        this._document.body.appendChild(this._dialog);
       this.makeVisible(true);
       this._dialog.returnValue = "";
       if (this._dialog.open) {
@@ -2197,13 +2200,13 @@
       this._dialog.showModal();
       this._state.show = 2;
       this._dialog.dataset.show = "" + this._state.show;
-      window.addEventListener("resize", this._windowResize);
+      this._window.addEventListener("resize", this._windowResize);
       this.emit("shown", true);
       this.focus();
     }
     show() {
       if (!this._dialog.parentElement)
-        document.body.appendChild(this._dialog);
+        this._document.body.appendChild(this._dialog);
       this.makeVisible(true);
       this._dialog.returnValue = "";
       if (this._dialog.open) {
@@ -2213,7 +2216,7 @@
       this._dialog.show();
       this._state.show = 1;
       this._dialog.dataset.show = "" + this._state.show;
-      window.addEventListener("resize", this._windowResize);
+      this._window.addEventListener("resize", this._windowResize);
       this.emit("shown", false);
       this.focus();
     }
@@ -2225,7 +2228,7 @@
       if (this._dialog.backdrop_)
         this._dialog.parentNode.removeChild(this._dialog.backdrop_);
       if (this._dialog._keydown)
-        window.document.removeEventListener("keydown", this._dialog._keydown);
+        this._document.removeEventListener("keydown", this._dialog._keydown);
       if (returnValue)
         this._dialog.returnValue = returnValue;
       this._dialog.close();
@@ -2273,7 +2276,7 @@
         private _width() {
             let w = this.dialog.offsetWidth || this._dialog.clientWidth;
             if (!w) {
-                const styles = document.defaultView.getComputedStyle(this._dialog);
+                const styles = this._window.getComputedStyle(this._dialog);
                 w = w || parseInt(styles.width, 10);
             }
             return w;
@@ -2282,7 +2285,7 @@
         private _height() {
             let h = this.dialog.offsetHeight || this._dialog.clientHeight;
             if (!h) {
-                const styles = document.defaultView.getComputedStyle(this._dialog);
+                const styles = this._window.getComputedStyle(this._dialog);
                 h = h || parseInt(styles.height, 10);
             }
             return h;
@@ -2292,7 +2295,7 @@
       let w = this.dialog.offsetWidth || this._dialog.clientWidth;
       let h = this.dialog.offsetHeight || this._dialog.clientHeight;
       if (!w || !h) {
-        const styles = document.defaultView.getComputedStyle(this._dialog);
+        const styles = this._window.getComputedStyle(this._dialog);
         w = w || parseInt(styles.width, 10);
         h = h || parseInt(styles.height, 10);
       }
@@ -2307,15 +2310,15 @@
       if ((position & 4 /* Top */) === 4 /* Top */)
         this._state.y = 0;
       else if ((position & 8 /* Bottom */) === 8 /* Bottom */)
-        this._state.y = window.innerHeight - size.height;
+        this._state.y = this._window.innerHeight - size.height;
       else if ((position & 16 /* CenterVertical */) === 16 /* CenterVertical */)
-        this._state.y = window.innerHeight / 2 - size.height / 2;
+        this._state.y = this._window.innerHeight / 2 - size.height / 2;
       if ((position & 1 /* Left */) === 1 /* Left */)
         this._state.x = 0;
       else if ((position & 2 /* Right */) === 2 /* Right */)
-        this._state.x = window.innerWidth - size.width;
+        this._state.x = this._window.innerWidth - size.width;
       else if ((position & 32 /* CenterHorizontal */) === 32 /* CenterHorizontal */)
-        this._state.x = window.innerWidth / 2 - size.width / 2;
+        this._state.x = this._window.innerWidth / 2 - size.width / 2;
       this._dialog.style.left = this._state.x + "px";
       this._dialog.style.top = this._state.y + "px";
       this._state.width = size.width;
@@ -2339,7 +2342,7 @@
       this.emit("restored");
     }
     _getMaxZIndex(forceReset) {
-      const dialogs = document.getElementsByTagName("dialog");
+      const dialogs = this._document.getElementsByTagName("dialog");
       let d = 0;
       const dl = dialogs.length;
       let i = parseInt(this._dialog.style.zIndex, 10);
@@ -2381,23 +2384,23 @@
     makeVisible(full, silent) {
       var rect = this._dialog.getBoundingClientRect();
       if (full) {
-        if (rect.right > window.innerWidth) {
-          this._state.x = window.innerWidth - this._state.width - 16;
+        if (rect.right > this._window.innerWidth) {
+          this._state.x = this._window.innerWidth - this._state.width - 16;
           if (rect.left < 0) this._state.x = 0;
           this._dialog.style.left = this._state.x + "px";
         }
-        if (rect.bottom > window.innerHeight) {
-          this._state.y = window.innerHeight - this._state.height - 16;
+        if (rect.bottom > this._window.innerHeight) {
+          this._state.y = this._window.innerHeight - this._state.height - 16;
           if (rect.top < 0) this._state.y = 0;
           this._dialog.style.top = this._state.y + "px";
         }
       } else {
-        if (rect.left > window.innerWidth - 16) {
-          this._state.x = window.innerWidth - 16;
+        if (rect.left > this._window.innerWidth - 16) {
+          this._state.x = this._window.innerWidth - 16;
           this._dialog.style.left = this._state.x + "px";
         }
-        if (rect.top > window.innerHeight - 16) {
-          this._state.y = window.innerHeight - 16;
+        if (rect.top > this._window.innerHeight - 16) {
+          this._state.y = this._window.innerHeight - 16;
           this._dialog.style.top = this._state.y + "px";
         }
       }
@@ -2441,7 +2444,7 @@
         this._dialog.style.left = options.x;
       else
         this._dialog.style.left = "0";
-      const styles = document.defaultView.getComputedStyle(this._dialog);
+      const styles = this._window.getComputedStyle(this._dialog);
       this._state.x = this._resize.x = parseInt(styles.left, 10);
       ;
       this._state.width = this._resize.width = parseInt(styles.width, 10);
@@ -2469,24 +2472,24 @@
     }
   };
   var AlertDialog = class extends Dialog {
-    constructor(title, message, icon) {
-      super(typeof title === "string" ? { title: getIcon(icon || 4 /* exclamation */) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: 1 /* Ok */ } : title);
+    constructor(title, message, icon, win) {
+      super(typeof title === "string" ? { title: getIcon(icon || 4 /* exclamation */) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: 1 /* Ok */, document: win ? win.document : document } : title);
       this.body.classList.add("d-flex", "justify-content-center", "align-content-center", "align-items-center");
       if (message)
         this.body.innerHTML = `<div class="text-center" style="width: 64px;height:64px;font-size: 40px;">${getIcon(icon || 4 /* exclamation */)}</div><div class="ms-3 align-self-center flex-fill">${message}</div></div>`;
     }
   };
   var ConfirmDialog = class extends Dialog {
-    constructor(title, message, icon, buttons) {
-      super(typeof title === "string" ? { title: getIcon(icon || 1 /* question */) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: buttons === void 0 ? 12 /* YesNo */ : buttons } : title);
+    constructor(title, message, icon, buttons, win) {
+      super(typeof title === "string" ? { title: getIcon(icon || 1 /* question */) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: buttons === void 0 ? 12 /* YesNo */ : buttons, document: win ? win.document : document } : title);
       this.body.classList.add("d-flex", "justify-content-center", "align-content-center", "align-items-center");
       if (message)
         this.body.innerHTML = `<div class="text-center" style="width: 64px;height:64px;font-size: 40px;">${getIcon(icon || 1 /* question */)}</div><div class="ms-3 align-self-center flex-fill">${message}</div></div>`;
     }
   };
   var ProgressDialog = class extends Dialog {
-    constructor(title, message, icon) {
-      super(typeof title === "string" ? { title: getIcon(icon || 1 /* question */) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: 2 /* Cancel */, closeable: false } : title);
+    constructor(title, message, icon, win) {
+      super(typeof title === "string" ? { title: getIcon(icon || 1 /* question */) + title, width: 300, height: 150, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: 2 /* Cancel */, closeable: false, document: win ? win.document : document } : title);
       this.body.classList.add("text-center", "justify-content-center", "align-content-center", "align-items-center");
       this.body.innerHTML = `<div class="align-self-center flex-fill" id="progress-message" style="padding:0 5px">${message || ""}</div></div><div class="progress" role="progressbar" aria-label="${title}" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="margin: 5px;"><div class="progress-bar" style="width: 0%"></div></div>`;
       this._progress = this.body.querySelector(".progress-bar");
@@ -2525,20 +2528,20 @@
     }
     return '<i class="fa-solid fa-circle-info"></i> ';
   }
-  window.confirm_box = (title, message, icon, buttons) => {
+  window.confirm_box = (title, message, icon, buttons, win) => {
     return new Promise((resolve, reject) => {
-      const confirm = new ConfirmDialog(title, message, icon, buttons);
+      const confirm = new ConfirmDialog(title, message, icon, buttons, win);
       confirm.showModal();
       confirm.on("button-click", (e) => resolve(e));
       confirm.on("canceled", () => reject(null));
       confirm.on("closed", (reason) => reason === "Yes" ? 0 : reject(null));
     });
   };
-  window.alert_box = (title, message, icon) => {
-    new AlertDialog(title, message, icon).showModal();
+  window.alert_box = (title, message, icon, win) => {
+    new AlertDialog(title, message, icon, win).showModal();
   };
-  window.progress_box = (title, message, icon) => {
-    return new ProgressDialog(title, message, icon);
+  window.progress_box = (title, message, icon, win) => {
+    return new ProgressDialog(title, message, icon, win);
   };
   window.Dialog = Dialog;
 
@@ -4625,7 +4628,10 @@
     ["simpleEditor", 0, 1 /* Boolean */, false],
     ["selectLastCommand", 0, 1 /* Boolean */, true],
     ["statusMode", 0, 2 /* Number */, isMobile() ? 1 : 0],
-    ["logger.split", 0, 2 /* Number */, 204]
+    ["logger.split", 0, 2 /* Number */, 204],
+    ["showChatWindow", 0, 2 /* Number */, 0],
+    ["chat.enableColors", 0, 2 /* Number */, true],
+    ["chat.enableBackgroundColors", 0, 2 /* Number */, true]
   ];
   var Settings = class _Settings {
     constructor() {
@@ -5102,6 +5108,10 @@
           return 0;
         case "chat.indent":
           return 4;
+        case "chat.enableColors":
+          return true;
+        case "chat.enableBackgroundColors":
+          return true;
         case "autoTakeoverLogin":
           return false;
         case "maxReconnectDelay":
@@ -5228,6 +5238,8 @@
           return true;
         case "statusMode":
           isMobile() ? 1 : 0;
+        case "showChatWindow":
+          return 0;
       }
       return null;
     }
@@ -5425,6 +5437,7 @@
     }
     _loadPageSettings() {
       const forms = this.body.querySelectorAll("input,select,textarea");
+      let required;
       if (this._page === "settings-colors") {
         var c;
         var colors = this.settings.colors || [];
@@ -5470,35 +5483,58 @@
                 this.settings[target.name] = this.convertType(target.value, typeof this.settings[target.name]);
             });
           } else if (forms[f].type === "checkbox") {
+            let name;
             if (forms[f].dataset.enum === "true") {
-              const name = forms[f].name || forms[f].id.substring(0, forms[f].id.lastIndexOf("-"));
+              name = forms[f].name || forms[f].id.substring(0, forms[f].id.lastIndexOf("-"));
               const value = +forms[f].id.substring(forms[f].id.lastIndexOf("-") + 1);
               forms[f].checked = (this.settings[name] & value) === value;
-            } else
-              forms[f].checked = this.settings[forms[f].name || forms[f].id];
+            } else {
+              name = forms[f].name || forms[f].id;
+              forms[f].checked = this.settings[name];
+            }
             forms[f].addEventListener("change", (e) => {
               const target = e.currentTarget || e.target;
+              let name2;
               if (target.dataset.enum === "true") {
-                const name = target.name || target.id.substring(0, target.id.lastIndexOf("-"));
-                const enums = this.body.querySelectorAll(`[name=${name}]`);
+                name2 = target.name || target.id.substring(0, target.id.lastIndexOf("-"));
+                const enums = this.body.querySelectorAll(`[name=${name2}]`);
                 let value = 0;
                 for (let e2 = 0, el = enums.length; e2 < el; e2++) {
                   if (enums[e2].checked)
                     value |= +enums[e2].value;
                 }
-                this.settings[name] = value;
-              } else
-                this.settings[target.name || target.id] = target.checked || false;
+                this.settings[name2] = value;
+              } else {
+                name2 = target.name || target.id;
+                this.settings[name2] = target.checked || false;
+              }
+              let required2 = this.body.querySelectorAll(`[data-require="${name2}"]`);
+              required2.forEach((r) => {
+                r.disabled = !this.settings[name2];
+              });
+            });
+            required = this.body.querySelectorAll(`[data-require="${name}"]`);
+            required.forEach((r) => {
+              r.disabled = !this.settings[name];
             });
           } else {
-            forms[f].value = this.settings[forms[f].id];
+            if (forms[f].dataset.join && forms[f].dataset.join.length)
+              forms[f].value = (this.settings[forms[f].id] || []).map((v) => v.trim()).join(forms[f].dataset.join);
+            else
+              forms[f].value = this.settings[forms[f].id];
             forms[f].addEventListener("change", (e) => {
               const target = e.currentTarget || e.target;
-              this.setValue(target.name || target.id, target.value);
+              if (forms[f].dataset.join && forms[f].dataset.join.length)
+                this.setValue(target.name || target.id, target.value.split(forms[f].dataset.join).map((v) => v.trim()));
+              else
+                this.setValue(target.name || target.id, target.value);
             });
             forms[f].addEventListener("input", (e) => {
               const target = e.currentTarget || e.target;
-              this.setValue(target.name || target.id, target.value);
+              if (forms[f].dataset.join && forms[f].dataset.join.length)
+                this.setValue(target.name || target.id, target.value.split(forms[f].dataset.join).map((v) => v.trim()));
+              else
+                this.setValue(target.name || target.id, target.value);
             });
           }
         }
@@ -6967,6 +7003,9 @@
         }
       });
       client.on("profiles-updated", () => {
+      });
+      client.on("options-loaded", () => {
+        this.resetState(client.getOption("windows.profiles") || { center: true });
       });
       client.on("initialized", () => {
         if (!this.profiles) {

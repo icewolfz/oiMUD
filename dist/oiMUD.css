@@ -480,7 +480,7 @@ body {
   padding: 0;
   margin: 0;
   position: absolute;
-  background-color: rgb(33, 37, 41);
+  background-color: black;
 }
 html {
   height: 100%;
@@ -2987,4 +2987,25 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   height: 100%;
   position: absolute;
   border: 0;
+}
+
+/* src/css/chat.css */
+#chat-toolbar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  border-bottom: 1px solid #fff;
+  box-shadow: inset 0 -1px 0 #ddd;
+  padding-bottom: 4px;
+}
+#chat-toolbar button {
+  min-width: 26px;
+}
+#chat-display {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }

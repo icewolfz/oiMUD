@@ -291,7 +291,7 @@ export class MSP extends Plugin {
         this.client.on('sound', this.sound, this);
         this.client.on('options-loaded', this.loadOptions, this);
         this.client.on('option-loaded', this.setOption, this);
-        this.client.on('function', this.processFunction, this);
+        this.client.on('function', this._processFunction, this);
         this.on('playing', (data) => {
             if (!this.client) return;
             this.debug('MSP ' + (data.type ? 'Music' : 'Sound') + ' Playing ' + data.file + ' for ' + data.duration);
@@ -739,7 +739,7 @@ export class MSP extends Plugin {
      * Process function event to execute custom text functions
      * @param data {FunctionEvent} The data about the function to execute
      */
-    public processFunction(data: FunctionEvent) {
+    private _processFunction(data: FunctionEvent) {
         let args;
         let tmp;
         let i;

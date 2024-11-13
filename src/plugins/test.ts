@@ -15,7 +15,7 @@ export class Test extends Plugin {
 
     constructor(client: Client) {
         super(client);
-        this._event = data => this.processFunction(data);
+        this._event = data => this._processFunction(data);
         this.functions['testfile'] = data => {
             if (data && data.args && data.args.length)
                 throw new Error('Invalid syntax use ' + this.client.getOption('commandChar') + 'testfile');
@@ -979,7 +979,7 @@ Devanagari
      * Process function event to execute custom text functions
      * @param data {FunctionEvent} The data about the function to execute
      */
-    public processFunction(data: FunctionEvent) {
+    private _processFunction(data: FunctionEvent) {
         let name;
         //const data = { name: fun, args: args, raw: raw, handled: false, return: null };
         if (!data) return;

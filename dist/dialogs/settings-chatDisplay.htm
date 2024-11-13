@@ -1,7 +1,7 @@
 <div class="mb-3">
-    <label for="font" class="form-label">Font</label>
+    <label for="chat.font" class="form-label">Font</label>
     <div class="input-group">
-        <input id="font" type="text" class="form-control" aria-label="Text input with dropdown button">
+        <input id="chat.font" type="text" class="form-control" aria-label="Text input with dropdown button">
         <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
             style="border: var(--bs-border-width) solid var(--bs-border-color);" data-bs-toggle="dropdown"
             aria-expanded="false">
@@ -38,38 +38,30 @@
     </small>
 </div>
 <div class="mb-3">
-    <label for="fontSize" class="form-label">Font size</label>
-    <input class="form-control" id="fontSize">
+    <label for="chat.fontSize" class="form-label">Font size</label>
+    <input class="form-control" id="chat.fontSize">
     <small class="form-text text-muted">
         Accepts any valid css font-size value.
     </small>
 </div>
 <div class="form-check form-switch">
-    <input type="checkbox" class="form-check-input" id="AutoCopySelectedToClipboard">
-    <label class="form-check-label" for="AutoCopySelectedToClipboard">Auto copy selected to clipboard</label>
+    <input type="checkbox" class="form-check-input" id="chat.enableColors">
+    <label class="form-check-label" for="chat.enableColors">Enable colors</label>
 </div>
 <div class="form-check form-switch">
-    <input type="checkbox" class="form-check-input" id="commandEcho">
-    <label class="form-check-label" for="commandEcho">Echo commands</label>
+    <input type="checkbox" class="form-check-input" id="chat.enableBackgroundColors">
+    <label class="form-check-label" for="chat.enableBackgroundColors">Enable background colors</label>
 </div>
 <div class="form-check form-switch">
-    <input type="checkbox" class="form-check-input" id="display.enableColors">
-    <label class="form-check-label" for="display.enableColors">Enable colors</label>
-</div>
-<div class="form-check form-switch">
-    <input type="checkbox" class="form-check-input" id="display.enableBackgroundColors">
-    <label class="form-check-label" for="display.enableBackgroundColors">Enable background colors</label>
-</div>
-<div class="form-check form-switch">
-    <input type="checkbox" class="form-check-input" id="flashing">
-    <label class="form-check-label" for="flashing">Enable Flashing Text</label>
+    <input type="checkbox" class="form-check-input" id="chat.flashing">
+    <label class="form-check-label" for="chat.flashing">Enable Flashing Text</label>
     <small class="form-text text-muted alert alert-warning" style="padding: 2px">
         May cause performance issues when enabled
     </small>
 </div>
 <div class="mb-3">
-    <label for="bufferSize" class="form-label">Buffer size</label>
-    <input type="number" class="form-control" id="bufferSize">
+    <label for="chat.bufferSize" class="form-label">Buffer size</label>
+    <input type="number" class="form-control" id="chat.bufferSize">
     <small class="form-text text-muted alert alert-warning" style="margin-top:3px;padding: 2px">
         May cause performance issues when too large
     </small>
@@ -77,64 +69,69 @@
 <div class="form-check form-switch">
     <input type="checkbox" class="form-check-input" id="enableURLDetection">
     <label class="form-check-label" for="enableURLDetection">Enable URL Detection</label>
+    <small class="form-text text-muted alert alert-info" style="margin-top:3px;padding: 2px">
+        Shared with main display
+    </small>
 </div>
 <div class="form-check form-switch">
-    <input type="checkbox" class="form-check-input" id="CommandonClick">
-    <label class="form-check-label" for="CommandonClick">Focus to command input on click</label>
-</div>
-<div class="form-check form-switch">
-    <input type="checkbox" class="form-check-input" id="display.wordWrap">
-    <label class="form-check-label" for="display.wordWrap">Word wrap</label>
+    <input type="checkbox" class="form-check-input" id="chat.wordWrap">
+    <label class="form-check-label" for="chat.wordWrap">Word wrap</label>
 </div>
 <div class="mb-3">
-    <label for="display.wrapAt" class="form-label">Word wrap column</label>
-    <input type="number" class="form-control" id="display.wrapAt" min="0" max="1000">
+    <label for="chat.wrapAt" class="form-label">Word wrap column</label>
+    <input type="number" class="form-control" id="chat.wrapAt" min="0" max="1000">
 </div>
 <div class="mb-3">
-    <label for="display.indent" class="form-label">Word wrap indent</label>
-    <input type="number" class="form-control" id="display.indent" min="0" max="500">
+    <label for="chat.indent" class="form-label">Word wrap indent</label>
+    <input type="number" class="form-control" id="chat.indent" min="0" max="500">
 </div>
 <div class="mb-3">
-    <label for="display.showTimestamp" class="form-label">Timestamp</label>
-    <select id="display.showTimestamp" class="form-select">
+    <label for="chat.showTimestamp" class="form-label">Timestamp</label>
+    <select id="chat.showTimestamp" class="form-select">
         <option value="0">None</option>
         <option value="1">Simple</option>
         <option value="2">Format</option>
     </select>
 </div>
 <div class="mb-3">
-    <label for="display.timestampFormat" class="form-label">Timestamp format</label>
-    <input class="form-control" id="display.timestampFormat">
-    <small class="form-text text-muted alert alert-info"  style="margin-top:3px;padding: 2px">
+    <label for="chat.timestampFormat" class="form-label">Timestamp format</label>
+    <input class="form-control" id="chat.timestampFormat">
+    <small class="form-text text-muted alert alert-info" style="margin-top:3px;padding: 2px">
         Supports all moment time formats if moment enabled, falls back simple
     </small>
 </div>
 <div class="mb-3">
-    <label for="display.tabWidth" class="form-label">Tab width</label>
-    <input type="number" class="form-control" id="display.tabWidth" min="0" max="200">
+    <label for="chat.tabWidth" class="form-label">Tab width</label>
+    <input type="number" class="form-control" id="chat.tabWidth" min="0" max="200">
 </div>
 <div class="form-check form-switch">
     <input type="checkbox" class="form-check-input" id="display.showInvalidMXPTags">
     <label class="form-check-label" for="display.showInvalidMXPTags">Show invalid MXP tags</label>
+    <small class="form-text text-muted alert alert-info" style="margin-top:3px;padding: 2px">
+        Shared with main display
+    </small>
 </div>
 <div class="form-check form-switch">
-    <input type="checkbox" class="form-check-input" id="display.displayControlCodes">
-    <label class="form-check-label" for="display.displayControlCodes">Display control codes</label>
+    <input type="checkbox" class="form-check-input" id="chat.displayControlCodes">
+    <label class="form-check-label" for="chat.displayControlCodes">Display control codes</label>
 </div>
 <div class="form-check form-switch">
-    <input type="checkbox" class="form-check-input" id="display.emulateTerminal">
-    <label class="form-check-label" for="display.emulateTerminal">Emulate terminal extended characters</label>
+    <input type="checkbox" class="form-check-input" id="chat.emulateTerminal">
+    <label class="form-check-label" for="chat.emulateTerminal">Emulate terminal extended characters</label>
 </div>
 <div class="form-check form-switch">
-    <input type="checkbox" class="form-check-input" id="display.emulateControlCodes">
-    <label class="form-check-label" for="display.emulateControlCodes">Emulate control codes</label>
+    <input type="checkbox" class="form-check-input" id="chat.emulateControlCodes">
+    <label class="form-check-label" for="chat.emulateControlCodes">Emulate control codes</label>
 </div>
 <div class="form-check form-switch">
     <input type="checkbox" class="form-check-input" id="display.hideTrailingEmptyLine">
     <label class="form-check-label" for="display.hideTrailingEmptyLine">Hide trailing line</label>
+    <small class="form-text text-muted alert alert-info" style="margin-top:3px;padding: 2px">
+        Shared with main display
+    </small>
 </div>
 <script>
-    const fontEl = body.querySelector('#font')
+    const fontEl = body.querySelector('[id="chat.font"]')
     let items = body.querySelectorAll('.active');
     let i, il;
     for (i = 0, il = items.length; i < il; i++)

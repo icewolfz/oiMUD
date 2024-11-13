@@ -1,0 +1,21 @@
+#chat-toolbar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  border-bottom: 1px solid #fff;
+  box-shadow: inset 0 -1px 0 #ddd;
+  padding-bottom: 4px;
+}
+
+#chat-toolbar button {
+  min-width: 26px;
+}
+
+#chat-display {
+    position: absolute;
+    top: 48px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}

@@ -178,6 +178,7 @@ export class SettingsDialog extends Dialog {
 
     private _loadPageSettings() {
         const forms: HTMLInputElement[] = this.body.querySelectorAll('input,select,textarea');
+        let required;
         if (this._page === 'settings-colors') {
             var c;
             var colors = this.settings.colors || [];
@@ -228,17 +229,21 @@ export class SettingsDialog extends Dialog {
                     });
                 }
                 else if (forms[f].type === 'checkbox') {
+                    let name;
                     if (forms[f].dataset.enum === 'true') {
-                        const name = forms[f].name || forms[f].id.substring(0, forms[f].id.lastIndexOf('-'));
+                        name = forms[f].name || forms[f].id.substring(0, forms[f].id.lastIndexOf('-'));
                         const value = +forms[f].id.substring(forms[f].id.lastIndexOf('-') + 1);
                         forms[f].checked = (this.settings[name] & value) === value;
                     }
-                    else
-                        forms[f].checked = this.settings[forms[f].name || forms[f].id];
+                    else {
+                        name = forms[f].name || forms[f].id;
+                        forms[f].checked = this.settings[name];
+                    }
                     forms[f].addEventListener('change', e => {
                         const target = (e.currentTarget || e.target) as HTMLInputElement;
+                        let name;
                         if (target.dataset.enum === 'true') {
-                            const name = target.name || target.id.substring(0, target.id.lastIndexOf('-'));
+                            name = target.name || target.id.substring(0, target.id.lastIndexOf('-'));
                             const enums = this.body.querySelectorAll(`[name=${name}]`);
                             let value = 0;
                             for (let e = 0, el = enums.length; e < el; e++) {
@@ -247,19 +252,38 @@ export class SettingsDialog extends Dialog {
                             }
                             this.settings[name] = value;
                         }
-                        else
-                            this.settings[target.name || target.id] = target.checked || false;
+                        else {
+                            name = target.name || target.id;
+                            this.settings[name] = target.checked || false;
+                        }
+                        let required = this.body.querySelectorAll(`[data-require="${name}"]`);
+                        required.forEach(r => {
+                            r.disabled = !this.settings[name];
+                        });
+                    });
+                    required = this.body.querySelectorAll(`[data-require="${name}"]`);
+                    required.forEach(r => {
+                        r.disabled = !this.settings[name];
                     });
                 }
                 else {
-                    forms[f].value = this.settings[forms[f].id];
+                    if (forms[f].dataset.join && forms[f].dataset.join.length)
+                        forms[f].value = (this.settings[forms[f].id] || []).map(v => v.trim()).join(forms[f].dataset.join);
+                    else
+                        forms[f].value = this.settings[forms[f].id];
                     forms[f].addEventListener('change', e => {
                         const target = (e.currentTarget || e.target) as HTMLInputElement;
-                        this.setValue(target.name || target.id, target.value);
+                        if (forms[f].dataset.join && forms[f].dataset.join.length)
+                            this.setValue(target.name || target.id, target.value.split(forms[f].dataset.join).map(v => v.trim()));
+                        else
+                            this.setValue(target.name || target.id, target.value);
                     });
                     forms[f].addEventListener('input', e => {
                         const target = (e.currentTarget || e.target) as HTMLInputElement;
-                        this.setValue(target.name || target.id, target.value);
+                        if (forms[f].dataset.join && forms[f].dataset.join.length)
+                            this.setValue(target.name || target.id, target.value.split(forms[f].dataset.join).map(v => v.trim()));
+                        else
+                            this.setValue(target.name || target.id, target.value);
                     });
                 }
             }

@@ -56,7 +56,8 @@ export class MapDisplay extends EventEmitter {
     private _pointerCache: PointerEvent[] = [];
     private _pointerDistance: number = -1;
     private _showNav: boolean = true;
-
+    private _document;
+    private _window;
     private _map: Map;
 
     get showNavigation() { return this._showNav; }
@@ -162,8 +163,13 @@ export class MapDisplay extends EventEmitter {
             this._container = container[0];
         else if (container instanceof HTMLElement)
             this._container = container;
+        else if ((<HTMLElement>container).ownerDocument.defaultView && container instanceof (<HTMLElement>container).ownerDocument.defaultView.HTMLElement)
+            this._container = container;        
         else
             throw new Error('Container must be a selector, element or jquery object');
+
+        this._document = this._container.ownerDocument;
+        this._window = this._document.defaultView;
 
         this._resizeObserver = new ResizeObserver((entries, observer) => {
             if (entries.length === 0) return;
@@ -187,7 +193,7 @@ export class MapDisplay extends EventEmitter {
         });
         this._observer.observe(this._container, { attributes: true, attributeOldValue: true, attributeFilter: ['style'] });
 
-        this._canvas = document.createElement('canvas');
+        this._canvas = this._document.createElement('canvas');
         this._canvas.id = this._container.id + '-canvas';
         this._canvas.classList.add('map-canvas');
         this._canvas.style.touchAction = "none";
@@ -899,7 +905,7 @@ export class MapDisplay extends EventEmitter {
         const key = (room.background ? room.background : room.env) + ',' + room.indoors + ',' + room.exitsID + ',' + room.details;
 
         if (!this._drawCache[key]) {
-            this._drawCache[key] = document.createElement('canvas');
+            this._drawCache[key] = this._document.createElement('canvas');
             this._drawCache[key].classList.add('map-canvas');
             this._drawCache[key].height = 32 * scale;
             this._drawCache[key].width = 32 * scale;
@@ -1660,7 +1666,7 @@ export class MapDisplay extends EventEmitter {
         this._updating |= type;
         if (this._updating === UpdateType.none || this._rTimeout)
             return;
-        this._rTimeout = window.requestAnimationFrame(() => {
+        this._rTimeout = this._window.requestAnimationFrame(() => {
             if ((this._updating & UpdateType.draw) === UpdateType.draw) {
                 this.draw().catch(() => { });
                 this._updating &= ~UpdateType.draw;
@@ -1691,7 +1697,7 @@ export class MapDisplay extends EventEmitter {
         //buffer the current canvas state as when resizing canvases are cleared so we want to restore it after resizing
         //let temp = this._context.getImageData(0, 0, this._canvas.width, this._canvas.height);
         //create a temp canvas to store current state
-        const tempCanvas = document.createElement('canvas');
+        const tempCanvas = this._document.createElement('canvas');
         tempCanvas.width = this._canvas.width;
         tempCanvas.height = this._canvas.height
         //create context to access data
@@ -1704,7 +1710,7 @@ export class MapDisplay extends EventEmitter {
             this._canvas.height = this.container.clientHeight - 60;
         }
         else {
-            const computedStyle = window.getComputedStyle(this._canvas);
+            const computedStyle = this._window.getComputedStyle(this._canvas);
             const borderLeftWidth = parseFloat(computedStyle.borderLeftWidth);
             const borderRightWidth = parseFloat(computedStyle.borderRightWidth);
             const borderTopWidth = parseFloat(computedStyle.borderTopWidth);
@@ -1815,7 +1821,7 @@ export class MapDisplay extends EventEmitter {
             rectWidth += 155;
             if (rectHeight < 200) rectHeight = 200;
         }
-        const tempCanvas = document.createElement('canvas');
+        const tempCanvas = this._document.createElement('canvas');
         tempCanvas.id = 'mapper-export';
         tempCanvas.style.height = rectHeight + 'px';
         tempCanvas.style.width = rectWidth + 'px';
@@ -1874,7 +1880,7 @@ export class MapDisplay extends EventEmitter {
     }
 
     public exportCurrentImage() {
-        var tempCanvas = document.createElement('canvas');
+        var tempCanvas = this._document.createElement('canvas');
         var context = tempCanvas.getContext('2d');
         tempCanvas.width = this._canvas.width;
         tempCanvas.height = this._canvas.height;

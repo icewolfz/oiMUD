@@ -8,6 +8,7 @@ import { openFileDialog, readFile, debounce, copyText, pasteText, setSelectionRa
 import { AdvEditor } from './adv.editor';
 import { SettingsDialog } from './settingsdialog';
 import { ProfilesDialog } from "./profilesdialog";
+import { HelpDialog } from "./help";
 import { Contextmenu } from './contextmenu';
 
 declare global {
@@ -326,6 +327,7 @@ export function initializeInterface() {
         }
         if (_dialogs.history) _dialogs.history.resetState(client.getOption('windows.history') || { center: true, width: 400, height: 275 });
         if (_dialogs.profiles) _dialogs.profiles.resetState(client.getOption('windows.profiles') || { center: true, width: 400, height: 275 });
+        if (_dialogs.help) _dialogs.help.resetState(client.getOption('windows.help') || { center: true, width: 400, height: 275 });
     });
     client.on('set-title', title => {
         if (!title || !title.length)
@@ -468,6 +470,9 @@ export function initializeInterface() {
     options = client.getOption('windows.profiles');
     if (options && options.show)
         showDialog('profiles');
+    options = client.getOption('windows.help');
+    if (options && options.show)
+        showDialog('help');
 
     document.getElementById('btn-command-history').addEventListener('show.bs.dropdown', function () {
         document.body.appendChild(document.getElementById('command-history-menu'));
@@ -838,6 +843,23 @@ export function showDialog(name: string) {
         _dialogs.profiles.setBody('', { client: client });
         _dialogs.profiles.show();
         return _dialogs.profiles;
+    }
+    if (name.startsWith('help')) {
+        if (!_dialogs.help) {
+            _dialogs.help = new HelpDialog();
+            _dialogs.help.on('closed', () => {
+                delete _dialogs.help;
+            });
+            _dialogs.help.on('canceled', () => {
+                delete _dialogs.help;
+            });
+        }
+        _dialogs.help.dialog.dataset.path = name;
+        _dialogs.help.dialog.dataset.fullPath = name;
+        _dialogs.help.dialog.dataset.hash = window.location.hash;
+        _dialogs.help.setBody('', { client: client });
+        _dialogs.help.show();
+        return _dialogs.help;
     }
 }
 

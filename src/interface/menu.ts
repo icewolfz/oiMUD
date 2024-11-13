@@ -68,6 +68,10 @@ export function initMenu() {
         showDialog('profiles');
         closeMenu();
     });
+    document.querySelector('#menu-help a').addEventListener('click', e => {
+        showDialog('help');
+        closeMenu();
+    });    
     document.querySelector('#menu-fullscreen a').addEventListener('click', e => {
         var doc: any = window.document;
         var docEl: any = doc.documentElement;
@@ -134,11 +138,14 @@ export function initMenu() {
                         if (list.querySelector(item.position))
                             list.querySelector(item.position).insertAdjacentHTML('afterend', code);
                     }
-                    else if (item.position >= 0 && item.position < list.children.length)
-                        list.children[item.position].insertAdjacentHTML('afterend', code);
-                    else if (item.position < 0) {
-                        let pos = list.children.length - item.position;
-                        if (pos >= 0 && pos < list.children.length)
+                    else if (item.position < 0 || item.position >= 0) {
+                        let pos = item.position;
+                        if (pos >= list.children.length)
+                            pos = list.children.length - 1;
+                        else if (pos < 0)
+                            pos = list.children.length + item.position;
+                        if (pos < 0) pos = 0;
+                        if (pos < list.children.length)
                             list.children[pos].insertAdjacentHTML('afterend', code);
                     }
                     else
@@ -147,7 +154,7 @@ export function initMenu() {
                 else
                     list.insertAdjacentHTML('beforeend', code);
                 if (item.name === '-') continue;
-                if (typeof item.action === 'function')
+                if (typeof item.action === 'function' && document.querySelector(`#${id} a`))
                     document.querySelector(`#${id} a`).addEventListener('click', e => {
                         const ie = { client: client, preventDefault: false };
                         item.action(ie);

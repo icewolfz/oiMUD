@@ -122,6 +122,12 @@ export class Logger extends Plugin {
         window.addEventListener('beforeunload', () => {
             this._post({ action: 'flush' });
         });
+        let options = this.client.getOption('windows.log-viewer')
+        if (options && options.show) {
+            if (!this._manager)
+                this._manager = new LogManager();
+            updateHash('logs');
+        }
     }
     get menu(): MenuItem[] {
         return [{

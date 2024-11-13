@@ -27638,6 +27638,10 @@ Devanagari
       showDialog("profiles");
       closeMenu();
     });
+    document.querySelector("#menu-help a").addEventListener("click", (e) => {
+      showDialog("help");
+      closeMenu();
+    });
     document.querySelector("#menu-fullscreen a").addEventListener("click", (e) => {
       var doc = window.document;
       var docEl = doc.documentElement;
@@ -27699,18 +27703,21 @@ Devanagari
             if (typeof item.position === "string") {
               if (list.querySelector(item.position))
                 list.querySelector(item.position).insertAdjacentHTML("afterend", code);
-            } else if (item.position >= 0 && item.position < list.children.length)
-              list.children[item.position].insertAdjacentHTML("afterend", code);
-            else if (item.position < 0) {
-              let pos = list.children.length - item.position;
-              if (pos >= 0 && pos < list.children.length)
+            } else if (item.position < 0 || item.position >= 0) {
+              let pos = item.position;
+              if (pos >= list.children.length)
+                pos = list.children.length - 1;
+              else if (pos < 0)
+                pos = list.children.length + item.position;
+              if (pos < 0) pos = 0;
+              if (pos < list.children.length)
                 list.children[pos].insertAdjacentHTML("afterend", code);
             } else
               list.insertAdjacentHTML("beforeend", code);
           } else
             list.insertAdjacentHTML("beforeend", code);
           if (item.name === "-") continue;
-          if (typeof item.action === "function")
+          if (typeof item.action === "function" && document.querySelector(`#${id} a`))
             document.querySelector(`#${id} a`).addEventListener("click", (e) => {
               const ie = { client, preventDefault: false };
               item.action(ie);
@@ -31329,6 +31336,39 @@ Devanagari
     return arr[arr.display];
   }
 
+  // src/interface/help.ts
+  var HelpDialog = class extends Dialog {
+    constructor() {
+      super(Object.assign({}, client.getOption("windows.help") || { center: true }, { title: '<i class="bi bi-question-circle"></i> Help', minWidth: 410 }));
+      this.on("resized", (e) => {
+        client.setOption("windows.help", e);
+      });
+      client.on("options-loaded", () => {
+        this.resetState(client.getOption("windows.help") || { center: true });
+      });
+      this.on("closed", () => {
+        client.setOption("windows.help", this.windowState);
+        removeHash("help");
+      });
+      this.on("canceled", () => {
+        client.setOption("windows.help", this.windowState);
+        removeHash("help");
+      });
+      this.on("moved", (e) => {
+        client.setOption("windows.help", e);
+      });
+      this.on("maximized", () => {
+        client.setOption("windows.help", this.windowState);
+      });
+      this.on("restored", () => {
+        client.setOption("windows.help", this.windowState);
+      });
+      this.on("shown", () => {
+        client.setOption("windows.help", this.windowState);
+      });
+    }
+  };
+
   // src/interface/contextmenu.ts
   var Contextmenu = class _Contextmenu extends EventEmitter {
     constructor(items, id) {
@@ -31659,6 +31699,7 @@ Devanagari
       }
       if (_dialogs.history) _dialogs.history.resetState(client.getOption("windows.history") || { center: true, width: 400, height: 275 });
       if (_dialogs.profiles) _dialogs.profiles.resetState(client.getOption("windows.profiles") || { center: true, width: 400, height: 275 });
+      if (_dialogs.help) _dialogs.help.resetState(client.getOption("windows.help") || { center: true, width: 400, height: 275 });
     });
     client.on("set-title", (title) => {
       if (!title || !title.length)
@@ -31795,6 +31836,9 @@ Devanagari
     options = client.getOption("windows.profiles");
     if (options && options.show)
       showDialog("profiles");
+    options = client.getOption("windows.help");
+    if (options && options.show)
+      showDialog("help");
     document.getElementById("btn-command-history").addEventListener("show.bs.dropdown", function() {
       document.body.appendChild(document.getElementById("command-history-menu"));
       let h = "";
@@ -32147,6 +32191,23 @@ Devanagari
       _dialogs.profiles.setBody("", { client });
       _dialogs.profiles.show();
       return _dialogs.profiles;
+    }
+    if (name2.startsWith("help")) {
+      if (!_dialogs.help) {
+        _dialogs.help = new HelpDialog();
+        _dialogs.help.on("closed", () => {
+          delete _dialogs.help;
+        });
+        _dialogs.help.on("canceled", () => {
+          delete _dialogs.help;
+        });
+      }
+      _dialogs.help.dialog.dataset.path = name2;
+      _dialogs.help.dialog.dataset.fullPath = name2;
+      _dialogs.help.dialog.dataset.hash = window.location.hash;
+      _dialogs.help.setBody("", { client });
+      _dialogs.help.show();
+      return _dialogs.help;
     }
   }
   function loadDialog(dialog, path, show, showError) {
@@ -34453,6 +34514,12 @@ Devanagari
       window.addEventListener("beforeunload", () => {
         this._post({ action: "flush" });
       });
+      let options = this.client.getOption("windows.log-viewer");
+      if (options && options.show) {
+        if (!this._manager)
+          this._manager = new LogManager();
+        updateHash("logs");
+      }
     }
     get menu() {
       return [
@@ -36025,19 +36092,83 @@ Devanagari
       }, this);
       this.client.on("window", (window2, args, name2) => {
         switch (window2) {
-          case "help":
+          case "shadowmudhelp":
+          case "shadowmud-help":
+          case "smhelp":
+            if (args === "close") {
+              if (this._help)
+                this._help.close();
+            } else
+              this._showHelp();
             break;
         }
       }, this);
       this.client.on("close-window", (window2) => {
         switch (window2) {
-          case "help":
+          case "shadowmudhelp":
+          case "shadowmud-help":
+          case "smhelp":
+            if (this._help)
+              this._help.close();
             break;
         }
       }, this);
+      this.client.on("options-loaded", () => {
+        if (this._help) this._help.resetState(client.getOption("windows.smhelp") || { center: true, width: 400, height: 275 });
+      });
+      let options = this.client.getOption("windows.smhelp");
+      if (options && options.show)
+        this._showHelp();
+    }
+    _showHelp() {
+      if (client.getOption("externalHelp")) {
+        window.open("http://www.shadowmud.com/help.php", "_blank");
+        return;
+      }
+      if (!this._help) {
+        this._help = new Dialog(Object.assign({}, client.getOption("windows.smhelp") || { center: true, width: 500, height: 375 }, { title: '<i class="shadowmud-icon"></i> ShadowMUD Help', id: "smhelp", noFooter: true }));
+        const frame = document.createElement("iframe");
+        frame.src = "http://shadowmud.com/OoMUD/smhelp.php";
+        frame.id = "smhelp-frame";
+        frame.classList.add("full-page");
+        this._help.body.append(frame);
+        this._help.on("closed", () => {
+          client.setOption("windows.smhelp", this._help.windowState);
+          this._help = null;
+          removeHash("smhelp");
+        });
+        this._help.on("canceled", () => {
+          client.setOption("windows.smhelp", this._help.windowState);
+          this._help = null;
+          removeHash("smhelp");
+        });
+        this._help.on("resized", (e) => {
+          client.setOption("windows.smhelp", e);
+        });
+        this._help.on("moved", (e) => {
+          client.setOption("windows.smhelp", e);
+        });
+        this._help.on("maximized", () => {
+          client.setOption("windows.smhelp", this._help.windowState);
+        });
+        this._help.on("restored", () => {
+          client.setOption("windows.smhelp", this._help.windowState);
+        });
+        this._help.on("shown", () => {
+          client.setOption("windows.smhelp", this._help.windowState);
+        });
+      }
+      this._help.show();
     }
     get menu() {
-      return [];
+      return [{
+        name: " ShadowMUD help",
+        action: () => {
+          this._showHelp();
+        },
+        icon: '<i class="shadowmud-icon-light"></i>',
+        position: -4
+      }];
     }
     get settings() {
       return [{

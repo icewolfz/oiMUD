@@ -2,6 +2,8 @@ import { Plugin } from '../../plugin';
 import { MenuItem } from '../../types';
 import { Client } from '../../client';
 import { Backup } from './backup';
+import { removeHash } from '../../all';
+import { Dialog } from '../../interface/dialog';
 
 declare global {
     interface Window {
@@ -14,6 +16,7 @@ export class ShadowMUD extends Plugin {
 
     private _skipMoreTimeout;
     private _skipMoreEvent;
+    private _help;
 
     constructor(client: Client) {
         super(client);
@@ -44,19 +47,87 @@ export class ShadowMUD extends Plugin {
         }, this);
         this.client.on('window', (window, args, name) => {
             switch (window) {
-                case 'help':
+                case 'shadowmudhelp':
+                case 'shadowmud-help':
+                case 'smhelp':
+                    if (args === 'close') {
+                        if (this._help)
+                            this._help.close();
+                    }
+                    else
+                        this._showHelp();
                     break;
             }
         }, this);
         this.client.on('close-window', window => {
             switch (window) {
-                case 'help':
+                case 'shadowmudhelp':
+                case 'shadowmud-help':
+                case 'smhelp':
+                    if (this._help)
+                        this._help.close();
                     break;
             }
         }, this);
+        this.client.on('options-loaded', () => {
+            if (this._help) this._help.resetState(client.getOption('windows.smhelp') || { center: true, width: 400, height: 275 });
+        });
+        let options = this.client.getOption('windows.smhelp')
+        if (options && options.show)
+            this._showHelp();
     }
+
+    private _showHelp() {
+        if (client.getOption('externalHelp')) {
+            window.open('http://www.shadowmud.com/help.php', '_blank');
+            return;
+        }
+        if (!this._help) {
+            this._help = new Dialog(Object.assign({}, client.getOption('windows.smhelp') || { center: true, width: 500, height: 375 }, { title: '<i class="shadowmud-icon"></i> ShadowMUD Help', id: 'smhelp', noFooter: true }));
+            const frame = document.createElement('iframe');
+            //<iframe id="smhelpframe" style="z-index:100;border:0px;margin:0px;width:100%;height:100%;overflow:auto" src="/OoMUD/smhelp.php"></iframe>
+            frame.src = 'http://shadowmud.com/OoMUD/smhelp.php';
+            frame.id = "smhelp-frame";
+            frame.classList.add('full-page');
+            this._help.body.append(frame);
+            this._help.on('closed', () => {
+                client.setOption('windows.smhelp', this._help.windowState);
+                this._help = null;
+                removeHash('smhelp');
+            });
+            this._help.on('canceled', () => {
+                client.setOption('windows.smhelp', this._help.windowState);
+                this._help = null;
+                removeHash('smhelp');
+            });
+            this._help.on('resized', e => {
+                client.setOption('windows.smhelp', e);
+            });
+            this._help.on('moved', e => {
+                client.setOption('windows.smhelp', e);
+            })
+            this._help.on('maximized', () => {
+                client.setOption('windows.smhelp', this._help.windowState);
+            });
+            this._help.on('restored', () => {
+                client.setOption('windows.smhelp', this._help.windowState);
+            });
+            this._help.on('shown', () => {
+                client.setOption('windows.smhelp', this._help.windowState);
+            });
+        }
+        this._help.show();
+    }
+
     get menu(): MenuItem[] {
-        return [];
+        return [{
+            name: ' ShadowMUD help',
+            action: () => {
+                this._showHelp();
+            },
+            icon: '<i class="shadowmud-icon-light"></i>',
+            position: -4
+        }];
     }
     get settings(): MenuItem[] {
         return [{

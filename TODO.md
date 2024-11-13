@@ -9,7 +9,6 @@
         - client.telnet.GMCPSupports.push('IED 1');
         - Add #win support if added
         - The old web client had a simple upload for uploading a file to current working directory, seems ot have broken at some point
-    - Add help for sm mud if create a sm plugin
     - Add mail composer like jiMUD using advanced editor dialog as a base as exact same code but adds to/cc/subject fields and instead of sending directly it executes a set of commands to open mail and send contents
 - Profile manager:
     - Add undo system

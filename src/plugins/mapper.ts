@@ -58,8 +58,17 @@ export class Mapper extends Plugin {
         if (!this.client) return;
         this.client.telnet.GMCPSupports.push('Room 1');
         this.client.on('received-GMCP', this.processGMCP, this);
-        this.client.on('window', window => {
-            if (window === 'mapper') this.show();
+        this.client.on('window', (window, args, name) => {
+            if (window === 'mapper') {
+                if (args === 'close') {
+                    if (this._dialog) this._dialog.close();
+                }
+                else
+                    this.show();
+            }
+        });
+        this.client.on('close-window', window => {
+            if (window === 'mapper' && this._dialog) this._dialog.close();
         });
         this.client.on('options-loaded', () => {
             if (this._dialogMap) {

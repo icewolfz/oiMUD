@@ -42,6 +42,18 @@ export class ShadowMUD extends Plugin {
                 }, this.client.getOption('skipMoreDelay') >= 0 ? this.client.getOption('skipMoreDelay') : 0);
             }
         }, this);
+        this.client.on('window', (window, args, name) => {
+            switch (window) {
+                case 'help':
+                    break;
+            }
+        }, this);
+        this.client.on('close-window', window => {
+            switch (window) {
+                case 'help':
+                    break;
+            }
+        }, this);
     }
     get menu(): MenuItem[] {
         return [];

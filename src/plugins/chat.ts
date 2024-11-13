@@ -221,6 +221,24 @@ export class Chat extends Plugin {
                     break;
             }
         });
+        this.client.on('close-window', window => {
+            switch (window) {
+                case 'chat-dialog':
+                case 'chatdialog':
+                case 'chat':
+                    if (this._dialog)
+                        this._dialog.close();
+                    removeHash('chat');
+                    break;
+                case 'chatwin':
+                case 'chatwindow':
+                case 'chat-win':
+                case 'chat-window':
+                    if (this._window)
+                        this._window.close();
+                    break;
+            }
+        })
         this.client.on('options-loaded', () => {
             this._loadOptions();
         });
@@ -263,7 +281,7 @@ export class Chat extends Plugin {
             action: 'settings-chat',
             icon: '<i class="bi bi-chat"></i>',
             position: 'a[href="#settings-specialCharacters"]'
-        },{
+        }, {
             name: ' Chat display',
             action: 'settings-chatDisplay',
             icon: '<i class="bi bi-chat"></i>',

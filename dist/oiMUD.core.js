@@ -32578,8 +32578,16 @@ Devanagari
       if (!this.client) return;
       this.client.telnet.GMCPSupports.push("Room 1");
       this.client.on("received-GMCP", this.processGMCP, this);
-      this.client.on("window", (window2) => {
-        if (window2 === "mapper") this.show();
+      this.client.on("window", (window2, args, name2) => {
+        if (window2 === "mapper") {
+          if (args === "close") {
+            if (this._dialog) this._dialog.close();
+          } else
+            this.show();
+        }
+      });
+      this.client.on("close-window", (window2) => {
+        if (window2 === "mapper" && this._dialog) this._dialog.close();
       });
       this.client.on("options-loaded", () => {
         if (this._dialogMap) {
@@ -33470,7 +33478,9 @@ Devanagari
       this._styles = getComputedStyle(this._status);
       this.client.telnet.GMCPSupports.push("oMUD 1", "Char 1", "Char.Vitals 1", "Char.Experience 1", "Char.Skills 1");
       this.client.on("received-GMCP", this.processGMCP, this);
-      this.client.on("window", (window2) => {
+      this.client.on("window", (window2, args, name2) => {
+      });
+      this.client.on("close-window", (window2) => {
       });
       this._lagMeter = document.getElementById("lagMeter");
       this.client.telnet.on("latency-changed", (lag, avg) => {
@@ -34419,6 +34429,17 @@ Devanagari
             break;
         }
       });
+      this.client.on("close-window", (window2) => {
+        switch (window2) {
+          case "log-viewer":
+          case "logs":
+          case "log.viewer":
+            if (this._manager)
+              this._manager.close();
+            removeHash("logs");
+            break;
+        }
+      });
       this._post({ action: "name", args: $character || "" });
       window.addEventListener("beforeunload", () => {
         this._post({ action: "flush" });
@@ -35007,6 +35028,24 @@ Devanagari
                 this._window.close();
             } else
               this.showWindow();
+            break;
+        }
+      });
+      this.client.on("close-window", (window2) => {
+        switch (window2) {
+          case "chat-dialog":
+          case "chatdialog":
+          case "chat":
+            if (this._dialog)
+              this._dialog.close();
+            removeHash("chat");
+            break;
+          case "chatwin":
+          case "chatwindow":
+          case "chat-win":
+          case "chat-window":
+            if (this._window)
+              this._window.close();
             break;
         }
       });
@@ -35973,6 +36012,18 @@ Devanagari
             this._skipMoreEvent = 0;
             this.client.sendCommand("\n");
           }, this.client.getOption("skipMoreDelay") >= 0 ? this.client.getOption("skipMoreDelay") : 0);
+        }
+      }, this);
+      this.client.on("window", (window2, args, name2) => {
+        switch (window2) {
+          case "help":
+            break;
+        }
+      }, this);
+      this.client.on("close-window", (window2) => {
+        switch (window2) {
+          case "help":
+            break;
         }
       }, this);
     }

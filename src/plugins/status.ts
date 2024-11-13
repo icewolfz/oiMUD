@@ -85,10 +85,22 @@ export class Status extends Plugin {
         this._styles = getComputedStyle(this._status);
         this.client.telnet.GMCPSupports.push('oMUD 1', 'Char 1', 'Char.Vitals 1', 'Char.Experience 1', 'Char.Skills 1');
         this.client.on('received-GMCP', this.processGMCP, this);
-        this.client.on('window', window => {
+        this.client.on('window', (window, args, name) => {
+            //TODO add skills dialog
+            /*
+            if (window === 'mapper') {
+                if (args === 'close') {
+                    if (this._dialog) this._dialog.close();
+                }
+                else
+                    this.show();
+            }
+            */
+        });
+        this.client.on('close-window', window => {
             //TODO add skills dialog
             //if (window === 'skills') 
-        });
+        });        
         this._lagMeter = document.getElementById('lagMeter');
         this.client.telnet.on('latency-changed', (lag, avg) => {
             this.updateLagMeter(lag);

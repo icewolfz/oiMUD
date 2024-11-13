@@ -107,6 +107,17 @@ export class Logger extends Plugin {
                     break;
             }
         });
+        this.client.on('close-window', (window) => {
+            switch (window) {
+                case 'log-viewer':
+                case 'logs':
+                case 'log.viewer':
+                    if (this._manager)
+                        this._manager.close();
+                    removeHash('logs');
+                    break;
+            }
+        });
         this._post({ action: 'name', args: $character || '' });
         window.addEventListener('beforeunload', () => {
             this._post({ action: 'flush' });

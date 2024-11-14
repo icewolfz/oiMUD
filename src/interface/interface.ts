@@ -65,17 +65,17 @@ function doMXPLink(el, url) {
 }
 
 function doMXPSend(e, el, url, pmt?, tt?) {
-    var im = el.querySelector('img[ismap]');
-    var extra = '';
+    let im = el.querySelector('img[ismap]');
+    let extra = '';
     if (im) {
-        var os = offset(im);
-        var x = Math.floor(e.clientX - os.left);
-        var y = Math.floor(e.clientY - os.top);
+        let os = offset(im);
+        let x = Math.floor(e.clientX - os.left);
+        let y = Math.floor(e.clientY - os.top);
         extra = '?' + x + ',' + y;
     }
     if (url.constructor === Array || url.__proto__.constructor === Array || Object.prototype.toString.call(url) === '[object Array]') {
         let items = [];
-        for (var i = 0, il = url.length; i < il; i++) {
+        for (let i = 0, il = url.length; i < il; i++) {
             url[i] = url[i].replace('&text;', el.textContent);
             if (i < tt.length)
                 items.push({
@@ -213,7 +213,7 @@ export function initializeInterface() {
             let value = client.input.vStack['$selurl'] || _selurl || '';
             if (value) return value;
             if (!lastMouse) return '';
-            var parent = lastMouse.srcElement.parentNode;
+            let parent = lastMouse.srcElement.parentNode;
             if (parent && parent.classList && parent.classList.contains('URLLink'))
                 return parent.title;
             else if (parent && parent.classList && parent.classList.contains('MXPLink') && parent.dataset && parent.dataset.href && parent.dataset.href.length > 0)
@@ -228,7 +228,7 @@ export function initializeInterface() {
             let value = client.input.vStack['$selline'] || _selline || '';
             if (value) return value;
             if (!lastMouse) return '';
-            var pos = client.display.getLineOffset(lastMouse.pageX, lastMouse.pageY);
+            let pos = client.display.getLineOffset(lastMouse.pageX, lastMouse.pageY);
             if (pos.y < 0 || pos.y >= client.display.lines.length)
                 return '';
             return client.display.getLineText(pos.y, true);
@@ -248,7 +248,7 @@ export function initializeInterface() {
             let value = client.input.vStack['$selectedurl'] || _selurl || '';
             if (value) return value;
             if (!lastMouse) return '';
-            var parent = lastMouse.srcElement.parentNode;
+            let parent = lastMouse.srcElement.parentNode;
             if (parent && parent.classList && parent.classList.contains('URLLink'))
                 return parent.title;
             else if (parent && parent.classList && parent.classList.contains('MXPLink') && parent.dataset && parent.dataset.href && parent.dataset.href.length > 0)
@@ -263,7 +263,7 @@ export function initializeInterface() {
             let value = client.input.vStack['$selectedline'] || _selline || '';
             if (value) return value;
             if (!lastMouse) return '';
-            var pos = client.display.getLineOffset(lastMouse.pageX, lastMouse.pageY);
+            let pos = client.display.getLineOffset(lastMouse.pageX, lastMouse.pageY);
             if (pos.y < 0 || pos.y >= client.display.lines.length)
                 return '';
             return client.display.getLineText(pos.y, true);
@@ -390,7 +390,7 @@ export function initializeInterface() {
                 options.body = options.body.substr(0, 127) + '...';
         }
         if (Notification.permission === 'granted') {
-            var notify = new window.Notification(title, options);
+            let notify = new window.Notification(title, options);
             notify.onclick = () => {
                 client.emit('notify-clicked', title, message);
                 client.raise('notify-clicked', [title, message]);
@@ -402,7 +402,7 @@ export function initializeInterface() {
         } else if (Notification.permission !== "denied") {
             Notification.requestPermission().then((permission) => {
                 if (permission === "granted") {
-                    var notify = new window.Notification(title, options);
+                    let notify = new window.Notification(title, options);
                     notify.onclick = () => {
                         client.emit('notify-clicked', title, message);
                         client.raise('notify-clicked', [title, message]);
@@ -499,7 +499,7 @@ export function initializeInterface() {
         const items = document.querySelectorAll('[id^="command-history-item"] a');
         for (let i = 0, il = items.length; i < il; i++) {
             items[i].addEventListener('click', e => {
-                var cmd = client.commandHistory[parseInt((e.currentTarget as HTMLElement).dataset.index, 10)];
+                let cmd = client.commandHistory[parseInt((e.currentTarget as HTMLElement).dataset.index, 10)];
                 client.AddCommandToHistory(cmd);
                 client.sendCommand(cmd, null, client.getOption('allowCommentsFromCommand'));
             });
@@ -570,7 +570,7 @@ export function removeHash(string) {
     string = string.trim();
     if (string.startsWith('#'))
         string = string.substring(1);
-    var hashes = decodeURI(window.location.hash.substring(1)).split(',').filter(s => s.trim() !== string);
+    let hashes = decodeURI(window.location.hash.substring(1)).split(',').filter(s => s.trim() !== string);
     window.location.hash = hashes.join(',');
 }
 
@@ -579,7 +579,7 @@ export function addHash(string) {
     string = string.trim();
     if (string.startsWith('#'))
         string = string.substring(1);
-    var hashes = decodeURI(window.location.hash.substring(1)).split(',').filter(s => s.trim() !== string);
+    let hashes = decodeURI(window.location.hash.substring(1)).split(',').filter(s => s.trim() !== string);
     hashes.push(string);
     window.location.hash = hashes.join(',');
 }
@@ -592,7 +592,7 @@ export function updateHash(add: string | string[], remove?: string | string[]) {
         remove = [remove];
     //remove add, new to ensure no dups
     remove = remove.concat(...add);
-    var hashes = decodeURI(window.location.hash.substring(1)).split(',').filter(s => s.length && !remove.includes(s.trim()));
+    let hashes = decodeURI(window.location.hash.substring(1)).split(',').filter(s => s.length && !remove.includes(s.trim()));
     hashes = hashes.concat(...add);
     window.location.hash = hashes.join(',');
 }
@@ -609,7 +609,7 @@ export function hashStartsWith(string) {
 
 function hashChange() {
     if (!window.location.hash || window.location.hash.length < 2) return;
-    var dialogs = decodeURI(window.location.hash.substring(1)).split(',').map(s => s.trim());
+    let dialogs = decodeURI(window.location.hash.substring(1)).split(',').map(s => s.trim());
     for (let d = dialogs.length - 1; d >= 0; d--)
         switch (dialogs[d]) {
             case 'about':
@@ -1048,10 +1048,10 @@ export function toggleButtons() {
 }
 
 function createButton(button, index) {
-    var c = '';
-    var tt = '';
-    var caption = button.caption;
-    var bh = 0;
+    let c = '';
+    let tt = '';
+    let caption = button.caption;
+    let bh = 0;
     if (caption.substring(0, 3) === 'fa-') {
         caption = caption.split(',');
         if (caption.length > 1)
@@ -1112,7 +1112,7 @@ function createButton(button, index) {
         tt = button.caption;
     }
     if (button.icon && button.icon.length) {
-        var icon = button.icon;
+        let icon = button.icon;
         if (icon.substring(0, 3) === 'fa-') {
             icon = icon.split(',');
             if (icon.length > 1)
@@ -1213,9 +1213,9 @@ function showButtons() {
 }
 
 function buildButtons() {
-    var c = '';
-    var buttons = client.buttons;
-    var b, bl;
+    let c = '';
+    let buttons = client.buttons;
+    let b, bl;
     for (b = 0, bl = buttons.length; b < bl; b++) {
         if (!buttons[b].enabled) continue;
         c += createButton(buttons[b], b);
@@ -1237,18 +1237,18 @@ function ExecuteButton(el, idx) {
         delete el.dataset.moving;
         return;
     }
-    var buttons = client.buttons;
+    let buttons = client.buttons;
     if (idx >= buttons.length) return false;
-    var button = buttons[idx];
+    let button = buttons[idx];
     if (!button.enabled) return false;
-    var ret;// = "";
+    let ret;// = "";
     switch (button.style) {
         case 1:
             ret = client.parseOutgoing(button.value);
             break;
         case 2:
             /*jslint evil: true */
-            var f = new Function('try { ' + button.value + '} catch (e) { if(this.options.showScriptErrors) this.error(e);}');
+            let f = new Function('try { ' + button.value + '} catch (e) { if(this.options.showScriptErrors) this.error(e);}');
             ret = f.apply(client);
             break;
         default:
@@ -1278,8 +1278,8 @@ function ExecuteButton(el, idx) {
 }
 
 function dragButton(elmnt) {
-    var pos3 = 0, pos4 = 0;
-    var delay;
+    let pos3 = 0, pos4 = 0;
+    let delay;
     if (document.getElementById(elmnt.id + 'header')) {
         // if present, the header is where you move the DIV from:
         document.getElementById(elmnt.id + 'header').onmousedown = dragMouseDown;
@@ -1294,7 +1294,7 @@ function dragButton(elmnt) {
         e = e || window.event;
         if (e.buttons !== 1) return;
         e.preventDefault();
-        var b = elmnt.getBoundingClientRect();
+        let b = elmnt.getBoundingClientRect();
         pos3 = e.pageX - b.left;
         pos4 = e.pageY - b.top;
         document.onmouseup = closeDragButton;
@@ -1325,7 +1325,7 @@ function dragButton(elmnt) {
         e = e || window.event;
         if (!e.touches.length) return;
         //e.preventDefault();
-        var b = elmnt.getBoundingClientRect();
+        let b = elmnt.getBoundingClientRect();
         pos3 = e.touches[0].pageX - b.left;
         pos4 = e.touches[0].pageY - b.top;
         document.ontouchend = closeDragButton;
@@ -1350,12 +1350,12 @@ function dragButton(elmnt) {
 
     function closeDragButton() {
         // stop moving when mouse button is released:
-        var b = elmnt.getBoundingClientRect();
-        var idx = parseInt(elmnt.dataset.index, 10);
+        let b = elmnt.getBoundingClientRect();
+        let idx = parseInt(elmnt.dataset.index, 10);
         if (idx < 0) return;
-        var buttons = client.buttons;
+        let buttons = client.buttons;
         if (idx >= buttons.length) return;
-        var button = buttons[idx];
+        let button = buttons[idx];
         if (!button.enabled) return;
         if (button.left === -1 && button.right === -1 && button.top === -1 && button.bottom === -1) {
             button.top = b.top || -1;

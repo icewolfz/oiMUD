@@ -14,7 +14,9 @@ declare let alert_box;
 export class SettingsDialog extends Dialog {
     private _menu;
     private _page;
+
     public settings: Settings;
+
     constructor() {
         super(({ title: '<i class="fas fa-cogs"></i> Settings', keepCentered: true, resizable: false, moveable: false, center: true, maximizable: false }));
         this.body.style.padding = '10px';
@@ -33,7 +35,7 @@ export class SettingsDialog extends Dialog {
             this.close();
         });
         this.footer.querySelector(`#${this.id}-export`).addEventListener('click', () => {
-            var data = clone(this.settings);
+            let data = clone(this.settings);
             data.version = 2;
             fileSaveAs.show(JSON.stringify(data), 'oiMUD.settings.txt', 'text/plain');
         });
@@ -41,8 +43,8 @@ export class SettingsDialog extends Dialog {
             openFileDialog('Import settings').then(files => {
                 readFile(files[0]).then((contents: any) => {
                     try {
-                        var data = JSON.parse(contents);
-                        var s, sl;
+                        let data = JSON.parse(contents);
+                        let s, sl;
                         if (data.version === 1) {
                             for (s = 0, sl = SettingList.length; s < sl; s++) {
                                 this.settings[SettingList[s][0]] = data[SettingList[s][0]];
@@ -75,8 +77,8 @@ export class SettingsDialog extends Dialog {
             if (this._page === 'settings-colors') {
                 confirm_box('Reset colors', 'Reset colors?').then(e => {
                     if (e.button === DialogButtons.Yes) {
-                        var c;
-                        var colors = this.settings.colors = [];
+                        let c;
+                        let colors = this.settings.colors = [];
                         for (c = 0; c < 16; c++)
                             this.setColor('color' + c, colors[c] || this.getDefaultColor(c));
                         for (c = 256; c < 280; c++)
@@ -118,7 +120,7 @@ export class SettingsDialog extends Dialog {
         })
         this.footer.querySelector(`#${this.id}-save`).addEventListener('click', () => {
             removeHash(this._page);
-            for (var s in this.settings) {
+            for (let s in this.settings) {
                 if (!this.settings.hasOwnProperty(s)) continue
                 Settings.setValue(s, this.settings[s]);
             }
@@ -180,8 +182,8 @@ export class SettingsDialog extends Dialog {
         const forms: HTMLInputElement[] = this.body.querySelectorAll('input,select,textarea');
         let required;
         if (this._page === 'settings-colors') {
-            var c;
-            var colors = this.settings.colors || [];
+            let c;
+            let colors = this.settings.colors || [];
             for (c = 0; c < 16; c++)
                 this.setColor('color' + c, colors[c] || this.getDefaultColor(c));
             for (c = 256; c < 280; c++)
@@ -191,7 +193,7 @@ export class SettingsDialog extends Dialog {
                     const target = (e.currentTarget || e.target) as HTMLInputElement;
                     let value = target.value;
                     let id = parseInt(target.id.substring(5), 10);
-                    var colors = this.settings.colors || [];
+                    let colors = this.settings.colors || [];
                     if (!colors[id] || colors[id].length === 0) {
                         if (this.getDefaultColor(id) !== value)
                             colors[id] = value;
@@ -378,14 +380,15 @@ export class SettingsDialog extends Dialog {
 
     static addPlugins(menu) {
         let pl = client.plugins.length;
+        let plugins = client.plugins
         let s;
         let sl;
         for (let p = 0; p < pl; p++) {
-            if (!client.plugins[p].settings) continue;
-            if (client.plugins[p].settings.length) {
-                sl = client.plugins[p].settings.length;
+            if (!plugins[p].settings) continue;
+            if (plugins[p].settings.length) {
+                sl = plugins[p].settings.length;
                 for (s = 0; s < sl; s++) {
-                    let item = client.plugins[p].settings[s];
+                    let item = plugins[p].settings[s];
                     if (typeof item.action !== 'string') continue;
                     let code = `<a href="#${item.action}" class="list-group-item list-group-item-action">${item.icon || ''}${item.name || ''}</a>`;
                     if ('position' in item) {

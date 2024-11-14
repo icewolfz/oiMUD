@@ -33,16 +33,16 @@ declare global {
  */
 if (!Array.prototype.filter) {
     Array.prototype.filter = function (fun /*, thisp*/) {
-        var len = this.length >>> 0;
+        let len = this.length >>> 0;
         if (typeof fun != 'function') {
             throw new TypeError();
         } ``
 
-        var res = [];
-        var thisp = arguments[1];
-        for (var i = 0; i < len; i++) {
+        let res = [];
+        let thisp = arguments[1];
+        for (let i = 0; i < len; i++) {
             if (i in this) {
-                var val = this[i]; // in case fun mutates this
+                let val = this[i]; // in case fun mutates this
                 if (fun.call(thisp, val, i, this)) {
                     res.push(val);
                 }
@@ -659,8 +659,6 @@ export let keyCharToCode = {
 
 };
 
-//var hasHorizontalScrollbar = div.scrollWidth > div.clientWidth;
-//var hasVerticalScrollbar = div.scrollHeight > div.clientHeight;
 (function ($) {
     $.fn.hasHorizontalScrollBar = function () {
         return $(this)[0].scrollWidth > $(this).innerWidth();
@@ -744,7 +742,7 @@ export function selectAll(input) {
 }
 
 export function getSelectionText() {
-    var text = "";
+    let text = "";
     if (window.getSelection)
         text = window.getSelection().toString();
     return text;
@@ -783,7 +781,7 @@ CanvasRenderingContext2D.prototype.strokeRoundedRect = function (this, x: number
 if (!Object.keys) Object.keys = function (o) {
     if (o !== Object(o))
         throw new TypeError('Object.keys called on a non-object');
-    var k = [], p;
+    let k = [], p;
     for (p in o) if (Object.prototype.hasOwnProperty.call(o, p)) k.push(p);
     return k;
 };
@@ -1465,7 +1463,7 @@ export function getCursor(el) {
         // Set focus on the element
         el.focus();
         // To get cursor position, get empty selection range
-        var oSel = (<any>document).selection.createRange();
+        let oSel = (<any>document).selection.createRange();
         // Move selection start to 0 position
         oSel.moveStart('character', -el.value.length);
         // The caret position is selection length
@@ -2063,7 +2061,7 @@ export function StringToArrayBuffer(string) {
 }
 
 export function BinaryToString(binary) {
-    var error;
+    let error;
 
     try {
         return decodeURIComponent(escape(binary));
@@ -2078,7 +2076,7 @@ export function BinaryToString(binary) {
 }
 
 export function StringToBinary(string) {
-    var chars, code, i, isUCS2, len, _i;
+    let chars, code, i, isUCS2, len, _i;
 
     len = string.length;
     chars = [];
@@ -2102,7 +2100,7 @@ export function StringToBinary(string) {
 
 let _txtEncoder;
 export function StringToUint8Array(string) {
-    var binary, binLen, buffer, chars, i, _i;
+    let binary, binLen, buffer, chars, i, _i;
     if (window.TextEncoder !== undefined)
         return (_txtEncoder || (_txtEncoder = new TextEncoder())).encode(string);
     binary = StringToBinary(string);
@@ -2115,13 +2113,33 @@ export function StringToUint8Array(string) {
     return chars;
 }
 
+function _createTextarea(text?) {
+    let textarea = document.createElement("textarea");
+    if (text) {
+        textarea.value = text;
+        textarea.textContent = text;
+    }
+    textarea.style.position = "fixed";
+    textarea.style.width = '2em';
+    textarea.style.height = '2em';
+    textarea.style.padding = '0';
+    textarea.style.border = 'none';
+    textarea.style.outline = 'none';
+    textarea.style.boxShadow = 'none';
+    textarea.style.background = 'transparent';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    return textarea;
+}
+
 //attempt to copy text to clipboard, may or may not always work depending on permissions and browser
 export function copyText(text: string) {
     return new Promise(function (resolve, reject) {
         try {
             if (typeof navigator !== "undefined" && typeof navigator.clipboard !== "undefined" && typeof navigator.permissions !== "undefined") {
-                var blob = new Blob([text], { type: "text/plain" });
-                var data = [new ClipboardItem({ "text/plain": blob })];
+                let blob = new Blob([text], { type: "text/plain" });
+                let data = [new ClipboardItem({ "text/plain": blob })];
                 navigator.permissions.query({ name: "clipboardWrite" as PermissionName }).then(function (permission) {
                     if (permission.state === "granted" || permission.state === "prompt") {
                         navigator.clipboard.write(data).then(resolve, reject).catch(reject);
@@ -2132,20 +2150,7 @@ export function copyText(text: string) {
                 });
             }
             else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
-                var textarea = document.createElement("textarea");
-                textarea.value = text;
-                textarea.textContent = text;
-                textarea.style.position = "fixed";
-                textarea.style.width = '2em';
-                textarea.style.height = '2em';
-                textarea.style.padding = '0';
-                textarea.style.border = 'none';
-                textarea.style.outline = 'none';
-                textarea.style.boxShadow = 'none';
-                textarea.style.background = 'transparent';
-                document.body.appendChild(textarea);
-                textarea.focus();
-                textarea.select();
+                let textarea = _createTextarea(text);
                 try {
                     document.execCommand("copy");
                     document.body.removeChild(textarea);
@@ -2179,18 +2184,7 @@ export function pasteText() {
                 });
             }
             else if (document.queryCommandSupported && document.queryCommandSupported("paste")) {
-                var textarea = document.createElement("textarea");
-                textarea.style.position = "fixed";
-                textarea.style.width = '2em';
-                textarea.style.height = '2em';
-                textarea.style.padding = '0';
-                textarea.style.border = 'none';
-                textarea.style.outline = 'none';
-                textarea.style.boxShadow = 'none';
-                textarea.style.background = 'transparent';
-                document.body.appendChild(textarea);
-                textarea.focus();
-                textarea.select();
+                let textarea = _createTextarea();
                 try {
                     document.execCommand("paste", false, null);
                     resolve(textarea.value);
@@ -2213,18 +2207,7 @@ export function pasteText() {
 export function pasteSync() {
     let value = '';
     if (document.queryCommandSupported && document.queryCommandSupported("paste")) {
-        var textarea = document.createElement("textarea");
-        textarea.style.position = "fixed";
-        textarea.style.width = '2em';
-        textarea.style.height = '2em';
-        textarea.style.padding = '0';
-        textarea.style.border = 'none';
-        textarea.style.outline = 'none';
-        textarea.style.boxShadow = 'none';
-        textarea.style.background = 'transparent';
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
+        let textarea = _createTextarea();
         try {
             document.execCommand("paste", false, null);
             value = textarea.value;
@@ -2242,7 +2225,7 @@ export function getParameterByName(name: string, url?: string): string {
     if (!name) return null;
     if (!url) url = window.location.href;
     name = name.replace(/[[\]]/g, '\\$&');
-    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+    let regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
         results = regex.exec(url);
     if (!results) return null;
     if (!results[2]) return '';
@@ -2251,11 +2234,11 @@ export function getParameterByName(name: string, url?: string): string {
 
 export function fSaveAs() {
     // Feature test: Does this browser support the download attribute on anchor tags? (currently only Chrome)
-    var DownloadAttributeSupport = 'download' in document.createElement('a');
+    let DownloadAttributeSupport = 'download' in document.createElement('a');
 
     // Use any available BlobBuilder/URL implementation:
-    var BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder;
-    var URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+    let BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder;
+    let URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
 
     // IE 10 has a handy navigator.msSaveBlob method. Maybe other browsers will emulate that interface?
     // See: http://msdn.microsoft.com/en-us/library/windows/apps/hh441122.aspx
@@ -2270,7 +2253,7 @@ export function fSaveAs() {
     // https://github.com/eligrey/FileSaver.js
 
     // mime types that (potentially) don't trigger a download when opened in a browser:
-    var BrowserSupportedMimeTypes = {
+    let BrowserSupportedMimeTypes = {
         'image/jpeg': true,
         'image/png': true,
         'image/gif': true,
@@ -2296,9 +2279,9 @@ export function fSaveAs() {
     if (BlobBuilder && (window.saveAs || navigator.saveBlob)) {
         // Currently only IE 10 supports this, but I hope other browsers will also implement the saveAs/saveBlob method eventually.
         this.show = function (data, name, mimetype) {
-            var builder = new BlobBuilder();
+            let builder = new BlobBuilder();
             builder.append(data);
-            var blob = builder.getBlob(mimetype || 'application/octet-stream');
+            let blob = builder.getBlob(mimetype || 'application/octet-stream');
             if (!name) name = 'Download.bin';
             // I don't assign saveAs to navigator.saveBlob (or the other way around)
             // because I cannot know at this point whether future implementations
@@ -2317,20 +2300,20 @@ export function fSaveAs() {
     else if (BlobBuilder && URL) {
         // Currently WebKit and Gecko support BlobBuilder and object URLs.
         this.show = function (data, name, mimetype) {
-            var blob, url, builder = new BlobBuilder();
+            let blob, url, builder = new BlobBuilder();
             builder.append(data);
             if (!mimetype) mimetype = 'application/octet-stream';
             if (DownloadAttributeSupport) {
                 blob = builder.getBlob(mimetype);
                 url = URL.createObjectURL(blob);
                 // Currently only Chrome (since 14-dot-something) supports the download attribute for anchor elements.
-                var link = document.createElement('a');
+                let link = document.createElement('a');
                 link.setAttribute('href', url);
                 link.setAttribute('download', name || 'Download.bin');
                 // Now I need to simulate a click on the link.
                 // IE 10 has the better msSaveBlob method and older IE versions do not support the BlobBuilder interface
                 // and object URLs, so we don't need the MS way to build an event object here.
-                var event = document.createEvent('MouseEvents');
+                let event = document.createEvent('MouseEvents');
                 event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
                 link.dispatchEvent(event);
             }
@@ -2360,19 +2343,19 @@ export function fSaveAs() {
     }
     else if (Blob && URL) {
         this.show = function (data, name, mimetype) {
-            var blob, url;
+            let blob, url;
             if (!mimetype) mimetype = 'application/octet-stream';
             blob = new Blob([data], { type: mimetype });
             if (DownloadAttributeSupport) {
                 url = URL.createObjectURL(blob);
                 // Currently only Chrome (since 14-dot-something) supports the download attribute for anchor elements.
-                var link = document.createElement('a');
+                let link = document.createElement('a');
                 link.setAttribute('href', url);
                 link.setAttribute('download', name || 'Download.bin');
                 // Now I need to simulate a click on the link.
                 // IE 10 has the better msSaveBlob method and older IE versions do not support the BlobBuilder interface
                 // and object URLs, so we don't need the MS way to build an event object here.
-                var event = document.createEvent('MouseEvents');
+                let event = document.createEvent('MouseEvents');
                 event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
                 link.dispatchEvent(event);
             }
@@ -2422,11 +2405,11 @@ window.fileSaveAs = new fSaveAs();
 
 
 function _utf8() {
-    var intc, i;
+    let intc, i;
 
     //http://siphon9.net/loune/2009/10/javascript-snippet-to-convert-raw-utf8-to-unicode/
     function _TryGetCharUTF8(b, count) {
-        var c = b.charCodeAt(i);
+        let c = b.charCodeAt(i);
         /*
          * 10000000 80
          * 11000000 C0
@@ -2464,8 +2447,8 @@ function _utf8() {
     }
 
     this.decode = function (s) {
-        var ss = new StringBuffer();
-        var sl = s.length;
+        let ss = new StringBuffer();
+        let sl = s.length;
         for (i = 0; i < sl; i++) {
             if (_TryGetCharUTF8(s, sl))
                 ss.appendCode(intc);
@@ -2474,9 +2457,9 @@ function _utf8() {
     };
 
     this.decode2 = function (s) {
-        var ss = new StringBuffer();
-        var sl = s.length;
-        var i, c;
+        let ss = new StringBuffer();
+        let sl = s.length;
+        let i, c;
         for (i = 0; i < sl; i++) {
             c = s.charCodeAt(i);
             if ((c & 0x80) !== 0) {
@@ -2506,8 +2489,8 @@ window.UTF8 = new _utf8();
 
 export function printArray(data) {
     if (data === null || typeof data == 'undefined') return data;
-    var dl, ba;
-    var idx = 0;
+    let dl, ba;
+    let idx = 0;
     dl = data.byteLength;
     ba = new StringBuffer();
     for (; idx < dl; idx++) {
@@ -2587,7 +2570,7 @@ export function openFileDialog(title?: string, multiple?: boolean, accept?: stri
 export function readFile(file, progress?) {
     return new Promise((resolve, reject) => {
         if (!file) reject(new Error('Invalid file'));
-        var reader = new FileReader();
+        let reader = new FileReader();
         reader.onerror = reject;
         reader.onload = evt => {
             resolve(evt.target.result);

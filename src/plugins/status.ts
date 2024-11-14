@@ -772,7 +772,7 @@ export class Status extends Plugin {
     }
 
     public updateSimpleBar(bar) {
-        var p;
+        let p;
         const el = document.getElementById(bar);
         if (!el) return;
         const v = el.dataset.var.toLowerCase();

@@ -12,6 +12,7 @@ declare let fileSaveAs;
 declare let alert_box;
 
 export class ProfilesDialog extends Dialog {
+    private _client;
     private _menu;
     private _contents;
     private _splitter;
@@ -52,36 +53,37 @@ export class ProfilesDialog extends Dialog {
 
     constructor() {
         super(Object.assign({}, client.getOption('windows.profiles') || { center: true }, { title: '<i class="fas fa-users"></i> Profiles', minWidth: 410 }));
+        this._client = client;
         this.on('resized', e => {
             this._updateSmall(e.width);
-            client.setOption('windows.profiles', e);
+            this._client.setOption('windows.profiles', e);
         })
-        client.on('profiles-loaded', () => {
+        this._client.on('profiles-loaded', () => {
             if (!this.profiles) {
-                this.profiles = client.profiles.clone();
+                this.profiles = this._client.profiles.clone();
                 this.profiles.SortByPriority();
                 this._buildMenu();
             }
         });
-        client.on('profiles-updated', () => {
+        this._client.on('profiles-updated', () => {
 
         });
-        client.on('options-loaded', () => {
-            this.resetState(client.getOption('windows.profiles') || { center: true });
+        this._client.on('options-loaded', () => {
+            this.resetState(this._client.getOption('windows.profiles') || { center: true });
         })
-        client.on('initialized', () => {
+        this._client.on('initialized', () => {
             if (!this.profiles) {
-                this.profiles = client.profiles.clone();
+                this.profiles = this._client.profiles.clone();
                 this.profiles.SortByPriority();
                 this._buildMenu();
             }
         });
         this.body.style.padding = '10px';
         this._splitter = new Splitter({ id: 'profile', parent: this.body, orientation: Orientation.vertical, anchor: PanelAnchor.panel1 });
-        if (client.getOption('profiles.split') >= 200)
-            this._splitter.SplitterDistance = client.getOption('profiles.split');
+        if (this._client.getOption('profiles.split') >= 200)
+            this._splitter.SplitterDistance = this._client.getOption('profiles.split');
         this._splitter.on('splitter-moved', distance => {
-            client.setOption('profiles.split', distance);
+            this._client.setOption('profiles.split', distance);
         });
         this._menu = this._splitter.panel1;
         this._menu.style.overflow = 'hidden';
@@ -90,8 +92,8 @@ export class ProfilesDialog extends Dialog {
         this._contents.style.overflow = 'auto';
         this._contents.style.padding = '10px';
         this._contents.style.paddingLeft = '14px';
-        if (client.profiles) {
-            this.profiles = client.profiles.clone();
+        if (this._client.profiles) {
+            this.profiles = this._client.profiles.clone();
             this.profiles.SortByPriority();
             this._buildMenu();
         }
@@ -146,27 +148,27 @@ export class ProfilesDialog extends Dialog {
             this._goBack();
         });
         this.on('closed', () => {
-            client.setOption('windows.profiles', this.windowState);
+            this._client.setOption('windows.profiles', this.windowState);
             removeHash(this._page);
         });
         this.on('canceled', () => {
-            client.setOption('windows.profiles', this.windowState);
+            this._client.setOption('windows.profiles', this.windowState);
             removeHash(this._page);
         });
         this.on('moved', e => {
             this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
-            client.setOption('windows.profiles', e);
+            this._client.setOption('windows.profiles', e);
         })
         this.on('maximized', () => {
-            client.setOption('windows.profiles', this.windowState);
+            this._client.setOption('windows.profiles', this.windowState);
         });
         this.on('restored', () => {
             this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
-            client.setOption('windows.profiles', this.windowState);
+            this._client.setOption('windows.profiles', this.windowState);
         });
         this.on('shown', () => {
             this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
-            client.setOption('windows.profiles', this.windowState);
+            this._client.setOption('windows.profiles', this.windowState);
         });
         this.footer.querySelector(`#${this.id}-add-profile a`).addEventListener('click', () => {
             this._createProfile(true);
@@ -217,11 +219,11 @@ export class ProfilesDialog extends Dialog {
             openFileDialog('Import profile(s)').then(files => {
                 readFile(files[0]).then((contents: any) => {
                     try {
-                        var data = JSON.parse(contents);
+                        let data = JSON.parse(contents);
                         if (data.version == 2) {
                             if (data.profiles) {
-                                var keys = Object.keys(data.profiles);
-                                var n, i, k = 0, kl = keys.length;
+                                let keys = Object.keys(data.profiles);
+                                let n, i, k = 0, kl = keys.length;
                                 for (; k < kl; k++) {
                                     n = keys[k];
                                     i = 0;
@@ -257,9 +259,9 @@ export class ProfilesDialog extends Dialog {
                         setTimeout(function () {
                             alert_box('Error importing', 'Error importing file.', DialogIcon.error);
                         }, 50);
-                        client.error(err);
+                        this._client.error(err);
                     }
-                }).catch(client.error);
+                }).catch(this._client.error);
             }).catch(() => { });
         });
         this.footer.querySelector(`#${this.id}-refresh a`).addEventListener('click', () => {
@@ -434,14 +436,6 @@ export class ProfilesDialog extends Dialog {
             window.location.hash = this._page;
             return;
         }
-        /*
-        args = args || {};
-        const scripts: HTMLScriptElement[] = this._contents.querySelectorAll('script');
-        for (let s = 0, sl = scripts.length; s < sl; s++) {
-            let script = new Function('body', 'dialog', ...Object.keys(args), scripts[s].textContent);
-            script.apply(client, [this._contents, this, ...Object.values(args), this]);
-        }
-        */
         this._page = this.dialog.dataset.path;
         if (this._page === 'profiles')
             this.dialog.dataset.panel = 'left';
@@ -780,7 +774,7 @@ export class ProfilesDialog extends Dialog {
         this.emit('content-changing');
         for (let s = 0, sl = scripts.length; s < sl; s++) {
             /*jslint evil: true */
-            let script = new Function('body', 'dialog', ...Object.keys(args), 'try { ' + scripts[s].textContent + '}catch(e){client.error(e)}');
+            let script = new Function('body', 'dialog', ...Object.keys(args), 'try { ' + scripts[s].textContent + '}catch(e){this._client.error(e)}');
             script.apply(client, [this._contents, this, ...Object.values(args), this]);
         }
         this.emit('content-changed');
@@ -1062,7 +1056,7 @@ export class ProfilesDialog extends Dialog {
             return false;
         }
         this.profiles.save().then(() => {
-            client.loadProfiles().then(() => {
+            this._client.loadProfiles().then(() => {
 
             });
         })
@@ -1125,7 +1119,7 @@ export class ProfilesDialog extends Dialog {
     private _addItem(collection?, item?) {
         if (!collection) collection = this._current.collection;
         if (!collection) return;
-        var index = this._current.profile[collection].length;
+        let index = this._current.profile[collection].length;
         let menuItem;
         if (!item) {
             if (collection === 'aliases')
@@ -1148,7 +1142,7 @@ export class ProfilesDialog extends Dialog {
                 useName: true,
                 enabled: this._current.profile[collection],
             }], 0, this._sanitizeID(this._current.profileName), 'profiles/' + encodeURIComponent(this._current.profileName), 1);
-            var newNode = document.createElement('div');
+            let newNode = document.createElement('div');
             newNode.innerHTML = menuItem;
             if (m.replaceWith)
                 m.replaceWith(newNode.firstChild);

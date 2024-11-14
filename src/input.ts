@@ -1247,7 +1247,7 @@ export class Input extends EventEmitter {
                         extensions: args[0].split(',').map(a => a.trim())
                     })
                 }
-                var files = dialog.showOpenDialogSync({
+                let files = dialog.showOpenDialogSync({
                     filters: f,
                     properties: ['openFile', 'promptToCreate'],
                     defaultPath: args.length >= 2 ? parseTemplate(args[1]) : ''
@@ -7660,7 +7660,7 @@ export class Input extends EventEmitter {
                     extensions: args[0].split(',').map(a => a.trim())
                 })
             }
-            var files = dialog.showOpenDialogSync({
+            let files = dialog.showOpenDialogSync({
                 filters: f,
                 properties: ['openFile', 'promptToCreate'],
                 defaultPath: args.length >= 2 ? parseTemplate(args[1]) : ''

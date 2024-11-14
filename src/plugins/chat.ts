@@ -71,7 +71,7 @@ export class Chat extends Plugin {
             }
         }, this);
         this.client.on('add-line', data => {
-            var res, c, cl;
+            let res, c, cl;
             if (!data || typeof data.raw == 'undefined' || data.raw === null)
                 return;
             if (data.fragment || this._captures.length === 0) return;
@@ -329,7 +329,7 @@ export class Chat extends Plugin {
             }
             else {
                 const lines = this.client.getOption('chat.lines');
-                for (var l = 0, ll = lines.length; l < ll; l++) {
+                for (let l = 0, ll = lines.length; l < ll; l++) {
                     if (lines[l].trim().length === 0) continue;
                     this._captures.push(new RegExp('\\[' + lines[l].trim() + '\\](.*)', 'i'));
                     if (this.client.getOption('chat.captureReviews'))

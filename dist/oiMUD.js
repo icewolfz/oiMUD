@@ -2390,16 +2390,16 @@
   // src/library.ts
   if (!Array.prototype.filter) {
     Array.prototype.filter = function(fun) {
-      var len = this.length >>> 0;
+      let len = this.length >>> 0;
       if (typeof fun != "function") {
         throw new TypeError();
       }
       ``;
-      var res = [];
-      var thisp = arguments[1];
-      for (var i2 = 0; i2 < len; i2++) {
+      let res = [];
+      let thisp = arguments[1];
+      for (let i2 = 0; i2 < len; i2++) {
         if (i2 in this) {
-          var val = this[i2];
+          let val = this[i2];
           if (fun.call(thisp, val, i2, this)) {
             res.push(val);
           }
@@ -3002,7 +3002,7 @@
   if (!Object.keys) Object.keys = function(o) {
     if (o !== Object(o))
       throw new TypeError("Object.keys called on a non-object");
-    var k = [], p;
+    let k = [], p;
     for (p in o) if (Object.prototype.hasOwnProperty.call(o, p)) k.push(p);
     return k;
   };
@@ -3234,7 +3234,7 @@
       return el.selectionDirection == "backward" ? el.selectionStart : el.selectionEnd;
     } else if (document.selection) {
       el.focus();
-      var oSel = document.selection.createRange();
+      let oSel = document.selection.createRange();
       oSel.moveStart("character", -el.value.length);
       return oSel.text.length;
     }
@@ -3517,7 +3517,7 @@
     return BinaryToString(String.fromCharCode.apply(null, Array.prototype.slice.apply(new Uint8Array(buffer))));
   }
   function BinaryToString(binary) {
-    var error;
+    let error;
     try {
       return decodeURIComponent(escape(binary));
     } catch (_error) {
@@ -3530,7 +3530,7 @@
     }
   }
   function StringToBinary(string) {
-    var chars, code, i2, isUCS2, len, _i;
+    let chars, code, i2, isUCS2, len, _i;
     len = string.length;
     chars = [];
     isUCS2 = false;
@@ -3552,7 +3552,7 @@
   }
   var _txtEncoder;
   function StringToUint8Array(string) {
-    var binary, binLen, buffer, chars, i2, _i;
+    let binary, binLen, buffer, chars, i2, _i;
     if (window.TextEncoder !== void 0)
       return (_txtEncoder || (_txtEncoder = new TextEncoder())).encode(string);
     binary = StringToBinary(string);
@@ -3564,12 +3564,31 @@
     }
     return chars;
   }
+  function _createTextarea(text) {
+    let textarea = document.createElement("textarea");
+    if (text) {
+      textarea.value = text;
+      textarea.textContent = text;
+    }
+    textarea.style.position = "fixed";
+    textarea.style.width = "2em";
+    textarea.style.height = "2em";
+    textarea.style.padding = "0";
+    textarea.style.border = "none";
+    textarea.style.outline = "none";
+    textarea.style.boxShadow = "none";
+    textarea.style.background = "transparent";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    return textarea;
+  }
   function copyText(text) {
     return new Promise(function(resolve, reject) {
       try {
         if (typeof navigator !== "undefined" && typeof navigator.clipboard !== "undefined" && typeof navigator.permissions !== "undefined") {
-          var blob = new Blob([text], { type: "text/plain" });
-          var data = [new ClipboardItem({ "text/plain": blob })];
+          let blob = new Blob([text], { type: "text/plain" });
+          let data = [new ClipboardItem({ "text/plain": blob })];
           navigator.permissions.query({ name: "clipboardWrite" }).then(function(permission) {
             if (permission.state === "granted" || permission.state === "prompt") {
               navigator.clipboard.write(data).then(resolve, reject).catch(reject);
@@ -3578,20 +3597,7 @@
             }
           });
         } else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
-          var textarea = document.createElement("textarea");
-          textarea.value = text;
-          textarea.textContent = text;
-          textarea.style.position = "fixed";
-          textarea.style.width = "2em";
-          textarea.style.height = "2em";
-          textarea.style.padding = "0";
-          textarea.style.border = "none";
-          textarea.style.outline = "none";
-          textarea.style.boxShadow = "none";
-          textarea.style.background = "transparent";
-          document.body.appendChild(textarea);
-          textarea.focus();
-          textarea.select();
+          let textarea = _createTextarea(text);
           try {
             document.execCommand("copy");
             document.body.removeChild(textarea);
@@ -3620,18 +3626,7 @@
             }
           });
         } else if (document.queryCommandSupported && document.queryCommandSupported("paste")) {
-          var textarea = document.createElement("textarea");
-          textarea.style.position = "fixed";
-          textarea.style.width = "2em";
-          textarea.style.height = "2em";
-          textarea.style.padding = "0";
-          textarea.style.border = "none";
-          textarea.style.outline = "none";
-          textarea.style.boxShadow = "none";
-          textarea.style.background = "transparent";
-          document.body.appendChild(textarea);
-          textarea.focus();
-          textarea.select();
+          let textarea = _createTextarea();
           try {
             document.execCommand("paste", false, null);
             resolve(textarea.value);
@@ -3652,18 +3647,18 @@
     if (!name2) return null;
     if (!url) url = window.location.href;
     name2 = name2.replace(/[[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name2 + "(=([^&#]*)|&|#|$)"), results = regex.exec(url);
+    let regex = new RegExp("[?&]" + name2 + "(=([^&#]*)|&|#|$)"), results = regex.exec(url);
     if (!results) return null;
     if (!results[2]) return "";
     return decodeURIComponent(results[2].replace(/\+/g, " "));
   }
   function fSaveAs() {
-    var DownloadAttributeSupport = "download" in document.createElement("a");
-    var BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder;
-    var URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+    let DownloadAttributeSupport = "download" in document.createElement("a");
+    let BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder;
+    let URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
     navigator.saveBlob = navigator.saveBlob || navigator.msSaveBlob || navigator.mozSaveBlob || navigator.webkitSaveBlob;
     window.saveAs = window.saveAs || window.webkitSaveAs || window.mozSaveAs || window.msSaveAs;
-    var BrowserSupportedMimeTypes = {
+    let BrowserSupportedMimeTypes = {
       "image/jpeg": true,
       "image/png": true,
       "image/gif": true,
@@ -3686,9 +3681,9 @@
     };
     if (BlobBuilder && (window.saveAs || navigator.saveBlob)) {
       this.show = function(data, name2, mimetype) {
-        var builder = new BlobBuilder();
+        let builder = new BlobBuilder();
         builder.append(data);
-        var blob = builder.getBlob(mimetype || "application/octet-stream");
+        let blob = builder.getBlob(mimetype || "application/octet-stream");
         if (!name2) name2 = "Download.bin";
         if (window.saveAs) {
           window.saveAs(blob, name2);
@@ -3698,16 +3693,16 @@
       };
     } else if (BlobBuilder && URL) {
       this.show = function(data, name2, mimetype) {
-        var blob, url, builder = new BlobBuilder();
+        let blob, url, builder = new BlobBuilder();
         builder.append(data);
         if (!mimetype) mimetype = "application/octet-stream";
         if (DownloadAttributeSupport) {
           blob = builder.getBlob(mimetype);
           url = URL.createObjectURL(blob);
-          var link = document.createElement("a");
+          let link = document.createElement("a");
           link.setAttribute("href", url);
           link.setAttribute("download", name2 || "Download.bin");
-          var event2 = document.createEvent("MouseEvents");
+          let event2 = document.createEvent("MouseEvents");
           event2.initMouseEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
           link.dispatchEvent(event2);
         } else {
@@ -3724,15 +3719,15 @@
       };
     } else if (Blob && URL) {
       this.show = function(data, name2, mimetype) {
-        var blob, url;
+        let blob, url;
         if (!mimetype) mimetype = "application/octet-stream";
         blob = new Blob([data], { type: mimetype });
         if (DownloadAttributeSupport) {
           url = URL.createObjectURL(blob);
-          var link = document.createElement("a");
+          let link = document.createElement("a");
           link.setAttribute("href", url);
           link.setAttribute("download", name2 || "Download.bin");
-          var event2 = document.createEvent("MouseEvents");
+          let event2 = document.createEvent("MouseEvents");
           event2.initMouseEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
           link.dispatchEvent(event2);
         } else {
@@ -3758,9 +3753,9 @@
   }
   window.fileSaveAs = new fSaveAs();
   function _utf8() {
-    var intc, i2;
+    let intc, i2;
     function _TryGetCharUTF8(b, count) {
-      var c = b.charCodeAt(i2);
+      let c = b.charCodeAt(i2);
       if ((c & 128) === 0)
         intc = c;
       else {
@@ -3779,8 +3774,8 @@
       return true;
     }
     this.decode = function(s) {
-      var ss = new StringBuffer();
-      var sl = s.length;
+      let ss = new StringBuffer();
+      let sl = s.length;
       for (i2 = 0; i2 < sl; i2++) {
         if (_TryGetCharUTF8(s, sl))
           ss.appendCode(intc);
@@ -3788,9 +3783,9 @@
       return ss.toString();
     };
     this.decode2 = function(s) {
-      var ss = new StringBuffer();
-      var sl = s.length;
-      var i3, c;
+      let ss = new StringBuffer();
+      let sl = s.length;
+      let i3, c;
       for (i3 = 0; i3 < sl; i3++) {
         c = s.charCodeAt(i3);
         if ((c & 128) !== 0) {
@@ -3814,8 +3809,8 @@
   window.UTF8 = new _utf8();
   function printArray(data) {
     if (data === null || typeof data == "undefined") return data;
-    var dl, ba;
-    var idx = 0;
+    let dl, ba;
+    let idx = 0;
     dl = data.byteLength;
     ba = new StringBuffer();
     for (; idx < dl; idx++) {
@@ -3880,7 +3875,7 @@
   function readFile(file, progress) {
     return new Promise((resolve, reject) => {
       if (!file) reject(new Error("Invalid file"));
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onerror = reject;
       reader.onload = (evt) => {
         resolve(evt.target.result);
@@ -4108,7 +4103,7 @@
           this.emit("debug", "REPLY: <IAC><SB><TERMINALTYPE><IS>MTTS 9<IAC><SE>");
       }
       if (this._MTTS === 0) {
-        var tmp = new Uint8Array(6 + this.terminal.length);
+        let tmp = new Uint8Array(6 + this.terminal.length);
         tmp.set([255, 250, 24, 0], 0);
         tmp.set(StringToUint8Array(this.terminal), 4);
         tmp.set([255, 240], 4 + this.terminal.length);
@@ -5373,14 +5368,14 @@
         };
         _socket.onmessage = (evt) => {
           if (evt.data instanceof ArrayBuffer) {
-            var data = new Uint8Array(evt.data);
+            let data = new Uint8Array(evt.data);
             if (this.enableDebug) this.emit("debug", "Data ArrayBuffer received:" + printArray(data));
             this.receivedData(data);
           } else if (evt.data instanceof Blob) {
-            var reader = new FileReader();
+            let reader = new FileReader();
             reader.onloadend = () => {
-              var data2 = new Uint8Array(reader.result);
-              this.receivedData(data2);
+              let data = new Uint8Array(reader.result);
+              this.receivedData(data);
               if (this.enableDebug) this.emit("debug", "Data Blob received:" + printArray(reader.result));
             };
             reader.readAsArrayBuffer(evt.data);
@@ -6391,7 +6386,7 @@
   var SettingProperties = ["bufferSize", "commandDelay", "commandDelayCount", "commandHistorySize", "fontSize", "cmdfontSize", "commandEcho", "flashing", "autoConnect", "enableAliases", "enableTriggers", "enableMacros", "showScriptErrors", "commandStacking", "commandStackingChar", "htmlLog", "keepLastCommand", "enableMCCP", "enableUTF8", "font", "cmdfont", "mapper.follow", "mapper.enabled", "mapper.split", "mapper.fill", "showMapper", "fullScreen", "enableMXP", "enableMSP", "parseCommands", "lagMeter", "enablePing", "enableEcho", "enableSpeedpaths", "speedpathsChar", "parseSpeedpaths", "profile", "parseSingleQuotes", "parseDoubleQuotes", "logEnabled", "logPrepend", "logOffline", "logUniqueOnConnect", "enableURLDetection", "notifyMSPPlay", "CommandonClick", "allowEval", "allowEscape", "AutoCopySelectedToClipboard", "enableDebug", "editorPersistent", "askonclose", "dev", "chat.captureLines", "chat.captureAllLines", "chat.captureReviews", "chat.captureTells", "chat.captureTalk", "chat.gag", "chat.CaptureOnlyOpen", "checkForUpdates", "autoCreateCharacter", "askonchildren", "mapper.legend", "mapper.room", "mapper.importType", "mapper.vscroll", "mapper.hscroll", "mapper.scale", "mapper.alwaysOnTop", "mapper.alwaysOnTopClient", "mapper.memory", "mapper.memorySavePeriod", "mapper.active.ID", "mapper.active.x", "mapper.active.y", "mapper.active.z", "mapper.active.area", "mapper.active.zone", "mapper.persistent", "profiles.split", "profiles.askoncancel", "profiles.triggersAdvanced", "profiles.aliasesAdvanced", "profiles.buttonsAdvanced", "profiles.macrosAdvanced", "profiles.contextsAdvanced", "profiles.codeEditor", "profiles.watchFiles", "chat.alwaysOnTop", "chat.alwaysOnTopClient", "chat.log", "chat.persistent", "chat.zoom", "chat.font", "chat.fontSize", "title", "logGagged", "logTimeFormat", "autoConnectDelay", "autoLogin", "onDisconnect", "enableKeepAlive", "keepAliveDelay", "newlineShortcut", "logWhat", "logErrors", "showErrorsExtended", "reportCrashes", "enableCommands", "commandChar", "escapeChar", "enableVerbatim", "verbatimChar", "soundPath", "logPath", "theme", "gamepads", "buttons.connect", "buttons.characters", "buttons.preferences", "buttons.log", "buttons.clear", "buttons.lock", "buttons.map", "buttons.user", "buttons.mail", "buttons.compose", "buttons.immortal", "buttons.codeEditor", "find.case", "find.word", "find.reverse", "find.regex", "find.selection", "find.show", "display.split", "display.splitHeight", "display.splitLive", "display.roundedOverlays", "backupLoad", "backupSave", "backupAllProfiles", "backupReplaceCharacters", "scrollLocked", "showStatus", "showCharacterManager", "showChat", "showEditor", "showArmor", "showStatusWeather", "showStatusLimbs", "showStatusHealth", "showStatusExperience", "showStatusPartyHealth", "showStatusCombatHealth", "showButtonBar", "allowNegativeNumberNeeded", "spellchecking", "hideOnMinimize", "showTrayIcon", "statusExperienceNeededProgressbar", "trayClick", "trayDblClick", "pasteSpecialPrefix", "pasteSpecialPostfix", "pasteSpecialReplace", "pasteSpecialPrefixEnabled", "pasteSpecialPostfixEnabled", "pasteSpecialReplaceEnabled", "display.showSplitButton", "chat.split", "chat.splitHeight", "chat.splitLive", "chat.roundedOverlays", "chat.showSplitButton", "chat.bufferSize", "chat.flashing", "display.hideTrailingEmptyLine", "display.enableColors", "display.enableBackgroundColors", "enableSound", "allowHalfOpen", "editorClearOnSend", "editorCloseOnSend", "askOnCloseAll", "askonloadCharacter", "mapper.roomWidth", "mapper.roomGroups", "mapper.showInTaskBar", "profiles.enabled", "profiles.sortOrder", "profiles.sortDirection", "profiles.showInTaskBar", "profiles.profileSelected", "profiles.profileExpandSelected", "chat.lines", "chat.showInTaskBar", "chat.showTimestamp", "chat.timestampFormat", "chat.tabWidth", "chat.displayControlCodes", "chat.emulateTerminal", "chat.emulateControlCodes", "chat.wordWrap", "chat.wrapAt", "chat.indent", "chat.scrollLocked", "chat.find.case", "chat.find.word", "chat.find.reverse", "chat.find.regex", "chat.find.selection", "chat.find.show", "chat.find.highlight", "chat.find.location", "codeEditor.showInTaskBar", "codeEditor.persistent", "codeEditor.alwaysOnTop", "codeEditor.alwaysOnTopClient", "autoTakeoverLogin", "fixHiddenWindows", "maxReconnectDelay", "enableBackgroundThrottling", "enableBackgroundThrottlingClients", "showInTaskBar", "showLagInTitle", "mspMaxRetriesOnError", "logTimestamp", "logTimestampFormat", "disableTriggerOnError", "prependTriggeredLine", "enableParameters", "parametersChar", "enableNParameters", "nParametersChar", "enableParsing", "externalWho", "externalHelp", "watchForProfilesChanges", "onProfileChange", "onProfileDeleted", "enableDoubleParameterEscaping", "ignoreEvalUndefined", "enableInlineComments", "enableBlockComments", "inlineCommentString", "blockCommentString", "allowCommentsFromCommand", "saveTriggerStateChanges", "groupProfileSaves", "groupProfileSaveDelay", "returnNewlineOnEmptyValue", "pathDelay", "pathDelayCount", "echoSpeedpaths", "alwaysShowTabs", "scriptEngineType", "initializeScriptEngineOnLoad", "find.highlight", "find.location", "display.showInvalidMXPTags", "display.showTimestamp", "display.timestampFormat", "display.displayControlCodes", "display.emulateTerminal", "display.emulateControlCodes", "display.wordWrap", "display.tabWidth", "display.wrapAt", "display.indent", "statusWidth", "showEditorInTaskBar", "trayMenu", "lockLayout", "loadLayout", "useSingleInstance", "statusWidth", "characterManagerDblClick", "warnAdvancedSettings", "showAdvancedSettings", "enableTabCompletion", "tabCompletionBufferLimit", "ignoreCaseTabCompletion", "enableNotifications", "commandAutoSize", "commandWordWrap", "commandScrollbars", "tabCompletionList", "tabCompletionLookupType", "tabCompletionReplaceCasing", "characterManagerAddButtonAction", "enableCrashReporting", "characterManagerPanelWidth", "ignoreInputLeadingWhitespace", "profiles.find.case", "profiles.find.word", "profiles.find.reverse", "profiles.find.regex", "profiles.find.selection", "profiles.find.show", "profiles.find.value", "skipMore", "skipMoreDelay", "commandMinLines", "simpleAlarms", "simpleEditor", "selectLastCommand", "statusMode", "logger.split", "showChatWindow", "chat.enableColors", "chat.enableBackgroundColors"];
   var Settings = class _Settings {
     constructor() {
-      for (var s = 0, sl = SettingList.length; s < sl; s++) {
+      for (let s = 0, sl = SettingList.length; s < sl; s++) {
         if (SettingList[s][2] === 4 /* Custom */) continue;
         this[SettingList[s][0]] = _Settings.getValue(SettingList[s][0]);
         if (SettingList[s][1] && SettingList[s][1].length)
@@ -6403,7 +6398,7 @@
       this.settingError = false;
     }
     static getValue(setting, defaultValue) {
-      var tmp;
+      let tmp;
       if (_Settings.settingError) {
         if (defaultValue === null || typeof defaultValue == "undefined")
           return _Settings.defaultValue(setting);
@@ -7000,13 +6995,13 @@
       return null;
     }
     save() {
-      for (var prop in this) {
+      for (let prop in this) {
         if (!this.hasOwnProperty(prop)) continue;
         _Settings.setValue(prop, this[prop]);
       }
     }
     reset() {
-      for (var s = 0, sl = SettingList.length; s < sl; s++) {
+      for (let s = 0, sl = SettingList.length; s < sl; s++) {
         if (SettingList[s][2] === 4 /* Custom */) continue;
         this[SettingList[s][0]] = _Settings.defaultValue(SettingList[s][0]);
       }
@@ -9999,7 +9994,7 @@
                     extensions: args[0].split(',').map(a => a.trim())
                 })
             }
-            var files = dialog.showOpenDialogSync({
+            let files = dialog.showOpenDialogSync({
                 filters: f,
                 properties: ['openFile', 'promptToCreate'],
                 defaultPath: args.length >= 2 ? parseTemplate(args[1]) : ''
@@ -21944,15 +21939,15 @@
       return "";
     }
     get selectionAsHTML() {
-      var range;
+      let range;
       if (this._window.getSelection) {
-        var selection = this._window.getSelection();
+        let selection = this._window.getSelection();
         if (selection.rangeCount > 0) {
           range = selection.getRangeAt(0);
           if (!this._view.contains(range.startContainer) && !this._view.contains(range.endContainer))
             return "";
-          var clonedSelection = range.cloneContents();
-          var div = this._document.createElement("div");
+          let clonedSelection = range.cloneContents();
+          let div = this._document.createElement("div");
           div.appendChild(clonedSelection);
           return div.innerHTML;
         } else {
@@ -24386,7 +24381,7 @@ Devanagari
       };
       this.functions["testunicodeemoji"] = () => {
         let sample = "";
-        var emojiRange = [
+        let emojiRange = [
           [128513, 128591],
           //Emoticons ( 1F601 - 1F64F ) 
           [9986, 10160],
@@ -24401,10 +24396,10 @@ Devanagari
           [127757, 128359]
           //Other additional symbols ( 1F30D - 1F567 ) 
         ];
-        var n = 0;
-        for (var i2 = 0; i2 < emojiRange.length; i2++) {
-          var range = emojiRange[i2];
-          for (var x2 = range[0]; x2 < range[1]; x2++) {
+        let n = 0;
+        for (let i2 = 0; i2 < emojiRange.length; i2++) {
+          let range = emojiRange[i2];
+          for (let x2 = range[0]; x2 < range[1]; x2++) {
             sample += String.fromCodePoint(x2);
             n++;
             if (n == 36) {
@@ -24557,7 +24552,7 @@ Devanagari
       if (Array.isArray(value)) {
         const or = value;
         const rooms = {};
-        for (var r = 0, rl = or.length; r < rl; r++)
+        for (let r = 0, rl = or.length; r < rl; r++)
           rooms[or[r].num] = or[r];
         this._rooms = rooms;
       } else
@@ -26497,9 +26492,9 @@ Devanagari
         else if (room.y > h) h = room.y;
       }
       this._context.font = "italic bold 16pt Georgia";
-      var fx = this._context.measureText(t).width;
-      var rectWidth = Math.ceil(Math.sqrt(Math.pow(w - x2, 2)) * 32 * scale + 60 + 32);
-      var rectHeight = Math.ceil(Math.sqrt(Math.pow(y2 - h, 2)) * 32 * scale + 60 + 32);
+      let fx = this._context.measureText(t).width;
+      let rectWidth = Math.ceil(Math.sqrt(Math.pow(w - x2, 2)) * 32 * scale + 60 + 32);
+      let rectHeight = Math.ceil(Math.sqrt(Math.pow(y2 - h, 2)) * 32 * scale + 60 + 32);
       if (rectWidth < fx) rectWidth = fx + 60;
       if (this._showLegend) {
         rectWidth += 155;
@@ -26511,7 +26506,7 @@ Devanagari
       tempCanvas.style.width = rectWidth + "px";
       tempCanvas.width = rectWidth;
       tempCanvas.height = rectHeight;
-      var ctx;
+      let ctx;
       if (tempCanvas && tempCanvas.getContext)
         ctx = tempCanvas.getContext("2d");
       else {
@@ -26550,7 +26545,7 @@ Devanagari
       ctx.restore();
       this.DrawLegend(ctx, rectWidth - 185, -10, 1);
       tempCanvas.toBlob((blob) => {
-        var reader = new FileReader();
+        let reader = new FileReader();
         reader.addEventListener("loadend", (evt) => {
           fileSaveAs.show(evt.target.result, this._splitArea && t.length ? "OoMUD." + t + ".png" : "OoMUD.png", "image/png");
         });
@@ -26558,13 +26553,13 @@ Devanagari
       });
     }
     exportCurrentImage() {
-      var tempCanvas = this._document.createElement("canvas");
-      var context = tempCanvas.getContext("2d");
+      let tempCanvas = this._document.createElement("canvas");
+      let context = tempCanvas.getContext("2d");
       tempCanvas.width = this._canvas.width;
       tempCanvas.height = this._canvas.height;
       this.draw(tempCanvas, context, true).then(() => {
         tempCanvas.toBlob((blob) => {
-          var reader = new FileReader();
+          let reader = new FileReader();
           reader.addEventListener("loadend", (evt) => {
             fileSaveAs.show(evt.target.result, "OoMUD.current.png", "image/png");
           });
@@ -26808,14 +26803,14 @@ Devanagari
             this._dialog.backdrop_.className = "backdrop";
             this._dialog.backdrop_MouseEvent = function(e) {
               if (!this.hasAttribute("tabindex")) {
-                var fake = this._document.createElement("div");
+                let fake = this._document.createElement("div");
                 this.insertBefore(fake, this.firstChild);
                 fake.tabIndex = -1;
                 fake.focus();
                 this.removeChild(fake);
               } else
                 this.focus();
-              var redirectedEvent = this._document.createEvent("MouseEvents");
+              let redirectedEvent = this._document.createEvent("MouseEvents");
               redirectedEvent.initMouseEvent(
                 e.type,
                 e.bubbles,
@@ -27024,7 +27019,7 @@ Devanagari
       this._header = this._dialog.querySelector('[class="dialog-header"]');
       if (this.resizable) {
         this._dialog.classList.add("resizable");
-        var right = this._document.createElement("div");
+        let right = this._document.createElement("div");
         right.className = "resizer-right";
         this._dialog.appendChild(right);
         right.addEventListener("mousedown", (e) => {
@@ -27033,7 +27028,7 @@ Devanagari
         right.addEventListener("touchstart", (e) => {
           this._initResizeTouch(e, 1 /* Right */);
         }, { passive: true });
-        var bottom = this._document.createElement("div");
+        let bottom = this._document.createElement("div");
         bottom.className = "resizer-bottom";
         this._dialog.appendChild(bottom);
         bottom.addEventListener("mousedown", (e) => {
@@ -27042,7 +27037,7 @@ Devanagari
         bottom.addEventListener("touchstart", (e) => {
           this._initResizeTouch(e, 2 /* Bottom */);
         }, { passive: true });
-        var corner = this._document.createElement("div");
+        let corner = this._document.createElement("div");
         corner.className = "resizer-se";
         this._dialog.appendChild(corner);
         corner.addEventListener("mousedown", (e) => {
@@ -27078,7 +27073,7 @@ Devanagari
         corner.addEventListener("touchstart", (e) => {
           this._initResizeTouch(e, 4 /* Left */ | 2 /* Bottom */);
         }, { passive: true });
-        var left = this._document.createElement("div");
+        let left = this._document.createElement("div");
         left.className = "resizer-left";
         this._dialog.appendChild(left);
         left.addEventListener("mousedown", (e) => {
@@ -27087,7 +27082,7 @@ Devanagari
         left.addEventListener("touchstart", (e) => {
           this._initResizeTouch(e, 4 /* Left */);
         }, { passive: true });
-        var top = this._document.createElement("div");
+        let top = this._document.createElement("div");
         top.className = "resizer-top";
         this._dialog.appendChild(top);
         top.addEventListener("mousedown", (e) => {
@@ -27207,9 +27202,9 @@ Devanagari
       this._resize.type = type;
       this._resize.minHeight = parseInt(styles.minHeight, 10);
       this._resize.minWidth = parseInt(styles.minWidth, 10);
-      var rect = e.target.getBoundingClientRect();
-      var x2 = e.targetTouches[0].clientX - rect.x;
-      var y2 = e.targetTouches[0].clientY - rect.y;
+      let rect = e.target.getBoundingClientRect();
+      let x2 = e.targetTouches[0].clientX - rect.x;
+      let y2 = e.targetTouches[0].clientY - rect.y;
       this._resize.borderHeight = y2 + parseInt(styles.borderTopWidth);
       this._resize.borderWidth = x2 + parseInt(styles.borderLeftWidth);
       this._body.style.pointerEvents = "none";
@@ -27434,7 +27429,7 @@ Devanagari
       this.emit("focus");
     }
     makeVisible(full, silent) {
-      var rect = this._dialog.getBoundingClientRect();
+      let rect = this._dialog.getBoundingClientRect();
       if (full) {
         if (rect.right > this._window.innerWidth) {
           this._state.x = this._window.innerWidth - this._state.width - 16;
@@ -27666,10 +27661,10 @@ Devanagari
       closeMenu();
     });
     document.querySelector("#menu-fullscreen a").addEventListener("click", (e) => {
-      var doc = window.document;
-      var docEl = doc.documentElement;
-      var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-      var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+      let doc = window.document;
+      let docEl = doc.documentElement;
+      let requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+      let cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
       let el = document.getElementById("menu-fullscreen");
       let icon = document.querySelector("#menu-fullscreen svg") || document.querySelector("#menu-fullscreen i");
       let text = document.querySelector("#menu-fullscreen a span");
@@ -28106,7 +28101,7 @@ Devanagari
         value = value.replace(/ /g, "&nbsp;");
         value = value.replace(/\t/g, "&nbsp;&nbsp;&nbsp;");
         value = value.replace(/(?:\r\n|\r|\n)/g, "<br/>");
-        var content = this.getText();
+        let content = this.getText();
         if (content === "\n") {
           tinymce.activeEditor.undoManager.transact(() => {
             tinymce.activeEditor.setContent(value);
@@ -28130,11 +28125,11 @@ Devanagari
       return this._simple || !this.tinymceExist;
     }
     _loadColors() {
-      var _dColors = getColors();
-      var c, color, r, g, b, idx, _bold = [], bl;
+      let _dColors = getColors();
+      let c, color, r, g, b, idx, _bold = [], bl;
       this._ColorTable = [];
       this._colors = {};
-      var clientColors = client.getOption("colors") || [];
+      let clientColors = client.getOption("colors") || [];
       color = new RGBColor(clientColors[0] || _dColors[0]).toHex().substr(1).toUpperCase();
       this._colors[color] = "BLACK";
       this._ColorTable.push(color, "BLACK");
@@ -28736,7 +28731,7 @@ Devanagari
             return;
           if (c && $(this).hasClass("reverse"))
             return;
-          var back, fore;
+          let back, fore;
           if (c) {
             back = $(this).css("color");
             fore = $(this).css("background-color");
@@ -28760,7 +28755,7 @@ Devanagari
         function() {
           if (c && $(this).hasClass("reverse"))
             return;
-          var back, fore;
+          let back, fore;
           if (c) {
             back = $(this).css("color");
             fore = $(this).css("background-color");
@@ -28783,7 +28778,7 @@ Devanagari
       );
     }
     _colorCell(color, idx) {
-      var cell = '<td class="mce-grid-cell' + (color === "transparent" ? " mce-colorbtn-trans" : "") + '">';
+      let cell = '<td class="mce-grid-cell' + (color === "transparent" ? " mce-colorbtn-trans" : "") + '">';
       cell += '<div id="' + idx + '"';
       cell += ' data-mce-color="' + color + '"';
       cell += ' role="option"';
@@ -28809,7 +28804,7 @@ Devanagari
         let g;
         let b;
         let idx;
-        var html = '<table style="margin : auto !important;" class="mce-grid mce-grid-border mce-colorbutton-grid" role="list" cellspacing="0"><tbody><tr>';
+        let html = '<table style="margin : auto !important;" class="mce-grid mce-grid-border mce-colorbutton-grid" role="list" cellspacing="0"><tbody><tr>';
         for (c = 0, cl = this._ColorTable.length; c < cl; c += 2) {
           html += this._colorCell(this._ColorTable[c], this._ColorTable[c + 1]);
           if (c / 2 % 6 === 5)
@@ -28818,7 +28813,7 @@ Devanagari
         html += '<td class="mce-grid-cell"></td>';
         html += this._colorCell("transparent", "No color");
         html += "</tr><tr><td></td></tr>";
-        var html2 = "";
+        let html2 = "";
         for (r = 0; r < 6; r++) {
           if (g < 3)
             html += "<tr>";
@@ -28896,7 +28891,7 @@ Devanagari
     }
     _appendFile() {
       openFileDialog("Append file(s)", true).then((files) => {
-        for (var f = 0, fl = files.length; f < fl; f++)
+        for (let f = 0, fl = files.length; f < fl; f++)
           readFile(files[f]).then((contents) => {
             this.insert(contents);
           }).catch(client.error);
@@ -28917,10 +28912,10 @@ Devanagari
       }
     }
     _buildHTMLStack(els) {
-      var tag, $el, t, tl;
-      var stack = [];
-      var tags;
-      for (var e = 0, el = els.length; e < el; e++) {
+      let tag, $el, t, tl;
+      let stack = [];
+      let tags;
+      for (let e = 0, el = els.length; e < el; e++) {
         $el = $(els[e]);
         tag = $el.prop("tagName");
         if (tag === "EM" || tag === "I")
@@ -28991,12 +28986,12 @@ Devanagari
       return stack;
     }
     getFormattedSelection() {
-      var nodes = tinymce.activeEditor.dom.getParents(tinymce.activeEditor.selection.getNode());
-      var n = 0, nl = nodes.length;
-      var start = "<html>";
-      var end = "</html>";
+      let nodes = tinymce.activeEditor.dom.getParents(tinymce.activeEditor.selection.getNode());
+      let n = 0, nl = nodes.length;
+      let start = "<html>";
+      let end = "</html>";
       for (; n < nl; n++) {
-        var tag = nodes[n].tagName;
+        let tag = nodes[n].tagName;
         if (tag === "EM" || tag === "I" || tag === "STRONG" || tag === "B") {
           start += "<" + tag + ">";
           end = "</" + tag + ">" + end;
@@ -29004,7 +28999,7 @@ Devanagari
           start += "<" + tag;
           if (nodes[n].className != "")
             start += ' class="' + nodes[n].className + '"';
-          var style = "";
+          let style = "";
           if (nodes[n].style.textDecoration != "")
             style += "text-decoration:" + nodes[n].style.textDecoration + ";";
           if (nodes[n].style.color != "")
@@ -29049,10 +29044,10 @@ Devanagari
       return tinymce.activeEditor.getContent({ format: "raw" });
     }
     _formatHtml(text) {
-      var data = this._buildHTMLStack(text);
-      var buffer = [];
-      var codes = [];
-      var color, d2, dl, rgb;
+      let data = this._buildHTMLStack(text);
+      let buffer = [];
+      let codes = [];
+      let color, d2, dl, rgb;
       if (client.getOption("enableDebug"))
         client.debug("Advanced Editor Get Raw HTML: " + this.getRaw());
       for (d2 = data.length - 1; d2 >= 0; d2--) {
@@ -29188,30 +29183,30 @@ Devanagari
       return buffer;
     }
     _nearestHex(hex) {
-      var _editor = this;
-      var hexToRgb = function(hex2) {
-        var shortRegEx = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+      let _editor = this;
+      let hexToRgb = function(hex2) {
+        let shortRegEx = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
         hex2 = hex2.replace(shortRegEx, function(full, r, g, b) {
           return [r, r, g, g, b, b].join();
         });
-        var longRegEx = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?/i;
-        var rgbArray = longRegEx.exec(hex2);
-        var rgbObj = rgbArray ? {
+        let longRegEx = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?/i;
+        let rgbArray = longRegEx.exec(hex2);
+        let rgbObj = rgbArray ? {
           r: parseInt(rgbArray[1], 16),
           g: parseInt(rgbArray[2], 16),
           b: parseInt(rgbArray[3], 16)
         } : null;
         return rgbObj;
       };
-      var closestHexFromRgb = function(rgbObj) {
+      let closestHexFromRgb = function(rgbObj) {
         if (!rgbObj) {
           throw new Error("The hex you provided is not formatted correctly. Please try in a format such as '#FFF' or '#DDFFDD'.");
         }
-        var minDistance = Number.MAX_SAFE_INTEGER;
-        var nearestHex = null;
-        for (var i2 = 0; i2 < _editor._colorList.length; i2++) {
-          var currentColor = _editor._colorList[i2];
-          var distance = Math.sqrt(
+        let minDistance = Number.MAX_SAFE_INTEGER;
+        let nearestHex = null;
+        for (let i2 = 0; i2 < _editor._colorList.length; i2++) {
+          let currentColor = _editor._colorList[i2];
+          let distance = Math.sqrt(
             Math.pow(rgbObj.r - currentColor.rgb.r, 2) + Math.pow(rgbObj.g - currentColor.rgb.g, 2) + Math.pow(rgbObj.b - currentColor.rgb.b, 2)
           );
           if (distance < minDistance) {
@@ -29281,8 +29276,8 @@ Devanagari
             e.content = e.content.replace(/background-color: #000000;/g, "");
             e.content = e.content.replace(/ color: #BBBBBB;/g, "");
             e.content = e.content.replace(/color: #BBBBBB;/g, "");
-            var regex = /<pre(.*?)>((.|\s)*)<\/pre>/mgi;
-            var m;
+            let regex = /<pre(.*?)>((.|\s)*)<\/pre>/mgi;
+            let m;
             while ((m = regex.exec(e.content)) !== null) {
               if (m.index === regex.lastIndex) {
                 regex.lastIndex++;
@@ -29374,7 +29369,7 @@ Devanagari
         this.close();
       });
       this.footer.querySelector(`#${this.id}-export`).addEventListener("click", () => {
-        var data = clone(this.settings);
+        let data = clone(this.settings);
         data.version = 2;
         fileSaveAs.show(JSON.stringify(data), "oiMUD.settings.txt", "text/plain");
       });
@@ -29382,8 +29377,8 @@ Devanagari
         openFileDialog("Import settings").then((files) => {
           readFile(files[0]).then((contents) => {
             try {
-              var data = JSON.parse(contents);
-              var s, sl;
+              let data = JSON.parse(contents);
+              let s, sl;
               if (data.version === 1) {
                 for (s = 0, sl = SettingList.length; s < sl; s++) {
                   this.settings[SettingList[s][0]] = data[SettingList[s][0]];
@@ -29412,8 +29407,8 @@ Devanagari
         if (this._page === "settings-colors") {
           confirm_box("Reset colors", "Reset colors?").then((e) => {
             if (e.button === 4 /* Yes */) {
-              var c;
-              var colors = this.settings.colors = [];
+              let c;
+              let colors = this.settings.colors = [];
               for (c = 0; c < 16; c++)
                 this.setColor("color" + c, colors[c] || this.getDefaultColor(c));
               for (c = 256; c < 280; c++)
@@ -29452,7 +29447,7 @@ Devanagari
       });
       this.footer.querySelector(`#${this.id}-save`).addEventListener("click", () => {
         removeHash(this._page);
-        for (var s in this.settings) {
+        for (let s in this.settings) {
           if (!this.settings.hasOwnProperty(s)) continue;
           Settings.setValue(s, this.settings[s]);
         }
@@ -29510,8 +29505,8 @@ Devanagari
       const forms = this.body.querySelectorAll("input,select,textarea");
       let required;
       if (this._page === "settings-colors") {
-        var c;
-        var colors = this.settings.colors || [];
+        let c;
+        let colors = this.settings.colors || [];
         for (c = 0; c < 16; c++)
           this.setColor("color" + c, colors[c] || this.getDefaultColor(c));
         for (c = 256; c < 280; c++)
@@ -29521,7 +29516,7 @@ Devanagari
             const target = e.currentTarget || e.target;
             let value = target.value;
             let id = parseInt(target.id.substring(5), 10);
-            var colors2 = this.settings.colors || [];
+            let colors2 = this.settings.colors || [];
             if (!colors2[id] || colors2[id].length === 0) {
               if (this.getDefaultColor(id) !== value)
                 colors2[id] = value;
@@ -29694,14 +29689,15 @@ Devanagari
     }
     static addPlugins(menu) {
       let pl = client.plugins.length;
+      let plugins = client.plugins;
       let s;
       let sl;
       for (let p = 0; p < pl; p++) {
-        if (!client.plugins[p].settings) continue;
-        if (client.plugins[p].settings.length) {
-          sl = client.plugins[p].settings.length;
+        if (!plugins[p].settings) continue;
+        if (plugins[p].settings.length) {
+          sl = plugins[p].settings.length;
           for (s = 0; s < sl; s++) {
-            let item = client.plugins[p].settings[s];
+            let item = plugins[p].settings[s];
             if (typeof item.action !== "string") continue;
             let code = `<a href="#${item.action}" class="list-group-item list-group-item-action">${item.icon || ""}${item.name || ""}</a>`;
             if ("position" in item) {
@@ -30224,35 +30220,36 @@ Devanagari
       };
       this._canClose = false;
       this._small = false;
+      this._client = client;
       this.on("resized", (e) => {
         this._updateSmall(e.width);
-        client.setOption("windows.profiles", e);
+        this._client.setOption("windows.profiles", e);
       });
-      client.on("profiles-loaded", () => {
+      this._client.on("profiles-loaded", () => {
         if (!this.profiles) {
-          this.profiles = client.profiles.clone();
+          this.profiles = this._client.profiles.clone();
           this.profiles.SortByPriority();
           this._buildMenu();
         }
       });
-      client.on("profiles-updated", () => {
+      this._client.on("profiles-updated", () => {
       });
-      client.on("options-loaded", () => {
-        this.resetState(client.getOption("windows.profiles") || { center: true });
+      this._client.on("options-loaded", () => {
+        this.resetState(this._client.getOption("windows.profiles") || { center: true });
       });
-      client.on("initialized", () => {
+      this._client.on("initialized", () => {
         if (!this.profiles) {
-          this.profiles = client.profiles.clone();
+          this.profiles = this._client.profiles.clone();
           this.profiles.SortByPriority();
           this._buildMenu();
         }
       });
       this.body.style.padding = "10px";
       this._splitter = new Splitter({ id: "profile", parent: this.body, orientation: 1 /* vertical */, anchor: 1 /* panel1 */ });
-      if (client.getOption("profiles.split") >= 200)
-        this._splitter.SplitterDistance = client.getOption("profiles.split");
+      if (this._client.getOption("profiles.split") >= 200)
+        this._splitter.SplitterDistance = this._client.getOption("profiles.split");
       this._splitter.on("splitter-moved", (distance) => {
-        client.setOption("profiles.split", distance);
+        this._client.setOption("profiles.split", distance);
       });
       this._menu = this._splitter.panel1;
       this._menu.style.overflow = "hidden";
@@ -30261,8 +30258,8 @@ Devanagari
       this._contents.style.overflow = "auto";
       this._contents.style.padding = "10px";
       this._contents.style.paddingLeft = "14px";
-      if (client.profiles) {
-        this.profiles = client.profiles.clone();
+      if (this._client.profiles) {
+        this.profiles = this._client.profiles.clone();
         this.profiles.SortByPriority();
         this._buildMenu();
       }
@@ -30315,27 +30312,27 @@ Devanagari
         this._goBack();
       });
       this.on("closed", () => {
-        client.setOption("windows.profiles", this.windowState);
+        this._client.setOption("windows.profiles", this.windowState);
         removeHash(this._page);
       });
       this.on("canceled", () => {
-        client.setOption("windows.profiles", this.windowState);
+        this._client.setOption("windows.profiles", this.windowState);
         removeHash(this._page);
       });
       this.on("moved", (e) => {
         this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
-        client.setOption("windows.profiles", e);
+        this._client.setOption("windows.profiles", e);
       });
       this.on("maximized", () => {
-        client.setOption("windows.profiles", this.windowState);
+        this._client.setOption("windows.profiles", this.windowState);
       });
       this.on("restored", () => {
         this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
-        client.setOption("windows.profiles", this.windowState);
+        this._client.setOption("windows.profiles", this.windowState);
       });
       this.on("shown", () => {
         this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
-        client.setOption("windows.profiles", this.windowState);
+        this._client.setOption("windows.profiles", this.windowState);
       });
       this.footer.querySelector(`#${this.id}-add-profile a`).addEventListener("click", () => {
         this._createProfile(true);
@@ -30386,11 +30383,11 @@ Devanagari
         openFileDialog("Import profile(s)").then((files) => {
           readFile(files[0]).then((contents) => {
             try {
-              var data = JSON.parse(contents);
+              let data = JSON.parse(contents);
               if (data.version == 2) {
                 if (data.profiles) {
-                  var keys = Object.keys(data.profiles);
-                  var n, i2, k = 0, kl = keys.length;
+                  let keys = Object.keys(data.profiles);
+                  let n, i2, k = 0, kl = keys.length;
                   for (; k < kl; k++) {
                     n = keys[k];
                     i2 = 0;
@@ -30418,9 +30415,9 @@ Devanagari
               setTimeout(function() {
                 alert_box("Error importing", "Error importing file.", 3 /* error */);
               }, 50);
-              client.error(err);
+              this._client.error(err);
             }
-          }).catch(client.error);
+          }).catch(this._client.error);
         }).catch(() => {
         });
       });
@@ -30923,7 +30920,7 @@ Devanagari
       };
       this.emit("content-changing");
       for (let s = 0, sl = scripts.length; s < sl; s++) {
-        let script = new Function("body", "dialog", ...Object.keys(args), "try { " + scripts[s].textContent + "}catch(e){client.error(e)}");
+        let script = new Function("body", "dialog", ...Object.keys(args), "try { " + scripts[s].textContent + "}catch(e){this._client.error(e)}");
         script.apply(client, [this._contents, this, ...Object.values(args), this]);
       }
       this.emit("content-changed");
@@ -31188,7 +31185,7 @@ Devanagari
         return false;
       }
       this.profiles.save().then(() => {
-        client.loadProfiles().then(() => {
+        this._client.loadProfiles().then(() => {
         });
       });
       this.changed = false;
@@ -31243,7 +31240,7 @@ Devanagari
     _addItem(collection, item) {
       if (!collection) collection = this._current.collection;
       if (!collection) return;
-      var index = this._current.profile[collection].length;
+      let index = this._current.profile[collection].length;
       let menuItem;
       if (!item) {
         if (collection === "aliases")
@@ -31266,7 +31263,7 @@ Devanagari
           useName: true,
           enabled: this._current.profile[collection]
         }], 0, this._sanitizeID(this._current.profileName), "profiles/" + encodeURIComponent(this._current.profileName), 1);
-        var newNode = document.createElement("div");
+        let newNode = document.createElement("div");
         newNode.innerHTML = menuItem;
         if (m.replaceWith)
           m.replaceWith(newNode.firstChild);
@@ -31381,52 +31378,53 @@ Devanagari
       this._small = false;
       this._history = [];
       this._current = 0;
+      this._client = client;
       this.on("resized", (e) => {
         this._updateSmall(e.width);
         debounce(() => {
           this._splitter.panel1.parentElement.style.top = toolbar.offsetHeight + "px";
         }, 25, "mapper-resize");
-        client.setOption("windows.help", e);
+        this._client.setOption("windows.help", e);
       });
-      client.on("options-loaded", () => {
-        this.resetState(client.getOption("windows.help") || { center: true });
+      this._client.on("options-loaded", () => {
+        this.resetState(this._client.getOption("windows.help") || { center: true });
       });
       this.on("closed", () => {
-        client.setOption("windows.help", this.windowState);
+        this._client.setOption("windows.help", this.windowState);
         this._setContents("");
         removeHash(this._page);
         delete this._md;
         this._md = null;
       });
       this.on("canceled", () => {
-        client.setOption("windows.help", this.windowState);
+        this._client.setOption("windows.help", this.windowState);
         removeHash(this._page);
         delete this._md;
         this._md = null;
       });
       this.on("moved", (e) => {
         this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
-        client.setOption("windows.help", e);
+        this._client.setOption("windows.help", e);
       });
       this.on("maximized", () => {
-        client.setOption("windows.help", this.windowState);
+        this._client.setOption("windows.help", this.windowState);
       });
       this.on("restored", () => {
         this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
-        client.setOption("windows.help", this.windowState);
+        this._client.setOption("windows.help", this.windowState);
         this._splitter.panel1.parentElement.style.top = toolbar.offsetHeight + "px";
       });
       this.on("shown", () => {
         this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
-        client.setOption("windows.help", this.windowState);
+        this._client.setOption("windows.help", this.windowState);
         this._splitter.panel1.parentElement.style.top = toolbar.offsetHeight + "px";
       });
       this.body.style.padding = "10px";
       this._splitter = new Splitter({ id: "help", parent: this.body, orientation: 1 /* vertical */, anchor: 1 /* panel1 */ });
-      if (client.getOption("help.split") >= 200)
-        this._splitter.SplitterDistance = client.getOption("help.split");
+      if (this._client.getOption("help.split") >= 200)
+        this._splitter.SplitterDistance = this._client.getOption("help.split");
       this._splitter.on("splitter-moved", (distance) => {
-        client.setOption("help.split", distance);
+        this._client.setOption("help.split", distance);
       });
       this._menu = this._splitter.panel1;
       this._menu.style.overflow = "hidden";
@@ -31438,14 +31436,14 @@ Devanagari
           this.focus();
           closeDropdowns();
         };
-        var script = this._contents.contentWindow.document.createElement("script");
+        let script = this._contents.contentWindow.document.createElement("script");
         script.addEventListener("load", () => {
           this._md = this._contents.contentWindow.markdownit({ html: true, typographer: true });
-          var old_render = this._md.renderer.rules.link_open || function(tokens, idx, options, env, self) {
+          let old_render = this._md.renderer.rules.link_open || function(tokens, idx, options, env, self) {
             return self.renderToken(tokens, idx, options);
           };
           this._md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
-            var ref = tokens[idx].attrGet("href");
+            let ref = tokens[idx].attrGet("href");
             if (ref) {
               if (ref.startsWith("https:") || ref.startsWith("http:") || ref.startsWith("mailto:"))
                 tokens[idx].attrPush(["target", "_blank"]);
@@ -31528,6 +31526,7 @@ Devanagari
         el.style.height = "";
       });
       this._splitter.panel1.parentElement.style.top = toolbar.offsetHeight + "px";
+      this._splitter.panel2Collapsed = location.hash.indexOf("help-") === -1;
       this._buildMenu();
     }
     setBody(contents, args) {
@@ -31679,22 +31678,22 @@ Devanagari
           nav += this._menuItem(data[m]);
         this._menu.innerHTML = '<ul class="nav" id="help-menu">' + nav + "</ul>";
         let items = this._menu.querySelectorAll("a");
-        for (let i3 = 0, il = items.length; i3 < il; i3++) {
-          this._menuItemEvents(items[i3]);
-          items[i3].addEventListener("click", (e) => {
+        for (let i2 = 0, il = items.length; i2 < il; i2++) {
+          this._menuItemEvents(items[i2]);
+          items[i2].addEventListener("click", (e) => {
             if (!this._history.length || this._history[this._current] !== e.currentTarget.dataset.id)
               this._updateHistory(e.currentTarget.dataset.id);
           });
         }
-        var ops = ['<option value="">Table of contents</option>'];
-        for (var i2 = 0; i2 < data.length; i2++) {
+        let ops = ['<option value="">Table of contents</option>'];
+        for (let i2 = 0; i2 < data.length; i2++) {
           ops.push('<option value="', data[i2].id, '">', data[i2].text, "</option>");
           if (data[i2].nodes && data[i2].nodes.length)
-            for (var c = 0; c < data[i2].nodes.length; c++)
+            for (let c = 0; c < data[i2].nodes.length; c++)
               ops.push('<option value="', data[i2].nodes[c].id, '">&nbsp;&nbsp;&nbsp;&nbsp;', data[i2].nodes[c].text, "</option>");
         }
         this.body.querySelector("#help-jump-menu").innerHTML = ops.join("");
-      }).fail((err) => client.error(err));
+      }).fail((err) => this._client.error(err));
     }
     _updateButtons() {
       if (this._current === 0 || this._history.length === 0)
@@ -31766,7 +31765,7 @@ Devanagari
     _createMenu() {
       if (!this._menu) {
         let menu = `<ul id="${this._id}" class="dropdown-menu show">`;
-        for (var i2 = 0, il = this._items.length; i2 < il; i2++) {
+        for (let i2 = 0, il = this._items.length; i2 < il; i2++) {
           menu += `<li><a class="dropdown-item" data-index="${i2}" href="#">${this._items[i2].name}</a></li>`;
         }
         menu += "</ul>";
@@ -31774,11 +31773,11 @@ Devanagari
         this._menu = document.getElementById(this._id);
       }
       let items = this._menu.querySelectorAll("li a");
-      for (let i3 = 0, il2 = items.length; i3 < il2; i3++) {
-        items[i3].addEventListener("click", (e) => {
+      for (let i2 = 0, il = items.length; i2 < il; i2++) {
+        items[i2].addEventListener("click", (e) => {
           let index = +e.currentTarget.dataset.index;
           if (typeof this._items[index].action === "function")
-            this._items[index].action(this._items[i3], e);
+            this._items[index].action(this._items[i2], e);
           this._cleanUp();
         });
       }
@@ -31833,17 +31832,17 @@ Devanagari
     }
   }
   function doMXPSend(e, el, url, pmt, tt) {
-    var im = el.querySelector("img[ismap]");
-    var extra = "";
+    let im = el.querySelector("img[ismap]");
+    let extra = "";
     if (im) {
-      var os = offset(im);
-      var x2 = Math.floor(e.clientX - os.left);
-      var y2 = Math.floor(e.clientY - os.top);
+      let os = offset(im);
+      let x2 = Math.floor(e.clientX - os.left);
+      let y2 = Math.floor(e.clientY - os.top);
       extra = "?" + x2 + "," + y2;
     }
     if (url.constructor === Array || url.__proto__.constructor === Array || Object.prototype.toString.call(url) === "[object Array]") {
       let items = [];
-      for (var i2 = 0, il = url.length; i2 < il; i2++) {
+      for (let i2 = 0, il = url.length; i2 < il; i2++) {
         url[i2] = url[i2].replace("&text;", el.textContent);
         if (i2 < tt.length)
           items.push({
@@ -31963,7 +31962,7 @@ Devanagari
         let value = client.input.vStack["$selurl"] || _selurl || "";
         if (value) return value;
         if (!lastMouse) return "";
-        var parent = lastMouse.srcElement.parentNode;
+        let parent = lastMouse.srcElement.parentNode;
         if (parent && parent.classList && parent.classList.contains("URLLink"))
           return parent.title;
         else if (parent && parent.classList && parent.classList.contains("MXPLink") && parent.dataset && parent.dataset.href && parent.dataset.href.length > 0)
@@ -31978,7 +31977,7 @@ Devanagari
         let value = client.input.vStack["$selline"] || _selline || "";
         if (value) return value;
         if (!lastMouse) return "";
-        var pos = client.display.getLineOffset(lastMouse.pageX, lastMouse.pageY);
+        let pos = client.display.getLineOffset(lastMouse.pageX, lastMouse.pageY);
         if (pos.y < 0 || pos.y >= client.display.lines.length)
           return "";
         return client.display.getLineText(pos.y, true);
@@ -31998,7 +31997,7 @@ Devanagari
         let value = client.input.vStack["$selectedurl"] || _selurl || "";
         if (value) return value;
         if (!lastMouse) return "";
-        var parent = lastMouse.srcElement.parentNode;
+        let parent = lastMouse.srcElement.parentNode;
         if (parent && parent.classList && parent.classList.contains("URLLink"))
           return parent.title;
         else if (parent && parent.classList && parent.classList.contains("MXPLink") && parent.dataset && parent.dataset.href && parent.dataset.href.length > 0)
@@ -32013,7 +32012,7 @@ Devanagari
         let value = client.input.vStack["$selectedline"] || _selline || "";
         if (value) return value;
         if (!lastMouse) return "";
-        var pos = client.display.getLineOffset(lastMouse.pageX, lastMouse.pageY);
+        let pos = client.display.getLineOffset(lastMouse.pageX, lastMouse.pageY);
         if (pos.y < 0 || pos.y >= client.display.lines.length)
           return "";
         return client.display.getLineText(pos.y, true);
@@ -32136,7 +32135,7 @@ Devanagari
           options2.body = options2.body.substr(0, 127) + "...";
       }
       if (Notification.permission === "granted") {
-        var notify = new window.Notification(title, options2);
+        let notify = new window.Notification(title, options2);
         notify.onclick = () => {
           client.emit("notify-clicked", title, message);
           client.raise("notify-clicked", [title, message]);
@@ -32148,12 +32147,12 @@ Devanagari
       } else if (Notification.permission !== "denied") {
         Notification.requestPermission().then((permission) => {
           if (permission === "granted") {
-            var notify2 = new window.Notification(title, options2);
-            notify2.onclick = () => {
+            let notify = new window.Notification(title, options2);
+            notify.onclick = () => {
               client.emit("notify-clicked", title, message);
               client.raise("notify-clicked", [title, message]);
             };
-            notify2.onclose = () => {
+            notify.onclose = () => {
               client.emit("notify-closed", title, message);
               client.raise("notify-closed", [title, message]);
             };
@@ -32239,7 +32238,7 @@ Devanagari
       const items = document.querySelectorAll('[id^="command-history-item"] a');
       for (let i2 = 0, il = items.length; i2 < il; i2++) {
         items[i2].addEventListener("click", (e) => {
-          var cmd = client.commandHistory[parseInt(e.currentTarget.dataset.index, 10)];
+          let cmd = client.commandHistory[parseInt(e.currentTarget.dataset.index, 10)];
           client.AddCommandToHistory(cmd);
           client.sendCommand(cmd, null, client.getOption("allowCommentsFromCommand"));
         });
@@ -32301,7 +32300,7 @@ Devanagari
     string = string.trim();
     if (string.startsWith("#"))
       string = string.substring(1);
-    var hashes = decodeURI(window.location.hash.substring(1)).split(",").filter((s) => s.trim() !== string);
+    let hashes = decodeURI(window.location.hash.substring(1)).split(",").filter((s) => s.trim() !== string);
     window.location.hash = hashes.join(",");
   }
   function addHash(string) {
@@ -32309,7 +32308,7 @@ Devanagari
     string = string.trim();
     if (string.startsWith("#"))
       string = string.substring(1);
-    var hashes = decodeURI(window.location.hash.substring(1)).split(",").filter((s) => s.trim() !== string);
+    let hashes = decodeURI(window.location.hash.substring(1)).split(",").filter((s) => s.trim() !== string);
     hashes.push(string);
     window.location.hash = hashes.join(",");
   }
@@ -32320,7 +32319,7 @@ Devanagari
     if (!Array.isArray(remove))
       remove = [remove];
     remove = remove.concat(...add);
-    var hashes = decodeURI(window.location.hash.substring(1)).split(",").filter((s) => s.length && !remove.includes(s.trim()));
+    let hashes = decodeURI(window.location.hash.substring(1)).split(",").filter((s) => s.length && !remove.includes(s.trim()));
     hashes = hashes.concat(...add);
     window.location.hash = hashes.join(",");
   }
@@ -32334,7 +32333,7 @@ Devanagari
   }
   function hashChange() {
     if (!window.location.hash || window.location.hash.length < 2) return;
-    var dialogs = decodeURI(window.location.hash.substring(1)).split(",").map((s) => s.trim());
+    let dialogs = decodeURI(window.location.hash.substring(1)).split(",").map((s) => s.trim());
     for (let d2 = dialogs.length - 1; d2 >= 0; d2--)
       switch (dialogs[d2]) {
         case "about":
@@ -32749,10 +32748,10 @@ Devanagari
     showButtons();
   }
   function createButton(button, index) {
-    var c = "";
-    var tt = "";
-    var caption = button.caption;
-    var bh = 0;
+    let c = "";
+    let tt = "";
+    let caption = button.caption;
+    let bh = 0;
     if (caption.substring(0, 3) === "fa-") {
       caption = caption.split(",");
       if (caption.length > 1)
@@ -32806,7 +32805,7 @@ Devanagari
       tt = button.caption;
     }
     if (button.icon && button.icon.length) {
-      var icon = button.icon;
+      let icon = button.icon;
       if (icon.substring(0, 3) === "fa-") {
         icon = icon.split(",");
         if (icon.length > 1)
@@ -32897,9 +32896,9 @@ Devanagari
       document.getElementById("buttons").style.visibility = "";
   }
   function buildButtons() {
-    var c = "";
-    var buttons = client.buttons;
-    var b, bl;
+    let c = "";
+    let buttons = client.buttons;
+    let b, bl;
     for (b = 0, bl = buttons.length; b < bl; b++) {
       if (!buttons[b].enabled) continue;
       c += createButton(buttons[b], b);
@@ -32919,17 +32918,17 @@ Devanagari
       delete el.dataset.moving;
       return;
     }
-    var buttons = client.buttons;
+    let buttons = client.buttons;
     if (idx >= buttons.length) return false;
-    var button = buttons[idx];
+    let button = buttons[idx];
     if (!button.enabled) return false;
-    var ret;
+    let ret;
     switch (button.style) {
       case 1:
         ret = client.parseOutgoing(button.value);
         break;
       case 2:
-        var f = new Function("try { " + button.value + "} catch (e) { if(this.options.showScriptErrors) this.error(e);}");
+        let f = new Function("try { " + button.value + "} catch (e) { if(this.options.showScriptErrors) this.error(e);}");
         ret = f.apply(client);
         break;
       default:
@@ -32957,8 +32956,8 @@ Devanagari
     return true;
   }
   function dragButton(elmnt) {
-    var pos3 = 0, pos4 = 0;
-    var delay;
+    let pos3 = 0, pos4 = 0;
+    let delay;
     if (document.getElementById(elmnt.id + "header")) {
       document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
     } else {
@@ -32970,7 +32969,7 @@ Devanagari
       e = e || window.event;
       if (e.buttons !== 1) return;
       e.preventDefault();
-      var b = elmnt.getBoundingClientRect();
+      let b = elmnt.getBoundingClientRect();
       pos3 = e.pageX - b.left;
       pos4 = e.pageY - b.top;
       document.onmouseup = closeDragButton;
@@ -32994,7 +32993,7 @@ Devanagari
     function dragTouchStart(e) {
       e = e || window.event;
       if (!e.touches.length) return;
-      var b = elmnt.getBoundingClientRect();
+      let b = elmnt.getBoundingClientRect();
       pos3 = e.touches[0].pageX - b.left;
       pos4 = e.touches[0].pageY - b.top;
       document.ontouchend = closeDragButton;
@@ -33013,12 +33012,12 @@ Devanagari
       elmnt.dataset.moving = "true";
     }
     function closeDragButton() {
-      var b = elmnt.getBoundingClientRect();
-      var idx = parseInt(elmnt.dataset.index, 10);
+      let b = elmnt.getBoundingClientRect();
+      let idx = parseInt(elmnt.dataset.index, 10);
       if (idx < 0) return;
-      var buttons = client.buttons;
+      let buttons = client.buttons;
       if (idx >= buttons.length) return;
-      var button = buttons[idx];
+      let button = buttons[idx];
       if (!button.enabled) return;
       if (button.left === -1 && button.right === -1 && button.top === -1 && button.bottom === -1) {
         button.top = b.top || -1;
@@ -33785,7 +33784,7 @@ Devanagari
           e.cancelBubble = true;
         });
         let h = "";
-        for (var i3 = 0; i3 < m; i3++)
+        for (let i3 = 0; i3 < m; i3++)
           h += `<option value="${this._map.Areas[i3].replace(/"/g, "&quot;")}">${this._map.Areas[i3]}</option>`;
         area.innerHTML = h;
         document.getElementById("mapper-room-area").innerHTML = h;
@@ -33825,21 +33824,21 @@ Devanagari
             area2.innerHTML = "";
             roomArea.innerHTML = "";
           } else {
-            for (var i4 = area2.length - 1; i4 >= 0; i4--) {
-              if (areas.indexOf(area2.options[i4].value) !== -1)
-                area2.remove(i4);
+            for (let i3 = area2.length - 1; i3 >= 0; i3--) {
+              if (areas.indexOf(area2.options[i3].value) !== -1)
+                area2.remove(i3);
             }
-            for (var i4 = roomArea.length - 1; i4 >= 0; i4--) {
-              if (areas.indexOf(roomArea.options[i4].value) !== -1)
-                roomArea.remove(i4);
+            for (let i3 = roomArea.length - 1; i3 >= 0; i3--) {
+              if (areas.indexOf(roomArea.options[i3].value) !== -1)
+                roomArea.remove(i3);
             }
           }
         });
         this._map.on("areas-added", (areas) => {
           let h2 = "";
           const m2 = this._map.Areas.length;
-          for (let i4 = 0; i4 < m2; i4++)
-            h2 += `<option value="${this._map.Areas[i4].replace(/"/g, "&quot;")}">${this._map.Areas[i4]}</option>`;
+          for (let i3 = 0; i3 < m2; i3++)
+            h2 += `<option value="${this._map.Areas[i3].replace(/"/g, "&quot;")}">${this._map.Areas[i3]}</option>`;
           document.getElementById("mapper-area").innerHTML = h2;
           document.getElementById("mapper-room-area").innerHTML = h2;
           if (this._dialogMap.active.area && this._map.Areas.indexOf(this._dialogMap.active.area) !== -1)
@@ -34590,7 +34589,7 @@ Devanagari
       }
     }
     updateSimpleBar(bar) {
-      var p;
+      let p;
       const el = document.getElementById(bar);
       if (!el) return;
       const v = el.dataset.var.toLowerCase();
@@ -34832,12 +34831,12 @@ Devanagari
     }
 
     function doMXPSend(e, el, url, pmt, tt) {
-        var im = el.querySelector('img[ismap]');
-        var extra = '';
+        let im = el.querySelector('img[ismap]');
+        let extra = '';
         if (im && im.length > 0) {
-            var offset = im.offset();
-            var x = Math.floor(e.clientX - offset.left);
-            var y = Math.floor(e.clientY - offset.top);
+            let offset = im.offset();
+            let x = Math.floor(e.clientX - offset.left);
+            let y = Math.floor(e.clientY - offset.top);
             extra = '?' + x + ',' + y;
         }
 
@@ -35066,7 +35065,7 @@ Devanagari
       if (this._keyPromise) return;
       this._keyPromise = localforage.getItem("OoMUDLogKeys").then((value) => {
         if (!this._keyQueue.length) return;
-        var _keys;
+        let _keys;
         if (!value)
           _keys = {};
         else
@@ -35235,8 +35234,8 @@ Devanagari
         this.footer.querySelector(`#${this.id}-clear`).addEventListener("click", () => {
           confirm_box("Clear logs?", "Remove all logs?").then((e) => {
             if (e.button === 4 /* Yes */) {
-              var logs = Object.keys(this._logs);
-              for (var r = 0, rl = logs.length; r < rl; r++) {
+              let logs = Object.keys(this._logs);
+              for (let r = 0, rl = logs.length; r < rl; r++) {
                 localforage.removeItem("OoMUDLog" + logs[r]);
               }
               localforage.removeItem("OoMUDLogKeys").then(() => {
@@ -35406,13 +35405,13 @@ Devanagari
     if (typeof date === "string")
       date = parseInt(date, 10);
     date = new Date(date);
-    var hours = date.getHours();
-    var minutes = date.getMinutes();
-    var ampm = hours >= 12 ? "pm" : "am";
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? "pm" : "am";
     hours = hours % 12;
     hours = hours ? hours : 12;
     minutes = minutes < 10 ? "0" + minutes : minutes;
-    var strTime = hours + ":" + minutes + " " + ampm;
+    let strTime = hours + ":" + minutes + " " + ampm;
     return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear() + "  " + strTime;
   }
 
@@ -35473,7 +35472,7 @@ Devanagari
         }
       }, this);
       this.client.on("add-line", (data) => {
-        var res, c, cl;
+        let res, c, cl;
         if (!data || typeof data.raw == "undefined" || data.raw === null)
           return;
         if (data.fragment || this._captures.length === 0) return;
@@ -35696,7 +35695,7 @@ Devanagari
             this._captureReviews.push(new RegExp("^-=-=- ((?:(?!\\b(Say|Tell|End)\\b).)+) Review -=-=-$"));
         } else {
           const lines = this.client.getOption("chat.lines");
-          for (var l2 = 0, ll = lines.length; l2 < ll; l2++) {
+          for (let l2 = 0, ll = lines.length; l2 < ll; l2++) {
             if (lines[l2].trim().length === 0) continue;
             this._captures.push(new RegExp("\\[" + lines[l2].trim() + "\\](.*)", "i"));
             if (this.client.getOption("chat.captureReviews"))

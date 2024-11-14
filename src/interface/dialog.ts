@@ -329,7 +329,7 @@ export class Dialog extends EventEmitter {
                     this._dialog.backdrop_.className = 'backdrop';
                     this._dialog.backdrop_MouseEvent = function (e) {
                         if (!this.hasAttribute('tabindex')) {
-                            var fake = this._document.createElement('div');
+                            let fake = this._document.createElement('div');
                             this.insertBefore(fake, this.firstChild);
                             fake.tabIndex = -1;
                             fake.focus();
@@ -337,7 +337,7 @@ export class Dialog extends EventEmitter {
                         }
                         else
                             this.focus();
-                        var redirectedEvent = this._document.createEvent('MouseEvents');
+                        let redirectedEvent = this._document.createEvent('MouseEvents');
                         redirectedEvent.initMouseEvent(e.type, e.bubbles, e.cancelable, window,
                             e.detail, e.screenX, e.screenY, e.clientX, e.clientY, e.ctrlKey,
                             e.altKey, e.shiftKey, e.metaKey, e.button, e.relatedTarget);
@@ -543,19 +543,19 @@ export class Dialog extends EventEmitter {
 
         if (this.resizable) {
             this._dialog.classList.add('resizable');
-            var right = this._document.createElement("div");
+            let right = this._document.createElement("div");
             right.className = "resizer-right";
             this._dialog.appendChild(right);
             right.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Right) }, false);
             right.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Right) }, { passive: true });
 
-            var bottom = this._document.createElement("div");
+            let bottom = this._document.createElement("div");
             bottom.className = "resizer-bottom";
             this._dialog.appendChild(bottom);
             bottom.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Bottom) }, false);
             bottom.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Bottom) }, { passive: true });
 
-            var corner = this._document.createElement("div");
+            let corner = this._document.createElement("div");
             corner.className = "resizer-se";
             this._dialog.appendChild(corner);
             corner.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Right | ResizeType.Bottom) }, false);
@@ -579,13 +579,13 @@ export class Dialog extends EventEmitter {
             corner.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Left | ResizeType.Bottom) }, false);
             corner.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Left | ResizeType.Bottom) }, { passive: true });
 
-            var left = this._document.createElement("div");
+            let left = this._document.createElement("div");
             left.className = "resizer-left";
             this._dialog.appendChild(left);
             left.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Left) }, false);
             left.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Left) }, { passive: true });
 
-            var top = this._document.createElement("div");
+            let top = this._document.createElement("div");
             top.className = "resizer-top";
             this._dialog.appendChild(top);
             top.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Top) }, false);
@@ -676,9 +676,9 @@ export class Dialog extends EventEmitter {
         this._resize.type = type;
         this._resize.minHeight = parseInt(styles.minHeight, 10);
         this._resize.minWidth = parseInt(styles.minWidth, 10);
-        var rect = e.target.getBoundingClientRect();
-        var x = e.targetTouches[0].clientX - rect.x;
-        var y = e.targetTouches[0].clientY - rect.y;
+        let rect = e.target.getBoundingClientRect();
+        let x = e.targetTouches[0].clientX - rect.x;
+        let y = e.targetTouches[0].clientY - rect.y;
         this._resize.borderHeight = y + parseInt(styles.borderTopWidth);
         this._resize.borderWidth = x + parseInt(styles.borderLeftWidth);
         this._body.style.pointerEvents = 'none';
@@ -930,7 +930,7 @@ export class Dialog extends EventEmitter {
     }
 
     public makeVisible(full?, silent?) {
-        var rect = this._dialog.getBoundingClientRect();
+        let rect = this._dialog.getBoundingClientRect();
         if (full) {
             if (rect.right > this._window.innerWidth) {
                 this._state.x = this._window.innerWidth - this._state.width - 16;

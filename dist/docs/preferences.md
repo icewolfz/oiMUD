@@ -46,15 +46,15 @@ The navigation breadcrumb to allow easier jumping to other pages
 - `Echo commands` Will display commands as they are sent to the mud
 - `Enable colors` disable or enable all colors
 - `Enable background colors` disable or enable just background colors
-- `Enable flashing text` Enable ansi flashing/blinking text, when disabled flashing text appears as underlined text **note** this can cause a performance hit when enabled.
-- `Buffer size` How many lines to keep in the display before removing them, **note** the higher this is the more memory or slower things might get.
+- `Enable flashing text` Enable ansi flashing/blinking text, when disabled flashing text appears as underlined text **Note** this can cause a performance hit when enabled.
+- `Buffer size` How many lines to keep in the display before removing them, **Note** the higher this is the more memory or slower things might get.
 - `Enable URL detection` Attempt to detect urls and convert them into links that can be clicked to. **Note** Effects both chat and main display
 - `Focus to command input on click` Will auto focus to the command input when the display area is clicked.
 - `Word wrap` enable word wrap for long lines when possible
 - `Word wrap column` set a fixed text column to attempt to wrap when word wrap enabled, set to 0 to wrap based on window size
 - `Word wrap indent` amount of spaces to indent wrapped lines
 - `Show timestamp` display the timestamp for when line of text was added
-- `Timestamp format` the timestamp display format**Note** Supports all moment time formats
+- `Timestamp format` the timestamp display format **Note** Supports all moment time formats
 - `Tab width` How many spaces in a tab
 - `Show invalid MXP tags` display any MXP tags as normal text if they are not standard or custom elements **Note** Effects both chat and main display
 - `Display control codes` Display unreadable characters, code < 32 || 127 as visual characters
@@ -246,8 +246,8 @@ Controls what is captured into the chat window
 - `Show party's health` Show party health bars
 - `Show attacker's health` Show attacker health bars
 - `Show armor protection` Put limb display in armor protection mode
-- `Show lag meter` Whether to enable the lag meter, **note** this is not 100% correct always due to overhead variables that cant be controlled.
-- `Show lag in title` Display lag in title bar, **note** this is not 100% correct always due to overhead variables that cant be controlled.
+- `Show lag meter` Whether to enable the lag meter, **Note** this is not 100% correct always due to overhead variables that cant be controlled.
+- `Show lag in title` Display lag in title bar, **Note** this is not 100% correct always due to overhead variables that cant be controlled.
 - `Allow negative number for experience needed` causes the needed xp value in status display to allow to display negative when you have xp over required amt.
 - `Show Experience Needed as Progressbar` display the experience needed value as a progress bar
 

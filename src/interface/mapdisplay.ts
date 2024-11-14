@@ -44,11 +44,11 @@ export class MapDisplay extends EventEmitter {
 
     private _active: Room;
     private _selected: Room;
-    public _showLegend: boolean = false;
-    public _splitArea: boolean = false;
-    public _fillWalls: boolean = false;
-    public _enabled: boolean = true;
-    public _follow: boolean = true;
+    private _showLegend: boolean = false;
+    private _splitArea: boolean = false;
+    private _fillWalls: boolean = false;
+    private _enabled: boolean = true;
+    private _follow: boolean = true;
     public commandDelay: number = 500;
     public commandDelayCount: number = 5;
     private _scale: number = 1.0;
@@ -1813,9 +1813,9 @@ export class MapDisplay extends EventEmitter {
             if (room.y < y) y = room.y; else if (room.y > h) h = room.y;
         }
         this._context.font = 'italic bold 16pt Georgia';
-        var fx = this._context.measureText(t).width;
-        var rectWidth = Math.ceil(Math.sqrt(Math.pow(w - x, 2)) * 32 * scale + 60 + 32);
-        var rectHeight = Math.ceil(Math.sqrt(Math.pow(y - h, 2)) * 32 * scale + 60 + 32);
+        let fx = this._context.measureText(t).width;
+        let rectWidth = Math.ceil(Math.sqrt(Math.pow(w - x, 2)) * 32 * scale + 60 + 32);
+        let rectHeight = Math.ceil(Math.sqrt(Math.pow(y - h, 2)) * 32 * scale + 60 + 32);
         if (rectWidth < fx) rectWidth = fx + 60;
         if (this._showLegend) {
             rectWidth += 155;
@@ -1829,7 +1829,7 @@ export class MapDisplay extends EventEmitter {
         tempCanvas.height = rectHeight;
 
 
-        var ctx;
+        let ctx;
         if (tempCanvas && tempCanvas.getContext)
             ctx = tempCanvas.getContext('2d');
         else {
@@ -1871,7 +1871,7 @@ export class MapDisplay extends EventEmitter {
         this.DrawLegend(ctx, rectWidth - 185, -10, 1);
 
         tempCanvas.toBlob((blob) => {
-            var reader = new FileReader();
+            let reader = new FileReader();
             reader.addEventListener('loadend', (evt) => {
                 fileSaveAs.show(evt.target.result, this._splitArea && t.length ? ('OoMUD.' + t + '.png') : ('OoMUD.png'), 'image/png');
             });
@@ -1880,13 +1880,13 @@ export class MapDisplay extends EventEmitter {
     }
 
     public exportCurrentImage() {
-        var tempCanvas = this._document.createElement('canvas');
-        var context = tempCanvas.getContext('2d');
+        let tempCanvas = this._document.createElement('canvas');
+        let context = tempCanvas.getContext('2d');
         tempCanvas.width = this._canvas.width;
         tempCanvas.height = this._canvas.height;
         this.draw(tempCanvas, context, true).then(() => {
             tempCanvas.toBlob((blob) => {
-                var reader = new FileReader();
+                let reader = new FileReader();
                 reader.addEventListener('loadend', (evt) => {
                     fileSaveAs.show(evt.target.result, 'OoMUD.current.png', 'image/png');
                 });

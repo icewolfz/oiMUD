@@ -314,7 +314,7 @@ export class Telnet extends EventEmitter {
                 this.emit('debug', 'REPLY: <IAC><SB><TERMINALTYPE><IS>MTTS 9<IAC><SE>');
         }
         if (this._MTTS === 0) {
-            var tmp = new Uint8Array(6 + this.terminal.length);
+            let tmp = new Uint8Array(6 + this.terminal.length);
             tmp.set([255, 250, 24, 0], 0);
             tmp.set(StringToUint8Array(this.terminal), 4);
             tmp.set([255, 240], 4 + this.terminal.length);
@@ -1798,14 +1798,14 @@ export class Telnet extends EventEmitter {
             //data was received, process the data
             _socket.onmessage = (evt) => {
                 if (evt.data instanceof ArrayBuffer) {
-                    var data = new Uint8Array(evt.data);
+                    let data = new Uint8Array(evt.data);
                     if (this.enableDebug) this.emit('debug', 'Data ArrayBuffer received:' + printArray(data));
                     this.receivedData(data);
                 }
                 else if (evt.data instanceof Blob) {
-                    var reader = new FileReader();
+                    let reader = new FileReader();
                     reader.onloadend = () => {
-                        var data = new Uint8Array(<ArrayBuffer>reader.result);
+                        let data = new Uint8Array(<ArrayBuffer>reader.result);
                         this.receivedData(data);
                         if (this.enableDebug) this.emit('debug', 'Data Blob received:' + printArray(reader.result));
                     };

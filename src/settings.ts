@@ -363,7 +363,7 @@ export class Settings {
         let k;
         let kl;
         */
-        for (var s = 0, sl = SettingList.length; s < sl; s++) {
+        for (let s = 0, sl = SettingList.length; s < sl; s++) {
             if (SettingList[s][2] === SettingType.Custom) continue;
             this[SettingList[s][0]] = Settings.getValue(SettingList[s][0]);
             if (SettingList[s][1] && SettingList[s][1].length)
@@ -385,7 +385,7 @@ export class Settings {
     public static settingError = false;
 
     public static getValue(setting: string, defaultValue?: any) {
-        var tmp;
+        let tmp;
         if (Settings.settingError) {
             if (defaultValue === null || typeof defaultValue == 'undefined')
                 return Settings.defaultValue(setting);
@@ -758,14 +758,14 @@ export class Settings {
     }
 
     public save() {
-        for (var prop in this) {
+        for (let prop in this) {
             if (!this.hasOwnProperty(prop)) continue;
             Settings.setValue(prop, this[prop]);
         }
     }
 
     public reset() {
-        for (var s = 0, sl = SettingList.length; s < sl; s++) {
+        for (let s = 0, sl = SettingList.length; s < sl; s++) {
             if (SettingList[s][2] === SettingType.Custom) continue;
             this[SettingList[s][0]] = Settings.defaultValue(SettingList[s][0]);
         }

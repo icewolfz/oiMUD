@@ -337,7 +337,7 @@ export class AdvEditor extends EventEmitter {
             value = value.replace(/ /g, '&nbsp;');
             value = value.replace(/\t/g, '&nbsp;&nbsp;&nbsp;');
             value = value.replace(/(?:\r\n|\r|\n)/g, '<br/>');
-            var content = this.getText();
+            let content = this.getText();
             if (content === '\n') {
                 tinymce.activeEditor.undoManager.transact(() => {
                     tinymce.activeEditor.setContent(value);
@@ -367,11 +367,11 @@ export class AdvEditor extends EventEmitter {
     }
 
     private _loadColors() {
-        var _dColors = getColors();
-        var c, color, r, g, b, idx, _bold = [], bl;
+        let _dColors = getColors();
+        let c, color, r, g, b, idx, _bold = [], bl;
         this._ColorTable = [];
         this._colors = {};
-        var clientColors = client.getOption('colors') || [];
+        let clientColors = client.getOption('colors') || [];
         color = new RGBColor(clientColors[0] || _dColors[0]).toHex().substr(1).toUpperCase();
         this._colors[color] = 'BLACK';
         this._ColorTable.push(color, 'BLACK');
@@ -1038,7 +1038,7 @@ export class AdvEditor extends EventEmitter {
                     return;
                 if (c && $(this).hasClass('reverse'))
                     return;
-                var back, fore;
+                let back, fore;
                 if (c) {
                     back = $(this).css('color');
                     fore = $(this).css('background-color');
@@ -1064,7 +1064,7 @@ export class AdvEditor extends EventEmitter {
             function () {
                 if (c && $(this).hasClass('reverse'))
                     return;
-                var back, fore;
+                let back, fore;
                 if (c) {
                     back = $(this).css('color');
                     fore = $(this).css('background-color');
@@ -1090,7 +1090,7 @@ export class AdvEditor extends EventEmitter {
     }
 
     private _colorCell(color, idx) {
-        var cell = '<td class="mce-grid-cell' + (color === 'transparent' ? ' mce-colorbtn-trans' : '') + '">';
+        let cell = '<td class="mce-grid-cell' + (color === 'transparent' ? ' mce-colorbtn-trans' : '') + '">';
         cell += '<div id="' + idx + '"';
         cell += ' data-mce-color="' + color + '"';
         cell += ' role="option"';
@@ -1117,7 +1117,7 @@ export class AdvEditor extends EventEmitter {
             let g;
             let b;
             let idx;
-            var html = '<table style="margin : auto !important;" class="mce-grid mce-grid-border mce-colorbutton-grid" role="list" cellspacing="0"><tbody><tr>';
+            let html = '<table style="margin : auto !important;" class="mce-grid mce-grid-border mce-colorbutton-grid" role="list" cellspacing="0"><tbody><tr>';
             for (c = 0, cl = this._ColorTable.length; c < cl; c += 2) {
                 html += this._colorCell(this._ColorTable[c], this._ColorTable[c + 1]);
                 if (c / 2 % 6 === 5)
@@ -1126,7 +1126,7 @@ export class AdvEditor extends EventEmitter {
             html += '<td class="mce-grid-cell"></td>';
             html += this._colorCell('transparent', 'No color');
             html += '</tr><tr><td></td></tr>';
-            var html2 = '';
+            let html2 = '';
             for (r = 0; r < 6; r++) {
                 if (g < 3)
                     html += '<tr>';
@@ -1205,7 +1205,7 @@ export class AdvEditor extends EventEmitter {
 
     private _appendFile() {
         openFileDialog('Append file(s)', true).then(files => {
-            for (var f = 0, fl = files.length; f < fl; f++)
+            for (let f = 0, fl = files.length; f < fl; f++)
                 readFile(files[f]).then((contents: any) => {
                     this.insert(contents);
                 }).catch(client.error);
@@ -1229,10 +1229,10 @@ export class AdvEditor extends EventEmitter {
     }
 
     private _buildHTMLStack(els) {
-        var tag, $el, t, tl;
-        var stack = [];
-        var tags;
-        for (var e = 0, el = els.length; e < el; e++) {
+        let tag, $el, t, tl;
+        let stack = [];
+        let tags;
+        for (let e = 0, el = els.length; e < el; e++) {
             $el = $(els[e]);
             tag = $el.prop('tagName');
             if (tag === 'EM' || tag === 'I')
@@ -1307,12 +1307,12 @@ export class AdvEditor extends EventEmitter {
 
     public getFormattedSelection() {
         //build all previous nodes to ensure all formatting is captures
-        var nodes = tinymce.activeEditor.dom.getParents(tinymce.activeEditor.selection.getNode());
-        var n = 0, nl = nodes.length;
-        var start = '<html>';
-        var end = '</html>';
+        let nodes = tinymce.activeEditor.dom.getParents(tinymce.activeEditor.selection.getNode());
+        let n = 0, nl = nodes.length;
+        let start = '<html>';
+        let end = '</html>';
         for (; n < nl; n++) {
-            var tag = nodes[n].tagName;
+            let tag = nodes[n].tagName;
             if (tag === 'EM' || tag === 'I' || tag === 'STRONG' || tag === 'B') {
                 start += '<' + tag + '>';
                 end = '</' + tag + '>' + end;
@@ -1321,7 +1321,7 @@ export class AdvEditor extends EventEmitter {
                 start += '<' + tag;
                 if (nodes[n].className != '')
                     start += ' class="' + nodes[n].className + '"';
-                var style = '';
+                let style = '';
                 if (nodes[n].style.textDecoration != '')
                     style += 'text-decoration:' + nodes[n].style.textDecoration + ';';
                 if (nodes[n].style.color != '')
@@ -1373,10 +1373,10 @@ export class AdvEditor extends EventEmitter {
     }
 
     private _formatHtml(text) {
-        var data = this._buildHTMLStack(text);
-        var buffer = [];
-        var codes = [];
-        var color, d, dl, rgb;
+        let data = this._buildHTMLStack(text);
+        let buffer = [];
+        let codes = [];
+        let color, d, dl, rgb;
         if (DEBUG && client.getOption('enableDebug'))
             client.debug('Advanced Editor Get Raw HTML: ' + this.getRaw());
         for (d = data.length - 1; d >= 0; d--) {
@@ -1525,17 +1525,17 @@ export class AdvEditor extends EventEmitter {
     private _colorList = [];
 
     private _nearestHex(hex) {
-        var _editor = this;
+        let _editor = this;
         //https://codereview.stackexchange.com/questions/132225/given-hexadecimal-rgb-color-find-the-closest-predefined-color
-        var hexToRgb = function (hex) {
-            var shortRegEx = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+        let hexToRgb = function (hex) {
+            let shortRegEx = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
             //hex = hex.replace(shortRegEx, "$1$1$2$2$3$3");
             hex = hex.replace(shortRegEx, function (full, r, g, b) {
                 return [r, r, g, g, b, b].join();
             });
-            var longRegEx = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?/i;
-            var rgbArray = longRegEx.exec(hex);
-            var rgbObj = rgbArray ? {
+            let longRegEx = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?/i;
+            let rgbArray = longRegEx.exec(hex);
+            let rgbObj = rgbArray ? {
                 r: parseInt(rgbArray[1], 16),
                 g: parseInt(rgbArray[2], 16),
                 b: parseInt(rgbArray[3], 16)
@@ -1543,17 +1543,17 @@ export class AdvEditor extends EventEmitter {
             return rgbObj;
         };
 
-        var closestHexFromRgb = function (rgbObj) {
+        let closestHexFromRgb = function (rgbObj) {
             if (!rgbObj) {
                 throw new Error('The hex you provided is not formatted correctly. Please try in a format such as \'#FFF\' or \'#DDFFDD\'.');
             }
 
-            var minDistance = Number.MAX_SAFE_INTEGER;
-            var nearestHex = null;
+            let minDistance = Number.MAX_SAFE_INTEGER;
+            let nearestHex = null;
 
-            for (var i = 0; i < _editor._colorList.length; i++) {
-                var currentColor = _editor._colorList[i];
-                var distance = Math.sqrt(
+            for (let i = 0; i < _editor._colorList.length; i++) {
+                let currentColor = _editor._colorList[i];
+                let distance = Math.sqrt(
                     Math.pow((rgbObj.r - currentColor.rgb.r), 2) +
                     Math.pow((rgbObj.g - currentColor.rgb.g), 2) +
                     Math.pow((rgbObj.b - currentColor.rgb.b), 2)
@@ -1635,8 +1635,8 @@ export class AdvEditor extends EventEmitter {
                     e.content = e.content.replace(/background-color: #000000;/g, '');
                     e.content = e.content.replace(/ color: #BBBBBB;/g, '');
                     e.content = e.content.replace(/color: #BBBBBB;/g, '');
-                    var regex = /<pre(.*?)>((.|\s)*)<\/pre>/mgi;
-                    var m;
+                    let regex = /<pre(.*?)>((.|\s)*)<\/pre>/mgi;
+                    let m;
                     while ((m = regex.exec(e.content)) !== null) {
                         if (m.index === regex.lastIndex) {
                             regex.lastIndex++;

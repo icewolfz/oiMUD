@@ -184,7 +184,6 @@
     .line .du.o.s.u {
         text-decoration: underline overline line-through;
     }
-
 </style>
 <script type="text/javascript">
     function doLink(url) {
@@ -201,12 +200,12 @@
     }
 
     function doMXPSend(e, el, url, pmt, tt) {
-        var im = el.querySelector('img[ismap]');
-        var extra = '';
+        let im = el.querySelector('img[ismap]');
+        let extra = '';
         if (im && im.length > 0) {
-            var offset = im.offset();
-            var x = Math.floor(e.clientX - offset.left);
-            var y = Math.floor(e.clientY - offset.top);
+            let offset = im.offset();
+            let x = Math.floor(e.clientX - offset.left);
+            let y = Math.floor(e.clientY - offset.top);
             extra = '?' + x + ',' + y;
         }
 

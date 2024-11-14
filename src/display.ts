@@ -1074,15 +1074,15 @@ export class Display extends EventEmitter {
     }
 
     get selectionAsHTML(): string {
-        var range;
+        let range;
         if (this._window.getSelection) {
-            var selection = this._window.getSelection();
+            let selection = this._window.getSelection();
             if (selection.rangeCount > 0) {
                 range = selection.getRangeAt(0);
                 if (!this._view.contains(range.startContainer) && !this._view.contains(range.endContainer))
                     return '';
-                var clonedSelection = range.cloneContents();
-                var div = this._document.createElement('div');
+                let clonedSelection = range.cloneContents();
+                let div = this._document.createElement('div');
                 div.appendChild(clonedSelection);
                 return div.innerHTML;
             }

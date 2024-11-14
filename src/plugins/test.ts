@@ -893,7 +893,7 @@ Devanagari
         this.functions['testunicodeemoji'] = () => {
             let sample = '';
             //https://apps.timwhitlock.info/emoji/tables/unicode
-            var emojiRange = [
+            let emojiRange = [
                 [0x1F601, 0x1F64F],//Emoticons ( 1F601 - 1F64F ) 
                 [0x2702, 0x27B0], //Dingbats ( 2702 - 27B0 ) 
                 [0x1F680, 0x1F6C0], //Transport and map symbols ( 1F680 - 1F6C0 ) 
@@ -902,10 +902,10 @@ Devanagari
                 [0x1F681, 0x1F6C5], //Additional transport and map symbols ( 1F681 - 1F6C5 ) 
                 [0x1F30D, 0x1F567] //Other additional symbols ( 1F30D - 1F567 ) 
             ];
-            var n = 0;
-            for (var i = 0; i < emojiRange.length; i++) {
-                var range = emojiRange[i];
-                for (var x = range[0]; x < range[1]; x++) {
+            let n = 0;
+            for (let i = 0; i < emojiRange.length; i++) {
+                let range = emojiRange[i];
+                for (let x = range[0]; x < range[1]; x++) {
                     sample += String.fromCodePoint(x);
                     n++;
                     if (n == 36) {

@@ -16,7 +16,7 @@ export class Contextmenu extends EventEmitter {
     private _createMenu() {
         if (!this._menu) {
             let menu: any = `<ul id="${this._id}" class="dropdown-menu show">`;
-            for (var i = 0, il = this._items.length; i < il; i++) {
+            for (let i = 0, il = this._items.length; i < il; i++) {
                 menu += `<li><a class="dropdown-item" data-index="${i}" href="#">${this._items[i].name}</a></li>`;
             }
             menu += '</ul>';

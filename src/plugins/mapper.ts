@@ -823,7 +823,7 @@ export class Mapper extends Plugin {
                 e.cancelBubble = true;
             });
             let h = '';
-            for (var i = 0; i < m; i++)
+            for (let i = 0; i < m; i++)
                 h += `<option value="${this._map.Areas[i].replace(/"/g, '&quot;')}">${this._map.Areas[i]}</option>`;
             area.innerHTML = h;
             document.getElementById('mapper-room-area').innerHTML = h;
@@ -871,11 +871,11 @@ export class Mapper extends Plugin {
                     roomArea.innerHTML = '';
                 }
                 else {
-                    for (var i = area.length - 1; i >= 0; i--) {
+                    for (let i = area.length - 1; i >= 0; i--) {
                         if (areas.indexOf(area.options[i].value) !== -1)
                             area.remove(i);
                     }
-                    for (var i = roomArea.length - 1; i >= 0; i--) {
+                    for (let i = roomArea.length - 1; i >= 0; i--) {
                         if (areas.indexOf(roomArea.options[i].value) !== -1)
                             roomArea.remove(i);
                     }

@@ -17,56 +17,58 @@ export class HelpDialog extends Dialog {
     private _lastSelected;
     private _history = [];
     private _current = 0;
+    private _client;
 
     constructor() {
         super(Object.assign({}, client.getOption('windows.help') || { center: true }, { title: '<ol class="float-start breadcrumb"><li class="breadcrumb-icon"><i class="bi bi-question-circle" style="margin-right: 2px;"></i></li><li class="breadcrumb-item active">Help</li></ol>', minWidth: 410, noFooter: true }));
+        this._client = client;
         this.on('resized', e => {
             this._updateSmall(e.width);
             debounce(() => {
                 this._splitter.panel1.parentElement.style.top = toolbar.offsetHeight + 'px';
             }, 25, 'mapper-resize');
-            client.setOption('windows.help', e);
+            this._client.setOption('windows.help', e);
         });
-        client.on('options-loaded', () => {
-            this.resetState(client.getOption('windows.help') || { center: true });
+        this._client.on('options-loaded', () => {
+            this.resetState(this._client.getOption('windows.help') || { center: true });
         });
         this.on('closed', () => {
-            client.setOption('windows.help', this.windowState);
+            this._client.setOption('windows.help', this.windowState);
             this._setContents('');
             removeHash(this._page);
             delete this._md;
             this._md = null;
         });
         this.on('canceled', () => {
-            client.setOption('windows.help', this.windowState);
+            this._client.setOption('windows.help', this.windowState);
             removeHash(this._page);
             delete this._md;
             this._md = null;
         });
         this.on('moved', e => {
             this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
-            client.setOption('windows.help', e);
+            this._client.setOption('windows.help', e);
         })
         this.on('maximized', () => {
-            client.setOption('windows.help', this.windowState);
+            this._client.setOption('windows.help', this.windowState);
         });
         this.on('restored', () => {
             this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
-            client.setOption('windows.help', this.windowState);
+            this._client.setOption('windows.help', this.windowState);
             this._splitter.panel1.parentElement.style.top = toolbar.offsetHeight + 'px';
         });
         this.on('shown', () => {
             this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
-            client.setOption('windows.help', this.windowState);
+            this._client.setOption('windows.help', this.windowState);
             this._splitter.panel1.parentElement.style.top = toolbar.offsetHeight + 'px';
         });
 
         this.body.style.padding = '10px';
         this._splitter = new Splitter({ id: 'help', parent: this.body, orientation: Orientation.vertical, anchor: PanelAnchor.panel1 });
-        if (client.getOption('help.split') >= 200)
-            this._splitter.SplitterDistance = client.getOption('help.split');
+        if (this._client.getOption('help.split') >= 200)
+            this._splitter.SplitterDistance = this._client.getOption('help.split');
         this._splitter.on('splitter-moved', distance => {
-            client.setOption('help.split', distance);
+            this._client.setOption('help.split', distance);
         });
         this._menu = this._splitter.panel1;
         this._menu.style.overflow = 'hidden';
@@ -78,14 +80,14 @@ export class HelpDialog extends Dialog {
                 this.focus();
                 closeDropdowns();
             }
-            var script = this._contents.contentWindow.document.createElement('script');
+            let script = this._contents.contentWindow.document.createElement('script');
             script.addEventListener('load', () => {
                 this._md = this._contents.contentWindow.markdownit({ html: true, typographer: true });
-                var old_render = this._md.renderer.rules.link_open || function (tokens, idx, options, env, self) {
+                let old_render = this._md.renderer.rules.link_open || function (tokens, idx, options, env, self) {
                     return self.renderToken(tokens, idx, options);
                 };
                 this._md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
-                    var ref = tokens[idx].attrGet('href');
+                    let ref = tokens[idx].attrGet('href');
                     if (ref) {
                         if (ref.startsWith('https:') || ref.startsWith('http:') || ref.startsWith('mailto:'))
                             tokens[idx].attrPush(['target', '_blank']);
@@ -171,6 +173,7 @@ export class HelpDialog extends Dialog {
             el.style.height = '';
         });
         this._splitter.panel1.parentElement.style.top = toolbar.offsetHeight + 'px';
+        this._splitter.panel2Collapsed = location.hash.indexOf('help-') === -1;
         this._buildMenu();
     }
 
@@ -339,15 +342,15 @@ export class HelpDialog extends Dialog {
                         this._updateHistory(e.currentTarget.dataset.id);
                 });
             }
-            var ops = ['<option value="">Table of contents</option>'];
-            for (var i = 0; i < data.length; i++) {
+            let ops = ['<option value="">Table of contents</option>'];
+            for (let i = 0; i < data.length; i++) {
                 ops.push('<option value="', data[i].id, '">', data[i].text, '</option>');
                 if (data[i].nodes && data[i].nodes.length)
-                    for (var c = 0; c < data[i].nodes.length; c++)
+                    for (let c = 0; c < data[i].nodes.length; c++)
                         ops.push('<option value="', data[i].nodes[c].id, '">&nbsp;&nbsp;&nbsp;&nbsp;', data[i].nodes[c].text, '</option>');
             }
             this.body.querySelector('#help-jump-menu').innerHTML = ops.join('');
-        }).fail(err => client.error(err));
+        }).fail(err => this._client.error(err));
     }
 
     private _updateButtons() {

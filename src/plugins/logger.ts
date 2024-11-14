@@ -246,7 +246,7 @@ export class Logger extends Plugin {
         if (this._keyPromise) return;
         this._keyPromise = localforage.getItem('OoMUDLogKeys').then(value => {
             if (!this._keyQueue.length) return;
-            var _keys;
+            let _keys;
             if (!value)
                 _keys = {};
             else
@@ -425,8 +425,8 @@ class LogManager extends Dialog {
             this.footer.querySelector(`#${this.id}-clear`).addEventListener('click', () => {
                 confirm_box('Clear logs?', 'Remove all logs?').then(e => {
                     if (e.button === DialogButtons.Yes) {
-                        var logs = Object.keys(this._logs);
-                        for (var r = 0, rl = logs.length; r < rl; r++) {
+                        let logs = Object.keys(this._logs);
+                        for (let r = 0, rl = logs.length; r < rl; r++) {
                             localforage.removeItem('OoMUDLog' + logs[r]);
                         }
                         localforage.removeItem('OoMUDLogKeys').then(() => {
@@ -609,12 +609,12 @@ function formatDate(date) {
     if (typeof date === 'string')
         date = parseInt(date, 10);
     date = new Date(date);
-    var hours = date.getHours();
-    var minutes = date.getMinutes();
-    var ampm = hours >= 12 ? 'pm' : 'am';
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? 'pm' : 'am';
     hours = hours % 12;
     hours = hours ? hours : 12; // the hour '0' should be '12'
     minutes = minutes < 10 ? '0' + minutes : minutes;
-    var strTime = hours + ':' + minutes + ' ' + ampm;
+    let strTime = hours + ':' + minutes + ' ' + ampm;
     return date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear() + '  ' + strTime;
 }

@@ -92,7 +92,7 @@ export class Map extends EventEmitter {
         if (Array.isArray(value)) {
             const or = value;
             const rooms = {};
-            for (var r = 0, rl = or.length; r < rl; r++)
+            for (let r = 0, rl = or.length; r < rl; r++)
                 rooms[or[r].num] = or[r];
             this._rooms = rooms;
         }

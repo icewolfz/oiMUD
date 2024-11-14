@@ -73,11 +73,11 @@ export function initMenu() {
         closeMenu();
     });    
     document.querySelector('#menu-fullscreen a').addEventListener('click', e => {
-        var doc: any = window.document;
-        var docEl: any = doc.documentElement;
+        let doc: any = window.document;
+        let docEl: any = doc.documentElement;
 
-        var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-        var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+        let requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+        let cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
         let el = document.getElementById('menu-fullscreen');
         let icon = document.querySelector('#menu-fullscreen svg') || document.querySelector('#menu-fullscreen i');
         let text = document.querySelector('#menu-fullscreen a span');

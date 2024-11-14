@@ -819,3 +819,110 @@
 #status-simple-lagMeter {
   opacity: 0.8;
 }
+
+#filter-skills {
+  width: auto;
+  left: 26px;
+  top: 2px;
+  right: 56px;
+  position: absolute;
+}
+
+.skills,
+.skills * {
+  -webkit-touch-callout: auto !important;
+  -webkit-user-select: auto !important;
+  -khtml-user-select: auto !important;
+  -moz-user-select: auto !important;
+  -ms-user-select: auto !important;
+  user-select: auto !important;
+}
+
+.skills {
+  overflow: auto;
+  background-color: black;
+  font-family: Consolas, Monaco, Lucida Console, Liberation Mono,
+    DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
+  font-size: 16px;
+  color: rgb(187, 187, 187);
+  position: absolute;
+  padding: 10px;
+}
+
+.label {
+  display: inline-block;
+  text-align: left;
+  margin-right: 15px;
+  color: rgb(187, 187, 187);
+  font-weight: normal;
+  font-size: 100%;
+}
+
+.skill {
+  display: inline-block;
+  text-align: left;
+  width: 145px;
+  margin-right: 5px;
+}
+
+.amount {
+  display: inline-block;
+  width: 30px;
+  text-align: right;
+  margin-right: 5px;
+}
+
+.bonus {
+  display: inline-block;
+  width: 50px;
+  text-align: right;
+  color: white;
+  margin-right: 5px;
+}
+
+.bonus::before {
+  content: "(";
+  color: rgb(187, 187, 187);
+  float: left;
+}
+
+.bonus::after {
+  content: ")";
+  color: rgb(187, 187, 187);
+}
+
+.percent {
+  display: inline-block;
+  text-align: right;
+  margin-right: 5px;
+}
+
+.percent::before {
+  content: "(";
+  color: rgb(0, 128, 128);
+  float: left;
+}
+
+.percent::after {
+  content: ")";
+  color: rgb(0, 128, 128);
+}
+
+.category {
+  width: 100%;
+}
+
+.category-title {
+  width: 100%;
+  border-bottom: 1px solid;
+  color: white;
+  text-align: center;
+}
+
+.maxed {
+  color: rgb(128, 0, 0);
+}
+
+.neg {
+  color: rgb(255, 0, 0);
+}

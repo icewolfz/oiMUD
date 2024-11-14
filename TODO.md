@@ -31,7 +31,6 @@
 ```
 
 - status plugin
-    - create skills dialog
     - add way to reset status width
 - fix hidden windows
 - Add settings to reset windows states to defaults

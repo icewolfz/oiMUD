@@ -33981,8 +33981,16 @@ Devanagari
       this.client.telnet.GMCPSupports.push("oMUD 1", "Char 1", "Char.Vitals 1", "Char.Experience 1", "Char.Skills 1");
       this.client.on("received-GMCP", this.processGMCP, this);
       this.client.on("window", (window2, args, name2) => {
+        if (window2 === "skills") {
+          if (args === "close") {
+            if (this._skillsDialog) this._skillsDialog.close();
+          } else
+            this.showSkills();
+        }
       });
       this.client.on("close-window", (window2) => {
+        if (window2 === "skills" && this._skillsDialog)
+          this._skillsDialog.close();
       });
       this._lagMeter = document.getElementById("lagMeter");
       this.client.telnet.on("latency-changed", (lag, avg) => {
@@ -34065,11 +34073,11 @@ Devanagari
         if (client.getOption("showStatus")) {
           button.title = "Hide status";
           button.classList.add("active");
-          document.querySelector("#menu-status a span").textContent = "Hide status";
+          document.querySelector("#menu-status a span").textContent = " Hide status";
         } else {
           button.title = "Show status";
           button.classList.remove("active");
-          document.querySelector("#menu-status a span").textContent = "Show status";
+          document.querySelector("#menu-status a span").textContent = " Show status";
         }
       });
       this._status.querySelector("#health").addEventListener("click", () => {
@@ -34109,6 +34117,9 @@ Devanagari
       this._updateSplitter();
       this.updateInterface();
       this.init();
+      let options = client.getOption("windows.skills");
+      if (options && options.show)
+        this.showSkills();
     }
     get menu() {
       return [
@@ -34120,7 +34131,7 @@ Devanagari
         },
         {
           id: "status",
-          name: this.client.getOption("showStatus") ? "Hide status" : "Show status",
+          name: this.client.getOption("showStatus") ? " Hide status" : " Show status",
           active: this.client.getOption("showStatus"),
           action: (e) => {
             this.client.setOption("showStatus", !this.client.getOption("showStatus"));
@@ -34129,15 +34140,21 @@ Devanagari
             if (client.getOption("showStatus")) {
               button.title = "Hide status";
               button.classList.add("active");
-              document.querySelector("#menu-status a span").textContent = "Hide status";
+              document.querySelector("#menu-status a span").textContent = " Hide status";
             } else {
               button.title = "Show status";
               button.classList.remove("active");
-              document.querySelector("#menu-status a span").textContent = "Show status";
+              document.querySelector("#menu-status a span").textContent = " Show status";
             }
           },
-          icon: '<i class="fa-solid fa-heart"></i>',
+          icon: '<i class="bi bi-heart-pulse-fill"></i>',
           position: 6
+        },
+        {
+          name: " Show skills",
+          action: () => this.showSkills(),
+          icon: '<i class="bi bi-graph-up"></i>',
+          position: "#menu-status"
         }
       ];
     }
@@ -34145,7 +34162,7 @@ Devanagari
       return [{
         name: " Status",
         action: "settings-status",
-        icon: '<i class="fa-solid fa-heart"></i>',
+        icon: '<i class="bi bi-heart-pulse-fill"></i>',
         position: 7
       }];
     }
@@ -34273,6 +34290,7 @@ Devanagari
                 this._info["skills"][obj.skill].bonus = obj.bonus || 0;
                 this._info["skills"][obj.skill].category = obj.category;
               }
+              this._updateSkill(obj.skill, this._info["skills"][obj.skill]);
               this.emit("skill updated", obj.skill, this._info["skills"][obj.skill]);
             }
             break;
@@ -34431,6 +34449,7 @@ Devanagari
       document.getElementById("party").classList.remove("hasmembers");
       this.updateOverall();
       this.updateStatus();
+      this._resetSkills();
       this.emit("skill init");
     }
     _clear(id) {
@@ -34810,6 +34829,187 @@ Devanagari
       else if (limb === "lefthoof")
         limb = "leftfoot";
       this._infoLimb[limb] = health;
+    }
+    showSkills() {
+      if (!this._skillsDialog) {
+        this._skillsDialog = new Dialog(Object.assign({}, client.getOption("windows.skills") || { center: true }, { title: '<i class="bi bi-graph-up"></i><select id="filter-skills" class="form-select form-select-sm me-2 mb-1" title="Filter skills"><option value="All">All</option></select>', id: "win-skills", noFooter: true, minHeight: 350 }));
+        this._skillsDialog.body.classList.add("skills");
+        this._skillsDialog.on("resized", (e) => {
+          this.client.setOption("windows.skills", e);
+        });
+        this._skillsDialog.on("moved", (e) => {
+          this.client.setOption("windows.skills", e);
+        });
+        this._skillsDialog.on("maximized", () => {
+          this.client.setOption("windows.skills", this._skillsDialog.windowState);
+        });
+        this._skillsDialog.on("restored", () => {
+          this.client.setOption("windows.skills", this._skillsDialog.windowState);
+        });
+        this._skillsDialog.on("shown", () => {
+          this.client.setOption("windows.skills", this._skillsDialog.windowState);
+        });
+        this._skillsDialog.on("closing", () => {
+        });
+        this._skillsDialog.on("closed", () => {
+          this.client.setOption("windows.skills", this._skillsDialog.windowState);
+          removeHash("skills");
+        });
+        this._skillsDialog.on("canceled", () => {
+          this.client.setOption("windows.skills", this._skillsDialog.windowState);
+          removeHash("skills");
+        });
+        const filter = this._skillsDialog.header.querySelector("#filter-skills");
+        filter.addEventListener("change", (e) => {
+          const cats = this._skillsDialog.body.querySelectorAll(".category");
+          const selected = this._skillsDialog.header.querySelector("#filter-skills option:checked").textContent;
+          if (selected === "All")
+            cats.forEach((cat) => cat.style.display = "");
+          else {
+            cats.forEach((cat) => cat.style.display = "none");
+            this._skillsDialog.body.querySelector(`#${selected.toLowerCase()}`).style.display = "";
+          }
+        });
+        filter.addEventListener("mouseup", (e) => {
+          e.stopPropagation();
+          e.cancelBubble = true;
+        });
+        filter.addEventListener("touchstart", (e) => {
+          e.stopPropagation();
+          e.cancelBubble = true;
+        }, { passive: true });
+        filter.addEventListener("mousedown", (e) => {
+          e.stopPropagation();
+          e.cancelBubble = true;
+        });
+      }
+      this._loadSkills();
+      this._skillsDialog.show();
+    }
+    _loadSkills() {
+      const _skills = this._info["skills"];
+      let cats = {};
+      let cnt = 0;
+      let keys = Object.keys(_skills).sort();
+      for (let key in keys) {
+        let skill = keys[key];
+        if (!Object.prototype.hasOwnProperty.call(_skills, skill))
+          continue;
+        if (!cats[_skills[skill].category || "default"])
+          cats[_skills[skill].category || "default"] = this._createLabel(skill);
+        else
+          cats[_skills[skill].category || "default"] += this._createLabel(skill);
+        cnt++;
+        ;
+      }
+      var body = "";
+      if (cnt > 0) {
+        this._skillCategories = Object.keys(cats).sort();
+        let opts = "";
+        for (let key in this._skillCategories) {
+          let cat = this._skillCategories[key];
+          opts += `<option value="${capitalize(cat)}">${capitalize(cat)}</option>`;
+          if (cats[cat].length === 0 || !Object.prototype.hasOwnProperty.call(cats, cat))
+            continue;
+          body += '<div class="category" id="' + cat.toLowerCase() + '">';
+          if (cnt > 1 || cat != "default")
+            body += '<div class="category-title">' + capitalize(cat) + "</div>";
+          body += '<div class="category-body" id="' + cat + 'Body">' + cats[cat] + "</div></div>";
+        }
+        this._skillsDialog.header.querySelector("#filter-skills").insertAdjacentHTML("beforeend", opts);
+      } else {
+        this._skillCategories = [];
+        body = body += '<div class="category" id="default">No skills</div>';
+      }
+      this._skillsDialog.body.innerHTML = body;
+    }
+    _updateSkill(skill, data) {
+      if (!this._skillsDialog) return;
+      let _el = this._skillsDialog.body.querySelector(`#${this._sanitizeID(skill)}.label`);
+      if (!_el) {
+        _el = this._skillsDialog.body.querySelector(`#${data.category || "default"}Body`);
+        var found = 0;
+        var nodes;
+        if (!_el) {
+          var cat = capitalize(data.category || "default");
+          this._skillCategories.push(cat.toLowerCase());
+          let body = '<div class="category" id="' + cat.toLowerCase() + '">';
+          body += '<div class="category-title">' + cat + "</div>";
+          body += '<div class="category-body" id="' + (data.category || "default") + 'Body">' + this._createLabel(skill) + "</div></div>";
+          nodes = this._skillsDialog.body.querySelectorAll(".category");
+          for (var n = 0, nl = nodes.length; n < nl; n++) {
+            if (nodes[n].children[0].textContent < cat)
+              continue;
+            nodes[n].insertAdjacentHTML("beforebegin", body);
+            found = 1;
+            break;
+          }
+          if (!found)
+            this._skillsDialog.body.insertAdjacentHTML("beforeend", body);
+          this._updateFilter();
+        } else {
+          nodes = this._skillsDialog.body.querySelector(`#${data.category || "default"}Body`).children;
+          found = 0;
+          for (var n = 0, nl = nodes.length; n < nl; n++) {
+            if (nodes[n].getAttribute("title") < skill)
+              continue;
+            nodes[n].insertAdjacentHTML("beforebegin", this._createLabel(skill));
+            found = 1;
+            break;
+          }
+          if (!found)
+            _el.insertAdjacentHTML("beforeend", this._createLabel(skill));
+        }
+      } else {
+        this._skillsDialog.body.querySelector(`#${this._sanitizeID(skill)}Amount`).innerHTML = data.amount;
+        if (data.bonus > 0)
+          this._skillsDialog.body.querySelector(`#${this._sanitizeID(skill)}Bonus`).innerHTML = "+" + data.bonus;
+        else if (data.bonus < 0)
+          this._skillsDialog.body.querySelector(`#${this._sanitizeID(skill)}Bonus`).innerHTML = '<span class="neg">-' + data.bonus + "</span>";
+        else
+          this._skillsDialog.body.querySelector(`#${this._sanitizeID(skill)}Bonus`).innerHTML = data.bonus;
+        if (data.percent === 100)
+          this._skillsDialog.body.querySelector(`#${this._sanitizeID(skill)}Percent`).innerHTML = '<span class="maxed">MAX!</span>';
+        else
+          this._skillsDialog.body.querySelector(`#${this._sanitizeID(skill)}Percent`).innerHTML = data.percent + "%";
+      }
+    }
+    _updateFilter() {
+      const filter = this._skillsDialog.header.querySelector("#filter-skills");
+      let val = filter.value;
+      filter.innerHTML = '<option value="All">All</option>';
+      this._skillCategories.sort();
+      let opts = "";
+      for (let key in this._skillCategories)
+        opts += `<option value="${capitalize(this._skillCategories[key])}">${capitalize(this._skillCategories[key])}</option>`;
+      filter.insertAdjacentHTML("beforeend", opts);
+      filter.value = val;
+    }
+    _resetSkills() {
+      if (!this._skillsDialog) return;
+      this._skillsDialog.body.innerHTML = "";
+      const filter = this._skillsDialog.header.querySelector("#filter-skills");
+      filter.innerHTML = '<option value="All" selected>All</option>';
+      this._skillCategories = [];
+    }
+    _createLabel(skill) {
+      const data = this._info["skills"][skill];
+      const id = this._sanitizeID(skill);
+      let label = '<div title="' + skill + '" class="label" id="' + id + '">';
+      label += '<div class="skill" id="' + id + 'Label">' + id + "</div>";
+      label += '<div class="amount" id="' + id + 'Amount">' + data.amount + "</div>";
+      if (data.bonus > 0)
+        label += '<div class="bonus" id="' + id + 'Bonus">+' + data.bonus + "</div>";
+      else if (data.bonus < 0)
+        label += '<div class="bonus" id="' + id + 'Bonus"><span class="neg">-' + data.bonus + "</span></div>";
+      else
+        label += '<div class="bonus" id="' + id + 'Bonus">' + data.bonus + "</div>";
+      if (data.percent === 100)
+        label += '<div class="percent" id="' + id + 'Percent"><span class="maxed">MAX!</span></div>';
+      else
+        label += '<div class="percent" id="' + id + 'Percent">' + data.percent + "%</div>";
+      label += "</div>";
+      return label;
     }
   };
 

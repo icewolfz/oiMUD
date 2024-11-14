@@ -324,6 +324,7 @@ export class HelpDialog extends Dialog {
             url: 'docs/menu.json',
             cache: false,
             type: 'GET',
+            dataType: "json",
         }).done(data => {
             this._menuData = data;
             let nav = '';
@@ -337,7 +338,7 @@ export class HelpDialog extends Dialog {
                     this._updateHistory(e.currentTarget.dataset.id);
                 });
             }
-            var ops = [];
+            var ops = ['<option value="">Table of contents</option>'];
             for (var i = 0; i < data.length; i++) {
                 ops.push('<option value="', data[i].id, '">', data[i].text, '</option>');
                 if (data[i].nodes && data[i].nodes.length)
@@ -380,7 +381,7 @@ export class HelpDialog extends Dialog {
     }
 
     private _updateSmall(width) {
-        if(!this.header.querySelector('.breadcrumb')) {
+        if (!this.header.querySelector('.breadcrumb')) {
             setTimeout(() => {
                 this._updateSmall(width);
             }, 10);

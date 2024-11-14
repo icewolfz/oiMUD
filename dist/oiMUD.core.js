@@ -31670,7 +31670,8 @@ Devanagari
       $.ajax({
         url: "docs/menu.json",
         cache: false,
-        type: "GET"
+        type: "GET",
+        dataType: "json"
       }).done((data) => {
         this._menuData = data;
         let nav = "";
@@ -31684,7 +31685,7 @@ Devanagari
             this._updateHistory(e.currentTarget.dataset.id);
           });
         }
-        var ops = [];
+        var ops = ['<option value="">Table of contents</option>'];
         for (var i2 = 0; i2 < data.length; i2++) {
           ops.push('<option value="', data[i2].id, '">', data[i2].text, "</option>");
           if (data[i2].nodes && data[i2].nodes.length)

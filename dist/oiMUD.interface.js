@@ -8442,7 +8442,8 @@
       $.ajax({
         url: "docs/menu.json",
         cache: false,
-        type: "GET"
+        type: "GET",
+        dataType: "json"
       }).done((data) => {
         this._menuData = data;
         let nav = "";
@@ -8456,7 +8457,7 @@
             this._updateHistory(e.currentTarget.dataset.id);
           });
         }
-        var ops = [];
+        var ops = ['<option value="">Table of contents</option>'];
         for (var i = 0; i < data.length; i++) {
           ops.push('<option value="', data[i].id, '">', data[i].text, "</option>");
           if (data[i].nodes && data[i].nodes.length)

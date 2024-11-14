@@ -23,7 +23,7 @@ Install or download Typescript: https://www.typescriptlang.org/download/
 
 1. `git clone https://github.com/icewolfz/oiMUD.git` or `git pull` if already ready cloned, or you can download and unzip the source archive
 1. `npm install` install all required modules, if already installed and do not need to update this skip can be skipped
-1. `nmp run build:all` Build all required files and create them in dist folder
+1. `nmp run build` Builds bungled debug and release version for client
 
 ### Advanced build options
 
@@ -31,11 +31,10 @@ For more advanced control you can run the build script directly using  node buil
 
 #### Build script arguments
 
-1. `-d,--debug,-debug` Build just debug version
-1. `-r,--release,-release` Build just release version
+1. `-d,--debug,-debug` Build just debug version, requires core, interface, or bungled
+1. `-r,--release,-release` Build just release version, requires core, interface, or bungled
 1. `-a,--all,-all` Build all scripts and css
-1. `-b,--bundled,-bundled` Build just final bundle
-1. `-c,--css,-css` Build css files
+1. `-b,--bundled,-bundled` Build just bundled interface and core
 1. `-core,--core` Build just core version of scripts skipping any interface related code
 1. `-i,--interface,-interface` Build just interface code and only adding minimum required core code
 1. `-te,--tinymce,-tinymce` Build tinymce content css file

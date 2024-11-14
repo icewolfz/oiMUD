@@ -18,9 +18,10 @@
   "private": true,
   "scripts": {
     "tslint": "tsc -p . --listEmittedFiles  --noEmit",
+    "build": "node build.js --debug --release --test --bundled --tinymce",
     "build:all": "node build.js -a --test",
-    "build:all-debug": "node build.js -a -d",
-    "build:css-debug": "node build.js -css -d"
+    "build:debug": "node build.js --debug --test --bundled --tinymce",
+    "build:release": "node build.js --release --test --bundled --tinymce"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.32",

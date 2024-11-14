@@ -36684,7 +36684,6 @@ Devanagari
       this.disconnectTime = 0;
       this.lastSendTime = 0;
       this.defaultTitle = "oiMUD";
-      this.errored = false;
       window.client = this;
       window.oiMUD = this;
       this._plugins = [];
@@ -36801,10 +36800,7 @@ Devanagari
             this.error(msg.join(", "));
         } else
           this.error("Unknown telnet error.");
-        if (this.getOption("autoConnect") && !this._telnet.connected)
-          setTimeout(() => {
-            this.connect();
-          }, client.getOption("autoConnectDelay"));
+        this.autoConnect();
         this.emit("reconnect");
       });
       this.telnet.on("connecting", () => {
@@ -36817,6 +36813,10 @@ Devanagari
         this.connectTime = Date.now();
         this.disconnectTime = 0;
         this.lastSendTime = Date.now();
+        if (this._autoConnectID) {
+          clearTimeout(this._autoConnectID);
+          this._autoConnectID = null;
+        }
         this.emit("connected");
         this.raise("connected");
       });
@@ -36954,10 +36954,7 @@ Devanagari
       this.addPlugin(new Chat(this));
       if (true)
         this.addPlugin(new Test(this));
-      if (this.getOption("autoConnect"))
-        setTimeout(() => {
-          this.connect();
-        }, client.getOption("autoConnectDelay"));
+      this.autoConnect();
       this.emit("initialized");
     }
     //#endregion
@@ -37877,7 +37874,6 @@ Devanagari
       this.telnet.close();
     }
     connect() {
-      this.errored = false;
       this.emit("connecting");
       this.display.ClearMXP();
       this.display.ResetMXPLine();
@@ -37943,6 +37939,13 @@ Devanagari
     }
     toggle() {
       this.emit("toggle");
+    }
+    autoConnect() {
+      if (!this._autoConnectID && this.getOption("autoConnect") && !this._telnet.connected)
+        this._autoConnectID = setTimeout(() => {
+          this.connect();
+          this._autoConnectID = null;
+        }, this.getOption("autoConnectDelay"));
     }
   };
   window.Client = Client;

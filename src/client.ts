@@ -82,6 +82,7 @@ export class Client extends EventEmitter {
     private _variables = {};
     private _plugins: Plugin[];
     private _options: any = {};
+    private _autoConnectID;
     //#endregion
     //#region Public properties
     public active: boolean = true;
@@ -91,7 +92,6 @@ export class Client extends EventEmitter {
     public disconnectTime: number = 0;
     public lastSendTime: number = 0;
     public defaultTitle = 'oiMUD';
-    public errored: boolean = false;
     //#endregion
     //#region Public setter/getters
     public get telnet(): Telnet { return this._telnet; }
@@ -986,8 +986,7 @@ export class Client extends EventEmitter {
             }
             else
                 this.error('Unknown telnet error.');
-            if (this.getOption('autoConnect') && !this._telnet.connected)
-                setTimeout(() => { this.connect(); }, client.getOption('autoConnectDelay'));
+            this.autoConnect();
             this.emit('reconnect');
         });
         this.telnet.on('connecting', () => {
@@ -1000,6 +999,10 @@ export class Client extends EventEmitter {
             this.connectTime = Date.now();
             this.disconnectTime = 0;
             this.lastSendTime = Date.now();
+            if (this._autoConnectID) {
+                clearTimeout(this._autoConnectID);
+                this._autoConnectID = null;
+            }
             this.emit('connected');
             this.raise('connected');
         });
@@ -1146,8 +1149,7 @@ export class Client extends EventEmitter {
         this.addPlugin(new Chat(this));
         if (DEBUG || TEST)
             this.addPlugin(new Test(this));
-        if (this.getOption('autoConnect'))
-            setTimeout(() => { this.connect(); }, client.getOption('autoConnectDelay'));
+        this.autoConnect();
         this.emit('initialized');
     }
 
@@ -1410,7 +1412,6 @@ export class Client extends EventEmitter {
     }
 
     public connect() {
-        this.errored = false;
         this.emit('connecting');
         this.display.ClearMXP();
         this.display.ResetMXPLine();
@@ -1488,6 +1489,11 @@ export class Client extends EventEmitter {
 
     public toggle() {
         this.emit('toggle');
+    }
+
+    public autoConnect() {
+        if (!this._autoConnectID && this.getOption('autoConnect') && !this._telnet.connected)
+            this._autoConnectID = setTimeout(() => { this.connect(); this._autoConnectID = null; }, this.getOption('autoConnectDelay'));
     }
 }
 window.Client = Client;

@@ -172,11 +172,11 @@ a.disabled-link:hover {
     top: 0px !important;
   }
 
-  .dialog[data-panel="right"] #mapper-toolbar,
-  .dialog[data-panel="right"] > .dialog-header {
+  #win-mapper.dialog[data-panel="right"] #mapper-toolbar,
+  #win-mapper.dialog[data-panel="right"] > .dialog-header {
     display: none;
   }
-  .dialog[data-panel="right"] > .dialog-body {
+  #win-mapper.dialog[data-panel="right"] > .dialog-body {
     top: 0px;
   }
 
@@ -184,7 +184,7 @@ a.disabled-link:hover {
 
 #mapper-room-accordion {
   position: absolute;
-  top: 35px;
+  top: 34px;
   left: 0;
   right: 0;
   bottom: 0;

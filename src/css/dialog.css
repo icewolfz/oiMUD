@@ -81,7 +81,7 @@ dialog {
   left: 0;
   right: 0;
   bottom: 41px;
-  top: 35px;
+  top: 34px;
   position: absolute;
   background-color: white;
   overflow: auto;
@@ -370,7 +370,7 @@ div.dialog {
 
 .settings-menu {
   left: 0;
-  top: 35px;
+  top: 34px;
   bottom: 41px;
   width: 200px;
   right: auto;

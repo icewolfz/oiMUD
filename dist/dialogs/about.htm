@@ -16,22 +16,6 @@
     <button id="error-clear" type="button" class="btn btn-light" title="Clear error log">Clear</button>
   </div>
 </div>
-<br>
-<div class="card">
-  <div class="card-header">
-    Change log
-  </div>
-  <div class="card-body">
-    <ul class="list-group list-group-flush">
-      <li class="list-group-item">
-        v1.0.0
-        <ul>
-          <li>Initial release, recode of the original oiMUD <a href="http://shadowmud.com" target="_blank">ShadowMUD</a> mobile client</li>
-        </ul>
-      </li>
-    </ul>
-  </div>
-</div>
 <script>
   body.querySelector('#about-version').textContent = 'v' + client.version;
   body.querySelector('#error-view').addEventListener('click', () => {

@@ -50,6 +50,7 @@
         </div>
     </div>
 </div>
+
 <div class="form-check form-switch">
     <input type="checkbox" class="form-check-input" id="skipMore">
     <label class="form-check-label" for="skipMore">Skip more prompt</label>
@@ -62,7 +63,13 @@
         <span class="input-group-text">ms</span>
     </div>
 </div>
-
+<div class="mb-3">
+    <label for="mapper.importType" class="form-label">Mapper backup import type</label>
+    <select id="mapper.importType" class="form-select">
+        <option value="0">Merge</option>
+        <option value="1">Replace</option>
+    </select>
+</div>
 <div class="form-check form-switch">
     <input type="checkbox" class="form-check-input" id="externalHelp">
     <label class="form-check-label" for="externalHelp">Open ShadowMUD help in new window</label>

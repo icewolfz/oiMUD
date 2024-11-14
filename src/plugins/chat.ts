@@ -5,7 +5,7 @@ import { Dialog } from '../interface/dialog';
 import { removeHash } from '../interface/interface';
 import { Display } from '../display';
 import { Logger } from './logger';
-import { debounce, copy } from '../library';
+import { debounce } from '../library';
 
 declare let localforage;
 

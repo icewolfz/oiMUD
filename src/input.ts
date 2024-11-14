@@ -2962,6 +2962,29 @@ export class Input extends EventEmitter {
                 else
                     this.client.raise(args[0], args.slice(1));
                 return null;
+            case 'cl':
+            case 'close':
+                if ((this.client.getOption('echo') & 4) === 4)
+                    this.client.echo(raw, -3, -4, true, true);
+                if (this.client.getOption('parseDoubleQuotes'))
+                    args.forEach((a) => {
+                        return a.replace(/^\"(.*)\"$/g, (v, e, w) => {
+                            return e.replace(/\\\"/g, '"');
+                        });
+                    });
+                if (this.client.getOption('parseSingleQuotes'))
+                    args.forEach((a) => {
+                        return a.replace(/^\'(.*)\'$/g, (v, e, w) => {
+                            return e.replace(/\\\'/g, '\'');
+                        });
+                    });
+                if (args.length > 2)
+                    throw new Error('Invalid syntax use ' + cmdChar + '\x1b[4mcl\x1b[0;-11;-12mose');
+                else if (args.length === 0)
+                    (<any>this.client).closeWindow();
+                else
+                    (<any>this.client).closeWindow(this.stripQuotes(this.parseInline(args[0])));
+                return null;
             case 'window':
             case 'win':
                 if ((this.client.getOption('echo') & 4) === 4)
@@ -7738,7 +7761,7 @@ export class Input extends EventEmitter {
     public ProcessMacros(keycode, alt, ctrl, shift, meta) {
         if (!keycode || (keycode > 9 && keycode < 19)) return false;
         //not loaded yet so cant process so just bail
-        if(!this.client.profiles) return false;
+        if (!this.client.profiles) return false;
         //if(!this.client.getOption('enableMacros')) return false;
         //Possible cache by modifier but  not sure if it it matters as there is a limit of 1 macro per key combo so at most there probably wont be more then 5 to maybe 20 macros per key
         //const macros = this._MacroCache[`${keycode}_${mod}`] || (this._MacroCache[`${keycode}_${mod}`] = FilterArrayByKeyValue(FilterArrayByKeyValue(this.client.macros, 'key', keycode), 'modifiers', mod));

@@ -199,7 +199,7 @@ dialog {
   left: 0;
   right: 0;
   bottom: 41px;
-  top: 35px;
+  top: 34px;
   position: absolute;
   background-color: white;
   overflow: auto;
@@ -445,7 +445,7 @@ div.dialog {
 }
 .settings-menu {
   left: 0;
-  top: 35px;
+  top: 34px;
   bottom: 41px;
   width: 200px;
   right: auto;
@@ -711,17 +711,17 @@ a.disabled-link:hover {
   .dialog[data-panel=right] #mapper-splitter {
     top: 0px !important;
   }
-  .dialog[data-panel=right] #mapper-toolbar,
-  .dialog[data-panel=right] > .dialog-header {
+  #win-mapper.dialog[data-panel=right] #mapper-toolbar,
+  #win-mapper.dialog[data-panel=right] > .dialog-header {
     display: none;
   }
-  .dialog[data-panel=right] > .dialog-body {
+  #win-mapper.dialog[data-panel=right] > .dialog-body {
     top: 0px;
   }
 }
 #mapper-room-accordion {
   position: absolute;
-  top: 35px;
+  top: 34px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -1084,7 +1084,7 @@ div.offcanvas-body ul li hr {
 }
 .mce-container-body .mce-edit-area {
   position: absolute;
-  top: 35px;
+  top: 34px;
   bottom: 0;
   left: 0;
   right: 0;
@@ -2258,6 +2258,65 @@ li.submenu.dropstart > a.dropdown-toggle::after {
 .splitter.horizontal .spitter-drag-bar {
   border-top: 1px solid rgb(221, 221, 221);
   border-bottom: 1px solid rgb(221, 221, 221);
+}
+
+/* src/css/help.css */
+#help-toolbar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  border-bottom: 1px solid #fff;
+  box-shadow: inset 0 -1px 0 #ddd;
+  padding-bottom: 4px;
+}
+#help-toolbar button {
+  min-width: 26px;
+}
+#help-jump-menu {
+  position: absolute;
+  right: 12px;
+  left: 108px;
+  width: auto;
+}
+#help-display {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+#help-menu > .nav-item {
+  width: 100%;
+}
+#help-menu a.nav-link .form-switch {
+  display: none;
+}
+#help-menu .list-badge-button {
+  display: none;
+}
+#help-menu li:hover {
+}
+#help-history-menu {
+  overflow: auto;
+}
+@media (orientation: landscape) and (max-width: 641px), (orientation: landscape) and (max-height: 480px), (orientation: portrait) and (max-width: 480px), (orientation: portrait) and (max-height: 641px) {
+  .dialog[data-panel=left] #help-menu .dropdown-menu {
+    display: none;
+  }
+  .dialog[data-panel=left] #help-menu a.nav-link i {
+    display: none;
+  }
+  .dialog[data-panel=left] #help-menu a.nav-link .form-switch {
+    display: block;
+  }
+  .dialog[data-panel=left] #help-menu a.nav-link span {
+    display: none;
+  }
+  .dialog[data-panel=left] #help-menu .list-badge-button,
+  .dialog[data-panel=left] #help-menu .list-badge-button i {
+    display: inline-block !important;
+  }
 }
 
 /* src/css/status.css */

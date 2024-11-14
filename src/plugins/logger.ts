@@ -3,7 +3,7 @@ import { Plugin } from '../plugin';
 import { MenuItem } from '../types';
 import { Dialog, DialogButtons } from '../interface/dialog';
 import { Splitter, Orientation, PanelAnchor } from "../interface/splitter";
-import { removeHash, updateHash } from "../interface/interface";
+import { removeHash, updateHash, closeDropdowns } from "../interface/interface";
 import { capitalize, scrollChildIntoView } from '../library';
 import { buildBreadcrumb } from "../interface/breadcrumb";
 
@@ -97,11 +97,10 @@ export class Logger extends Plugin {
                         removeHash('logs');
                     }
                     else {
-                        if (!this._manager)
-                            this._manager = new LogManager();
+                        this._createManager();
                         this._manager.dialog.dataset.path = window;
-                        this._manager.show();
                         this._manager.setBody(window);
+                        this._manager.show();
                         //updateHash('logs');
                     }
                     break;
@@ -124,8 +123,7 @@ export class Logger extends Plugin {
         });
         let options = this.client.getOption('windows.log-viewer')
         if (options && options.show) {
-            if (!this._manager)
-                this._manager = new LogManager();
+            this._createManager();
             updateHash('logs');
         }
     }
@@ -146,10 +144,8 @@ export class Logger extends Plugin {
             icon: '<i class="fas fa-list"></i>',
             position: '#menu-profiles',
             action: () => {
-                if (!this._manager)
-                    this._manager = new LogManager();
-                //this._manager.show();
-                updateHash('logs');
+                this._createManager();
+                location.hash = 'logs';
             }
         }];
     }
@@ -158,8 +154,19 @@ export class Logger extends Plugin {
             name: ' Logging',
             action: 'settings-logging',
             icon: '<i class="far fa-file-alt"></i>',
-            position: 2
+            position: 'a[href="#settings-tabCompletion"]'
         }]
+    }
+
+    private _createManager() {
+        if (this._manager) return;
+        this._manager = new LogManager();
+        this._manager.on('closed', () => {
+            this._manager = null;
+        });
+        this._manager.on('canceled', () => {
+            this._manager = null;
+        });
     }
 
     private _post(data) {
@@ -293,10 +300,12 @@ class LogManager extends Dialog {
     private _page = 'logs';
     private _logs;
     private _current;
+    private _small: boolean = false;
 
     constructor() {
         super(Object.assign({}, client.getOption('windows.log-viewer') || { center: true }, { title: '<i class="fas fa-list"></i> Log viewer', minWidth: 410 }));
         this.on('resized', e => {
+            this._updateSmall(e.width);
             client.setOption('windows.log-viewer', e);
         });
         this.on('closed', () => {
@@ -308,15 +317,18 @@ class LogManager extends Dialog {
             removeHash(this._page);
         });
         this.on('moved', e => {
+            this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
             client.setOption('windows.log-viewer', e);
         })
         this.on('maximized', () => {
             client.setOption('windows.log-viewer', this.windowState);
         });
         this.on('restored', () => {
+            this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
             client.setOption('windows.log-viewer', this.windowState);
         });
         this.on('shown', () => {
+            this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
             client.setOption('windows.log-viewer', this.windowState);
         });
         this.body.style.padding = '10px';
@@ -330,7 +342,14 @@ class LogManager extends Dialog {
         this._menu.style.overflow = 'hidden';
         this._menu.style.overflowY = 'auto';
         this._contents = document.createElement('iframe');
+        this._contents.src = 'about:blank';
         this._contents.classList.add('viewer');
+        this._contents.addEventListener('load', () => {
+            this._contents.contentWindow.document.body.onclick = () => {
+                this.focus();
+                closeDropdowns();
+            }
+        });
         this._splitter.panel2.append(this._contents);
         this._splitter.panel2.style.overflow = 'auto';
         this._splitter.panel2.style.padding = '0';
@@ -380,14 +399,17 @@ class LogManager extends Dialog {
             this.dialog.dataset.panel = 'right';
         const pages = this._page.split('/');
         this._current = pages[pages.length - 1];
-        this.title = buildBreadcrumb(pages, false, '/', (item, index, last) => {
-            if (index === last) {
-                if (this._logs[item] && !item.endsWith('.txt') && !item.endsWith('.raw') && !item.endsWith('.htm'))
-                    return `${formatDate(item)}${this._logs[item].character ? ', ' + this._logs[item].character : ''}>`;
-                else if (this._logs[item] && this._logs[item].timeStamp)
-                    return `${formatDate(this._logs[item].timeStamp)}${this._logs[item].character ? ', ' + this._logs[item].character : ''}, ${item.substring(item.length - 3, item.length)}${this._logs[item].prefix ? ', ' + this._logs[item].prefix : ''}${this._logs[item].postfix ? ', ' + this._logs[item].postfix : ''}`;
-            }
-            return capitalize(item);
+        this.title = buildBreadcrumb(pages, {
+            small: this._small,
+            sep: '/', formatter: (item, index, last) => {
+                if (index === last) {
+                    if (this._logs[item] && !item.endsWith('.txt') && !item.endsWith('.raw') && !item.endsWith('.htm'))
+                        return `${formatDate(item)}${this._logs[item].character ? ', ' + this._logs[item].character : ''}>`;
+                    else if (this._logs[item] && this._logs[item].timeStamp)
+                        return `${formatDate(this._logs[item].timeStamp)}${this._logs[item].character ? ', ' + this._logs[item].character : ''}, ${item.substring(item.length - 3, item.length)}${this._logs[item].prefix ? ', ' + this._logs[item].prefix : ''}${this._logs[item].postfix ? ', ' + this._logs[item].postfix : ''}`;
+                }
+                return capitalize(item);
+            }, icon: '<i class="fas fa-list" style="margin-right: 2px;"></i>'
         })
         let items = this._menu.querySelectorAll('a.active');
         items.forEach(item => item.classList.remove('active'));
@@ -442,11 +464,14 @@ class LogManager extends Dialog {
     }
 
     private _setContents(contents) {
-        this._contents.contentWindow.document.open();
-        this._contents.contentWindow.document.write(contents);
-        this._contents.contentWindow.document.close();
-        this._contents.contentWindow.document.body.scrollTop = 0;
-        this._contents.contentWindow.document.body.scrollLeft = 0;
+        if (!this._contents.contentWindow) {
+            setTimeout(() => {
+                this._setContents(contents);
+            }, 10);
+            return;
+        }
+        this._contents.contentWindow.document.body.innerHTML = contents;
+        this._contents.contentWindow.scroll(0, 0);
         this.emit('content-changed');
     }
 
@@ -558,6 +583,25 @@ class LogManager extends Dialog {
                 fileSaveAs.show(value || '', `oiMUD.${log}.html`, 'text/plain');
         });
 
+    }
+    private _updateSmall(width) {
+        if(!this.header.querySelector('.breadcrumb')) {
+            setTimeout(() => {
+                this._updateSmall(width);
+            }, 10);
+            return;
+        }
+        if (width < 430) {
+            if (this._small) return;
+            const item = this.header.querySelector('.breadcrumb');
+            item.classList.add('breadcrumb-sm');
+            this._small = true;
+        }
+        else if (this._small) {
+            const item = this.header.querySelector('.breadcrumb');
+            item.classList.remove('breadcrumb-sm');
+            this._small = false;
+        }
     }
 }
 

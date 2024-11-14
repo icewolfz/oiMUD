@@ -139,7 +139,7 @@ export class SettingsDialog extends Dialog {
         super.setBody(this.dialog.dataset.path === 'settings' ? menuTemplate : contents, args);
         this._page = this.dialog.dataset.path;
         const pages = this._page.split('-');
-        this.title = buildBreadcrumb(pages);
+        this.title = buildBreadcrumb(pages, { icon: '<i class="float-start fas fa-cogs" style="padding: 2px;margin-right: 2px;"></i>' });
         if (this._menu) {
             let items = this._menu.querySelectorAll('a.active');
             items.forEach(item => item.classList.remove('active'));

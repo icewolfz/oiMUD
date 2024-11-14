@@ -1,0 +1,126 @@
+[
+    {
+        "text": "Home",
+        "id": "README"
+    },
+    {
+        "text": "Changelog",
+        "id": "changelog"
+    },
+    {
+        "text": "Frequently asked questions",
+        "id": "faq"
+    },
+    {
+        "text": "User Interface",
+        "id": "interface"
+    },
+    {
+        "text": "Profiles",
+        "id": "profiles"
+    },
+    {
+        "text": "Speedpaths",
+        "id": "speedpaths"
+    },
+    {
+        "text": "Commands",
+        "id": "commands",
+        "nodes": [
+            {
+                "text": "#nnn",
+                "id": "commands/nnn"
+            },
+            {
+                "text": "#ALARM",
+                "id": "commands/ALARM"
+            },
+            {
+                "text": "#ALIAS",
+                "id": "commands/ALIAS"
+            },
+            {
+                "text": "#BEEP",
+                "id": "commands/BEEP"
+            },
+            {
+                "text": "#ECHO",
+                "id": "commands/ECHO"
+            },
+            {
+                "text": "#ECHOPROMPT",
+                "id": "commands/ECHOPROMPT"
+            },
+            {
+                "text": "#PROMPT",
+                "id": "commands/PROMPT"
+            },
+            {
+                "text": "#SAY",
+                "id": "commands/SAY"
+            },
+            {
+                "text": "#SAYPROMPT",
+                "id": "commands/SAYPROMPT"
+            },
+            {
+                "text": "#SETMAP",
+                "id": "commands/SETMAP"
+            },
+            {
+                "text": "#SHOW",
+                "id": "commands/SHOW"
+            },
+            {
+                "text": "#SHOWPROMPT",
+                "id": "commands/SHOWPROMPT"
+            },
+            {
+                "text": "#UNALIAS",
+                "id": "commands/UNALIAS"
+            },
+            {
+                "text": "#VERSION",
+                "id": "commands/VERSION"
+            },
+            {
+                "text": "#WAIT",
+                "id": "commands/WAIT"
+            }
+        ]
+    },
+    {
+        "text": "Functions",
+        "id": "functions",
+        "nodes": [
+            {
+                "text": "color",
+                "id": "functions/color"
+            },
+            {
+                "text": "fileprompt",
+                "id": "functions/fileprompt"
+            },
+            {
+                "text": "prompt",
+                "id": "functions/prompt"
+            },
+            {
+                "text": "time",
+                "id": "functions/time"
+            }
+        ]
+    },
+    {
+        "text": "Preferences",
+        "id": "preferences"
+    },
+    {
+        "text": "Scripting",
+        "id": "scripting"
+    },
+    {
+        "text": "Mapper",
+        "id": "mapper"
+    }
+]

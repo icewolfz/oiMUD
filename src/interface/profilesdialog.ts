@@ -51,19 +51,9 @@ export class ProfilesDialog extends Dialog {
     public get contents() { return this._contents; }
 
     constructor() {
-        super(Object.assign({}, client.getOption('windows.profiles') || { center: true }, { title: 'i class="fas fa-users"></i> Profiles', minWidth: 410 }));
+        super(Object.assign({}, client.getOption('windows.profiles') || { center: true }, { title: '<i class="fas fa-users"></i> Profiles', minWidth: 410 }));
         this.on('resized', e => {
-            if (e.width < 430) {
-                if (this._small) return;
-                const item = this.header.querySelector('.breadcrumb');
-                item.classList.add('breadcrumb-sm');
-                this._small = true;
-            }
-            else if (this._small) {
-                const item = this.header.querySelector('.breadcrumb');
-                item.classList.remove('breadcrumb-sm');
-                this._small = false;
-            }
+            this._updateSmall(e.width);
             client.setOption('windows.profiles', e);
         })
         client.on('profiles-loaded', () => {
@@ -164,15 +154,18 @@ export class ProfilesDialog extends Dialog {
             removeHash(this._page);
         });
         this.on('moved', e => {
+            this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
             client.setOption('windows.profiles', e);
         })
         this.on('maximized', () => {
             client.setOption('windows.profiles', this.windowState);
         });
         this.on('restored', () => {
+            this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
             client.setOption('windows.profiles', this.windowState);
         });
         this.on('shown', () => {
+            this._updateSmall(this.dialog.offsetWidth || this.dialog.clientWidth);
             client.setOption('windows.profiles', this.windowState);
         });
         this.footer.querySelector(`#${this.id}-add-profile a`).addEventListener('click', () => {
@@ -389,7 +382,7 @@ export class ProfilesDialog extends Dialog {
             });
     }
 
-    public _profile(profile) {
+    private _profile(profile) {
         let nav = `<li class="nav-item" data-profile="${profile}" title="${capitalize(profile)}" id="${this._sanitizeID(profile)}">`;
         nav += `<a class="nav-link text-dark" href="#profiles/${encodeURIComponent(profile)}">`;
         if (profile !== 'default')
@@ -425,7 +418,7 @@ export class ProfilesDialog extends Dialog {
         return nav;
     }
 
-    public _item(title, id, enabled) {
+    private _item(title, id, enabled) {
         return `<span><input type="checkbox" data-page="profiles/${title.toLowerCase()}" class="form-check-input" id="${this._sanitizeID(id)}"${enabled ? ' checked' : ''}> ${title}</span><div class="form-check form-switch"><input type="checkbox" class="form-check-input" id="${id}-switch"${enabled ? ' checked' : ''}> ${title}</div>`;
     }
 
@@ -461,15 +454,15 @@ export class ProfilesDialog extends Dialog {
         this.footer.querySelector(`#${this.id}-export-current`).style.display = '';
         this._contents.scrollTop = 0;
         if (!this._setCurrent(pages)) {
-            this.title = buildBreadcrumb(pages, true, '/');
+            this.title = buildBreadcrumb(pages, { small: this._small, sep: '/', icon: '<i class="fas fa-users" style="padding: 2px;margin-right: 2px;"></i>' });
             return;
         }
         if (pages.length === 4)
-            this.title = buildBreadcrumb(pages, true, '/', (item, index, last) => index === last ? htmlEncode(GetDisplay(this._current.item)) : capitalize(item));
+            this.title = buildBreadcrumb(pages, { small: this._small, sep: '/', formatter: (item, index, last) => index === last ? htmlEncode(GetDisplay(this._current.item)) : capitalize(item), icon: '<i class="fas fa-users" style="padding: 2px;margin-right: 2px;"></i>' });
         else if (pages.length === 5)
-            this.title = buildBreadcrumb(pages, true, '/', (item, index, last) => index === last ? htmlEncode(GetDisplay(this._current.parent)) : index === last - 1 ? htmlEncode(GetDisplay(this._current.item)) : capitalize(item));
+            this.title = buildBreadcrumb(pages, { small: this._small, sep: '/', formatter: (item, index, last) => index === last ? htmlEncode(GetDisplay(this._current.parent)) : index === last - 1 ? htmlEncode(GetDisplay(this._current.item)) : capitalize(item), icon: '<i class="fas fa-users" style="padding: 2px;margin-right: 2px;"></i>' });
         else
-            this.title = buildBreadcrumb(pages, true, '/');
+            this.title = buildBreadcrumb(pages, { small: this._small, sep: '/', icon: '<i class="fas fa-users" style="padding: 2px;margin-right: 2px;"></i>' });
         if (pages.length < 2) {
             this.footer.querySelector(`#${this.id}-export-current`).style.display = 'none';
             this.footer.querySelector(`#${this.id}-add-sep`).style.display = 'none';
@@ -1236,6 +1229,26 @@ export class ProfilesDialog extends Dialog {
                 return '' + value;
         }
         return value;
+    }
+
+    private _updateSmall(width) {
+        if (!this.header.querySelector('.breadcrumb')) {
+            setTimeout(() => {
+                this._updateSmall(width);
+            }, 10);
+            return;
+        }
+        if (width < 430) {
+            if (this._small) return;
+            const item = this.header.querySelector('.breadcrumb');
+            item.classList.add('breadcrumb-sm');
+            this._small = true;
+        }
+        else if (this._small) {
+            const item = this.header.querySelector('.breadcrumb');
+            item.classList.remove('breadcrumb-sm');
+            this._small = false;
+        }
     }
 }
 

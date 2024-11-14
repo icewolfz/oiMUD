@@ -597,6 +597,16 @@ export function updateHash(add: string | string[], remove?: string | string[]) {
     window.location.hash = hashes.join(',');
 }
 
+export function hashContains(string) {
+    if (!string || !string.length) return false;
+    return decodeURI(window.location.hash.substring(1)).split(',').map(s => s.trim()).indexOf(string) !== -1;
+}
+
+export function hashStartsWith(string) {
+    if (!string || !string.length) return false;
+    return decodeURI(window.location.hash.substring(1)).split(',').map(s => s.startsWith(string)).length !== 0;
+}
+
 function hashChange() {
     if (!window.location.hash || window.location.hash.length < 2) return;
     var dialogs = decodeURI(window.location.hash.substring(1)).split(',').map(s => s.trim());
@@ -609,7 +619,7 @@ function hashChange() {
                 document.getElementById('btn-adv-editor').click();
                 break;
             default:
-                if (dialogs[d] === 'history' || dialogs[d].startsWith('settings') || dialogs[d].startsWith('profiles'))
+                if (dialogs[d] === 'history' || dialogs[d].startsWith('settings') || dialogs[d].startsWith('profiles') || dialogs[d].startsWith('help'))
                     showDialog(dialogs[d]);
                 else
                     client.emit('window', dialogs[d]);
@@ -622,7 +632,7 @@ export function showDialog(name: string) {
     switch (name) {
         case 'about':
             if (!_dialogs.about) {
-                _dialogs.about = new Dialog(({ title: '<i class="bi-info-circle"></i> About', noFooter: true, resizable: false, center: true, maximizable: false }));
+                _dialogs.about = new Dialog(({ title: '<i class="bi-info-circle"></i> About', width: 350, height: 400, noFooter: true, resizable: false, center: true, maximizable: false }));
                 _dialogs.about.on('closed', () => {
                     delete _dialogs.about;
                     removeHash(name);
@@ -854,10 +864,19 @@ export function showDialog(name: string) {
                 delete _dialogs.help;
             });
         }
+        if (name !== window.location.hash.substring(1)) {
+            let hashes = decodeURI(window.location.hash.substring(1)).split(',').map(s => s.trim());
+            for (let h = 0, hl = hashes.length; h < hl; h++) {
+                if (hashes[h].startsWith('help')) {
+                    name = hashes[h];
+                    break;
+                }
+            }
+        }
         _dialogs.help.dialog.dataset.path = name;
         _dialogs.help.dialog.dataset.fullPath = name;
         _dialogs.help.dialog.dataset.hash = window.location.hash;
-        _dialogs.help.setBody('', { client: client });
+        _dialogs.help.setBody('', true);
         _dialogs.help.show();
         return _dialogs.help;
     }
@@ -865,7 +884,7 @@ export function showDialog(name: string) {
 
 export function loadDialog(dialog: Dialog, path, show?, showError?) {
     return new Promise((resolve, reject) => {
-        var subpath = path.split('/');
+        let subpath = path.split('/');
         $.ajax({
             url: 'dialogs/' + subpath[0] + '.htm',
             cache: false,
@@ -908,9 +927,9 @@ function _loadHistory() {
     const list: HTMLSelectElement = document.getElementById('history-list') as HTMLSelectElement;
     list.innerHTML = '';
     let history = client.commandHistory;
-    var fragment = document.createDocumentFragment();
-    for (var i = 0, l = history.length; i < l; i++) {
-        var opt = document.createElement('option');
+    let fragment = document.createDocumentFragment();
+    for (let i = 0, l = history.length; i < l; i++) {
+        let opt = document.createElement('option');
         opt.appendChild(document.createTextNode(history[i]));
         opt.value = history[i];
         fragment.append(opt);
@@ -1065,6 +1084,26 @@ function createButton(button, index) {
             caption = '<i class="fab fa-' + caption[0].substring(4) + ' fa-fw"></i>';
         bh = 26;
     }
+    else if (caption.substring(0, 4) === 'fal-') {
+        caption = caption.split(',');
+        if (caption.length > 1)
+            caption = '<i class="fal fa-' + caption[0].substring(4) + ' fa-fw" data-fa-transform="' + caption[1] + '"></i>';
+        else
+            caption = '<i class="fal fa-' + caption[0].substring(4) + ' fa-fw"></i>';
+        bh = 26;
+    }
+    else if (caption.substring(0, 4) === 'fat-') {
+        caption = caption.split(',');
+        if (caption.length > 1)
+            caption = '<i class="fat fa-' + caption[0].substring(4) + ' fa-fw" data-fa-transform="' + caption[1] + '"></i>';
+        else
+            caption = '<i class="fat fa-' + caption[0].substring(4) + ' fa-fw"></i>';
+        bh = 26;
+    }
+    else if (caption.substring(0, 3) === 'bi-') {
+        caption = '<i class="bi ' + caption + '"></i>';
+        bh = 26;
+    }
     else if (caption.substring(0, 7) === 'http://' || caption.substring(0, 7) === 'https://')
         caption = '<img src="' + caption + '" style="max-width: ' + button.width + 'px;max-height:' + button.height + 'px"/>';
     else {
@@ -1104,6 +1143,26 @@ function createButton(button, index) {
                 icon = '<i class="fab fa-' + icon[0].substring(4) + ' fa-fw" data-fa-transform="' + icon[1] + '"></i>';
             else
                 icon = '<i class="fab fa-' + icon[0].substring(4) + ' fa-fw"></i>';
+            bh = 26;
+        }
+        else if (icon.substring(0, 4) === 'fal-') {
+            icon = icon.split(',');
+            if (icon.length > 1)
+                icon = '<i class="fal fa-' + icon[0].substring(4) + ' fa-fw" data-fa-transform="' + icon[1] + '"></i>';
+            else
+                icon = '<i class="fal fa-' + icon[0].substring(4) + ' fa-fw"></i>';
+            bh = 26;
+        }
+        else if (icon.substring(0, 4) === 'falt-') {
+            icon = icon.split(',');
+            if (icon.length > 1)
+                icon = '<i class="fat fa-' + icon[0].substring(4) + ' fa-fw" data-fa-transform="' + icon[1] + '"></i>';
+            else
+                icon = '<i class="fat fa-' + icon[0].substring(4) + ' fa-fw"></i>';
+            bh = 26;
+        }
+        else if (icon.substring(0, 3) === 'bi-') {
+            icon = '<i class="bi ' + icon[0] + '"></i>';
             bh = 26;
         }
         else if (button.icon.length) {
@@ -1324,6 +1383,14 @@ function dragButton(elmnt) {
         clearTimeout(delay);
         client.saveProfiles();
     }
+}
+
+export function closeDropdowns() {
+    document.querySelectorAll('.dropdown-menu.show,.dropdown-toggle.show').forEach(d => {
+        d.classList.remove('show');
+        if (d.ariaExpanded === 'true')
+            d.ariaExpanded = 'false';
+    });
 }
 
 window.initializeInterface = initializeInterface;

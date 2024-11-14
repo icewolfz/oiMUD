@@ -828,8 +828,8 @@ export class Dialog extends EventEmitter {
     */
 
     private get _size() {
-        let w = this.dialog.offsetWidth || this._dialog.clientWidth;
-        let h = this.dialog.offsetHeight || this._dialog.clientHeight;
+        let w = this._dialog.offsetWidth || this._dialog.clientWidth;
+        let h = this._dialog.offsetHeight || this._dialog.clientHeight;
         if (!w || !h) {
             const styles = this._window.getComputedStyle(this._dialog);
             w = w || parseInt(styles.width, 10);

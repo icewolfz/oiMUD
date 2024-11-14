@@ -335,7 +335,8 @@ export class HelpDialog extends Dialog {
             for (let i = 0, il = items.length; i < il; i++) {
                 this._menuItemEvents(items[i]);
                 items[i].addEventListener('click', e => {
-                    this._updateHistory(e.currentTarget.dataset.id);
+                    if (!this._history.length || this._history[this._current] !== e.currentTarget.dataset.id)
+                        this._updateHistory(e.currentTarget.dataset.id);
                 });
             }
             var ops = ['<option value="">Table of contents</option>'];

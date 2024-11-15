@@ -28160,62 +28160,29 @@ Devanagari
       this._ColorTable = [];
       this._colors = {};
       let clientColors = client.getOption("colors") || [];
-      color = new RGBColor(clientColors[0] || _dColors[0]).toHex().substr(1).toUpperCase();
-      this._colors[color] = "BLACK";
-      this._ColorTable.push(color, "BLACK");
-      color = new RGBColor(clientColors[1] || _dColors[1]).toHex().substr(1).toUpperCase();
-      this._colors[color] = "RED";
-      this._ColorTable.push(color, "RED");
-      color = new RGBColor(clientColors[2] || _dColors[2]).toHex().substr(1).toUpperCase();
-      this._colors[color] = "GREEN";
-      this._ColorTable.push(color, "GREEN");
-      color = new RGBColor(clientColors[3] || _dColors[3]).toHex().substr(1).toUpperCase();
-      this._colors[color] = "ORANGE";
-      this._ColorTable.push(color, "ORANGE");
-      color = new RGBColor(clientColors[4] || _dColors[4]).toHex().substr(1).toUpperCase();
-      this._colors[color] = "BLUE";
-      this._ColorTable.push(color, "BLUE");
-      color = new RGBColor(clientColors[5] || _dColors[5]).toHex().substr(1).toUpperCase();
-      this._colors[color] = "MAGENTA";
-      this._ColorTable.push(color, "MAGENTA");
-      color = new RGBColor(clientColors[6] || _dColors[6]).toHex().substr(1).toUpperCase();
-      this._colors[color] = "CYAN";
-      this._ColorTable.push(color, "CYAN");
-      color = new RGBColor(clientColors[7] || _dColors[7]).toHex().substr(1).toUpperCase();
-      this._colors[color] = "WHITE";
-      this._ColorTable.push(color, "WHITE");
+      let cNames = ["BLACK", "RED", "GREEN", "ORANGE", "BLUE", "MAGENTA", "CYAN", "WHITE"];
+      for (c = 0, bl = cNames.length; c < bl; c++) {
+        color = new RGBColor(clientColors[c] || _dColors[c]).toHex().substr(1).toUpperCase();
+        this._colors[color] = cNames[c];
+        this._ColorTable.push(color, cNames[c]);
+      }
       color = new RGBColor(clientColors[8] || _dColors[8]).toHex().substr(1).toUpperCase();
       this._colors[color] = "mono11";
       this._ColorTable.push(color, "BOLD BLACK");
       _bold.push(color);
-      color = new RGBColor(clientColors[9] || _dColors[9]).toHex().substr(1).toUpperCase();
-      this._colors[color] = "BOLD%^%^RED";
-      this._ColorTable.push(color, "BOLD RED");
-      _bold.push(color);
-      color = new RGBColor(clientColors[10] || _dColors[10]).toHex().substr(1).toUpperCase();
-      this._colors[color] = "BOLD%^%^GREEN";
-      this._ColorTable.push(color, "BOLD GREEN");
-      _bold.push(color);
-      color = new RGBColor(clientColors[11] || _dColors[11]).toHex().substr(1).toUpperCase();
-      this._colors[color] = "BOLD%^%^YELLOW";
-      this._ColorTable.push(color, "BOLD YELLOW");
-      _bold.push(color);
-      color = new RGBColor(clientColors[11] || _dColors[11]).toHex().substr(1).toUpperCase();
-      this._colors[color] = "YELLOW";
-      this._ColorTable.push(color, "YELLOW");
-      _bold.push(color);
-      color = new RGBColor(clientColors[12] || _dColors[12]).toHex().substr(1).toUpperCase();
-      this._colors[color] = "BOLD%^%^BLUE";
-      this._ColorTable.push(color, "BOLD BLUE");
-      _bold.push(color);
-      color = new RGBColor(clientColors[13] || _dColors[13]).toHex().substr(1).toUpperCase();
-      this._colors[color] = "BOLD%^%^MAGENTA";
-      this._ColorTable.push(color, "BOLD MAGENTA");
-      _bold.push(color);
-      color = new RGBColor(clientColors[14] || _dColors[14]).toHex().substr(1).toUpperCase();
-      this._colors[color] = "BOLD%^%^CYAN";
-      this._ColorTable.push(color, "BOLD CYAN");
-      _bold.push(color);
+      cNames[3] = "YELLOW";
+      for (c = 1, bl = cNames.length - 1; c < bl; c++) {
+        color = new RGBColor(clientColors[c + 8] || _dColors[c + 8]).toHex().substr(1).toUpperCase();
+        this._colors[color] = "BOLD%^%^" + cNames[c];
+        this._ColorTable.push(color, "BOLD " + cNames[c]);
+        _bold.push(color);
+        if (c === 3) {
+          color = new RGBColor(clientColors[11] || _dColors[11]).toHex().substr(1).toUpperCase();
+          this._colors[color] = "YELLOW";
+          this._ColorTable.push(color, "YELLOW");
+          _bold.push(color);
+        }
+      }
       color = new RGBColor(clientColors[15] || _dColors[15]).toHex().substr(1).toUpperCase();
       this._colors[color] = "BOLD%^%^WHITE";
       this._ColorTable.push(color, "BOLD WHITE");
@@ -28481,7 +28448,6 @@ Devanagari
         editor2.ui.registry.addIcon("dblunderline", '<i class="mce-i-dblunderline"></i>');
         editor2.ui.registry.addIcon("flash", '<i class="mce-i-flash"></i>');
         editor2.ui.registry.addIcon("reverse", '<i class="mce-i-reverse"></i>');
-        editor2.ui.registry.addIcon("pasteformatted", '<i class="mce-i-pasteformatted"></i>');
         editor2.ui.registry.addIcon("copyformatted", '<i class="mce-i-copyformatted"></i>');
         editor2.ui.registry.addSplitButton("send", {
           icon: "send",
@@ -28497,61 +28463,33 @@ Devanagari
             switch (value) {
               case "formatted":
                 client.sendCommand(_editor.getFormattedText().replace(/(?:\r)/g, ""));
-                if (client.getOption("editorClearOnSend"))
-                  tinymce.activeEditor.setContent("");
-                if (client.getOption("editorCloseOnSend"))
-                  _editor.emit("close");
                 break;
               case "text":
                 client.sendCommand(_editor.getText().replace(/(?:\r)/g, ""));
-                if (client.getOption("editorClearOnSend"))
-                  tinymce.activeEditor.setContent("");
-                if (client.getOption("editorCloseOnSend"))
-                  _editor.emit("close");
                 break;
               case "formattednoecho":
                 client.sendBackground(_editor.getFormattedText().replace(/(?:\r)/g, ""), true);
-                if (client.getOption("editorClearOnSend"))
-                  tinymce.activeEditor.setContent("");
-                if (client.getOption("editorCloseOnSend"))
-                  _editor.emit("close");
                 break;
               case "textnoecho":
                 client.sendBackground(_editor.getText().replace(/(?:\r)/g, ""), true);
-                if (client.getOption("editorClearOnSend"))
-                  tinymce.activeEditor.setContent("");
-                if (client.getOption("editorCloseOnSend"))
-                  _editor.emit("close");
                 break;
               case "formattedverbatim":
                 client.send(_editor.getFormattedText().replace(/(?:\r)/g, ""));
-                if (client.getOption("editorClearOnSend"))
-                  tinymce.activeEditor.setContent("");
-                if (client.getOption("editorCloseOnSend"))
-                  _editor.emit("close");
                 break;
               case "textverbatim":
                 client.send(_editor.getText().replace(/(?:\r)/g, ""));
-                if (client.getOption("editorClearOnSend"))
-                  tinymce.activeEditor.setContent("");
-                if (client.getOption("editorCloseOnSend"))
-                  _editor.emit("close");
                 break;
               case "rawformatted":
                 client.sendRaw(_editor.getFormattedText().replace(/(?:\r)/g, ""));
-                if (client.getOption("editorClearOnSend"))
-                  tinymce.activeEditor.setContent("");
-                if (client.getOption("editorCloseOnSend"))
-                  _editor.emit("close");
                 break;
               case "rawtext":
                 client.sendRaw(_editor.getText().replace(/(?:\r)/g, ""));
-                if (client.getOption("editorClearOnSend"))
-                  tinymce.activeEditor.setContent("");
-                if (client.getOption("editorCloseOnSend"))
-                  _editor.emit("close");
                 break;
             }
+            if (client.getOption("editorClearOnSend"))
+              tinymce.activeEditor.setContent("");
+            if (client.getOption("editorCloseOnSend"))
+              _editor.emit("close");
           },
           fetch: (callback) => {
             callback([
@@ -28607,38 +28545,6 @@ Devanagari
           icon: "remove",
           tooltip: "Clear",
           onAction: () => _editor.clear()
-        });
-        editor2.ui.registry.addButton("pasteformatted", {
-          icon: "pasteformatted",
-          tooltip: "Paste formatted",
-          onAction: (buttonApi) => {
-            pasteText().then((text) => {
-              _editor._insertFormatted(text || "");
-            }).catch((err) => {
-              if (client.enableDebug)
-                client.debug(err);
-              if (err.message && err.message === "Permission not granted!")
-                alert("Paste permission not granted.");
-              else
-                alert("Paste not supported.");
-            });
-          }
-        });
-        editor2.ui.registry.addButton("pasteastext", {
-          icon: "paste-text",
-          tooltip: "Paste as text",
-          onAction: (buttonApi) => {
-            pasteText().then((text) => {
-              tinymce.activeEditor.execCommand("mceInsertContent", false, (text || "").replace(/(\r\n|\r|\n)/g, "<br/>").replaceAll("  ", "&nbsp;&nbsp;"));
-            }).catch((err) => {
-              if (client.enableDebug)
-                client.debug(err);
-              if (err.message && err.message === "Permission not granted!")
-                alert("Paste permission not granted.");
-              else
-                alert("Paste not supported.");
-            });
-          }
         });
         editor2.ui.registry.addButton("copyformatted", {
           icon: "copyformatted",
@@ -28836,8 +28742,9 @@ Devanagari
         let idx;
         let html = '<table style="margin : auto !important;" class="mce-grid mce-grid-border mce-colorbutton-grid" role="list" cellspacing="0"><tbody><tr>';
         for (c = 0, cl = this._ColorTable.length; c < cl; c += 2) {
+          if (this._ColorTable[c + 1] === "BOLD YELLOW") continue;
           html += this._colorCell(this._ColorTable[c], this._ColorTable[c + 1]);
-          if (c / 2 % 6 === 5)
+          if (c / 2 % 6 === 5 || this._ColorTable[c + 1] === "YELLOW")
             html += '<td class="mce-grid-cell"></td>';
         }
         html += '<td class="mce-grid-cell"></td>';

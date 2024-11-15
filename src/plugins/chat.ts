@@ -527,11 +527,19 @@ export class Chat extends Plugin {
                 this.client.setOption('windows.chat', this._dialog.windowState);
                 removeHash('chat');
                 this.client.setOption('showChat', false);
+                if (this._dialog && !this._dialog.persistent) {
+                    delete this._dialog;
+                    this._dialog = null;
+                }
             });
             this._dialog.on('canceled', () => {
                 this.client.setOption('windows.chat', this._dialog.windowState);
                 removeHash('chat');
                 this.client.setOption('showChat', false);
+                if (this._dialog && !this._dialog.persistent) {
+                    delete this._dialog;
+                    this._dialog = null;
+                }
             });
             this._dialog.on('moved', e => {
                 this.client.setOption('windows.chat', e);

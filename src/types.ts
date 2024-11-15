@@ -131,6 +131,7 @@ export interface LinkFormat {
   prompt?: boolean;
   tt?: string | number;
 }
+
 export interface ParserLine {
   raw: string;
   line: string;
@@ -215,43 +216,6 @@ export enum IEDCmdStatus {
   denied = 0,
   success = 1,
   failed = 2
-}
-
-export enum MailStatus {
-  SUCCESS = 0,
-  ERROR = 1,
-  NO_RECIPIENTS = 2,
-  INVALID_ID = 3,
-  INVALID_GROUP = 4,
-  NOT_ALLOWED = 5,
-  GROUP_EXIST = 6,
-  PLAYER_EXIST = 7,
-  PLAYER_DOES_EXIST = 8,
-  INVALID_DATA = 9,
-  ERROR_LOADING = 10,
-  RESET = 11,
-  CHUNK = 12
-}
-
-export enum MailAction {
-  list = 0,
-  read = 1,
-  mark = 2,
-  send = 3,
-  reset = 4
-}
-
-export enum MailReadFormat {
-  none = 0,
-  html = 1,
-  ansi = 2
-}
-
-export enum MailFolders {
-  inbox = 0,
-  drafts = 1,
-  sent = 2,
-  trash = 3
 }
 
 export enum ProfileSaveType {

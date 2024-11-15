@@ -72,7 +72,11 @@
         Separate each name with a comma(,) for example: chat,rp
     </small>
 </div>
-
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="windows.chat.persistent" data-parent="windows.chat"
+        data-field="persistent" data-default="true">
+    <label class="form-check-label" for="windows.chat.persistent">Persistent dialog</label>
+</div>
 <script>
     body.querySelector('[id="chat.captureAllLines"]').addEventListener('change', e => {
         body.querySelector('[id="chat.lines"]').disabled = !body.querySelector('[id="chat.captureSelective"]').checked || !body.querySelector('[id="chat.captureLines"]').checked;

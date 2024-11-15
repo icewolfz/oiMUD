@@ -72,11 +72,16 @@
         <span class="input-group-text">px</span>
     </div>
     <small class="form-text text-muted alert alert-warning" style="margin-top:3px;padding: 2px">
-        min is 184 and a max of <span id="statusMax"></span> or ~1/3 of current window size and will adjust as window resized, a value of -1 will reset to default
+        min is 184 and a max of <span id="statusMax"></span> or ~1/3 of current window size and will adjust as window
+        resized, a value of -1 will reset to default
     </small>
 </div>
-
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="windows.skills.persistent" data-parent="windows.skills"
+        data-field="persistent" data-default="true">
+    <label class="form-check-label" for="windows.skills.persistent">Persistent skills dialog</label>
+</div>
 <script>
-     body.querySelector('#statusWidth').max = Math.floor(document.body.clientWidth * 0.33);
-     body.querySelector('#statusMax').textContent = body.querySelector('#statusWidth').max;
+    body.querySelector('#statusWidth').max = Math.floor(document.body.clientWidth * 0.33);
+    body.querySelector('#statusMax').textContent = body.querySelector('#statusWidth').max;
 </script>

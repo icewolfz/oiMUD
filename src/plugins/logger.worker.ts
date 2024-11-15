@@ -1,57 +1,9 @@
 import { RGBColor } from '../lib/rgbcolor';
+import { FormatType, FontStyle, ParserLine } from '../types';
 
 importScripts('https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js');
 
 declare let moment;
-
-enum FormatType {
-    Normal = 0,
-    Link = 1,
-    LinkEnd = 2,
-    MXPLink = 3,
-    MXPLinkEnd = 4,
-    Image = 5,
-    WordBreak = 6,
-    MXPSend = 7,
-    MXPSendEnd = 8,
-    MXPExpired = 9,
-    MXPSkip = 10
-}
-
-enum FontStyle {
-    None = 0,
-    Bold = 1,
-    Faint = 2,
-    Italic = 4,
-    Underline = 8,
-    Slow = 16, /** @desc Slow blink text combined with slow for final blink  */
-    Rapid = 32, /** @desc Rapid blink text combined with slow for final blink */
-    Inverse = 64, /** @desc reverse back and parts color */
-    Hidden = 128, /** @desc hide text */
-    Strikeout = 256,
-    DoubleUnderline = 512,
-    Overline = 1024
-}
-
-interface LineFormat {
-    formatType: FormatType;
-    offset: number;
-    color: string | number;
-    background: string | number;
-    size: string;
-    font: string;
-    style: FontStyle;
-    hr?: boolean;
-}
-
-interface ParserLine {
-    raw: string;
-    line: string;
-    fragment: boolean;
-    gagged: boolean;
-    formats: LineFormat[];
-    timestamp?: number;
-}
 
 enum Log {
     None = 0,
@@ -61,7 +13,6 @@ enum Log {
 }
 
 interface LogOptions {
-    path?: string;
     offline?: boolean;
     gagged?: boolean;
     enabled?: boolean;
@@ -84,7 +35,6 @@ enum TimeStampStyle {
 }
 
 let options: LogOptions = {
-    path: '',
     offline: false,
     gagged: false,
     enabled: false,
@@ -108,7 +58,7 @@ let backgrounds = {};
 let backgroundsCnt = 0;
 let buffer = {};
 let flushBuffer;
-let colorTable = null;
+let _colorTable = null;
 
 self.addEventListener('message', (e: MessageEvent) => {
     let c;
@@ -792,162 +742,162 @@ function buildColorTable() {
     _ColorTable[279] = 'rgb(229, 229, 229)';  //ErrorBack
 
     _ColorTable[280] = 'rgb(255,255,255)';  //DefaultBrightFore
-    colorTable = _ColorTable;
+    _colorTable = _ColorTable;
 }
 
 function GetColor(code) {
-    if (colorTable == null)
+    if (_colorTable == null)
         buildColorTable();
     switch (code) {
         case -12:
-            return colorTable[279];  //ErrorBack
+            return _colorTable[279];  //ErrorBack
         case -11:
-            return colorTable[278];  //ErrorFore
+            return _colorTable[278];  //ErrorFore
         case -10:
-            return colorTable[280];  //DefaultBrightFore
+            return _colorTable[280];  //DefaultBrightFore
         case -8:
-            return colorTable[272]; //InfoBackground
+            return _colorTable[272]; //InfoBackground
         case -7:
-            return colorTable[273];  //InfoText
+            return _colorTable[273];  //InfoText
         case -4:
-            return colorTable[274]; //LocalEchoBackground
+            return _colorTable[274]; //LocalEchoBackground
         case -3:
-            return colorTable[275];  //LocalEchoText
+            return _colorTable[275];  //LocalEchoText
         case 49:
         case -2:
-            return colorTable[276];  //DefaultBack
+            return _colorTable[276];  //DefaultBack
         case 39:
         case -1:
-            return colorTable[277];  //DefaultBack
+            return _colorTable[277];  //DefaultBack
         case 0:
         case 30: //set foreground color to black
-            return colorTable[0];
+            return _colorTable[0];
         case 1:
         case 31: //set foreground color to red
-            return colorTable[1];
+            return _colorTable[1];
         case 2:
         case 32: //set foreground color to green
-            return colorTable[2];
+            return _colorTable[2];
         case 3:
         case 33:  //set foreground color to yellow
-            return colorTable[3];
+            return _colorTable[3];
         case 4:
         case 34: //set foreground color to blue
-            return colorTable[4];
+            return _colorTable[4];
         case 5:
         case 35:  //set foreground color to magenta (purple)
-            return colorTable[5];
+            return _colorTable[5];
         case 6:
         case 36:  //set foreground color to cyan
-            return colorTable[6];
+            return _colorTable[6];
         case 7:
         case 37:  //set foreground color to white
-            return colorTable[7];
+            return _colorTable[7];
         case 40:  //background black
-            return colorTable[264];
+            return _colorTable[264];
         case 41:  //background red
-            return colorTable[265];
+            return _colorTable[265];
         case 42:  //background green
-            return colorTable[266];
+            return _colorTable[266];
         case 43:  //background yellow
-            return colorTable[267];
+            return _colorTable[267];
         case 44:  //background blue
-            return colorTable[268];
+            return _colorTable[268];
         case 45:  //background magenta
-            return colorTable[269];
+            return _colorTable[269];
         case 46:  //cyan
-            return colorTable[270];
+            return _colorTable[270];
         case 47:  //white
-            return colorTable[271];
+            return _colorTable[271];
         case 8:
         case 90:
         case 100:
         case 300: //set foreground color to black
         case 400:
-            return colorTable[8];
+            return _colorTable[8];
         case 9:
         case 91:
         case 101:
         case 310: //set foreground color to red
         case 410:
-            return colorTable[9];
+            return _colorTable[9];
         case 10:
         case 92:
         case 102:
         case 320: //set foreground color to green
         case 420:
-            return colorTable[10];
+            return _colorTable[10];
         case 11:
         case 93:
         case 103:
         case 330:  //set foreground color to yellow
         case 430:
-            return colorTable[11];
+            return _colorTable[11];
         case 12:
         case 94:
         case 104:
         case 340: //set foreground color to blue
         case 440:
-            return colorTable[12];
+            return _colorTable[12];
         case 13:
         case 95:
         case 105:
         case 350:  //set foreground color to magenta (purple)
         case 450:
-            return colorTable[13];
+            return _colorTable[13];
         case 14:
         case 96:
         case 106:
         case 360:  //set foreground color to cyan
         case 460:
-            return colorTable[14];
+            return _colorTable[14];
         case 15:
         case 97:
         case 107:
         case 370:  //set foreground color to white
         case 470:
-            return colorTable[15];
+            return _colorTable[15];
         case 4000:
         case 3000: //set foreground color to black
-            return colorTable[256];
+            return _colorTable[256];
         case 4100:
         case 3100: //set foreground color to red
-            return colorTable[257];
+            return _colorTable[257];
         case 4200:
         case 3200: //set foreground color to green
-            return colorTable[258];
+            return _colorTable[258];
         case 4300:
         case 3300:  //set foreground color to yellow
-            return colorTable[259];
+            return _colorTable[259];
         case 4400:
         case 3400: //set foreground color to blue
-            return colorTable[260];
+            return _colorTable[260];
         case 4500:
         case 3500:  //set foreground color to magenta (purple)
-            return colorTable[261];
+            return _colorTable[261];
         case 4600:
         case 3600:  //set foreground color to cyan
-            return colorTable[262];
+            return _colorTable[262];
         case 4700:
         case 3700:  //set foreground color to white
-            return colorTable[263];
+            return _colorTable[263];
         default:
             if (code <= -16) {
                 code += 16;
                 code *= -1;
             }
             if (code >= 0 && code < 281)
-                return colorTable[code];
-            return colorTable[277];
+                return _colorTable[code];
+            return _colorTable[277];
     }
 }
 
 function SetColor(code: number, color) {
-    if (colorTable == null)
+    if (_colorTable == null)
         buildColorTable();
-    if (code < 0 || code >= colorTable.length)
+    if (code < 0 || code >= _colorTable.length)
         return;
     color = new RGBColor(color);
     if (!color.ok) return;
-    colorTable[code] = color.toRGB();
+    _colorTable[code] = color.toRGB();
 }

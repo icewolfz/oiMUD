@@ -1055,16 +1055,21 @@ export class Status extends Plugin {
             this._skillsDialog.on('shown', () => {
                 this.client.setOption('windows.skills', this._skillsDialog.windowState);
             });
-            this._skillsDialog.on('closing', () => {
-
-            });
             this._skillsDialog.on('closed', () => {
                 this.client.setOption('windows.skills', this._skillsDialog.windowState);
                 removeHash('skills');
+                if (this._skillsDialog && !this._skillsDialog.persistent) {
+                    delete this._skillsDialog;
+                    this._skillsDialog = null;
+                }
             });
             this._skillsDialog.on('canceled', () => {
                 this.client.setOption('windows.skills', this._skillsDialog.windowState);
                 removeHash('skills');
+                if (this._skillsDialog && !this._skillsDialog.persistent) {
+                    delete this._skillsDialog;
+                    this._skillsDialog = null;
+                }
             });
             const filter = this._skillsDialog.header.querySelector('#filter-skills') as HTMLSelectElement;
             filter.addEventListener('change', e => {

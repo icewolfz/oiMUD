@@ -14,7 +14,7 @@ The navigation breadcrumb to allow easier jumping to other pages
 - `Reset` Reset current page settings to default
 - `Reset all` Reset all settings to default
 - `Export` Export settings as text file
-- `Import`  Import settings from text file 
+- `Import` Import settings from text file
 - `Save` Save settings and close dialog
 - `Cancel` Close dialog with out saving
 
@@ -128,6 +128,8 @@ Only if logging plugin enabled
 - `Date/time format` format for date/time when included in log file name **Note** Supports all moment time formats, **WARNING** take note of your operating system's allowed characters or it may break logging when exported
 - `Timestamp` Add timestamp to each logged line
 - `Timestamp format` Time stamp format, **Note** Supports all moment time formats
+- `Persistent log manager dialog` Keep long manager dialog loaded in background instead of unloading, uses more memory but window opens faster
+
 
 ## Telnet
 
@@ -197,7 +199,9 @@ Settings to control how to handle telnet options and emulation
 ## Chat
 
 Controls what is captured into the chat window
+
 - `Window Type` The type of window type for chat capture
+
   - `Default` Will use default type of dialog
   - `Window` Use external window
   - `Dialog` Use a dialog window
@@ -213,6 +217,7 @@ Controls what is captured into the chat window
   - `All` capture all chat lines
   - `Selective` capture only those provided in the selective lines list
 - `Selective lines` A comma delimited list of lines to selectively capture, For example: Chat,Rp,Mudinfo will capture Chat, Rp, and Mudinfo lines.
+- `Persistent dialog` Keep chat dialog loaded in background instead of unloading, uses more memory but window opens faster
 
 ## Chat Display
 
@@ -251,6 +256,7 @@ Controls what is captured into the chat window
 - `Allow negative number for experience needed` causes the needed xp value in status display to allow to display negative when you have xp over required amt.
 - `Show Experience Needed as Progressbar` display the experience needed value as a progress bar
 - `Width` The width of the status bar, min of 184 or 1/3 of current window size, will adjust to new max as window is resized
+- `Persistent skills dialog` Keep skills dialog loaded in background instead of unloading, uses more memory but window opens faster
 
 ## Mapper
 
@@ -262,7 +268,7 @@ Controls what is captured into the chat window
 - `Display Walls` Draw walls between rooms to try and help display a more dungeon feel
 - `Delay between directions` The amount of milliseconds between sending # of directions for speed walking.
 - `Directions to send` the # of directions to send between delays
-- `Persistent` Keep mapper window always loaded once created, loads faster but uses more memory
+- `Persistent` Keep mapper dialog loaded in background instead of unloading, uses more memory but window opens faster
 
 ## Advanced
 

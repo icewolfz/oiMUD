@@ -361,7 +361,7 @@ export class Mapper extends Plugin {
         this._dialog.on('closed', () => {
             this.client.setOption('windows.mapper', this._dialog.windowState);
             this.client.setOption('showMapper', this._dialog.windowState.show !== 0);
-            if (this._dialog) {
+            if (this._dialog && !this._dialog.persistent) {
                 if (this._map)
                     this._map.removeListenersFromCaller(this._dialog);
                 this._dialogMap.map = null;
@@ -378,7 +378,12 @@ export class Mapper extends Plugin {
         this._dialog.on('canceled', () => {
             this.client.setOption('windows.mapper', this._dialog.windowState);
             this.client.setOption('showMapper', this._dialog.windowState.show !== 0);
-            if (this._dialog) {
+            if (this._dialog && !this._dialog.persistent) {
+                if (this._map)
+                    this._map.removeListenersFromCaller(this._dialog);
+                this._dialogMap.map = null;
+                delete this._dialogMap;
+                this._dialogMap = null;
                 delete this._dialog;
                 this._dialog = null;
             }

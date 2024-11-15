@@ -1,6 +1,6 @@
 import "../css/logger.css";
 import { Plugin } from '../plugin';
-import { MenuItem } from '../types';
+import { MenuItem, } from '../types';
 import { Dialog, DialogButtons } from '../interface/dialog';
 import { Splitter, Orientation, PanelAnchor } from "../interface/splitter";
 import { removeHash, updateHash, closeDropdowns } from "../interface/interface";
@@ -21,18 +21,6 @@ export enum Log {
     Html = 1,
     Text = 2,
     Raw = 4
-}
-
-export interface LogOptions {
-    path?: string;
-    offline?: boolean;
-    gagged?: boolean;
-    enabled?: boolean;
-    unique?: boolean;
-    prepend?: boolean;
-    name?: string;
-    what?: Log;
-    debug?: boolean;
 }
 
 export class Logger extends Plugin {
@@ -162,10 +150,16 @@ export class Logger extends Plugin {
         if (this._manager) return;
         this._manager = new LogManager();
         this._manager.on('closed', () => {
-            this._manager = null;
+            if (this._manager && !this._manager.persistent) {
+                delete this._manager;
+                this._manager = null;
+            }
         });
         this._manager.on('canceled', () => {
-            this._manager = null;
+            if (this._manager && !this._manager.persistent) {
+                delete this._manager;
+                this._manager = null;
+            }
         });
     }
 
@@ -585,7 +579,7 @@ class LogManager extends Dialog {
 
     }
     private _updateSmall(width) {
-        if(!this.header.querySelector('.breadcrumb')) {
+        if (!this.header.querySelector('.breadcrumb')) {
             setTimeout(() => {
                 this._updateSmall(width);
             }, 10);

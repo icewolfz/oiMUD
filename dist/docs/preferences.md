@@ -250,6 +250,7 @@ Controls what is captured into the chat window
 - `Show lag in title` Display lag in title bar, **Note** this is not 100% correct always due to overhead variables that cant be controlled.
 - `Allow negative number for experience needed` causes the needed xp value in status display to allow to display negative when you have xp over required amt.
 - `Show Experience Needed as Progressbar` display the experience needed value as a progress bar
+- `Width` The width of the status bar, min of 184 or 1/3 of current window size, will adjust to new max as window is resized
 
 ## Mapper
 

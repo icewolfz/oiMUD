@@ -16,6 +16,7 @@
     - Add option which profile to select on load
     - Add option to expand selected profile on load
     - Add search system
+    - Add advanced value editor using ace or maybe monaco editor, granted this is more complex with how the interface is designed, would require recreating the editor every time one of the pages loaded and could be slow, may be best to try code mirror as it is newer and more modern and easier to use then monaco i think
 ```
 ## Profile manager
 
@@ -29,9 +30,6 @@
 - `Profile to select on load` select which profile to pick when profile manager is first opened, falls back to Default if profile not found
 - `Expand selected profile on load` auto expand selected profile when profile manager is first opened
 ```
-
-- status plugin
-    - add way to reset status width
 - fix hidden windows
 - Add settings to reset windows states to defaults
 - recode advanced editor to not use jquery when possible

@@ -64,3 +64,19 @@
     <label class="form-check-label" for="statusExperienceNeededProgressbar">Show experience needed as
         progress bar</label>
 </div>
+
+<div class="mb-3">
+    <label for="statusWidth" class="form-label">Width</label>
+    <div class="input-group">
+        <input type="number" class="form-control" id="statusWidth" min="184">
+        <span class="input-group-text">px</span>
+    </div>
+    <small class="form-text text-muted alert alert-warning" style="margin-top:3px;padding: 2px">
+        min is 184 and a max of <span id="statusMax"></span> or ~1/3 of current window size and will adjust as window resized, a value of -1 will reset to default
+    </small>
+</div>
+
+<script>
+     body.querySelector('#statusWidth').max = Math.floor(document.body.clientWidth * 0.33);
+     body.querySelector('#statusMax').textContent = body.querySelector('#statusWidth').max;
+</script>

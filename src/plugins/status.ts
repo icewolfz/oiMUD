@@ -124,7 +124,10 @@ export class Status extends Plugin {
                 this._status.querySelector('#health').classList.remove('active');
                 this._status.querySelector('#armor').classList.add('active');
             }
-            this.splitterDistance = client.getOption('statusWidth');
+            let w = client.getOption('statusWidth');
+            if (w < 184 && w != -1) w = 184;
+            if (w > document.body.clientWidth - this.maxWidth) w = document.body.clientWidth - this.maxWidth;
+            this.splitterDistance = w;
             this.updateInterface();
         });
         this.on('debug', e => this.client.debug(e), this);
@@ -218,7 +221,10 @@ export class Status extends Plugin {
             this._status.querySelector('#health').classList.remove('active');
             this._status.querySelector('#armor').classList.add('active');
         }
-        this.splitterDistance = client.getOption('statusWidth');
+        let w = client.getOption('statusWidth');
+        if (w < 184 && w != -1) w = 184;
+        if (w > document.body.clientWidth - this.maxWidth) w = document.body.clientWidth - this.maxWidth;
+        this.splitterDistance = w;
 
         Object.defineProperty(window, '$character', {
             get: () => {

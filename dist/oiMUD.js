@@ -34012,7 +34012,10 @@ Devanagari
           this._status.querySelector("#health").classList.remove("active");
           this._status.querySelector("#armor").classList.add("active");
         }
-        this.splitterDistance = client.getOption("statusWidth");
+        let w2 = client.getOption("statusWidth");
+        if (w2 < 184 && w2 != -1) w2 = 184;
+        if (w2 > document.body.clientWidth - this.maxWidth) w2 = document.body.clientWidth - this.maxWidth;
+        this.splitterDistance = w2;
         this.updateInterface();
       });
       this.on("debug", (e) => this.client.debug(e), this);
@@ -34022,10 +34025,10 @@ Devanagari
         e.preventDefault();
         this._dragging = true;
         const main = document.getElementById("status-drag-bar");
-        const w = this._status.style.width;
+        const w2 = this._status.style.width;
         this._status.style.width = "";
         const bounds = this._status.getBoundingClientRect();
-        this._status.style.width = w;
+        this._status.style.width = w2;
         const bounds2 = main.getBoundingClientRect();
         const ghostBar = document.createElement("div");
         ghostBar.id = "status-ghost-bar";
@@ -34048,13 +34051,13 @@ Devanagari
       window.addEventListener("resize", () => this.resize());
       document.addEventListener("mouseup", (e) => {
         if (!this._dragging) return;
-        const w = this._status.style.width;
+        const w2 = this._status.style.width;
         this._status.style.width = "";
         const bounds = this._status.getBoundingClientRect();
         const minWidth = bounds.width + parseInt(this._styles.right, 10);
         const maxWidth = this.maxWidth;
         const l2 = document.getElementById("status-drag-bar").getBoundingClientRect().width;
-        this._status.style.width = w;
+        this._status.style.width = w2;
         if (e.pageX < maxWidth)
           this.splitterDistance = document.body.clientWidth - maxWidth;
         else if (e.pageX > bounds.left - l2)
@@ -34099,7 +34102,10 @@ Devanagari
         this._status.querySelector("#health").classList.remove("active");
         this._status.querySelector("#armor").classList.add("active");
       }
-      this.splitterDistance = client.getOption("statusWidth");
+      let w = client.getOption("statusWidth");
+      if (w < 184 && w != -1) w = 184;
+      if (w > document.body.clientWidth - this.maxWidth) w = document.body.clientWidth - this.maxWidth;
+      this.splitterDistance = w;
       Object.defineProperty(window, "$character", {
         get: () => {
           if (!this._info) return "";

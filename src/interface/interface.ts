@@ -306,6 +306,7 @@ export function initializeInterface() {
             resizeCommandInput();
         if (editorDialog) {
             editorDialog.resetState(client.getWindowState('editor') || { center: true });
+            editorDialog.persistent = client.getOption('editorPersistent');
             if (editor.simple != client.getOption('simpleEditor')) {
                 let value = '';
                 if (!editor.isSimple)
@@ -720,7 +721,7 @@ export function showDialog(name: string) {
             return _dialogs.history;
         case 'editor':
             if (!editorDialog) {
-                editorDialog = new Dialog(Object.assign({}, client.getWindowState('editor') || { center: true }, { title: '<i class="fas fa-edit"></i> Advanced editor', id: 'adv-editor' }));
+                editorDialog = new Dialog(Object.assign({}, client.getWindowState('editor') || { center: true }, { title: '<i class="fas fa-edit"></i> Advanced editor', id: 'adv-editor', persistent: client.getOption('editorPersistent') }));
                 editorDialog.on('resized', e => {
                     client.setOption('windows.editor', e);
                 });
@@ -738,17 +739,33 @@ export function showDialog(name: string) {
                     editor.initialize();
                 });
                 editorDialog.on('closing', () => {
-                    editor.remove();
+                    if (!client.getOption('editorPersistent'))
+                        editor.remove();
+                    else
+                        editor.clear();
                 });
                 editorDialog.on('closed', () => {
                     client.setOption('windows.editor', editorDialog.windowState);
+                    if (!client.getOption('editorPersistent')) {
+                        delete editorDialog.dialog.editor;
+                        editor = null;
+                        editorDialog = null;
+                    }
                     removeHash('editor');
                 });
                 editorDialog.on('canceling', () => {
-                    editor.remove();
+                    if (!client.getOption('editorPersistent'))
+                        editor.remove();
+                    else
+                        editor.clear();
                 });
                 editorDialog.on('canceled', () => {
                     client.setOption('windows.editor', editorDialog.windowState);
+                    if (!client.getOption('editorPersistent')) {
+                        delete editorDialog.dialog.editor;
+                        editor = null;
+                        editorDialog = null;
+                    }
                     removeHash('editor');
                 });
                 editorDialog.on('focus', () => editor.focus());

@@ -164,7 +164,7 @@ export class MapDisplay extends EventEmitter {
         else if (container instanceof HTMLElement)
             this._container = container;
         else if ((<HTMLElement>container).ownerDocument.defaultView && container instanceof (<HTMLElement>container).ownerDocument.defaultView.HTMLElement)
-            this._container = container;        
+            this._container = container;
         else
             throw new Error('Container must be a selector, element or jquery object');
 
@@ -477,7 +477,7 @@ export class MapDisplay extends EventEmitter {
                     break;
             }
         });
-        this._map = options.map;
+        this.map = options.map;
         this.reset();
         this.refresh();
     }
@@ -622,6 +622,7 @@ export class MapDisplay extends EventEmitter {
     }
 
     public focusActiveRoom() {
+        if(!this.active) return;
         this.scrollTo(this.active.x + 1, this.active.y + 1);
     }
 
@@ -729,43 +730,49 @@ export class MapDisplay extends EventEmitter {
     }
 
     public set map(map: Map) {
+        //prevent double events
+        if (map === this._map) return;
+        if (this._map)
+            this._map.removeListenersFromCaller(this);
         this._map = map;
-        map.on('current-changed', room => {
-            this.clearPath();
-            this.emit('current-changed', this._map.current);
-            if (this.selected && this.selected.num === room.num)
-                this.emit('room-selected', room.clone());
-            if (this.follow)
-                this.focusCurrentRoom();
-            else
-                this.active = room;
-            this.refresh();
-        });
-        map.on('before-room-changed', room => {
-            if (room)
-                delete this._drawCache[(room.background ? room.background : room.env) + ',' + room.indoors + ',' + room.exitsID + ',' + room.details];
-        });
-        map.on('room-changed', room => {
-            if (this.selected && this.selected.num === room.num)
-                this.selected = room;
-            if (this.follow)
-                this.focusCurrentRoom();
-            else
-                this.active = this.current;
-            this.refresh();
-        });
-        map.on('rooms-changed', rooms => {
-            if (this.selected && this.selected.num) {
-                const idx = rooms.findIndex(room => room.num === this.selected.num);
-                if (idx !== -1)
-                    this.selected = rooms[idx];
-            }
-            if (this.follow)
-                this.focusCurrentRoom();
-            else
-                this.active = this.current;
-            this.refresh();
-        });
+        if (map) {
+            map.on('current-changed', room => {
+                this.clearPath();
+                this.emit('current-changed', this._map.current);
+                if (this.selected && this.selected.num === room.num)
+                    this.emit('room-selected', room.clone());
+                if (this.follow)
+                    this.focusCurrentRoom();
+                else
+                    this.active = room;
+                this.refresh();
+            }, this);
+            map.on('before-room-changed', room => {
+                if (room)
+                    delete this._drawCache[(room.background ? room.background : room.env) + ',' + room.indoors + ',' + room.exitsID + ',' + room.details];
+            }, this);
+            map.on('room-changed', room => {
+                if (this.selected && this.selected.num === room.num)
+                    this.selected = room;
+                if (this.follow)
+                    this.focusCurrentRoom();
+                else
+                    this.active = this.current;
+                this.refresh();
+            }, this);
+            map.on('rooms-changed', rooms => {
+                if (this.selected && this.selected.num) {
+                    const idx = rooms.findIndex(room => room.num === this.selected.num);
+                    if (idx !== -1)
+                        this.selected = rooms[idx];
+                }
+                if (this.follow)
+                    this.focusCurrentRoom();
+                else
+                    this.active = this.current;
+                this.refresh();
+            }, this);
+        }
         this.refresh();
     }
     public get map() { return this._map; }

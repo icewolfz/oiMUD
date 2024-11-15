@@ -25178,7 +25178,7 @@ Devanagari
             break;
         }
       });
-      this._map = options.map;
+      this.map = options.map;
       this.reset();
       this.refresh();
     }
@@ -25398,6 +25398,7 @@ Devanagari
       this.focusActiveRoom();
     }
     focusActiveRoom() {
+      if (!this.active) return;
       this.scrollTo(this.active.x + 1, this.active.y + 1);
     }
     set active(value) {
@@ -25496,43 +25497,48 @@ Devanagari
       this.focusActiveRoom();
     }
     set map(map) {
+      if (map === this._map) return;
+      if (this._map)
+        this._map.removeListenersFromCaller(this);
       this._map = map;
-      map.on("current-changed", (room) => {
-        this.clearPath();
-        this.emit("current-changed", this._map.current);
-        if (this.selected && this.selected.num === room.num)
-          this.emit("room-selected", room.clone());
-        if (this.follow)
-          this.focusCurrentRoom();
-        else
-          this.active = room;
-        this.refresh();
-      });
-      map.on("before-room-changed", (room) => {
-        if (room)
-          delete this._drawCache[(room.background ? room.background : room.env) + "," + room.indoors + "," + room.exitsID + "," + room.details];
-      });
-      map.on("room-changed", (room) => {
-        if (this.selected && this.selected.num === room.num)
-          this.selected = room;
-        if (this.follow)
-          this.focusCurrentRoom();
-        else
-          this.active = this.current;
-        this.refresh();
-      });
-      map.on("rooms-changed", (rooms) => {
-        if (this.selected && this.selected.num) {
-          const idx = rooms.findIndex((room) => room.num === this.selected.num);
-          if (idx !== -1)
-            this.selected = rooms[idx];
-        }
-        if (this.follow)
-          this.focusCurrentRoom();
-        else
-          this.active = this.current;
-        this.refresh();
-      });
+      if (map) {
+        map.on("current-changed", (room) => {
+          this.clearPath();
+          this.emit("current-changed", this._map.current);
+          if (this.selected && this.selected.num === room.num)
+            this.emit("room-selected", room.clone());
+          if (this.follow)
+            this.focusCurrentRoom();
+          else
+            this.active = room;
+          this.refresh();
+        }, this);
+        map.on("before-room-changed", (room) => {
+          if (room)
+            delete this._drawCache[(room.background ? room.background : room.env) + "," + room.indoors + "," + room.exitsID + "," + room.details];
+        }, this);
+        map.on("room-changed", (room) => {
+          if (this.selected && this.selected.num === room.num)
+            this.selected = room;
+          if (this.follow)
+            this.focusCurrentRoom();
+          else
+            this.active = this.current;
+          this.refresh();
+        }, this);
+        map.on("rooms-changed", (rooms) => {
+          if (this.selected && this.selected.num) {
+            const idx = rooms.findIndex((room) => room.num === this.selected.num);
+            if (idx !== -1)
+              this.selected = rooms[idx];
+          }
+          if (this.follow)
+            this.focusCurrentRoom();
+          else
+            this.active = this.current;
+          this.refresh();
+        }, this);
+      }
       this.refresh();
     }
     get map() {
@@ -26589,7 +26595,7 @@ Devanagari
   var Dialog = class extends EventEmitter {
     constructor(options) {
       super();
-      this._state = { x: 0, y: 0, height: 0, width: 0, zIndex: 100, maximized: false, show: 0 };
+      this._state = { x: 0, y: 0, height: 0, width: 0, zIndex: 100, maximized: false, show: 0, persistent: false };
       this._resize = { x: 0, y: 0, height: 0, width: 0, type: 0 /* None */, minHeight: 150, minWidth: 300, borderHeight: 1, borderWidth: 1 };
       this._dragPosition = { x: 0, y: 0 };
       this._windowResize = () => {
@@ -26877,6 +26883,8 @@ Devanagari
         this.resizable = options.resizable;
       if (options && "maximizable" in options)
         this._maximizable = options.maximizable;
+      if (options && "persistent" in options)
+        this._state.persistent = options.persistent;
       if (typeof options?.height === "number")
         this._dialog.style.height = options.height + "px";
       else if (options?.height && options?.height.length > 0)
@@ -26940,7 +26948,8 @@ Devanagari
           e.preventDefault();
           return;
         }
-        this._document.body.removeChild(this._dialog);
+        if (!this._state.persistent)
+          this._document.body.removeChild(this._dialog);
         this._state.show = 0;
         this._dialog.dataset.show = "" + this._state.show;
         if (this._dialog.backdrop_)
@@ -26963,7 +26972,8 @@ Devanagari
           return;
         }
         this._dialog.open = false;
-        this._document.body.removeChild(this._dialog);
+        if (!this._state.persistent)
+          this._document.body.removeChild(this._dialog);
         this._state.show = 0;
         this._dialog.dataset.show = "" + this._state.show;
         if (this._dialog.backdrop_)
@@ -27146,6 +27156,17 @@ Devanagari
         }
       });
       this._observer.observe(this._footer, { attributes: true, attributeOldValue: true, attributeFilter: ["style"] });
+    }
+    get persistent() {
+      return this._state.persistent;
+    }
+    set persistent(value) {
+      if (value === this._state.persistent) return;
+      this._state.persistent = value;
+      if (value && this._dialog && !this._dialog.parentElement)
+        this._document.body.appendChild(this._dialog);
+      else if (!value && this._dialog.parentElement)
+        this._document.body.removeChild(this._dialog);
     }
     get maximizable() {
       return this._maximizable;
@@ -27455,6 +27476,7 @@ Devanagari
         this.emit("moved", this._state);
     }
     resetState(options) {
+      this._state.persistent = options.persistent;
       if (typeof options?.height === "number")
         this._dialog.style.height = options.height + "px";
       else if (options?.height && options?.height.length > 0)
@@ -27498,6 +27520,10 @@ Devanagari
       this._state.y = this._resize.y = parseInt(styles.top, 10);
       ;
       this._state.height = this._resize.height = parseInt(styles.height, 10);
+      if (this._state.persistent && this._dialog && !this._dialog.parentElement)
+        this._document.body.appendChild(this._dialog);
+      else if (!this._state.persistent && this._dialog.parentElement)
+        this._document.body.removeChild(this._dialog);
       if (options && "maximized" in options && options.maximized)
         this.maximize();
       else
@@ -29541,22 +29567,55 @@ Devanagari
         }
       } else {
         for (let f = 0, fl = forms.length; f < fl; f++) {
+          const defaultValue = forms[f].dataset.default || "";
+          if (forms[f].dataset.parent && !(forms[f].dataset.parent in this.settings))
+            this.settings[forms[f].dataset.parent] = Settings.getValue(forms[f].dataset.parent);
           if (forms[f].type === "radio") {
-            forms[f].checked = "" + this.settings[forms[f].name] === forms[f].value;
+            if (!forms[f].dataset.parent && !(forms[f].name in this.settings))
+              this.settings[forms[f].name] = Settings.getValue(forms[f].name);
+            let value;
+            if (forms[f].dataset.parent) {
+              if (this.settings[forms[f].dataset.parent] && this.settings[forms[f].dataset.parent][forms[f].dataset.field] !== null)
+                value = "" + this.settings[forms[f].dataset.parent][forms[f].dataset.field];
+              else
+                value = defaultValue;
+            } else if (this.settings[forms[f].name] === null)
+              value = defaultValue;
+            else
+              value = "" + this.settings[forms[f].name];
+            forms[f].checked = value === forms[f].value;
             forms[f].addEventListener("change", (e) => {
               const target = e.currentTarget || e.target;
-              if (target.checked)
-                this.settings[target.name] = this.convertType(target.value, typeof this.settings[target.name]);
+              if (target.checked) {
+                if (target.dataset.parent) {
+                  if (!this.settings[target.dataset.parent])
+                    this.settings[target.dataset.parent] = {};
+                  this.settings[target.dataset.parent][target.dataset.field] = this.convertType(target.value, typeof this.settings[target.dataset.parent][target.dataset.field]);
+                } else
+                  this.settings[target.name] = this.convertType(target.value, typeof this.settings[target.name]);
+              }
             });
           } else if (forms[f].type === "checkbox") {
             let name2;
             if (forms[f].dataset.enum === "true") {
               name2 = forms[f].name || forms[f].id.substring(0, forms[f].id.lastIndexOf("-"));
+              if (!(name2 in this.settings))
+                this.settings[name2] = Settings.getValue(name2);
               const value = +forms[f].id.substring(forms[f].id.lastIndexOf("-") + 1);
               forms[f].checked = (this.settings[name2] & value) === value;
+            } else if (forms[f].dataset.parent) {
+              if (this.settings[forms[f].dataset.parent] && forms[f].dataset.field in this.settings[forms[f].dataset.parent])
+                forms[f].checked = this.settings[forms[f].dataset.parent][forms[f].dataset.field];
+              else
+                forms[f].checked = defaultValue === "true";
             } else {
               name2 = forms[f].name || forms[f].id;
-              forms[f].checked = this.settings[name2];
+              if (!(name2 in this.settings))
+                this.settings[name2] = Settings.getValue(name2);
+              if (this.settings[name2] !== null)
+                forms[f].checked = this.settings[name2];
+              else
+                forms[f].checked = defaultValue === "true";
             }
             forms[f].addEventListener("change", (e) => {
               const target = e.currentTarget || e.target;
@@ -29569,7 +29628,16 @@ Devanagari
                   if (enums[e2].checked)
                     value |= +enums[e2].value;
                 }
-                this.settings[name3] = value;
+                if (target.dataset.parent) {
+                  if (!this.settings[target.dataset.parent])
+                    this.settings[target.dataset.parent] = {};
+                  this.settings[target.dataset.parent][target.dataset.field] = value;
+                } else
+                  this.settings[name3] = value;
+              } else if (target.dataset.parent) {
+                if (!this.settings[target.dataset.parent])
+                  this.settings[target.dataset.parent] = {};
+                this.settings[target.dataset.parent][target.dataset.field] = target.checked || false;
               } else {
                 name3 = target.name || target.id;
                 this.settings[name3] = target.checked || false;
@@ -29584,21 +29652,60 @@ Devanagari
               r.disabled = !this.settings[name2];
             });
           } else {
-            if (forms[f].dataset.join && forms[f].dataset.join.length)
-              forms[f].value = (this.settings[forms[f].id] || []).map((v) => v.trim()).join(forms[f].dataset.join);
-            else
-              forms[f].value = this.settings[forms[f].id];
+            let value;
+            if (forms[f].dataset.parent) {
+              if (this.settings[forms[f].dataset.parent] && forms[f].dataset.field in this.settings[forms[f].dataset.parent]) {
+                if (forms[f].dataset.join && forms[f].dataset.join.length)
+                  forms[f].value = (this.settings[forms[f].dataset.parent][forms[f].dataset.field] || []).map((v) => v.trim()).join(forms[f].dataset.join);
+                else
+                  forms[f].value = this.settings[forms[f].dataset.parent][forms[f].dataset.field];
+              } else
+                value = defaultValue;
+            } else if (forms[f].dataset.join && forms[f].dataset.join.length) {
+              if (!(forms[f].id in this.settings))
+                this.settings[forms[f].id] = Settings.getValue(forms[f].id);
+              if (this.settings[forms[f].id] !== null)
+                value = (this.settings[forms[f].id] || []).map((v) => v.trim()).join(forms[f].dataset.join);
+              else
+                value = defaultValue;
+            } else {
+              if (!(forms[f].id in this.settings))
+                this.settings[forms[f].id] = Settings.getValue(forms[f].id);
+              if (this.settings[forms[f].id] !== null)
+                value = this.settings[forms[f].id];
+              else
+                value = defaultValue;
+            }
+            forms[f].value = value;
             forms[f].addEventListener("change", (e) => {
               const target = e.currentTarget || e.target;
-              if (forms[f].dataset.join && forms[f].dataset.join.length)
-                this.setValue(target.name || target.id, target.value.split(forms[f].dataset.join).map((v) => v.trim()));
+              if (target.dataset.parent) {
+                let value2;
+                if (target.dataset.join && target.dataset.join.length)
+                  value2 = target.value.split(target.dataset.join).map((v) => v.trim());
+                else
+                  value2 = target.value;
+                if (!this.settings[target.dataset.parent])
+                  this.settings[target.dataset.parent] = {};
+                this.settings[target.dataset.parent][target.dataset.field] = this.getValue(value2, this.settings[target.dataset.parent][target.dataset.field]);
+              } else if (target.dataset.join && target.dataset.join.length)
+                this.setValue(target.name || target.id, target.value.split(target.dataset.join).map((v) => v.trim()));
               else
                 this.setValue(target.name || target.id, target.value);
             });
             forms[f].addEventListener("input", (e) => {
               const target = e.currentTarget || e.target;
-              if (forms[f].dataset.join && forms[f].dataset.join.length)
-                this.setValue(target.name || target.id, target.value.split(forms[f].dataset.join).map((v) => v.trim()));
+              if (target.dataset.parent) {
+                let value2;
+                if (target.dataset.join && target.dataset.join.length)
+                  value2 = target.value.split(target.dataset.join).map((v) => v.trim());
+                else
+                  value2 = target.value;
+                if (!this.settings[target.dataset.parent])
+                  this.settings[target.dataset.parent] = {};
+                this.settings[target.dataset.parent][target.dataset.field] = this.getValue(value2, this.settings[target.dataset.parent][target.dataset.field]);
+              } else if (target.dataset.join && target.dataset.join.length)
+                this.setValue(target.name || target.id, target.value.split(target.dataset.join).map((v) => v.trim()));
               else
                 this.setValue(target.name || target.id, target.value);
             });
@@ -29665,12 +29772,21 @@ Devanagari
     }
     setValue(option, value) {
       if (value == "false") value = false;
-      if (value == "true") value = true;
-      if (value == "null") value = null;
-      if (value == "undefined") value = void 0;
-      if (typeof value == "string" && parseFloat(value).toString() == value)
+      else if (value == "true") value = true;
+      else if (value == "null") value = null;
+      else if (value == "undefined") value = void 0;
+      else if (typeof value == "string" && parseFloat(value).toString() == value)
         value = parseFloat(value);
       this.settings[option] = this.convertType(value, typeof this.settings[option]);
+    }
+    getValue(value, current) {
+      if (value == "false") return false;
+      if (value == "true") return true;
+      if (value == "null") return null;
+      if (value == "undefined") return void 0;
+      if (typeof value == "string" && parseFloat(value).toString() == value)
+        return parseFloat(value);
+      return this.convertType(value, typeof current);
     }
     convertType(value, type) {
       if (typeof value === type)
@@ -32053,6 +32169,7 @@ Devanagari
         resizeCommandInput();
       if (editorDialog) {
         editorDialog.resetState(client.getWindowState("editor") || { center: true });
+        editorDialog.persistent = client.getOption("editorPersistent");
         if (editor.simple != client.getOption("simpleEditor")) {
           let value = "";
           if (!editor.isSimple)
@@ -32441,7 +32558,7 @@ Devanagari
         return _dialogs.history;
       case "editor":
         if (!editorDialog) {
-          editorDialog = new Dialog(Object.assign({}, client.getWindowState("editor") || { center: true }, { title: '<i class="fas fa-edit"></i> Advanced editor', id: "adv-editor" }));
+          editorDialog = new Dialog(Object.assign({}, client.getWindowState("editor") || { center: true }, { title: '<i class="fas fa-edit"></i> Advanced editor', id: "adv-editor", persistent: client.getOption("editorPersistent") }));
           editorDialog.on("resized", (e) => {
             client.setOption("windows.editor", e);
           });
@@ -32459,17 +32576,33 @@ Devanagari
             editor.initialize();
           });
           editorDialog.on("closing", () => {
-            editor.remove();
+            if (!client.getOption("editorPersistent"))
+              editor.remove();
+            else
+              editor.clear();
           });
           editorDialog.on("closed", () => {
             client.setOption("windows.editor", editorDialog.windowState);
+            if (!client.getOption("editorPersistent")) {
+              delete editorDialog.dialog.editor;
+              editor = null;
+              editorDialog = null;
+            }
             removeHash("editor");
           });
           editorDialog.on("canceling", () => {
-            editor.remove();
+            if (!client.getOption("editorPersistent"))
+              editor.remove();
+            else
+              editor.clear();
           });
           editorDialog.on("canceled", () => {
             client.setOption("windows.editor", editorDialog.windowState);
+            if (!client.getOption("editorPersistent")) {
+              delete editorDialog.dialog.editor;
+              editor = null;
+              editorDialog = null;
+            }
             removeHash("editor");
           });
           editorDialog.on("focus", () => editor.focus());
@@ -33097,34 +33230,34 @@ Devanagari
           this._dialogMap.commandDelayCount = client.getOption("commandDelayCount");
           this._dialogMap.enabled = this.client.getOption("mapper.enabled");
           if (this._dialogMap.enabled)
-            document.getElementById("mapper-enable").classList.add("active");
+            this._dialog.body.querySelector("#mapper-enable").classList.add("active");
           else
-            document.getElementById("mapper-enable").classList.remove("active");
+            this._dialog.body.querySelector("#mapper-enable").classList.remove("active");
           this._dialogMap.showLegend = this.client.getOption("mapper.legend");
           if (this._dialogMap.showLegend)
-            document.getElementById("mapper-legend").classList.add("active");
+            this._dialog.body.querySelector("#mapper-legend").classList.add("active");
           else
-            document.getElementById("mapper-legend").classList.remove("active");
+            this._dialog.body.querySelector("#mapper-legend").classList.remove("active");
           this._dialogMap.follow = this.client.getOption("mapper.follow");
           if (this._dialogMap.follow)
-            document.getElementById("mapper-follow").classList.add("active");
+            this._dialog.body.querySelector("#mapper-follow").classList.add("active");
           else
-            document.getElementById("mapper-follow").classList.remove("active");
+            this._dialog.body.querySelector("#mapper-follow").classList.remove("active");
           this._dialogMap.splitArea = this.client.getOption("mapper.split");
           if (this._dialogMap.splitArea)
-            document.getElementById("mapper-split").classList.add("active");
+            this._dialog.body.querySelector("#mapper-split").classList.add("active");
           else
-            document.getElementById("mapper-split").classList.remove("active");
+            this._dialog.body.querySelector("#mapper-split").classList.remove("active");
           this._dialogMap.fillWalls = this.client.getOption("mapper.fill");
           if (this._dialogMap.fillWalls)
-            document.getElementById("mapper-fill").classList.add("active");
+            this._dialog.body.querySelector("#mapper-fill").classList.add("active");
           else
-            document.getElementById("mapper-fill").classList.remove("active");
+            this._dialog.body.querySelector("#mapper-fill").classList.remove("active");
           if (this._dialogMap.follow)
             this._dialogMap.focusCurrentRoom();
         }
         if (this._dialog)
-          this._dialog.resetState(Object.assign({}, client.getWindowState("mapper") || { center: true }));
+          this._dialog.resetState(Object.assign({ persistent: true }, client.getWindowState("mapper") || { center: true }));
         let options2 = client.getWindowState("mapper");
         if (options2 && options2.show || this.client.getOption("showMapper"))
           this.show();
@@ -33332,7 +33465,7 @@ Devanagari
     }
     createDialog() {
       if (this._dialog) return;
-      this._dialog = new Dialog(Object.assign({}, client.getWindowState("mapper") || { center: true }, { title: '<i class="bi bi-map"></i><select id="mapper-area" class="form-select form-select-sm me-2 mb-1" title="Select Area"></select>', id: "win-mapper", noFooter: true, minHeight: 350 }));
+      this._dialog = new Dialog(Object.assign({ persistent: true }, client.getWindowState("mapper") || { center: true }, { title: '<i class="bi bi-map"></i><select id="mapper-area" class="form-select form-select-sm me-2 mb-1" title="Select Area"></select>', id: "win-mapper", noFooter: true, minHeight: 350 }));
       this._dialog.on("resized", (e) => {
         this.client.setOption("windows.mapper", e);
         debounce(() => {
@@ -33364,6 +33497,15 @@ Devanagari
       this._dialog.on("closed", () => {
         this.client.setOption("windows.mapper", this._dialog.windowState);
         this.client.setOption("showMapper", this._dialog.windowState.show !== 0);
+        if (this._dialog) {
+          if (this._map)
+            this._map.removeListenersFromCaller(this._dialog);
+          this._dialogMap.map = null;
+          delete this._dialogMap;
+          this._dialogMap = null;
+          delete this._dialog;
+          this._dialog = null;
+        }
         removeHash("mapper");
       });
       this._dialog.on("canceling", () => {
@@ -33371,6 +33513,10 @@ Devanagari
       this._dialog.on("canceled", () => {
         this.client.setOption("windows.mapper", this._dialog.windowState);
         this.client.setOption("showMapper", this._dialog.windowState.show !== 0);
+        if (this._dialog) {
+          delete this._dialog;
+          this._dialog = null;
+        }
         removeHash("mapper");
       });
       this._dialog.on("resizing", () => {
@@ -33438,9 +33584,9 @@ Devanagari
       this._dialog.body.querySelector("#mapper-follow a").addEventListener("click", () => {
         this._dialogMap.follow = !this._dialogMap.follow;
         if (this._dialogMap.follow)
-          document.getElementById("mapper-follow").classList.add("active");
+          this._dialog.body.querySelector("#mapper-follow").classList.add("active");
         else
-          document.getElementById("mapper-follow").classList.remove("active");
+          this._dialog.body.querySelector("#mapper-follow").classList.remove("active");
         closeMenu2();
       });
       this._dialog.body.querySelector("#mapper-focus a").addEventListener("click", () => {
@@ -33578,19 +33724,19 @@ Devanagari
         });
       });
       this._dialogMap.on("active-room-changed", (room) => {
-        const area = document.getElementById("mapper-area");
+        const area = this._dialog.header.querySelector("#mapper-area");
         if (!room.area || room.area.length === 0) {
           if (area.options.length)
             area.value = area.options[0].value;
         } else {
           if (!area.querySelectorAll(`option[value="${room.area.replace(/"/g, "&quot;")}"]`).length) {
             area.insertAdjacentHTML("beforeend", `<option value="${room.area.replace(/"/g, "&quot;")}">${room.area}</option>`);
-            document.getElementById("mapper-room-area").insertAdjacentHTML("beforeend", `<option value="${room.area.replace(/"/g, "&quot;")}">${room.area}</option>`);
+            this._dialog.body.querySelector("#mapper-room-area").insertAdjacentHTML("beforeend", `<option value="${room.area.replace(/"/g, "&quot;")}">${room.area}</option>`);
           }
           area.value = room.area;
         }
-        document.getElementById("mapper-level").value = room.z;
-        document.getElementById("mapper-zone").value = room.zone;
+        this._dialog.body.querySelector("#mapper-level").value = room.z;
+        this._dialog.body.querySelector("#mapper-zone").value = room.zone;
         room = room.clone();
         room.ID = room.num;
         delete room.num;
@@ -33598,22 +33744,22 @@ Devanagari
       });
       this._dialogMap.on("setting-changed", (setting, value) => {
         if (setting === "active") {
-          document.getElementById("mapper-area").value = value.area;
-          document.getElementById("mapper-level").value = value.z;
-          document.getElementById("mapper-zone").value = value.zone;
+          this._dialog.header.querySelector("#mapper-area").value = value.area;
+          this._dialog.body.querySelector("#mapper-level").value = value.z;
+          this._dialog.body.querySelector("#mapper-zone").value = value.zone;
         } else if (setting === "scale") {
-          document.getElementById("mapper-zoom").value = value;
-          document.getElementById("mapper-zoom-display").textContent = value + "%";
+          this._dialog.body.querySelector("#mapper-zoom").value = value;
+          this._dialog.body.querySelector("#mapper-zoom-display").textContent = value + "%";
         }
         this.client.setOption(`mapper.${setting}`, value);
       });
-      document.getElementById("mapper-area").addEventListener("change", (e) => {
+      this._dialog.header.querySelector("#mapper-area").addEventListener("change", (e) => {
         this._dialogMap.setArea(e.currentTarget.value);
       });
-      document.getElementById("mapper-level").addEventListener("change", (e) => {
+      this._dialog.body.querySelector("#mapper-level").addEventListener("change", (e) => {
         this._dialogMap.setLevel(parseInt(e.currentTarget.value, 10));
       });
-      document.getElementById("mapper-zone").addEventListener("change", (e) => {
+      this._dialog.body.querySelector("#mapper-zone").addEventListener("change", (e) => {
         this._dialogMap.setZone(parseInt(e.currentTarget.value, 10));
       });
       this._dialogSplitter = new Splitter({ id: "mapper", parent: this._dialog.body, orientation: 1 /* vertical */ });
@@ -33625,10 +33771,10 @@ Devanagari
         this._dialog.body.querySelector("#mapper-room a").click();
       this._dialogSplitter.SplitterDistance = client.getOption("mapper.roomWidth");
       this._dialogSplitter.panel2.innerHTML = mapper_room_default;
-      document.getElementById("mapper-room-close").addEventListener("click", () => {
+      this._dialog.body.querySelector("#mapper-room-close").addEventListener("click", () => {
         this._dialog.body.querySelector("#mapper-room a").click();
       });
-      document.getElementById("mapper-room-accordion").querySelectorAll("input,textarea,select,.accordion-body button").forEach((f) => {
+      this._dialog.body.querySelector("#mapper-room-accordion").querySelectorAll("input,textarea,select,.accordion-body button").forEach((f) => {
         f.disabled = true;
         if (f.tagName === "BUTTON") return;
         if (f.type === "checkbox") {
@@ -33638,7 +33784,7 @@ Devanagari
             const name2 = f.name || f.id.substring(12);
             if (target.dataset.enum === "true") {
               const name3 = target.name || target.id.substring(0, target.id.lastIndexOf("-"));
-              const enums = document.getElementById("mapper-room-accordion").querySelectorAll(`[name=${name3}]`);
+              const enums = this._dialog.body.querySelector("#mapper-room-accordion").querySelectorAll(`[name=${name3}]`);
               let value = 0;
               for (let e2 = 0, el2 = enums.length; e2 < el2; e2++) {
                 if (enums[e2].checked)
@@ -33673,7 +33819,7 @@ Devanagari
         }
       });
       this._dialogMap.on("room-selected", (room) => {
-        document.getElementById("mapper-room-accordion").querySelectorAll("input,textarea,select,.accordion-body button").forEach((f) => {
+        this._dialog.body.querySelector("#mapper-room-accordion").querySelectorAll("input,textarea,select,.accordion-body button").forEach((f) => {
           if (room === null || room.num === null) {
             f.disabled = true;
             if (f.tagName === "BUTTON") return;
@@ -33763,14 +33909,14 @@ Devanagari
       this._dialogMap.on("debug", (msg) => {
         this.client.debug(msg);
       });
-      document.getElementById("mapper-level").value = "" + this._dialogMap.active.z;
-      document.getElementById("mapper-zone").value = "" + this._dialogMap.active.zone;
-      document.getElementById("mapper-zoom").addEventListener("input", (e) => {
+      this._dialog.body.querySelector("#mapper-level").value = "" + this._dialogMap.active.z;
+      this._dialog.body.querySelector("#mapper-zone").value = "" + this._dialogMap.active.zone;
+      this._dialog.body.querySelector("#mapper-zoom").addEventListener("input", (e) => {
         this._dialogMap.scale = +e.currentTarget.value;
       });
       const initMapper = () => {
         const m = this._map.Areas.length;
-        const area = document.getElementById("mapper-area");
+        const area = this._dialog.header.querySelector("#mapper-area");
         area.addEventListener("mouseup", (e) => {
           e.stopPropagation();
           e.cancelBubble = true;
@@ -33787,7 +33933,7 @@ Devanagari
         for (let i3 = 0; i3 < m; i3++)
           h += `<option value="${this._map.Areas[i3].replace(/"/g, "&quot;")}">${this._map.Areas[i3]}</option>`;
         area.innerHTML = h;
-        document.getElementById("mapper-room-area").innerHTML = h;
+        this._dialog.body.querySelector("#mapper-room-area").innerHTML = h;
         if (this._dialogMap.active.area && this._map.Areas.indexOf(this._dialogMap.active.area) !== -1)
           area.value = this._dialogMap.active.area;
         else if (m > 0) {
@@ -33798,28 +33944,28 @@ Devanagari
         this._dialogMap.refresh();
         this._dialogMap.enabled = this.client.getOption("mapper.enabled");
         if (this._dialogMap.enabled)
-          document.getElementById("mapper-enable").classList.add("active");
+          this._dialog.body.querySelector("#mapper-enable").classList.add("active");
         this._dialogMap.showLegend = this.client.getOption("mapper.legend");
         if (this._dialogMap.showLegend)
-          document.getElementById("mapper-legend").classList.add("active");
+          this._dialog.body.querySelector("#mapper-legend").classList.add("active");
         this._dialogMap.follow = this.client.getOption("mapper.follow");
         if (this._dialogMap.follow)
-          document.getElementById("mapper-follow").classList.add("active");
+          this._dialog.body.querySelector("#mapper-follow").classList.add("active");
         this._dialogMap.splitArea = this.client.getOption("mapper.split");
         if (this._dialogMap.splitArea)
-          document.getElementById("mapper-split").classList.add("active");
+          this._dialog.body.querySelector("#mapper-split").classList.add("active");
         this._dialogMap.fillWalls = this.client.getOption("mapper.fill");
         if (this._dialogMap.fillWalls)
-          document.getElementById("mapper-fill").classList.add("active");
+          this._dialog.body.querySelector("#mapper-fill").classList.add("active");
         if (this._dialogMap.follow)
           this._dialogMap.focusCurrentRoom();
         this._dialogMap.scale = this.client.getOption("mapper.scale");
         this._map.on("rooms-removed", (rooms) => {
           this._map.save();
-        });
+        }, this._dialog);
         this._map.on("areas-removed", (areas) => {
-          const area2 = document.getElementById("mapper-area");
-          const roomArea = document.getElementById("mapper-room-area");
+          const area2 = this._dialog.header.querySelector("#mapper-area");
+          const roomArea = this._dialog.body.querySelector("#mapper-room-area");
           if (this._map.Areas.length === 0) {
             area2.innerHTML = "";
             roomArea.innerHTML = "";
@@ -33833,26 +33979,26 @@ Devanagari
                 roomArea.remove(i3);
             }
           }
-        });
+        }, this._dialog);
         this._map.on("areas-added", (areas) => {
           let h2 = "";
           const m2 = this._map.Areas.length;
           for (let i3 = 0; i3 < m2; i3++)
             h2 += `<option value="${this._map.Areas[i3].replace(/"/g, "&quot;")}">${this._map.Areas[i3]}</option>`;
-          document.getElementById("mapper-area").innerHTML = h2;
-          document.getElementById("mapper-room-area").innerHTML = h2;
+          this._dialog.header.querySelector("#mapper-area").innerHTML = h2;
+          this._dialog.body.querySelector("#mapper-room-area").innerHTML = h2;
           if (this._dialogMap.active.area && this._map.Areas.indexOf(this._dialogMap.active.area) !== -1)
-            document.getElementById("mapper-area").value = this._dialogMap.active.area;
+            this._dialog.header.querySelector("#mapper-area").value = this._dialogMap.active.area;
           else if (m2 > 0) {
             this._dialogMap.active.area = this.map.Areas[0];
             this._dialogMap.emit("setting-changed", "active", this._dialogMap.active.area);
-            document.getElementById("mapper-area").value = this._dialogMap.active.area;
+            this._dialog.header.querySelector("#mapper-area").value = this._dialogMap.active.area;
           }
-        });
+        }, this._dialog);
         this._map.on("import-progress", (progress) => {
           if (this._dialogProgress)
             this._dialogProgress.progress = progress;
-        });
+        }, this._dialog);
         this._map.on("import-complete", () => {
           client.sendGMCP("Room.Info");
           if (this._dialogProgress)
@@ -33860,7 +34006,7 @@ Devanagari
           this._dialogProgress = null;
           this._dialogMap.refresh();
           this._map.save();
-        });
+        }, this._dialog);
         this._map.on("import-canceled", () => {
           client.sendGMCP("Room.Info");
           if (this._dialogProgress)
@@ -33868,12 +34014,12 @@ Devanagari
           this._dialogProgress = null;
           this._dialogMap.refresh();
           this._map.save();
-        });
+        }, this._dialog);
       };
       this.on("map-loaded", () => {
         initMapper();
       });
-      if (this.map)
+      if (this._map)
         initMapper();
     }
     show() {

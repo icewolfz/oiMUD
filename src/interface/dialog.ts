@@ -24,6 +24,7 @@ export interface DialogOptions {
     position?: Position;
     closeable?: boolean;
     document?: Document;
+    persistent?: boolean;
 }
 
 enum ResizeType {
@@ -68,7 +69,7 @@ export class Dialog extends EventEmitter {
     private _header;
     private _title;
     private _id;
-    private _state = { x: 0, y: 0, height: 0, width: 0, zIndex: 100, maximized: false, show: 0 };
+    private _state = { x: 0, y: 0, height: 0, width: 0, zIndex: 100, maximized: false, show: 0, persistent: false };
     private _resize = { x: 0, y: 0, height: 0, width: 0, type: ResizeType.None, minHeight: 150, minWidth: 300, borderHeight: 1, borderWidth: 1 };
     private _dragPosition = { x: 0, y: 0 };
 
@@ -268,6 +269,16 @@ export class Dialog extends EventEmitter {
     private _maximizable: boolean = true;
     private _closable: boolean = true;
 
+    public get persistent() { return this._state.persistent; }
+    public set persistent(value) {
+        if (value === this._state.persistent) return;
+        this._state.persistent = value;
+        if (value && this._dialog && !this._dialog.parentElement)
+            this._document.body.appendChild(this._dialog);
+        else if (!value && this._dialog.parentElement)
+            this._document.body.removeChild(this._dialog);
+    }
+
     public get maximizable() { return this._maximizable; }
     public set maximizable(value) {
         if (value === this._maximizable) return;
@@ -391,6 +402,8 @@ export class Dialog extends EventEmitter {
             this.resizable = options.resizable;
         if (options && 'maximizable' in options)
             this._maximizable = options.maximizable;
+        if (options && 'persistent' in options)
+            this._state.persistent = options.persistent;
         if (typeof options?.height === 'number')
             this._dialog.style.height = options.height + 'px';
         else if (options?.height && options?.height.length > 0)
@@ -457,7 +470,8 @@ export class Dialog extends EventEmitter {
                 e.preventDefault();
                 return;
             }
-            this._document.body.removeChild(this._dialog);
+            if (!this._state.persistent)
+                this._document.body.removeChild(this._dialog);
             this._state.show = 0;
             this._dialog.dataset.show = '' + this._state.show;
             if (this._dialog.backdrop_)
@@ -485,7 +499,8 @@ export class Dialog extends EventEmitter {
             }
             //left true sometimes so lets just always make it false to ensure modal dialogs open right
             this._dialog.open = false;
-            this._document.body.removeChild(this._dialog);
+            if (!this._state.persistent)
+                this._document.body.removeChild(this._dialog);
             this._state.show = 0;
             this._dialog.dataset.show = '' + this._state.show;
             if (this._dialog.backdrop_)
@@ -958,6 +973,7 @@ export class Dialog extends EventEmitter {
     }
 
     public resetState(options: DialogOptions) {
+        this._state.persistent = options.persistent;
         if (typeof options?.height === 'number')
             this._dialog.style.height = options.height + 'px';
         else if (options?.height && options?.height.length > 0)
@@ -1003,6 +1019,12 @@ export class Dialog extends EventEmitter {
         this._state.width = this._resize.width = parseInt(styles.width, 10);
         this._state.y = this._resize.y = parseInt(styles.top, 10);;
         this._state.height = this._resize.height = parseInt(styles.height, 10);
+
+        if (this._state.persistent && this._dialog && !this._dialog.parentElement)
+            this._document.body.appendChild(this._dialog);
+        else if (!this._state.persistent && this._dialog.parentElement)
+            this._document.body.removeChild(this._dialog);
+
         if (options && 'maximized' in options && options.maximized)
             this.maximize();
         else

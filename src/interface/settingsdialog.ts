@@ -222,24 +222,60 @@ export class SettingsDialog extends Dialog {
         }
         else {
             for (let f = 0, fl = forms.length; f < fl; f++) {
+                const defaultValue = forms[f].dataset.default || '';
+                if (forms[f].dataset.parent && !(forms[f].dataset.parent in this.settings))
+                    this.settings[forms[f].dataset.parent] = Settings.getValue(forms[f].dataset.parent);
                 if (forms[f].type === 'radio') {
-                    forms[f].checked = '' + this.settings[forms[f].name] === forms[f].value;
+                    if (!forms[f].dataset.parent && !(forms[f].name in this.settings))
+                        this.settings[forms[f].name] = Settings.getValue(forms[f].name);
+                    let value;
+                    if (forms[f].dataset.parent) {
+                        if (this.settings[forms[f].dataset.parent] && this.settings[forms[f].dataset.parent][forms[f].dataset.field] !== null)
+                            value = '' + this.settings[forms[f].dataset.parent][forms[f].dataset.field];
+                        else
+                            value = defaultValue;
+                    }
+                    else if (this.settings[forms[f].name] === null)
+                        value = defaultValue;
+                    else
+                        value = '' + this.settings[forms[f].name];
+                    forms[f].checked = value === forms[f].value;
                     forms[f].addEventListener('change', e => {
                         const target = (e.currentTarget || e.target) as HTMLInputElement;
-                        if (target.checked)
-                            this.settings[target.name] = this.convertType(target.value, typeof this.settings[target.name]);
+                        if (target.checked) {
+                            if (target.dataset.parent) {
+                                if (!this.settings[target.dataset.parent])
+                                    this.settings[target.dataset.parent] = {};
+                                this.settings[target.dataset.parent][target.dataset.field] = this.convertType(target.value, typeof this.settings[target.dataset.parent][target.dataset.field]);
+                            }
+                            else
+                                this.settings[target.name] = this.convertType(target.value, typeof this.settings[target.name]);
+                        }
                     });
                 }
                 else if (forms[f].type === 'checkbox') {
                     let name;
                     if (forms[f].dataset.enum === 'true') {
                         name = forms[f].name || forms[f].id.substring(0, forms[f].id.lastIndexOf('-'));
+                        if (!(name in this.settings))
+                            this.settings[name] = Settings.getValue(name);
                         const value = +forms[f].id.substring(forms[f].id.lastIndexOf('-') + 1);
                         forms[f].checked = (this.settings[name] & value) === value;
                     }
+                    else if (forms[f].dataset.parent) {
+                        if (this.settings[forms[f].dataset.parent] && forms[f].dataset.field in this.settings[forms[f].dataset.parent])
+                            forms[f].checked = this.settings[forms[f].dataset.parent][forms[f].dataset.field];
+                        else
+                            forms[f].checked = defaultValue === 'true';
+                    }
                     else {
                         name = forms[f].name || forms[f].id;
-                        forms[f].checked = this.settings[name];
+                        if (!(name in this.settings))
+                            this.settings[name] = Settings.getValue(name);
+                        if (this.settings[name] !== null)
+                            forms[f].checked = this.settings[name];
+                        else
+                            forms[f].checked = defaultValue === 'true';
                     }
                     forms[f].addEventListener('change', e => {
                         const target = (e.currentTarget || e.target) as HTMLInputElement;
@@ -252,7 +288,18 @@ export class SettingsDialog extends Dialog {
                                 if (enums[e].checked)
                                     value |= +enums[e].value;
                             }
-                            this.settings[name] = value;
+                            if (target.dataset.parent) {
+                                if (!this.settings[target.dataset.parent])
+                                    this.settings[target.dataset.parent] = {};
+                                this.settings[target.dataset.parent][target.dataset.field] = value;
+                            }
+                            else
+                                this.settings[name] = value;
+                        }
+                        else if (target.dataset.parent) {
+                            if (!this.settings[target.dataset.parent])
+                                this.settings[target.dataset.parent] = {};
+                            this.settings[target.dataset.parent][target.dataset.field] = target.checked || false
                         }
                         else {
                             name = target.name || target.id;
@@ -269,21 +316,65 @@ export class SettingsDialog extends Dialog {
                     });
                 }
                 else {
-                    if (forms[f].dataset.join && forms[f].dataset.join.length)
-                        forms[f].value = (this.settings[forms[f].id] || []).map(v => v.trim()).join(forms[f].dataset.join);
-                    else
-                        forms[f].value = this.settings[forms[f].id];
+                    let value;
+                    if (forms[f].dataset.parent) {
+                        if (this.settings[forms[f].dataset.parent] && forms[f].dataset.field in this.settings[forms[f].dataset.parent]) {
+                            if (forms[f].dataset.join && forms[f].dataset.join.length)
+                                forms[f].value = (this.settings[forms[f].dataset.parent][forms[f].dataset.field] || []).map(v => v.trim()).join(forms[f].dataset.join);
+                            else
+                                forms[f].value = this.settings[forms[f].dataset.parent][forms[f].dataset.field];
+                        }
+                        else
+                            value = defaultValue;
+                    }
+                    else if (forms[f].dataset.join && forms[f].dataset.join.length) {
+                        if (!(forms[f].id in this.settings))
+                            this.settings[forms[f].id] = Settings.getValue(forms[f].id);
+                        if (this.settings[forms[f].id] !== null)
+                            value = (this.settings[forms[f].id] || []).map(v => v.trim()).join(forms[f].dataset.join);
+                        else
+                            value = defaultValue;
+                    }
+                    else {
+                        if (!(forms[f].id in this.settings))
+                            this.settings[forms[f].id] = Settings.getValue(forms[f].id);
+                        if (this.settings[forms[f].id] !== null)
+                            value = this.settings[forms[f].id];
+                        else
+                            value = defaultValue;
+                    }
+                    forms[f].value = value;
                     forms[f].addEventListener('change', e => {
                         const target = (e.currentTarget || e.target) as HTMLInputElement;
-                        if (forms[f].dataset.join && forms[f].dataset.join.length)
-                            this.setValue(target.name || target.id, target.value.split(forms[f].dataset.join).map(v => v.trim()));
+                        if (target.dataset.parent) {
+                            let value;
+                            if (target.dataset.join && target.dataset.join.length)
+                                value = target.value.split(target.dataset.join).map(v => v.trim());
+                            else
+                                value = target.value;
+                            if (!this.settings[target.dataset.parent])
+                                this.settings[target.dataset.parent] = {};
+                            this.settings[target.dataset.parent][target.dataset.field] = this.getValue(value, this.settings[target.dataset.parent][target.dataset.field]);
+                        }
+                        else if (target.dataset.join && target.dataset.join.length)
+                            this.setValue(target.name || target.id, target.value.split(target.dataset.join).map(v => v.trim()));
                         else
                             this.setValue(target.name || target.id, target.value);
                     });
                     forms[f].addEventListener('input', e => {
                         const target = (e.currentTarget || e.target) as HTMLInputElement;
-                        if (forms[f].dataset.join && forms[f].dataset.join.length)
-                            this.setValue(target.name || target.id, target.value.split(forms[f].dataset.join).map(v => v.trim()));
+                        if (target.dataset.parent) {
+                            let value;
+                            if (target.dataset.join && target.dataset.join.length)
+                                value = target.value.split(target.dataset.join).map(v => v.trim());
+                            else
+                                value = target.value;
+                            if (!this.settings[target.dataset.parent])
+                                this.settings[target.dataset.parent] = {};
+                            this.settings[target.dataset.parent][target.dataset.field] = this.getValue(value, this.settings[target.dataset.parent][target.dataset.field]);
+                        }
+                        else if (target.dataset.join && target.dataset.join.length)
+                            this.setValue(target.name || target.id, target.value.split(target.dataset.join).map(v => v.trim()));
                         else
                             this.setValue(target.name || target.id, target.value);
                     });
@@ -354,12 +445,22 @@ export class SettingsDialog extends Dialog {
 
     public setValue(option, value) {
         if (value == 'false') value = false;
-        if (value == 'true') value = true;
-        if (value == 'null') value = null;
-        if (value == 'undefined') value = undefined;
-        if (typeof value == 'string' && parseFloat(value).toString() == value)
+        else if (value == 'true') value = true;
+        else if (value == 'null') value = null;
+        else if (value == 'undefined') value = undefined;
+        else if (typeof value == 'string' && parseFloat(value).toString() == value)
             value = parseFloat(value);
         this.settings[option] = this.convertType(value, typeof this.settings[option]);
+    }
+
+    public getValue(value, current) {
+        if (value == 'false') return false;
+        if (value == 'true') return true;
+        if (value == 'null') return null;
+        if (value == 'undefined') return undefined;
+        if (typeof value == 'string' && parseFloat(value).toString() == value)
+            return parseFloat(value);
+        return this.convertType(value, typeof current);
     }
 
     public convertType(value, type) {

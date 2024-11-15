@@ -32,8 +32,8 @@ The navigation breadcrumb to allow easier jumping to other pages
 - `Enable sound` Disable or enable sound globally
 - `Simple editor` Turn off advanced editor formatting and enable simple text editing only
 - `Clear editor on send` clear the advanced editor after sending text to the mud
-- `Close editor on send` close the advanced editor after sending text to the mud, **Note**If Persistent is enabled this will merely hide the editor until next use
-- `Reset editor window state` Reset the editor window state, **Note** if editor dialog open will resize current state
+- `Close editor on send` close the advanced editor after sending text to the mud, **Note** If Persistent is enabled this will merely hide the editor until next use
+- `Persistent editor` Keep editor loaded in background instead of unloading, uses more memory but window opens faster
 - `Show buttons` Show user buttons on screen
 - `Enable parsing` Enable text parsing
 - `Enable triggers` Enable trigger system
@@ -262,6 +262,7 @@ Controls what is captured into the chat window
 - `Display Walls` Draw walls between rooms to try and help display a more dungeon feel
 - `Delay between directions` The amount of milliseconds between sending # of directions for speed walking.
 - `Directions to send` the # of directions to send between delays
+- `Persistent` Keep mapper window always loaded once created, loads faster but uses more memory
 
 ## Advanced
 

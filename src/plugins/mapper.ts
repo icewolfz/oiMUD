@@ -77,39 +77,39 @@ export class Mapper extends Plugin {
 
                 this._dialogMap.enabled = this.client.getOption('mapper.enabled');
                 if (this._dialogMap.enabled)
-                    document.getElementById('mapper-enable').classList.add('active');
+                    this._dialog.body.querySelector('#mapper-enable').classList.add('active');
                 else
-                    document.getElementById('mapper-enable').classList.remove('active');
+                    this._dialog.body.querySelector('#mapper-enable').classList.remove('active');
 
                 this._dialogMap.showLegend = this.client.getOption('mapper.legend');
                 if (this._dialogMap.showLegend)
-                    document.getElementById('mapper-legend').classList.add('active');
+                    this._dialog.body.querySelector('#mapper-legend').classList.add('active');
                 else
-                    document.getElementById('mapper-legend').classList.remove('active');
+                    this._dialog.body.querySelector('#mapper-legend').classList.remove('active');
 
                 this._dialogMap.follow = this.client.getOption('mapper.follow');
                 if (this._dialogMap.follow)
-                    document.getElementById('mapper-follow').classList.add('active');
+                    this._dialog.body.querySelector('#mapper-follow').classList.add('active');
                 else
-                    document.getElementById('mapper-follow').classList.remove('active');
+                    this._dialog.body.querySelector('#mapper-follow').classList.remove('active');
 
                 this._dialogMap.splitArea = this.client.getOption('mapper.split');
                 if (this._dialogMap.splitArea)
-                    document.getElementById('mapper-split').classList.add('active');
+                    this._dialog.body.querySelector('#mapper-split').classList.add('active');
                 else
-                    document.getElementById('mapper-split').classList.remove('active');
+                    this._dialog.body.querySelector('#mapper-split').classList.remove('active');
 
                 this._dialogMap.fillWalls = this.client.getOption('mapper.fill');
                 if (this._dialogMap.fillWalls)
-                    document.getElementById('mapper-fill').classList.add('active');
+                    this._dialog.body.querySelector('#mapper-fill').classList.add('active');
                 else
-                    document.getElementById('mapper-fill').classList.remove('active');
+                    this._dialog.body.querySelector('#mapper-fill').classList.remove('active');
 
                 if (this._dialogMap.follow)
                     this._dialogMap.focusCurrentRoom();
             }
             if (this._dialog)
-                this._dialog.resetState(Object.assign({}, client.getWindowState('mapper') || { center: true }));
+                this._dialog.resetState(Object.assign({ persistent: true }, client.getWindowState('mapper') || { center: true }));
             let options = client.getWindowState('mapper');
             if ((options && options.show) || this.client.getOption('showMapper'))
                 this.show();
@@ -328,7 +328,7 @@ export class Mapper extends Plugin {
 
     public createDialog() {
         if (this._dialog) return;
-        this._dialog = new Dialog(Object.assign({}, client.getWindowState('mapper') || { center: true }, { title: '<i class="bi bi-map"></i><select id="mapper-area" class="form-select form-select-sm me-2 mb-1" title="Select Area"></select>', id: 'win-mapper', noFooter: true, minHeight: 350 }));
+        this._dialog = new Dialog(Object.assign({ persistent: true }, client.getWindowState('mapper') || { center: true }, { title: '<i class="bi bi-map"></i><select id="mapper-area" class="form-select form-select-sm me-2 mb-1" title="Select Area"></select>', id: 'win-mapper', noFooter: true, minHeight: 350 }));
         this._dialog.on('resized', e => {
             this.client.setOption('windows.mapper', e);
             debounce(() => {
@@ -361,6 +361,15 @@ export class Mapper extends Plugin {
         this._dialog.on('closed', () => {
             this.client.setOption('windows.mapper', this._dialog.windowState);
             this.client.setOption('showMapper', this._dialog.windowState.show !== 0);
+            if (this._dialog) {
+                if (this._map)
+                    this._map.removeListenersFromCaller(this._dialog);
+                this._dialogMap.map = null;
+                delete this._dialogMap;
+                this._dialogMap = null;
+                delete this._dialog;
+                this._dialog = null;
+            }
             removeHash('mapper');
         });
         this._dialog.on('canceling', () => {
@@ -369,6 +378,10 @@ export class Mapper extends Plugin {
         this._dialog.on('canceled', () => {
             this.client.setOption('windows.mapper', this._dialog.windowState);
             this.client.setOption('showMapper', this._dialog.windowState.show !== 0);
+            if (this._dialog) {
+                delete this._dialog;
+                this._dialog = null;
+            }
             removeHash('mapper');
         });
         this._dialog.on('resizing', () => {
@@ -442,9 +455,9 @@ export class Mapper extends Plugin {
         this._dialog.body.querySelector('#mapper-follow a').addEventListener('click', () => {
             this._dialogMap.follow = !this._dialogMap.follow;
             if (this._dialogMap.follow)
-                document.getElementById('mapper-follow').classList.add('active');
+                this._dialog.body.querySelector('#mapper-follow').classList.add('active');
             else
-                document.getElementById('mapper-follow').classList.remove('active');
+                this._dialog.body.querySelector('#mapper-follow').classList.remove('active');
             closeMenu();
         });
 
@@ -601,7 +614,7 @@ export class Mapper extends Plugin {
         });
 
         this._dialogMap.on('active-room-changed', room => {
-            const area = document.getElementById('mapper-area') as HTMLSelectElement;
+            const area = this._dialog.header.querySelector('#mapper-area') as HTMLSelectElement;
             if (!room.area || room.area.length === 0) {
                 if (area.options.length)
                     area.value = area.options[0].value;
@@ -609,12 +622,12 @@ export class Mapper extends Plugin {
             else {
                 if (!area.querySelectorAll(`option[value="${room.area.replace(/"/g, '&quot;')}"]`).length) {
                     area.insertAdjacentHTML('beforeend', `<option value="${room.area.replace(/"/g, '&quot;')}">${room.area}</option>`);
-                    document.getElementById('mapper-room-area').insertAdjacentHTML('beforeend', `<option value="${room.area.replace(/"/g, '&quot;')}">${room.area}</option>`);
+                    this._dialog.body.querySelector('#mapper-room-area').insertAdjacentHTML('beforeend', `<option value="${room.area.replace(/"/g, '&quot;')}">${room.area}</option>`);
                 }
                 area.value = room.area;
             }
-            (document.getElementById('mapper-level') as HTMLInputElement).value = room.z;
-            (document.getElementById('mapper-zone') as HTMLInputElement).value = room.zone;
+            (this._dialog.body.querySelector('#mapper-level') as HTMLInputElement).value = room.z;
+            (this._dialog.body.querySelector('#mapper-zone') as HTMLInputElement).value = room.zone;
             room = room.clone();
             room.ID = room.num;
             delete room.num;
@@ -623,24 +636,24 @@ export class Mapper extends Plugin {
 
         this._dialogMap.on('setting-changed', (setting, value) => {
             if (setting === 'active') {
-                (document.getElementById('mapper-area') as HTMLInputElement).value = value.area;
-                (document.getElementById('mapper-level') as HTMLInputElement).value = value.z;
-                (document.getElementById('mapper-zone') as HTMLInputElement).value = value.zone;
+                (this._dialog.header.querySelector('#mapper-area') as HTMLInputElement).value = value.area;
+                (this._dialog.body.querySelector('#mapper-level') as HTMLInputElement).value = value.z;
+                (this._dialog.body.querySelector('#mapper-zone') as HTMLInputElement).value = value.zone;
             }
             else if (setting === 'scale') {
-                (document.getElementById('mapper-zoom') as HTMLInputElement).value = value;
-                document.getElementById('mapper-zoom-display').textContent = value + '%';
+                (this._dialog.body.querySelector('#mapper-zoom') as HTMLInputElement).value = value;
+                this._dialog.body.querySelector('#mapper-zoom-display').textContent = value + '%';
             }
             this.client.setOption(`mapper.${setting}`, value);
         });
 
-        document.getElementById('mapper-area').addEventListener('change', e => {
+        this._dialog.header.querySelector('#mapper-area').addEventListener('change', e => {
             this._dialogMap.setArea((e.currentTarget as HTMLSelectElement).value);
         });
-        document.getElementById('mapper-level').addEventListener('change', e => {
+        this._dialog.body.querySelector('#mapper-level').addEventListener('change', e => {
             this._dialogMap.setLevel(parseInt((e.currentTarget as HTMLInputElement).value, 10));
         });
-        document.getElementById('mapper-zone').addEventListener('change', e => {
+        this._dialog.body.querySelector('#mapper-zone').addEventListener('change', e => {
             this._dialogMap.setZone(parseInt((e.currentTarget as HTMLInputElement).value, 10));
         });
 
@@ -653,10 +666,10 @@ export class Mapper extends Plugin {
             this._dialog.body.querySelector('#mapper-room a').click();
         this._dialogSplitter.SplitterDistance = client.getOption('mapper.roomWidth');
         this._dialogSplitter.panel2.innerHTML = mapperRoom;
-        document.getElementById('mapper-room-close').addEventListener('click', () => {
+        this._dialog.body.querySelector('#mapper-room-close').addEventListener('click', () => {
             this._dialog.body.querySelector('#mapper-room a').click();
         });
-        document.getElementById('mapper-room-accordion').querySelectorAll('input,textarea,select,.accordion-body button').forEach((f: HTMLInputElement) => {
+        this._dialog.body.querySelector('#mapper-room-accordion').querySelectorAll('input,textarea,select,.accordion-body button').forEach((f: HTMLInputElement) => {
             f.disabled = true;
             if (f.tagName === 'BUTTON') return;
             if (f.type === 'checkbox') {
@@ -666,7 +679,7 @@ export class Mapper extends Plugin {
                     const name = f.name || (f.id).substring(12);
                     if (target.dataset.enum === 'true') {
                         const name = target.name || target.id.substring(0, target.id.lastIndexOf('-'));
-                        const enums = document.getElementById('mapper-room-accordion').querySelectorAll(`[name=${name}]`);
+                        const enums = this._dialog.body.querySelector('#mapper-room-accordion').querySelectorAll(`[name=${name}]`);
                         let value = 0;
                         for (let e = 0, el = enums.length; e < el; e++) {
                             if ((enums[e] as HTMLInputElement).checked)
@@ -703,7 +716,7 @@ export class Mapper extends Plugin {
             }
         });
         this._dialogMap.on('room-selected', room => {
-            document.getElementById('mapper-room-accordion').querySelectorAll('input,textarea,select,.accordion-body button').forEach((f: HTMLInputElement) => {
+            this._dialog.body.querySelector('#mapper-room-accordion').querySelectorAll('input,textarea,select,.accordion-body button').forEach((f: HTMLInputElement) => {
                 if (room === null || room.num === null) {
                     f.disabled = true;
                     if (f.tagName === 'BUTTON') return;
@@ -801,15 +814,15 @@ export class Mapper extends Plugin {
         this._dialogMap.on('debug', msg => {
             this.client.debug(msg);
         });
-        (document.getElementById('mapper-level') as HTMLInputElement).value = '' + this._dialogMap.active.z;
-        (document.getElementById('mapper-zone') as HTMLInputElement).value = '' + this._dialogMap.active.zone;
-        document.getElementById('mapper-zoom').addEventListener('input', e => {
+        (this._dialog.body.querySelector('#mapper-level') as HTMLInputElement).value = '' + this._dialogMap.active.z;
+        (this._dialog.body.querySelector('#mapper-zone') as HTMLInputElement).value = '' + this._dialogMap.active.zone;
+        this._dialog.body.querySelector('#mapper-zoom').addEventListener('input', e => {
             this._dialogMap.scale = +(e.currentTarget as HTMLInputElement).value;
         });
 
         const initMapper = () => {
             const m = this._map.Areas.length;
-            const area = document.getElementById('mapper-area') as HTMLSelectElement;
+            const area = this._dialog.header.querySelector('#mapper-area') as HTMLSelectElement;
             area.addEventListener('mouseup', e => {
                 e.stopPropagation();
                 e.cancelBubble = true;
@@ -826,7 +839,7 @@ export class Mapper extends Plugin {
             for (let i = 0; i < m; i++)
                 h += `<option value="${this._map.Areas[i].replace(/"/g, '&quot;')}">${this._map.Areas[i]}</option>`;
             area.innerHTML = h;
-            document.getElementById('mapper-room-area').innerHTML = h;
+            this._dialog.body.querySelector('#mapper-room-area').innerHTML = h;
             if (this._dialogMap.active.area && this._map.Areas.indexOf(this._dialogMap.active.area) !== -1)
                 area.value = this._dialogMap.active.area;
             else if (m > 0) {
@@ -838,34 +851,34 @@ export class Mapper extends Plugin {
 
             this._dialogMap.enabled = this.client.getOption('mapper.enabled');
             if (this._dialogMap.enabled)
-                document.getElementById('mapper-enable').classList.add('active');
+                this._dialog.body.querySelector('#mapper-enable').classList.add('active');
 
             this._dialogMap.showLegend = this.client.getOption('mapper.legend');
             if (this._dialogMap.showLegend)
-                document.getElementById('mapper-legend').classList.add('active');
+                this._dialog.body.querySelector('#mapper-legend').classList.add('active');
 
             this._dialogMap.follow = this.client.getOption('mapper.follow');
             if (this._dialogMap.follow)
-                document.getElementById('mapper-follow').classList.add('active');
+                this._dialog.body.querySelector('#mapper-follow').classList.add('active');
 
             this._dialogMap.splitArea = this.client.getOption('mapper.split');
             if (this._dialogMap.splitArea)
-                document.getElementById('mapper-split').classList.add('active');
+                this._dialog.body.querySelector('#mapper-split').classList.add('active');
 
             this._dialogMap.fillWalls = this.client.getOption('mapper.fill');
             if (this._dialogMap.fillWalls)
-                document.getElementById('mapper-fill').classList.add('active');
+                this._dialog.body.querySelector('#mapper-fill').classList.add('active');
 
             if (this._dialogMap.follow)
                 this._dialogMap.focusCurrentRoom();
             this._dialogMap.scale = this.client.getOption('mapper.scale');
             this._map.on('rooms-removed', rooms => {
                 this._map.save();
-            });
+            }, this._dialog);
 
             this._map.on('areas-removed', areas => {
-                const area = document.getElementById('mapper-area') as HTMLSelectElement;
-                const roomArea = document.getElementById('mapper-room-area') as HTMLSelectElement;
+                const area = this._dialog.header.querySelector('#mapper-area') as HTMLSelectElement;
+                const roomArea = this._dialog.body.querySelector('#mapper-room-area') as HTMLSelectElement;
                 if (this._map.Areas.length === 0) {
                     area.innerHTML = '';
                     roomArea.innerHTML = '';
@@ -880,28 +893,28 @@ export class Mapper extends Plugin {
                             roomArea.remove(i);
                     }
                 }
-            });
+            }, this._dialog);
             this._map.on('areas-added', areas => {
                 //TODO recode to insert the area at correct index instead of rebuilding full list
                 let h = '';
                 const m = this._map.Areas.length;
                 for (let i = 0; i < m; i++)
                     h += `<option value="${this._map.Areas[i].replace(/"/g, '&quot;')}">${this._map.Areas[i]}</option>`;
-                document.getElementById('mapper-area').innerHTML = h;
-                document.getElementById('mapper-room-area').innerHTML = h;
+                this._dialog.header.querySelector('#mapper-area').innerHTML = h;
+                this._dialog.body.querySelector('#mapper-room-area').innerHTML = h;
                 if (this._dialogMap.active.area && this._map.Areas.indexOf(this._dialogMap.active.area) !== -1)
-                    (document.getElementById('mapper-area') as HTMLSelectElement).value = this._dialogMap.active.area;
+                    (this._dialog.header.querySelector('#mapper-area') as HTMLSelectElement).value = this._dialogMap.active.area;
                 else if (m > 0) {
                     this._dialogMap.active.area = this.map.Areas[0];
                     this._dialogMap.emit('setting-changed', 'active', this._dialogMap.active.area);
-                    (document.getElementById('mapper-area') as HTMLSelectElement).value = this._dialogMap.active.area;
+                    (this._dialog.header.querySelector('#mapper-area') as HTMLSelectElement).value = this._dialogMap.active.area;
                 }
-            });
+            }, this._dialog);
 
             this._map.on('import-progress', progress => {
                 if (this._dialogProgress)
                     this._dialogProgress.progress = progress;
-            });
+            }, this._dialog);
             this._map.on('import-complete', () => {
                 client.sendGMCP('Room.Info');
                 if (this._dialogProgress)
@@ -909,7 +922,7 @@ export class Mapper extends Plugin {
                 this._dialogProgress = null;
                 this._dialogMap.refresh();
                 this._map.save();
-            });
+            }, this._dialog);
             this._map.on('import-canceled', () => {
                 client.sendGMCP('Room.Info');
                 if (this._dialogProgress)
@@ -917,13 +930,13 @@ export class Mapper extends Plugin {
                 this._dialogProgress = null;
                 this._dialogMap.refresh();
                 this._map.save();
-            });
+            }, this._dialog);
         }
 
         this.on('map-loaded', () => {
             initMapper();
         });
-        if (this.map)
+        if (this._map)
             initMapper();
     }
 

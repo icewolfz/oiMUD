@@ -39,3 +39,7 @@
     - Add true mapper window
 - run firefox/chrome performance tools to optimize code/loading
 - Add advanced setting view for complex editing
+- Add editor reset button in settings 
+    - `Reset editor window state` Reset the editor window state, **Note** if editor dialog open will resize current state
+- Add persistent settings for skills, chat, log manager, can not create persistent for true windows as there is no way to "hide" a window
+    - Core dialog now supports this, just a matter of adding settings to turn it on/off as needed and add any custom code needed to prevent child controls from unloading/resetting as needed

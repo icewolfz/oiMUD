@@ -30,7 +30,6 @@
 - `Profile to select on load` select which profile to pick when profile manager is first opened, falls back to Default if profile not found
 - `Expand selected profile on load` auto expand selected profile when profile manager is first opened
 ```
-- Add settings to reset windows states to defaults
 - recode advanced editor to not use jquery when possible
 - Add paste special? may not be possible as cant control paste
 - Mapper
@@ -39,5 +38,3 @@
     - Add true mapper window
 - run firefox/chrome performance tools to optimize code/loading
 - Add advanced setting view for complex editing
-- Add editor reset button in settings 
-    - `Reset editor window state` Reset the editor window state, **Note** if editor dialog open will resize current state

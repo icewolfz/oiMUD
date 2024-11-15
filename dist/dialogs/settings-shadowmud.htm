@@ -74,3 +74,10 @@
     <input type="checkbox" class="form-check-input" id="externalHelp">
     <label class="form-check-label" for="externalHelp">Open ShadowMUD help in new window</label>
 </div>
+<button id="reset-help" type="button" class="btn btn-light" title="Reset help dialog state">Reset help dialog
+    state</button>
+<script>
+    body.querySelector('#reset-help').addEventListener('click', () => {
+        dialog.settings['windows.smhelp'] = null;
+    });
+</script>

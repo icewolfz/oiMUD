@@ -71,3 +71,10 @@
         data-field="persistent" data-default="true">
     <label class="form-check-label" for="windows.log-viewer.persistent">Persistent log manager dialog</label>
 </div>
+<button id="reset-window" type="button" class="btn btn-light" title="Reset manger dialog state">Reset manager dialog
+    state</button>
+<script>
+    body.querySelector('#reset-window').addEventListener('click', () => {
+        dialog.settings['windows.log-view'] = null;
+    });
+</script>

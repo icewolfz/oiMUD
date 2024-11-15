@@ -34,9 +34,11 @@ The navigation breadcrumb to allow easier jumping to other pages
 - `Clear editor on send` clear the advanced editor after sending text to the mud
 - `Close editor on send` close the advanced editor after sending text to the mud, **Note** If Persistent is enabled this will merely hide the editor until next use
 - `Persistent editor` Keep editor loaded in background instead of unloading, uses more memory but window opens faster
+- `Reset editor dialog state` Reset the editor window state, **Note** if dialog open will reuse active state on close
 - `Show buttons` Show user buttons on screen
 - `Enable parsing` Enable text parsing
 - `Enable triggers` Enable trigger system
+- `Reset help dialog state` Reset the help dialog state, **Note** if dialog open will reuse active state on close
 
 ## Display
 
@@ -129,7 +131,7 @@ Only if logging plugin enabled
 - `Timestamp` Add timestamp to each logged line
 - `Timestamp format` Time stamp format, **Note** Supports all moment time formats
 - `Persistent log manager dialog` Keep long manager dialog loaded in background instead of unloading, uses more memory but window opens faster
-
+- `Reset manager dialog state` Reset the manager dialog state, **Note** if dialog open will reuse active state on close
 
 ## Telnet
 
@@ -218,6 +220,8 @@ Controls what is captured into the chat window
   - `Selective` capture only those provided in the selective lines list
 - `Selective lines` A comma delimited list of lines to selectively capture, For example: Chat,Rp,Mudinfo will capture Chat, Rp, and Mudinfo lines.
 - `Persistent dialog` Keep chat dialog loaded in background instead of unloading, uses more memory but window opens faster
+- `Reset chat dialog state` Reset the chat dialog state, **Note** if dialog open will reuse active state on close
+- `Reset chat window state` Reset the chat window state, **Note** if window open will reuse active state on close
 
 ## Chat Display
 
@@ -257,6 +261,7 @@ Controls what is captured into the chat window
 - `Show Experience Needed as Progressbar` display the experience needed value as a progress bar
 - `Width` The width of the status bar, min of 184 or 1/3 of current window size, will adjust to new max as window is resized
 - `Persistent skills dialog` Keep skills dialog loaded in background instead of unloading, uses more memory but window opens faster
+- `Reset skill dialog state` Reset the skill dialog state, **Note** if dialog open will reuse active state on close
 
 ## Mapper
 
@@ -269,6 +274,7 @@ Controls what is captured into the chat window
 - `Delay between directions` The amount of milliseconds between sending # of directions for speed walking.
 - `Directions to send` the # of directions to send between delays
 - `Persistent` Keep mapper dialog loaded in background instead of unloading, uses more memory but window opens faster
+- `Reset dialog state` Reset the dialog state, **Note** if dialog open will reuse active state on close
 
 ## Advanced
 
@@ -299,3 +305,4 @@ Controls what is captured into the chat window
 - `Skip more prompt delay` The amount of time in milliseconds to wait before skipping more prompt
 - `Mapper backup import type` determines how mapper imports loaded data
 - `Open ShadowMUD help in new window` Open the ShadowMUD help in a browser window, if disabled will open in dialog
+- `Reset help dialog state` Reset the help dialog state, **Note** if dialog open will reuse active state on close

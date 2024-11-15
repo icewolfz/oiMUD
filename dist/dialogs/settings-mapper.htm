@@ -41,3 +41,10 @@
         data-field="persistent" data-default="true">
     <label class="form-check-label" for="windows.mapper.persistent">Persistent</label>
 </div>
+<button id="reset-window" type="button" class="btn btn-light" title="Reset dialog state">Reset dialog
+    state</button>
+<script>
+    body.querySelector('#reset-window').addEventListener('click', () => {
+        dialog.settings['windows.mapper'] = null;
+    });
+</script>

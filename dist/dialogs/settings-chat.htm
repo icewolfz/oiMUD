@@ -66,8 +66,7 @@
 
 <div class="mb-3">
     <label for="chat.lines" class="form-label">Selective Lines</label>
-    <textarea class="form-control" id="chat.lines" rows="3" data-join="," disabled
-        ></textarea>
+    <textarea class="form-control" id="chat.lines" rows="3" data-join="," disabled></textarea>
     <small class="form-text text-muted alert alert-info" style="display:block;width:100%;margin-top:3px;padding: 2px">
         Separate each name with a comma(,) for example: chat,rp
     </small>
@@ -77,16 +76,26 @@
         data-field="persistent" data-default="true">
     <label class="form-check-label" for="windows.chat.persistent">Persistent dialog</label>
 </div>
+<button id="reset-dialog" type="button" class="btn btn-light" title="Reset dialog state">Reset dialog
+    state</button>
+<button id="reset-window" type="button" class="btn btn-light" title="Reset window state">Reset window
+    state</button>
 <script>
+    body.querySelector('#reset-dialog').addEventListener('click', () => {
+        dialog.settings['windows.chat'] = null;
+    });
+    body.querySelector('#reset-window').addEventListener('click', () => {
+        dialog.settings['windows.chatWindow'] = null;
+    });
     body.querySelector('[id="chat.captureAllLines"]').addEventListener('change', e => {
         body.querySelector('[id="chat.lines"]').disabled = !body.querySelector('[id="chat.captureSelective"]').checked || !body.querySelector('[id="chat.captureLines"]').checked;
     });
     body.querySelector('[id="chat.captureSelective"]').addEventListener('change', e => {
         body.querySelector('[id="chat.lines"]').disabled = !body.querySelector('[id="chat.captureSelective"]').checked || !body.querySelector('[id="chat.captureLines"]').checked;
-    });    
+    });
     body.querySelector('[id="chat.captureLines"]').addEventListener('change', e => {
         body.querySelector('[id="chat.lines"]').disabled = !body.querySelector('[id="chat.captureSelective"]').checked || !body.querySelector('[id="chat.captureLines"]').checked;
-    });    
+    });
     body.querySelector('[id="chat.lines"]').disabled = !body.querySelector('[id="chat.captureSelective"]').checked || !body.querySelector('[id="chat.captureLines"]').checked;
 
 </script>

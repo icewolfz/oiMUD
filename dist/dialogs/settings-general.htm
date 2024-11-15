@@ -29,7 +29,7 @@
     <input type="checkbox" class="form-check-input" id="editorPersistent">
     <label class="form-check-label" for="editorPersistent">Persistent editor</label>
 </div>
-<button id="reset-editor" type="button" class="btn btn-light" title="Reset editor window state">Reset editor window
+<button id="reset-editor" type="button" class="btn btn-light" title="Reset editor dialog state">Reset editor dialog
     state</button>
 
 <div class="form-check form-switch">
@@ -44,8 +44,13 @@
     <input type="checkbox" class="form-check-input" id="enableTriggers">
     <label class="form-check-label" for="enableTriggers">Enable triggers</label>
 </div>
+<button id="reset-help" type="button" class="btn btn-light" title="Reset editor dialog state">Reset help dialog
+    state</button>
 <script>
     body.querySelector('#reset-editor').addEventListener('click', () => {
         dialog.settings['windows.editor'] = null;
+    });
+    body.querySelector('#reset-help').addEventListener('click', () => {
+        dialog.settings['windows.help'] = null;
     });
 </script>

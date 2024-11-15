@@ -81,7 +81,12 @@
         data-field="persistent" data-default="true">
     <label class="form-check-label" for="windows.skills.persistent">Persistent skills dialog</label>
 </div>
+<button id="reset-window" type="button" class="btn btn-light" title="Reset skill dialog state">Reset skill dialog
+    state</button>
 <script>
+    body.querySelector('#reset-window').addEventListener('click', () => {
+        dialog.settings['windows.skills'] = null;
+    });
     body.querySelector('#statusWidth').max = Math.floor(document.body.clientWidth * 0.33);
     body.querySelector('#statusMax').textContent = body.querySelector('#statusWidth').max;
 </script>

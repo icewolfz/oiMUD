@@ -823,18 +823,6 @@ export class Mapper extends Plugin {
         const initMapper = () => {
             const m = this._map.Areas.length;
             const area = this._dialog.header.querySelector('#mapper-area') as HTMLSelectElement;
-            area.addEventListener('mouseup', e => {
-                e.stopPropagation();
-                e.cancelBubble = true;
-            });
-            area.addEventListener('touchstart', e => {
-                e.stopPropagation();
-                e.cancelBubble = true;
-            }, { passive: true });
-            area.addEventListener('mousedown', e => {
-                e.stopPropagation();
-                e.cancelBubble = true;
-            });
             let h = '';
             for (let i = 0; i < m; i++)
                 h += `<option value="${this._map.Areas[i].replace(/"/g, '&quot;')}">${this._map.Areas[i]}</option>`;

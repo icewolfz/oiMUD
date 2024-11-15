@@ -192,6 +192,8 @@ export class Dialog extends EventEmitter {
 
     private _dragMouseDown = e => {
         if (this.maximized) return;
+        let tag = e.srcElement ? e.srcElement.tagName : '';
+        if (tag && ((e.srcElement.parentElement && e.srcElement.parentNode.tagName === 'BUTTON') || tag === 'BUTTON' || tag === 'INPUT' || tag === 'SELECT' || tag === 'SELECT' || tag === 'TEXTAREA')) return;
         this._dragPosition.x = e.clientX;
         this._dragPosition.y = e.clientY;
         this._document.documentElement.addEventListener('mouseup', this._dragMouseUp);
@@ -201,6 +203,8 @@ export class Dialog extends EventEmitter {
 
     private _dragTouchStart = e => {
         if (this.maximized) return;
+        let tag = e.srcElement ? e.srcElement.tagName : '';
+        if (tag && ((e.srcElement.parentElement && e.srcElement.parentNode.tagName === 'BUTTON') || tag === 'BUTTON' || tag === 'INPUT' || tag === 'SELECT' || tag === 'SELECT' || tag === 'TEXTAREA')) return;
         this._dragPosition.x = e.clientX;
         this._dragPosition.y = e.clientY;
         this._document.documentElement.addEventListener('touchend', this._dragMouseUp);

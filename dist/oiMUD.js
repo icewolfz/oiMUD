@@ -26707,6 +26707,8 @@ Devanagari
       };
       this._dragMouseDown = (e) => {
         if (this.maximized) return;
+        let tag = e.srcElement ? e.srcElement.tagName : "";
+        if (tag && (e.srcElement.parentElement && e.srcElement.parentNode.tagName === "BUTTON" || tag === "BUTTON" || tag === "INPUT" || tag === "SELECT" || tag === "SELECT" || tag === "TEXTAREA")) return;
         this._dragPosition.x = e.clientX;
         this._dragPosition.y = e.clientY;
         this._document.documentElement.addEventListener("mouseup", this._dragMouseUp);
@@ -26715,6 +26717,8 @@ Devanagari
       };
       this._dragTouchStart = (e) => {
         if (this.maximized) return;
+        let tag = e.srcElement ? e.srcElement.tagName : "";
+        if (tag && (e.srcElement.parentElement && e.srcElement.parentNode.tagName === "BUTTON" || tag === "BUTTON" || tag === "INPUT" || tag === "SELECT" || tag === "SELECT" || tag === "TEXTAREA")) return;
         this._dragPosition.x = e.clientX;
         this._dragPosition.y = e.clientY;
         this._document.documentElement.addEventListener("touchend", this._dragMouseUp);
@@ -33917,18 +33921,6 @@ Devanagari
       const initMapper = () => {
         const m = this._map.Areas.length;
         const area = this._dialog.header.querySelector("#mapper-area");
-        area.addEventListener("mouseup", (e) => {
-          e.stopPropagation();
-          e.cancelBubble = true;
-        });
-        area.addEventListener("touchstart", (e) => {
-          e.stopPropagation();
-          e.cancelBubble = true;
-        }, { passive: true });
-        area.addEventListener("mousedown", (e) => {
-          e.stopPropagation();
-          e.cancelBubble = true;
-        });
         let h = "";
         for (let i3 = 0; i3 < m; i3++)
           h += `<option value="${this._map.Areas[i3].replace(/"/g, "&quot;")}">${this._map.Areas[i3]}</option>`;
@@ -35021,18 +35013,6 @@ Devanagari
             cats.forEach((cat) => cat.style.display = "none");
             this._skillsDialog.body.querySelector(`#${selected.toLowerCase()}`).style.display = "";
           }
-        });
-        filter.addEventListener("mouseup", (e) => {
-          e.stopPropagation();
-          e.cancelBubble = true;
-        });
-        filter.addEventListener("touchstart", (e) => {
-          e.stopPropagation();
-          e.cancelBubble = true;
-        }, { passive: true });
-        filter.addEventListener("mousedown", (e) => {
-          e.stopPropagation();
-          e.cancelBubble = true;
         });
       }
       this._loadSkills();

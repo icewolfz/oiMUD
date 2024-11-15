@@ -1077,18 +1077,6 @@ export class Status extends Plugin {
                     this._skillsDialog.body.querySelector(`#${selected.toLowerCase()}`).style.display = '';
                 }
             });
-            filter.addEventListener('mouseup', e => {
-                e.stopPropagation();
-                e.cancelBubble = true;
-            });
-            filter.addEventListener('touchstart', e => {
-                e.stopPropagation();
-                e.cancelBubble = true;
-            }, { passive: true });
-            filter.addEventListener('mousedown', e => {
-                e.stopPropagation();
-                e.cancelBubble = true;
-            });
         }
         this._loadSkills();
         this._skillsDialog.show();

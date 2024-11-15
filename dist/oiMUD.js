@@ -34013,8 +34013,8 @@ Devanagari
           this._status.querySelector("#armor").classList.add("active");
         }
         let w2 = client.getOption("statusWidth");
-        if (w2 < 184 && w2 != -1) w2 = 184;
         if (w2 > document.body.clientWidth - this.maxWidth) w2 = document.body.clientWidth - this.maxWidth;
+        if (w2 < 184 && w2 != -1) w2 = 184;
         this.splitterDistance = w2;
         this.updateInterface();
       });
@@ -34037,9 +34037,9 @@ Devanagari
         ghostBar.style.left = bounds2.left + "px";
         ghostBar.style.cursor = "ew-resize";
         document.body.append(ghostBar);
-        const maxWidth = this.maxWidth;
+        const maxWidth = Math.min(this.maxWidth, document.body.clientWidth - bounds.width);
         this._move = (e2) => {
-          if (e2.pageX < maxWidth)
+          if (e2.pageX <= maxWidth)
             ghostBar.style.left = maxWidth - bounds2.width + "px";
           else if (e2.pageX > bounds.left - bounds2.width)
             ghostBar.style.left = bounds.left + parseInt(this._styles.right, 10) - bounds2.width + "px";
@@ -34055,10 +34055,10 @@ Devanagari
         this._status.style.width = "";
         const bounds = this._status.getBoundingClientRect();
         const minWidth = bounds.width + parseInt(this._styles.right, 10);
-        const maxWidth = this.maxWidth;
         const l2 = document.getElementById("status-drag-bar").getBoundingClientRect().width;
+        const maxWidth = Math.min(this.maxWidth, document.body.clientWidth - minWidth);
         this._status.style.width = w2;
-        if (e.pageX < maxWidth)
+        if (e.pageX <= maxWidth)
           this.splitterDistance = document.body.clientWidth - maxWidth;
         else if (e.pageX > bounds.left - l2)
           this.splitterDistance = minWidth;
@@ -34737,7 +34737,7 @@ Devanagari
       this._status.style.width = "";
       const bounds = this._status.getBoundingClientRect();
       const minWidth = bounds.width + parseInt(this._styles.right, 10);
-      const maxWidth = document.body.clientWidth - this.maxWidth;
+      const maxWidth = Math.min(document.body.clientWidth - this.maxWidth, document.body.clientWidth - minWidth);
       this._status.style.width = w;
       const bounds2 = this._status.getBoundingClientRect();
       if (bounds2.width < minWidth) {

@@ -125,8 +125,9 @@ export class Status extends Plugin {
                 this._status.querySelector('#armor').classList.add('active');
             }
             let w = client.getOption('statusWidth');
-            if (w < 184 && w != -1) w = 184;
             if (w > document.body.clientWidth - this.maxWidth) w = document.body.clientWidth - this.maxWidth;
+            //Always want min width even if maxWidth is smaller
+            if (w < 184 && w != -1) w = 184;
             this.splitterDistance = w;
             this.updateInterface();
         });
@@ -149,9 +150,10 @@ export class Status extends Plugin {
             ghostBar.style.left = bounds2.left + 'px';
             ghostBar.style.cursor = 'ew-resize';
             document.body.append(ghostBar);
-            const maxWidth = this.maxWidth;
+            //Use max with unless minWidth is larger
+            const maxWidth = Math.min(this.maxWidth, document.body.clientWidth - bounds.width);
             this._move = e => {
-                if (e.pageX < maxWidth)
+                if (e.pageX <= maxWidth)
                     ghostBar.style.left = maxWidth - bounds2.width + 'px';
                 else if (e.pageX > bounds.left - bounds2.width)
                     ghostBar.style.left = bounds.left + parseInt(this._styles.right, 10) - bounds2.width + 'px';
@@ -168,10 +170,10 @@ export class Status extends Plugin {
             this._status.style.width = '';
             const bounds = this._status.getBoundingClientRect();
             const minWidth = (bounds.width + parseInt(this._styles.right, 10));
-            const maxWidth = this.maxWidth;
             const l = document.getElementById('status-drag-bar').getBoundingClientRect().width;
+            const maxWidth = Math.min(this.maxWidth, document.body.clientWidth - minWidth);
             this._status.style.width = w;
-            if (e.pageX < maxWidth)
+            if (e.pageX <= maxWidth)
                 this.splitterDistance = document.body.clientWidth - maxWidth;
             else if (e.pageX > bounds.left - l)
                 this.splitterDistance = minWidth;
@@ -922,7 +924,7 @@ export class Status extends Plugin {
         this._status.style.width = '';
         const bounds = this._status.getBoundingClientRect();
         const minWidth = (bounds.width + parseInt(this._styles.right, 10));
-        const maxWidth = document.body.clientWidth - this.maxWidth;
+        const maxWidth = Math.min(document.body.clientWidth - this.maxWidth, document.body.clientWidth - minWidth);
         this._status.style.width = w;
         const bounds2 = this._status.getBoundingClientRect();
         if (bounds2.width < minWidth) {

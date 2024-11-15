@@ -109,14 +109,14 @@ export class Mapper extends Plugin {
                     this._dialogMap.focusCurrentRoom();
             }
             if (this._dialog)
-                this._dialog.resetState(Object.assign({}, client.getOption('windows.mapper') || { center: true }));
-            let options = client.getOption('windows.mapper');
+                this._dialog.resetState(Object.assign({}, client.getWindowState('mapper') || { center: true }));
+            let options = client.getWindowState('mapper');
             if ((options && options.show) || this.client.getOption('showMapper'))
                 this.show();
         });
         this.on('debug', e => this.client.debug(e), this);
         this.on('error', e => this.client.error(e), this);
-        let options = client.getOption('windows.mapper');
+        let options = client.getWindowState('mapper');
         if ((options && options.show) || this.client.getOption('showMapper'))
             this.show();
     }
@@ -328,7 +328,7 @@ export class Mapper extends Plugin {
 
     public createDialog() {
         if (this._dialog) return;
-        this._dialog = new Dialog(Object.assign({}, client.getOption('windows.mapper') || { center: true }, { title: '<i class="bi bi-map"></i><select id="mapper-area" class="form-select form-select-sm me-2 mb-1" title="Select Area"></select>', id: 'win-mapper', noFooter: true, minHeight: 350 }));
+        this._dialog = new Dialog(Object.assign({}, client.getWindowState('mapper') || { center: true }, { title: '<i class="bi bi-map"></i><select id="mapper-area" class="form-select form-select-sm me-2 mb-1" title="Select Area"></select>', id: 'win-mapper', noFooter: true, minHeight: 350 }));
         this._dialog.on('resized', e => {
             this.client.setOption('windows.mapper', e);
             debounce(() => {

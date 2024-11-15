@@ -20,7 +20,7 @@ export class HelpDialog extends Dialog {
     private _client;
 
     constructor() {
-        super(Object.assign({}, client.getOption('windows.help') || { center: true }, { title: '<ol class="float-start breadcrumb"><li class="breadcrumb-icon"><i class="bi bi-question-circle" style="margin-right: 2px;"></i></li><li class="breadcrumb-item active">Help</li></ol>', minWidth: 410, noFooter: true }));
+        super(Object.assign({}, client.getWindowState('help') || { center: true }, { title: '<ol class="float-start breadcrumb"><li class="breadcrumb-icon"><i class="bi bi-question-circle" style="margin-right: 2px;"></i></li><li class="breadcrumb-item active">Help</li></ol>', minWidth: 410, noFooter: true }));
         this._client = client;
         this.on('resized', e => {
             this._updateSmall(e.width);
@@ -30,7 +30,7 @@ export class HelpDialog extends Dialog {
             this._client.setOption('windows.help', e);
         });
         this._client.on('options-loaded', () => {
-            this.resetState(this._client.getOption('windows.help') || { center: true });
+            this.resetState(this._client.getWindowState('help') || { center: true });
         });
         this.on('closed', () => {
             this._client.setOption('windows.help', this.windowState);

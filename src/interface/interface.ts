@@ -305,7 +305,7 @@ export function initializeInterface() {
         if (client.getOption('commandAutoSize') || client.getOption('commandScrollbars'))
             resizeCommandInput();
         if (editorDialog) {
-            editorDialog.resetState(client.getOption('windows.editor') || { center: true });
+            editorDialog.resetState(client.getWindowState('editor') || { center: true });
             if (editor.simple != client.getOption('simpleEditor')) {
                 let value = '';
                 if (!editor.isSimple)
@@ -325,9 +325,9 @@ export function initializeInterface() {
                 }
             }
         }
-        if (_dialogs.history) _dialogs.history.resetState(client.getOption('windows.history') || { center: true, width: 400, height: 275 });
-        if (_dialogs.profiles) _dialogs.profiles.resetState(client.getOption('windows.profiles') || { center: true, width: 400, height: 275 });
-        if (_dialogs.help) _dialogs.help.resetState(client.getOption('windows.help') || { center: true, width: 400, height: 275 });
+        if (_dialogs.history) _dialogs.history.resetState(client.getWindowState('history') || { center: true, width: 400, height: 275 });
+        if (_dialogs.profiles) _dialogs.profiles.resetState(client.getWindowState('profiles') || { center: true, width: 400, height: 275 });
+        if (_dialogs.help) _dialogs.help.resetState(client.getWindowState('help') || { center: true, width: 400, height: 275 });
     });
     client.on('set-title', title => {
         if (!title || !title.length)
@@ -461,16 +461,16 @@ export function initializeInterface() {
     });
     //#endregion
     //restore advanced editor
-    options = client.getOption('windows.editor');
+    options = client.getWindowState('editor');
     if (options && options.show)
         document.getElementById('btn-adv-editor').click();
-    options = client.getOption('windows.history');
+    options = client.getWindowState('history');
     if (options && options.show)
         showDialog('history');
-    options = client.getOption('windows.profiles');
+    options = client.getWindowState('profiles');
     if (options && options.show)
         showDialog('profiles');
-    options = client.getOption('windows.help');
+    options = client.getWindowState('help');
     if (options && options.show)
         showDialog('help');
 
@@ -648,7 +648,7 @@ export function showDialog(name: string) {
             return _dialogs.about;
         case 'history':
             if (!_dialogs.history) {
-                _dialogs.history = new Dialog(Object.assign({}, client.getOption('windows.history') || { center: true, width: 400, height: 275 }, { title: '<i class="bi bi-clock-history"></i> Command history', id: 'command-history' }));
+                _dialogs.history = new Dialog(Object.assign({}, client.getWindowState('history') || { center: true, width: 400, height: 275 }, { title: '<i class="bi bi-clock-history"></i> Command history', id: 'command-history' }));
                 _dialogs.history.on('closed', () => {
                     client.setOption('windows.history', _dialogs.history.windowState);
                     delete _dialogs.history;
@@ -720,7 +720,7 @@ export function showDialog(name: string) {
             return _dialogs.history;
         case 'editor':
             if (!editorDialog) {
-                editorDialog = new Dialog(Object.assign({}, client.getOption('windows.editor') || { center: true }, { title: '<i class="fas fa-edit"></i> Advanced editor', id: 'adv-editor' }));
+                editorDialog = new Dialog(Object.assign({}, client.getWindowState('editor') || { center: true }, { title: '<i class="fas fa-edit"></i> Advanced editor', id: 'adv-editor' }));
                 editorDialog.on('resized', e => {
                     client.setOption('windows.editor', e);
                 });

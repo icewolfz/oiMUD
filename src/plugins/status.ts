@@ -245,7 +245,7 @@ export class Status extends Plugin {
         this._updateSplitter();
         this.updateInterface();
         this.init();
-        let options = client.getOption('windows.skills');
+        let options = client.getWindowState('skills');
         if (options && options.show)
             this.showSkills();
     }
@@ -1036,7 +1036,7 @@ export class Status extends Plugin {
 
     public showSkills() {
         if (!this._skillsDialog) {
-            this._skillsDialog = new Dialog(Object.assign({}, client.getOption('windows.skills') || { center: true }, { title: '<i class="bi bi-graph-up"></i><select id="filter-skills" class="form-select form-select-sm me-2 mb-1" title="Filter skills"><option value="All">All</option></select>', id: 'win-skills', noFooter: true, minHeight: 350 }));
+            this._skillsDialog = new Dialog(Object.assign({}, client.getWindowState('skills') || { center: true }, { title: '<i class="bi bi-graph-up"></i><select id="filter-skills" class="form-select form-select-sm me-2 mb-1" title="Filter skills"><option value="All">All</option></select>', id: 'win-skills', noFooter: true, minHeight: 350 }));
             this._skillsDialog.body.classList.add('skills');
             this._skillsDialog.on('resized', e => {
                 this.client.setOption('windows.skills', e);

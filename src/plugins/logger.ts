@@ -73,7 +73,7 @@ export class Logger extends Plugin {
             else
                 this._loadLoggerOptions();
             if (this._manager)
-                this._manager.resetState(client.getOption('windows.log-viewer') || { center: true });
+                this._manager.resetState(client.getWindowState('log-viewer') || { center: true });
         }, this);
         this.client.on('closed', () => {
             this._post({ action: 'connected', args: client.connected });
@@ -121,7 +121,7 @@ export class Logger extends Plugin {
         window.addEventListener('beforeunload', () => {
             this._post({ action: 'flush' });
         });
-        let options = this.client.getOption('windows.log-viewer')
+        let options = this.client.getWindowState('log-viewer')
         if (options && options.show) {
             this._createManager();
             updateHash('logs');
@@ -303,7 +303,7 @@ class LogManager extends Dialog {
     private _small: boolean = false;
 
     constructor() {
-        super(Object.assign({}, client.getOption('windows.log-viewer') || { center: true }, { title: '<i class="fas fa-list"></i> Log viewer', minWidth: 410 }));
+        super(Object.assign({}, client.getWindowState('log-viewer') || { center: true }, { title: '<i class="fas fa-list"></i> Log viewer', minWidth: 410 }));
         this.on('resized', e => {
             this._updateSmall(e.width);
             client.setOption('windows.log-viewer', e);

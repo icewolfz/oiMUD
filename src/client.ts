@@ -1495,6 +1495,21 @@ export class Client extends EventEmitter {
         if (!this._autoConnectID && this.getOption('autoConnect') && !this._telnet.connected)
             this._autoConnectID = setTimeout(() => { this.connect(); this._autoConnectID = null; }, this.getOption('autoConnectDelay'));
     }
+
+    public getWindowState(windowName) {
+        let state = this.getOption('windows.' + windowName);
+        if (state && this.getOption('fixHiddenWindows')) {
+            if (state.x + state.width / 2 > document.body.clientWidth)
+                state.x = document.body.clientWidth - state.width / 2;
+            if (state.x < 0)
+                state.x = 0;
+            if (state.y + state.height / 2 > document.body.clientHeight)
+                state.y = document.body.clientHeight - state.height / 2;
+            if (state.y < 0)
+                state.y = 0;
+        }
+        return state;
+    }
 }
 window.Client = Client;
 window.Display = Display;

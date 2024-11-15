@@ -30207,7 +30207,7 @@ Devanagari
   // src/interface/profilesdialog.ts
   var ProfilesDialog = class extends Dialog {
     constructor() {
-      super(Object.assign({}, client.getOption("windows.profiles") || { center: true }, { title: '<i class="fas fa-users"></i> Profiles', minWidth: 410 }));
+      super(Object.assign({}, client.getWindowState("profiles") || { center: true }, { title: '<i class="fas fa-users"></i> Profiles', minWidth: 410 }));
       this._profilesChanged = false;
       this._current = {
         profile: null,
@@ -30235,7 +30235,7 @@ Devanagari
       this._client.on("profiles-updated", () => {
       });
       this._client.on("options-loaded", () => {
-        this.resetState(this._client.getOption("windows.profiles") || { center: true });
+        this.resetState(this._client.getWindowState("profiles") || { center: true });
       });
       this._client.on("initialized", () => {
         if (!this.profiles) {
@@ -31374,7 +31374,7 @@ Devanagari
   // src/interface/help.ts
   var HelpDialog = class extends Dialog {
     constructor() {
-      super(Object.assign({}, client.getOption("windows.help") || { center: true }, { title: '<ol class="float-start breadcrumb"><li class="breadcrumb-icon"><i class="bi bi-question-circle" style="margin-right: 2px;"></i></li><li class="breadcrumb-item active">Help</li></ol>', minWidth: 410, noFooter: true }));
+      super(Object.assign({}, client.getWindowState("help") || { center: true }, { title: '<ol class="float-start breadcrumb"><li class="breadcrumb-icon"><i class="bi bi-question-circle" style="margin-right: 2px;"></i></li><li class="breadcrumb-item active">Help</li></ol>', minWidth: 410, noFooter: true }));
       this._small = false;
       this._history = [];
       this._current = 0;
@@ -31387,7 +31387,7 @@ Devanagari
         this._client.setOption("windows.help", e);
       });
       this._client.on("options-loaded", () => {
-        this.resetState(this._client.getOption("windows.help") || { center: true });
+        this.resetState(this._client.getWindowState("help") || { center: true });
       });
       this.on("closed", () => {
         this._client.setOption("windows.help", this.windowState);
@@ -32052,7 +32052,7 @@ Devanagari
       if (client.getOption("commandAutoSize") || client.getOption("commandScrollbars"))
         resizeCommandInput();
       if (editorDialog) {
-        editorDialog.resetState(client.getOption("windows.editor") || { center: true });
+        editorDialog.resetState(client.getWindowState("editor") || { center: true });
         if (editor.simple != client.getOption("simpleEditor")) {
           let value = "";
           if (!editor.isSimple)
@@ -32071,9 +32071,9 @@ Devanagari
           }
         }
       }
-      if (_dialogs.history) _dialogs.history.resetState(client.getOption("windows.history") || { center: true, width: 400, height: 275 });
-      if (_dialogs.profiles) _dialogs.profiles.resetState(client.getOption("windows.profiles") || { center: true, width: 400, height: 275 });
-      if (_dialogs.help) _dialogs.help.resetState(client.getOption("windows.help") || { center: true, width: 400, height: 275 });
+      if (_dialogs.history) _dialogs.history.resetState(client.getWindowState("history") || { center: true, width: 400, height: 275 });
+      if (_dialogs.profiles) _dialogs.profiles.resetState(client.getWindowState("profiles") || { center: true, width: 400, height: 275 });
+      if (_dialogs.help) _dialogs.help.resetState(client.getWindowState("help") || { center: true, width: 400, height: 275 });
     });
     client.on("set-title", (title) => {
       if (!title || !title.length)
@@ -32201,16 +32201,16 @@ Devanagari
     document.getElementById("btn-adv-editor").addEventListener("click", (e) => {
       showDialog("editor");
     });
-    options = client.getOption("windows.editor");
+    options = client.getWindowState("editor");
     if (options && options.show)
       document.getElementById("btn-adv-editor").click();
-    options = client.getOption("windows.history");
+    options = client.getWindowState("history");
     if (options && options.show)
       showDialog("history");
-    options = client.getOption("windows.profiles");
+    options = client.getWindowState("profiles");
     if (options && options.show)
       showDialog("profiles");
-    options = client.getOption("windows.help");
+    options = client.getWindowState("help");
     if (options && options.show)
       showDialog("help");
     document.getElementById("btn-command-history").addEventListener("show.bs.dropdown", function() {
@@ -32371,7 +32371,7 @@ Devanagari
         return _dialogs.about;
       case "history":
         if (!_dialogs.history) {
-          _dialogs.history = new Dialog(Object.assign({}, client.getOption("windows.history") || { center: true, width: 400, height: 275 }, { title: '<i class="bi bi-clock-history"></i> Command history', id: "command-history" }));
+          _dialogs.history = new Dialog(Object.assign({}, client.getWindowState("history") || { center: true, width: 400, height: 275 }, { title: '<i class="bi bi-clock-history"></i> Command history', id: "command-history" }));
           _dialogs.history.on("closed", () => {
             client.setOption("windows.history", _dialogs.history.windowState);
             delete _dialogs.history;
@@ -32441,7 +32441,7 @@ Devanagari
         return _dialogs.history;
       case "editor":
         if (!editorDialog) {
-          editorDialog = new Dialog(Object.assign({}, client.getOption("windows.editor") || { center: true }, { title: '<i class="fas fa-edit"></i> Advanced editor', id: "adv-editor" }));
+          editorDialog = new Dialog(Object.assign({}, client.getWindowState("editor") || { center: true }, { title: '<i class="fas fa-edit"></i> Advanced editor', id: "adv-editor" }));
           editorDialog.on("resized", (e) => {
             client.setOption("windows.editor", e);
           });
@@ -33124,14 +33124,14 @@ Devanagari
             this._dialogMap.focusCurrentRoom();
         }
         if (this._dialog)
-          this._dialog.resetState(Object.assign({}, client.getOption("windows.mapper") || { center: true }));
-        let options2 = client.getOption("windows.mapper");
+          this._dialog.resetState(Object.assign({}, client.getWindowState("mapper") || { center: true }));
+        let options2 = client.getWindowState("mapper");
         if (options2 && options2.show || this.client.getOption("showMapper"))
           this.show();
       });
       this.on("debug", (e) => this.client.debug(e), this);
       this.on("error", (e) => this.client.error(e), this);
-      let options = client.getOption("windows.mapper");
+      let options = client.getWindowState("mapper");
       if (options && options.show || this.client.getOption("showMapper"))
         this.show();
     }
@@ -33332,7 +33332,7 @@ Devanagari
     }
     createDialog() {
       if (this._dialog) return;
-      this._dialog = new Dialog(Object.assign({}, client.getOption("windows.mapper") || { center: true }, { title: '<i class="bi bi-map"></i><select id="mapper-area" class="form-select form-select-sm me-2 mb-1" title="Select Area"></select>', id: "win-mapper", noFooter: true, minHeight: 350 }));
+      this._dialog = new Dialog(Object.assign({}, client.getWindowState("mapper") || { center: true }, { title: '<i class="bi bi-map"></i><select id="mapper-area" class="form-select form-select-sm me-2 mb-1" title="Select Area"></select>', id: "win-mapper", noFooter: true, minHeight: 350 }));
       this._dialog.on("resized", (e) => {
         this.client.setOption("windows.mapper", e);
         debounce(() => {
@@ -34123,7 +34123,7 @@ Devanagari
       this._updateSplitter();
       this.updateInterface();
       this.init();
-      let options = client.getOption("windows.skills");
+      let options = client.getWindowState("skills");
       if (options && options.show)
         this.showSkills();
     }
@@ -34838,7 +34838,7 @@ Devanagari
     }
     showSkills() {
       if (!this._skillsDialog) {
-        this._skillsDialog = new Dialog(Object.assign({}, client.getOption("windows.skills") || { center: true }, { title: '<i class="bi bi-graph-up"></i><select id="filter-skills" class="form-select form-select-sm me-2 mb-1" title="Filter skills"><option value="All">All</option></select>', id: "win-skills", noFooter: true, minHeight: 350 }));
+        this._skillsDialog = new Dialog(Object.assign({}, client.getWindowState("skills") || { center: true }, { title: '<i class="bi bi-graph-up"></i><select id="filter-skills" class="form-select form-select-sm me-2 mb-1" title="Filter skills"><option value="All">All</option></select>', id: "win-skills", noFooter: true, minHeight: 350 }));
         this._skillsDialog.body.classList.add("skills");
         this._skillsDialog.on("resized", (e) => {
           this.client.setOption("windows.skills", e);
@@ -35105,7 +35105,7 @@ Devanagari
         else
           this._loadLoggerOptions();
         if (this._manager)
-          this._manager.resetState(client.getOption("windows.log-viewer") || { center: true });
+          this._manager.resetState(client.getWindowState("log-viewer") || { center: true });
       }, this);
       this.client.on("closed", () => {
         this._post({ action: "connected", args: client.connected });
@@ -35151,7 +35151,7 @@ Devanagari
       window.addEventListener("beforeunload", () => {
         this._post({ action: "flush" });
       });
-      let options = this.client.getOption("windows.log-viewer");
+      let options = this.client.getWindowState("log-viewer");
       if (options && options.show) {
         this._createManager();
         updateHash("logs");
@@ -35317,7 +35317,7 @@ Devanagari
   };
   var LogManager = class extends Dialog {
     constructor() {
-      super(Object.assign({}, client.getOption("windows.log-viewer") || { center: true }, { title: '<i class="fas fa-list"></i> Log viewer', minWidth: 410 }));
+      super(Object.assign({}, client.getWindowState("log-viewer") || { center: true }, { title: '<i class="fas fa-list"></i> Log viewer', minWidth: 410 }));
       this._page = "logs";
       this._small = false;
       this.on("resized", (e) => {
@@ -35821,10 +35821,10 @@ Devanagari
       this._loadOptions();
       if (this.client.getOption("showChat") || this.client.getOption("chat.persistent") || this.client.getOption("chat.captureTells") || this.client.getOption("chat.captureTalk") || this.client.getOption("chat.captureLines"))
         this.show();
-      let options = this.client.getOption("windows.chat");
+      let options = this.client.getWindowState("chat");
       if (options && options.show)
         this.showDialog();
-      options = this.client.getOption("windows.chatWindow");
+      options = this.client.getWindowState("chatWindow");
       if (options && options.show)
         this.showWindow();
     }
@@ -35953,7 +35953,7 @@ Devanagari
         this._post({ action: "add-line", args: data });
     }
     _getWindowState() {
-      let state = Object.assign({}, { show: false, width: 640, height: 480, x: window.screenLeft + 200, y: window.screenTop + 200 }, this.client.getOption("windows.chatWindow"));
+      let state = Object.assign({}, { show: false, width: 640, height: 480, x: window.screenLeft + 200, y: window.screenTop + 200 }, this.client.getWindowState("chatWindow"));
       if (this._window && !this._window.closed) {
         state.width = this._window.document.body.clientWidth;
         state.height = this._window.document.body.clientHeight;
@@ -36064,7 +36064,7 @@ Devanagari
     }
     showDialog() {
       if (!this._dialog) {
-        this._dialog = new Dialog(Object.assign({}, this.client.getOption("windows.chat") || { center: true }, { title: '<i class="bi bi-chat"></i> Chat', minWidth: 410, noFooter: true, id: "chat-dialog" }));
+        this._dialog = new Dialog(Object.assign({}, this.client.getWindowState("chat") || { center: true }, { title: '<i class="bi bi-chat"></i> Chat', minWidth: 410, noFooter: true, id: "chat-dialog" }));
         this._dialog.header.querySelector("#chat-dialog-max").insertAdjacentHTML("afterend", '<button type="button" class="btn btn-light float-end" id="chat-dialog-window" title="Open chat window" style="padding: 0 4px;margin-top: -1px;"><i class="bi bi-window"></i></button>');
         this._dialog.header.querySelector("#chat-dialog-window").addEventListener("click", () => {
           this.showWindow();
@@ -36258,7 +36258,7 @@ Devanagari
     }
     _loadOptions() {
       if (this._dialog) {
-        this._dialog.resetState(client.getOption("windows.chat") || { center: true });
+        this._dialog.resetState(client.getWindowState("chat") || { center: true });
         this._loadDisplayOptions(this._dialog.display);
         this._loadWindowOptions(this._dialog.body);
       }
@@ -36797,9 +36797,9 @@ Devanagari
         }
       }, this);
       this.client.on("options-loaded", () => {
-        if (this._help) this._help.resetState(client.getOption("windows.smhelp") || { center: true, width: 400, height: 275 });
+        if (this._help) this._help.resetState(client.getWindowState("smhelp") || { center: true, width: 400, height: 275 });
       });
-      let options = this.client.getOption("windows.smhelp");
+      let options = this.client.getWindowState("smhelp");
       if (options && options.show)
         this._showHelp();
     }
@@ -36809,7 +36809,7 @@ Devanagari
         return;
       }
       if (!this._help) {
-        this._help = new Dialog(Object.assign({}, client.getOption("windows.smhelp") || { center: true, width: 500, height: 375 }, { title: '<i class="shadowmud-icon"></i> ShadowMUD Help', id: "smhelp", noFooter: true }));
+        this._help = new Dialog(Object.assign({}, client.getWindowState("smhelp") || { center: true, width: 500, height: 375 }, { title: '<i class="shadowmud-icon"></i> ShadowMUD Help', id: "smhelp", noFooter: true }));
         const frame = document.createElement("iframe");
         frame.src = "http://shadowmud.com/OoMUD/smhelp.php";
         frame.id = "smhelp-frame";
@@ -38152,6 +38152,20 @@ Devanagari
           this.connect();
           this._autoConnectID = null;
         }, this.getOption("autoConnectDelay"));
+    }
+    getWindowState(windowName) {
+      let state = this.getOption("windows." + windowName);
+      if (state && this.getOption("fixHiddenWindows")) {
+        if (state.x + state.width / 2 > document.body.clientWidth)
+          state.x = document.body.clientWidth - state.width / 2;
+        if (state.x < 0)
+          state.x = 0;
+        if (state.y + state.height / 2 > document.body.clientHeight)
+          state.y = document.body.clientHeight - state.height / 2;
+        if (state.y < 0)
+          state.y = 0;
+      }
+      return state;
     }
   };
   window.Client = Client;

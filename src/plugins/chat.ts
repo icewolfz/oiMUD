@@ -252,10 +252,10 @@ export class Chat extends Plugin {
         this._loadOptions();
         if (this.client.getOption('showChat') || this.client.getOption('chat.persistent') || this.client.getOption('chat.captureTells') || this.client.getOption('chat.captureTalk') || this.client.getOption('chat.captureLines'))
             this.show();
-        let options = this.client.getOption('windows.chat')
+        let options = this.client.getWindowState('chat')
         if (options && options.show)
             this.showDialog();
-        options = this.client.getOption('windows.chatWindow')
+        options = this.client.getWindowState('chatWindow')
         if (options && options.show)
             this.showWindow();
     }
@@ -385,7 +385,7 @@ export class Chat extends Plugin {
     };
 
     private _getWindowState() {
-        let state = Object.assign({}, { show: false, width: 640, height: 480, x: window.screenLeft + 200, y: window.screenTop + 200 }, this.client.getOption('windows.chatWindow'));
+        let state = Object.assign({}, { show: false, width: 640, height: 480, x: window.screenLeft + 200, y: window.screenTop + 200 }, this.client.getWindowState('chatWindow'));
         if (this._window && !this._window.closed) {
             state.width = this._window.document.body.clientWidth;
             state.height = this._window.document.body.clientHeight;
@@ -503,7 +503,7 @@ export class Chat extends Plugin {
 
     public showDialog() {
         if (!this._dialog) {
-            this._dialog = new Dialog(Object.assign({}, this.client.getOption('windows.chat') || { center: true }, { title: '<i class="bi bi-chat"></i> Chat', minWidth: 410, noFooter: true, id: 'chat-dialog' }));
+            this._dialog = new Dialog(Object.assign({}, this.client.getWindowState('chat') || { center: true }, { title: '<i class="bi bi-chat"></i> Chat', minWidth: 410, noFooter: true, id: 'chat-dialog' }));
             this._dialog.header.querySelector('#chat-dialog-max').insertAdjacentHTML('afterend', '<button type="button" class="btn btn-light float-end" id="chat-dialog-window" title="Open chat window" style="padding: 0 4px;margin-top: -1px;"><i class="bi bi-window"></i></button>');
             this._dialog.header.querySelector('#chat-dialog-window').addEventListener('click', () => {
                 this.showWindow();
@@ -705,7 +705,7 @@ export class Chat extends Plugin {
 
     private _loadOptions() {
         if (this._dialog) {
-            this._dialog.resetState(client.getOption('windows.chat') || { center: true });
+            this._dialog.resetState(client.getWindowState('chat') || { center: true });
             this._loadDisplayOptions((<any>this._dialog).display);
             this._loadWindowOptions(this._dialog.body);
         }

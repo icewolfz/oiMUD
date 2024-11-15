@@ -70,9 +70,9 @@ export class ShadowMUD extends Plugin {
             }
         }, this);
         this.client.on('options-loaded', () => {
-            if (this._help) this._help.resetState(client.getOption('windows.smhelp') || { center: true, width: 400, height: 275 });
+            if (this._help) this._help.resetState(client.getWindowState('smhelp') || { center: true, width: 400, height: 275 });
         });
-        let options = this.client.getOption('windows.smhelp')
+        let options = this.client.getWindowState('smhelp')
         if (options && options.show)
             this._showHelp();
     }
@@ -83,7 +83,7 @@ export class ShadowMUD extends Plugin {
             return;
         }
         if (!this._help) {
-            this._help = new Dialog(Object.assign({}, client.getOption('windows.smhelp') || { center: true, width: 500, height: 375 }, { title: '<i class="shadowmud-icon"></i> ShadowMUD Help', id: 'smhelp', noFooter: true }));
+            this._help = new Dialog(Object.assign({}, client.getWindowState('smhelp') || { center: true, width: 500, height: 375 }, { title: '<i class="shadowmud-icon"></i> ShadowMUD Help', id: 'smhelp', noFooter: true }));
             const frame = document.createElement('iframe');
             //<iframe id="smhelpframe" style="z-index:100;border:0px;margin:0px;width:100%;height:100%;overflow:auto" src="/OoMUD/smhelp.php"></iframe>
             frame.src = 'http://shadowmud.com/OoMUD/smhelp.php';

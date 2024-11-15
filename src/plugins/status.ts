@@ -922,7 +922,7 @@ export class Status extends Plugin {
         this._status.style.width = '';
         const bounds = this._status.getBoundingClientRect();
         const minWidth = (bounds.width + parseInt(this._styles.right, 10));
-        const maxWidth = this.maxWidth;
+        const maxWidth = document.body.clientWidth - this.maxWidth;
         this._status.style.width = w;
         const bounds2 = this._status.getBoundingClientRect();
         if (bounds2.width < minWidth) {

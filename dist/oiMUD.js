@@ -35689,7 +35689,7 @@ Devanagari
       this._noCaptureStore = 0;
       this._unload = () => {
         let state = this._getWindowState();
-        if (this._window && !this._window.closed) {
+        if (this._isWindowOpen) {
           this._window.close();
           state.show = true;
         } else
@@ -35777,7 +35777,7 @@ Devanagari
         }
         if (this._noCapture || this._noCaptureStore > 0) return;
         if (this.client.getOption("chat.CaptureOnlyOpen")) {
-          if (!(this._window && !this._window.closed || this._dialog && !this._dialog.opened)) {
+          if (!(this._isWindowOpen || this._dialog && !this._dialog.opened)) {
             return;
           }
         }
@@ -35839,7 +35839,7 @@ Devanagari
           case "chat-win":
           case "chat-window":
             if (args === "close") {
-              if (this._window)
+              if (this._isWindowOpen)
                 this._window.close();
             } else
               this.showWindow();
@@ -35859,7 +35859,7 @@ Devanagari
           case "chatwindow":
           case "chat-win":
           case "chat-window":
-            if (this._window)
+            if (this._isWindowOpen)
               this._window.close();
             break;
         }
@@ -35970,12 +35970,12 @@ Devanagari
       if (typeof data === "string") {
         let display;
         let line2 = -1;
-        if (this._dialog && this._dialog.opened) {
+        if (this._isDialogOpen) {
           line2 = this._dialog.display.lines.length - 1;
           this._dialog.display.append(data);
           display = this._dialog.display;
         }
-        if (this._window && !this._window.closed) {
+        if (this._isWindowOpen) {
           if (!display) line2 = this._dialog.display.lines.length - 1;
           this._window.display.append(data);
           display = display || this._window.display;
@@ -36000,9 +36000,9 @@ Devanagari
             timestamp: Date.now()
           };
       } else {
-        if (this._dialog && this._dialog.opened)
+        if (this._isDialogOpen)
           this._dialog.display.model.addParserLine(data);
-        if (this._window && !this._window.closed)
+        if (this._isWindowOpen)
           this._window.display.model.addParserLine(data);
       }
       if (this.client.getOption("chat.log"))
@@ -36010,7 +36010,7 @@ Devanagari
     }
     _getWindowState() {
       let state = Object.assign({}, { show: false, width: 640, height: 480, x: window.screenLeft + 200, y: window.screenTop + 200 }, this.client.getWindowState("chatWindow"));
-      if (this._window && !this._window.closed) {
+      if (this._isWindowOpen) {
         state.width = this._window.document.body.clientWidth;
         state.height = this._window.document.body.clientHeight;
         state.x = this._window.screenLeft || this._window.screenX;
@@ -36028,7 +36028,7 @@ Devanagari
       });
       toolbar.querySelector("#btn-chat-lock").addEventListener("click", () => {
         this.client.setOption("chat.scrollLocked", !this.client.getOption("chat.scrollLocked"));
-        if (this._window) {
+        if (this._isWindowOpen) {
           this._window.display.scrollLock = this.client.getOption("chat.scrollLocked");
           this._updateScrollLockButton(this._window.document.querySelector("#btn-chat-lock"), this.client.getOption("chat.scrollLocked"));
         }
@@ -36041,7 +36041,7 @@ Devanagari
         this.client.setOption("chat.log", !this.client.getOption("chat.log"));
         if (this.client.getOption("chat.log"))
           this._createLogger();
-        if (this._window)
+        if (this._isWindowOpen)
           this._updateButtonState(this._window.document.querySelector("#btn-chat-log"), this.client.getOption("chat.log"));
         if (this._dialog)
           this._updateButtonState(this._dialog.body.querySelector("#btn-chat-log"), this.client.getOption("chat.log"));
@@ -36050,7 +36050,7 @@ Devanagari
       });
       toolbar.querySelector("#btn-chat-wrap").addEventListener("click", () => {
         this.client.setOption("chat.wrap", !this.client.getOption("chat.wrap"));
-        if (this._window) {
+        if (this._isWindowOpen) {
           this._updateButtonState(this._window.document.querySelector("#btn-chat-wrap"), this.client.getOption("chat.wrap"));
           this._window.display.wordWrap = this.client.getOption("chat.wrap");
         }
@@ -36087,7 +36087,7 @@ Devanagari
         button.classList.remove("active");
     }
     showWindow() {
-      if (!this._window || this._window.closed) {
+      if (!this._isWindowOpen) {
         let state = this._getWindowState();
         this._window = window.open("window.htm", "chat-window", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=" + state.width + ",height=" + state.height + ",top=" + state.y + ",left=" + state.x);
         state.show = true;
@@ -36180,7 +36180,7 @@ Devanagari
         this.showDialog();
     }
     toggleDialog() {
-      if (this._dialog && this._dialog.opened)
+      if (this._isDialogOpen)
         this._dialog.close();
       else
         this.showDialog();
@@ -36203,14 +36203,14 @@ Devanagari
         switch (e.data.event) {
           case "started":
             this.client.setOption("chat.log", true);
-            if (this._window)
+            if (this._isWindowOpen)
               this._updateButtonState(this._window.document.querySelector("#btn-chat-log"), true);
             if (this._dialog)
               this._updateButtonState(this._dialog.body.querySelector("#btn-chat-log"), true);
             break;
           case "stopped":
             this.client.setOption("chat.log", false);
-            if (this._window)
+            if (this._isWindowOpen)
               this._updateButtonState(this._window.document.querySelector("#btn-chat-log"), false);
             if (this._dialog)
               this._updateButtonState(this._dialog.body.querySelector("#btn-chat-log"), false);
@@ -36232,7 +36232,7 @@ Devanagari
           case "toggled":
             if (this.client)
               this.client.setOption("chat.log", e.data.args);
-            if (this._window)
+            if (this._isWindowOpen)
               this._updateButtonState(this._window.document.querySelector("#btn-chat-log"), e.data.args);
             if (this._dialog)
               this._updateButtonState(this._dialog.body.querySelector("#btn-chat-log"), e.data.args);
@@ -36244,9 +36244,9 @@ Devanagari
             break;
           case "startInternal":
           case "start":
-            if (this._dialog && this._dialog.opened)
+            if (this._isDialogOpen)
               this._post({ action: e.data.event, args: { lines: this._dialog.display.lines, fragment: this._dialog.display.EndOfLine } });
-            else if (this._window && !this._window.closed)
+            else if (this._isWindowOpen)
               this._post({ action: e.data.event, args: { lines: this._window.display.lines, fragment: this._window.display.EndOfLine } });
             else
               this._post({ action: e.data.event });
@@ -36349,12 +36349,18 @@ Devanagari
         });
       else
         this._createLogger();
-      if (this._dialog && this._dialog.opened)
+      if (this._isDialogOpen)
         this._post({ action: "start", args: { lines: this._dialog.display.lines, fragment: this._dialog.display.EndOfLine } });
-      else if (this._window && !this._window.closed)
+      else if (this._isWindowOpen)
         this._post({ action: "start", args: { lines: this._window.display.lines, fragment: this._window.display.EndOfLine } });
       else
         this._post({ action: "start" });
+    }
+    get _isWindowOpen() {
+      return this._window && !this._window.closed;
+    }
+    get _isDialogOpen() {
+      return this._dialog && this._dialog.opened;
     }
   };
 

@@ -29,7 +29,7 @@ export class Chat extends Plugin {
 
     private _unload = () => {
         let state = this._getWindowState();
-        if (this._window && !this._window.closed) {
+        if (this._isWindowOpen) {
             this._window.close();
             state.show = true;
         }
@@ -135,7 +135,7 @@ export class Chat extends Plugin {
             if (this._noCapture || this._noCaptureStore > 0) return;
 
             if (this.client.getOption('chat.CaptureOnlyOpen')) {
-                if (!((this._window && !this._window.closed) || (this._dialog && !this._dialog.opened))) {
+                if (!((this._isWindowOpen) || (this._dialog && !this._dialog.opened))) {
                     return;
                 }
             }
@@ -213,7 +213,7 @@ export class Chat extends Plugin {
                 case 'chat-win':
                 case 'chat-window':
                     if (args === 'close') {
-                        if (this._window)
+                        if (this._isWindowOpen)
                             this._window.close();
                     }
                     else
@@ -234,7 +234,7 @@ export class Chat extends Plugin {
                 case 'chatwindow':
                 case 'chat-win':
                 case 'chat-window':
-                    if (this._window)
+                    if (this._isWindowOpen)
                         this._window.close();
                     break;
             }
@@ -343,12 +343,12 @@ export class Chat extends Plugin {
         if (typeof data === 'string') {
             let display;
             let line = -1;
-            if (this._dialog && this._dialog.opened) {
+            if (this._isDialogOpen) {
                 line = (<any>this._dialog).display.lines.length - 1;
                 (<any>this._dialog).display.append(data);
                 display = (<any>this._dialog).display;
             }
-            if (this._window && !this._window.closed) {
+            if (this._isWindowOpen) {
                 if (!display) line = (<any>this._dialog).display.lines.length - 1;
                 (<any>this._window).display.append(data);
                 display = display || (<any>this._window).display;
@@ -375,9 +375,9 @@ export class Chat extends Plugin {
                 };
         }
         else {
-            if (this._dialog && this._dialog.opened)
+            if (this._isDialogOpen)
                 (<any>this._dialog).display.model.addParserLine(data);
-            if (this._window && !this._window.closed)
+            if (this._isWindowOpen)
                 (<any>this._window).display.model.addParserLine(data);
         }
         if (this.client.getOption('chat.log'))
@@ -386,7 +386,7 @@ export class Chat extends Plugin {
 
     private _getWindowState() {
         let state = Object.assign({}, { show: false, width: 640, height: 480, x: window.screenLeft + 200, y: window.screenTop + 200 }, this.client.getWindowState('chatWindow'));
-        if (this._window && !this._window.closed) {
+        if (this._isWindowOpen) {
             state.width = this._window.document.body.clientWidth;
             state.height = this._window.document.body.clientHeight;
             state.x = this._window.screenLeft || this._window.screenX;
@@ -405,7 +405,7 @@ export class Chat extends Plugin {
         });
         toolbar.querySelector('#btn-chat-lock').addEventListener('click', () => {
             this.client.setOption('chat.scrollLocked', !this.client.getOption('chat.scrollLocked'));
-            if (this._window) {
+            if (this._isWindowOpen) {
                 (this._window as any).display.scrollLock = this.client.getOption('chat.scrollLocked');
                 this._updateScrollLockButton(this._window.document.querySelector('#btn-chat-lock'), this.client.getOption('chat.scrollLocked'));
             }
@@ -418,7 +418,7 @@ export class Chat extends Plugin {
             this.client.setOption('chat.log', !this.client.getOption('chat.log'));
             if (this.client.getOption('chat.log'))
                 this._createLogger();
-            if (this._window)
+            if (this._isWindowOpen)
                 this._updateButtonState(this._window.document.querySelector('#btn-chat-log'), this.client.getOption('chat.log'));
             if (this._dialog)
                 this._updateButtonState(this._dialog.body.querySelector('#btn-chat-log'), this.client.getOption('chat.log'));
@@ -427,7 +427,7 @@ export class Chat extends Plugin {
         });
         toolbar.querySelector('#btn-chat-wrap').addEventListener('click', () => {
             this.client.setOption('chat.wrap', !this.client.getOption('chat.wrap'));
-            if (this._window) {
+            if (this._isWindowOpen) {
                 this._updateButtonState(this._window.document.querySelector('#btn-chat-wrap'), this.client.getOption('chat.wrap'));
                 (this._window as any).display.wordWrap = this.client.getOption('chat.wrap');
             }
@@ -469,7 +469,7 @@ export class Chat extends Plugin {
     }
 
     public showWindow() {
-        if (!this._window || this._window.closed) {
+        if (!this._isWindowOpen) {
             let state = this._getWindowState();
             this._window = window.open('window.htm', "chat-window", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=" + (state.width) + ",height=" + (state.height) + ",top=" + (state.y) + ",left=" + (state.x));
             state.show = true;
@@ -566,7 +566,7 @@ export class Chat extends Plugin {
     }
 
     public toggleDialog() {
-        if (this._dialog && this._dialog.opened)
+        if (this._isDialogOpen)
             this._dialog.close();
         else
             this.showDialog();
@@ -591,14 +591,14 @@ export class Chat extends Plugin {
             switch (e.data.event) {
                 case 'started':
                     this.client.setOption('chat.log', true);
-                    if (this._window)
+                    if (this._isWindowOpen)
                         this._updateButtonState(this._window.document.querySelector('#btn-chat-log'), true);
                     if (this._dialog)
                         this._updateButtonState(this._dialog.body.querySelector('#btn-chat-log'), true);
                     break;
                 case 'stopped':
                     this.client.setOption('chat.log', false);
-                    if (this._window)
+                    if (this._isWindowOpen)
                         this._updateButtonState(this._window.document.querySelector('#btn-chat-log'), false);
                     if (this._dialog)
                         this._updateButtonState(this._dialog.body.querySelector('#btn-chat-log'), false);
@@ -620,7 +620,7 @@ export class Chat extends Plugin {
                 case 'toggled':
                     if (this.client)
                         this.client.setOption('chat.log', e.data.args);
-                    if (this._window)
+                    if (this._isWindowOpen)
                         this._updateButtonState(this._window.document.querySelector('#btn-chat-log'), e.data.args);
                     if (this._dialog)
                         this._updateButtonState(this._dialog.body.querySelector('#btn-chat-log'), e.data.args);
@@ -632,9 +632,9 @@ export class Chat extends Plugin {
                     break;
                 case 'startInternal':
                 case 'start':
-                    if (this._dialog && this._dialog.opened)
+                    if (this._isDialogOpen)
                         this._post({ action: e.data.event, args: { lines: (<any>this._dialog).display.lines, fragment: (<any>this._dialog).display.EndOfLine } });
-                    else if (this._window && !this._window.closed)
+                    else if (this._isWindowOpen)
                         this._post({ action: e.data.event, args: { lines: (<any>this._window).display.lines, fragment: (<any>this._window).display.EndOfLine } });
                     else
                         this._post({ action: e.data.event });
@@ -740,11 +740,19 @@ export class Chat extends Plugin {
             });
         else
             this._createLogger();
-        if (this._dialog && this._dialog.opened)
+        if (this._isDialogOpen)
             this._post({ action: 'start', args: { lines: (<any>this._dialog).display.lines, fragment: (<any>this._dialog).display.EndOfLine } });
-        else if (this._window && !this._window.closed)
+        else if (this._isWindowOpen)
             this._post({ action: 'start', args: { lines: (<any>this._window).display.lines, fragment: (<any>this._window).display.EndOfLine } });
         else
             this._post({ action: 'start' });
+    }
+
+    private get _isWindowOpen() {
+        return this._window && !this._window.closed;
+    }
+
+    private get _isDialogOpen() {
+        return this._dialog && this._dialog.opened;
     }
 }

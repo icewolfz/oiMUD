@@ -1,3 +1,4 @@
+import "../css/dialog.css";
 import { EventEmitter } from "../events";
 import { debounce } from "../library";
 

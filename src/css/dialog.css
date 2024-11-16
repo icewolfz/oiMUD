@@ -3,6 +3,8 @@ dialog {
   border: 1px solid black;
   box-shadow: 3px 3px 5px #535353;
   overflow: visible;
+  outline: none;
+  border: 1px solid #f5f5f5;
 }
 
 .dialog-header {
@@ -211,7 +213,7 @@ dialog {
   height: 100%;
   background: transparent;
   position: absolute;
-  left: 0;
+  left: -1px;
   bottom: 0;
   cursor: w-resize;
   z-index: 2000;
@@ -222,7 +224,7 @@ dialog {
   height: 100%;
   background: transparent;
   position: absolute;
-  right: 0;
+  right: -1px;
   bottom: 0;
   cursor: e-resize;
   z-index: 2000;
@@ -234,7 +236,7 @@ dialog {
   background: transparent;
   position: absolute;
   right: 0;
-  top: 0;
+  top: -1px;
   cursor: n-resize;
   z-index: 2000;
 }
@@ -245,7 +247,7 @@ dialog {
   background: transparent;
   position: absolute;
   right: 0;
-  bottom: 0;
+  bottom: -1px;
   cursor: s-resize;
   z-index: 2000;
 }
@@ -255,8 +257,8 @@ dialog {
   height: 5px;
   background: transparent;
   position: absolute;
-  right: 0;
-  bottom: 0;
+  right: -1px;
+  bottom: -1px;
   cursor: se-resize;
   z-index: 2002;
 }
@@ -266,8 +268,8 @@ dialog {
   height: 5px;
   background: transparent;
   position: absolute;
-  right: 0;
-  top: 0;
+  right: -1px;
+  top: -1px;
   cursor: ne-resize;
   z-index: 2002;
 }
@@ -277,8 +279,8 @@ dialog {
   height: 5px;
   background: transparent;
   position: absolute;
-  left: 0;
-  bottom: 0;
+  left: -1px;
+  bottom: -1px;
   cursor: sw-resize;
   z-index: 2002;
 }
@@ -288,8 +290,8 @@ dialog {
   height: 5px;
   background: transparent;
   position: absolute;
-  left: 0;
-  top: 0;
+  left: -1px;
+  top: -1px;
   cursor: se-resize;
   z-index: 2002;
 }

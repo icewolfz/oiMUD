@@ -1,7 +1,7 @@
 import "../css/tinymce.css";
 import { EventEmitter } from "../events";
 import { RGBColor } from '../lib/rgbcolor';
-import { insertValue, htmlEncode, getColors, copyText, openFileDialog, readFile, pasteText, pinkfishToHTML } from '../library'
+import { insertValue, htmlEncode, getColors, copyText, openFileDialog, readFile, pinkfishToHTML } from '../library'
 import { Dialog } from "./dialog";
 
 export class AdvEditor extends EventEmitter {
@@ -820,7 +820,7 @@ export class AdvEditor extends EventEmitter {
                 tooltip: 'Paste formatted',
                 onAction: buttonApi => {
                     pasteText().then(text => {
-                        _editor._insertFormatted(text || '');
+                        _editor.insertFormatted(text || '');
                     }).catch(err => {
                         if (client.enableDebug)
                             client.debug(err);
@@ -1150,7 +1150,7 @@ export class AdvEditor extends EventEmitter {
         }).catch(() => { });
     }
 
-    private _insertFormatted(text) {
+    public insertFormatted(text) {
         if (this.isSimple)
             insertValue(this._element, text);
         else
@@ -1554,7 +1554,7 @@ export class AdvEditor extends EventEmitter {
                 editor.shortcuts.add('ctrl+shift+c', 'Copy formatted', () => copyText(this.getFormattedSelection().replace(/(?:\r)/g, '')));
                 /*
                 editor.shortcuts.add('ctrl+shift+p', 'Paste formatted', () => {
-                    //this._insertFormatted(clipboard.readText('selection') || '');
+                    //this.insertFormatted(clipboard.readText('selection') || '');
                 });
                 editor.shortcuts.add('ctrl+alt+p', 'Paste as text', () => {
                     //tinymce.activeEditor.execCommand('mceInsertContent', false, (clipboard.readText('selection') || '').replace(/(\r\n|\r|\n)/g, '<br/>').replaceAll('  ', '&nbsp;&nbsp;'));

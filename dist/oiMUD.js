@@ -28835,7 +28835,7 @@ Devanagari
       }).catch(() => {
       });
     }
-    _insertFormatted(text) {
+    insertFormatted(text) {
       if (this.isSimple)
         insertValue(this._element, text);
       else

@@ -458,7 +458,7 @@ class LogManager extends Dialog {
     }
 
     private _setContents(contents) {
-        if (!this._contents.contentWindow) {
+        if (!this._contents.contentWindow || !this._contents.contentWindow.document || !this._contents.contentWindow.document.body) {
             setTimeout(() => {
                 this._setContents(contents);
             }, 10);
@@ -470,6 +470,12 @@ class LogManager extends Dialog {
     }
 
     private _appendContents(contents, html?) {
+        if (!this._contents.contentWindow || !this._contents.contentWindow.document || !this._contents.contentWindow.document.body) {
+            setTimeout(() => {
+                this._appendContents(contents, html);
+            }, 10);
+            return;
+        }
         if (html)
             this._contents.contentWindow.document.body.insertAdjacentHTML('beforeend', contents);
         else

@@ -10,9 +10,6 @@ tt {
   font-family: monospace, monospace;
   font-size: 1em;
 }
-* {
-  overflow: none;
-}
 html,
 body {
   height: 100%;
@@ -389,7 +386,7 @@ a.disabled-link:hover {
 }
 #mapper-room-accordion {
   position: absolute;
-  top: 34px;
+  top: 36px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -416,6 +413,16 @@ dialog {
   border-bottom: 1px solid #fff;
   text-align: left;
   cursor: default;
+  height: 36px;
+  max-height: 36px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dialog-header div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .dialog-header .btn,
 .dialog-header .btn-group {
@@ -439,7 +446,7 @@ dialog {
   right: 0;
   padding: 5px;
   min-height: 41px;
-  top: 34px;
+  top: 36px;
   border-bottom: 1px solid #ddd;
   box-shadow: inset 0 1px 0 #fff;
   border-top: 1px solid #ddd;
@@ -471,7 +478,7 @@ dialog {
   left: 0;
   right: 0;
   bottom: 41px;
-  top: 34px;
+  top: 36px;
   position: absolute;
   background-color: white;
   overflow: auto;
@@ -717,7 +724,7 @@ div.dialog {
 }
 .settings-menu {
   left: 0;
-  top: 34px;
+  top: 36px;
   bottom: 41px;
   width: 200px;
   right: auto;
@@ -1093,7 +1100,7 @@ div.offcanvas-body ul li hr {
 }
 .mce-container-body .mce-edit-area {
   position: absolute;
-  top: 34px;
+  top: 36px;
   bottom: 0;
   left: 0;
   right: 0;
@@ -2986,6 +2993,12 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   top: 2px;
   right: 56px;
   position: absolute;
+}
+@media (orientation: landscape) and (max-width: 641px), (orientation: landscape) and (max-height: 480px), (orientation: portrait) and (max-width: 480px), (orientation: portrait) and (max-height: 641px) {
+  #filter-skills {
+    pointer-events: auto;
+    right: 26px;
+  }
 }
 .skills,
 .skills * {

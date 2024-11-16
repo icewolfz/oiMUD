@@ -18,6 +18,17 @@ dialog {
   border-bottom: 1px solid #fff;
   text-align: left;
   cursor: default;
+  height: 36px;
+  max-height: 36px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dialog-header div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dialog-header .btn,
@@ -46,7 +57,7 @@ dialog {
   right: 0;
   padding: 5px;
   min-height: 41px;
-  top: 34px;
+  top: 36px;
   border-bottom: 1px solid #ddd;
   box-shadow: inset 0 1px 0 #fff;
   border-top: 1px solid #ddd;
@@ -83,7 +94,7 @@ dialog {
   left: 0;
   right: 0;
   bottom: 41px;
-  top: 34px;
+  top: 36px;
   position: absolute;
   background-color: white;
   overflow: auto;
@@ -372,7 +383,7 @@ div.dialog {
 
 .settings-menu {
   left: 0;
-  top: 34px;
+  top: 36px;
   bottom: 41px;
   width: 200px;
   right: auto;

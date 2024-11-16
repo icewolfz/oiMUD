@@ -828,6 +828,16 @@
   position: absolute;
 }
 
+@media (orientation: landscape) and (max-width: 641px),
+  (orientation: landscape) and (max-height: 480px),
+  (orientation: portrait) and (max-width: 480px),
+  (orientation: portrait) and (max-height: 641px) {
+  #filter-skills {
+    pointer-events: auto;
+    right: 26px;
+  }
+}
+
 .skills,
 .skills * {
   -webkit-touch-callout: auto !important;

@@ -432,8 +432,9 @@
     })
 
     let contentChanging = () => {
+        console.log('contentChanging');
         dialog.off('content-changing', contentChanging);
-        dialog.off('item-loaded', contentChanging);
+        dialog.off('item-loaded', itemLoaded);
     };
 
     let itemLoaded = e => {

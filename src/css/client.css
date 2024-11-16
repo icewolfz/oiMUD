@@ -11,9 +11,12 @@ tt {
   font-size: 1em;
 }
 
+/*
 * {
-  overflow: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+*/
 
 html,
 body {

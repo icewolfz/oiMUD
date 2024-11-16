@@ -241,11 +241,13 @@
 
 #status-ghost-bar {
   width: 3px;
-  background-color: #000;
+  background-color: var(--theme-hover-bg-color);
   opacity: 0.75;
   position: absolute;
   cursor: ew-resize;
   z-index: 999;
+  border-right: 1px solid var(--theme-hover-border-color);
+  border-left: 1px solid var(--theme-hover-border-color);  
 }
 
 .dot {
@@ -369,7 +371,7 @@
   top: 0;
   height: initial;
   bottom: 0;
-  transition: 0s background-color;
+  transition: 0s all;
   background-color: transparent;
   height: 100%;
   width: 3px;
@@ -379,12 +381,10 @@
 }
 
 #status-drag-bar:hover {
-  background-color: #fdce89;
+  background-color: var(--theme-hover-bg-color);
   transition-delay: 1s;
-}
-
-#status-ghost-bar {
-  background-color: #fdce89;
+  border-right: 1px solid var(--theme-hover-border-color);
+  border-left: 1px solid var(--theme-hover-border-color);
 }
 
 .day {

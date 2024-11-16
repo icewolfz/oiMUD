@@ -9,6 +9,13 @@
   --theme-border-image: url(../../assets/border.png);
   --theme-border-middle-image: url(../../assets/border-middle.png);
   --theme-border-color: #ebbb74;
+  --theme-hover-color: #fff;
+  --theme-hover-bg-color: #7da7d9;
+  --theme-hover-border-color: #5e7da3;
+  --theme-active-color: #fff;
+  --theme-active-bg-color: #e9ad04;
+  --theme-button-color: #000;
+  --theme-button-bg-color: #d3b6a0;
 }
 
 #display,
@@ -61,9 +68,9 @@
 
 .button,
 #command-input-container .btn {
-  background-color: #d3b6a0;
-  color: black;
-  fill: black;
+  background-color: var(--theme-button-bg-color);
+  color: var(--theme-button-color);
+  fill: var(--theme-button-color);
   padding: 4px 7px;
   z-index: 1;
   border: 3px solid var(--theme-bg-secondary-border);
@@ -73,9 +80,9 @@
 
 .button:hover,
 #command-input-container .btn:hover {
-  background-color: #7da7d9;
-  color: white;
-  fill: white;
+  background-color: var(--theme-hover-bg-color);
+  color: var(--theme-hover-color);
+  fill: var(--theme-hover-color);
 }
 
 .button:active,
@@ -84,30 +91,30 @@
 #command-input-container .btn.show,
 #command-input-container .btn:first-child:active,
 #command-input-container :not(.btn-check) + .btn:active {
-  background-color: #e9ad04;
-  color: white;
-  fill: white;
+  background-color: var(--theme-active-bg-color);
+  color: var(--theme-active-color);
+  fill: var(--theme-active-color);
 }
 
 .button.active,
 #command-input-container .btn.active {
-  background-color: #e9ad04;
-  color: white;
-  fill: white;
+  background-color: var(--theme-active-bg-color);
+  color: var(--theme-active-color);
+  fill: var(--theme-active-color);
 }
 
 .button.active:hover,
 #command-input-container .btn.active:hover {
-  background-color: #7da7d9;
-  color: white;
-  fill: white;
+  background-color: var(--theme-hover-bg-color);
+  color: var(--theme-hover-color);
+  fill: var(--theme-hover-color);
 }
 
 .button.active:active,
 #command-input-container .btn.active:active {
-  background-color: #d3b6a0;
-  color: black;
-  fill: black;
+  background-color: var(--theme-button-bg-color);
+  color: var(--theme-button-color);
+  fill: var(--theme-button-color);
   padding: 4px 7px;
   z-index: 1;
   border: 3px solid var(--theme-bg-secondary-border);

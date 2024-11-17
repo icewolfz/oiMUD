@@ -1,5 +1,5 @@
 import { Dialog, DialogButtons, DialogIcon } from "./dialog";
-import { capitalize, clone, openFileDialog, readFile } from '../library';
+import { capitalize, clone, openFileDialog, readFile, scrollChildIntoView } from '../library';
 import { Settings, SettingList } from "../settings";
 import { RGBColor } from '../lib/rgbcolor';
 import { removeHash } from "./interface";
@@ -163,6 +163,7 @@ export class SettingsDialog extends Dialog {
             if (this.footer.querySelector(`#${this.id}-reset`))
                 this.footer.querySelector(`#${this.id}-reset`).style.display = '';
             this.body.style.left = '200px';
+            scrollChildIntoView(this._menu, this._menu.querySelector(`a[href="#${this._page}"]`));
         }
         this.body.scrollTop = 0;
         this._loadPageSettings();

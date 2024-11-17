@@ -29435,6 +29435,7 @@ Devanagari
         if (this.footer.querySelector(`#${this.id}-reset`))
           this.footer.querySelector(`#${this.id}-reset`).style.display = "";
         this.body.style.left = "200px";
+        scrollChildIntoView(this._menu, this._menu.querySelector(`a[href="#${this._page}"]`));
       }
       this.body.scrollTop = 0;
       this._loadPageSettings();

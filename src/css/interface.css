@@ -187,3 +187,8 @@ div.offcanvas-body ul li hr {
   top: 0;
   background-color: black;
 }
+
+#settings-dialog small {
+  display: block;
+  margin: 0;
+}

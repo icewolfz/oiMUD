@@ -29299,7 +29299,7 @@ Devanagari
   // src/interface/settingsdialog.ts
   var SettingsDialog = class _SettingsDialog extends Dialog {
     constructor() {
-      super({ title: '<i class="fas fa-cogs"></i> Settings', keepCentered: true, resizable: false, moveable: false, center: true, maximizable: false });
+      super({ title: '<i class="fas fa-cogs"></i> Settings', id: "settings-dialog", keepCentered: true, resizable: false, moveable: false, center: true, maximizable: false });
       this.body.style.padding = "10px";
       this._buildMenu();
       let footer = "";

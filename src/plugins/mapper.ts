@@ -38,13 +38,17 @@ export class Mapper extends Plugin {
         if (options && !(options instanceof Client)) {
 
         }
-        //this.miniMap = new MapDisplay(document.createElement('div'));
-        //document.body.appendChild(this.miniMap.container);
-        //this.miniMap.container.classList.add('mini-map');
-        this._clientContainer = document.getElementById('client-container');
+        //this._miniMap = new MapDisplay(document.createElement('div'));
+        //this._miniMap.showNavigation = false;
+        //document.body.appendChild(this._miniMap.container);
+        //this._miniMap.container.classList.add('mini-map', 'map');
+        //this._clientContainer = document.getElementById('client-container');
         //this._clientContainer.style.left = '205px';
         Map.load().then((map: Map) => {
             this.map = map;
+            //this._miniMap.map = map;
+            //onload lets query the mud for current room info, if not connect will do nothing
+            this.client.sendGMCP('Room.Info');
         }).catch(err => this.client.error(err));
     }
 
@@ -924,6 +928,8 @@ export class Mapper extends Plugin {
                 this._dialogMap.refresh();
                 this._map.save();
             }, this._dialog);
+            //onload query the mud for current room info
+            this.client.sendGMCP('Room.Info');
         }
 
         this.on('map-loaded', () => {

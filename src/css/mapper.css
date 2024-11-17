@@ -144,10 +144,15 @@ a.disabled-link:hover {
   position: absolute;
   top: 0;
   left: 0;
-  width: 200px;
+  width: 204px;
   height: 200px;
-  background: white;
-  border: 1px solod rgb(108, 117, 125);
+  border: 3px solid rgb(108, 117, 125);
+  border-image: var(--theme-border-image) 3 repeat;
+  border-right: 0;
+}
+
+.mini-map .map-canvas {
+    border: 0px
 }
 
 #mapper-area {

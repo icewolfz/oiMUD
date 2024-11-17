@@ -14,6 +14,11 @@ export function showMenu() {
 }
 
 export function initMenu() {
+    var clientMenu = document.getElementById('clientMenu')
+    clientMenu.addEventListener('hidden.bs.offcanvas', function () {
+        client.commandInput.focus();
+    });
+
     document.getElementById('btn-menu').addEventListener('click', showMenu);
     client.on('connected', () => {
         let el = document.getElementById('menu-connect');
@@ -71,7 +76,7 @@ export function initMenu() {
     document.querySelector('#menu-help a').addEventListener('click', e => {
         showDialog('help');
         closeMenu();
-    });    
+    });
     document.querySelector('#menu-fullscreen a').addEventListener('click', e => {
         let doc: any = window.document;
         let docEl: any = doc.documentElement;

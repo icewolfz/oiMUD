@@ -25178,8 +25178,8 @@ Devanagari
             break;
         }
       });
-      this.map = options.map;
       this.reset();
+      this.map = options.map;
       this.refresh();
     }
     get showNavigation() {
@@ -25538,6 +25538,12 @@ Devanagari
             this.active = this.current;
           this.refresh();
         }, this);
+        if (this.follow) {
+          if (this._map.current.num)
+            this._active = this.map.current && this.map.current.clone ? this.map.current.clone() : this.map.current;
+          this.focusActiveRoom();
+        } else
+          this._active = this.map.current && this.map.current.clone ? this.map.current.clone() : this.map.current;
       }
       this.refresh();
     }
@@ -27632,6 +27638,10 @@ Devanagari
     bootstrap.Offcanvas.getOrCreateInstance(document.getElementById("clientMenu")).show();
   }
   function initMenu() {
+    var clientMenu = document.getElementById("clientMenu");
+    clientMenu.addEventListener("hidden.bs.offcanvas", function() {
+      client.commandInput.focus();
+    });
     document.getElementById("btn-menu").addEventListener("click", showMenu);
     client.on("connected", () => {
       let el = document.getElementById("menu-connect");
@@ -33109,9 +33119,9 @@ Devanagari
       super(options instanceof Client ? options : options?.client);
       if (options && !(options instanceof Client)) {
       }
-      this._clientContainer = document.getElementById("client-container");
       Map.load().then((map) => {
         this.map = map;
+        this.client.sendGMCP("Room.Info");
       }).catch((err) => this.client.error(err));
     }
     remove() {
@@ -33919,6 +33929,7 @@ Devanagari
           this._dialogMap.refresh();
           this._map.save();
         }, this._dialog);
+        this.client.sendGMCP("Room.Info");
       };
       this.on("map-loaded", () => {
         initMapper();

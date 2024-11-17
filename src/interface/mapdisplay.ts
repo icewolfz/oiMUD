@@ -477,8 +477,8 @@ export class MapDisplay extends EventEmitter {
                     break;
             }
         });
-        this.map = options.map;
         this.reset();
+        this.map = options.map;        
         this.refresh();
     }
 
@@ -622,7 +622,7 @@ export class MapDisplay extends EventEmitter {
     }
 
     public focusActiveRoom() {
-        if(!this.active) return;
+        if (!this.active) return;
         this.scrollTo(this.active.x + 1, this.active.y + 1);
     }
 
@@ -772,7 +772,15 @@ export class MapDisplay extends EventEmitter {
                     this.active = this.current;
                 this.refresh();
             }, this);
+            if (this.follow) {
+                if (this._map.current.num)
+                    this._active = this.map.current && this.map.current.clone ? this.map.current.clone() : this.map.current;
+                this.focusActiveRoom();
+            }
+            else
+                this._active = this.map.current && this.map.current.clone ? this.map.current.clone() : this.map.current;
         }
+
         this.refresh();
     }
     public get map() { return this._map; }

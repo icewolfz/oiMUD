@@ -1025,10 +1025,11 @@ export class Dialog extends EventEmitter {
         this._state.y = this._resize.y = parseInt(styles.top, 10);;
         this._state.height = this._resize.height = parseInt(styles.height, 10);
 
-        if (this._state.persistent && this._dialog && !this._dialog.parentElement)
-            this._document.body.appendChild(this._dialog);
-        else if (!this._state.persistent && this._dialog.parentElement)
-            this._document.body.removeChild(this._dialog);
+        if (!this._state.show)
+            if (this._state.persistent && this._dialog && !this._dialog.parentElement)
+                this._document.body.appendChild(this._dialog);
+            else if (!this._state.persistent && this._dialog.parentElement)
+                this._document.body.removeChild(this._dialog);
 
         if (options && 'maximized' in options && options.maximized)
             this.maximize();

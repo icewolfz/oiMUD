@@ -682,19 +682,19 @@ export class Display extends EventEmitter {
     private _buildStyleSheet() {
         let styles = ''; // `.background > span, .view > span, .line, .background-line { height: ${this._charHeight}px; line-height: ${this._charHeight - 2}px; }`;
         if (!this._enableColors)
-            styles += '.view > span span {color: inherit !important;}';
+            styles +=  '#' + this.id + ' .view > span span {color: inherit !important;}';
         if (!this._enableColors || !this._enableBackgroundColors)
-            styles += '.background > span span {background-color: inherit !important;}';
+            styles += '#' + this.id + ' .background > span span {background-color: inherit !important;}';
         if (this._wordWrap)
-            styles += '.view {white-space: break-spaces; }';
+            styles += '#' + this.id + ' .view {white-space: break-spaces; }';
         else if (this._wrapAt > 0)
-            styles += `.view {white-space: break-spaces; } .line {width: ${this._wrapAt * this._charWidth}px !important;max-width:  ${this._wrapAt * this._charWidth}px;min-width:  ${this._wrapAt * this._charWidth}px;display: block;}`
+            styles += `#${this.id} .view {white-space: break-spaces; } .line {width: ${this._wrapAt * this._charWidth}px !important;max-width:  ${this._wrapAt * this._charWidth}px;min-width:  ${this._wrapAt * this._charWidth}px;display: block;}`
         if ((this._wordWrap || this._wrapAt > 0) && this._indent > 0)
-            styles += `.view {  padding-left: 0px !important; text-indent: ${this._indent * this._charWidth}px hanging; }`;
+            styles += `#${this.id} .view {  text-indent: ${this._indent * this._charWidth}px hanging; }`;
         //styles += `.view { padding-left: ${this._indent * this._charWidth * 2}px;text-indent: -${this._indent * this._charWidth}px; }@-moz-document url-prefix() { .view {  padding-left: 0px !important; text-indent: ${this._indent * this._charWidth}px hanging; } }`;
-        styles += `.line > span { min-height: ${this._charHeight}}`;
+        styles += `#${this.id} .line > span { min-height: ${this._charHeight}}`;
         if (this._timestamp !== TimeStampStyle.None)
-            styles += '.timestamp { display: inline-block; }';
+            styles += '#' + this.id + ' .timestamp { display: inline-block; }';
         //else
         //styles += '.timestamp { display: none !important; }';
         this._styles.innerHTML = styles;
@@ -1381,6 +1381,12 @@ export class DisplayModel extends EventEmitter {
         this._lineID++;
         this._buildLineExpires(this.lines.length - 1);
         this.emit('line-added', data, noUpdate);
+    }
+
+    public appendLines(data: ParserLine[]) {
+        for (let d = 0, dl = data.length; d < dl; d++)
+            this.addParserLine(data[d]);
+        this._parser.emit('parse-done');
     }
 
     private _expireLineLinkFormat(formats, idx: number) {

@@ -19,6 +19,7 @@ import { Logger } from "./plugins/logger";
 import { Chat } from "./plugins/chat";
 import { ShadowMUD } from "./plugins/ShadowMUD/shadowmud";
 export { ShadowMUD };
+import { LeftSidebar } from "./plugins/leftsidebar";
 
 declare global {
     interface Window {
@@ -388,6 +389,7 @@ export class Client extends EventEmitter {
         if (!plugin) return;
         this.plugins.push(plugin);
         plugin.initialize();
+        this.emit('plugin-added', plugin);
     }
 
     public removePlugin(plugin: Plugin) {
@@ -396,6 +398,7 @@ export class Client extends EventEmitter {
         if (idx !== -1) {
             plugin.remove();
             this.plugins.splice(idx, 1);
+            this.emit('plugin-removed', plugin);
         }
     }
 
@@ -1147,6 +1150,7 @@ export class Client extends EventEmitter {
         this.addPlugin(new Status(this));
         this.addPlugin(new Logger(this));
         this.addPlugin(new Chat(this));
+        this.addPlugin(new LeftSidebar(this));
         if (DEBUG || TEST)
             this.addPlugin(new Test(this));
         this.autoConnect();
@@ -1212,7 +1216,7 @@ export class Client extends EventEmitter {
             return;
         this._options[name] = value;
         Settings.setValue(name, value);
-        this.emit('option=changed', name, value);
+        this.emit('option-changed', name, value);
     }
 
     public getOption(name: string): any {

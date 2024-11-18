@@ -1,5 +1,3 @@
-- Chat capture
-    - Add chat side panel
 - Add on disconnect option and dialog
 - New options
     - enableParsing - quick enabled triggered by interface?
@@ -33,7 +31,6 @@
 - recode advanced editor to not use jquery when possible
 - Add paste special? may not be possible as cant control paste
 - Mapper
-    - Add mini map panel on left side above chat panel
     - Recode map backend into a worker to get/set rooms etc... granted localforage does not work in workers so adds extra layer of complexity
     - Add true mapper window
 - run firefox/chrome performance tools to optimize code/loading

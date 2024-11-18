@@ -6994,6 +6994,10 @@
       }
       return null;
     }
+    static exist(setting) {
+      let tmp = $.jStorage.get(setting);
+      return typeof tmp !== "undefined" && tmp !== null;
+    }
     save() {
       for (let prop in this) {
         if (!this.hasOwnProperty(prop)) continue;
@@ -21590,18 +21594,18 @@
     _buildStyleSheet() {
       let styles = "";
       if (!this._enableColors)
-        styles += ".view > span span {color: inherit !important;}";
+        styles += "#" + this.id + " .view > span span {color: inherit !important;}";
       if (!this._enableColors || !this._enableBackgroundColors)
-        styles += ".background > span span {background-color: inherit !important;}";
+        styles += "#" + this.id + " .background > span span {background-color: inherit !important;}";
       if (this._wordWrap)
-        styles += ".view {white-space: break-spaces; }";
+        styles += "#" + this.id + " .view {white-space: break-spaces; }";
       else if (this._wrapAt > 0)
-        styles += `.view {white-space: break-spaces; } .line {width: ${this._wrapAt * this._charWidth}px !important;max-width:  ${this._wrapAt * this._charWidth}px;min-width:  ${this._wrapAt * this._charWidth}px;display: block;}`;
+        styles += `#${this.id} .view {white-space: break-spaces; } .line {width: ${this._wrapAt * this._charWidth}px !important;max-width:  ${this._wrapAt * this._charWidth}px;min-width:  ${this._wrapAt * this._charWidth}px;display: block;}`;
       if ((this._wordWrap || this._wrapAt > 0) && this._indent > 0)
-        styles += `.view {  padding-left: 0px !important; text-indent: ${this._indent * this._charWidth}px hanging; }`;
-      styles += `.line > span { min-height: ${this._charHeight}}`;
+        styles += `#${this.id} .view {  text-indent: ${this._indent * this._charWidth}px hanging; }`;
+      styles += `#${this.id} .line > span { min-height: ${this._charHeight}}`;
       if (this._timestamp !== 0 /* None */)
-        styles += ".timestamp { display: inline-block; }";
+        styles += "#" + this.id + " .timestamp { display: inline-block; }";
       this._styles.innerHTML = styles;
       if ((this._wordWrap || this._wrapAt > 0) && this._indent > 0)
         this._indentPadding = parseFloat(this._window.getComputedStyle(this._view).paddingLeft) / 2;
@@ -22199,6 +22203,11 @@
       this._lineID++;
       this._buildLineExpires(this.lines.length - 1);
       this.emit("line-added", data, noUpdate);
+    }
+    appendLines(data) {
+      for (let d2 = 0, dl = data.length; d2 < dl; d2++)
+        this.addParserLine(data[d2]);
+      this._parser.emit("parse-done");
     }
     _expireLineLinkFormat(formats, idx) {
       let f;
@@ -25391,7 +25400,7 @@ Devanagari
       this.emit("refresh");
     }
     focusCurrentRoom() {
-      if (this._map.current.num) {
+      if (this._map && this._map.current && this._map.current.num) {
         this.active = this._map.current;
         this.emit("active-room-changed", this.active.clone());
       }
@@ -27530,10 +27539,12 @@ Devanagari
       this._state.y = this._resize.y = parseInt(styles.top, 10);
       ;
       this._state.height = this._resize.height = parseInt(styles.height, 10);
-      if (this._state.persistent && this._dialog && !this._dialog.parentElement)
-        this._document.body.appendChild(this._dialog);
-      else if (!this._state.persistent && this._dialog.parentElement)
-        this._document.body.removeChild(this._dialog);
+      if (!this._state.show) {
+        if (this._state.persistent && this._dialog && !this._dialog.parentElement)
+          this._document.body.appendChild(this._dialog);
+        else if (!this._state.persistent && this._dialog.parentElement)
+          this._document.body.removeChild(this._dialog);
+      }
       if (options && "maximized" in options && options.maximized)
         this.maximize();
       else
@@ -27751,11 +27762,11 @@ Devanagari
           let code;
           let id = "menu-" + (item.id || item.name || s).trim().toLowerCase().replace(/ /g, "-");
           if (item.name === "-")
-            code = `<li id="${id}"><hr class="dropdown-divider"></li>`;
+            code = `<li id="${id}"${item.hidden ? ' style=" display:none;visibility:hiddem"' : ""}><hr class="dropdown-divider"></li>`;
           else if (typeof item.action === "string")
-            code = `<li id="${id}" class="nav-item${item.active ? " active" : ""}" title="${item.name || ""}"><a class="nav-link" href="#${item.action}">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
+            code = `<li id="${id}"${item.hidden ? ' style=" display:none;visibility:hiddem"' : ""} class="nav-item${item.active ? " active" : ""}" title="${item.name || ""}"><a class="nav-link" href="#${item.action}">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
           else
-            code = `<li id="${id}" class="nav-item${item.active ? " active" : ""}" title="${item.name || ""}"><a class="nav-link" href="javascript:void(0)">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
+            code = `<li id="${id}"${item.hidden ? ' style=" display:none;visibility:hiddem"' : ""} class="nav-item${item.active ? " active" : ""}" title="${item.name || ""}"><a class="nav-link" href="javascript:void(0)">${item.icon || ""}<span>${item.name || ""}</span></a></li>`;
           if (item.exists && list.querySelector(item.exists)) continue;
           if ("position" in item) {
             if (typeof item.position === "string") {
@@ -29544,7 +29555,7 @@ Devanagari
               let name3;
               if (target.dataset.enum === "true") {
                 name3 = target.name || target.id.substring(0, target.id.lastIndexOf("-"));
-                const enums = this.body.querySelectorAll(`[name=${name3}]`);
+                const enums = this.body.querySelectorAll(`[name="${name3}"]`);
                 let value = 0;
                 for (let e2 = 0, el = enums.length; e2 < el; e2++) {
                   if (enums[e2].checked)
@@ -29796,6 +29807,14 @@ Devanagari
     show() {
       this.$el.style.display = "";
     }
+    get splitterWidth() {
+      return this.$splitterWidth;
+    }
+    set splitterWidth(value) {
+      if (this.$splitterWidth === value) return;
+      this.$splitterWidth = value;
+      this._updatePanels();
+    }
     get id() {
       return this.$id || this.parent.id;
     }
@@ -29807,7 +29826,7 @@ Devanagari
       this.$panel2.id = this.id + "-splitter-panel2";
       this.$dragBar.id = this.id + "-splitter-drag-bar";
       if (this.$ghostBar)
-        this.$ghostBar.id = this.id + "-ghost-bar";
+        this.$ghostBar.id = this.id + "-splitter-ghost-bar";
     }
     set parent(parent) {
       if (typeof parent === "string") {
@@ -29937,7 +29956,7 @@ Devanagari
         this.$dragBar.style.right = "0";
         if (this.$anchor === 1 /* panel1 */) {
           this.$dragBar.style.bottom = "";
-          this.$dragBar.style.top = this.$splitterDistance + "px";
+          this.$dragBar.style.top = this.$splitterDistance - this.$splitterWidth + "px";
         } else {
           this.$dragBar.style.top = "";
           this.$dragBar.style.bottom = this.$splitterDistance - this.$splitterWidth + "px";
@@ -29960,7 +29979,7 @@ Devanagari
           this.$panel1.style.display = "";
           this.$panel1.style.height = this.$splitterDistance - this.$splitterWidth + "px";
           this.$panel2.style.display = "";
-          this.$panel2.style.top = this.$splitterDistance - this.$splitterWidth + "px";
+          this.$panel2.style.top = this.$splitterDistance + "px";
           this.$panel2.style.height = "";
           this.$dragBar.style.display = "";
         } else {
@@ -30051,7 +30070,7 @@ Devanagari
         this.$panel2.style.pointerEvents = "none";
         this.$dragging = true;
         this.$ghostBar = document.createElement("div");
-        this.$ghostBar.id = this.id + "-ghost-bar";
+        this.$ghostBar.id = this.id + "-splitter-ghost-bar";
         this.$ghostBar.classList.add("splitter-ghost-bar");
         let bnd = this.$panel2.getBoundingClientRect();
         if (this.$anchor === 1 /* panel1 */)
@@ -33384,6 +33403,8 @@ Devanagari
       this.emit("debug", e);
     }
     refresh() {
+      if (this._dialogMap)
+        this._dialogMap.refresh();
     }
     createDialog() {
       if (this._dialog) return;
@@ -34010,7 +34031,7 @@ Devanagari
         this._splitterDistance = bounds.width + document.body.clientWidth - bounds.right;
       }
       if (!this.client.getOption("showStatus"))
-        this.updateInterface();
+        this._updateInterface();
       else {
         if (!this.client.getOption("statusMode"))
           this._clientContainer.style.right = this._splitterDistance + "px";
@@ -34078,7 +34099,8 @@ Devanagari
         if (w2 > document.body.clientWidth - this.maxWidth) w2 = document.body.clientWidth - this.maxWidth;
         if (w2 < 184 && w2 != -1) w2 = 184;
         this.splitterDistance = w2;
-        this.updateInterface();
+        this._updateInterface();
+        this._updateMenuItem();
       });
       this.on("debug", (e) => this.client.debug(e), this);
       this.on("error", (e) => this.client.error(e), this);
@@ -34129,21 +34151,12 @@ Devanagari
         document.getElementById("status-ghost-bar").remove();
         document.removeEventListener("mousemove", this._move);
         this._dragging = false;
-        this.updateInterface();
+        this._updateInterface();
       });
       document.getElementById("status-close").addEventListener("click", () => {
         this.client.setOption("showStatus", false);
-        this.updateInterface();
-        let button = document.querySelector("#menu-status");
-        if (client.getOption("showStatus")) {
-          button.title = "Hide status";
-          button.classList.add("active");
-          document.querySelector("#menu-status a span").textContent = " Hide status";
-        } else {
-          button.title = "Show status";
-          button.classList.remove("active");
-          document.querySelector("#menu-status a span").textContent = " Show status";
-        }
+        this._updateInterface();
+        this._updateMenuItem();
       });
       this._status.querySelector("#health").addEventListener("click", () => {
         if (!this.ac) return;
@@ -34165,8 +34178,8 @@ Devanagari
         this._status.querySelector("#armor").classList.add("active");
       }
       let w = client.getOption("statusWidth");
-      if (w < 184 && w != -1) w = 184;
       if (w > document.body.clientWidth - this.maxWidth) w = document.body.clientWidth - this.maxWidth;
+      if (w < 184 && w != -1) w = 184;
       this.splitterDistance = w;
       Object.defineProperty(window, "$character", {
         get: () => {
@@ -34183,7 +34196,7 @@ Devanagari
       });
       this.client.display.container.append(document.getElementById("status-simple-lagMeter"));
       this._updateSplitter();
-      this.updateInterface();
+      this._updateInterface();
       this.init();
       let options = client.getWindowState("skills");
       if (options && options.show)
@@ -34203,17 +34216,8 @@ Devanagari
           active: this.client.getOption("showStatus"),
           action: (e) => {
             this.client.setOption("showStatus", !this.client.getOption("showStatus"));
-            this.updateInterface();
-            let button = document.querySelector("#menu-status");
-            if (client.getOption("showStatus")) {
-              button.title = "Hide status";
-              button.classList.add("active");
-              document.querySelector("#menu-status a span").textContent = " Hide status";
-            } else {
-              button.title = "Show status";
-              button.classList.remove("active");
-              document.querySelector("#menu-status a span").textContent = " Show status";
-            }
+            this._updateInterface();
+            this._updateMenuItem();
           },
           icon: '<i class="bi bi-heart-pulse-fill"></i>',
           position: 6
@@ -34367,7 +34371,7 @@ Devanagari
         this.emit("error", e);
       }
     }
-    updateInterface(noSplitter) {
+    _updateInterface(noSplitter) {
       if (!this.client.getOption("showStatus")) {
         this._clientContainer.style.right = "";
         this._status.style.visibility = "hidden";
@@ -35073,6 +35077,18 @@ Devanagari
       label += "</div>";
       return label;
     }
+    _updateMenuItem() {
+      let button = document.querySelector("#menu-status");
+      if (client.getOption("showStatus")) {
+        button.title = "Hide status";
+        button.classList.add("active");
+        document.querySelector("#menu-status a span").textContent = " Hide status";
+      } else {
+        button.title = "Show status";
+        button.classList.remove("active");
+        document.querySelector("#menu-status a span").textContent = " Show status";
+      }
+    }
   };
 
   // inline-worker:D:\Development\oiMUD\src\plugins\logger.worker.ts
@@ -35747,38 +35763,38 @@ Devanagari
       }, this);
       this.client.on("add-line", (data) => {
         let res, c, cl;
-        if (!data || typeof data.raw == "undefined" || data.raw === null)
+        if (!data || typeof data.line == "undefined" || data.line === null)
           return;
         if (data.fragment || this._captures.length === 0) return;
-        res = /^(-*)\s*\[ (.*) matching (users|user) \]\s*(-*)$/.exec(data.raw);
+        res = /^(-*)\s*\[ (.*) matching (users|user) \]\s*(-*)$/.exec(data.line);
         if (res && res.length > 0) {
           this._capture = 0;
           this._noCapture = true;
           return;
         }
-        res = /^(-*)\s*\[ .* \]\s*(-*)$/.exec(data.raw);
+        res = /^(-*)\s*\[ .* \]\s*(-*)$/.exec(data.line);
         if (this._noCapture && res && res.length > 0) {
           this._capture = 0;
           this._noCapture = false;
           return;
         }
-        if (data.raw === "Describers:" || data.raw === "You supply a list of nouns so when your object is complete it can correctly build an id list to allow you to properly interact with it." || data.raw === "You supply a list of adjectives so when your object is complete it can correctly build an id list to allow you to properly interact with it." || data.raw === "Available sizes:" || data.raw === "Available locations:" || data.raw === "Available tattoos:" || data.raw === "Available colors:") {
+        if (data.line === "Describers:" || data.line === "You supply a list of nouns so when your object is complete it can correctly build an id list to allow you to properly interact with it." || data.line === "You supply a list of adjectives so when your object is complete it can correctly build an id list to allow you to properly interact with it." || data.line === "Available sizes:" || data.line === "Available locations:" || data.line === "Available tattoos:" || data.line === "Available colors:") {
           this._capture = 0;
           this._noCapture = true;
           return;
         }
-        if (this._noCapture && (data.raw.indexOf("Current name: ") === 0 || data.raw.indexOf("Enter up to 2 nouns, [#] to remove, 'f' to finish, 'q' to quit:") === 0 || data.raw.indexOf("Enter up to 3 adjectives, 'f' to finish, 'q' to quit:") === 0 || data.raw.indexOf("Enter selection ") === 0)) {
+        if (this._noCapture && (data.line.indexOf("Current name: ") === 0 || data.line.indexOf("Enter up to 2 nouns, [#] to remove, 'f' to finish, 'q' to quit:") === 0 || data.line.indexOf("Enter up to 3 adjectives, 'f' to finish, 'q' to quit:") === 0 || data.line.indexOf("Enter selection ") === 0)) {
           this._capture = 0;
           this._noCapture = false;
           return;
         }
-        res = /^ {2}# {2}Item.*$/.exec(data.raw);
+        res = /^ {2}# {2}Item.*$/.exec(data.line);
         if (this._noCaptureStore === 0 && res && res.length > 0) {
           this._capture = 0;
           this._noCaptureStore = 1;
           return;
         }
-        res = /^(-*)$/.exec(data.raw);
+        res = /^(-*)$/.exec(data.line);
         if (this._noCaptureStore > 0 && res && res.length > 0) {
           this._capture = 0;
           this._noCaptureStore++;
@@ -35789,17 +35805,17 @@ Devanagari
         }
         if (this._noCapture || this._noCaptureStore > 0) return;
         if (this.client.getOption("chat.CaptureOnlyOpen")) {
-          if (!(this._isWindowOpen || this._dialog && !this._dialog.opened)) {
+          if (!(this._isWindowOpen || this._isDialogOpen)) {
             return;
           }
         }
-        if (this._capture > 0 && data.raw.startsWith("    ")) {
+        if (this._capture > 0 && data.line.startsWith("    ")) {
           data.gagged |= this.client.getOption("chat.gag");
           this.updateChat(data);
           return;
         }
         for (c = 0, cl = this._captureReviews.length; c < cl; c++) {
-          res = this._captureReviews[c].exec(data.raw);
+          res = this._captureReviews[c].exec(data.line);
           if (!res || res.length === 0)
             continue;
           this._captureReview = 1;
@@ -35810,7 +35826,7 @@ Devanagari
         if (this._captureReview > 0) {
           data.gagged |= this.client.getOption("chat.gag");
           this.updateChat(data);
-          if (data.raw == "-=-=- End Review -=-=-")
+          if (data.line == "-=-=- End Review -=-=-")
             this._captureReview = -1;
           return;
         }
@@ -35821,7 +35837,7 @@ Devanagari
           return;
         }
         for (c = 0, cl = this._captures.length; c < cl; c++) {
-          res = this._captures[c].exec(data.raw);
+          res = this._captures[c].exec(data.line);
           if (!res || res.length === 0)
             continue;
           if (this._capture > 0)
@@ -35979,6 +35995,7 @@ Devanagari
       }
     }
     updateChat(data) {
+      this.emit("update-chat", data);
       if (typeof data === "string") {
         let display;
         let line2 = -1;
@@ -35988,7 +36005,7 @@ Devanagari
           display = this._dialog.display;
         }
         if (this._isWindowOpen) {
-          if (!display) line2 = this._dialog.display.lines.length - 1;
+          if (!display) line2 = this._window.display.lines.length - 1;
           this._window.display.append(data);
           display = display || this._window.display;
         }
@@ -36013,9 +36030,9 @@ Devanagari
           };
       } else {
         if (this._isDialogOpen)
-          this._dialog.display.model.addParserLine(data);
+          this._dialog.display.model.appendLines([data]);
         if (this._isWindowOpen)
-          this._window.display.model.addParserLine(data);
+          this._window.display.model.appendLines([data]);
       }
       if (this.client.getOption("chat.log"))
         this._post({ action: "add-line", args: data });
@@ -36061,18 +36078,18 @@ Devanagari
           this._post({ action: "toggle" });
       });
       toolbar.querySelector("#btn-chat-wrap").addEventListener("click", () => {
-        this.client.setOption("chat.wrap", !this.client.getOption("chat.wrap"));
+        this.client.setOption("chat.wordWrap", !this.client.getOption("chat.wordWrap"));
         if (this._isWindowOpen) {
-          this._updateButtonState(this._window.document.querySelector("#btn-chat-wrap"), this.client.getOption("chat.wrap"));
-          this._window.display.wordWrap = this.client.getOption("chat.wrap");
+          this._updateButtonState(this._window.document.querySelector("#btn-chat-wrap"), this.client.getOption("chat.wordWrap"));
+          this._window.display.wordWrap = this.client.getOption("chat.wordWrap");
         }
         if (this._dialog) {
-          this._updateButtonState(this._dialog.body.querySelector("#btn-chat-wrap"), this.client.getOption("chat.wrap"));
-          this._dialog.display.wordWrap = this.client.getOption("chat.wrap");
+          this._updateButtonState(this._dialog.body.querySelector("#btn-chat-wrap"), this.client.getOption("chat.wordWrap"));
+          this._dialog.display.wordWrap = this.client.getOption("chat.wordWrap");
         }
       });
       this._updateScrollLockButton(toolbar.querySelector("#btn-chat-lock"), this.client.getOption("chat.scrollLocked"));
-      this._updateButtonState(toolbar.querySelector("#btn-chat-wrap"), this.client.getOption("chat.wrap"));
+      this._updateButtonState(toolbar.querySelector("#btn-chat-wrap"), this.client.getOption("chat.wordWrap"));
       this._updateButtonState(toolbar.querySelector("#btn-chat-log"), this.client.getOption("chat.log"));
       return toolbar;
     }
@@ -36322,14 +36339,14 @@ Devanagari
       display.emulateTerminal = client.getOption("chat.emulateTerminal");
       display.emulateControlCodes = client.getOption("chat.emulateControlCodes");
       display.wordWrap = client.getOption("chat.wordWrap");
-      display.wrapAt = client.getOption("chat.wrapAt");
+      display.wrapAt = client.getOption("chat.wordWrapAt");
       display.indent = client.getOption("chat.indent");
       display.scrollLock = client.getOption("chat.scrollLocked");
       display.scrollDisplay();
     }
     _loadWindowOptions(target) {
       this._updateScrollLockButton(target.querySelector("#btn-chat-lock"), this.client.getOption("chat.scrollLocked"));
-      this._updateButtonState(target.querySelector("#btn-chat-wrap"), this.client.getOption("chat.wrap"));
+      this._updateButtonState(target.querySelector("#btn-chat-wrap"), this.client.getOption("chat.wordWrap"));
       this._updateButtonState(target.querySelector("#btn-chat-log"), this.client.getOption("chat.log"));
     }
     _loadOptions() {
@@ -36945,6 +36962,324 @@ Devanagari
   };
   window.ShadowMUD = ShadowMUD;
 
+  // src/plugins/leftsidebar.ts
+  var LeftSidebar = class extends Plugin {
+    constructor(options) {
+      super(options instanceof Client ? options : options?.client);
+      this._dragging = false;
+      if (options) {
+        if (options.mapper && options.mapper instanceof Mapper)
+          this._mapper = options.mapper;
+        if (options.chat && options.chat instanceof Chat)
+          this._chat = options.chat;
+      }
+      if (!Settings.exist("showLeftSidebar"))
+        Settings.setValue("showLeftSidebar", !isMobile());
+      if (!Settings.exist("leftSidebar.panels"))
+        Settings.setValue("leftSidebar.panels", 6 /* all */);
+      this._clientContainer = document.getElementById("client-container");
+      this._createSidebar();
+    }
+    _createSidebar() {
+      document.body.insertAdjacentHTML("beforeend", `<div id="left-sidebar-drag-bar"></div><div id="left-sidebar"><button id="left-sidebar-close" style="padding: 4px;" type="button"
+        class="button button-sm btn-close" title="Hide left sidebar"></button></div>`);
+      this._sidebar = document.getElementById("left-sidebar");
+      this._splitter = new Splitter({ id: "left-sidebar", parent: this._sidebar, orientation: 0 /* horizontal */, anchor: 1 /* panel1 */ });
+      this._splitter.splitterWidth = 3;
+      if (this.client.getOption("leftSidebar.separator") >= 200)
+        this._splitter.SplitterDistance = this.client.getOption("leftSidebar.separator");
+      this._splitter.on("splitter-moved", (distance) => {
+        this.client.setOption("leftSidebar.separator", distance);
+      });
+    }
+    remove() {
+      this._clearMapper();
+      this._clearChat();
+      this.client.removeListenersFromCaller(this);
+    }
+    initialize() {
+      this._findPlugins();
+      this._initChat();
+      this._initMapper();
+      this.client.on("plugin-added", (plugin) => {
+        if (!this._chat && plugin instanceof Chat) {
+          this._chat = plugin;
+          this._initChat();
+        }
+        if (!this._mapper && plugin instanceof Mapper) {
+          this._mapper = plugin;
+          this._initMapper();
+        }
+      }, this);
+      this.client.on("plugin-removed", (plugin) => {
+        if (this._chat === plugin) {
+          this._clearChat();
+          this._chat = null;
+        }
+        if (this._mapper === plugin) {
+          this._clearMapper();
+          this._mapper = null;
+        }
+      }, this);
+      this.client.on("options-loaded", () => {
+        let w2 = client.getOption("leftSidebarWidth");
+        if (w2 > this.maxWidth) w2 = this.maxWidth;
+        if (w2 < 184 && w2 != -1) w2 = 184;
+        this.splitterDistance = w2;
+        this._updateInterface();
+        this._loadOptions();
+        this._updateMenuItem();
+      }, this);
+      this.client.on("option-changed", (name2, value) => {
+        if (name2.startsWith("mapper.") || name2.startsWith("chat.") || name2 === "commandDelay" || name2 === "commandDelayCount" || name2 === "enableMXP" || name2 === "enableURLDetection" || name2 === "display.showInvalidMXPTags" || name2 === "display.hideTrailingEmptyLine") {
+          this._loadOptions();
+          this._updateMenuItem();
+        }
+      });
+      document.getElementById("left-sidebar-drag-bar").addEventListener("mousedown", (e) => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        this._dragging = true;
+        const main = document.getElementById("left-sidebar-drag-bar");
+        const w2 = this._sidebar.style.width;
+        this._sidebar.style.width = "";
+        const bounds = this._sidebar.getBoundingClientRect();
+        this._sidebar.style.width = w2;
+        const bounds2 = main.getBoundingClientRect();
+        const ghostBar = document.createElement("div");
+        ghostBar.id = "left-sidebar-ghost-bar";
+        ghostBar.style.top = "0";
+        ghostBar.style.bottom = "0";
+        ghostBar.style.left = bounds2.left + "px";
+        ghostBar.style.cursor = "ew-resize";
+        document.body.append(ghostBar);
+        const maxWidth = Math.max(this.maxWidth, bounds.width);
+        this._move = (e2) => {
+          if (e2.pageX >= maxWidth)
+            ghostBar.style.left = maxWidth + "px";
+          else if (e2.pageX < bounds.right)
+            ghostBar.style.left = bounds.right + "px";
+          else
+            ghostBar.style.left = e2.pageX + "px";
+        };
+        document.addEventListener("mousemove", this._move);
+      });
+      window.addEventListener("resize", () => this.resize());
+      document.addEventListener("mouseup", (e) => {
+        if (!this._dragging) return;
+        const w2 = this._sidebar.style.width;
+        this._sidebar.style.width = "";
+        const bounds = this._sidebar.getBoundingClientRect();
+        const minWidth = bounds.right;
+        const l2 = document.getElementById("left-sidebar-drag-bar").getBoundingClientRect().width;
+        const maxWidth = Math.max(this.maxWidth, minWidth);
+        this._sidebar.style.width = w2;
+        if (e.pageX >= maxWidth)
+          this.splitterDistance = maxWidth;
+        else if (e.pageX < minWidth)
+          this.splitterDistance = minWidth;
+        else
+          this.splitterDistance = e.pageX - l2;
+        document.getElementById("left-sidebar-ghost-bar").remove();
+        document.removeEventListener("mousemove", this._move);
+        this._dragging = false;
+        this._updateInterface();
+      });
+      document.getElementById("left-sidebar-close").addEventListener("click", () => {
+        this.client.setOption("showLeftSidebar", false);
+        this._updateInterface();
+        this._updateMenuItem();
+      });
+      let w = client.getOption("leftSidebarWidth");
+      if (w > this.maxWidth) w = this.maxWidth;
+      if (w < 184 && w != -1) w = 184;
+      this.splitterDistance = w;
+      this._updateSplitter();
+      this._updateInterface();
+      this._miniMap = new MapDisplay(this._splitter.panel1, { map: this._mapper ? this._mapper.map : null });
+      this._miniMap.showNavigation = false;
+      this._miniMap.container.classList.add("mini-map", "map");
+      this._chatDisplay = new Display(this._splitter.panel2);
+      this._loadOptions();
+    }
+    get menu() {
+      return [
+        {
+          name: "-",
+          position: 5,
+          exists: "#menu-plugins",
+          id: "plugins"
+        },
+        {
+          id: "left-sidebar",
+          name: this.client.getOption("showLeftSidebar") ? " Hide left sidebar" : " Show left sidebar",
+          active: this.client.getOption("showLeftSidebar"),
+          action: (e) => {
+            this.client.setOption("showLeftSidebar", !this.client.getOption("showLeftSidebar"));
+            this._updateInterface();
+            this._updateMenuItem();
+          },
+          icon: '<i class="bi bi-layout-sidebar"></i>',
+          position: "#menu-plugins",
+          hidden: this.client.getOption("leftSidebar.panels") === 0 /* none */
+        }
+      ];
+    }
+    get settings() {
+      return [{
+        name: " Left sidebar",
+        action: "settings-leftSidebar",
+        icon: '<i class="bi bi-layout-sidebar"></i>',
+        position: 7
+      }];
+    }
+    _findPlugins() {
+      if (this._chat && this._mapper) return;
+      for (let p = 0, pl = this.client.plugins.length; p < pl; p++) {
+        if (!this._chat && this.client.plugins[p] instanceof Chat) {
+          this._chat = this.client.plugins[p];
+        }
+        if (!this._mapper && this.client.plugins[p] instanceof Mapper) {
+          this._mapper = this.client.plugins[p];
+        }
+      }
+    }
+    _initChat() {
+      if (!this._chat) return;
+      this._chat.on("update-chat", (data) => {
+        if (this._chatDisplay) {
+          if (typeof data === "string")
+            this._chatDisplay.append(data);
+          else
+            this._chatDisplay.model.appendLines([data]);
+        }
+      }, this);
+    }
+    _initMapper() {
+      if (!this._mapper) return;
+      this._mapper.on("map-loaded", () => {
+        if (this._miniMap)
+          this._miniMap.map = this._mapper.map;
+      }, this);
+    }
+    _clearMapper() {
+      if (!this._mapper) return;
+      this._mapper.map.removeListenersFromCaller(this);
+      this._mapper.removeListenersFromCaller(this);
+    }
+    _clearChat() {
+      if (!this._chat) return;
+      this._chat.removeListenersFromCaller(this);
+    }
+    get splitterDistance() {
+      return this._splitterDistance;
+    }
+    set splitterDistance(value) {
+      if (value === this._splitterDistance) return;
+      this._splitterDistance = value;
+      this._updateSplitter();
+    }
+    get maxWidth() {
+      return Math.floor(document.body.clientWidth * 0.33);
+    }
+    _updateSplitter() {
+      if (!this._splitterDistance || this._splitterDistance < 1) {
+        const bounds = this._sidebar.getBoundingClientRect();
+        this._splitterDistance = bounds.right;
+      }
+      this._updateInterface();
+      this.client.setOption("leftSidebarWidth", this._splitterDistance);
+      this.emit("split-moved", this._splitterDistance);
+    }
+    resize() {
+      if (!this.client.getOption("showLeftSidebar") || this.client.getOption("leftSidebar.panels") === 0 /* none */) return;
+      const w = this._sidebar.style.width;
+      this._sidebar.style.width = "";
+      const bounds = this._sidebar.getBoundingClientRect();
+      const minWidth = bounds.right;
+      const maxWidth = Math.max(this.maxWidth, minWidth);
+      this._sidebar.style.width = w;
+      const bounds2 = this._sidebar.getBoundingClientRect();
+      if (bounds2.width < minWidth) {
+        this.splitterDistance = minWidth;
+      } else if (bounds2.width > maxWidth) {
+        this.splitterDistance = maxWidth;
+      }
+    }
+    _updateInterface() {
+      if (!this.client.getOption("showLeftSidebar") || this.client.getOption("leftSidebar.panels") === 0 /* none */) {
+        this._clientContainer.style.left = "";
+        this._sidebar.style.visibility = "hidden";
+        this._sidebar.style.display = "none";
+        document.getElementById("left-sidebar-drag-bar").style.display = "none";
+        this.emit("updated-interface");
+        return;
+      }
+      this._clientContainer.style.left = this._splitterDistance + "px";
+      this._sidebar.style.width = this._splitterDistance + "px";
+      document.getElementById("left-sidebar-drag-bar").style.left = this.splitterDistance + "px";
+      this._sidebar.style.visibility = "";
+      this._sidebar.style.display = "";
+      document.getElementById("left-sidebar-drag-bar").style.display = "";
+      this.emit("updated-interface");
+    }
+    _loadDisplayOptions(display) {
+      if (!display) return;
+      display.updateFont(client.getOption("chat.font"), client.getOption("chat.fontSize"));
+      display.maxLines = client.getOption("chat.bufferSize");
+      display.enableFlashing = client.getOption("chat.flashing");
+      display.showTimestamp = client.getOption("chat.showTimestamp");
+      display.timestampFormat = client.getOption("chat.timestampFormat");
+      display.enableMXP = client.getOption("enableMXP");
+      display.enableURLDetection = client.getOption("enableURLDetection");
+      display.showInvalidMXPTags = client.getOption("display.showInvalidMXPTags");
+      display.hideTrailingEmptyLine = client.getOption("display.hideTrailingEmptyLine");
+      display.enableColors = client.getOption("chat.enableColors");
+      display.enableBackgroundColors = client.getOption("chat.enableBackgroundColors");
+      display.tabWidth = client.getOption("chat.tabWidth");
+      display.displayControlCodes = client.getOption("chat.displayControlCodes");
+      display.emulateTerminal = client.getOption("chat.emulateTerminal");
+      display.emulateControlCodes = client.getOption("chat.emulateControlCodes");
+      display.wordWrap = client.getOption("chat.wordWrap");
+      display.wrapAt = client.getOption("chat.wrapAt");
+      display.indent = client.getOption("chat.indent");
+      display.scrollLock = client.getOption("chat.scrollLocked");
+      display.scrollDisplay();
+    }
+    _loadOptions() {
+      this._loadDisplayOptions(this._chatDisplay);
+      this._miniMap.commandDelay = client.getOption("commandDelay");
+      this._miniMap.commandDelayCount = client.getOption("commandDelayCount");
+      this._miniMap.enabled = this.client.getOption("mapper.enabled");
+      this._miniMap.follow = this.client.getOption("mapper.follow");
+      this._miniMap.splitArea = this.client.getOption("mapper.split");
+      this._miniMap.fillWalls = this.client.getOption("mapper.fill");
+      if (this._miniMap.follow)
+        this._miniMap.focusCurrentRoom();
+      this._splitter.panel1Collapsed = (this.client.getOption("leftSidebar.panels") & 2 /* map */) !== 2 /* map */;
+      this._splitter.panel2Collapsed = (this.client.getOption("leftSidebar.panels") & 4 /* chat */) !== 4 /* chat */;
+    }
+    _updateMenuItem() {
+      let button = document.querySelector("#menu-left-sidebar");
+      if (client.getOption("showLeftSidebar")) {
+        button.title = "Hide left sidebar";
+        button.classList.add("active");
+        document.querySelector("#menu-left-sidebar a span").textContent = " Hide left sidebar";
+      } else {
+        button.title = "Show left sidebar";
+        button.classList.remove("active");
+        document.querySelector("#menu-left-sidebar a span").textContent = " Show left sidebar";
+      }
+      if (this.client.getOption("leftSidebar.panels") === 0 /* none */) {
+        button.style.display = "none";
+        button.style.visibility = "hidden";
+      } else {
+        button.style.display = "list-item";
+        button.style.visibility = "visible";
+      }
+    }
+  };
+
   // src/client.ts
   var Client = class extends EventEmitter {
     constructor(options) {
@@ -37240,6 +37575,7 @@ Devanagari
       this.addPlugin(new Status(this));
       this.addPlugin(new Logger(this));
       this.addPlugin(new Chat(this));
+      this.addPlugin(new LeftSidebar(this));
       if (true)
         this.addPlugin(new Test(this));
       this.autoConnect();
@@ -37529,6 +37865,7 @@ Devanagari
       if (!plugin) return;
       this.plugins.push(plugin);
       plugin.initialize();
+      this.emit("plugin-added", plugin);
     }
     removePlugin(plugin) {
       if (!this.plugins.length) return;
@@ -37536,6 +37873,7 @@ Devanagari
       if (idx !== -1) {
         plugin.remove();
         this.plugins.splice(idx, 1);
+        this.emit("plugin-removed", plugin);
       }
     }
     getVariable(name2) {
@@ -37990,7 +38328,7 @@ Devanagari
         return;
       this._options[name2] = value;
       Settings.setValue(name2, value);
-      this.emit("option=changed", name2, value);
+      this.emit("option-changed", name2, value);
     }
     getOption(name2) {
       if (this._options && name2 in this._options)

@@ -478,7 +478,7 @@ export class MapDisplay extends EventEmitter {
             }
         });
         this.reset();
-        this.map = options.map;        
+        this.map = options.map;
         this.refresh();
     }
 
@@ -614,7 +614,7 @@ export class MapDisplay extends EventEmitter {
     }
 
     public focusCurrentRoom() {
-        if (this._map.current.num) {
+        if (this._map && this._map.current && this._map.current.num) {
             this.active = this._map.current;
             this.emit('active-room-changed', this.active.clone());
         }

@@ -72,31 +72,31 @@ export class Chat extends Plugin {
         }, this);
         this.client.on('add-line', data => {
             let res, c, cl;
-            if (!data || typeof data.raw == 'undefined' || data.raw === null)
+            if (!data || typeof data.line == 'undefined' || data.line === null)
                 return;
             if (data.fragment || this._captures.length === 0) return;
             //custom capture to ignore who list
-            res = /^(-*)\s*\[ (.*) matching (users|user) \]\s*(-*)$/.exec(data.raw);
+            res = /^(-*)\s*\[ (.*) matching (users|user) \]\s*(-*)$/.exec(data.line);
             if (res && res.length > 0) {
                 this._capture = 0;
                 this._noCapture = true;
                 return;
             }
             //end capture blocking for who list
-            res = /^(-*)\s*\[ .* \]\s*(-*)$/.exec(data.raw);
+            res = /^(-*)\s*\[ .* \]\s*(-*)$/.exec(data.line);
             if (this._noCapture && res && res.length > 0) {
                 this._capture = 0;
                 this._noCapture = false;
                 return;
             }
 
-            if (data.raw === 'Describers:' ||
-                data.raw === 'You supply a list of nouns so when your object is complete it can correctly build an id list to allow you to properly interact with it.' ||
-                data.raw === 'You supply a list of adjectives so when your object is complete it can correctly build an id list to allow you to properly interact with it.' ||
-                data.raw === 'Available sizes:' ||
-                data.raw === 'Available locations:' ||
-                data.raw === 'Available tattoos:' ||
-                data.raw === 'Available colors:'
+            if (data.line === 'Describers:' ||
+                data.line === 'You supply a list of nouns so when your object is complete it can correctly build an id list to allow you to properly interact with it.' ||
+                data.line === 'You supply a list of adjectives so when your object is complete it can correctly build an id list to allow you to properly interact with it.' ||
+                data.line === 'Available sizes:' ||
+                data.line === 'Available locations:' ||
+                data.line === 'Available tattoos:' ||
+                data.line === 'Available colors:'
             ) {
                 this._capture = 0;
                 this._noCapture = true;
@@ -104,10 +104,10 @@ export class Chat extends Plugin {
             }
 
             if (this._noCapture && (
-                data.raw.indexOf('Current name: ') === 0 ||
-                data.raw.indexOf('Enter up to 2 nouns, [#] to remove, \'f\' to finish, \'q\' to quit:') === 0 ||
-                data.raw.indexOf('Enter up to 3 adjectives, \'f\' to finish, \'q\' to quit:') === 0 ||
-                data.raw.indexOf('Enter selection ') === 0
+                data.line.indexOf('Current name: ') === 0 ||
+                data.line.indexOf('Enter up to 2 nouns, [#] to remove, \'f\' to finish, \'q\' to quit:') === 0 ||
+                data.line.indexOf('Enter up to 3 adjectives, \'f\' to finish, \'q\' to quit:') === 0 ||
+                data.line.indexOf('Enter selection ') === 0
             )) {
                 this._capture = 0;
                 this._noCapture = false;
@@ -115,14 +115,14 @@ export class Chat extends Plugin {
             }
 
             //locker/store list start
-            res = /^ {2}# {2}Item.*$/.exec(data.raw);
+            res = /^ {2}# {2}Item.*$/.exec(data.line);
             if (this._noCaptureStore === 0 && res && res.length > 0) {
                 this._capture = 0;
                 this._noCaptureStore = 1;
                 return;
             }
             //locker/store list end
-            res = /^(-*)$/.exec(data.raw);
+            res = /^(-*)$/.exec(data.line);
             if (this._noCaptureStore > 0 && res && res.length > 0) {
                 this._capture = 0;
                 this._noCaptureStore++;
@@ -135,13 +135,13 @@ export class Chat extends Plugin {
             if (this._noCapture || this._noCaptureStore > 0) return;
 
             if (this.client.getOption('chat.CaptureOnlyOpen')) {
-                if (!((this._isWindowOpen) || (this._dialog && !this._dialog.opened))) {
+                if (!(this._isWindowOpen || this._isDialogOpen)) {
                     return;
                 }
             }
 
             //capture indented text
-            if (this._capture > 0 && data.raw.startsWith('    ')) {
+            if (this._capture > 0 && data.line.startsWith('    ')) {
                 data.gagged |= this.client.getOption('chat.gag');
                 this.updateChat(data);
                 return;
@@ -149,7 +149,7 @@ export class Chat extends Plugin {
             //search capture review blocks
             for (c = 0, cl = this._captureReviews.length; c < cl; c++) {
                 //re = new RegExp(_captureReviews[c], 'g');
-                res = this._captureReviews[c].exec(data.raw);
+                res = this._captureReviews[c].exec(data.line);
                 if (!res || res.length === 0)
                     continue;
                 this._captureReview = 1;
@@ -161,10 +161,10 @@ export class Chat extends Plugin {
             if (this._captureReview > 0) {
                 data.gagged |= this.client.getOption('chat.gag');
                 this.updateChat(data);
-                if (data.raw == '-=-=- End Review -=-=-')
+                if (data.line == '-=-=- End Review -=-=-')
                     this._captureReview = -1;
                 /*
-                res = /^-=-=- End Review -=-=-$/.exec(data.raw);
+                res = /^-=-=- End Review -=-=-$/.exec(data.line);
                 if (res && res.length > 0)
                     captureReview = -1;
                 */
@@ -181,7 +181,7 @@ export class Chat extends Plugin {
             //capture lines based on matching regex's
             for (c = 0, cl = this._captures.length; c < cl; c++) {
                 //re = new RegExp(_captures[c], 'g');
-                res = this._captures[c].exec(data.raw);
+                res = this._captures[c].exec(data.line);
                 if (!res || res.length === 0)
                     continue;
                 if (this._capture > 0)
@@ -340,6 +340,7 @@ export class Chat extends Plugin {
     }
 
     public updateChat(data) {
+        this.emit('update-chat', data);
         if (typeof data === 'string') {
             let display;
             let line = -1;
@@ -349,7 +350,7 @@ export class Chat extends Plugin {
                 display = (<any>this._dialog).display;
             }
             if (this._isWindowOpen) {
-                if (!display) line = (<any>this._dialog).display.lines.length - 1;
+                if (!display) line = (<any>this._window).display.lines.length - 1;
                 (<any>this._window).display.append(data);
                 display = display || (<any>this._window).display;
             }
@@ -375,10 +376,10 @@ export class Chat extends Plugin {
                 };
         }
         else {
-            if (this._isDialogOpen)
-                (<any>this._dialog).display.model.addParserLine(data);
+            if (this._isDialogOpen) 
+                (<any>this._dialog).display.model.appendLines([data]);
             if (this._isWindowOpen)
-                (<any>this._window).display.model.addParserLine(data);
+                (<any>this._window).display.model.appendLines([data]);
         }
         if (this.client.getOption('chat.log'))
             this._post({ action: 'add-line', args: data });
@@ -426,19 +427,19 @@ export class Chat extends Plugin {
                 this._post({ action: 'toggle' });
         });
         toolbar.querySelector('#btn-chat-wrap').addEventListener('click', () => {
-            this.client.setOption('chat.wrap', !this.client.getOption('chat.wrap'));
+            this.client.setOption('chat.wordWrap', !this.client.getOption('chat.wordWrap'));
             if (this._isWindowOpen) {
-                this._updateButtonState(this._window.document.querySelector('#btn-chat-wrap'), this.client.getOption('chat.wrap'));
-                (this._window as any).display.wordWrap = this.client.getOption('chat.wrap');
+                this._updateButtonState(this._window.document.querySelector('#btn-chat-wrap'), this.client.getOption('chat.wordWrap'));
+                (this._window as any).display.wordWrap = this.client.getOption('chat.wordWrap');
             }
             if (this._dialog) {
-                this._updateButtonState(this._dialog.body.querySelector('#btn-chat-wrap'), this.client.getOption('chat.wrap'));
-                (this._dialog as any).display.wordWrap = this.client.getOption('chat.wrap');
+                this._updateButtonState(this._dialog.body.querySelector('#btn-chat-wrap'), this.client.getOption('chat.wordWrap'));
+                (this._dialog as any).display.wordWrap = this.client.getOption('chat.wordWrap');
             }
 
         });
         this._updateScrollLockButton(toolbar.querySelector('#btn-chat-lock'), this.client.getOption('chat.scrollLocked'));
-        this._updateButtonState(toolbar.querySelector('#btn-chat-wrap'), this.client.getOption('chat.wrap'));
+        this._updateButtonState(toolbar.querySelector('#btn-chat-wrap'), this.client.getOption('chat.wordWrap'));
         this._updateButtonState(toolbar.querySelector('#btn-chat-log'), this.client.getOption('chat.log'));
         return toolbar;
     }
@@ -699,7 +700,7 @@ export class Chat extends Plugin {
         display.emulateTerminal = client.getOption('chat.emulateTerminal');
         display.emulateControlCodes = client.getOption('chat.emulateControlCodes');
         display.wordWrap = client.getOption('chat.wordWrap');
-        display.wrapAt = client.getOption('chat.wrapAt');
+        display.wrapAt = client.getOption('chat.wordWrapAt');
         display.indent = client.getOption('chat.indent');
         display.scrollLock = client.getOption('chat.scrollLocked');
         display.scrollDisplay();
@@ -707,7 +708,7 @@ export class Chat extends Plugin {
 
     private _loadWindowOptions(target) {
         this._updateScrollLockButton(target.querySelector('#btn-chat-lock'), this.client.getOption('chat.scrollLocked'));
-        this._updateButtonState(target.querySelector('#btn-chat-wrap'), this.client.getOption('chat.wrap'));
+        this._updateButtonState(target.querySelector('#btn-chat-wrap'), this.client.getOption('chat.wordWrap'));
         this._updateButtonState(target.querySelector('#btn-chat-log'), this.client.getOption('chat.log'));
     }
 

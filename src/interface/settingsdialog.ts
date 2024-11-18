@@ -283,7 +283,7 @@ export class SettingsDialog extends Dialog {
                         let name;
                         if (target.dataset.enum === 'true') {
                             name = target.name || target.id.substring(0, target.id.lastIndexOf('-'));
-                            const enums = this.body.querySelectorAll(`[name=${name}]`);
+                            const enums = this.body.querySelectorAll(`[name="${name}"]`);
                             let value = 0;
                             for (let e = 0, el = enums.length; e < el; e++) {
                                 if (enums[e].checked)

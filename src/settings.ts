@@ -688,7 +688,7 @@ export class Settings {
             case 'chat.wrapAt': return 0;
             case 'chat.indent': return 4;
             case 'chat.enableColors': return true;
-            case 'chat.enableBackgroundColors': return true;            
+            case 'chat.enableBackgroundColors': return true;
             case 'autoTakeoverLogin': return false;
             case 'maxReconnectDelay': return 3600;
             case 'showLagInTitle': return false;
@@ -755,6 +755,11 @@ export class Settings {
             case 'showChatWindow': return 0;
         }
         return null;
+    }
+
+    public static exist(setting) {
+        let tmp = $.jStorage.get(setting);
+        return typeof tmp !== 'undefined' && tmp !== null;
     }
 
     public save() {

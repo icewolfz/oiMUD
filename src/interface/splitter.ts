@@ -86,6 +86,13 @@ export class Splitter extends EventEmitter {
         }
     }
 
+    get splitterWidth() { return this.$splitterWidth; }
+    set splitterWidth(value) {
+        if(this.$splitterWidth === value) return;
+        this.$splitterWidth = value;
+        this._updatePanels();
+    }
+
     get id() { return this.$id || this.parent.id; }
     set id(value) {
         if (value === this.$id) return;
@@ -95,7 +102,7 @@ export class Splitter extends EventEmitter {
         this.$panel2.id = this.id + '-splitter-panel2';
         this.$dragBar.id = this.id + '-splitter-drag-bar';
         if (this.$ghostBar)
-            this.$ghostBar.id = this.id + '-ghost-bar';
+            this.$ghostBar.id = this.id + '-splitter-ghost-bar';
     }
 
     set parent(parent) {
@@ -224,7 +231,7 @@ export class Splitter extends EventEmitter {
             this.$dragBar.style.right = '0';
             if (this.$anchor === PanelAnchor.panel1) {
                 this.$dragBar.style.bottom = '';
-                this.$dragBar.style.top = (this.$splitterDistance) + 'px';
+                this.$dragBar.style.top = (this.$splitterDistance - this.$splitterWidth) + 'px';
             }
             else {
                 this.$dragBar.style.top = '';
@@ -251,7 +258,7 @@ export class Splitter extends EventEmitter {
                 this.$panel1.style.display = '';
                 this.$panel1.style.height = (this.$splitterDistance - this.$splitterWidth) + 'px';
                 this.$panel2.style.display = '';
-                this.$panel2.style.top = (this.$splitterDistance - this.$splitterWidth) + 'px';
+                this.$panel2.style.top = (this.$splitterDistance) + 'px';
                 this.$panel2.style.height = '';
                 this.$dragBar.style.display = '';
             }
@@ -354,7 +361,7 @@ export class Splitter extends EventEmitter {
             this.$panel2.style.pointerEvents = 'none';
             this.$dragging = true;
             this.$ghostBar = document.createElement('div');
-            this.$ghostBar.id = this.id + '-ghost-bar';
+            this.$ghostBar.id = this.id + '-splitter-ghost-bar';
             this.$ghostBar.classList.add('splitter-ghost-bar');
             let bnd = this.$panel2.getBoundingClientRect();
             if (this.$anchor === PanelAnchor.panel1)

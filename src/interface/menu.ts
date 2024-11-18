@@ -132,11 +132,11 @@ export function initMenu() {
                 let code;
                 let id = 'menu-' + (item.id || item.name || s).trim().toLowerCase().replace(/ /g, '-');
                 if (item.name === '-')
-                    code = `<li id="${id}"><hr class="dropdown-divider"></li>`;
+                    code = `<li id="${id}"${item.hidden ? ' style=" display:none;visibility:hiddem"' : ''}><hr class="dropdown-divider"></li>`;
                 else if (typeof item.action === 'string')
-                    code = `<li id="${id}" class="nav-item${item.active ? ' active' : ''}" title="${item.name || ''}"><a class="nav-link" href="#${item.action}">${item.icon || ''}<span>${item.name || ''}</span></a></li>`;
+                    code = `<li id="${id}"${item.hidden ? ' style=" display:none;visibility:hiddem"' : ''} class="nav-item${item.active ? ' active' : ''}" title="${item.name || ''}"><a class="nav-link" href="#${item.action}">${item.icon || ''}<span>${item.name || ''}</span></a></li>`;
                 else
-                    code = `<li id="${id}" class="nav-item${item.active ? ' active' : ''}" title="${item.name || ''}"><a class="nav-link" href="javascript:void(0)">${item.icon || ''}<span>${item.name || ''}</span></a></li>`;
+                    code = `<li id="${id}"${item.hidden ? ' style=" display:none;visibility:hiddem"' : ''} class="nav-item${item.active ? ' active' : ''}" title="${item.name || ''}"><a class="nav-link" href="javascript:void(0)">${item.icon || ''}<span>${item.name || ''}</span></a></li>`;
                 if (item.exists && list.querySelector(item.exists)) continue;
                 if ('position' in item) {
                     if (typeof item.position === 'string') {

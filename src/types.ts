@@ -235,7 +235,8 @@ export interface MenuItem {
   icon?: string;
   position?: number | string;
   active?: boolean,
-  exists?
+  exists?,
+  hidden?: boolean
 }
 
 export interface FunctionEvent {

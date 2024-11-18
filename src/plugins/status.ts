@@ -53,7 +53,7 @@ export class Status extends Plugin {
             this._splitterDistance = bounds.width + document.body.clientWidth - bounds.right;
         }
         if (!this.client.getOption('showStatus'))
-            this.updateInterface();
+            this._updateInterface();
         else {
             if (!this.client.getOption('statusMode'))
                 this._clientContainer.style.right = this._splitterDistance + 'px';
@@ -129,7 +129,8 @@ export class Status extends Plugin {
             //Always want min width even if maxWidth is smaller
             if (w < 184 && w != -1) w = 184;
             this.splitterDistance = w;
-            this.updateInterface();
+            this._updateInterface();
+            this._updateMenuItem();
         });
         this.on('debug', e => this.client.debug(e), this);
         this.on('error', e => this.client.error(e), this);
@@ -184,22 +185,12 @@ export class Status extends Plugin {
             document.getElementById('status-ghost-bar').remove();
             document.removeEventListener('mousemove', this._move);
             this._dragging = false;
-            this.updateInterface();
+            this._updateInterface();
         });
         document.getElementById('status-close').addEventListener('click', () => {
             this.client.setOption('showStatus', false);
-            this.updateInterface();
-            let button = document.querySelector('#menu-status') as HTMLElement;
-            if (client.getOption('showStatus')) {
-                button.title = 'Hide status';
-                button.classList.add('active');
-                document.querySelector('#menu-status a span').textContent = ' Hide status';
-            }
-            else {
-                button.title = 'Show status';
-                button.classList.remove('active');
-                document.querySelector('#menu-status a span').textContent = ' Show status';
-            }
+            this._updateInterface();
+            this._updateMenuItem();
         });
 
         this._status.querySelector('#health').addEventListener('click', () => {
@@ -224,8 +215,8 @@ export class Status extends Plugin {
             this._status.querySelector('#armor').classList.add('active');
         }
         let w = client.getOption('statusWidth');
-        if (w < 184 && w != -1) w = 184;
         if (w > document.body.clientWidth - this.maxWidth) w = document.body.clientWidth - this.maxWidth;
+        if (w < 184 && w != -1) w = 184;
         this.splitterDistance = w;
 
         Object.defineProperty(window, '$character', {
@@ -245,7 +236,7 @@ export class Status extends Plugin {
         });
         this.client.display.container.append(document.getElementById('status-simple-lagMeter'));
         this._updateSplitter();
-        this.updateInterface();
+        this._updateInterface();
         this.init();
         let options = client.getWindowState('skills');
         if (options && options.show)
@@ -265,18 +256,8 @@ export class Status extends Plugin {
                 active: this.client.getOption('showStatus'),
                 action: e => {
                     this.client.setOption('showStatus', !this.client.getOption('showStatus'));
-                    this.updateInterface();
-                    let button = document.querySelector('#menu-status') as HTMLElement;
-                    if (client.getOption('showStatus')) {
-                        button.title = 'Hide status';
-                        button.classList.add('active');
-                        document.querySelector('#menu-status a span').textContent = ' Hide status';
-                    }
-                    else {
-                        button.title = 'Show status';
-                        button.classList.remove('active');
-                        document.querySelector('#menu-status a span').textContent = ' Show status';
-                    }
+                    this._updateInterface();
+                    this._updateMenuItem();
                 },
                 icon: '<i class="bi bi-heart-pulse-fill"></i>',
                 position: 6
@@ -439,8 +420,7 @@ export class Status extends Plugin {
         }
     }
 
-    public updateInterface(noSplitter?) {
-
+    private _updateInterface(noSplitter?) {
         if (!this.client.getOption('showStatus')) {
             this._clientContainer.style.right = '';
             this._status.style.visibility = 'hidden';
@@ -1218,5 +1198,19 @@ export class Status extends Plugin {
             label += '<div class="percent" id="' + id + 'Percent">' + data.percent + '%</div>';
         label += '</div>';
         return label;
+    }
+
+    private _updateMenuItem() {
+        let button = document.querySelector('#menu-status') as HTMLElement;
+        if (client.getOption('showStatus')) {
+            button.title = 'Hide status';
+            button.classList.add('active');
+            document.querySelector('#menu-status a span').textContent = ' Hide status';
+        }
+        else {
+            button.title = 'Show status';
+            button.classList.remove('active');
+            document.querySelector('#menu-status a span').textContent = ' Show status';
+        }
     }
 }

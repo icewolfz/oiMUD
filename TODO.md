@@ -35,3 +35,5 @@
     - Add true mapper window
 - run firefox/chrome performance tools to optimize code/loading
 - Add advanced setting view for complex editing
+- Panel bar
+    - Add separate settings to track zoom

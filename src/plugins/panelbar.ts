@@ -10,6 +10,7 @@ import { Chat } from "./chat";
 import { Settings } from "../settings";
 import { Splitter, Orientation, PanelAnchor } from "../interface/splitter";
 import { isMobile } from "../library";
+import { Room } from "../map";
 
 interface PanelOptions {
     client: Client;
@@ -32,6 +33,7 @@ enum PanelBarLocation {
 export class PanelBar extends Plugin {
     private _clientContainer;
     private _miniMap: MapDisplay;
+    private _miniMapTitle: HTMLElement;
     private _chatDisplay: Display;
     private _mapper: Mapper;
     private _chat: Chat;
@@ -242,19 +244,22 @@ export class PanelBar extends Plugin {
         this.splitterDistance = w;
         this._updateSplitter();
         this._updateInterface();
+        this._miniMapTitle = document.createElement('div');
+        this._miniMapTitle.id = 'mini-map-title';
         this._miniMap = new MapDisplay(document.createElement('div'), { map: this._mapper ? this._mapper.map : null });
         this._miniMap.showNavigation = false;
         this._miniMap.container.classList.add('mini-map', 'map', 'panel-container');
+        this._miniMap.on('active-room-changed', room => {
+            this._setMapTitle(room ? room.area : '');
+        });
+        this._miniMap.on('current-changed', room => {
+            this._setMapTitle(room ? room.area : '');
+        })
+        this._miniMap.active = new Room(client.getOption('mapper.active'));
+        this._miniMap.active.num = this._miniMap.active.num || (this._miniMap.active as any).ID;
         this._chatDisplay = new Display(document.createElement('div'));
-        this._chatDisplay.container.classList.add('mini-map', 'map', 'panel-container');
-        if (this.client.getOption('panelBar.order') === 1) {
-            this._splitter.panel2.append(this._miniMap.container);
-            this._splitter.panel1.append(this._chatDisplay.container);
-        }
-        else {
-            this._splitter.panel1.append(this._miniMap.container);
-            this._splitter.panel2.append(this._chatDisplay.container);
-        }
+        this._chatDisplay.container.classList.add('panel-container');
+        this._updateOrder();
         const toolbar = document.createElement('div');
         toolbar.id = 'panel-bar-chat-toolbar';
         toolbar.classList.add('navbar', 'bg-light', 'align-items-center');
@@ -275,6 +280,8 @@ export class PanelBar extends Plugin {
             this._updateButtonState(toolbar.querySelector('#btn-chat-panel-wrap'), this.client.getOption('chat.wordWrap'));
             this._chatDisplay.wordWrap = this.client.getOption('chat.wordWrap');
         });
+        if (this._miniMap.map)
+            this._setMapTitle(this._miniMap.current ? this._miniMap.current.area : '');
         this._loadOptions();
     }
     get menu(): MenuItem[] {
@@ -334,8 +341,10 @@ export class PanelBar extends Plugin {
     private _initMapper() {
         if (!this._mapper) return;
         this._mapper.on('map-loaded', () => {
-            if (this._miniMap)
+            if (this._miniMap) {
                 this._miniMap.map = this._mapper.map;
+                this._setMapTitle(this._miniMap.active ? this._miniMap.active.area : '');
+            }
         }, this);
     }
 
@@ -467,14 +476,7 @@ export class PanelBar extends Plugin {
         this._splitter.panel1Collapsed = (this.client.getOption('panelBar.panels') & Panels.map) !== Panels.map;
         this._splitter.panel2Collapsed = (this.client.getOption('panelBar.panels') & Panels.chat) !== Panels.chat;
         this.location = this.client.getOption('panelBar.location');
-        if (this.client.getOption('panelBar.order') === 1) {
-            this._splitter.panel2.append(this._miniMap.container);
-            this._splitter.panel1.append(this._chatDisplay.container);
-        }
-        else {
-            this._splitter.panel1.append(this._miniMap.container);
-            this._splitter.panel2.append(this._chatDisplay.container);
-        }        
+        this._updateOrder();
         this._updateScrollLockButton(this._splitter.panel2.querySelector('#btn-chat-panel-lock'), this.client.getOption('chat.scrollLocked'));
         this._updateButtonState(this._splitter.panel2.querySelector('#btn-chat-panel-wrap'), this.client.getOption('chat.wordWrap'));
     }
@@ -526,4 +528,19 @@ export class PanelBar extends Plugin {
             button.classList.remove('active');
     }
 
+    private _setMapTitle(title) {
+        this._miniMapTitle.textContent = title || '';
+    }
+    
+    private _updateOrder() {
+        if (this.client.getOption('panelBar.order') === 1) {
+            this._splitter.panel2.append(this._miniMap.container);
+            this._splitter.panel1.append(this._chatDisplay.container);
+        }
+        else {
+            this._splitter.panel1.append(this._miniMap.container);
+            this._splitter.panel2.append(this._chatDisplay.container);
+        }
+        this._miniMap.container.insertAdjacentElement('beforebegin', this._miniMapTitle);
+    }
 }

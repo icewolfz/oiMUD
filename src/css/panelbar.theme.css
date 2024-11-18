@@ -52,3 +52,9 @@
 #panel-bar-chat-toolbar .vr {
   display: none;
 }
+
+#mini-map-title {
+  background-color: var(--theme-bg-secondary-color);
+  border-bottom: 3px solid var(--theme-border-color);
+  border-image: var(--theme-border-image) 3;
+}

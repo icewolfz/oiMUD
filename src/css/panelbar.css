@@ -59,6 +59,10 @@
   }
 }
 
+.mini-map {
+  top: 26px;
+}
+
 .mini-map .map-canvas {
   border: 0px;
 }
@@ -140,6 +144,7 @@
 #panel-bar-splitter-drag-bar:hover {
   background-color: var(--theme-hover-bg-color);
   transition-delay: 1s;
+  opacity: 1;
 }
 #panel-bar[data-location="0"] #panel-bar-splitter-drag-bar:hover {
   border-top: 1px solid var(--theme-hover-border-color);
@@ -224,4 +229,24 @@
   right: 0;
   bottom: 0;
   top: 0;
+}
+
+#mini-map-title {
+  background-color: white;
+  color: black;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 26px;
+  z-index: 2;
+  text-align: center;
+  font-family: "Lucida Handwriting", cursive;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#panel-bar:hover #mini-map-title {
+  padding-left: 28px;
 }

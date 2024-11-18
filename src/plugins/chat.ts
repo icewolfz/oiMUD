@@ -242,6 +242,11 @@ export class Chat extends Plugin {
         this.client.on('options-loaded', () => {
             this._loadOptions();
         });
+        this.client.on('option-changed', (name: string, value) => {
+            if (name.startsWith('chat.') || name === 'enableMXP' || name === 'enableURLDetection' || name === 'display.showInvalidMXPTags' || name === 'display.hideTrailingEmptyLine' || name.startsWith('log') || name === 'enableDebug') {
+                this._loadOptions();
+            }
+        });
         this.client.on('set-title', (title, lag) => {
             this._post({ action: 'name', args: $character });
         }, this);
@@ -376,7 +381,7 @@ export class Chat extends Plugin {
                 };
         }
         else {
-            if (this._isDialogOpen) 
+            if (this._isDialogOpen)
                 (<any>this._dialog).display.model.appendLines([data]);
             if (this._isWindowOpen)
                 (<any>this._window).display.model.appendLines([data]);

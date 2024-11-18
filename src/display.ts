@@ -496,9 +496,9 @@ export class Display extends EventEmitter {
                         this.scrollDisplay();
                     this._resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
                     this._doUpdate(UpdateType.update | UpdateType.updateWindow);
-                    this.emit('resize');
                 }
             }, 250, 'resize');
+            this.emit('resize');
         });
         this._resizeObserver.observe(this._container);
         this._observer = new MutationObserver((mutationsList) => {

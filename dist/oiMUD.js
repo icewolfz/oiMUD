@@ -21149,9 +21149,9 @@
               this.scrollDisplay();
             this._resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
             this._doUpdate(1 /* update */ | 16 /* updateWindow */);
-            this.emit("resize");
           }
         }, 250, "resize");
+        this.emit("resize");
       });
       this._resizeObserver.observe(this._container);
       this._observer = new MutationObserver((mutationsList) => {
@@ -29904,6 +29904,7 @@ Devanagari
       if (value === this.$orientation) return;
       this.$orientation = value;
       this._updatePanels();
+      this.resize();
     }
     get panel1Collapsed() {
       return this.$collapsed === 1;
@@ -29948,6 +29949,7 @@ Devanagari
         this.$panel1.style.left = "0";
         this.$panel1.style.top = "0";
         this.$panel1.style.right = "0";
+        this.$panel1.style.bottom = "";
         this.$panel2.style.left = "0";
         this.$panel2.style.top = "";
         this.$panel2.style.right = "0";
@@ -29962,7 +29964,10 @@ Devanagari
           this.$dragBar.style.bottom = this.$splitterDistance - this.$splitterWidth + "px";
         }
         this.$dragBar.style.height = this.$splitterWidth + "px";
+        this.$dragBar.style.width = "";
         this.$dragBar.style.cursor = "ns-resize";
+        this.$panel1.style.width = "";
+        this.$panel2.style.width = "";
         if (this.$collapsed === 1) {
           this.$panel1.style.display = "none";
           this.$panel2.style.display = "";
@@ -29994,6 +29999,7 @@ Devanagari
       } else {
         this.$panel1.style.left = "0";
         this.$panel1.style.top = "0";
+        this.$panel1.style.right = "";
         this.$panel1.style.bottom = "0";
         this.$panel1.classList.remove("horizontal");
         this.$panel1.classList.add("vertical");
@@ -30011,7 +30017,10 @@ Devanagari
         this.$dragBar.style.top = "0";
         this.$dragBar.style.bottom = "0";
         this.$dragBar.style.width = this.$splitterWidth + "px";
+        this.$dragBar.style.height = "";
         this.$dragBar.style.cursor = "ew-resize";
+        this.$panel1.style.height = "";
+        this.$panel2.style.height = "";
         if (this.$collapsed === 1) {
           this.$panel1.style.display = "none";
           this.$panel2.style.display = "";
@@ -30028,7 +30037,7 @@ Devanagari
           this.$panel1.style.display = "";
           this.$panel1.style.width = this.$splitterDistance - this.$splitterWidth + "px";
           this.$panel2.style.display = "";
-          this.$panel2.style.left = this.$splitterDistance - this.$splitterWidth + "px";
+          this.$panel2.style.left = this.$splitterDistance + "px";
           this.$panel2.style.width = "";
           this.$dragBar.style.display = "";
         } else {
@@ -35895,6 +35904,11 @@ Devanagari
       this.client.on("options-loaded", () => {
         this._loadOptions();
       });
+      this.client.on("option-changed", (name2, value) => {
+        if (name2.startsWith("chat.") || name2 === "enableMXP" || name2 === "enableURLDetection" || name2 === "display.showInvalidMXPTags" || name2 === "display.hideTrailingEmptyLine" || name2.startsWith("log") || name2 === "enableDebug") {
+          this._loadOptions();
+        }
+      });
       this.client.on("set-title", (title, lag) => {
         this._post({ action: "name", args: $character });
       }, this);
@@ -36962,40 +36976,69 @@ Devanagari
   };
   window.ShadowMUD = ShadowMUD;
 
-  // src/plugins/leftsidebar.ts
-  var LeftSidebar = class extends Plugin {
+  // src/plugins/panelbar.ts
+  var PanelBar = class extends Plugin {
     constructor(options) {
       super(options instanceof Client ? options : options?.client);
       this._dragging = false;
+      this._panelLocation = 1 /* top */;
       if (options) {
         if (options.mapper && options.mapper instanceof Mapper)
           this._mapper = options.mapper;
         if (options.chat && options.chat instanceof Chat)
           this._chat = options.chat;
       }
-      if (!Settings.exist("showLeftSidebar"))
-        Settings.setValue("showLeftSidebar", !isMobile());
-      if (!Settings.exist("leftSidebar.panels"))
-        Settings.setValue("leftSidebar.panels", 6 /* all */);
+      if (options && "location" in options)
+        this._panelLocation = options.location;
+      if (!Settings.exist("showPanelBar"))
+        Settings.setValue("showPanelBar", !isMobile());
+      if (!Settings.exist("panelBar.panels"))
+        Settings.setValue("panelBar.panels", 6 /* all */);
+      if (!Settings.exist("panelBar.location"))
+        Settings.setValue("panelBar.location", 1 /* top */);
+      if (!Settings.exist("panelBar.order"))
+        Settings.setValue("panelBar.order", 0);
       this._clientContainer = document.getElementById("client-container");
       this._createSidebar();
     }
+    get location() {
+      return this._panelLocation;
+    }
+    set location(value) {
+      if (value === this._panelLocation) return;
+      if (this._panelLocation === 1 /* top */) {
+        this._clientContainer.style.top = "";
+        this._panel.style.height = "";
+        this._panel.style.right = "";
+        document.getElementById("panel-bar-drag-bar").style.right = "";
+      } else {
+        this._clientContainer.style.left = "";
+        this._panel.style.width = "";
+      }
+      this._panelLocation = value;
+      this._panel.dataset.location = "" + value;
+      document.getElementById("panel-bar-drag-bar").dataset.location = "" + value;
+      this._splitter.orientation = this._panelLocation === 0 /* left */ ? 0 /* horizontal */ : 1 /* vertical */;
+      this._updateInterface();
+    }
     _createSidebar() {
-      document.body.insertAdjacentHTML("beforeend", `<div id="left-sidebar-drag-bar"></div><div id="left-sidebar"><button id="left-sidebar-close" style="padding: 4px;" type="button"
-        class="button button-sm btn-close" title="Hide left sidebar"></button></div>`);
-      this._sidebar = document.getElementById("left-sidebar");
-      this._splitter = new Splitter({ id: "left-sidebar", parent: this._sidebar, orientation: 0 /* horizontal */, anchor: 1 /* panel1 */ });
+      document.body.insertAdjacentHTML("beforeend", `<div id="panel-bar-drag-bar" data-location="${this._panelLocation}"></div><div id="panel-bar" data-location="${this._panelLocation}"><button id="panel-bar-close" style="padding: 4px;" type="button"
+        class="button button-sm btn-close" title="Hide panel bar"></button></div>`);
+      this._panel = document.getElementById("panel-bar");
+      this._splitter = new Splitter({ id: "panel-bar", parent: this._panel, orientation: this._panelLocation === 0 /* left */ ? 0 /* horizontal */ : 1 /* vertical */, anchor: 1 /* panel1 */ });
       this._splitter.splitterWidth = 3;
-      if (this.client.getOption("leftSidebar.separator") >= 200)
-        this._splitter.SplitterDistance = this.client.getOption("leftSidebar.separator");
+      this._splitter.live = false;
+      if (this.client.getOption("panelBar.separator") >= 200)
+        this._splitter.SplitterDistance = this.client.getOption("panelBar.separator");
       this._splitter.on("splitter-moved", (distance) => {
-        this.client.setOption("leftSidebar.separator", distance);
+        this.client.setOption("panelBar.separator", distance);
       });
     }
     remove() {
       this._clearMapper();
       this._clearChat();
       this.client.removeListenersFromCaller(this);
+      this.client.display.removeListenersFromCaller(this);
     }
     initialize() {
       this._findPlugins();
@@ -37022,7 +37065,7 @@ Devanagari
         }
       }, this);
       this.client.on("options-loaded", () => {
-        let w2 = client.getOption("leftSidebarWidth");
+        let w2 = client.getOption("panelBarSize");
         if (w2 > this.maxWidth) w2 = this.maxWidth;
         if (w2 < 184 && w2 != -1) w2 = 184;
         this.splitterDistance = w2;
@@ -37036,70 +37079,125 @@ Devanagari
           this._updateMenuItem();
         }
       });
-      document.getElementById("left-sidebar-drag-bar").addEventListener("mousedown", (e) => {
+      this.client.display.on("resize", () => {
+        this._updateInterface();
+      }, this);
+      document.getElementById("panel-bar-drag-bar").addEventListener("mousedown", (e) => {
         if (e.button !== 0) return;
         e.preventDefault();
         this._dragging = true;
-        const main = document.getElementById("left-sidebar-drag-bar");
-        const w2 = this._sidebar.style.width;
-        this._sidebar.style.width = "";
-        const bounds = this._sidebar.getBoundingClientRect();
-        this._sidebar.style.width = w2;
+        const main = document.getElementById("panel-bar-drag-bar");
+        let d2 = "width";
+        let l2 = "left";
+        let c = "pageX";
+        let b = "right";
+        if (this._panelLocation === 1 /* top */) {
+          d2 = "height";
+          l2 = "top";
+          c = "pageY";
+          b = "bottom";
+        }
+        const w2 = this._panel.style[d2];
+        this._panel.style[d2] = "";
+        const bounds = this._panel.getBoundingClientRect();
+        this._panel.style[d2] = w2;
         const bounds2 = main.getBoundingClientRect();
         const ghostBar = document.createElement("div");
-        ghostBar.id = "left-sidebar-ghost-bar";
-        ghostBar.style.top = "0";
-        ghostBar.style.bottom = "0";
-        ghostBar.style.left = bounds2.left + "px";
-        ghostBar.style.cursor = "ew-resize";
+        ghostBar.id = "panel-bar-ghost-bar";
+        if (this._panelLocation === 1 /* top */) {
+          ghostBar.style.left = "0";
+          ghostBar.style.right = "0";
+          ghostBar.style.top = bounds2.top + "px";
+          ghostBar.style.cursor = "ns-resize";
+          ghostBar.style.right = this._clientContainer.style.right;
+        } else {
+          ghostBar.style.top = "0";
+          ghostBar.style.bottom = "0";
+          ghostBar.style.left = bounds2.left + "px";
+          ghostBar.style.cursor = "ew-resize";
+        }
+        ghostBar.dataset.location = "" + this._panelLocation;
         document.body.append(ghostBar);
-        const maxWidth = Math.max(this.maxWidth, bounds.width);
+        const maxWidth = Math.max(this.maxWidth, bounds[d2]);
         this._move = (e2) => {
-          if (e2.pageX >= maxWidth)
-            ghostBar.style.left = maxWidth + "px";
-          else if (e2.pageX < bounds.right)
-            ghostBar.style.left = bounds.right + "px";
+          if (e2[c] >= maxWidth)
+            ghostBar.style[l2] = maxWidth + "px";
+          else if (e2[c] < bounds[b])
+            ghostBar.style[l2] = bounds[b] + "px";
           else
-            ghostBar.style.left = e2.pageX + "px";
+            ghostBar.style[l2] = e2[c] + "px";
         };
         document.addEventListener("mousemove", this._move);
       });
       window.addEventListener("resize", () => this.resize());
       document.addEventListener("mouseup", (e) => {
         if (!this._dragging) return;
-        const w2 = this._sidebar.style.width;
-        this._sidebar.style.width = "";
-        const bounds = this._sidebar.getBoundingClientRect();
-        const minWidth = bounds.right;
-        const l2 = document.getElementById("left-sidebar-drag-bar").getBoundingClientRect().width;
+        let d2 = "width";
+        let c = "pageX";
+        let b = "right";
+        if (this._panelLocation === 1 /* top */) {
+          d2 = "height";
+          c = "pageY";
+          b = "bottom";
+        }
+        const w2 = this._panel.style[d2];
+        this._panel.style[d2] = "";
+        const minWidth = this._panel.getBoundingClientRect()[b];
+        const bh = document.getElementById("panel-bar-drag-bar").getBoundingClientRect()[d2];
         const maxWidth = Math.max(this.maxWidth, minWidth);
-        this._sidebar.style.width = w2;
-        if (e.pageX >= maxWidth)
+        this._panel.style[d2] = w2;
+        if (e[c] >= maxWidth)
           this.splitterDistance = maxWidth;
-        else if (e.pageX < minWidth)
+        else if (e[c] < minWidth)
           this.splitterDistance = minWidth;
         else
-          this.splitterDistance = e.pageX - l2;
-        document.getElementById("left-sidebar-ghost-bar").remove();
+          this.splitterDistance = e[c] - bh;
+        document.getElementById("panel-bar-ghost-bar").remove();
         document.removeEventListener("mousemove", this._move);
         this._dragging = false;
         this._updateInterface();
       });
-      document.getElementById("left-sidebar-close").addEventListener("click", () => {
-        this.client.setOption("showLeftSidebar", false);
+      document.getElementById("panel-bar-close").addEventListener("click", () => {
+        this.client.setOption("showPanelBar", false);
         this._updateInterface();
         this._updateMenuItem();
       });
-      let w = client.getOption("leftSidebarWidth");
+      let w = client.getOption("panelBarSize");
       if (w > this.maxWidth) w = this.maxWidth;
       if (w < 184 && w != -1) w = 184;
       this.splitterDistance = w;
       this._updateSplitter();
       this._updateInterface();
-      this._miniMap = new MapDisplay(this._splitter.panel1, { map: this._mapper ? this._mapper.map : null });
+      this._miniMap = new MapDisplay(document.createElement("div"), { map: this._mapper ? this._mapper.map : null });
       this._miniMap.showNavigation = false;
-      this._miniMap.container.classList.add("mini-map", "map");
-      this._chatDisplay = new Display(this._splitter.panel2);
+      this._miniMap.container.classList.add("mini-map", "map", "panel-container");
+      this._chatDisplay = new Display(document.createElement("div"));
+      this._chatDisplay.container.classList.add("mini-map", "map", "panel-container");
+      if (this.client.getOption("panelBar.order") === 1) {
+        this._splitter.panel2.append(this._miniMap.container);
+        this._splitter.panel1.append(this._chatDisplay.container);
+      } else {
+        this._splitter.panel1.append(this._miniMap.container);
+        this._splitter.panel2.append(this._chatDisplay.container);
+      }
+      const toolbar = document.createElement("div");
+      toolbar.id = "panel-bar-chat-toolbar";
+      toolbar.classList.add("navbar", "bg-light", "align-items-center");
+      toolbar.innerHTML = '<form class="container-fluid justify-content-start"><button id="btn-chat-panel-clear" type="button" class="ms-2 btn btn-sm btn-outline-secondary me-2 button button-sm" title="Clear display"><i class="bi bi-trash"></i></button><button id="btn-chat-panel-lock" type="button" class="btn btn-sm btn-outline-secondary me-2  button button-sm" title="Lock display"><i class="bi bi-lock-fill"></i></button><div class="vr me-2" style="height: 29px;"></div><button id="btn-chat-panel-wrap" type="button" class="btn btn-sm btn-outline-secondary me-2  button button-sm" title="Toggle word wrap"><i class="bi bi-text-wrap"></i></button></form>';
+      this._chatDisplay.container.append(toolbar);
+      toolbar.querySelector("#btn-chat-panel-clear").addEventListener("click", () => {
+        this._chatDisplay.clear();
+      });
+      toolbar.querySelector("#btn-chat-panel-lock").addEventListener("click", () => {
+        this.client.setOption("chat.scrollLocked", !this.client.getOption("chat.scrollLocked"));
+        this._chatDisplay.scrollLock = this.client.getOption("chat.scrollLocked");
+        this._updateScrollLockButton(toolbar.querySelector("#btn-chat-panel-lock"), this.client.getOption("chat.scrollLocked"));
+      });
+      toolbar.querySelector("#btn-chat-panel-wrap").addEventListener("click", () => {
+        this.client.setOption("chat.wordWrap", !this.client.getOption("chat.wordWrap"));
+        this._updateButtonState(toolbar.querySelector("#btn-chat-panel-wrap"), this.client.getOption("chat.wordWrap"));
+        this._chatDisplay.wordWrap = this.client.getOption("chat.wordWrap");
+      });
       this._loadOptions();
     }
     get menu() {
@@ -37111,26 +37209,26 @@ Devanagari
           id: "plugins"
         },
         {
-          id: "left-sidebar",
-          name: this.client.getOption("showLeftSidebar") ? " Hide left sidebar" : " Show left sidebar",
-          active: this.client.getOption("showLeftSidebar"),
+          id: "panel-bar",
+          name: this.client.getOption("showPanelBar") ? " Hide panel bar" : " Show panel bar",
+          active: this.client.getOption("showPanelBar"),
           action: (e) => {
-            this.client.setOption("showLeftSidebar", !this.client.getOption("showLeftSidebar"));
+            this.client.setOption("showPanelBar", !this.client.getOption("showPanelBar"));
             this._updateInterface();
             this._updateMenuItem();
           },
           icon: '<i class="bi bi-layout-sidebar"></i>',
           position: "#menu-plugins",
-          hidden: this.client.getOption("leftSidebar.panels") === 0 /* none */
+          hidden: this.client.getOption("panelBar.panels") === 0 /* none */
         }
       ];
     }
     get settings() {
       return [{
-        name: " Left sidebar",
-        action: "settings-leftSidebar",
+        name: " Panel bar",
+        action: "settings-panelBar",
         icon: '<i class="bi bi-layout-sidebar"></i>',
-        position: 7
+        position: 'a[href="#settings-specialCharacters"]'
       }];
     }
     _findPlugins() {
@@ -37180,47 +37278,69 @@ Devanagari
       this._updateSplitter();
     }
     get maxWidth() {
+      if (this._panelLocation === 1 /* top */)
+        return Math.floor(document.body.clientHeight * 0.33);
       return Math.floor(document.body.clientWidth * 0.33);
     }
     _updateSplitter() {
       if (!this._splitterDistance || this._splitterDistance < 1) {
-        const bounds = this._sidebar.getBoundingClientRect();
-        this._splitterDistance = bounds.right;
+        const bounds = this._panel.getBoundingClientRect();
+        if (this._panelLocation === 1 /* top */)
+          this._splitterDistance = bounds.bottom;
+        else
+          this._splitterDistance = bounds.right;
       }
       this._updateInterface();
-      this.client.setOption("leftSidebarWidth", this._splitterDistance);
+      this.client.setOption("panelBarSize", this._splitterDistance);
       this.emit("split-moved", this._splitterDistance);
     }
     resize() {
-      if (!this.client.getOption("showLeftSidebar") || this.client.getOption("leftSidebar.panels") === 0 /* none */) return;
-      const w = this._sidebar.style.width;
-      this._sidebar.style.width = "";
-      const bounds = this._sidebar.getBoundingClientRect();
-      const minWidth = bounds.right;
+      if (!this.client.getOption("showPanelBar") || this.client.getOption("panelBar.panels") === 0 /* none */) return;
+      let d2 = "width";
+      let b = "right";
+      if (this._panelLocation === 1 /* top */) {
+        d2 = "height";
+        b = "bottom";
+      }
+      const w = this._panel.style[d2];
+      this._panel.style[d2] = "";
+      const minWidth = this._panel.getBoundingClientRect()[b];
       const maxWidth = Math.max(this.maxWidth, minWidth);
-      this._sidebar.style.width = w;
-      const bounds2 = this._sidebar.getBoundingClientRect();
-      if (bounds2.width < minWidth) {
+      this._panel.style[d2] = w;
+      const bounds = this._panel.getBoundingClientRect();
+      if (bounds[d2] < minWidth) {
         this.splitterDistance = minWidth;
-      } else if (bounds2.width > maxWidth) {
+      } else if (bounds[d2] > maxWidth) {
         this.splitterDistance = maxWidth;
       }
     }
     _updateInterface() {
-      if (!this.client.getOption("showLeftSidebar") || this.client.getOption("leftSidebar.panels") === 0 /* none */) {
-        this._clientContainer.style.left = "";
-        this._sidebar.style.visibility = "hidden";
-        this._sidebar.style.display = "none";
-        document.getElementById("left-sidebar-drag-bar").style.display = "none";
+      if (!this.client.getOption("showPanelBar") || this.client.getOption("panelBar.panels") === 0 /* none */) {
+        if (this._panelLocation === 1 /* top */)
+          this._clientContainer.style.top = "";
+        else
+          this._clientContainer.style.left = "";
+        this._panel.style.visibility = "hidden";
+        this._panel.style.display = "none";
+        document.getElementById("panel-bar-drag-bar").style.display = "none";
         this.emit("updated-interface");
         return;
       }
-      this._clientContainer.style.left = this._splitterDistance + "px";
-      this._sidebar.style.width = this._splitterDistance + "px";
-      document.getElementById("left-sidebar-drag-bar").style.left = this.splitterDistance + "px";
-      this._sidebar.style.visibility = "";
-      this._sidebar.style.display = "";
-      document.getElementById("left-sidebar-drag-bar").style.display = "";
+      if (this._panelLocation === 1 /* top */) {
+        this._clientContainer.style.top = this._splitterDistance + "px";
+        this._panel.style.height = this._splitterDistance + "px";
+        this._panel.style.right = this._clientContainer.style.right;
+        document.getElementById("panel-bar-drag-bar").style.right = this._clientContainer.style.right;
+        document.getElementById("panel-bar-drag-bar").style.top = this.splitterDistance + "px";
+      } else {
+        this._clientContainer.style.left = this._splitterDistance + "px";
+        this._panel.style.width = this._splitterDistance + "px";
+        this._panel.style.right = "";
+        document.getElementById("panel-bar-drag-bar").style.left = this.splitterDistance + "px";
+      }
+      this._panel.style.visibility = "";
+      this._panel.style.display = "";
+      document.getElementById("panel-bar-drag-bar").style.display = "";
       this.emit("updated-interface");
     }
     _loadDisplayOptions(display) {
@@ -37256,27 +37376,59 @@ Devanagari
       this._miniMap.fillWalls = this.client.getOption("mapper.fill");
       if (this._miniMap.follow)
         this._miniMap.focusCurrentRoom();
-      this._splitter.panel1Collapsed = (this.client.getOption("leftSidebar.panels") & 2 /* map */) !== 2 /* map */;
-      this._splitter.panel2Collapsed = (this.client.getOption("leftSidebar.panels") & 4 /* chat */) !== 4 /* chat */;
+      this._splitter.panel1Collapsed = (this.client.getOption("panelBar.panels") & 2 /* map */) !== 2 /* map */;
+      this._splitter.panel2Collapsed = (this.client.getOption("panelBar.panels") & 4 /* chat */) !== 4 /* chat */;
+      this.location = this.client.getOption("panelBar.location");
+      if (this.client.getOption("panelBar.order") === 1) {
+        this._splitter.panel2.append(this._miniMap.container);
+        this._splitter.panel1.append(this._chatDisplay.container);
+      } else {
+        this._splitter.panel1.append(this._miniMap.container);
+        this._splitter.panel2.append(this._chatDisplay.container);
+      }
+      this._updateScrollLockButton(this._splitter.panel2.querySelector("#btn-chat-panel-lock"), this.client.getOption("chat.scrollLocked"));
+      this._updateButtonState(this._splitter.panel2.querySelector("#btn-chat-panel-wrap"), this.client.getOption("chat.wordWrap"));
     }
     _updateMenuItem() {
-      let button = document.querySelector("#menu-left-sidebar");
-      if (client.getOption("showLeftSidebar")) {
-        button.title = "Hide left sidebar";
+      let button = document.querySelector("#menu-panel-bar");
+      if (client.getOption("showPanelBar")) {
+        button.title = "Hide panel bar";
         button.classList.add("active");
-        document.querySelector("#menu-left-sidebar a span").textContent = " Hide left sidebar";
+        document.querySelector("#menu-panel-bar a span").textContent = " Hide panel bar";
       } else {
-        button.title = "Show left sidebar";
+        button.title = "Show panel bar";
         button.classList.remove("active");
-        document.querySelector("#menu-left-sidebar a span").textContent = " Show left sidebar";
+        document.querySelector("#menu-panel-bar a span").textContent = " Show panel bar";
       }
-      if (this.client.getOption("leftSidebar.panels") === 0 /* none */) {
+      if (this.client.getOption("panelBar.panels") === 0 /* none */) {
         button.style.display = "none";
         button.style.visibility = "hidden";
       } else {
         button.style.display = "list-item";
         button.style.visibility = "visible";
       }
+    }
+    _updateScrollLockButton(button, state) {
+      if (!button) return;
+      let icon = button.firstElementChild;
+      if (state) {
+        button.title = "Unlock display";
+        button.classList.add("active");
+        icon.classList.add("bi-unlock-fill");
+        icon.classList.remove("bi-lock-fill");
+      } else {
+        button.title = "Lock display";
+        button.classList.remove("active");
+        icon.classList.remove("bi-unlock-fill");
+        icon.classList.add("bi-lock-fill");
+      }
+    }
+    _updateButtonState(button, state) {
+      if (!button) return;
+      if (state)
+        button.classList.add("active");
+      else
+        button.classList.remove("active");
     }
   };
 
@@ -37575,7 +37727,7 @@ Devanagari
       this.addPlugin(new Status(this));
       this.addPlugin(new Logger(this));
       this.addPlugin(new Chat(this));
-      this.addPlugin(new LeftSidebar(this));
+      this.addPlugin(new PanelBar(this));
       if (true)
         this.addPlugin(new Test(this));
       this.autoConnect();

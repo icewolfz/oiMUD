@@ -198,17 +198,29 @@ Settings to control how to handle telnet options and emulation
   - `String` The 1 or 2 character string for block comments, closing block comment is the string reversed, Default: `/*`
   - `Enabled` Enable or disable block comments
 
+## Panel Bar
+
+Controls the panel bar with extras
+
+- `Show panel bar` Is panel bar visible
+- `Show map` Show map panel 
+- `Show chat` Show chat capture panel,
+- `Location` Where to place panel bar
+  - `Left` To the left of the main display
+  - `Top` Above the main display  
+- `Size` The size of the panel bar, width if left, height if top, min of 184 or 1/3 of current window size, will adjust to new max as window is resized
+
+Settings for map and chat panels are shared with main mapper and chat capture syste, If both map and chat are disabled, panel bar will be hidden
+
 ## Chat
 
 Controls what is captured into the chat window
 
 - `Window Type` The type of window type for chat capture
-
   - `Default` Will use default type of dialog
   - `Window` Use external window
   - `Dialog` Use a dialog window
   - `Both` Use both a dialog window and external window
-
 - `Capture tells` Causes all tells, emoteto, shouts and any related lines.
 - `Capture talk` Capture all talking, which are says, yells, whispers, and speaking and any related lines.
 - `Capture reviews` Determines if line, say, or tell reviews are captured. The capturing is determined based on the settings enabled. Tell reviews are only captured if capture tells is enabled, say review with only capture say, all line reviews or selective reviews when enabled.

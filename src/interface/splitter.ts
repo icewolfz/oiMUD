@@ -88,7 +88,7 @@ export class Splitter extends EventEmitter {
 
     get splitterWidth() { return this.$splitterWidth; }
     set splitterWidth(value) {
-        if(this.$splitterWidth === value) return;
+        if (this.$splitterWidth === value) return;
         this.$splitterWidth = value;
         this._updatePanels();
     }
@@ -176,6 +176,7 @@ export class Splitter extends EventEmitter {
         if (value === this.$orientation) return;
         this.$orientation = value;
         this._updatePanels();
+        this.resize();
     }
 
     get panel1Collapsed() { return this.$collapsed === 1; }
@@ -221,6 +222,7 @@ export class Splitter extends EventEmitter {
             this.$panel1.style.left = '0';
             this.$panel1.style.top = '0';
             this.$panel1.style.right = '0';
+            this.$panel1.style.bottom = '';
 
             this.$panel2.style.left = '0';
             this.$panel2.style.top = '';
@@ -238,8 +240,10 @@ export class Splitter extends EventEmitter {
                 this.$dragBar.style.bottom = (this.$splitterDistance - this.$splitterWidth) + 'px';
             }
             this.$dragBar.style.height = this.$splitterWidth + 'px';
+            this.$dragBar.style.width = '';
             this.$dragBar.style.cursor = 'ns-resize';
-
+            this.$panel1.style.width = '';
+            this.$panel2.style.width = '';
             if (this.$collapsed === 1) {
                 this.$panel1.style.display = 'none';
                 this.$panel2.style.display = '';
@@ -276,6 +280,7 @@ export class Splitter extends EventEmitter {
         else {
             this.$panel1.style.left = '0';
             this.$panel1.style.top = '0';
+            this.$panel1.style.right = '';
             this.$panel1.style.bottom = '0';
             this.$panel1.classList.remove('horizontal');
             this.$panel1.classList.add('vertical');
@@ -295,8 +300,10 @@ export class Splitter extends EventEmitter {
             this.$dragBar.style.top = '0';
             this.$dragBar.style.bottom = '0';
             this.$dragBar.style.width = this.$splitterWidth + 'px';
+            this.$dragBar.style.height = '';
             this.$dragBar.style.cursor = 'ew-resize';
-
+            this.$panel1.style.height = '';
+            this.$panel2.style.height = '';
             if (this.$collapsed === 1) {
                 this.$panel1.style.display = 'none';
                 this.$panel2.style.display = '';
@@ -315,7 +322,7 @@ export class Splitter extends EventEmitter {
                 this.$panel1.style.display = '';
                 this.$panel1.style.width = (this.$splitterDistance - this.$splitterWidth) + 'px';
                 this.$panel2.style.display = '';
-                this.$panel2.style.left = this.$splitterDistance - this.$splitterWidth + 'px';
+                this.$panel2.style.left = this.$splitterDistance + 'px';
                 this.$panel2.style.width = '';
                 this.$dragBar.style.display = '';
             }

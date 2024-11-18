@@ -19,7 +19,7 @@ import { Logger } from "./plugins/logger";
 import { Chat } from "./plugins/chat";
 import { ShadowMUD } from "./plugins/ShadowMUD/shadowmud";
 export { ShadowMUD };
-import { LeftSidebar } from "./plugins/leftsidebar";
+import { PanelBar } from "./plugins/panelbar";
 
 declare global {
     interface Window {
@@ -1150,7 +1150,7 @@ export class Client extends EventEmitter {
         this.addPlugin(new Status(this));
         this.addPlugin(new Logger(this));
         this.addPlugin(new Chat(this));
-        this.addPlugin(new LeftSidebar(this));
+        this.addPlugin(new PanelBar(this));
         if (DEBUG || TEST)
             this.addPlugin(new Test(this));
         this.autoConnect();

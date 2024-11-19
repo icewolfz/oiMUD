@@ -81,7 +81,7 @@ export class PanelBar extends Plugin {
         if (!Settings.exist('panelBar.panels'))
             Settings.setValue('panelBar.panels', Panels.all);
         if (!Settings.exist('panelBar.location'))
-            Settings.setValue('panelBar.location', PanelBarLocation.top);
+            Settings.setValue('panelBar.location', isMobile() ? PanelBarLocation.left : PanelBarLocation.top);
         if (!Settings.exist('panelBar.order'))
             Settings.setValue('panelBar.order', 0);
         this._clientContainer = document.getElementById('client-container');

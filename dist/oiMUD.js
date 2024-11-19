@@ -37025,7 +37025,7 @@ Devanagari
       if (!Settings.exist("panelBar.panels"))
         Settings.setValue("panelBar.panels", 6 /* all */);
       if (!Settings.exist("panelBar.location"))
-        Settings.setValue("panelBar.location", 1 /* top */);
+        Settings.setValue("panelBar.location", isMobile() ? 0 /* left */ : 1 /* top */);
       if (!Settings.exist("panelBar.order"))
         Settings.setValue("panelBar.order", 0);
       this._clientContainer = document.getElementById("client-container");

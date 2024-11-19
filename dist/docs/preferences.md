@@ -209,7 +209,7 @@ Controls the panel bar with extras
   - `Left` To the left of the main display
   - `Top` Above the main display  
 - `Size` The size of the panel bar, width if left, height if top, min of 184 or 1/3 of current window size, will adjust to new max as window is resized
-
+- `Reset map` Reset map zoom to default
 Settings for map and chat panels are shared with main mapper and chat capture syste, If both map and chat are disabled, panel bar will be hidden
 
 ## Chat
@@ -287,6 +287,7 @@ Controls what is captured into the chat window
 - `Directions to send` the # of directions to send between delays
 - `Persistent` Keep mapper dialog loaded in background instead of unloading, uses more memory but window opens faster
 - `Reset dialog state` Reset the dialog state, **Note** if dialog open will reuse active state on close
+- `Reset map` Reset map zoom and active room to default
 
 ## Advanced
 

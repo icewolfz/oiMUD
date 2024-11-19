@@ -44,6 +44,7 @@
         resized, a value of -1 will reset to default
     </small>
 </div>
+<button id="reset-map" type="button" class="btn btn-light" title="Reset dialog state">Reset map</button>
 <script>
     setTimeout(() => {
         if (body.querySelector('[id="panelBar.location"]').value === '0')
@@ -52,4 +53,7 @@
             body.querySelector('#panelBarSize').max = Math.floor(document.body.clientHeight * 0.33);
         body.querySelector('#panelBarMax').textContent = body.querySelector('#panelBarSize').max;
     }, 1);
+    body.querySelector('#reset-map').addEventListener('click', () => {
+        dialog.settings['panelBar.mapScale'] = 100;
+    });
 </script>

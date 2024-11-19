@@ -43,8 +43,16 @@
 </div>
 <button id="reset-window" type="button" class="btn btn-light" title="Reset dialog state">Reset dialog
     state</button>
+<button id="reset-map" type="button" class="btn btn-light" title="Reset dialog state">Reset map</button>
 <script>
     body.querySelector('#reset-window').addEventListener('click', () => {
         dialog.settings['windows.mapper'] = null;
+    });
+    body.querySelector('#reset-map').addEventListener('click', () => {
+        dialog.settings['mapper.scale'] = 100;
+        dialog.settings['mapper.active'] = { ID: null, x: 0, y: 0, z: 0, area: null, zone: 0 };
+        dialog.settings['mapper.hscroll'] = 0;
+        dialog.settings['mapper.vscroll'] = 0;
+        dialog.settings['mapper.roomWidth'] = 200;
     });
 </script>

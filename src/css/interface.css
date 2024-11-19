@@ -192,3 +192,8 @@ div.offcanvas-body ul li hr {
   display: block;
   margin: 0;
 }
+
+.font-sample {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

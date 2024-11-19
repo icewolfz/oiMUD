@@ -10,33 +10,46 @@
         <ul class="dropdown-menu dropdown-menu-end" style="height: 200px;overflow: auto;">
             <li><a class="dropdown-item" href="javascript:void(0)">Inconsolata, 'Courier New', Courier, monospace</a>
             </li>
+            <li><a class="dropdown-item" href="javascript:void(0)">'Fira Code', 'Courier New', Courier, monospace</a>
+            </li>
+            <li><a class="dropdown-item" href="javascript:void(0)">'Fira Mono', 'Courier New', Courier, monospace</a>
+            </li>
+            <li><a class="dropdown-item" href="javascript:void(0)">'Roboto Mono', 'Courier New', Courier, monospace</a>
+            </li>
+            <li><a class="dropdown-item" href="javascript:void(0)">'Source Code Pro', 'Courier New', Courier, monospace</a>
+            </li>
+            <li><a class="dropdown-item" href="javascript:void(0)">'Space mono', 'Courier New', Courier, monospace</a>
+            </li>
             <li><a class="dropdown-item" href="javascript:void(0)">'Courier New', Courier, monospace</a></li>
             <li><a class="dropdown-item" href="javascript:void(0)">'Lucida Console', Monaco, monospace</a></li>
             <li><a class="dropdown-item" href="javascript:void(0)">Georgia, serif</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0)">'Palatino Linotype', 'Book Antiqua', Palatino,
-                    serif</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)">'Palatino Linotype', 'Book Antiqua', Palatino, serif</a></li>
             <li><a class="dropdown-item" href="javascript:void(0)">'Times New Roman', Times, serif</a></li>
             <li><a class="dropdown-item" href="javascript:void(0)">Arial, Helvetica, sans-serif</a></li>
             <li><a class="dropdown-item" href="javascript:void(0)">'Arial Black', Gadget, sans-serif</a></li>
             <li><a class="dropdown-item" href="javascript:void(0)">'Comic Sans MS', cursive, sans-serif</a></li>
             <li><a class="dropdown-item" href="javascript:void(0)">Impact, Charcoal, sans-serif</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0)">'Lucida Sans Unicode', 'Lucida Grande',
-                    sans-serif</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)">'Lucida Sans Unicode', 'Lucida Grande', sans-serif</a></li>
             <li><a class="dropdown-item" href="javascript:void(0)">Tahoma, Geneva, sans-serif</a></li>
             <li><a class="dropdown-item" href="javascript:void(0)">'Trebuchet MS', Helvetica, sans-serif</a></li>
             <li><a class="dropdown-item" href="javascript:void(0)">Verdana, Geneva, sans-serif</a></li>
         </ul>
     </div>
-    <small class="form-text text-muted alert alert-info" style="margin-top:3px;padding: 2px">
-        Allows any valid css font format
-    </small>
-    <small class="form-text text-muted alert alert-warning" style="margin-top:3px;padding: 2px;">
-        Non monospaced fonts may force shorter line widths due to uneven widths when using NAWS.
-    </small>
-    <small class="form-text text-muted alert alert-info" style="margin-top:3px;padding: 2px">
-        Will fall back to generic monospace font if not found on system when possible
-    </small>
 </div>
+<div class="mb-3">
+    <label for="font" class="form-label">Font sample</label>
+    <div class="font-sample">0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</div>
+</div>
+<small class="form-text text-muted alert alert-info" style="margin-top:3px;padding: 2px">
+    Allows any valid css font format
+</small>
+<small class="form-text text-muted alert alert-warning" style="margin-top:3px;padding: 2px;">
+    Non monospaced fonts may force shorter line widths due to uneven widths when using NAWS.
+</small>
+<small class="mb-3 form-text text-muted alert alert-info" style="margin-top:3px;padding: 2px">
+    Will fall back to generic monospace font if not found on system when possible
+</small>
+
 <div class="mb-3">
     <label for="fontSize" class="form-label">Font size</label>
     <input class="form-control" id="fontSize">
@@ -105,7 +118,7 @@
 <div class="mb-3">
     <label for="display.timestampFormat" class="form-label">Timestamp format</label>
     <input class="form-control" id="display.timestampFormat">
-    <small class="form-text text-muted alert alert-info"  style="margin-top:3px;padding: 2px">
+    <small class="form-text text-muted alert alert-info" style="margin-top:3px;padding: 2px">
         Supports all moment time formats if moment enabled, falls back simple
     </small>
 </div>
@@ -145,7 +158,42 @@
             fontEl.value = this.textContent;
             fontEl.dispatchEvent(new Event('change'));
         });
+        items[i].style.fontFamily = items[i].textContent;
     }
+    fontEl.addEventListener('keydown', e => {
+        if (e.key === 'ArrowDown') {
+            let items = body.querySelectorAll('.dropdown-item');
+            let current = fontEl.value;
+            let found = -1;
+            for (let i = 0, il = items.length; i < il; i++) {
+                if (items[i].textContent === current) {
+                    found = i;
+                    break;
+                }
+            }
+            found++;
+            if (found >= items.length)
+                found = items.length - 1;
+            fontEl.value = items[found].textContent;
+            fontEl.dispatchEvent(new Event('change'));
+        }
+        else if (e.key === 'ArrowUp') {
+            let items = body.querySelectorAll('.dropdown-item');
+            let current = fontEl.value;
+            let found = items.length;
+            for (let i = 0, il = items.length; i < il; i++) {
+                if (items[i].textContent == current) {
+                    found = i;
+                    break;
+                }
+            }
+            found--;
+            if (found < 0)
+                found = 0;
+            fontEl.value = items[found].textContent;
+            fontEl.dispatchEvent(new Event('change'));
+        }
+    });    
     fontEl.nextElementSibling.addEventListener('show.bs.dropdown', event => {
         let items = body.querySelectorAll('.dropdown-item');
         for (i = 0, il = items.length; i < il; i++) {
@@ -154,4 +202,22 @@
                 items[i].classList.add('active');
         };
     });
+    fontEl.addEventListener('change', () => {
+        body.querySelector('.font-sample').style.fontFamily = fontEl.value;;
+        body.querySelector('.font-sample').style.fontSize = body.querySelector('#fontSize').value;
+    });
+    fontEl.addEventListener('input', () => {
+        body.querySelector('.font-sample').style.fontFamily = fontEl.value;;
+        body.querySelector('.font-sample').style.fontSize = body.querySelector('#fontSize').value;
+    });
+    body.querySelector('#fontSize').addEventListener('change', () => {
+        body.querySelector('.font-sample').style.fontFamily = fontEl.value;;
+        body.querySelector('.font-sample').style.fontSize = body.querySelector('#fontSize').value;
+    });
+    body.querySelector('#fontSize').addEventListener('input', () => {
+        body.querySelector('.font-sample').style.fontFamily = fontEl.value;;
+        body.querySelector('.font-sample').style.fontSize = body.querySelector('#fontSize').value;
+    });    
+    body.querySelector('.font-sample').style.fontFamily = dialog.settings['font'] || '';
+    body.querySelector('.font-sample').style.fontSize = dialog.settings['fontSize'] || '16px';
 </script>

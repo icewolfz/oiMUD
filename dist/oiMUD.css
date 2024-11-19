@@ -3398,7 +3398,11 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   padding-bottom: 4px;
   display: none;
 }
-#panel-bar-splitter-panel2:hover #panel-bar-chat-toolbar {
+[data-order="1"] #panel-bar-splitter-panel1:hover #panel-bar-chat-toolbar {
+  left: 26px;
+}
+[data-order="0"] #panel-bar-splitter-panel2:hover #panel-bar-chat-toolbar,
+[data-order="1"] #panel-bar-splitter-panel1:hover #panel-bar-chat-toolbar {
   display: block;
 }
 #panel-bar-chat-toolbar button {
@@ -3429,7 +3433,7 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-#panel-bar:hover #mini-map-title {
+#panel-bar[data-order="0"]:hover #mini-map-title {
   padding-left: 28px;
 }
 #mini-map-zoom {
@@ -3445,8 +3449,10 @@ li.submenu.dropstart > a.dropdown-toggle::after {
 #mini-map-zoom:hover {
   opacity: 1;
 }
-#panel-bar:hover #mini-map-zoom,
-#panel-bar:hover #mini-map-display {
+[data-order="0"] .splitter-panel-1:hover #mini-map-zoom,
+[data-order="0"] .splitter-panel-1:hover #mini-map-display,
+[data-order="1"] .splitter-panel-2:hover #mini-map-zoom,
+[data-order="1"] .splitter-panel-2:hover #mini-map-display {
   display: block;
 }
 #mini-map-display {

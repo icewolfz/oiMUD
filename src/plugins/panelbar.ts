@@ -556,6 +556,7 @@ export class PanelBar extends Plugin {
     }
 
     private _updateOrder() {
+        this._panel.dataset.order = '' + this.client.getOption('panelBar.order');
         if (this.client.getOption('panelBar.order') === 1) {
             this._splitter.panel2.append(this._miniMap.container);
             this._splitter.panel1.append(this._chatDisplay.container);

@@ -34094,8 +34094,37 @@ Devanagari
       this.client.telnet.GMCPSupports.push("oMUD 1");
       this.client.telnet.GMCPSupports.push("Char.Skills 1");
       this.client.on("add-line", (data) => {
-        if (data.line === "Connected...")
-          this.init();
+        switch (data.line) {
+          case "Connected...":
+            this.init();
+            return;
+          case "You feel a tingle as you are surrounded by magical shield.":
+          case "You feel a tingle as you are surrounded by a magical shield.":
+          case "You feel a tingle as you are surrounded by magical buffer.":
+          case "You feel a tingle as you are surrounded by a magical buffer.":
+          case "You feel a tingle as you are surrounded by magical protection.":
+          case "You feel a tingle as you are surrounded by a magical protection.":
+          case "Blood flows and covers you forming a protective skin.":
+          case "You feel your skin strengthen.":
+          case "You feel your skin harden.":
+          case "^You feel your skin toughen.":
+            document.getElementById("fullbody").classList.add("aura-blue");
+            return;
+          case "Your aura of protection wears off.":
+          case "You feel your skin soften.":
+          case "Blood flows off of you.":
+          case "You remove a spell of protection from yourself.":
+            document.getElementById("fullbody").classList.remove("aura-blue");
+            return;
+          case "You feel more protected as Makkairi's Shield envelops you.":
+            document.getElementById("fullbody").classList.add("aura-red");
+            return;
+          case "You feel more vulnerable as Makkairi's Shield leaves you.":
+            document.getElementById("fullbody").classList.remove("aura-red");
+            return;
+        }
+        if (data.line.match(/^.* removes a spell of protection from you.$/))
+          document.getElementById("fullbody").classList.remove("aura-blue");
       });
       this.client.on("options-loaded", () => {
         this._info["EXPERIENCE_NEED"] = this._info["EXPERIENCE_NEED_RAW"] - this._info["EXPERIENCE"];
@@ -34476,6 +34505,7 @@ Devanagari
       client.emit("set-title", title || "");
     }
     init() {
+      document.getElementById("fullbody").classList.remove("aura-red", "aura-blue");
       this.setTitle("");
       this._info = [];
       this._info["WEATHER"] = "none";

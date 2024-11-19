@@ -2463,6 +2463,18 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   -webkit-filter: drop-shadow(0px 0px 1px rgb(0, 0, 0));
   filter: drop-shadow(0px 0px 1px rgb(0, 0, 0));
 }
+#fullbody.aura-blue {
+  -webkit-filter: drop-shadow(0px 0px 1px rgb(0, 0, 0)) drop-shadow(0px 0px 4px #009fff);
+  filter: drop-shadow(0px 0px 1px rgb(0, 0, 0)) drop-shadow(0px 0px 4px #009fff);
+}
+#fullbody.aura-red {
+  -webkit-filter: drop-shadow(0px 0px 1px rgb(0, 0, 0)) drop-shadow(0px 0px 4px #f00);
+  filter: drop-shadow(0px 0px 1px rgb(0, 0, 0)) drop-shadow(0px 0px 4px #f00);
+}
+#fullbody.aura-red.aura-blue {
+  -webkit-filter: drop-shadow(0px 0px 1px rgb(0, 0, 0)) drop-shadow(0px 0px 4px #c700ff);
+  filter: drop-shadow(0px 0px 1px rgb(0, 0, 0)) drop-shadow(0px 0px 4px #c700ff);
+}
 #overall {
   background: #bfb893;
   border-radius: 5px;

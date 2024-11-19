@@ -21129,13 +21129,13 @@
           this.scrollDisplay();
         debounce(() => {
           this._doUpdate(1 /* update */ | 16 /* updateWindow */);
-        }, 250, "resize");
+        }, 250, this.id + "resize");
       };
       this._selection = (e) => {
         if (this._mouseDown)
           debounce(() => {
             this.emit("selection-changed");
-          }, 250, "selection-changed");
+          }, 250, this.id + "selection-changed");
       };
       this._window.addEventListener("resize", this._wResize.bind(this));
       this._document.addEventListener("selectionchange", this._selection.bind(this));
@@ -21150,7 +21150,7 @@
             this._resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
             this._doUpdate(1 /* update */ | 16 /* updateWindow */);
           }
-        }, 250, "resize");
+        }, 250, this.id + "resize");
         this.emit("resize");
       });
       this._resizeObserver.observe(this._container);
@@ -26621,7 +26621,7 @@ Devanagari
             this.makeVisible();
           if (this._footer.style.display !== "none")
             this._body.style.bottom = this._footer.clientHeight + 1 + "px";
-          this.emit("resizing");
+          this.emit(this.id + "resizing");
         }, 250, this._id + "dialogResize");
       };
       this._resizeDoDrag = (e) => {
@@ -31449,7 +31449,7 @@ Devanagari
         this._updateSmall(e.width);
         debounce(() => {
           this._splitter.panel1.parentElement.style.top = toolbar.offsetHeight + "px";
-        }, 25, "mapper-resize");
+        }, 25, "help-resize");
         this._client.setOption("windows.help", e);
       });
       this._client.on("options-loaded", () => {

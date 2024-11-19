@@ -26,7 +26,7 @@ export class HelpDialog extends Dialog {
             this._updateSmall(e.width);
             debounce(() => {
                 this._splitter.panel1.parentElement.style.top = toolbar.offsetHeight + 'px';
-            }, 25, 'mapper-resize');
+            }, 25, 'help-resize');
             this._client.setOption('windows.help', e);
         });
         this._client.on('options-loaded', () => {

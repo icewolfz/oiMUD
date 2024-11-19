@@ -90,7 +90,7 @@ export class Dialog extends EventEmitter {
                 this.makeVisible();
             if (this._footer.style.display !== 'none')
                 this._body.style.bottom = (this._footer.clientHeight + 1) + 'px';
-            this.emit('resizing');
+            this.emit(this.id + 'resizing');
         }, 250, this._id + 'dialogResize');
     };
 

@@ -475,13 +475,13 @@ export class Display extends EventEmitter {
                 this.scrollDisplay();
             debounce(() => {
                 this._doUpdate(UpdateType.update | UpdateType.updateWindow);
-            }, 250, 'resize');
+            }, 250, this.id + 'resize');
         };
         this._selection = e => {
             if (this._mouseDown)
                 debounce(() => {
                     this.emit('selection-changed');
-                }, 250, 'selection-changed');
+                }, 250, this.id + 'selection-changed');
         };
         this._window.addEventListener('resize', this._wResize.bind(this));
         this._document.addEventListener("selectionchange", this._selection.bind(this));
@@ -497,7 +497,7 @@ export class Display extends EventEmitter {
                     this._resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
                     this._doUpdate(UpdateType.update | UpdateType.updateWindow);
                 }
-            }, 250, 'resize');
+            }, 250, this.id + 'resize');
             this.emit('resize');
         });
         this._resizeObserver.observe(this._container);

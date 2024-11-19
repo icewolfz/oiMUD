@@ -34,6 +34,7 @@ export class PanelBar extends Plugin {
     private _clientContainer;
     private _miniMap: MapDisplay;
     private _miniMapTitle: HTMLElement;
+    private _miniMapZoom: HTMLInputElement;
     private _chatDisplay: Display;
     private _mapper: Mapper;
     private _chat: Chat;
@@ -43,6 +44,7 @@ export class PanelBar extends Plugin {
     private _move;
     private _splitter: Splitter;
     private _panelLocation: PanelBarLocation = PanelBarLocation.top;
+    private _zTimeout;
 
     get location(): PanelBarLocation {
         return this._panelLocation;
@@ -84,6 +86,8 @@ export class PanelBar extends Plugin {
             Settings.setValue('panelBar.location', isMobile() ? PanelBarLocation.left : PanelBarLocation.top);
         if (!Settings.exist('panelBar.order'))
             Settings.setValue('panelBar.order', 0);
+        if (!Settings.exist('panelBar.mapScale'))
+            Settings.setValue('panelBar.mapScale', 100);
         this._clientContainer = document.getElementById('client-container');
         this._createSidebar();
     }
@@ -246,6 +250,17 @@ export class PanelBar extends Plugin {
         this._updateInterface();
         this._miniMapTitle = document.createElement('div');
         this._miniMapTitle.id = 'mini-map-title';
+        this._miniMapZoom = document.createElement('input');
+        this._miniMapZoom.id = 'mini-map-zoom';
+        this._miniMapZoom.classList.add('form-range');
+        this._miniMapZoom.type = 'range';
+        this._miniMapZoom.min = '25';
+        this._miniMapZoom.max = '300';
+        this._miniMapZoom.step = '5';
+        this._miniMapZoom.addEventListener('input', e => {
+            this._miniMap.scale = +(e.currentTarget as HTMLInputElement).value;
+            this._displayScale();
+        });
         this._miniMap = new MapDisplay(document.createElement('div'), { map: this._mapper ? this._mapper.map : null });
         this._miniMap.showNavigation = false;
         this._miniMap.container.classList.add('mini-map', 'map', 'panel-container');
@@ -254,7 +269,14 @@ export class PanelBar extends Plugin {
         });
         this._miniMap.on('current-changed', room => {
             this._setMapTitle(room ? room.area : '');
-        })
+        });
+        this._miniMap.on('setting-changed', (setting, value) => {
+            if (setting === 'scale') {
+                this._miniMapZoom.value = value;
+                this._displayScale();
+                this.client.setOption(`panelBar.mapScale`, value);
+            }
+        });
         this._miniMap.active = new Room(client.getOption('mapper.active'));
         this._miniMap.active.num = this._miniMap.active.num || (this._miniMap.active as any).ID;
         this._chatDisplay = new Display(document.createElement('div'));
@@ -471,6 +493,7 @@ export class PanelBar extends Plugin {
         this._miniMap.follow = this.client.getOption('mapper.follow');
         this._miniMap.splitArea = this.client.getOption('mapper.split');
         this._miniMap.fillWalls = this.client.getOption('mapper.fill');
+        this._miniMap.scale = this.client.getOption('panelBar.mapScale');
         if (this._miniMap.follow)
             this._miniMap.focusCurrentRoom();
         this._splitter.panel1Collapsed = (this.client.getOption('panelBar.panels') & Panels.map) !== Panels.map;
@@ -531,7 +554,7 @@ export class PanelBar extends Plugin {
     private _setMapTitle(title) {
         this._miniMapTitle.textContent = title || '';
     }
-    
+
     private _updateOrder() {
         if (this.client.getOption('panelBar.order') === 1) {
             this._splitter.panel2.append(this._miniMap.container);
@@ -542,5 +565,16 @@ export class PanelBar extends Plugin {
             this._splitter.panel2.append(this._chatDisplay.container);
         }
         this._miniMap.container.insertAdjacentElement('beforebegin', this._miniMapTitle);
+        this._miniMap.container.insertAdjacentElement('beforebegin', this._miniMapZoom);
+    }
+
+    private _displayScale() {
+        let el = document.getElementById('mini-map-display');
+        if (el)
+            el.textContent = this._miniMap.scale + '%';
+        else
+            this._miniMapZoom.parentElement.insertAdjacentHTML('beforeend', `<label id="mini-map-display">${this._miniMap.scale}%</label>`);
+        clearTimeout(this._zTimeout);
+        this._zTimeout = setTimeout(() => document.getElementById('mini-map-display').remove(), 1500);
     }
 }

@@ -3432,6 +3432,37 @@ li.submenu.dropstart > a.dropdown-toggle::after {
 #panel-bar:hover #mini-map-title {
   padding-left: 28px;
 }
+#mini-map-zoom {
+  position: absolute;
+  bottom: 0;
+  left: 4px;
+  right: 4px;
+  z-index: 2;
+  width: auto;
+  opacity: 0.5;
+  display: none;
+}
+#mini-map-zoom:hover {
+  opacity: 1;
+}
+#panel-bar:hover #mini-map-zoom,
+#panel-bar:hover #mini-map-display {
+  display: block;
+}
+#mini-map-display {
+  background-color: var(--theme-bg-secondary-color);
+  position: absolute;
+  left: calc(50% - 25px);
+  bottom: 24px;
+  z-index: 2;
+  width: 50px;
+  padding: 2px;
+  border: 1px solid var(--theme-border-color);
+  border-radius: 10px;
+  text-align: center;
+  opacity: 0.9;
+  display: none;
+}
 
 /* src/css/panelbar.theme.css */
 #panel-bar-close {

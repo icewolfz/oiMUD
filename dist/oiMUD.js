@@ -25668,7 +25668,7 @@ Devanagari
       ctx.closePath();
     }
     _translate(ctx, amt, scale) {
-      if (scale === 2) return;
+      if (scale === 3) return;
       const o = amt - amt * scale;
       ctx.translate(amt * scale + o, amt * scale + o);
     }
@@ -33482,7 +33482,7 @@ Devanagari
       const toolbar = document.createElement("nav");
       toolbar.id = "mapper-toolbar";
       toolbar.classList.add("navbar", "bg-light", "align-items-center");
-      toolbar.innerHTML = `<form class="container-fluid justify-content-start"><button id="btn-mapper-menu" class="me-2 mb-1 btn-sm btn btn-outline-secondary" type="button" aria-controls="mapper-menu" title="Show menu" aria-expanded="false" data-bs-toggle="offcanvas" data-bs-target="#mapper-menu" aria-controls="mapper-menu"><i class="fa-solid fa-bars"></i></button><button id="btn-mapper-focus" type="button" class="btn btn-sm btn-outline-secondary me-2 mb-1" title="Focus on current room"><i class="fa fa-crosshairs"></i></button><div class="btn-group me-2 mb-1"><label for="mapper-level" class="mt-1 me-1">Level: </label><input id="mapper-level" class="form-control form-control-sm" type="number" title="Map Level"></div><div class="btn-group me-2 mb-1"><label for="mapper-zone" class="mt-1 me-1">Zone: </label><input id="mapper-zone" class="form-control form-control-sm" type="number" title="Map Zone"></div><div class="btn-group me-2 mb-1"><label for="mapper-zoom" class="me-1">Zoom: </label><input id="mapper-zoom" class="form-range" type="range" min="25" max="300" step="5""><label id="mapper-zoom-display">100%</label></div></form>`;
+      toolbar.innerHTML = `<form class="container-fluid justify-content-start"><button id="btn-mapper-menu" class="me-2 mb-1 btn-sm btn btn-outline-secondary" type="button" aria-controls="mapper-menu" title="Show menu" aria-expanded="false" data-bs-toggle="offcanvas" data-bs-target="#mapper-menu" aria-controls="mapper-menu"><i class="fa-solid fa-bars"></i></button><button id="btn-mapper-focus" type="button" class="btn btn-sm btn-outline-secondary me-2 mb-1" title="Focus on current room"><i class="fa fa-crosshairs"></i></button><div class="btn-group me-2 mb-1"><label for="mapper-level" class="mt-1 me-1">Level: </label><input id="mapper-level" class="form-control form-control-sm" type="number" title="Map Level"></div><div class="btn-group me-2 mb-1"><label for="mapper-zone" class="mt-1 me-1">Zone: </label><input id="mapper-zone" class="form-control form-control-sm" type="number" title="Map Zone"></div><div class="btn-group me-2 mb-1"><label for="mapper-zoom" class="me-1">Zoom: </label><input id="mapper-zoom" class="form-range" type="range" min="25" max="300" step="5"><label id="mapper-zoom-display">100%</label></div></form>`;
       this._dialog.body.appendChild(toolbar);
       this._dialog.body.insertAdjacentHTML("afterbegin", mapper_menu_default);
       this._dialog.body.querySelector("#mapper-enable a").addEventListener("click", () => {
@@ -37028,6 +37028,8 @@ Devanagari
         Settings.setValue("panelBar.location", isMobile() ? 0 /* left */ : 1 /* top */);
       if (!Settings.exist("panelBar.order"))
         Settings.setValue("panelBar.order", 0);
+      if (!Settings.exist("panelBar.mapScale"))
+        Settings.setValue("panelBar.mapScale", 100);
       this._clientContainer = document.getElementById("client-container");
       this._createSidebar();
     }
@@ -37200,6 +37202,17 @@ Devanagari
       this._updateInterface();
       this._miniMapTitle = document.createElement("div");
       this._miniMapTitle.id = "mini-map-title";
+      this._miniMapZoom = document.createElement("input");
+      this._miniMapZoom.id = "mini-map-zoom";
+      this._miniMapZoom.classList.add("form-range");
+      this._miniMapZoom.type = "range";
+      this._miniMapZoom.min = "25";
+      this._miniMapZoom.max = "300";
+      this._miniMapZoom.step = "5";
+      this._miniMapZoom.addEventListener("input", (e) => {
+        this._miniMap.scale = +e.currentTarget.value;
+        this._displayScale();
+      });
       this._miniMap = new MapDisplay(document.createElement("div"), { map: this._mapper ? this._mapper.map : null });
       this._miniMap.showNavigation = false;
       this._miniMap.container.classList.add("mini-map", "map", "panel-container");
@@ -37208,6 +37221,13 @@ Devanagari
       });
       this._miniMap.on("current-changed", (room) => {
         this._setMapTitle(room ? room.area : "");
+      });
+      this._miniMap.on("setting-changed", (setting, value) => {
+        if (setting === "scale") {
+          this._miniMapZoom.value = value;
+          this._displayScale();
+          this.client.setOption(`panelBar.mapScale`, value);
+        }
       });
       this._miniMap.active = new Room(client.getOption("mapper.active"));
       this._miniMap.active.num = this._miniMap.active.num || this._miniMap.active.ID;
@@ -37412,6 +37432,7 @@ Devanagari
       this._miniMap.follow = this.client.getOption("mapper.follow");
       this._miniMap.splitArea = this.client.getOption("mapper.split");
       this._miniMap.fillWalls = this.client.getOption("mapper.fill");
+      this._miniMap.scale = this.client.getOption("panelBar.mapScale");
       if (this._miniMap.follow)
         this._miniMap.focusCurrentRoom();
       this._splitter.panel1Collapsed = (this.client.getOption("panelBar.panels") & 2 /* map */) !== 2 /* map */;
@@ -37474,6 +37495,16 @@ Devanagari
         this._splitter.panel2.append(this._chatDisplay.container);
       }
       this._miniMap.container.insertAdjacentElement("beforebegin", this._miniMapTitle);
+      this._miniMap.container.insertAdjacentElement("beforebegin", this._miniMapZoom);
+    }
+    _displayScale() {
+      let el = document.getElementById("mini-map-display");
+      if (el)
+        el.textContent = this._miniMap.scale + "%";
+      else
+        this._miniMapZoom.parentElement.insertAdjacentHTML("beforeend", `<label id="mini-map-display">${this._miniMap.scale}%</label>`);
+      clearTimeout(this._zTimeout);
+      this._zTimeout = setTimeout(() => document.getElementById("mini-map-display").remove(), 1500);
     }
   };
 

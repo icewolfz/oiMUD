@@ -900,7 +900,7 @@ export class MapDisplay extends EventEmitter {
     }
 
     private _translate(ctx, amt, scale) {
-        if (scale === 2) return;
+        if (scale === 3) return;
         //if (scale < 1) {
         const o = amt - amt * scale;
         ctx.translate(amt * scale + o, amt * scale + o);

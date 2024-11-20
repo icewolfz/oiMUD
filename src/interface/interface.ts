@@ -1411,3 +1411,19 @@ export function closeDropdowns() {
 }
 
 window.initializeInterface = initializeInterface;
+/*
+//auto load the interface if client created
+//limit how many times to to avoid infinite loop
+let cnt = 0;
+function readyInterface() {
+    //try only 10 times to prevent infinite loop
+    if(cnt > 10) return;
+    //if defined init the interface
+    if (window.client)
+        initializeInterface();
+    else //not defined so try again after cnt delay
+        setTimeout(() => readyInterface(), cnt);
+    cnt++;
+}
+readyInterface();
+*/

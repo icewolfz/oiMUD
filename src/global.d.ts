@@ -22,10 +22,17 @@ interface Event {
 }
 
 declare let DEBUG: boolean;
-declare let TEST: boolean;
+declare let TEST_PLUGIN: boolean;
 declare let TINYMCE: boolean;
 declare let tinymce;
 declare let MINIFY: string;
+declare let SHADOWMUD_PLUGIN: boolean;
+declare let MAPPER_PLUGIN: boolean;
+declare let CHAT_PLUGIN: boolean;
+declare let LOGGER_PLUGIN: boolean;
+declare let MSP_PLUGIN: boolean;
+declare let PANELBAR_PLUGIN: boolean;
+declare let STATUS_PLUGIN: boolean;
 
 declare let $selected: string;
 declare let $character: string;

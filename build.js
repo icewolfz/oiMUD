@@ -12,8 +12,31 @@ let args = {
     core: process.argv.indexOf('--core') !== -1 || process.argv.indexOf('-core') !== -1,
     interface: process.argv.indexOf('-i') !== -1 || process.argv.indexOf('--interface') !== -1 || process.argv.indexOf('-interface') !== -1,
     tinymce: process.argv.indexOf('-te') !== -1 || process.argv.indexOf('--tinymce') !== -1 || process.argv.indexOf('-tinymce') !== -1,
-    test: process.argv.indexOf('-t') !== -1 || process.argv.indexOf('--test') !== -1 || process.argv.indexOf('-test') !== -1,
+    plugins: { SHADOWMUD_PLUGIN: 'false', TEST_PLUGIN: 'false', MAPPER_PLUGIN: 'false', CHAT_PLUGIN: 'false', LOGGER_PLUGIN: 'false', MSP_PLUGIN: 'false', PANELBAR_PLUGIN: 'false', STATUS_PLUGIN: 'false' }
 }
+
+process.argv.forEach(arg => {
+    arg = arg.toLowerCase();
+    let plugins;
+    if (arg.startsWith('-p:'))
+        plugins = arg.substring(3).toUpperCase().split(',');
+    else if (arg.startsWith('--plugin:'))
+        plugins = arg.substring(9).toUpperCase().split(',');
+    else if (arg.startsWith('-plugin:'))
+        plugins = arg.substring(8).toUpperCase().split(',');
+    if (plugins && plugins.length)
+        plugins.forEach(plugin => {
+            if (plugin === 'ALL')
+                Object.keys(args.plugins).forEach(plugin => args.plugins[plugin] = 'true');
+            else if (plugin === 'CORE') {
+                args.plugins.MAPPER_PLUGIN = 'true';
+                args.plugins.LOGGER_PLUGIN = 'true';
+                args.plugins.MSP_PLUGIN = 'true';
+            }
+            else
+                args.plugins[plugin + '_PLUGIN'] = 'true';
+        })
+});
 
 const HTMLMinifyPlugin = {
     name: "HTMLMinifyPlugin",
@@ -79,8 +102,8 @@ let config = {
     },
     external: ['moment']
 }
-let release = Object.assign({}, config, { mangleProps: /^[_\$]/, minify: true, sourcemap: true, define: { MINIFY: '"min."', TEST: args.test ? 'true' : 'false', DEBUG: 'false', TINYMCE: args.all || args.tinymce ? 'true' : 'false' } });
-let debug = Object.assign({}, config, { minify: false, sourcemap: false, define: { MINIFY: '""', TEST: 'true', DEBUG: 'true', TINYMCE: args.all || args.tinymce ? 'true' : 'false' } });
+let release = Object.assign({}, config, { mangleProps: /^[_\$]/, minify: true, sourcemap: true, define: Object.assign({ MINIFY: '"min."', DEBUG: 'false', TINYMCE: args.all || args.tinymce ? 'true' : 'false' }, args.plugins) });
+let debug = Object.assign({}, config, { minify: false, sourcemap: false, define: Object.assign({ MINIFY: '""', DEBUG: 'true', TINYMCE: args.all || args.tinymce ? 'true' : 'false' }, args.plugins) });
 release.plugins = [HTMLMinifyPlugin, PluginInlineWorker()];
 debug.plugins = [HTMLMinifyPlugin, PluginInlineWorker({ minify: false })];
 async function main() {

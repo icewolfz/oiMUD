@@ -1145,13 +1145,21 @@ export class Client extends EventEmitter {
                 this.close();
         })
         //Add core plugins
-        this.addPlugin(new MSP(this));
-        this.addPlugin(new Mapper(this));
-        this.addPlugin(new Status(this));
-        this.addPlugin(new Logger(this));
-        this.addPlugin(new Chat(this));
-        this.addPlugin(new PanelBar(this));
-        if (DEBUG || TEST)
+        if (MSP_PLUGIN)
+            this.addPlugin(new MSP(this));
+        if (MAPPER_PLUGIN)
+            this.addPlugin(new Mapper(this));
+        if (STATUS_PLUGIN)
+            this.addPlugin(new Status(this));
+        if (LOGGER_PLUGIN)
+            this.addPlugin(new Logger(this));
+        if (CHAT_PLUGIN)
+            this.addPlugin(new Chat(this));
+        if (PANELBAR_PLUGIN)
+            this.addPlugin(new PanelBar(this));
+        if (SHADOWMUD_PLUGIN)
+            this.addPlugin(new ShadowMUD(this));
+        if (DEBUG || TEST_PLUGIN)
             this.addPlugin(new Test(this));
         this.autoConnect();
         this.emit('initialized');

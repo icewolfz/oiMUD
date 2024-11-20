@@ -37810,12 +37810,20 @@ Devanagari
         if (this.connected)
           this.close();
       });
-      this.addPlugin(new MSP(this));
-      this.addPlugin(new Mapper(this));
-      this.addPlugin(new Status(this));
-      this.addPlugin(new Logger(this));
-      this.addPlugin(new Chat(this));
-      this.addPlugin(new PanelBar(this));
+      if (true)
+        this.addPlugin(new MSP(this));
+      if (true)
+        this.addPlugin(new Mapper(this));
+      if (true)
+        this.addPlugin(new Status(this));
+      if (true)
+        this.addPlugin(new Logger(this));
+      if (true)
+        this.addPlugin(new Chat(this));
+      if (true)
+        this.addPlugin(new PanelBar(this));
+      if (true)
+        this.addPlugin(new ShadowMUD(this));
       if (true)
         this.addPlugin(new Test(this));
       this.autoConnect();

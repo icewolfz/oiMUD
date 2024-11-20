@@ -19,7 +19,6 @@
 ## Profile manager
 
 - `Enable profile manager code editor` disable or enable the code editor for the profile manager
-- `Enable profile manager file watcher` disable or enable watching for profile file changes to warn when saving overrides
 - `Profile manager sort order` determine how items are sorted in the profile manager display tree, priority is first, then alpha, finally index, you cna have one or all three options enabled **note** Changing this setting while profile manager is open will not resort the displayed items
   - `Alpha` sort by alpha numeric
   - `Index` sort by index

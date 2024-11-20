@@ -38,7 +38,17 @@ For more advanced control you can run the build script directly using  node buil
 1. `-core,--core` Build just core version of scripts skipping any interface related code
 1. `-i,--interface,-interface` Build just interface code and only adding minimum required core code
 1. `-te,--tinymce,-tinymce` Build tinymce content css file
-1. `-t,--test,-test` Build and include test plugin
+1. `-p:[plugin],--plugin:[plugin],-plugin:[plugin]` Build and add plugin, supply multiple times for multiple plugins, eg -p:test -p:shadowmud or as a comma delimited list: -p:test,shadowmud
+  - `test` Add the test plugin
+  - `shadowmud` Add the shadowmud plugin
+  - `mapper` GMCP mapper plugin
+  - `chat` ShadowMUD chat capture plugin, requires logger plugin to log chat
+  - `logger` Text logger
+  - `msp` Mud Sound Protocol and GMCP Client.media plugin
+  - `panelbar` Panel bar with mini map and ShadowMUD chat capture panels, requires mapper and chat plugins
+  - `status` Right status bar with limb, health and other options
+  - `core` Add mapper, logger, and msp plugins
+  - `all` Add all plugins
 
 **Note** All arguments but all and tinymce need release or debug flag to build
 

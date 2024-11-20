@@ -35774,10 +35774,14 @@ Devanagari
     }
     initialize() {
       this.client.sendChat = (data) => {
-        this.updateChat(this.client.parseInline(data));
+        let e = { data: this.client.parseInline(data), raw: data };
+        this.client.emit("send-chat", e);
+        this.updateChat(e.data);
       };
       this.client.sendChatRaw = (data) => {
-        this.updateChat(data);
+        let e = { data, raw: data };
+        this.client.emit("send-chat", e);
+        this.updateChat(e.raw);
       };
       window.addEventListener("beforeunload", this._unload);
       this.client.on("function", (data) => {

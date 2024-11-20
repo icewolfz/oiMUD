@@ -44,8 +44,8 @@ export class Chat extends Plugin {
         window.removeEventListener('beforeunload', this._unload);
     }
     public initialize(): void {
-        (<any>this.client).sendChat = data => { this.updateChat(this.client.parseInline(data)) };
-        (<any>this.client).sendChatRaw = data => { this.updateChat(data) };
+        (<any>this.client).sendChat = data => { let e = { data: this.client.parseInline(data), raw: data }; this.client.emit('send-chat', e); this.updateChat(e.data) };
+        (<any>this.client).sendChatRaw = data => { let e = { data: data, raw: data }; this.client.emit('send-chat', e); this.updateChat(e.raw) };
         window.addEventListener('beforeunload', this._unload);
         this.client.on('function', data => {
             if (!data) return;

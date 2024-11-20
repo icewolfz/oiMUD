@@ -440,6 +440,7 @@ export class MapDisplay extends EventEmitter {
                     this.scrollBy(-1, 0);
                     break;
                 case 101: //num5
+                case 36: //home
                     e.preventDefault();
                     this.focusCurrentRoom();
                     break;

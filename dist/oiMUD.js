@@ -25150,6 +25150,8 @@ Devanagari
             this.scrollBy(-1, 0);
             break;
           case 101:
+          //num5
+          case 36:
             e.preventDefault();
             this.focusCurrentRoom();
             break;
@@ -33967,6 +33969,7 @@ Devanagari
       });
       if (this._map)
         initMapper();
+      this._dialogSplitter.panel1.parentElement.style.top = toolbar.offsetHeight + "px";
     }
     show() {
       this.createDialog();
@@ -37216,6 +37219,10 @@ Devanagari
       this._miniMap = new MapDisplay(document.createElement("div"), { map: this._mapper ? this._mapper.map : null });
       this._miniMap.showNavigation = false;
       this._miniMap.container.classList.add("mini-map", "map", "panel-container");
+      this._miniMap.container.insertAdjacentHTML("afterbegin", '<button id="btn-mini-map-focus" type="button" class="float-start me-2 button button-sm" title="Focus on current room"><i class="fa fa-crosshairs"></i></button>');
+      this._miniMap.container.querySelector("#btn-mini-map-focus").addEventListener("click", () => {
+        this._miniMap.focusCurrentRoom();
+      });
       this._miniMap.on("active-room-changed", (room) => {
         this._setMapTitle(room ? room.area : "");
       });
@@ -37237,7 +37244,7 @@ Devanagari
       const toolbar = document.createElement("div");
       toolbar.id = "panel-bar-chat-toolbar";
       toolbar.classList.add("navbar", "bg-light", "align-items-center");
-      toolbar.innerHTML = '<form class="container-fluid justify-content-start"><button id="btn-chat-panel-clear" type="button" class="ms-2 btn btn-sm btn-outline-secondary me-2 button button-sm" title="Clear display"><i class="bi bi-trash"></i></button><button id="btn-chat-panel-lock" type="button" class="btn btn-sm btn-outline-secondary me-2  button button-sm" title="Lock display"><i class="bi bi-lock-fill"></i></button><div class="vr me-2" style="height: 29px;"></div><button id="btn-chat-panel-wrap" type="button" class="btn btn-sm btn-outline-secondary me-2  button button-sm" title="Toggle word wrap"><i class="bi bi-text-wrap"></i></button></form>';
+      toolbar.innerHTML = '<form class="container-fluid justify-content-start"><button id="btn-chat-panel-clear" type="button" class="ms-2 me-2 button button-sm" title="Clear display"><i class="bi bi-trash"></i></button><button id="btn-chat-panel-lock" type="button" class="me-2  button button-sm" title="Lock display"><i class="bi bi-lock-fill"></i></button><div class="vr me-2" style="height: 29px;"></div><button id="btn-chat-panel-wrap" type="button" class="me-2  button button-sm" title="Toggle word wrap"><i class="bi bi-text-wrap"></i></button></form>';
       this._chatDisplay.container.append(toolbar);
       toolbar.querySelector("#btn-chat-panel-clear").addEventListener("click", () => {
         this._chatDisplay.clear();

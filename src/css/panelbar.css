@@ -57,6 +57,10 @@
   #panel-bar-chat-toolbar {
     display: block !important;
   }
+
+  #btn-mini-map-focus {
+    display: block !important;
+  }
 }
 
 .mini-map {
@@ -211,6 +215,20 @@
   display: none;
 }
 
+#btn-mini-map-focus {
+  border-bottom: 1px solid #fff;
+  padding-bottom: 4px;
+  display: none;
+  border-width: 0;
+  border-right-width: 3px;
+  border-bottom-width: 3px;
+  padding: 0 4px;
+  z-index: 2;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
 [data-order="1"] #panel-bar-splitter-panel1:hover #panel-bar-chat-toolbar {
   left: 26px;
 }
@@ -272,9 +290,11 @@
 }
 
 [data-order="0"] .splitter-panel-1:hover #mini-map-zoom,
+[data-order="0"] .splitter-panel-1:hover #btn-mini-map-focus,
 [data-order="0"] .splitter-panel-1:hover #mini-map-display,
 [data-order="1"] .splitter-panel-2:hover #mini-map-zoom,
-[data-order="1"] .splitter-panel-2:hover #mini-map-display {
+[data-order="1"] .splitter-panel-2:hover #mini-map-display,
+[data-order="1"] .splitter-panel-2:hover #btn-mini-map-focus {
   display: block;
 }
 

@@ -928,6 +928,7 @@ export class Mapper extends Plugin {
         });
         if (this._map)
             initMapper();
+        this._dialogSplitter.panel1.parentElement.style.top = toolbar.offsetHeight + 'px';
     }
 
     public show() {

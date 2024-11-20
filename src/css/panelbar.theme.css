@@ -58,3 +58,72 @@
   border-bottom: 3px solid var(--theme-border-color);
   border-image: var(--theme-border-image) 3;
 }
+
+#mini-map-zoom::-webkit-slider-thumb {
+  background-color: var(--theme-button-bg-color);
+  border: 1px solid var(--theme-bg-secondary-border);
+}
+
+#mini-map-zoom::-webkit-slider-thumb:hover {
+  -webkit-appearance: none;
+  background-color: var(--theme-hover-bg-color);
+  border: 1px solid var(--theme-hover-border-color);
+}
+
+#mini-map-zoom::-webkit-slider-thumb:active {
+  -webkit-appearance: none;
+  background-color: var(--theme-active-bg-color);
+  border: 1px solid var(--theme-border-color);
+  outline: none;
+}
+
+#mini-map-zoom:focus::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background-color: var(--theme-active-bg-color);
+  border: 1px solid var(--theme-border-color);
+  outline: none;
+}
+
+#mini-map-zoom:focus::-webkit-slider-thumb:focus {
+  -webkit-appearance: none;
+  background-color: var(--theme-active-bg-color);
+  border: 1px solid var(--theme-border-color);
+  outline: none;
+}
+
+#mini-map-zoom::-webkit-slider-runnable-track {
+  background-color: var(--theme-bg-secondary-color);
+}
+
+#mini-map-zoom::-moz-range-thumb {
+  background-color: var(--theme-button-bg-color);
+  border: 1px solid var(--theme-bg-secondary-border);
+}
+
+#mini-map-zoom::-moz-range-thumb:hover {
+  background-color: var(--theme-hover-bg-color);
+  border: 1px solid var(--theme-hover-border-color);
+  outline: none;
+}
+
+#mini-map-zoom::-moz-range-thumb:active {
+  background-color: var(--theme-active-bg-color);
+  border: 1px solid var(--theme-border-color);
+  outline: none;
+}
+
+#mini-map-zoom::-moz-range-thumb:focus {
+  background-color: var(--theme-active-bg-color);
+  border: 1px solid var(--theme-border-color);
+  outline: none;
+}
+
+#mini-map-zoom:focus::-moz-range-thumb:focus {
+  background-color: var(--theme-active-bg-color);
+  border: 1px solid var(--theme-border-color);
+  outline: none;
+}
+
+#mini-map-zoom::-moz-range-track {
+  background-color: var(--theme-bg-secondary-color);
+}

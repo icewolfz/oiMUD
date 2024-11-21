@@ -1,7 +1,7 @@
 declare let client;
 declare let bootstrap;
 
-import { showDialog, toggleButtons } from "./interface";
+import { showDialog, toggleButtons } from './interface';
 
 export function closeMenu() {
     const instance = bootstrap.Offcanvas.getInstance(document.getElementById('clientMenu'));

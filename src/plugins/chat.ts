@@ -1,4 +1,4 @@
-import "../css/chat.css";
+import '../css/chat.css';
 import { Plugin } from '../plugin';
 import { MenuItem } from '../types';
 import { Dialog } from '../interface/dialog';

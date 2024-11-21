@@ -742,7 +742,7 @@ export function selectAll(input) {
 }
 
 export function getSelectionText() {
-    let text = "";
+    let text = '';
     if (window.getSelection)
         text = window.getSelection().toString();
     return text;
@@ -2031,7 +2031,7 @@ export function insertValue(input, value) {
     const active = <HTMLElement>document.activeElement;
     if (!active || active != input)
         input.focus();
-    document.execCommand("insertText", false, value);
+    document.execCommand('insertText', false, value);
     if (active && active != input)
         active.focus();
 }
@@ -2114,12 +2114,12 @@ export function StringToUint8Array(string) {
 }
 
 function _createTextarea(text?) {
-    let textarea = document.createElement("textarea");
+    let textarea = document.createElement('textarea');
     if (text) {
         textarea.value = text;
         textarea.textContent = text;
     }
-    textarea.style.position = "fixed";
+    textarea.style.position = 'fixed';
     textarea.style.width = '2em';
     textarea.style.height = '2em';
     textarea.style.padding = '0';
@@ -2137,22 +2137,22 @@ function _createTextarea(text?) {
 export function copyText(text: string) {
     return new Promise(function (resolve, reject) {
         try {
-            if (typeof navigator !== "undefined" && typeof navigator.clipboard !== "undefined" && typeof navigator.permissions !== "undefined") {
-                let blob = new Blob([text], { type: "text/plain" });
-                let data = [new ClipboardItem({ "text/plain": blob })];
-                navigator.permissions.query({ name: "clipboardWrite" as PermissionName }).then(function (permission) {
-                    if (permission.state === "granted" || permission.state === "prompt") {
+            if (typeof navigator !== 'undefined' && typeof navigator.clipboard !== 'undefined' && typeof navigator.permissions !== 'undefined') {
+                let blob = new Blob([text], { type: 'text/plain' });
+                let data = [new ClipboardItem({ 'text/plain': blob })];
+                navigator.permissions.query({ name: 'clipboardWrite' as PermissionName }).then(function (permission) {
+                    if (permission.state === 'granted' || permission.state === 'prompt') {
                         navigator.clipboard.write(data).then(resolve, reject).catch(reject);
                     }
                     else {
-                        reject(new Error("Permission not granted!"));
+                        reject(new Error('Permission not granted!'));
                     }
                 });
             }
-            else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
+            else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
                 let textarea = _createTextarea(text);
                 try {
-                    document.execCommand("copy");
+                    document.execCommand('copy');
                     document.body.removeChild(textarea);
                     resolve(null);
                 }
@@ -2162,7 +2162,7 @@ export function copyText(text: string) {
                 }
             }
             else {
-                reject(new Error("None of copying methods are supported by this browser!"));
+                reject(new Error('None of copying methods are supported by this browser!'));
             }
         } catch (err) {
             reject(err);
@@ -2173,20 +2173,20 @@ export function copyText(text: string) {
 export function pasteText() {
     return new Promise<string>(function (resolve, reject) {
         try {
-            if (typeof navigator !== "undefined" && typeof navigator.clipboard !== "undefined" && typeof navigator.permissions !== "undefined") {
-                navigator.permissions.query({ name: "clipboardRead" as PermissionName }).then(function (permission) {
-                    if (permission.state === "granted" || permission.state === "prompt") {
+            if (typeof navigator !== 'undefined' && typeof navigator.clipboard !== 'undefined' && typeof navigator.permissions !== 'undefined') {
+                navigator.permissions.query({ name: 'clipboardRead' as PermissionName }).then(function (permission) {
+                    if (permission.state === 'granted' || permission.state === 'prompt') {
                         navigator.clipboard.readText().then(resolve, reject).catch(reject);
                     }
                     else {
-                        reject(new Error("Permission not granted!"));
+                        reject(new Error('Permission not granted!'));
                     }
                 });
             }
-            else if (document.queryCommandSupported && document.queryCommandSupported("paste")) {
+            else if (document.queryCommandSupported && document.queryCommandSupported('paste')) {
                 let textarea = _createTextarea();
                 try {
-                    document.execCommand("paste", false, null);
+                    document.execCommand('paste', false, null);
                     resolve(textarea.value);
                     document.body.removeChild(textarea);
                 }
@@ -2196,7 +2196,7 @@ export function pasteText() {
                 }
             }
             else {
-                reject(new Error("None of pasting methods are supported by this browser!"));
+                reject(new Error('None of pasting methods are supported by this browser!'));
             }
         } catch (err) {
             reject(err);
@@ -2206,10 +2206,10 @@ export function pasteText() {
 
 export function pasteSync() {
     let value = '';
-    if (document.queryCommandSupported && document.queryCommandSupported("paste")) {
+    if (document.queryCommandSupported && document.queryCommandSupported('paste')) {
         let textarea = _createTextarea();
         try {
-            document.execCommand("paste", false, null);
+            document.execCommand('paste', false, null);
             value = textarea.value;
         }
         catch (e) {
@@ -2320,7 +2320,7 @@ export function fSaveAs() {
             else {
                 // In other browsers I open a new window with the object URL.
                 // In order to trigger a download I have to use the generic binary data mime type
-                // "application/octet-stream" for mime types that browsers would display otherwise.
+                // 'application/octet-stream' for mime types that browsers would display otherwise.
                 // Of course the browser won't show a nice file name here.
                 if (BrowserSupportedMimeTypes[mimetype.split(';')[0]] === true) {
                     mimetype = 'application/octet-stream';
@@ -2362,7 +2362,7 @@ export function fSaveAs() {
             else {
                 // In other browsers I open a new window with the object URL.
                 // In order to trigger a download I have to use the generic binary data mime type
-                // "application/octet-stream" for mime types that browsers would display otherwise.
+                // 'application/octet-stream' for mime types that browsers would display otherwise.
                 // Of course the browser won't show a nice file name here.
                 if (BrowserSupportedMimeTypes[mimetype.split(';')[0]] === true) {
                     mimetype = 'application/octet-stream';
@@ -2420,7 +2420,7 @@ function _utf8() {
          * 
          * FEFF = 65279 = BOM
          * 
-         * string musicalbassclef = "" + (char)0xD834 + (char)0xDD1E; 119070 0x1D11E
+         * string musicalbassclef = '' + (char)0xD834 + (char)0xDD1E; 119070 0x1D11E
          */
         if ((c & 0x80) === 0)
             intc = c;
@@ -2529,8 +2529,8 @@ export function getScrollbarWidth() {
 export function openFileDialog(title?: string, multiple?: boolean, accept?: string) {
     return new Promise<FileList>((resolve, reject) => {
         let dialog = document.createElement('dialog');
-        if (typeof dialog.showModal !== "function") {
-            reject("Browser does not support dialogs.");
+        if (typeof dialog.showModal !== 'function') {
+            reject('Browser does not support dialogs.');
             return;
         }
         dialog.id = 'openFileDialog';
@@ -2623,8 +2623,8 @@ export function scrollChildIntoView(parent, child) {
         childRect.right > parentRect.right
     ) {
         child.scrollIntoView({
-            behavior: "smooth", // Optional for smooth scrolling
-            block: "nearest" // Scrolls to nearest edge of the parent
+            behavior: 'smooth', // Optional for smooth scrolling
+            block: 'nearest' // Scrolls to nearest edge of the parent
         });
     }
 }

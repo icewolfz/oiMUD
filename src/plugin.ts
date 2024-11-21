@@ -1,4 +1,4 @@
-import { Client } from "./client";
+import { Client } from './client';
 import { EventEmitter } from './events.js';
 import { MenuItem } from './types';
 

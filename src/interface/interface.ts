@@ -1,14 +1,14 @@
-import "../css/interface.css";
-import "../css/buttons.css";
-import "../css/theme.css";
+import '../css/interface.css';
+import '../css/buttons.css';
+import '../css/theme.css';
 import { initMenu } from './menu';
 import { Client } from '../client';
-import { Dialog, DialogButtons } from "./dialog";
+import { Dialog, DialogButtons } from './dialog';
 import { openFileDialog, readFile, debounce, copyText, pasteText, setSelectionRange, offset } from '../library';
 import { AdvEditor } from './adv.editor';
 import { SettingsDialog } from './settingsdialog';
-import { ProfilesDialog } from "./profilesdialog";
-import { HelpDialog } from "./help";
+import { ProfilesDialog } from './profilesdialog';
+import { HelpDialog } from './help';
 import { Contextmenu } from './contextmenu';
 
 declare global {
@@ -370,7 +370,7 @@ export function initializeInterface() {
         buildButtons();
     });
     client.on('notify', (title, message, options) => {
-        if (!client.getOption('enableNotifications') || !("Notification" in window)) return;
+        if (!client.getOption('enableNotifications') || !('Notification' in window)) return;
         options = options || { silent: true };
         if (!Object.prototype.hasOwnProperty.call(options, 'silent'))
             options.silent = true;
@@ -400,9 +400,9 @@ export function initializeInterface() {
                 client.emit('notify-closed', title, message);
                 client.raise('notify-closed', [title, message]);
             };
-        } else if (Notification.permission !== "denied") {
+        } else if (Notification.permission !== 'denied') {
             Notification.requestPermission().then((permission) => {
-                if (permission === "granted") {
+                if (permission === 'granted') {
                     let notify = new window.Notification(title, options);
                     notify.onclick = () => {
                         client.emit('notify-clicked', title, message);
@@ -1258,7 +1258,7 @@ function ExecuteButton(el, idx) {
     if (idx >= buttons.length) return false;
     let button = buttons[idx];
     if (!button.enabled) return false;
-    let ret;// = "";
+    let ret;// = '';
     switch (button.style) {
         case 1:
             ret = client.parseOutgoing(button.value);

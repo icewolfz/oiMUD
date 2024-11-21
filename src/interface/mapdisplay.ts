@@ -1,8 +1,8 @@
-import "../css/mapper.css";
-import { EventEmitter } from "../events";
-import { copyText } from "../library";
+import '../css/mapper.css';
+import { EventEmitter } from '../events';
+import { copyText } from '../library';
 import * as PF from './../lib/pathfinding3D.js'
-import { Map, Room, RoomDetails } from "../map";
+import { Map, Room, RoomDetails } from '../map';
 
 declare let fileSaveAs;
 
@@ -196,7 +196,7 @@ export class MapDisplay extends EventEmitter {
         this._canvas = this._document.createElement('canvas');
         this._canvas.id = this._container.id + '-canvas';
         this._canvas.classList.add('map-canvas');
-        this._canvas.style.touchAction = "none";
+        this._canvas.style.touchAction = 'none';
         this._canvas.tabIndex = 1;
         this._resizeCanvas()
         this._container.appendChild(this._canvas);

@@ -1,8 +1,8 @@
-import { Dialog, DialogButtons, DialogIcon } from "./dialog";
+import { Dialog, DialogButtons, DialogIcon } from './dialog';
 import { capitalize, clone, openFileDialog, readFile, scrollChildIntoView } from '../library';
-import { Settings, SettingList } from "../settings";
+import { Settings, SettingList } from '../settings';
 import { RGBColor } from '../lib/rgbcolor';
-import { removeHash } from "./interface";
+import { removeHash } from './interface';
 import { buildBreadcrumb } from './breadcrumb'
 
 // @ts-ignore

@@ -1,11 +1,11 @@
-import "../css/nav.css";
-import "../css/profiles.css";
-import { Dialog, DialogButtons, DialogIcon } from "./dialog";
-import { Splitter, Orientation, PanelAnchor } from "./splitter";
+import '../css/nav.css';
+import '../css/profiles.css';
+import { Dialog, DialogButtons, DialogIcon } from './dialog';
+import { Splitter, Orientation, PanelAnchor } from './splitter';
 import { capitalize, openFileDialog, readFile, keyCodeToChar, keyCharToCode, scrollChildIntoView, debounce, FilterArrayByKeyValue, htmlEncode } from '../library';
-import { removeHash, updateHash } from "./interface";
-import { ProfileCollection, MacroDisplay, Profile, Alias, Trigger, Button, Macro, Context } from "../profile";
-import { buildBreadcrumb } from "./breadcrumb";
+import { removeHash, updateHash } from './interface';
+import { ProfileCollection, MacroDisplay, Profile, Alias, Trigger, Button, Macro, Context } from '../profile';
+import { buildBreadcrumb } from './breadcrumb';
 
 declare let confirm_box;
 declare let fileSaveAs;
@@ -1156,7 +1156,7 @@ export class ProfilesDialog extends Dialog {
         else {
             menuItem = this._getItem(this._current.profile[collection], index, `${this._sanitizeID(this._current.profileName)}-${collection}`, `profiles/${encodeURIComponent(this._current.profileName)}/${collection}`, 2);
             m = m.querySelector('ul');
-            m.insertAdjacentHTML("beforeend", menuItem);
+            m.insertAdjacentHTML('beforeend', menuItem);
             m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
             this._profileEvents(m.lastChild);
         }

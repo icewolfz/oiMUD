@@ -1,9 +1,9 @@
-import "../css/help.css";
-import { Dialog } from "./dialog";
-import { Splitter, Orientation, PanelAnchor } from "./splitter";
-import { removeHash, updateHash, closeDropdowns } from "./interface";
-import { buildBreadcrumb } from "./breadcrumb";
-import { debounce, scrollChildIntoView, capitalize } from "../library";
+import '../css/help.css';
+import { Dialog } from './dialog';
+import { Splitter, Orientation, PanelAnchor } from './splitter';
+import { removeHash, updateHash, closeDropdowns } from './interface';
+import { buildBreadcrumb } from './breadcrumb';
+import { debounce, scrollChildIntoView, capitalize } from '../library';
 
 export class HelpDialog extends Dialog {
     private _menu;
@@ -327,7 +327,7 @@ export class HelpDialog extends Dialog {
             url: 'docs/menu.json',
             cache: false,
             type: 'GET',
-            dataType: "json",
+            dataType: 'json',
         }).done(data => {
             this._menuData = data;
             let nav = '';

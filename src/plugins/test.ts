@@ -205,25 +205,6 @@ export class Test extends Plugin {
                     }
                     sample += '\x1B[0m\n';
                 }
-                /*
-                for (int bold = 0; bold <= 9; bold++)
-                {
-                    if (bold == 6)
-                        continue;
-                    if (bold == 0)
-                        sample += "\x001B[0m " + string.Format("{0, -10}", "ESC[" + bg.ToString() + "m") + " | ";
-                    else
-                        sample += "\x001B[0m " + string.Format("{0, -10}", ((Ansi)bold).ToString()) + " | ";
-                    for (int fg = 30; fg <= 37; fg++)
-                    {
-                        if (bold == 0)
-                            sample += "\x001B[" + bg.ToString() + "m\x001B[" + fg.ToString() + "m [" + fg.ToString() + "m  ";
-                        else
-                            sample += "\x001B[" + bg.ToString() + "m\x001B[" + bold.ToString() + ";" + fg.ToString() + "m [" + bold.ToString() + ";" + fg.ToString() + "m";
-                    }
-                    sample += "\x001B[0m\n";
-                }
-                */
                 sample += '------------------------------------------------------------------------------------\n';
             }
             this.client.print(sample, true);
@@ -674,13 +655,13 @@ export class Test extends Plugin {
                 overall: 4
             });
             this.client.emit('received-GMCP', 'oMUD.weapons', {
-                "right hand": { "name": "knife", "type": "knife", "subtype": "dagger", "material": "iron", "quality": "pooor", "dominant": 1 },
-                "left hand": { "name": "club", "type": "blunt", "subtype": "club", "material": "wood", "quality": "ordinary", "dominant": 0 }
+                'right hand': { 'name': 'knife', 'type': 'knife', 'subtype': 'dagger', 'material': 'iron', 'quality': 'poor', 'dominant': 1 },
+                'left hand': { 'name': 'club', 'type': 'blunt', 'subtype': 'club', 'material': 'wood', 'quality': 'ordinary', 'dominant': 0 }
             });
             if (data && data.args && data.args.length && data.args[0] === 'night')
                 this.client.emit('received-GMCP', 'oMUD.Environment', { tod: 'night', moons: ['waning', 'full', 'waxing'] });
             else
-                this.client.emit('received-GMCP', 'oMUD.Environment', { "tod": "day" });
+                this.client.emit('received-GMCP', 'oMUD.Environment', { 'tod': 'day' });
             this.client.emit('received-GMCP', 'oMUD.skill', { skill: 'knife', percent: 60 });
             this.client.emit('received-GMCP', 'oMUD.skill', { skill: 'knife', amount: 100, bonus: 5, category: 'weapon' });
             this.client.emit('received-GMCP', 'oMUD.skill', { skill: 'small sword', percent: 100 });
@@ -692,13 +673,13 @@ export class Test extends Plugin {
                         found = true;
                         let s = parseInt(arg.split(':')[1], 10);
                         for (let m = 0; m < s; m++)
-                            this.client.emit('received-GMCP', 'oMUD.party', { "action": "update", "name": "Party " + (m + 1), "hp": 50, race: "human", "id": m });
+                            this.client.emit('received-GMCP', 'oMUD.party', { 'action': 'update', 'name': 'Party ' + (m + 1), 'hp': 50, race: 'human', 'id': m });
                     }
                 });
             }
             if (!found) {
-                this.client.emit('received-GMCP', 'oMUD.party', { "action": "update", "name": "Elf", "hp": 50, race: "elf", "id": 1 });
-                this.client.emit('received-GMCP', 'oMUD.party', { "action": "update", "name": "Dwarf", "hp": 100, race: "dwarf", "id": 2 });
+                this.client.emit('received-GMCP', 'oMUD.party', { 'action': 'update', 'name': 'Elf', 'hp': 50, race: 'elf', 'id': 1 });
+                this.client.emit('received-GMCP', 'oMUD.party', { 'action': 'update', 'name': 'Dwarf', 'hp': 100, race: 'dwarf', 'id': 2 });
             }
             found = false
             if (data && data.args && data.args.length) {
@@ -707,14 +688,14 @@ export class Test extends Plugin {
                         found = true;
                         let s = parseInt(arg.split(':')[1], 10);
                         for (let m = 0; m < s; m++)
-                            this.client.emit('received-GMCP', 'oMUD.combat', { "action": "update", "name": "Monster " + (m + 1), "hp": 50, race: "orc", "id": m, order: 0 });
+                            this.client.emit('received-GMCP', 'oMUD.combat', { 'action': 'update', 'name': 'Monster ' + (m + 1), 'hp': 50, race: 'orc', 'id': m, order: 0 });
                     }
                 });
             }
             if (!found) {
-                this.client.emit('received-GMCP', 'oMUD.combat', { "action": "update", "name": "Monster", "hp": 50, race: "orc", "id": 3, order: 0 });
-                this.client.emit('received-GMCP', 'oMUD.combat', { "action": "update", "name": "Monster 2", "hp": 100, race: "dragon", "id": 4, order: 1 });
-                this.client.emit('received-GMCP', 'oMUD.combat', { "action": "update", "name": "Monster with extra super long name to test", "hp": 100, race: "dragon", "id": 5, order: 2 });
+                this.client.emit('received-GMCP', 'oMUD.combat', { 'action': 'update', 'name': 'Monster', 'hp': 50, race: 'orc', 'id': 3, order: 0 });
+                this.client.emit('received-GMCP', 'oMUD.combat', { 'action': 'update', 'name': "Monster 2", 'hp': 100, race: 'dragon', 'id': 4, order: 1 });
+                this.client.emit('received-GMCP', 'oMUD.combat', { 'action': 'update', 'name': 'Monster with extra super long name to test', 'hp': 100, race: 'dragon', 'id': 5, order: 2 });
             }
         };
 

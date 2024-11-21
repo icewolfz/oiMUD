@@ -1,11 +1,11 @@
-import "../css/status.css";
-import "../css/status.theme.css";
+import '../css/status.css';
+import '../css/status.theme.css';
 import { Client } from './../client';
 import { Plugin } from '../plugin';
 import { MenuItem } from '../types';
-import { Dialog } from "../interface/dialog";
-import { removeHash } from "../interface/interface";
-import { capitalize } from "../library";
+import { Dialog } from '../interface/dialog';
+import { removeHash } from '../interface/interface';
+import { capitalize } from '../library';
 
 export enum UpdateType { none = 0, sortCombat = 1, sortParty = 2, overall = 4, xp = 8, status = 16 }
 
@@ -1149,7 +1149,7 @@ export class Status extends Plugin {
                 let body = '<div class="category" id="' + cat.toLowerCase() + '">';
                 body += '<div class="category-title">' + cat + '</div>';
                 body += '<div class="category-body" id="' + (data.category || 'default') + 'Body">' + this._createLabel(skill) + '</div></div>';
-                nodes = this._skillsDialog.body.querySelectorAll(".category");
+                nodes = this._skillsDialog.body.querySelectorAll('.category');
                 for (var n = 0, nl = nodes.length; n < nl; n++) {
                     if (nodes[n].children[0].textContent < cat)
                         continue;
@@ -1165,7 +1165,7 @@ export class Status extends Plugin {
                 nodes = this._skillsDialog.body.querySelector(`#${(data.category || 'default')}Body`).children;
                 found = 0;
                 for (var n = 0, nl = nodes.length; n < nl; n++) {
-                    if (nodes[n].getAttribute("title") < skill)
+                    if (nodes[n].getAttribute('title') < skill)
                         continue;
                     nodes[n].insertAdjacentHTML('beforebegin', this._createLabel(skill));
                     found = 1;

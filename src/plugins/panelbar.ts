@@ -1,16 +1,16 @@
-import "../css/panelbar.css";
-import "../css/panelbar.theme.css";
+import '../css/panelbar.css';
+import '../css/panelbar.theme.css';
 import { Client } from '../client';
 import { Plugin } from '../plugin';
 import { MenuItem } from '../types';
 import { MapDisplay } from '../interface/mapdisplay';
-import { Display } from "../display";
-import { Mapper } from "./mapper";
-import { Chat } from "./chat";
-import { Settings } from "../settings";
-import { Splitter, Orientation, PanelAnchor } from "../interface/splitter";
-import { isMobile } from "../library";
-import { Room } from "../map";
+import { Display } from '../display';
+import { Mapper } from './mapper';
+import { Chat } from './chat';
+import { Settings } from '../settings';
+import { Splitter, Orientation, PanelAnchor } from '../interface/splitter';
+import { isMobile } from '../library';
+import { Room } from '../map';
 
 interface PanelOptions {
     client: Client;

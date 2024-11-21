@@ -919,9 +919,9 @@ export class Input extends EventEmitter {
                     return parseInt(args[0], 10);
                 else if (args[0].match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
                     return parseFloat(args[0]);
-                else if (args[0] === "true")
+                else if (args[0] === 'true')
                     return 1;
-                else if (args[0] === "false")
+                else if (args[0] === 'false')
                     return 0;
                 return 0;
             },
@@ -961,9 +961,9 @@ export class Input extends EventEmitter {
                 args[0] = args[0].compile().evaluate(scope).toString();
                 if (args[0].match(/^\s*?[-|+]?\d+\s*?$/) || args[0].match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
                     return parseFloat(args[0]);
-                else if (args[0] === "true")
+                else if (args[0] === 'true')
                     return 1.0;
-                else if (args[0] === "false")
+                else if (args[0] === 'false')
                     return 0.0;
                 return 0;
             },
@@ -3399,22 +3399,22 @@ export class Input extends EventEmitter {
                         }
                         if (n === 'all') {
                             tmp = 'Current settings:\n';
-                            //this.client.echo("Current settings:", -7, -8, true, true);
+                            //this.client.echo('Current settings:', -7, -8, true, true);
                             for (i = 0, al = SettingList.length; i < al; i++) {
                                 switch (SettingList[i][2]) {
                                     case 0:
                                     case 2:
-                                        //this.client.echo("    "+_SettingList[i][0]+": "+getSetting(_SettingList[i][0]), -7, -8, true, true);
+                                        //this.client.echo('    '+_SettingList[i][0]+': '+getSetting(_SettingList[i][0]), -7, -8, true, true);
                                         tmp += '    ' + SettingList[i][0] + ': ' + this.client.getOption(SettingList[n][1] || SettingList[n][0]) + '\n';
                                         break;
                                     case 1:
                                     case 3:
                                         if (this.client.getOption(SettingList[n][1] || SettingList[n][0]))
                                             tmp += '    ' + SettingList[i][0] + ': true\n';
-                                        //this.client.echo("    "+_SettingList[i][0]+": true", -7, -8, true, true);
+                                        //this.client.echo('    '+_SettingList[i][0]+': true', -7, -8, true, true);
                                         else
                                             tmp += '    ' + SettingList[i][0] + ': false\n';
-                                        //this.client.echo("    "+_SettingList[i][0]+": false", -7, -8, true, true);
+                                        //this.client.echo('    '+_SettingList[i][0]+': false', -7, -8, true, true);
                                         break;
                                 }
                             }
@@ -4328,7 +4328,7 @@ export class Input extends EventEmitter {
                     i = i.substr(1, i.length - 2);
                 i = this.parseInline(i);
                 if (!isValidIdentifier(i))
-                    throw new Error("Invalid variable name");
+                    throw new Error('Invalid variable name');
                 if (args.length === 0)
                     return this.client.variables[i]?.toString();
                 args = args.join(' ');
@@ -4339,9 +4339,9 @@ export class Input extends EventEmitter {
                     this.client.variables[i] = parseInt(args, 10);
                 else if (args.match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
                     this.client.variables[i] = parseFloat(args);
-                else if (args === "true")
+                else if (args === 'true')
                     this.client.variables[i] = true;
-                else if (args === "false")
+                else if (args === 'false')
                     this.client.variables[i] = false;
                 else
                     this.client.variables[i] = this.stripQuotes(args);
@@ -4431,7 +4431,7 @@ export class Input extends EventEmitter {
                         this.client.display.scrollDisplay();
                 }
                 else if (args.length === 1) {
-                    if (args[0] === "0" || args[0] === "false") {
+                    if (args[0] === '0' || args[0] === 'false') {
                         if (this.scrollLock) {
                             this.scrollLock = false;
                             this.client.display.scrollDisplay();
@@ -4493,7 +4493,7 @@ export class Input extends EventEmitter {
                         //state
                         if (args[0].match(/^\s*?[-|+]?\d+\s*?$/)) {
                             if (!this._LastTrigger)
-                                throw new Error("No trigger has fired yet, unable to set state");
+                                throw new Error('No trigger has fired yet, unable to set state');
                             trigger = this._LastTrigger;
                             n = trigger.state;
                             trigger.state = parseInt(args[0], 10);
@@ -4526,7 +4526,7 @@ export class Input extends EventEmitter {
                                 }
                             }
                             if (!trigger)
-                                throw new Error("Trigger not found: " + args[0]);
+                                throw new Error('Trigger not found: ' + args[0]);
                             n = trigger.state;
                             trigger.state = 0;
                         }
@@ -4562,7 +4562,7 @@ export class Input extends EventEmitter {
                                 }
                             }
                             if (!trigger)
-                                throw new Error("Trigger not found: " + args[0]);
+                                throw new Error('Trigger not found: ' + args[0]);
                             n = trigger.state;
                             trigger.state = parseInt(args[1], 10);
                         }
@@ -4578,7 +4578,7 @@ export class Input extends EventEmitter {
                                 return t.name === args[0] || t.pattern === args[0];
                             });
                             if (!trigger)
-                                throw new Error("Trigger not found: " + args[0] + " in profile: " + profile.name);
+                                throw new Error('Trigger not found: ' + args[0] + ' in profile: ' + profile.name);
                             n = trigger.state;
                             trigger.state = 0;
                         }
@@ -4596,7 +4596,7 @@ export class Input extends EventEmitter {
                             return t.name === args[0] || t.pattern === args[0];
                         });
                         if (!trigger)
-                            throw new Error("Trigger not found: " + args[0]);
+                            throw new Error('Trigger not found: ' + args[0]);
                         n = trigger.state;
                         trigger.state = parseInt(args[1], 10);
                         break;
@@ -4605,7 +4605,7 @@ export class Input extends EventEmitter {
                 }
                 if (trigger.state < 0 || trigger.state > trigger.triggers.length) {
                     trigger.state = n;
-                    throw new Error("Trigger state must be greater than or equal to 0 or less than or equal to " + trigger.triggers.length);
+                    throw new Error('Trigger state must be greater than or equal to 0 or less than or equal to ' + trigger.triggers.length);
                 }
                 i = trigger.fired;
                 trigger.fired = false;
@@ -4636,11 +4636,11 @@ export class Input extends EventEmitter {
                         //state
                         if (args[0].match(/^\s*?[-|+]?\d+\s*?$/)) {
                             if (!this._LastTrigger)
-                                throw new Error("No trigger has fired yet, unable to set state");
+                                throw new Error('No trigger has fired yet, unable to set state');
                             trigger = this._LastTrigger;
                             n = parseInt(args[0], 10)
                             if (n < 0 || n > trigger.triggers.length)
-                                throw new Error("Trigger state must be greater than or equal to 0 or less than or equal to " + trigger.triggers.length);
+                                throw new Error('Trigger state must be greater than or equal to 0 or less than or equal to ' + trigger.triggers.length);
                             if (n === 0) {
                                 i = trigger.fired;
                                 trigger.fired = true;
@@ -4651,26 +4651,26 @@ export class Input extends EventEmitter {
                             }
                         }
                         else
-                            throw new Error("Trigger state must be greater than or equal to 0 or less than or equal to " + trigger.triggers.length);
+                            throw new Error('Trigger state must be greater than or equal to 0 or less than or equal to ' + trigger.triggers.length);
                         break;
                     case 2:
                         //state value - set fired to value for last trigger
                         if (args[0].match(/^\s*?[-|+]?\d+\s*?$/)) {
                             if (!this._LastTrigger)
-                                throw new Error("No trigger has fired yet, unable to set state");
+                                throw new Error('No trigger has fired yet, unable to set state');
                             trigger = this._LastTrigger;
                             n = parseInt(args[0], 10)
                             if (n < 0 || n > trigger.triggers.length)
-                                throw new Error("Trigger state must be greater than or equal to 0 or less than or equal to " + trigger.triggers.length);
-                            if (args[1] !== "0" && args[1] !== "1" && args[1] !== "true" && args[1] !== "false")
-                                throw new Error("Value must be 0, 1, true, or false");
+                                throw new Error('Trigger state must be greater than or equal to 0 or less than or equal to ' + trigger.triggers.length);
+                            if (args[1] !== '0' && args[1] !== '1' && args[1] !== 'true' && args[1] !== 'false')
+                                throw new Error('Value must be 0, 1, true, or false');
                             if (n === 0) {
                                 i = trigger.fired;
-                                trigger.fired = args[1] === "1" || args[1] === "true";
+                                trigger.fired = args[1] === '1' || args[1] === 'true';
                             }
                             else {
                                 i = trigger.triggers[n - 1].fired;
-                                trigger.triggers[n - 1].fired = args[1] === "1" || args[1] === "true";
+                                trigger.triggers[n - 1].fired = args[1] === '1' || args[1] === 'true';
                             }
                         }
                         //pattern|name state - set trigger state fired to true
@@ -4701,10 +4701,10 @@ export class Input extends EventEmitter {
                                 }
                             }
                             if (!trigger)
-                                throw new Error("Trigger not found: " + args[0]);
+                                throw new Error('Trigger not found: ' + args[0]);
                             n = parseInt(args[1], 10)
                             if (n < 0 || n > trigger.triggers.length)
-                                throw new Error("Trigger state must be greater than or equal to 0 or less than or equal to " + trigger.triggers.length);
+                                throw new Error('Trigger state must be greater than or equal to 0 or less than or equal to ' + trigger.triggers.length);
                             if (n === 0) {
                                 i = trigger.fired;
                                 trigger.fired = true;
@@ -4717,7 +4717,7 @@ export class Input extends EventEmitter {
                         break;
                     case 3:
                         //pattern|name state profile - set trigger state to fired in profile
-                        if (args[2] === "0" && args[2] !== "1" && args[2] !== "true" && args[21] !== "false") {
+                        if (args[2] === '0' && args[2] !== '1' && args[2] !== 'true' && args[21] !== 'false') {
                             profile = args[2];
                             if (this.client.profiles.contains(profile))
                                 profile = this.client.profiles.items[profile.toLowerCase()];
@@ -4728,10 +4728,10 @@ export class Input extends EventEmitter {
                                 return t.name === args[0] || t.pattern === args[0];
                             });
                             if (!trigger)
-                                throw new Error("Trigger not found: " + args[0] + " in profile: " + profile.name);
+                                throw new Error('Trigger not found: ' + args[0] + ' in profile: ' + profile.name);
                             n = parseInt(args[1], 10)
                             if (n < 0 || n > trigger.triggers.length)
-                                throw new Error("Trigger state must be greater than or equal to 0 or less than or equal to " + trigger.triggers.length);
+                                throw new Error('Trigger state must be greater than or equal to 0 or less than or equal to ' + trigger.triggers.length);
                             if (n === 0) {
                                 i = trigger.fired;
                                 trigger.fired = true;
@@ -4769,17 +4769,17 @@ export class Input extends EventEmitter {
                                 }
                             }
                             if (!trigger)
-                                throw new Error("Trigger not found: " + args[0]);
+                                throw new Error('Trigger not found: ' + args[0]);
                             n = parseInt(args[1], 10)
                             if (n < 0 || n > trigger.triggers.length)
-                                throw new Error("Trigger state must be greater than or equal to 0 or less than or equal to " + trigger.triggers.length);
+                                throw new Error('Trigger state must be greater than or equal to 0 or less than or equal to ' + trigger.triggers.length);
                             if (n === 0) {
                                 i = trigger.fired;
-                                trigger.fired = args[2] === "1" || args[2] === "true";
+                                trigger.fired = args[2] === '1' || args[2] === 'true';
                             }
                             else {
                                 i = trigger.triggers[n - 1].fired;
-                                trigger.triggers[n - 1].fired = args[2] === "1" || args[2] === "true";
+                                trigger.triggers[n - 1].fired = args[2] === '1' || args[2] === 'true';
                             }
                         }
                         break;
@@ -4795,16 +4795,16 @@ export class Input extends EventEmitter {
                             return t.name === args[0] || t.pattern === args[0];
                         });
                         if (!trigger)
-                            throw new Error("Trigger not found: " + args[0] + " in profile: " + profile.name);
-                        if (args[2] !== "0" && args[2] !== "1" && args[2] !== "true" && args[2] !== "false")
-                            throw new Error("Value must be 0, 1, true, or false");
+                            throw new Error('Trigger not found: ' + args[0] + ' in profile: ' + profile.name);
+                        if (args[2] !== '0' && args[2] !== '1' && args[2] !== 'true' && args[2] !== 'false')
+                            throw new Error('Value must be 0, 1, true, or false');
                         if (n === 0) {
                             i = trigger.fired;
-                            trigger.fired = args[2] === "1" || args[2] === "true";
+                            trigger.fired = args[2] === '1' || args[2] === 'true';
                         }
                         else {
                             i = trigger.triggers[n - 1].fired;
-                            trigger.triggers[n - 1].fired = args[2] === "1" || args[2] === "true";
+                            trigger.triggers[n - 1].fired = args[2] === '1' || args[2] === 'true';
                         }
                         break;
                     default:
@@ -5328,7 +5328,7 @@ export class Input extends EventEmitter {
                         i = i.substr(1, i.length - 2);
                     i = this.parseInline(i);
                     if (!isValidIdentifier(i))
-                        throw new Error("Invalid variable name");
+                        throw new Error('Invalid variable name');
                     args = args.map(a => this.parseInline(this.stripQuotes(a)))
                     if (args.length === 3 && args[2] && args[2].toLowerCase() === 'true')
                         args[2] = true;
@@ -5337,9 +5337,9 @@ export class Input extends EventEmitter {
                         this.client.variables[i] = parseInt(args, 10);
                     else if (args?.match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
                         this.client.variables[i] = parseFloat(args);
-                    else if (args === "true")
+                    else if (args === 'true')
                         this.client.variables[i] = true;
-                    else if (args === "false")
+                    else if (args === 'false')
                         this.client.variables[i] = false;
                     else
                         this.client.variables[i] = args;
@@ -7347,9 +7347,9 @@ export class Input extends EventEmitter {
                 args[0] = this.stripQuotes(args[0], true);
                 if (args[0].match(/^\s*?[-|+]?\d+\s*?$/) || args[0].match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
                     return parseFloat(args[0]);
-                else if (args[0] === "true")
+                else if (args[0] === 'true')
                     return 1.0;
-                else if (args[0] === "false")
+                else if (args[0] === 'false')
                     return 0.0;
                 return 0;
             case 'isdefined':
@@ -7564,7 +7564,7 @@ export class Input extends EventEmitter {
                 else if (args.length === 3) {
                     mod = parseInt(args[1], 10);
                     if (isNaN(mod))
-                        throw new Error("Invalid time for alarm");
+                        throw new Error('Invalid time for alarm');
                     args[2] = this.stripQuotes(args[2].trim());
                     for (; c < max; c++) {
                         //only main state counts here

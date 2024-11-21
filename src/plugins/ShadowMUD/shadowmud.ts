@@ -87,7 +87,7 @@ export class ShadowMUD extends Plugin {
             const frame = document.createElement('iframe');
             //<iframe id="smhelpframe" style="z-index:100;border:0px;margin:0px;width:100%;height:100%;overflow:auto" src="/OoMUD/smhelp.php"></iframe>
             frame.src = 'http://shadowmud.com/OoMUD/smhelp.php';
-            frame.id = "smhelp-frame";
+            frame.id = 'smhelp-frame';
             frame.classList.add('full-page');
             this._help.body.append(frame);
             this._help.on('closed', () => {

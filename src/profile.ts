@@ -1325,11 +1325,11 @@ export class ProfileCollection {
         this.SortByPriority();
     }
 
-    public add(profile: Profile, noUpdate?:boolean) {
+    public add(profile: Profile, noUpdate?: boolean) {
         if (!profile)
             return;
         this.items[profile.name.toLowerCase()] = profile;
-        if(!noUpdate)
+        if (!noUpdate)
             this.update();
     }
 
@@ -1692,31 +1692,31 @@ export function convertPattern(pattern: string, client?) {
             case convertPatternState.Percent:
                 switch (c) {
                     case 'd':
-                        stringBuilder.push("\\d+");
+                        stringBuilder.push('\\d+');
                         state = convertPatternState.None;
                         break;
                     case 'n':
-                        stringBuilder.push("[+-]?\\d+");
+                        stringBuilder.push('[+-]?\\d+');
                         state = convertPatternState.None;
                         break;
                     case 'w':
-                        stringBuilder.push("\\w");
+                        stringBuilder.push('\\w');
                         state = convertPatternState.None;
                         break;
                     case 'a':
-                        stringBuilder.push("[a-zA-Z0-9]*");
+                        stringBuilder.push('[a-zA-Z0-9]*');
                         state = convertPatternState.None;
                         break;
                     case 's':
-                        stringBuilder.push("\\s*");
+                        stringBuilder.push('\\s*');
                         state = convertPatternState.None;
                         break;
                     case 'x':
-                        stringBuilder.push("\\S*");
+                        stringBuilder.push('\\S*');
                         state = convertPatternState.None;
                         break;
                     case 'y':
-                        stringBuilder.push("\\S*");
+                        stringBuilder.push('\\S*');
                         state = convertPatternState.None;
                         break;
                     case 'p':
@@ -1731,7 +1731,7 @@ export function convertPattern(pattern: string, client?) {
                         state = convertPatternState.None;
                         break;
                     case 'e':
-                        stringBuilder.push("\x1b");
+                        stringBuilder.push('\x1b');
                         state = convertPatternState.None;
                         break;
                     case '/': // %/pattern/%

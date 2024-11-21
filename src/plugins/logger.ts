@@ -1,11 +1,11 @@
-import "../css/logger.css";
+import '../css/logger.css';
 import { Plugin } from '../plugin';
 import { MenuItem, } from '../types';
 import { Dialog, DialogButtons } from '../interface/dialog';
-import { Splitter, Orientation, PanelAnchor } from "../interface/splitter";
-import { removeHash, updateHash, closeDropdowns } from "../interface/interface";
+import { Splitter, Orientation, PanelAnchor } from '../interface/splitter';
+import { removeHash, updateHash, closeDropdowns } from '../interface/interface';
 import { capitalize, scrollChildIntoView } from '../library';
-import { buildBreadcrumb } from "../interface/breadcrumb";
+import { buildBreadcrumb } from '../interface/breadcrumb';
 
 declare let localforage;
 declare let confirm_box;

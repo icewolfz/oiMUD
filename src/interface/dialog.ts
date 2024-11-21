@@ -1,6 +1,6 @@
-import "../css/dialog.css";
-import { EventEmitter } from "../events";
-import { debounce } from "../library";
+import '../css/dialog.css';
+import { EventEmitter } from '../events';
+import { debounce } from '../library';
 
 export interface DialogOptions {
     title?: string;
@@ -99,36 +99,36 @@ export class Dialog extends EventEmitter {
         if ((this._resize.type & ResizeType.Right) === ResizeType.Right) {
             t = this._resize.width + e.clientX - this._resize.x;
             if (t > window.innerWidth) t = window.innerWidth;
-            this._dialog.style.width = t + "px";
+            this._dialog.style.width = t + 'px';
         }
         if ((this._resize.type & ResizeType.Bottom) === ResizeType.Bottom) {
             t = this._resize.height + e.clientY - this._resize.y;
             if (t > window.innerWidth - 16) t = window.innerHeight - 16;
-            this._dialog.style.height = t + "px";
+            this._dialog.style.height = t + 'px';
         }
         if ((this._resize.type & ResizeType.Top) === ResizeType.Top) {
             t = this._resize.height - e.clientY + this._resize.y - this._resize.borderHeight;
             if (t + this._resize.borderHeight > window.innerHeight) t = window.innerHeight;
             if (t + this._resize.borderHeight <= this._resize.minHeight) {
-                this._dialog.style.height = this._resize.minHeight + "px";
+                this._dialog.style.height = this._resize.minHeight + 'px';
                 return;
             }
-            this._dialog.style.height = t + "px";
+            this._dialog.style.height = t + 'px';
             t = e.clientY;
             if (t > window.innerHeight) t = window.innerHeight;
-            this._dialog.style.top = t + "px";
+            this._dialog.style.top = t + 'px';
         }
         if ((this._resize.type & ResizeType.Left) === ResizeType.Left) {
             t = this._resize.width - e.clientX + this._resize.x - this._resize.borderWidth;
             if (t + this._resize.borderWidth > window.innerWidth) t = window.innerWidth;
             if (t + this._resize.borderWidth <= this._resize.minWidth) {
-                this._dialog.style.width = this._resize.minWidth + "px";
+                this._dialog.style.width = this._resize.minWidth + 'px';
                 return;
             }
-            this._dialog.style.width = t + "px";
+            this._dialog.style.width = t + 'px';
             t = e.clientX;
             if (t > window.innerWidth) t = window.innerWidth;
-            this._dialog.style.left = t + "px";
+            this._dialog.style.left = t + 'px';
         }
         if (this._footer.style.display !== 'none')
             this._body.style.bottom = (this._footer.clientHeight + 1) + 'px';
@@ -141,36 +141,36 @@ export class Dialog extends EventEmitter {
         if ((this._resize.type & ResizeType.Right) === ResizeType.Right) {
             t = this._resize.width + e.touches[0].clientX - this._resize.x;
             if (t > window.innerWidth) t = window.innerWidth;
-            this._dialog.style.width = t + "px";
+            this._dialog.style.width = t + 'px';
         }
         if ((this._resize.type & ResizeType.Bottom) === ResizeType.Bottom) {
             t = this._resize.height + e.touches[0].clientY - this._resize.y;
             if (t > window.innerWidth) t = window.innerHeight;
-            this._dialog.style.height = t + "px";
+            this._dialog.style.height = t + 'px';
         }
         if ((this._resize.type & ResizeType.Top) === ResizeType.Top) {
             t = this._resize.height - e.touches[0].clientY + this._resize.y - this._resize.borderHeight;
             if (t + this._resize.borderHeight > window.innerHeight) t = window.innerHeight;
             if (t + this._resize.borderHeight <= this._resize.minHeight) {
-                this._dialog.style.height = this._resize.minHeight + "px";
+                this._dialog.style.height = this._resize.minHeight + 'px';
                 return;
             }
-            this._dialog.style.height = t + "px";
+            this._dialog.style.height = t + 'px';
             t = e.touches[0].clientY;
             if (t > window.innerHeight) t = window.innerHeight;
-            this._dialog.style.top = t + "px";
+            this._dialog.style.top = t + 'px';
         }
         if ((this._resize.type & ResizeType.Left) === ResizeType.Left) {
             t = this._resize.width - e.touches[0].clientX + this._resize.x - this._resize.borderWidth;
             if (t + this._resize.borderWidth > window.innerWidth) t = window.innerWidth;
             if (t + this._resize.borderWidth <= this._resize.minWidth) {
-                this._dialog.style.width = this._resize.minWidth + "px";
+                this._dialog.style.width = this._resize.minWidth + 'px';
                 return;
             }
-            this._dialog.style.width = t + "px";
+            this._dialog.style.width = t + 'px';
             t = e.touches[0].clientX;
             if (t > window.innerWidth) t = window.innerWidth;
-            this._dialog.style.left = t + "px";
+            this._dialog.style.left = t + 'px';
         }
         if (this._footer.style.display !== 'none')
             this._body.style.bottom = (this._footer.clientHeight + 1) + 'px';
@@ -178,10 +178,10 @@ export class Dialog extends EventEmitter {
     };
 
     private _resizeStopDrag = e => {
-        this._document.documentElement.removeEventListener("mousemove", this._resizeDoDrag);
-        this._document.documentElement.removeEventListener("mouseup", this._resizeStopDrag);
-        this._document.documentElement.removeEventListener("touchmove", this._resizeTouchDrag);
-        this._document.documentElement.removeEventListener("touchend", this._resizeStopDrag);
+        this._document.documentElement.removeEventListener('mousemove', this._resizeDoDrag);
+        this._document.documentElement.removeEventListener('mouseup', this._resizeStopDrag);
+        this._document.documentElement.removeEventListener('touchmove', this._resizeTouchDrag);
+        this._document.documentElement.removeEventListener('touchend', this._resizeStopDrag);
         const styles = this._window.getComputedStyle(this._dialog);
         this._state.x = parseInt(styles.left, 10);;
         this._state.width = parseInt(styles.width, 10);
@@ -324,7 +324,7 @@ export class Dialog extends EventEmitter {
         else
             this._dialog = this._document.createElement('dialog');
 
-        if (typeof this._dialog.showModal !== "function") {
+        if (typeof this._dialog.showModal !== 'function') {
             this._dialog.showModal = () => {
                 if (this._dialog.open) return;
                 this._dialog.style.display = 'block';
@@ -369,7 +369,7 @@ export class Dialog extends EventEmitter {
             };
         }
         //poly fill functions if not found to fake dialog
-        if (typeof this._dialog.show !== "function") {
+        if (typeof this._dialog.show !== 'function') {
             this._dialog.show = () => {
                 if (this._dialog.open) return;
                 this._dialog.style.display = 'block';
@@ -379,7 +379,7 @@ export class Dialog extends EventEmitter {
                 this._dialog.dataset.show = '' + this._state.show;
             };
         }
-        if (typeof this._dialog.close !== "function") {
+        if (typeof this._dialog.close !== 'function') {
             this._dialog.close = () => {
                 this._dialog.style.display = '';
                 this._dialog.style.visibility = '';
@@ -563,53 +563,53 @@ export class Dialog extends EventEmitter {
 
         if (this.resizable) {
             this._dialog.classList.add('resizable');
-            let right = this._document.createElement("div");
-            right.className = "resizer-right";
+            let right = this._document.createElement('div');
+            right.className = 'resizer-right';
             this._dialog.appendChild(right);
-            right.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Right) }, false);
-            right.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Right) }, { passive: true });
+            right.addEventListener('mousedown', e => { this._initResize(e, ResizeType.Right) }, false);
+            right.addEventListener('touchstart', e => { this._initResizeTouch(e, ResizeType.Right) }, { passive: true });
 
-            let bottom = this._document.createElement("div");
-            bottom.className = "resizer-bottom";
+            let bottom = this._document.createElement('div');
+            bottom.className = 'resizer-bottom';
             this._dialog.appendChild(bottom);
-            bottom.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Bottom) }, false);
-            bottom.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Bottom) }, { passive: true });
+            bottom.addEventListener('mousedown', e => { this._initResize(e, ResizeType.Bottom) }, false);
+            bottom.addEventListener('touchstart', e => { this._initResizeTouch(e, ResizeType.Bottom) }, { passive: true });
 
-            let corner = this._document.createElement("div");
-            corner.className = "resizer-se";
+            let corner = this._document.createElement('div');
+            corner.className = 'resizer-se';
             this._dialog.appendChild(corner);
-            corner.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Right | ResizeType.Bottom) }, false);
-            corner.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Right | ResizeType.Bottom) }, { passive: true });
+            corner.addEventListener('mousedown', e => { this._initResize(e, ResizeType.Right | ResizeType.Bottom) }, false);
+            corner.addEventListener('touchstart', e => { this._initResizeTouch(e, ResizeType.Right | ResizeType.Bottom) }, { passive: true });
 
-            corner = this._document.createElement("div");
-            corner.className = "resizer-ne";
+            corner = this._document.createElement('div');
+            corner.className = 'resizer-ne';
             this._dialog.appendChild(corner);
-            corner.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Right | ResizeType.Top) }, false);
-            corner.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Right | ResizeType.Top) }, { passive: true });
+            corner.addEventListener('mousedown', e => { this._initResize(e, ResizeType.Right | ResizeType.Top) }, false);
+            corner.addEventListener('touchstart', e => { this._initResizeTouch(e, ResizeType.Right | ResizeType.Top) }, { passive: true });
 
-            corner = this._document.createElement("div");
-            corner.className = "resizer-nw";
+            corner = this._document.createElement('div');
+            corner.className = 'resizer-nw';
             this._dialog.appendChild(corner);
-            corner.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Left | ResizeType.Top) }, false);
-            corner.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Left | ResizeType.Top) }, { passive: true });
+            corner.addEventListener('mousedown', e => { this._initResize(e, ResizeType.Left | ResizeType.Top) }, false);
+            corner.addEventListener('touchstart', e => { this._initResizeTouch(e, ResizeType.Left | ResizeType.Top) }, { passive: true });
 
-            corner = this._document.createElement("div");
-            corner.className = "resizer-sw";
+            corner = this._document.createElement('div');
+            corner.className = 'resizer-sw';
             this._dialog.appendChild(corner);
-            corner.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Left | ResizeType.Bottom) }, false);
-            corner.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Left | ResizeType.Bottom) }, { passive: true });
+            corner.addEventListener('mousedown', e => { this._initResize(e, ResizeType.Left | ResizeType.Bottom) }, false);
+            corner.addEventListener('touchstart', e => { this._initResizeTouch(e, ResizeType.Left | ResizeType.Bottom) }, { passive: true });
 
-            let left = this._document.createElement("div");
-            left.className = "resizer-left";
+            let left = this._document.createElement('div');
+            left.className = 'resizer-left';
             this._dialog.appendChild(left);
-            left.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Left) }, false);
-            left.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Left) }, { passive: true });
+            left.addEventListener('mousedown', e => { this._initResize(e, ResizeType.Left) }, false);
+            left.addEventListener('touchstart', e => { this._initResizeTouch(e, ResizeType.Left) }, { passive: true });
 
-            let top = this._document.createElement("div");
-            top.className = "resizer-top";
+            let top = this._document.createElement('div');
+            top.className = 'resizer-top';
             this._dialog.appendChild(top);
-            top.addEventListener("mousedown", e => { this._initResize(e, ResizeType.Top) }, false);
-            top.addEventListener("touchstart", e => { this._initResizeTouch(e, ResizeType.Top) }, { passive: true });
+            top.addEventListener('mousedown', e => { this._initResize(e, ResizeType.Top) }, false);
+            top.addEventListener('touchstart', e => { this._initResizeTouch(e, ResizeType.Top) }, { passive: true });
         }
 
         if (this.moveable) {
@@ -682,8 +682,8 @@ export class Dialog extends EventEmitter {
         this._resize.borderHeight = e.offsetY + parseInt(styles.borderTopWidth);
         this._resize.borderWidth = e.offsetX + parseInt(styles.borderLeftWidth);
         this._body.style.pointerEvents = 'none';
-        this._document.documentElement.addEventListener("mousemove", this._resizeDoDrag, false);
-        this._document.documentElement.addEventListener("mouseup", this._resizeStopDrag, false);
+        this._document.documentElement.addEventListener('mousemove', this._resizeDoDrag, false);
+        this._document.documentElement.addEventListener('mouseup', this._resizeStopDrag, false);
     }
 
     private _initResizeTouch(e, type) {
@@ -702,8 +702,8 @@ export class Dialog extends EventEmitter {
         this._resize.borderHeight = y + parseInt(styles.borderTopWidth);
         this._resize.borderWidth = x + parseInt(styles.borderLeftWidth);
         this._body.style.pointerEvents = 'none';
-        this._document.documentElement.addEventListener("touchmove", this._resizeTouchDrag, false);
-        this._document.documentElement.addEventListener("touchend", this._resizeStopDrag, false);
+        this._document.documentElement.addEventListener('touchmove', this._resizeTouchDrag, false);
+        this._document.documentElement.addEventListener('touchend', this._resizeStopDrag, false);
     }
 
     public get id() {
@@ -955,22 +955,22 @@ export class Dialog extends EventEmitter {
             if (rect.right > this._window.innerWidth) {
                 this._state.x = this._window.innerWidth - this._state.width - 16;
                 if (rect.left < 0) this._state.x = 0;
-                this._dialog.style.left = this._state.x + "px";
+                this._dialog.style.left = this._state.x + 'px';
             }
             if (rect.bottom > this._window.innerHeight) {
                 this._state.y = this._window.innerHeight - this._state.height - 16;
                 if (rect.top < 0) this._state.y = 0;
-                this._dialog.style.top = this._state.y + "px";
+                this._dialog.style.top = this._state.y + 'px';
             }
         }
         else {
             if (rect.left > this._window.innerWidth - 16) {
                 this._state.x = (this._window.innerWidth - 16);
-                this._dialog.style.left = this._state.x + "px";
+                this._dialog.style.left = this._state.x + 'px';
             }
             if (rect.top > this._window.innerHeight - 16) {
                 this._state.y = (this._window.innerHeight - 16);
-                this._dialog.style.top = this._state.y + "px";
+                this._dialog.style.top = this._state.y + 'px';
             }
         }
         if (!silent)

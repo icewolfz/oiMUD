@@ -1,4 +1,4 @@
-import "./css/client.css";
+import './css/client.css';
 import { EventEmitter } from './events';
 import { Telnet } from './telnet';
 import { AnsiColorCode } from './ansi';
@@ -15,11 +15,11 @@ import { MSP } from './plugins/msp';
 import { Test } from './plugins/test';
 import { Mapper } from './plugins/mapper';
 import { Status } from './plugins/status';
-import { Logger } from "./plugins/logger";
-import { Chat } from "./plugins/chat";
-import { ShadowMUD } from "./plugins/ShadowMUD/shadowmud";
+import { Logger } from './plugins/logger';
+import { Chat } from './plugins/chat';
+import { ShadowMUD } from './plugins/ShadowMUD/shadowmud';
 export { ShadowMUD };
-import { PanelBar } from "./plugins/panelbar";
+import { PanelBar } from './plugins/panelbar';
 
 declare global {
     interface Window {
@@ -752,7 +752,7 @@ export class Client extends EventEmitter {
                 //save as if temp alarm as execute trigger advances state and temp alarms will need different state shifts
                 const state = parent.state;
                 this._input.lastTriggered = alarm.pattern;
-                //_Triggered = string.Format("{0}:{1}:{2}", Fired.Hour, Fired.Minute, Fired.Second);
+                //_Triggered = string.Format('{0}:{1}:{2}', Fired.Hour, Fired.Minute, Fired.Second);
                 this._input.ExecuteTrigger(trigger, [alarm.pattern], false, -a, null, null, parent);
                 if (state !== parent.state)
                     alarm.restart = Date.now();

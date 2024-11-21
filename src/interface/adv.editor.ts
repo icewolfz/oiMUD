@@ -1,8 +1,8 @@
-import "../css/tinymce.css";
-import { EventEmitter } from "../events";
+import '../css/tinymce.css';
+import { EventEmitter } from '../events';
 import { RGBColor } from '../lib/rgbcolor';
 import { insertValue, htmlEncode, getColors, copyText, openFileDialog, readFile, pinkfishToHTML } from '../library'
-import { Dialog } from "./dialog";
+import { Dialog } from './dialog';
 
 export class AdvEditor extends EventEmitter {
     private _element;
@@ -441,12 +441,12 @@ export class AdvEditor extends EventEmitter {
             g = g + g + g;
             //_ColorTable.push(g);
             if (r < 242) {
-                //_ColorTable.push("mono0" + (r - 232));
+                //_ColorTable.push('mono0' + (r - 232));
                 if (!this._colors[g])
                     this._colors[g] = 'mono0' + (r - 232);
             }
             else {
-                //_ColorTable.push("mono" + (r - 232));
+                //_ColorTable.push('mono' + (r - 232));
                 if (!this._colors[g])
                     this._colors[g] = 'mono' + (r - 232);
             }
@@ -1467,7 +1467,7 @@ export class AdvEditor extends EventEmitter {
         //https://codereview.stackexchange.com/questions/132225/given-hexadecimal-rgb-color-find-the-closest-predefined-color
         let hexToRgb = function (hex) {
             let shortRegEx = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-            //hex = hex.replace(shortRegEx, "$1$1$2$2$3$3");
+            //hex = hex.replace(shortRegEx, '$1$1$2$2$3$3');
             hex = hex.replace(shortRegEx, function (full, r, g, b) {
                 return [r, r, g, g, b, b].join();
             });

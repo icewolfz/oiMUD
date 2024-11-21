@@ -1,5 +1,5 @@
 //spellchecker:ignore
-import "../css/splitter.css";
+import '../css/splitter.css';
 import { EventEmitter } from '../events';
 
 export interface SplitterOptions {

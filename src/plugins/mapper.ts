@@ -1,4 +1,4 @@
-import "../css/mapper.css";
+import '../css/mapper.css';
 import { Client } from './../client';
 import { Plugin } from '../plugin';
 import { MenuItem } from '../types';
@@ -6,8 +6,8 @@ import { MapDisplay } from '../interface/mapdisplay';
 import { Map, Room, RoomDetails, ImportType } from '../map';
 import { Dialog, DialogButtons, ProgressDialog } from '../interface/dialog';
 import { removeHash } from '../interface/interface';
-import { debounce, readFile, openFileDialog } from "../library";
-import { Splitter, Orientation } from "../interface/splitter";
+import { debounce, readFile, openFileDialog } from '../library';
+import { Splitter, Orientation } from '../interface/splitter';
 
 //store menu and room editor as htm file for easier editing
 // @ts-ignore
@@ -413,13 +413,13 @@ export class Mapper extends Plugin {
         this._dialog.body.querySelector('#mapper-room a').addEventListener('click', () => {
             this._dialogSplitter.panel2Collapsed = !this._dialogSplitter.panel2Collapsed;
             if (this._dialogSplitter.panel2Collapsed) {
-                this._dialog.dialog.dataset.panel = "left";
+                this._dialog.dialog.dataset.panel = 'left';
                 this._dialog.body.querySelector('#mapper-room').classList.remove('active');
                 this._dialog.body.querySelector('#mapper-room').title = 'Show room properties';
                 this._dialog.body.querySelector('#mapper-room a span').textContent = 'Show room properties';
             }
             else {
-                this._dialog.dialog.dataset.panel = "right";
+                this._dialog.dialog.dataset.panel = 'right';
                 this._dialog.body.querySelector('#mapper-room').classList.add('active');
                 this._dialog.body.querySelector('#mapper-room').title = 'Hide room properties';
                 this._dialog.body.querySelector('#mapper-room a span').textContent = 'Hide room properties';

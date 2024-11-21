@@ -1,8 +1,8 @@
-import "./css/ansi.css";
-import "./css/display.css";
-import { EventEmitter } from "./events";
-import { Parser } from "./parser";
-import { Size, DisplayOptions, ParserLine, FormatType, FontStyle, Point } from "./types";
+import './css/ansi.css';
+import './css/display.css';
+import { EventEmitter } from './events';
+import { Parser } from './parser';
+import { Size, DisplayOptions, ParserLine, FormatType, FontStyle, Point } from './types';
 import { htmlEncode, formatUnit, getScrollbarWidth, debounce } from './library';
 
 declare let moment;
@@ -484,7 +484,7 @@ export class Display extends EventEmitter {
                 }, 250, this.id + 'selection-changed');
         };
         this._window.addEventListener('resize', this._wResize.bind(this));
-        this._document.addEventListener("selectionchange", this._selection.bind(this));
+        this._document.addEventListener('selectionchange', this._selection.bind(this));
 
         this._resizeObserver = new ResizeObserver((entries, observer) => {
             if (entries.length === 0) return;
@@ -628,7 +628,7 @@ export class Display extends EventEmitter {
         while (this._container.firstChild)
             this._view.removeChild(this._view.firstChild);
         this._window.removeEventListener('resize', this._wResize);
-        this._document.removeEventListener("selectionchange", this._selection);
+        this._document.removeEventListener('selectionchange', this._selection);
     }
 
     private _update() {

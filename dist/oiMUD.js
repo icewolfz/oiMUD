@@ -24184,7 +24184,7 @@
           overall: 4
         });
         this.client.emit("received-GMCP", "oMUD.weapons", {
-          "right hand": { "name": "knife", "type": "knife", "subtype": "dagger", "material": "iron", "quality": "pooor", "dominant": 1 },
+          "right hand": { "name": "knife", "type": "knife", "subtype": "dagger", "material": "iron", "quality": "poor", "dominant": 1 },
           "left hand": { "name": "club", "type": "blunt", "subtype": "club", "material": "wood", "quality": "ordinary", "dominant": 0 }
         });
         if (data && data.args && data.args.length && data.args[0] === "night")

@@ -1,5 +1,5 @@
 import { EventEmitter } from './events';
-import { copy } from "./library";
+import { copy } from './library';
 
 declare let localforage;
 

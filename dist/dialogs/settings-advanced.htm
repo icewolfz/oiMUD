@@ -42,3 +42,19 @@
     <input type="checkbox" class="form-check-input" id="fixHiddenWindows">
     <label class="form-check-label" for="fixHiddenWindows">Fix hidden windows</label>
 </div>
+<div class="mb-3">
+    <label for="profiles.profileSelected" class="form-label">Profile to select on load</label>
+    <select id="profiles.profileSelected" class="form-select"></select>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="profiles.profileExpandSelected">
+    <label class="form-check-label" for="profiles.profileExpandSelected">Expand selected profile on load</label>
+</div>
+<script>
+    let options = '<option value="">None</option>';
+    client.profiles.keys.forEach(profile => {
+        options += `<option value="${profile}">${profile}</option>`
+    })
+    body.querySelector('[id="profiles.profileSelected"]').innerHTML = options;
+    options = '';
+</script>

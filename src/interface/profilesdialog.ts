@@ -247,7 +247,7 @@ export class ProfilesDialog extends Dialog {
                                 //rebuild the menu as could have added multiple profiles or not and this ensures ordered correctly by priority
                                 this._buildMenu();
                                 //reselect current item
-                                this._expandPath(this._page);
+                                this.expandPath(this._page);
                             }
                         }
                         else
@@ -443,7 +443,7 @@ export class ProfilesDialog extends Dialog {
             this.dialog.dataset.panel = 'right';
         const pages = this._page.split('/');
         let k, kl, p;
-        this._expandPath(pages);
+        this.expandPath(pages);
         this.footer.querySelector('#profile-page-buttons').innerHTML = '';
         this.footer.querySelector(`#${this.id}-export-current`).style.display = '';
         this._contents.scrollTop = 0;
@@ -870,7 +870,7 @@ export class ProfilesDialog extends Dialog {
         }, 200, 'updateItemMenu');
     }
 
-    private _expandPath(pages, select?) {
+    public expandPath(pages, select?) {
         if (!Array.isArray(pages))
             pages = pages.split('/');
         let id;

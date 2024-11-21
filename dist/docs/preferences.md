@@ -301,6 +301,8 @@ Controls what is captured into the chat window
 - `Enable Notifications` Enable notifications, effects [#notify](commands.md#Miscellaneous) and [client.notify](scripting.md)
 - `Enable gamepads` Enable gamepad support to allow creating macros using gamepad axes or buttons. **Experimental**
 - `Fix hidden windows` Adjust the x/y location of dialogs to ensure when opened appear in visible window area
+- `Profile to select on load` select which profile to pick when profile manager is first opened, falls back to Default if profile not found
+- `Expand selected profile on load` auto expand selected profile when profile manager is first opened
 
 ## ShadowMUD
 

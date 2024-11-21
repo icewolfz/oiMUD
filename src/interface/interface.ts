@@ -635,10 +635,12 @@ export function showDialog(name: string) {
             if (!_dialogs.about) {
                 _dialogs.about = new Dialog(({ title: '<i class="bi-info-circle"></i> About', width: 350, height: 400, noFooter: true, resizable: false, center: true, maximizable: false }));
                 _dialogs.about.on('closed', () => {
+                    _dialogs.about.removeAllListeners();
                     delete _dialogs.about;
                     removeHash(name);
                 });
                 _dialogs.about.on('canceled', () => {
+                    _dialogs.about.removeAllListeners();
                     delete _dialogs.about;
                     removeHash(name);
                 });
@@ -652,12 +654,14 @@ export function showDialog(name: string) {
                 _dialogs.history = new Dialog(Object.assign({}, client.getWindowState('history') || { center: true, width: 400, height: 275 }, { title: '<i class="bi bi-clock-history"></i> Command history', id: 'command-history' }));
                 _dialogs.history.on('closed', () => {
                     client.setOption('windows.history', _dialogs.history.windowState);
+                    _dialogs.history.removeAllListeners();
                     delete _dialogs.history;
                     removeHash(name);
                 });
                 _dialogs.history.on('canceled', () => {
                     client.setOption('windows.history', _dialogs.history.windowState);
                     removeHash('history');
+                    _dialogs.history.removeAllListeners();
                     delete _dialogs.history;
                     removeHash(name);
                 });
@@ -747,7 +751,9 @@ export function showDialog(name: string) {
                 editorDialog.on('closed', () => {
                     client.setOption('windows.editor', editorDialog.windowState);
                     if (!client.getOption('editorPersistent')) {
+                        editorDialog.dialog.editor.removeAllListeners();
                         delete editorDialog.dialog.editor;
+                        editorDialog.removeAllListeners();
                         editor = null;
                         editorDialog = null;
                     }
@@ -762,7 +768,9 @@ export function showDialog(name: string) {
                 editorDialog.on('canceled', () => {
                     client.setOption('windows.editor', editorDialog.windowState);
                     if (!client.getOption('editorPersistent')) {
+                        editorDialog.dialog.editor.removeAllListeners();
                         delete editorDialog.dialog.editor;
+                        editor.removeAllListeners();
                         editor = null;
                         editorDialog = null;
                     }
@@ -835,9 +843,11 @@ export function showDialog(name: string) {
         if (!_dialogs.settings) {
             _dialogs.settings = new SettingsDialog();
             _dialogs.settings.on('closed', () => {
+                _dialogs.settings.removeAllListeners();
                 delete _dialogs.settings;
             });
             _dialogs.settings.on('canceled', () => {
+                _dialogs.settings.removeAllListeners();
                 delete _dialogs.settings;
             });
         }
@@ -858,11 +868,28 @@ export function showDialog(name: string) {
         if (!_dialogs.profiles) {
             _dialogs.profiles = new ProfilesDialog();
             _dialogs.profiles.on('closed', () => {
+                _dialogs.profiles.removeAllListeners();
                 delete _dialogs.profiles;
             });
             _dialogs.profiles.on('canceled', () => {
+                _dialogs.profiles.removeAllListeners();
                 delete _dialogs.profiles;
             });
+            if (name === 'profiles' && (window.location.hash.length < 2 || hashContains('profiles'))) {
+                if (this.client.profiles && this.client.profiles.contains(this.client.getOption('profiles.profileSelected'))) {
+                    setTimeout(() => {
+                        updateHash('profiles/' + this.client.getOption('profiles.profileSelected'), name);
+                        _dialogs.profiles.expandPath(this.client.getOption('profiles.profileSelected') + '/aliases')
+                    }, 10);
+                }
+                else if (!this.client.profiles)
+                    this.client.once('profiles-loaded', () => {
+                        if (this.client.profiles.contains(this.client.getOption('profiles.profileSelected'))) {
+                            updateHash('profiles/' + this.client.getOption('profiles.profileSelected'), name);
+                            _dialogs.profiles.expandPath(this.client.getOption('profiles.profileSelected') + '/aliases')
+                        }
+                    });
+            }
         }
         _dialogs.profiles.dialog.dataset.path = name;
         _dialogs.profiles.dialog.dataset.fullPath = name;
@@ -875,9 +902,11 @@ export function showDialog(name: string) {
         if (!_dialogs.help) {
             _dialogs.help = new HelpDialog();
             _dialogs.help.on('closed', () => {
+                _dialogs.help.removeAllListeners();
                 delete _dialogs.help;
             });
             _dialogs.help.on('canceled', () => {
+                _dialogs.help.removeAllListeners();
                 delete _dialogs.help;
             });
         }

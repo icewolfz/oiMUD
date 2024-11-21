@@ -30473,7 +30473,7 @@ Devanagari
                   if (kl === 0) return;
                   this.changed = true;
                   this._buildMenu();
-                  this._expandPath(this._page);
+                  this.expandPath(this._page);
                 }
               } else
                 setTimeout(function() {
@@ -30680,7 +30680,7 @@ Devanagari
         this.dialog.dataset.panel = "right";
       const pages = this._page.split("/");
       let k, kl, p;
-      this._expandPath(pages);
+      this.expandPath(pages);
       this.footer.querySelector("#profile-page-buttons").innerHTML = "";
       this.footer.querySelector(`#${this.id}-export-current`).style.display = "";
       this._contents.scrollTop = 0;
@@ -31077,7 +31077,7 @@ Devanagari
         }
       }, 200, "updateItemMenu");
     }
-    _expandPath(pages, select) {
+    expandPath(pages, select) {
       if (!Array.isArray(pages))
         pages = pages.split("/");
       let id;
@@ -32426,10 +32426,12 @@ Devanagari
         if (!_dialogs.about) {
           _dialogs.about = new Dialog({ title: '<i class="bi-info-circle"></i> About', width: 350, height: 400, noFooter: true, resizable: false, center: true, maximizable: false });
           _dialogs.about.on("closed", () => {
+            _dialogs.about.removeAllListeners();
             delete _dialogs.about;
             removeHash(name2);
           });
           _dialogs.about.on("canceled", () => {
+            _dialogs.about.removeAllListeners();
             delete _dialogs.about;
             removeHash(name2);
           });
@@ -32443,12 +32445,14 @@ Devanagari
           _dialogs.history = new Dialog(Object.assign({}, client.getWindowState("history") || { center: true, width: 400, height: 275 }, { title: '<i class="bi bi-clock-history"></i> Command history', id: "command-history" }));
           _dialogs.history.on("closed", () => {
             client.setOption("windows.history", _dialogs.history.windowState);
+            _dialogs.history.removeAllListeners();
             delete _dialogs.history;
             removeHash(name2);
           });
           _dialogs.history.on("canceled", () => {
             client.setOption("windows.history", _dialogs.history.windowState);
             removeHash("history");
+            _dialogs.history.removeAllListeners();
             delete _dialogs.history;
             removeHash(name2);
           });
@@ -32536,7 +32540,9 @@ Devanagari
           editorDialog.on("closed", () => {
             client.setOption("windows.editor", editorDialog.windowState);
             if (!client.getOption("editorPersistent")) {
+              editorDialog.dialog.editor.removeAllListeners();
               delete editorDialog.dialog.editor;
+              editorDialog.removeAllListeners();
               editor = null;
               editorDialog = null;
             }
@@ -32551,7 +32557,9 @@ Devanagari
           editorDialog.on("canceled", () => {
             client.setOption("windows.editor", editorDialog.windowState);
             if (!client.getOption("editorPersistent")) {
+              editorDialog.dialog.editor.removeAllListeners();
               delete editorDialog.dialog.editor;
+              editor.removeAllListeners();
               editor = null;
               editorDialog = null;
             }
@@ -32624,9 +32632,11 @@ Devanagari
       if (!_dialogs.settings) {
         _dialogs.settings = new SettingsDialog();
         _dialogs.settings.on("closed", () => {
+          _dialogs.settings.removeAllListeners();
           delete _dialogs.settings;
         });
         _dialogs.settings.on("canceled", () => {
+          _dialogs.settings.removeAllListeners();
           delete _dialogs.settings;
         });
       }
@@ -32646,11 +32656,27 @@ Devanagari
       if (!_dialogs.profiles) {
         _dialogs.profiles = new ProfilesDialog();
         _dialogs.profiles.on("closed", () => {
+          _dialogs.profiles.removeAllListeners();
           delete _dialogs.profiles;
         });
         _dialogs.profiles.on("canceled", () => {
+          _dialogs.profiles.removeAllListeners();
           delete _dialogs.profiles;
         });
+        if (name2 === "profiles" && (window.location.hash.length < 2 || hashContains("profiles"))) {
+          if (this.client.profiles && this.client.profiles.contains(this.client.getOption("profiles.profileSelected"))) {
+            setTimeout(() => {
+              updateHash("profiles/" + this.client.getOption("profiles.profileSelected"), name2);
+              _dialogs.profiles.expandPath(this.client.getOption("profiles.profileSelected") + "/aliases");
+            }, 10);
+          } else if (!this.client.profiles)
+            this.client.once("profiles-loaded", () => {
+              if (this.client.profiles.contains(this.client.getOption("profiles.profileSelected"))) {
+                updateHash("profiles/" + this.client.getOption("profiles.profileSelected"), name2);
+                _dialogs.profiles.expandPath(this.client.getOption("profiles.profileSelected") + "/aliases");
+              }
+            });
+        }
       }
       _dialogs.profiles.dialog.dataset.path = name2;
       _dialogs.profiles.dialog.dataset.fullPath = name2;
@@ -32663,9 +32689,11 @@ Devanagari
       if (!_dialogs.help) {
         _dialogs.help = new HelpDialog();
         _dialogs.help.on("closed", () => {
+          _dialogs.help.removeAllListeners();
           delete _dialogs.help;
         });
         _dialogs.help.on("canceled", () => {
+          _dialogs.help.removeAllListeners();
           delete _dialogs.help;
         });
       }

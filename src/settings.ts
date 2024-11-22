@@ -169,7 +169,7 @@ export let SettingList: any[] = [
     ['backupSave', 0, 2, 30],
     ['backupAllProfiles', 0, 1, true],
     ['scrollLocked', 0, 1, false],
-    ['showStatus', 0, 1, !isMobile()],
+    ['showStatus', 0, 1, true],
     ['showCharacterManager', 0, 1, false],
     ['showChat', 0, 1, false],
     ['showEditor', 0, 1, false],
@@ -639,7 +639,7 @@ export class Settings {
             case 'backupAllProfiles': return true;
             case 'backupReplaceCharacters': return true;
             case 'scrollLocked': return false;
-            case 'showStatus': return !isMobile();
+            case 'showStatus': return true;
             case 'showChat': return false;
             case 'showEditor': return false;
             case 'showArmor': return false;

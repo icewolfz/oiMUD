@@ -79,15 +79,15 @@ export class PanelBar extends Plugin {
         if (options && 'location' in options)
             this._panelLocation = options.location;
         if (!Settings.exist('showPanelBar'))
-            Settings.setValue('showPanelBar', !isMobile());
+            this.client.setOption('showPanelBar', !isMobile());
         if (!Settings.exist('panelBar.panels'))
-            Settings.setValue('panelBar.panels', Panels.all);
+            this.client.setOption('panelBar.panels', Panels.all);
         if (!Settings.exist('panelBar.location'))
-            Settings.setValue('panelBar.location', isMobile() ? PanelBarLocation.left : PanelBarLocation.top);
+            this.client.setOption('panelBar.location', isMobile() ? PanelBarLocation.left : PanelBarLocation.top);
         if (!Settings.exist('panelBar.order'))
-            Settings.setValue('panelBar.order', 0);
+            this.client.setOption('panelBar.order', 0);
         if (!Settings.exist('panelBar.mapScale'))
-            Settings.setValue('panelBar.mapScale', 100);
+            this.client.setOption('panelBar.mapScale', 100);
         this._clientContainer = document.getElementById('client-container');
         this._createSidebar();
     }
@@ -267,7 +267,7 @@ export class PanelBar extends Plugin {
         this._miniMap.container.insertAdjacentHTML('afterbegin', '<button id="btn-mini-map-focus" type="button" class="float-start me-2 button button-sm" title="Focus on current room"><i class="fa fa-crosshairs"></i></button>');
         this._miniMap.container.querySelector('#btn-mini-map-focus').addEventListener('click', () => {
             this._miniMap.focusCurrentRoom();
-        });        
+        });
         this._miniMap.on('active-room-changed', room => {
             this._setMapTitle(room ? room.area : '');
         });

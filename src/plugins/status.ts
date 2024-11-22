@@ -5,7 +5,8 @@ import { Plugin } from '../plugin';
 import { MenuItem } from '../types';
 import { Dialog } from '../interface/dialog';
 import { removeHash } from '../interface/interface';
-import { capitalize } from '../library';
+import { capitalize, isMobile } from '../library';
+import { Settings } from '../settings';
 
 export enum UpdateType { none = 0, sortCombat = 1, sortParty = 2, overall = 4, xp = 8, status = 16 }
 
@@ -67,6 +68,8 @@ export class Status extends Plugin {
     constructor(client: Client) {
         super(client);
         this._clientContainer = document.getElementById('client-container');
+        if (!Settings.exist('statusMode'))
+            client.setOption('statusMode', isMobile() ? 1 : 0)
     }
     public remove(): void {
         let idx = this.client.telnet.GMCPSupports.indexOf('Char 1');

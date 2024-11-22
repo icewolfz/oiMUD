@@ -6207,7 +6207,7 @@
     ["backupSave", 0, 2, 30],
     ["backupAllProfiles", 0, 1, true],
     ["scrollLocked", 0, 1, false],
-    ["showStatus", 0, 1, !isMobile()],
+    ["showStatus", 0, 1, true],
     ["showCharacterManager", 0, 1, false],
     ["showChat", 0, 1, false],
     ["showEditor", 0, 1, false],
@@ -6757,7 +6757,7 @@
         case "scrollLocked":
           return false;
         case "showStatus":
-          return !isMobile();
+          return true;
         case "showChat":
           return false;
         case "showEditor":
@@ -34099,6 +34099,8 @@ Devanagari
       this._rTimeout = 0;
       this._dragging = false;
       this._clientContainer = document.getElementById("client-container");
+      if (!Settings.exist("statusMode"))
+        client2.setOption("statusMode", isMobile() ? 1 : 0);
     }
     get splitterDistance() {
       return this._splitterDistance;
@@ -37108,15 +37110,15 @@ Devanagari
       if (options && "location" in options)
         this._panelLocation = options.location;
       if (!Settings.exist("showPanelBar"))
-        Settings.setValue("showPanelBar", !isMobile());
+        this.client.setOption("showPanelBar", !isMobile());
       if (!Settings.exist("panelBar.panels"))
-        Settings.setValue("panelBar.panels", 6 /* all */);
+        this.client.setOption("panelBar.panels", 6 /* all */);
       if (!Settings.exist("panelBar.location"))
-        Settings.setValue("panelBar.location", isMobile() ? 0 /* left */ : 1 /* top */);
+        this.client.setOption("panelBar.location", isMobile() ? 0 /* left */ : 1 /* top */);
       if (!Settings.exist("panelBar.order"))
-        Settings.setValue("panelBar.order", 0);
+        this.client.setOption("panelBar.order", 0);
       if (!Settings.exist("panelBar.mapScale"))
-        Settings.setValue("panelBar.mapScale", 100);
+        this.client.setOption("panelBar.mapScale", 100);
       this._clientContainer = document.getElementById("client-container");
       this._createSidebar();
     }

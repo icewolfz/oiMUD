@@ -659,12 +659,6 @@ export let keyCharToCode = {
 
 };
 
-(function ($) {
-    $.fn.hasHorizontalScrollBar = function () {
-        return $(this)[0].scrollWidth > $(this).innerWidth();
-    };
-})(jQuery);
-
 export function clone(obj, replacer?) {
     return JSON.parse(JSON.stringify(obj, replacer));
 }

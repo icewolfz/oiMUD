@@ -2929,11 +2929,6 @@
     Pa1: 253,
     "Win Oem Clear": 254
   };
-  (function($2) {
-    $2.fn.hasHorizontalScrollBar = function() {
-      return $2(this)[0].scrollWidth > $2(this).innerWidth();
-    };
-  })(jQuery);
   function clone(obj, replacer) {
     return JSON.parse(JSON.stringify(obj, replacer));
   }
@@ -6056,10 +6051,8 @@
   // src/types.ts
   var Size = class {
     constructor(width, height) {
-      this.width = 0;
-      this.height = 0;
-      this.width = width;
-      this.height = height;
+      this.width = width || 0;
+      this.height = height || 0;
     }
   };
 
@@ -17468,7 +17461,7 @@
       this._parsing = [];
       /** @private */
       /* Web detection protocols that are just followed by a :*/
-      this._protocols = [["m", "a", "i", "l", "t", "o"], ["s", "k", "y", "p", "e"], ["a", "i", "m"], ["c", "a", "l", "l", "t", "o"], ["g", "t", "a", "l", "k"], ["i", "m"], ["i", "t", "m", "s"], ["m", "s", "n", "i", "m"], ["t", "e", "l"], ["y", "m", "s", "g", "r"]];
+      this._protocols = [["m", "a", "i", "l", "t", "o"], ["s", "k", "y", "p", "e"], ["c", "a", "l", "l", "t", "o"], ["i", "m"], ["i", "t", "m", "s"], ["t", "e", "l"], ["t", "e", "l", "n", "e", "t"]];
       /** @private */
       this._ColorTable = null;
       /** @private */
@@ -31034,7 +31027,6 @@ Devanagari
         item: this._current.item,
         FilterArrayByKeyValue,
         keyCharToCode,
-        keyCodeToChar,
         profile: this._current.profile,
         profileName: this._current.profileName,
         parent: this._current.parent,

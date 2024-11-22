@@ -159,12 +159,12 @@ export interface ParserOptions {
 }
 
 export class Size {
-  public width: number = 0;
-  public height: number = 0;
+  public width: number;
+  public height: number;
 
   constructor(width: number, height: number) {
-    this.width = width;
-    this.height = height;
+    this.width = width || 0;
+    this.height = height || 0;
   }
 }
 

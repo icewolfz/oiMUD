@@ -760,7 +760,6 @@ export class ProfilesDialog extends Dialog {
             item: this._current.item,
             FilterArrayByKeyValue: FilterArrayByKeyValue,
             keyCharToCode: keyCharToCode,
-            keyCodeToChar: keyCodeToChar,
             profile: this._current.profile,
             profileName: this._current.profileName,
             parent: this._current.parent,

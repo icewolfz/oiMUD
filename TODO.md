@@ -21,3 +21,4 @@
     - Add true mapper window
 - run firefox/chrome performance tools to optimize code/loading
 - Add advanced setting view for complex editing
+- Maybe allow custom protocols in the ansi parser to create links

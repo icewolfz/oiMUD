@@ -260,7 +260,7 @@ export class Parser extends EventEmitter {
     private _parsing = [];
     /** @private */
     /* Web detection protocols that are just followed by a :*/
-    private _protocols = [['m', 'a', 'i', 'l', 't', 'o'], ['s', 'k', 'y', 'p', 'e'], ['a', 'i', 'm'], ['c', 'a', 'l', 'l', 't', 'o'], ['g', 't', 'a', 'l', 'k'], ['i', 'm'], ['i', 't', 'm', 's'], ['m', 's', 'n', 'i', 'm'], ['t', 'e', 'l'], ['y', 'm', 's', 'g', 'r']];
+    private _protocols = [['m', 'a', 'i', 'l', 't', 'o'], ['s', 'k', 'y', 'p', 'e'], ['c', 'a', 'l', 'l', 't', 'o'], ['i', 'm'], ['i', 't', 'm', 's'], ['t', 'e', 'l'], ['t', 'e', 'l', 'n', 'e', 't']];
 
     /** @private */
     private _ColorTable: string[] = null;

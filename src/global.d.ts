@@ -51,7 +51,6 @@ declare let $characterid: number;
 interface JQuery {
 	treeview: any;
 	selectpicker: any;
-	hasHorizontalScrollBar: any;
 }
 
 interface Window {

@@ -521,64 +521,72 @@
   background-image: url("../../assets/status/weatherblood_rainhard.png");
 }
 
+.weapons {
+  background-image: url(../../assets/status/weapons.png);
+  background-repeat: no-repeat;
+  background-position: -197px -230px;
+  width: 32px;
+  height: 32px;
+}
+
 .weapon-dominant {
   border-color: red !important;
 }
 
 .weapon-large-sword {
-  background-image: url(../../assets/status/icon_sword_long2.png);
+  background-position: -96px -32px;
 }
 
 .weapon-shield {
-  background-image: url(../../assets/status/icon_shield.png);
+  background-position: -32px -96px;
 }
 
 .weapon-melee {
-  background-image: url(../../assets/status/icon_melee.png);
+  background-position: -64px -64px;
 }
 
 .weapon-miscellaneous {
-  background-image: url(../../assets/status/icon_misc.png);
+  background-position: -0px -96px;
 }
 
 .weapon-polearm {
-  background-image: url(../../assets/status/icon_halberd2.png);
+  background-position:  -64px -32px;
 }
 
 .weapon-small-sword {
-  background-image: url(../../assets/status/icon_sword_short3.png);
+  background-position: -0px -0px;
 }
 
 .weapon-spear {
-  background-image: url(../../assets/status/icon_spear2.png);
+  background-position: -64px -96px;
 }
 
 .weapon-axe {
-  background-image: url(../../assets/status/icon_axe1.png);
+  background-position: -32px -0px;
 }
 
 .weapon-blunt {
-  background-image: url(../../assets/status/icon_bigclub1.png);
+  background-position: -32px -32px;
 }
 
 .weapon-knife {
-  background-image: url(../../assets/status/icon_dagger1.png);
+  background-position:  -64px -0px;
 }
 
 .weapon-bow {
-  background-image: url(../../assets/status/icon_Bow3.png);
+  background-position: -0px -64px;
 }
 
 .weapon-crossbow {
-  background-image: url(../../assets/status/icon_XBow2.png);
+  background-position: -0px -32px;
 }
 
 .weapon-flail {
-  background-image: url(../../assets/status/icon_bullwhip.png);
+  background-position: -32px -64px;
 }
 
 .weapon-staff {
-  background-image: url(../../assets/status/icon_staff2.png);
+  background-position: -96px -0px;
 }
 
 #health {

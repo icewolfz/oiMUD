@@ -1006,6 +1006,7 @@ export class Status extends Plugin {
             return;
         eLimb.className = '';
         if (!weapon) return;
+        eLimb.classList.add('weapons');
         if (weapon.quality && weapon.quality.length > 0)
             eLimb.classList.add('weapon-' + this._sanitizeID(weapon.quality));
         if (weapon.material && weapon.material.length > 0)

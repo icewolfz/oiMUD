@@ -880,7 +880,7 @@ export function showDialog(name: string) {
                     setTimeout(() => {
                         updateHash('profiles/' + this.client.getOption('profiles.profileSelected'), name);
                         _dialogs.profiles.expandPath(this.client.getOption('profiles.profileSelected') + '/aliases')
-                    }, 10);
+                    }, 1);
                 }
                 else if (!this.client.profiles)
                     this.client.once('profiles-loaded', () => {

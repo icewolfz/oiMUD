@@ -1054,7 +1054,7 @@ export class AdvEditor extends EventEmitter {
             let g;
             let b;
             let idx;
-            let html = '<table style="margin : auto !important;" class="mce-grid mce-grid-border mce-colorbutton-grid" role="list" cellspacing="0"><tbody><tr>';
+            let html = '<table style="border-spacing: 0;margin : auto !important;" class="mce-grid mce-grid-border mce-colorbutton-grid" role="list" cellspacing="0"><tbody><tr>';
             for (c = 0, cl = this._ColorTable.length; c < cl; c += 2) {
                 if (this._ColorTable[c + 1] === 'BOLD YELLOW') continue;
                 html += this._colorCell(this._ColorTable[c], this._ColorTable[c + 1]);

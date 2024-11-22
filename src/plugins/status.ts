@@ -381,12 +381,12 @@ export class Status extends Plugin {
                         env.classList.remove('day', 'night', 'twilight', 'dawn');
                         env.classList.add(obj.tod);
                         $('#environment').removeClass((index, className) => {
-                            return (className.match(/(^|\s)moon\d-\S+/g) || []).join(' ');
+                            return (className.match(/(^|\s)moon\d(-\S+)?/g) || []).join(' ');
                         });
                         if (obj.moons) {
-                            env.classList.add('moon1-' + obj.moons[0]);
-                            env.classList.add('moon2-' + obj.moons[1]);
-                            env.classList.add('moon3-' + obj.moons[2]);
+                            env.classList.add('moon1', 'moon1-' + obj.moons[0]);
+                            env.classList.add('moon2', 'moon2-' + obj.moons[1]);
+                            env.classList.add('moon3', 'moon3-' + obj.moons[2]);
                         }
                     }
                     break;

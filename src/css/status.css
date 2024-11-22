@@ -71,6 +71,14 @@
 }
 
 /* old */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
 #environmentleft {
   position: absolute;
   top: 15px;
@@ -430,40 +438,37 @@
   background-image: url("../../assets/status/sunset.png");
 }
 
-.moon1-full #environmentleft {
-  background-image: url("../../assets/status/redmoonfull.png");
-}
-
-.moon1-waning #environmentleft {
-  background-image: url("../../assets/status/redmoonwaning.png");
-}
-
-.moon1-waxing #environmentleft {
-  background-image: url("../../assets/status/redmoonwaxing.png");
-}
-
-.moon2-full #environmentcenter {
-  background-image: url("../../assets/status/bluemoonfull.png");
-}
-
-.moon2-waning #environmentcenter {
-  background-image: url("../../assets/status/bluemoonwaning.png");
-}
-
-.moon2-waxing #environmentcenter {
-  background-image: url("../../assets/status/bluemoonwaxing.png");
-}
-
+.moon1-full #environmentleft,
+.moon2-full #environmentcenter,
 .moon3-full #environmentright {
-  background-image: url("../../assets/status/greenmoonfull.png");
+  background-image: url("../../assets/status/moonfull.png");
 }
 
+.moon1-waning #environmentleft,
+.moon2-waning #environmentcenter,
 .moon3-waning #environmentright {
-  background-image: url("../../assets/status/greenmoonwaning.png");
+  background-image: url("../../assets/status/moonwaning.png");
 }
 
+.moon1-waxing #environmentleft,
+.moon2-waxing #environmentcenter,
 .moon3-waxing #environmentright {
-  background-image: url("../../assets/status/greenmoonwaxing.png");
+  background-image: url("../../assets/status/moonwaxing.png");
+}
+
+.moon1 #environmentleft .overlay {
+  background-color: rgb(255 0 0 /15%);
+  border-radius: 50%;
+}
+
+.moon2 #environmentcenter .overlay {
+  background-color: rgb(0 0 255 /15%);
+  border-radius: 50%;
+}
+
+.moon3 #environmentright .overlay {
+  background-color: rgb(0 255 0 /15%);
+  border-radius: 50%;
 }
 
 .weather-snow #environmentweather {

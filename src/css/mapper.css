@@ -100,10 +100,6 @@ a.disabled-link:hover {
   top: 0;
 }
 
-.property-grid:empty {
-  background: #ececec;
-}
-
 .icon {
   width: 1em;
   height: 1em;

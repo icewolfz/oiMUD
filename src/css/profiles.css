@@ -10,9 +10,6 @@
   display: none;
 }
 
-#profile-menu li:hover {
-}
-
 @media (orientation: landscape) and (max-width: 641px),
   (orientation: landscape) and (max-height: 480px),
   (orientation: portrait) and (max-width: 480px),

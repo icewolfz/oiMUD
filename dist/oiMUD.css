@@ -64,11 +64,9 @@ textarea {
   width: auto;
 }
 #commandInput {
-  outline: none;
   resize: none;
   overflow: hidden;
   line-height: 1.2;
-  min-height: 16px;
   border-color: #6c757d;
   padding: 1px;
   margin: 0px;
@@ -240,7 +238,6 @@ a.MXPLink:hover span {
   margin: 0px;
   z-index: 1;
   display: block;
-  image-rendering: optimizeSpeed;
   image-rendering: -o-crisp-edges;
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
@@ -360,7 +357,6 @@ a.disabled-link:hover {
 /* src/css/dialog.css */
 .dialog,
 dialog {
-  border: 1px solid black;
   box-shadow: 3px 3px 5px #535353;
   overflow: visible;
   outline: none;
@@ -2084,8 +2080,6 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   border: 0px;
   padding: 0;
 }
-.dropdown-inline .nav-item {
-}
 .nav-link {
   overflow: hidden;
   white-space: nowrap;
@@ -2157,8 +2151,6 @@ li.submenu.dropstart > a.dropdown-toggle::after {
 #profile-menu .list-badge-button {
   display: none;
 }
-#profile-menu li:hover {
-}
 @media (orientation: landscape) and (max-width: 641px), (orientation: landscape) and (max-height: 480px), (orientation: portrait) and (max-width: 480px), (orientation: portrait) and (max-height: 641px) {
   .dialog[data-panel=left] #profile-menu .dropdown-menu {
     display: none;
@@ -2229,7 +2221,6 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   background-color: #f5f5f5;
 }
 .spitter-drag-bar {
-  background-color: transparent;
   position: absolute;
   z-index: 100;
   background-color: #f5f5f5;
@@ -2290,8 +2281,6 @@ li.submenu.dropstart > a.dropdown-toggle::after {
 }
 #help-menu .list-badge-button {
   display: none;
-}
-#help-menu li:hover {
 }
 #help-history-menu {
   overflow: auto;
@@ -2640,7 +2629,6 @@ li.submenu.dropstart > a.dropdown-toggle::after {
 #status-drag-bar {
   right: 184px;
   top: 0;
-  height: initial;
   bottom: 0;
   transition: 0s all;
   background-color: transparent;

@@ -103,10 +103,6 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   padding: 0;
 }
 
-.dropdown-inline .nav-item {
-  /*padding-left: 20px;*/
-}
-
 .nav-link {
   overflow: hidden;
   white-space: nowrap;

@@ -39,9 +39,6 @@
   display: none;
 }
 
-#help-menu li:hover {
-}
-
 #help-history-menu {
   overflow: auto;
 }

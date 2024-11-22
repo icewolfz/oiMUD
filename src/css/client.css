@@ -79,11 +79,9 @@ textarea {
 }
 
 #commandInput {
-  outline: none;
   resize: none;
   overflow: hidden;
   line-height: 1.2;
-  min-height: 16px;
   border-color: #6c757d;
   padding: 1px;
   margin: 0px;

@@ -2,6 +2,7 @@ const esbuild = require('esbuild');
 const fs = require('fs/promises');
 const { minify } = require('html-minifier-terser');
 const { resolve } = require('path');
+const terser = require('terser');
 
 let args = {
     all: process.argv.indexOf('-a') !== -1 || process.argv.indexOf('--all') !== -1 || process.argv.indexOf('-all') !== -1,
@@ -71,7 +72,7 @@ const PluginInlineWorker = (opt = { minify: true }) => {
                     bundle: true,
                     write: false,
                     format: opt.format || "iife",
-                    minify: opt.minify,
+                    minify: false,
                     target: build.initialOptions.target,
                     plugins: [
                         ...(build.initialOptions.plugins || []),
@@ -81,7 +82,23 @@ const PluginInlineWorker = (opt = { minify: true }) => {
                 if (outputFiles.length !== 1) {
                     throw new Error("Too many files built for worker bundle.");
                 }
-                const { contents } = outputFiles[0];
+                let contents;
+                if (opt.minify) {
+                    contents = (await terser.minify(outputFiles[0].text, {
+                        ecma: 2017,
+                        format: {
+                            comments: false,
+                            ecma: 2017
+                        },
+                        mangle: {
+                            properties: {
+                                regex: /^[_\$]/
+                            }
+                        }
+                    })).code;
+                }
+                else
+                    contents = outputFiles[0].contents;
                 const base64 = Buffer.from(contents).toString("base64");
                 return {
                     loader: "js",

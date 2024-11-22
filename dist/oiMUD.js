@@ -8693,6 +8693,56 @@
     }
     return 0;
   }
+  var ArgumentInvalidError = class extends Error {
+    constructor(name2) {
+      super(`Invalid arguments '${name2}'`);
+    }
+  };
+  var ArgumentInvalidNumberError = class extends Error {
+    constructor(value, name2) {
+      super(`Invalid argument '${value.toString()}' must be a number for ${name2}`);
+    }
+  };
+  var ArgumentMissingError = class extends Error {
+    constructor(name2) {
+      super(`Missing arguments for ${name2}`);
+    }
+  };
+  var ArgumentTooManyError = class extends Error {
+    constructor(name2) {
+      super(`Too many arguments for ${name2}`);
+    }
+  };
+  var InvalidForeColorError = class extends Error {
+    constructor() {
+      super("Invalid fore color");
+    }
+  };
+  var InvalidBackColorError = class extends Error {
+    constructor() {
+      super("Invalid back color");
+    }
+  };
+  var InvalidTrigger = class extends Error {
+    constructor(msg) {
+      super(`Invalid trigger ${msg}`);
+    }
+  };
+  var InvalidTemporaryTrigger = class extends Error {
+    constructor(msg) {
+      super(`Invalid temporary trigger ${msg}`);
+    }
+  };
+  var ProfileNotFound = class extends Error {
+    constructor(profile) {
+      super(`Profile not found: ${profile}`);
+    }
+  };
+  var TriggerNotFound = class extends Error {
+    constructor(trigger, profile) {
+      super(`Trigger not found${trigger ? `: ${trigger}` : ""}${profile ? ` in profile: ${profile}` : ""}`);
+    }
+  };
   var Input = class extends EventEmitter {
     constructor(client2) {
       super();
@@ -8741,7 +8791,7 @@
           this.toggleScrollLock();
       });
       this.client.on("parse-command", (data) => {
-        if (this.client.getOption("parseCommands"))
+        if (this._getOption("parseCommands"))
           data.value = this.parseOutgoing(data.value, null, null, null, null, !data.comments);
       });
       this.client.on("add-line", (data) => {
@@ -8757,7 +8807,7 @@
           }
       });
       this.client.on("options-loaded", () => {
-        if (!_mathjs && this.client.getOption("initializeScriptEngineOnLoad"))
+        if (!_mathjs && this._getOption("initializeScriptEngineOnLoad"))
           this._initMathJS();
         this._initPads();
       });
@@ -8812,7 +8862,7 @@
             this.emit("history-navigate", event2);
             break;
           case "Enter":
-            switch (this.client.getOption("newlineShortcut")) {
+            switch (this._getOption("newlineShortcut")) {
               case 1 /* Ctrl */:
                 if (event2.ctrlKey && !event2.shiftKey && !event2.metaKey && !event2.altKey) {
                   insertValue(this.client.commandInput, "\n");
@@ -8855,13 +8905,13 @@
               this._tabWords = null;
               this._tabSearch = null;
               event2.preventDefault();
-              this.client.sendCommand(null, null, this.client.getOption("allowCommentsFromCommand"));
+              this.client.sendCommand(null, null, this._getOption("allowCommentsFromCommand"));
               this.emit("history-navigate", event2);
             }
             event2.preventDefault();
             break;
           case "Tab":
-            if (!this.client.getOption("enableTabCompletion") || this.client.commandInput.value.length === 0) return;
+            if (!this._getOption("enableTabCompletion") || this.client.commandInput.value.length === 0) return;
             if (event2.altKey || event2.ctrlKey || event2.metaKey) return;
             if (event2.shiftKey)
               this._tabIdx--;
@@ -8890,15 +8940,15 @@
               const findStr = this.client.commandInput.value.substring(startPos, endPos);
               if (findStr.length === 0) return;
               this._tabSearch = { start: startPos, end: endPos, find: findStr.length };
-              const regSearch = new RegExp(`^${findStr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, this.client.getOption("ignoreCaseTabCompletion") ? "i" : "");
-              if (this.client.getOption("tabCompletionLookupType") === 8 /* List */)
-                this._tabWords = [...new Set(this.client.getOption("tabCompletionList").split(/\s+/).filter((word) => word.match(regSearch)))];
+              const regSearch = new RegExp(`^${findStr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, this._getOption("ignoreCaseTabCompletion") ? "i" : "");
+              if (this._getOption("tabCompletionLookupType") === 8 /* List */)
+                this._tabWords = [...new Set(this._getOption("tabCompletionList").split(/\s+/).filter((word) => word.match(regSearch)))];
               else {
-                this._tabWords = [].concat(...this.client.display.lines.slice(this.client.display.lines.length - this.client.getOption("tabCompletionBufferLimit")).map((line2) => line2.text.split(/\s+/))).filter((word) => word.match(regSearch)).reverse();
-                if (this.client.getOption("tabCompletionLookupType") === 1 /* PrependBuffer */)
-                  this._tabWords = [...new Set(this.client.getOption("tabCompletionList").split(/\s+/).filter((word) => word.match(regSearch)).reverse())].concat(this._tabWords);
-                else if (this.client.getOption("tabCompletionLookupType") === 2 /* AppendBuffer */)
-                  this._tabWords = this._tabWords.concat([...new Set(this.client.getOption("tabCompletionList").split(/\s+/).filter((word) => word.match(regSearch)).reverse())]);
+                this._tabWords = [].concat(...this.client.display.lines.slice(this.client.display.lines.length - this._getOption("tabCompletionBufferLimit")).map((line2) => line2.text.split(/\s+/))).filter((word) => word.match(regSearch)).reverse();
+                if (this._getOption("tabCompletionLookupType") === 1 /* PrependBuffer */)
+                  this._tabWords = [...new Set(this._getOption("tabCompletionList").split(/\s+/).filter((word) => word.match(regSearch)).reverse())].concat(this._tabWords);
+                else if (this._getOption("tabCompletionLookupType") === 2 /* AppendBuffer */)
+                  this._tabWords = this._tabWords.concat([...new Set(this._getOption("tabCompletionList").split(/\s+/).filter((word) => word.match(regSearch)).reverse())]);
                 this._tabWords = [...new Set(this._tabWords)];
               }
             } else
@@ -8906,7 +8956,7 @@
             if (this._tabWords.length === 0) return;
             if (this._tabIdx < 0) this._tabIdx = this._tabWords.length - 1;
             if (this._tabIdx >= this._tabWords.length) this._tabIdx = 0;
-            const tabCasing = this.client.getOption("tabCompletionReplaceCasing");
+            const tabCasing = this._getOption("tabCompletionReplaceCasing");
             this.client.commandInput.value = this.client.commandInput.value.substring(0, start) + (tabCasing === 1 ? this._tabWords[this._tabIdx].toLowerCase() : tabCasing === 2 ? this._tabWords[this._tabIdx].toUpperCase() : this._tabWords[this._tabIdx]) + this.client.commandInput.value.substring(end, this.client.commandInput.value.length);
             this.client.commandInput.selectionStart = this._tabSearch.start + this._tabSearch.find;
             this.client.commandInput.selectionEnd = this._tabSearch.start + this._tabWords[this._tabIdx].length;
@@ -8943,7 +8993,7 @@
         this._tabSearch = null;
       });
       window.addEventListener("gamepadconnected", (e) => {
-        if (!this.client.getOption("gamepads")) return;
+        if (!this._getOption("gamepads")) return;
         if (!this._gamepadCaches)
           this._gamepadCaches = [];
         this._controllers[e.gamepad.index] = { pad: e.gamepad, axes: clone(e.gamepad.axes), state: { axes: [], buttons: [] }, pState: { axes: [], buttons: [] } };
@@ -8951,7 +9001,7 @@
         this._updatePads();
       });
       window.addEventListener("gamepaddisconnected", (e) => {
-        if (!this.client.getOption("gamepads")) return;
+        if (!this._getOption("gamepads")) return;
         delete this._controllers[e.gamepad.index];
         this._controllersCount--;
       });
@@ -9101,7 +9151,7 @@
           let mod;
           let min;
           let max2;
-          if (args.length === 0) throw new Error("Invalid arguments for diceavg");
+          if (args.length === 0) throw new ArgumentInvalidError("diceavg");
           if (args.length === 1) {
             res = this._getDiceArguments(args[0], scope, "diceavg");
             c = parseInt(res[1]);
@@ -9116,7 +9166,7 @@
             if (args.length > 2)
               mod = args[2].compile().evaluate(scope);
           } else
-            throw new Error("Too many arguments for diceavg");
+            throw new ArgumentTooManyError("diceavg");
           min = 1;
           if (sides === "F" || sides === "f") {
             min = -1;
@@ -9136,7 +9186,7 @@
           let sides;
           let mod;
           let min;
-          if (args.length === 0) throw new Error("Invalid arguments for dicemin");
+          if (args.length === 0) throw new ArgumentInvalidError("dicemin");
           if (args.length === 1) {
             res = res = this._getDiceArguments(args[0], scope, "dicemin");
             c = parseInt(res[1]);
@@ -9151,7 +9201,7 @@
             if (args.length > 2)
               mod = args[2].compile().evaluate(scope);
           } else
-            throw new Error("Too many arguments for dicemin");
+            throw new ArgumentTooManyError("dicemin");
           min = 1;
           if (sides === "F" || sides === "f")
             min = -1;
@@ -9167,7 +9217,7 @@
           let sides;
           let mod;
           let max2;
-          if (args.length === 0) throw new Error("Invalid arguments for dicemax");
+          if (args.length === 0) throw new ArgumentInvalidError("dicemax");
           if (args.length === 1) {
             res = this._getDiceArguments(args[0], scope, "dicemax");
             c = parseInt(res[1]);
@@ -9182,7 +9232,7 @@
             if (args.length > 2)
               mod = args[2].compile().evaluate(scope);
           } else
-            throw new Error("Too many arguments for dicemax");
+            throw new ArgumentTooManyError("dicemax");
           if (sides === "F" || sides === "f")
             max2 = 1;
           else if (sides === "%")
@@ -9199,7 +9249,7 @@
           let sides;
           let mod;
           let max2;
-          if (args.length === 0) throw new Error("Invalid arguments for dicedev");
+          if (args.length === 0) throw new ArgumentInvalidError("dicedev");
           if (args.length === 1) {
             res = this._getDiceArguments(args[0], scope, "dicedev");
             c = parseInt(res[1]);
@@ -9214,7 +9264,7 @@
             if (args.length > 2)
               mod = args[2].compile().evaluate(scope);
           } else
-            throw new Error("Too many arguments for dicedev");
+            throw new ArgumentTooManyError("dicedev");
           if (sides === "F" || sides === "f")
             max2 = 6;
           else if (sides === "%")
@@ -9231,7 +9281,7 @@
           let sides;
           let mod;
           let max2;
-          if (args.length === 0) throw new Error("Invalid arguments for zdicedev");
+          if (args.length === 0) throw new ArgumentInvalidError("zdicedev");
           if (args.length === 1) {
             res = this._getDiceArguments(args[0], scope, "zdicedev");
             c = parseInt(res[1]);
@@ -9246,7 +9296,7 @@
             if (args.length > 2)
               mod = args[2].compile().evaluate(scope);
           } else
-            throw new Error("Too many arguments for zdicedev");
+            throw new ArgumentTooManyError("zdicedev");
           if (sides === "F" || sides === "f")
             max2 = 6;
           else if (sides === "%")
@@ -9277,7 +9327,7 @@
             if (args.length > 2)
               mod = args[2].compile().evaluate(scope);
           } else
-            throw new Error("Invalid arguments for dice");
+            throw new ArgumentInvalidError("dice");
           let sum = 0;
           for (let i2 = 0; i2 < c; i2++) {
             if (sides === "F" || sides === "f")
@@ -9302,35 +9352,35 @@
               return 1;
             return 0;
           }
-          throw new Error("Invalid arguments for isdefined");
+          throw new ArgumentInvalidError(" isdefined");
         },
         defined: (args, math2, scope) => {
           let sides;
           if (args.length === 0)
-            throw new Error("Missing arguments for defined");
+            throw new ArgumentMissingError("defined");
           else if (args.length === 1) {
             args[0] = this.stripQuotes(args[0], true);
-            const keys = this.client.profiles.keys;
+            const keys = this._profiles.keys;
             let k = 0;
             const kl = keys.length;
             if (kl === 0) return 0;
             for (; k < kl; k++) {
-              sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
+              sides = SortItemArrayByPriority(this._profiles.items[keys[k]].aliases);
               sides = sides.find((i2) => {
                 return i2.pattern === args[0];
               });
               if (sides) return 1;
-              sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+              sides = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
               sides = sides.find((i2) => {
                 return i2.pattern === args[0] || i2.name === args[0];
               });
               if (sides) return 1;
-              sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].macros);
+              sides = SortItemArrayByPriority(this._profiles.items[keys[k]].macros);
               sides = sides.find((i2) => {
                 return MacroDisplay(i2).toLowerCase() === args[0].toLowerCase() || i2.name === args[0];
               });
               if (sides) return 1;
-              sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
+              sides = SortItemArrayByPriority(this._profiles.items[keys[k]].aliases);
               sides = sides.find((i2) => {
                 return i2.caption === args[0] || i2.name === args[0];
               });
@@ -9340,42 +9390,42 @@
           } else if (args.length === 2) {
             args[0] = this.stripQuotes(args[0].toString());
             args[0] = this.stripQuotes(args[1].toString());
-            const keys = this.client.profiles.keys;
+            const keys = this._profiles.keys;
             let k = 0;
             const kl = keys.length;
             if (kl === 0) return 0;
             for (; k < kl; k++) {
               switch (args[1]) {
                 case "alias":
-                  sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
+                  sides = SortItemArrayByPriority(this._profiles.items[keys[k]].aliases);
                   sides = sides.find((i2) => {
                     return i2.pattern === args[0];
                   });
                   if (sides) return 1;
                   return 0;
                 case "event":
-                  sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+                  sides = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   sides = sides.find((i2) => {
                     return i2.type === 2 /* Event */ && (i2.pattern === args[0] || i2.name === args[0]);
                   });
                   if (sides) return 1;
                   return 0;
                 case "trigger":
-                  sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+                  sides = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   sides = sides.find((i2) => {
                     return i2.pattern === args[0] || i2.name === args[0];
                   });
                   if (sides) return 1;
                   return 0;
                 case "macro":
-                  sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].macros);
+                  sides = SortItemArrayByPriority(this._profiles.items[keys[k]].macros);
                   sides = sides.find((i2) => {
                     return MacroDisplay(i2).toLowerCase() === args[0].toLowerCase() || i2.name === args[0];
                   });
                   if (sides) return 1;
                   return 0;
                 case "button":
-                  sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
+                  sides = SortItemArrayByPriority(this._profiles.items[keys[k]].aliases);
                   sides = sides.find((i2) => {
                     return i2.caption === args[0] || i2.name === args[0];
                   });
@@ -9386,12 +9436,12 @@
             if (args[1] === "variable")
               return this.client.variables.hasOwnProperty(args[0]) || scope.has(args[0]);
           } else
-            throw new Error("Too many arguments for defined");
+            throw new ArgumentTooManyError("defined");
           return 0;
         },
         time: (args, math2, scope) => {
           if (args.length > 1)
-            throw new Error("Too many arguments for time");
+            throw new ArgumentTooManyError("time");
           if (!moment) return (/* @__PURE__ */ new Date()).toISOString();
           if (args.length)
             return moment().format(args[0].compile().evaluate(scope));
@@ -9399,7 +9449,7 @@
         },
         clip: (args, math2, scope) => {
           if (args.length > 1)
-            throw new Error("Too many arguments for clip");
+            throw new ArgumentTooManyError("clip");
           if (args.length) {
             this.client.writeClipboard(args[0].compile().evaluate(scope));
             return;
@@ -9408,31 +9458,31 @@
         },
         if: (args, math2, scope) => {
           if (args.length < 3)
-            throw new Error("Missing arguments for if");
+            throw new ArgumentMissingError("if");
           if (args.length !== 3)
-            throw new Error("Too many arguments for if");
+            throw new ArgumentTooManyError("if");
           if (args[0].compile().evaluate(scope))
             return args[1].compile().evaluate(scope);
           return args[2].compile().evaluate(scope);
         },
         len: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for len");
+            throw new ArgumentMissingError("len");
           if (args.length !== 1)
-            throw new Error("Too many arguments for len");
+            throw new ArgumentTooManyError("len");
           return args[0].compile().evaluate(scope).toString().length;
         },
         stripansi: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for len");
+            throw new ArgumentMissingError("Missing arguments for len");
           if (args.length !== 1)
-            throw new Error("Too many arguments for len");
+            throw new ArgumentTooManyError("len");
           const ansiRegex = new RegExp("[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)|(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))", "g");
           return args[0].compile().evaluate(scope).toString().replace(ansiRegex, "");
         },
         ansi: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for ansi");
+            throw new ArgumentMissingError("ansi");
           args = args.map(
             (a) => getAnsiCode(a.toString()) === -1 && a.toString() !== "current" ? a.compile().evaluate(scope).toString() : a.toString()
           );
@@ -9478,7 +9528,7 @@
         },
         color: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for color");
+            throw new ArgumentMissingError("color");
           args = args.map(
             (a) => getAnsiCode(a.toString()) === -1 && a.toString() !== "current" ? a.compile().evaluate(scope).toString() : a.toString()
           );
@@ -9489,7 +9539,7 @@
               return "370";
             c = getAnsiColorCode(args[0]);
             if (c === -1)
-              throw new Error("Invalid fore color");
+              throw new InvalidForeColorError();
             return c.toString();
           } else if (args.length === 2) {
             if (args[0] === "bold")
@@ -9497,14 +9547,14 @@
             else {
               c = getAnsiColorCode(args[0]);
               if (c === -1)
-                throw new Error("Invalid fore color");
+                throw new InvalidForeColorError();
               if (args[1] === "bold")
                 return (c * 10).toString();
             }
             sides = c.toString();
             c = getAnsiColorCode(args[1], true);
             if (c === -1)
-              throw new Error("Invalid back color");
+              throw new InvalidBackColorError();
             return sides + "," + c.toString();
           } else if (args.length === 3) {
             if (args[0] === "bold") {
@@ -9515,25 +9565,25 @@
               throw new Error("Only bold is supported as third argument for color");
             c = getAnsiColorCode(args[0]);
             if (c === -1)
-              throw new Error("Invalid fore color");
+              throw new InvalidForeColorError();
             sides = (c * 10).toString();
             c = getAnsiColorCode(args[1], true);
             if (c === -1)
-              throw new Error("Invalid back color");
+              throw new InvalidBackColorError();
             return sides + "," + c.toString();
           }
-          throw new Error("Too many arguments");
+          throw new ArgumentTooManyError("color");
         },
         zcolor: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for zcolor");
+            throw new ArgumentMissingError("zcolor");
           else if (args.length > 1)
-            throw new Error("Too many arguments for zcolor");
+            throw new ArgumentTooManyError("zcolor");
           return getColorCode(parseInt(args[0].compile().evaluate(scope), 10));
         },
         case: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for case");
+            throw new ArgumentMissingError("case");
           let i2 = args[0].compile().evaluate(scope);
           if (i2 > 0 && i2 < args.length)
             return args[i2].compile().evaluate(scope);
@@ -9541,7 +9591,7 @@
         },
         switch: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for switch");
+            throw new ArgumentMissingError("switch");
           if (args.length % 2 === 1)
             throw new Error("All expressions must have a value for switch");
           let i2 = args.length;
@@ -9553,126 +9603,126 @@
         },
         ascii: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for ascii");
+            throw new ArgumentMissingError("ascii");
           else if (args.length > 1)
-            throw new Error("Too many arguments for ascii");
+            throw new ArgumentTooManyError("ascii");
           if (args[0].toString().trim().length === 0)
             throw new Error("Invalid argument, empty string for ascii");
           return args[0].toString().trim().charCodeAt(0);
         },
         char: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for char");
+            throw new ArgumentMissingError("char");
           else if (args.length > 1)
-            throw new Error("Too many arguments for char");
+            throw new ArgumentTooManyError("char");
           let c = args[0].compile().evaluate(scope);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0].toString() + "' must be a number for char");
+            throw new ArgumentInvalidNumberError(args[0], "char");
           return String.fromCharCode(c);
         },
         bitand: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for bitand");
+            throw new ArgumentMissingError("bitand");
           else if (args.length !== 2)
-            throw new Error("Too many arguments for bitand");
+            throw new ArgumentTooManyError("bitand");
           let c = args[0].compile().evaluate(scope);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0].toString() + "' must be a number for bitand");
+            throw new ArgumentInvalidNumberError(args[0], "bitand");
           let sides = args[1].compile().evaluate(scope);
           if (isNaN(sides))
-            throw new Error("Invalid argument '" + args[1].toString() + "' must be a number for bitand");
+            throw new ArgumentInvalidNumberError(args[1], "bitand");
           return c & sides;
         },
         bitnot: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for bitnot");
+            throw new ArgumentMissingError("bitnot");
           else if (args.length !== 1)
-            throw new Error("Too many arguments for bitnot");
+            throw new ArgumentTooManyError("bitnot");
           let c = args[0].compile().evaluate(scope);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0].toString() + "' must be a number for bitnot");
+            throw new ArgumentInvalidNumberError(args[0], "bitnot");
           return ~c;
         },
         bitor: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for bitor");
+            throw new ArgumentMissingError("bitor");
           else if (args.length !== 2)
-            throw new Error("Too many arguments for bitor");
+            throw new ArgumentTooManyError("bitor");
           let c = args[0].compile().evaluate(scope);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0].toString() + "' must be a number for bitor");
+            throw new ArgumentInvalidNumberError(args[0], "bitor");
           let sides = args[1].compile().evaluate(scope);
           if (isNaN(sides))
-            throw new Error("Invalid argument '" + args[1].toString() + "' must be a number for bitor");
+            throw new ArgumentInvalidNumberError(args[1], "bitor");
           return c | sides;
         },
         bitset: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for bitset");
+            throw new ArgumentMissingError("bitset");
           else if (args.length > 3)
-            throw new Error("Too many arguments for bitset");
+            throw new ArgumentTooManyError("bitset");
           let c = args[0].compile().evaluate(scope);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0].toString() + "' must be a number for bitset");
+            throw new ArgumentInvalidNumberError(args[0], "bitset");
           let sides = args[1].compile().evaluate(scope);
           if (isNaN(sides))
-            throw new Error("Invalid argument '" + args[1].toString() + "' must be a number for bitset");
+            throw new ArgumentInvalidNumberError(args[1], "bitset");
           sides--;
           let mod = 1;
           if (args.length === 3) {
             mod = args[2].compile().evaluate(scope);
             if (isNaN(mod))
-              throw new Error("Invalid argument '" + args[2].toString() + "' must be a number for bitset");
+              throw new ArgumentInvalidNumberError(args[2], "bitset");
           }
           return c & ~(1 << sides) | (mod ? 1 : 0) << sides;
         },
         bitshift: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for bitshift");
+            throw new ArgumentMissingError("bitshift");
           else if (args.length !== 2)
-            throw new Error("Too many arguments for bitshift");
+            throw new ArgumentTooManyError("bitshift");
           let c = args[0].compile().evaluate(scope);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0].toString() + "' must be a number for bitshift");
+            throw new ArgumentInvalidNumberError(args[0], "bitshift");
           let sides = args[1].compile().evaluate(scope);
           if (isNaN(sides))
-            throw new Error("Invalid argument '" + args[1].toString() + "' must be a number for bitshift");
+            throw new ArgumentInvalidNumberError(args[1], "bitshift");
           if (sides < 0)
             return c >> -sides;
           return c << sides;
         },
         bittest: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for bittest");
+            throw new ArgumentMissingError("bittest");
           else if (args.length !== 2)
-            throw new Error("Too many arguments for bittest");
+            throw new ArgumentTooManyError("bittest");
           let c = args[0].compile().evaluate(scope);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0].toString() + "' must be a number for bittest");
+            throw new ArgumentInvalidNumberError(args[0], "bittest");
           let sides = args[1].compile().evaluate(scope);
           if (isNaN(sides))
-            throw new Error("Invalid argument '" + args[1].toString() + "' must be a number for bittest");
+            throw new ArgumentInvalidNumberError(args[1], "bittest");
           sides--;
           return (c >> sides) % 2 != 0 ? 1 : 0;
         },
         bitxor: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for bitxor");
+            throw new ArgumentMissingError("bitxor");
           else if (args.length !== 2)
-            throw new Error("Too many arguments for bitxor");
+            throw new ArgumentTooManyError("bitxor");
           let c = args[0].compile().evaluate(scope);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0].toString() + "' must be a number for bitxor");
+            throw new ArgumentInvalidNumberError(args[0], "bitxor");
           let sides = args[1].compile().evaluate(scope);
           if (isNaN(sides))
-            throw new Error("Invalid argument '" + args[1].toString() + "' must be a number for bitxor");
+            throw new ArgumentInvalidNumberError(args[1], "bitxor");
           return c ^ sides;
         },
         tonumber: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for number");
+            throw new ArgumentMissingError("number");
           else if (args.length > 1)
-            throw new Error("Too many arguments for number");
+            throw new ArgumentTooManyError("number");
           args[0] = args[0].compile().evaluate(scope).toString();
           if (args[0].match(/^\s*?[-|+]?\d+\s*?$/))
             return parseInt(args[0], 10);
@@ -9686,9 +9736,9 @@
         },
         isfloat: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for isfloat");
+            throw new ArgumentMissingError("isfloat");
           else if (args.length > 1)
-            throw new Error("Too many arguments for isfloat");
+            throw new ArgumentTooManyError("isfloat");
           args[0] = args[0].compile().evaluate(scope).toString();
           if (args[0].match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
             return 1;
@@ -9696,9 +9746,9 @@
         },
         isnumber: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for isnumber");
+            throw new ArgumentMissingError("isnumber");
           else if (args.length > 1)
-            throw new Error("Too many arguments for isnumber");
+            throw new ArgumentTooManyError("isnumber");
           args[0] = args[0].compile().evaluate(scope).toString();
           if (args[0].match(/^\s*?[-|+]?\d+\s*?$/) || args[0].match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
             return 1;
@@ -9706,16 +9756,16 @@
         },
         tostring: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for string");
+            throw new ArgumentMissingError("string");
           else if (args.length > 1)
-            throw new Error("Too many arguments for string");
+            throw new ArgumentTooManyError("string");
           return args[0].compile().evaluate(scope).toString();
         },
         float: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for float");
+            throw new ArgumentMissingError("float");
           else if (args.length > 1)
-            throw new Error("Too many arguments for float");
+            throw new ArgumentTooManyError("float");
           args[0] = args[0].compile().evaluate(scope).toString();
           if (args[0].match(/^\s*?[-|+]?\d+\s*?$/) || args[0].match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
             return parseFloat(args[0]);
@@ -9727,51 +9777,51 @@
         },
         trim: (args, math2, scope) => {
           if (args.length !== 1)
-            throw new Error("Missing arguments for trim");
+            throw new ArgumentMissingError("trim");
           return args[0].compile().evaluate(scope).toString().trim();
         },
         trimleft: (args, math2, scope) => {
           if (args.length !== 1)
-            throw new Error("Missing arguments for trimleft");
+            throw new ArgumentMissingError("trimleft");
           return args[0].compile().evaluate(scope).toString().trimLeft();
         },
         trimright: (args, math2, scope) => {
           if (args.length !== 1)
-            throw new Error("Missing arguments for trimright");
+            throw new ArgumentMissingError("trimright");
           return args[0].compile().evaluate(scope).toString().trimRight();
         },
         pos: (args, math2, scope) => {
           if (args.length < 2)
-            throw new Error("Missing arguments for pos");
+            throw new ArgumentMissingError("pos");
           else if (args.length > 2)
-            throw new Error("Too many arguments for pos");
+            throw new ArgumentTooManyError("pos");
           args[0] = args[0].compile().evaluate(scope).toString();
           args[1] = args[1].compile().evaluate(scope).toString();
           return args[1].indexOf(args[0]) + 1;
         },
         ipos: (args, math2, scope) => {
           if (args.length < 2)
-            throw new Error("Missing arguments for pos");
+            throw new ArgumentMissingError("pos");
           else if (args.length > 2)
-            throw new Error("Too many arguments for pos");
+            throw new ArgumentTooManyError("pos");
           args[0] = args[0].compile().evaluate(scope).toString().toLowerCase();
           args[1] = args[1].compile().evaluate(scope).toString().toLowerCase();
           return args[1].indexOf(args[0]) + 1;
         },
         ends: (args, math2, scope) => {
           if (args.length < 2)
-            throw new Error("Missing arguments for ends");
+            throw new ArgumentMissingError("ends");
           else if (args.length > 2)
-            throw new Error("Too many arguments for ends");
+            throw new ArgumentTooManyError("ends");
           args[0] = args[0].compile().evaluate(scope).toString().toLowerCase();
           args[1] = args[1].compile().evaluate(scope).toString().toLowerCase();
           return args[0].endsWith(args[1]);
         },
         begins: (args, math2, scope) => {
           if (args.length < 2)
-            throw new Error("Missing arguments for begins");
+            throw new ArgumentMissingError("begins");
           else if (args.length > 2)
-            throw new Error("Too many arguments for begins");
+            throw new ArgumentTooManyError("begins");
           args[0] = args[0].compile().evaluate(scope).toString().toLowerCase();
           args[1] = args[1].compile().evaluate(scope).toString().toLowerCase();
           return args[0].startsWith(args[1]);
@@ -9784,7 +9834,7 @@
           let p;
           switch (args.length) {
             case 0:
-              throw new Error("Missing arguments for alarm");
+              throw new ArgumentMissingError("alarm");
             case 1:
               args[0] = args[0].compile().evaluate(scope).toString();
               alarms = this.client.alarms;
@@ -9853,33 +9903,33 @@
               }
               throw Error("Could not set time, alarm not found in profile: " + args[2] + ".");
           }
-          throw new Error("Too many arguments for alarm");
+          throw new ArgumentTooManyError("alarm");
         },
         state: (args, math2, scope) => {
           let trigger;
           if (args.length === 0)
-            throw new Error("Missing arguments for state");
+            throw new ArgumentMissingError("state");
           if (args.length > 2)
-            throw new Error("Too many arguments for state");
+            throw new ArgumentTooManyError("state");
           args[0] = args[0].compile().evaluate(scope).toString();
           if (args.length === 1) {
-            const keys = this.client.profiles.keys;
+            const keys = this._profiles.keys;
             let k = 0;
             const kl = keys.length;
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this.client.profiles.items[keys[0]].enabled || !this.client.profiles.items[keys[0]].enableTriggers)
+              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
-              trigger = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+              trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
               trigger = trigger.find((t) => {
                 return t.name === args[0] || t.pattern === args[0];
               });
             } else {
               for (; k < kl; k++) {
-                if (!this.client.profiles.items[keys[k]].enabled || !this.client.profiles.items[keys[k]].enableTriggers || this.client.profiles.items[keys[k]].triggers.length === 0)
+                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
-                trigger = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+                trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                 trigger = trigger.find((t) => {
                   return t.name === args[0] || t.pattern === args[0];
                 });
@@ -9890,10 +9940,10 @@
           } else if (args.length === 2) {
             args[1] = args[1].compile().evaluate(scope);
             let profile;
-            if (this.client.profiles.contains(args[1]))
-              profile = this.client.profiles.items[args[1].toLowerCase()];
+            if (this._profiles.contains(args[1]))
+              profile = this._profiles.items[args[1].toLowerCase()];
             else
-              throw new Error("Profile not found: " + args[1]);
+              throw new ProfileNotFound(args[1]);
             trigger = SortItemArrayByPriority(profile.triggers);
             trigger = trigger.find((t) => {
               return t.name === args[0] || t.pattern === args[0];
@@ -9907,69 +9957,69 @@
           if (args.length === 0)
             return null;
           if (args.length !== 1)
-            throw new Error("Too many arguments for null");
+            throw new ArgumentTooManyError("null");
           return args[0].compile().evaluate(scope) ? 1 : 0;
         },
         escape: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for unescape");
+            throw new ArgumentMissingError("unescape");
           if (args.length !== 1)
-            throw new Error("Too many arguments for unescape");
+            throw new ArgumentTooManyError("unescape");
           let c;
           args[0] = args[0].compile().evaluate(scope).toString();
-          if (this.client.getOption("allowEscape")) {
-            const escape2 = this.client.getOption("allowEscape") ? this.client.getOption("escapeChar") : "";
+          if (this._getOption("allowEscape")) {
+            const escape2 = this._getOption("allowEscape") ? this._getOption("escapeChar") : "";
             c = escape2;
             if (escape2 === "\\")
               c += escape2;
-            if (this.client.getOption("parseDoubleQuotes"))
+            if (this._getOption("parseDoubleQuotes"))
               c += '"';
-            if (this.client.getOption("parseSingleQuotes"))
+            if (this._getOption("parseSingleQuotes"))
               c += "'";
-            if (this.client.getOption("commandStacking"))
-              c += this.client.getOption("commandStackingChar");
-            if (this.client.getOption("enableSpeedpaths"))
-              c += this.client.getOption("speedpathsChar");
-            if (this.client.getOption("enableCommands"))
-              c += this.client.getOption("commandChar");
-            if (this.client.getOption("enableVerbatim"))
-              c += this.client.getOption("verbatimChar");
-            if (this.client.getOption("enableDoubleParameterEscaping"))
-              c += this.client.getOption("parametersChar");
-            if (this.client.getOption("enableNParameters"))
-              c += this.client.getOption("nParametersChar");
+            if (this._getOption("commandStacking"))
+              c += this._getOption("commandStackingChar");
+            if (this._getOption("enableSpeedpaths"))
+              c += this._getOption("speedpathsChar");
+            if (this._getOption("enableCommands"))
+              c += this._getOption("commandChar");
+            if (this._getOption("enableVerbatim"))
+              c += this._getOption("verbatimChar");
+            if (this._getOption("enableDoubleParameterEscaping"))
+              c += this._getOption("parametersChar");
+            if (this._getOption("enableNParameters"))
+              c += this._getOption("nParametersChar");
             return args.replace(new RegExp(`[${c}]`, "g"), escape2 + "$&");
           }
           return args.replace(/[\\"']/g, "$&");
         },
         unescape: (args, math2, scope) => {
           if (args.length === 0)
-            throw new Error("Missing arguments for unescape");
+            throw new ArgumentMissingError("unescape");
           if (args.length !== 1)
-            throw new Error("Too many arguments for unescape");
+            throw new ArgumentTooManyError("unescape");
           let c;
           args[0] = args[0].compile().evaluate(scope).toString();
-          if (this.client.getOption("allowEscape")) {
-            const escape2 = this.client.getOption("allowEscape") ? this.client.getOption("escapeChar") : "";
+          if (this._getOption("allowEscape")) {
+            const escape2 = this._getOption("allowEscape") ? this._getOption("escapeChar") : "";
             c = escape2;
             if (escape2 === "\\")
               c += escape2;
-            if (this.client.getOption("parseDoubleQuotes"))
+            if (this._getOption("parseDoubleQuotes"))
               c += '"';
-            if (this.client.getOption("parseSingleQuotes"))
+            if (this._getOption("parseSingleQuotes"))
               c += "'";
-            if (this.client.getOption("commandStacking"))
-              c += this.client.getOption("commandStackingChar");
-            if (this.client.getOption("enableSpeedpaths"))
-              c += this.client.getOption("speedpathsChar");
-            if (this.client.getOption("enableCommands"))
-              c += this.client.getOption("commandChar");
-            if (this.client.getOption("enableVerbatim"))
-              c += this.client.getOption("verbatimChar");
-            if (this.client.getOption("enableDoubleParameterEscaping"))
-              c += this.client.getOption("parametersChar");
-            if (this.client.getOption("enableNParameters"))
-              c += this.client.getOption("nParametersChar");
+            if (this._getOption("commandStacking"))
+              c += this._getOption("commandStackingChar");
+            if (this._getOption("enableSpeedpaths"))
+              c += this._getOption("speedpathsChar");
+            if (this._getOption("enableCommands"))
+              c += this._getOption("commandChar");
+            if (this._getOption("enableVerbatim"))
+              c += this._getOption("verbatimChar");
+            if (this._getOption("enableDoubleParameterEscaping"))
+              c += this._getOption("parametersChar");
+            if (this._getOption("enableNParameters"))
+              c += this._getOption("nParametersChar");
             if (escape2 === "\\")
               return args[0].replace(new RegExp(`\\\\[${c}]`, "g"), (m) => m.substr(1));
             return args[0].replace(new RegExp(`${escape2}[${c}]`, "g"), (m) => m.substr(1));
@@ -9978,7 +10028,7 @@
         },
         prompt: (args, math2, scope) => {
           if (args.length > 3)
-            throw new Error("Too many arguments");
+            throw new ArgumentTooManyError("prompt");
           if (args.length === 0)
             return window.prompt();
           args = args.map((a) => a.compile().evaluate(scope).toString());
@@ -9987,7 +10037,7 @@
         /*
         fileprompt: (args, math, scope) => {
             if (args.length > 2)
-                throw new Error('Too many arguments');
+                throw new ArgumentTooManyError('fileprompt');
             args = args.map(a => a.compile().evaluate(scope).toString());
             let f = [
                 { name: 'All files (*.*)', extensions: ['*'] },
@@ -10027,7 +10077,7 @@
       this._controllers = [];
       this._controllersCount = 0;
       this._gamepadCaches = null;
-      if (!this.client.getOption("gamepads")) return;
+      if (!this._getOption("gamepads")) return;
       const controllers = navigator.getGamepads();
       let ct = 0;
       const cl = controllers.length;
@@ -10039,7 +10089,7 @@
       this._updatePads();
     }
     _updatePads() {
-      if (this._controllersCount === 0 || !this.client.getOption("gamepads"))
+      if (this._controllersCount === 0 || !this._getOption("gamepads"))
         return;
       const controllers = navigator.getGamepads();
       let c = 0;
@@ -10152,7 +10202,7 @@
     }
     AddCommandToHistory(cmd) {
       if ((this._commandHistory.length < 1 || this._commandHistory[this._commandHistory.length - 1] !== cmd) && cmd.length > 0) {
-        if (this._commandHistory.length >= this.client.getOption("commandHistorySize"))
+        if (this._commandHistory.length >= this._getOption("commandHistorySize"))
           this._commandHistory.shift();
         this._commandHistory.push(cmd);
         this.emit("command-history-changed", this._commandHistory);
@@ -10186,9 +10236,9 @@
       let arg = "";
       let raw;
       let s = 0;
-      const pd = this.client.getOption("parseDoubleQuotes");
-      const ps = this.client.getOption("parseSingleQuotes");
-      const cmdChar = this.client.getOption("commandChar");
+      const pd = this._getOption("parseDoubleQuotes");
+      const ps = this._getOption("parseSingleQuotes");
+      const cmdChar = this._getOption("commandChar");
       for (; idx < tl; idx++) {
         c = txt.charAt(idx);
         switch (state) {
@@ -10320,8 +10370,8 @@
         case "unaction":
         case "untrigger":
         case "unt":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           profile = null;
           name2 = null;
           reload = true;
@@ -10338,22 +10388,22 @@
             profile = this.parseInline(profile);
           }
           if (!profile || profile.length === 0) {
-            const keys = this.client.profiles.keys;
+            const keys = this._profiles.keys;
             let k = 0;
             const kl = keys.length;
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this.client.profiles.items[keys[0]].enabled || !this.client.profiles.items[keys[0]].enableTriggers)
+              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
-              item = this.client.profiles.items[keys[k]].findAny("triggers", { name: args[0], pattern: args[0] });
+              item = this._profiles.items[keys[k]].findAny("triggers", { name: args[0], pattern: args[0] });
             } else {
               for (; k < kl; k++) {
-                if (!this.client.profiles.items[keys[k]].enabled || !this.client.profiles.items[keys[k]].enableTriggers || this.client.profiles.items[keys[k]].triggers.length === 0)
+                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
-                item = this.client.profiles.items[keys[k]].findAny("triggers", { name: args[0], pattern: args[0] });
+                item = this._profiles.items[keys[k]].findAny("triggers", { name: args[0], pattern: args[0] });
                 if (item) {
-                  profile = this.client.profiles.items[keys[k]];
+                  profile = this._profiles.items[keys[k]];
                   break;
                 }
               }
@@ -10361,33 +10411,33 @@
             if (!item)
               throw new Error("Trigger '" + args[0] + "' not found in '" + profile.name + "'!");
             this.client.removeTrigger(item);
-            this.client.echo("Trigger '" + args[0] + "' removed from '" + profile.name + "'.", -7, -8, true, true);
+            this._echo("Trigger '" + args[0] + "' removed from '" + profile.name + "'.", -7, -8, true, true);
           } else {
             profile = this.parseInline(profile);
-            if (this.client.profiles.contains(profile)) {
-              profile = this.client.profiles.items[profile.toLowerCase()];
+            if (this._profiles.contains(profile)) {
+              profile = this._profiles.items[profile.toLowerCase()];
               item = profile.findAny("triggers", { name: args[0], pattern: args[0] });
               if (!item)
                 throw new Error("Trigger '" + args[0] + "' not found in '" + profile.name + "'!");
               this.client.removeTrigger(item);
-              this.client.echo("Trigger '" + args[0] + "' removed from '" + profile.name + "'.", -7, -8, true, true);
+              this._echo("Trigger '" + args[0] + "' removed from '" + profile.name + "'.", -7, -8, true, true);
             } else
-              throw new Error("Profile not found: " + profile);
+              throw new ProfileNotFound(profile);
           }
           return null;
         case "suspend":
         case "sus":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           switch (args.length) {
             case 0:
               tmp = this.client.alarms;
               if (tmp.length === 0)
-                this.client.echo("No alarms defined.", -7, -8, true, true);
+                this._echo("No alarms defined.", -7, -8, true, true);
               else {
                 this.client.setAlarmState(0, false);
                 this._lastSuspend = 0;
-                this.client.echo("Last alarm suspended.", -7, -8, true, true);
+                this._echo("Last alarm suspended.", -7, -8, true, true);
               }
               return null;
             case 1:
@@ -10397,7 +10447,7 @@
               for (let a = tmp.length - 1; a >= 0; a--) {
                 if (tmp[a].name === items || tmp[a].pattern === items) {
                   this.client.setAlarmState(a, false);
-                  this.client.echo("Alarm '" + items + "' suspended.", -7, -8, true, true);
+                  this._echo("Alarm '" + items + "' suspended.", -7, -8, true, true);
                   this._lastSuspend = a;
                   break;
                 }
@@ -10408,14 +10458,14 @@
           }
         case "resume":
         case "resu":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           switch (args.length) {
             case 0:
               if (this._lastSuspend === -1)
                 return null;
               this.client.setAlarmState(this._lastSuspend, true);
-              this.client.echo("Last alarm suspended resumed.", -7, -8, true, true);
+              this._echo("Last alarm suspended resumed.", -7, -8, true, true);
               this._lastSuspend = -1;
               return null;
             case 1:
@@ -10425,7 +10475,7 @@
               for (let a = al - 1; a >= 0; a--) {
                 if (tmp[a].name === items || tmp[a].pattern === items) {
                   this.client.setAlarmState(a, true);
-                  this.client.echo("Alarm '" + items + "' resumed.", -7, -8, true, true);
+                  this._echo("Alarm '" + items + "' resumed.", -7, -8, true, true);
                   break;
                 }
               }
@@ -10437,8 +10487,8 @@
         case "ac":
         case "trigger":
         case "tr":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           item = {
             profile: null,
             name: null,
@@ -10449,14 +10499,14 @@
           if (args.length < 2 || args.length > 5)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "tr\x1B[0;-11;-12migger name {pattern} {commands} \x1B[3moptions profile\x1B[0;-11;-12m or \x1B[4m" + cmdChar + "tr\x1B[0;-11;-12migger {pattern} {commands} \x1B[3m{options} profile\x1B[0;-11;-12m");
           if (args[0].length === 0)
-            throw new Error("Invalid trigger name or pattern");
+            throw new InvalidTrigger("name or pattern");
           if (args[0].match(/^\{.*\}$/g)) {
             item.pattern = args.shift();
             item.pattern = this.parseInline(item.pattern.substr(1, item.pattern.length - 2));
           } else {
             item.name = this.parseInline(this.stripQuotes(args.shift()));
             if (!item.name || item.name.length === 0)
-              throw new Error("Invalid trigger name");
+              throw new InvalidTrigger("name");
             if (args[0].match(/^\{.*\}$/g)) {
               item.pattern = args.shift();
               item.pattern = this.parseInline(item.pattern.substr(1, item.pattern.length - 2));
@@ -10497,29 +10547,29 @@
                       if (o.trim().startsWith("param=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid trigger param option '${o.trim()}'`);
+                          throw new InvalidTrigger(`param option '${o.trim()}'`);
                         item.options["params"] = tmp[1];
                       } else if (o.trim().startsWith("type=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid trigger type option '${o.trim()}'`);
+                          throw new InvalidTrigger(`type option '${o.trim()}'`);
                         if (!this._isTriggerType(tmp[1], 1 /* Main */))
-                          throw new Error("Invalid trigger type");
+                          throw new InvalidTrigger("type");
                         item.options["type"] = tmp[1];
                       } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid trigger priority option '${o.trim()}'`);
+                          throw new InvalidTrigger(`priority option '${o.trim()}'`);
                         i2 = parseInt(tmp[1], 10);
                         if (isNaN(i2))
-                          throw new Error("Invalid trigger priority value '" + tmp[1] + "' must be a number");
+                          throw new InvalidTrigger("priority value '" + tmp[1] + "' must be a number");
                         item.options["priority"] = i2;
                       } else
-                        throw new Error(`Invalid trigger option '${o.trim()}'`);
+                        throw new InvalidTrigger(`option '${o.trim()}'`);
                   }
                 });
               } else
-                throw new Error("Invalid trigger options");
+                throw new InvalidTrigger("options");
             } else if (args.length === 2) {
               if (args[0].match(/^\{[\s\S]*\}$/g))
                 args[0] = args[0].substr(1, args[0].length - 2);
@@ -10548,29 +10598,29 @@
                       if (o.trim().startsWith("param=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid trigger param option '${o.trim()}'`);
+                          throw new InvalidTrigger(`param option '${o.trim()}'`);
                         item.options["params"] = tmp[1];
                       } else if (o.trim().startsWith("type=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid trigger type option '${o.trim()}'`);
+                          throw new InvalidTrigger(`type option '${o.trim()}'`);
                         if (!this._isTriggerType(tmp[1], 1 /* Main */))
-                          throw new Error("Invalid trigger type");
+                          throw new InvalidTrigger("type");
                         item.options["type"] = tmp[1];
                       } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid trigger priority option '${o.trim()}'`);
+                          throw new InvalidTrigger(`priority option '${o.trim()}'`);
                         i2 = parseInt(tmp[1], 10);
                         if (isNaN(i2))
-                          throw new Error("Invalid trigger priority value '" + tmp[1] + "' must be a number");
+                          throw new InvalidTrigger("priority value '" + tmp[1] + "' must be a number");
                         item.options["priority"] = i2;
                       } else
-                        throw new Error(`Invalid trigger option '${o.trim()}'`);
+                        throw new InvalidTrigger(`option '${o.trim()}'`);
                   }
                 });
               } else
-                throw new Error("Invalid trigger options");
+                throw new InvalidTrigger("options");
               item.profile = this.stripQuotes(args[1]);
               if (item.profile.length !== 0)
                 item.profile = this.parseInline(item.profile);
@@ -10580,8 +10630,8 @@
           return null;
         case "event":
         case "ev":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           profile = null;
           reload = true;
           item = {
@@ -10669,29 +10719,29 @@
               item.profile = this.parseInline(item.profile);
           }
           if (!item.profile || item.profile.length === 0) {
-            const keys = this.client.profiles.keys;
+            const keys = this._profiles.keys;
             let k = 0;
             const kl = keys.length;
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this.client.profiles.items[keys[0]].enabled || !this.client.profiles.items[keys[0]].enableTriggers)
+              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
-              profile = this.client.profiles.items[keys[0]];
-              tmp = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers.filter((t) => t.type === 2 /* Event */));
+              profile = this._profiles.items[keys[0]];
+              tmp = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers.filter((t) => t.type === 2 /* Event */));
               trigger = tmp.find((t) => {
                 return t.name === item.name || t.pattern === item.name;
               });
             } else {
               for (; k < kl; k++) {
-                if (!this.client.profiles.items[keys[k]].enabled || !this.client.profiles.items[keys[k]].enableTriggers || this.client.profiles.items[keys[k]].triggers.length === 0)
+                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
-                tmp = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers.filter((t) => t.type === 2 /* Event */));
+                tmp = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers.filter((t) => t.type === 2 /* Event */));
                 trigger = tmp.find((t) => {
                   return t.name === item.name || t.pattern === item.name;
                 });
                 if (trigger) {
-                  profile = this.client.profiles.items[keys[k]];
+                  profile = this._profiles.items[keys[k]];
                   break;
                 }
               }
@@ -10699,10 +10749,10 @@
                 profile = this.client.activeProfile;
             }
           } else {
-            if (this.client.profiles.contains(item.profile))
-              profile = this.client.profiles.items[item.profile.toLowerCase()];
+            if (this._profiles.contains(item.profile))
+              profile = this._profiles.items[item.profile.toLowerCase()];
             else
-              throw new Error("Profile not found: " + item.profile);
+              throw new ProfileNotFound(item.profile);
             trigger = tmp.find((t) => {
               return t.name === item.name || t.pattern === item.name;
             });
@@ -10711,10 +10761,10 @@
             trigger = new Trigger();
             trigger.name = item.name;
             profile.triggers.push(trigger);
-            this.client.echo("Event '" + trigger.name + "' added.", -7, -8, true, true);
+            this._echo("Event '" + trigger.name + "' added.", -7, -8, true, true);
             item.new = true;
           } else
-            this.client.echo("Event '" + trigger.name + "' updated.", -7, -8, true, true);
+            this._echo("Event '" + trigger.name + "' updated.", -7, -8, true, true);
           trigger.pattern = item.name;
           if (item.commands !== null)
             trigger.value = item.commands;
@@ -10747,8 +10797,8 @@
           return null;
         case "unevent":
         case "une":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent name or \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent {name} \x1B[3mprofile\x1B[0;-11;-12m");
           else {
@@ -10759,10 +10809,10 @@
                 throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent name or \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent {name} \x1B[3mprofile\x1B[0;-11;-12m");
               if (args.length === 2) {
                 profile = this.parseInline(this.stripQuotes(args[1])).toLowerCase();
-                if (this.client.profiles.contains(profile))
-                  profile = this.client.profiles.items[profile];
+                if (this._profiles.contains(profile))
+                  profile = this._profiles.items[profile];
                 else
-                  throw new Error("Profile not found: " + profile);
+                  throw new ProfileNotFound(profile);
               } else
                 profile = this.client.activeProfile;
               if (args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g))
@@ -10779,9 +10829,9 @@
             n = items.findIndex((i3) => i3.pattern === n || i3.name === n);
             f = n !== -1;
             if (!f)
-              this.client.echo("Event '" + tmp + "' not found.", -7, -8, true, true);
+              this._echo("Event '" + tmp + "' not found.", -7, -8, true, true);
             else {
-              this.client.echo("Event '" + (items[n].name || items[n].pattern) + "' removed.", -7, -8, true, true);
+              this._echo("Event '" + (items[n].name || items[n].pattern) + "' removed.", -7, -8, true, true);
               if (reload)
                 this.client.removeTrigger(items[n]);
               else {
@@ -10797,8 +10847,8 @@
         //#endregion
         case "button":
         case "bu":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 1) {
             n = this.parseInline(this.stripQuotes(args[0]));
             items = document.getElementById("user-buttons").children;
@@ -10915,29 +10965,29 @@
             }
           }
           if (!item.profile || item.profile.length === 0) {
-            const keys = this.client.profiles.keys;
+            const keys = this._profiles.keys;
             let k = 0;
             const kl = keys.length;
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this.client.profiles.items[keys[0]].enabled || !this.client.profiles.items[keys[0]].enableTriggers)
+              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
-              profile = this.client.profiles.items[keys[0]];
+              profile = this._profiles.items[keys[0]];
               if (item.name !== null)
-                trigger = this.client.profiles.items[keys[k]].find("buttons", "name", item.name);
+                trigger = this._profiles.items[keys[k]].find("buttons", "name", item.name);
               else
-                trigger = this.client.profiles.items[keys[k]].find("buttons", "caption", item.caption);
+                trigger = this._profiles.items[keys[k]].find("buttons", "caption", item.caption);
             } else {
               for (; k < kl; k++) {
-                if (!this.client.profiles.items[keys[k]].enabled || !this.client.profiles.items[keys[k]].enableTriggers || this.client.profiles.items[keys[k]].triggers.length === 0)
+                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
                 if (item.name !== null)
-                  trigger = this.client.profiles.items[keys[k]].find("buttons", "name", item.name);
+                  trigger = this._profiles.items[keys[k]].find("buttons", "name", item.name);
                 else
-                  trigger = this.client.profiles.items[keys[k]].find("buttons", "caption", item.caption);
+                  trigger = this._profiles.items[keys[k]].find("buttons", "caption", item.caption);
                 if (trigger) {
-                  profile = this.client.profiles.items[keys[k]];
+                  profile = this._profiles.items[keys[k]];
                   break;
                 }
               }
@@ -10945,10 +10995,10 @@
                 profile = this.client.activeProfile;
             }
           } else {
-            if (this.client.profiles.contains(item.profile))
-              profile = this.client.profiles.items[item.profile.toLowerCase()];
+            if (this._profiles.contains(item.profile))
+              profile = this._profiles.items[item.profile.toLowerCase()];
             else
-              throw new Error("Profile not found: " + item.profile);
+              throw new ProfileNotFound(item.profile);
             if (item.name !== null)
               trigger = profile.find("buttons", "name", item.name);
             else
@@ -10960,12 +11010,12 @@
             trigger.caption = item.caption || "";
             profile.buttons.push(trigger);
             if (!item.name && !item.caption)
-              this.client.echo("Button added.", -7, -8, true, true);
+              this._echo("Button added.", -7, -8, true, true);
             else
-              this.client.echo("Button '" + (trigger.name || trigger.caption || "") + "' added.", -7, -8, true, true);
+              this._echo("Button '" + (trigger.name || trigger.caption || "") + "' added.", -7, -8, true, true);
             item.new = true;
           } else
-            this.client.echo("Button '" + (trigger.name || trigger.caption || "") + "' updated.", -7, -8, true, true);
+            this._echo("Button '" + (trigger.name || trigger.caption || "") + "' updated.", -7, -8, true, true);
           if (item.caption !== null)
             trigger.caption = item.caption;
           if (item.commands !== null)
@@ -10996,8 +11046,8 @@
           return null;
         case "unbutton":
         case "unb":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton name or \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton {name} \x1B[3mprofile\x1B[0;-11;-12m");
           else {
@@ -11008,10 +11058,10 @@
                 throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton name or \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton {name} \x1B[3mprofile\x1B[0;-11;-12m");
               if (args.length === 2) {
                 profile = this.parseInline(this.stripQuotes(args[1]));
-                if (this.client.profiles.contains(profile))
-                  profile = this.client.profiles.items[profile.toLowerCase()];
+                if (this._profiles.contains(profile))
+                  profile = this._profiles.items[profile.toLowerCase()];
                 else
-                  throw new Error("Profile not found: " + profile);
+                  throw new ProfileNotFound(profile);
               } else
                 profile = this.client.activeProfile;
               if (args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g))
@@ -11035,12 +11085,12 @@
               f = n !== -1;
             }
             if (!f)
-              this.client.echo("Button '" + tmp + "' not found.", -7, -8, true, true);
+              this._echo("Button '" + tmp + "' not found.", -7, -8, true, true);
             else {
               if (items[n].name.length === 0 && items[n].caption.length === 0)
-                this.client.echo("Button '" + tmp + "' removed.", -7, -8, true, true);
+                this._echo("Button '" + tmp + "' removed.", -7, -8, true, true);
               else
-                this.client.echo("Button '" + (items[n].name || items[n].caption) + "' removed.", -7, -8, true, true);
+                this._echo("Button '" + (items[n].name || items[n].caption) + "' removed.", -7, -8, true, true);
               n = profile.buttons.indexOf(items[n]);
               profile.buttons.splice(n, 1);
               this.client.saveProfiles();
@@ -11054,8 +11104,8 @@
         //#endregion button
         case "alarm":
         case "ala":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           profile = null;
           name2 = null;
           reload = true;
@@ -11078,10 +11128,10 @@
             if (!profile || profile.length === 0)
               profile = this.client.activeProfile;
             else {
-              if (this.client.profiles.contains(profile))
-                profile = this.client.profiles.items[profile.toLowerCase()];
+              if (this._profiles.contains(profile))
+                profile = this._profiles.items[profile.toLowerCase()];
               else
-                throw new Error("Profile not found: " + profile);
+                throw new ProfileNotFound(profile);
             }
             trigger = new Trigger();
             trigger.pattern = args[0];
@@ -11093,7 +11143,7 @@
               this._lastSuspend = -1;
               this.client.updateAlarms();
             }
-            this.client.echo("Alarm '" + trigger.pattern + "' added.", -7, -8, true, true);
+            this._echo("Alarm '" + trigger.pattern + "' added.", -7, -8, true, true);
             this.emit("item-added", "trigger", profile.name, trigger);
             profile = null;
             return null;
@@ -11119,15 +11169,15 @@
               commands = commands.substr(1, commands.length - 2);
           }
           if (!profile || profile.length === 0) {
-            const keys = this.client.profiles.keys;
+            const keys = this._profiles.keys;
             let k = 0;
             const kl = keys.length;
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this.client.profiles.items[keys[0]].enabled || !this.client.profiles.items[keys[0]].enableTriggers)
+              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
-              profile = this.client.profiles.items[keys[0]];
+              profile = this._profiles.items[keys[0]];
               trigger = profile.find("triggers", "name", name2);
               if (!trigger && !commands)
                 throw new Error("Alarm not found!");
@@ -11135,17 +11185,17 @@
                 trigger = new Trigger();
                 trigger.name = name2;
                 profile.triggers.push(trigger);
-                this.client.echo("Alarm '" + trigger.name + "' added.", -7, -8, true, true);
+                this._echo("Alarm '" + trigger.name + "' added.", -7, -8, true, true);
                 n = true;
               } else
-                this.client.echo("Alarm '" + trigger.name + "' updated.", -7, -8, true, true);
+                this._echo("Alarm '" + trigger.name + "' updated.", -7, -8, true, true);
             } else {
               for (; k < kl; k++) {
-                if (!this.client.profiles.items[keys[k]].enabled || !this.client.profiles.items[keys[k]].enableTriggers || this.client.profiles.items[keys[k]].triggers.length === 0)
+                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
-                trigger = this.client.profiles.items[keys[k]].find("triggers", "name", name2);
+                trigger = this._profiles.items[keys[k]].find("triggers", "name", name2);
                 if (trigger) {
-                  profile = this.client.profiles.items[keys[k]];
+                  profile = this._profiles.items[keys[k]];
                   break;
                 }
               }
@@ -11158,16 +11208,16 @@
                 n = true;
                 trigger.name = name2;
                 profile.triggers.push(trigger);
-                this.client.echo("Alarm '" + trigger.name + "' added.", -7, -8, true, true);
+                this._echo("Alarm '" + trigger.name + "' added.", -7, -8, true, true);
               } else
-                this.client.echo("Alarm '" + trigger.name + "' updated.", -7, -8, true, true);
+                this._echo("Alarm '" + trigger.name + "' updated.", -7, -8, true, true);
             }
           } else {
             profile = this.parseInline(profile);
-            if (this.client.profiles.contains(profile))
-              profile = this.client.profiles.items[profile.toLowerCase()];
+            if (this._profiles.contains(profile))
+              profile = this._profiles.items[profile.toLowerCase()];
             else
-              throw new Error("Profile not found: " + profile);
+              throw new ProfileNotFound(profile);
             trigger = profile.find("triggers", "name", name2);
             if (!trigger && !commands)
               throw new Error("Alarm not found!");
@@ -11176,9 +11226,9 @@
               trigger.name = name2;
               profile.triggers.push(trigger);
               n = true;
-              this.client.echo("Alarm '" + trigger.name + "' added.", -7, -8, true, true);
+              this._echo("Alarm '" + trigger.name + "' added.", -7, -8, true, true);
             } else
-              this.client.echo("Alarm '" + trigger.name + "' updated.", -7, -8, true, true);
+              this._echo("Alarm '" + trigger.name + "' updated.", -7, -8, true, true);
           }
           trigger.pattern = pattern;
           trigger.type = 3 /* Alarm */;
@@ -11198,8 +11248,8 @@
         //#endregion alarm
         case "ungag":
         case "ung":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length > 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "ung\x1B[0;-11;-12mag number or \x1B[4m" + cmdChar + "ung\x1B[0;-11;-12mag");
           if (this._gagID.length) {
@@ -11210,8 +11260,8 @@
           return null;
         case "gag":
         case "ga":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0) {
             if (this._gags.length && this._gags[this._gags.length - 1] == this.client.display.lines.length) {
               this._gag = 0;
@@ -11272,8 +11322,8 @@
         //#endregion gag
         case "wait":
         case "wa":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           args = args.filter((a) => a);
           if (args.length === 0 || args.length > 1)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "wa\x1B[0;-11;-12mit number");
@@ -11285,33 +11335,33 @@
           return i2;
         case "showclient":
         case "showcl":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           this.client.show();
           return null;
         case "hideclient":
         case "hidecl":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           this.client.hide();
           return null;
         case "toggleclient":
         case "togglecl":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           this.client.toggle();
           return null;
         case "raiseevent":
         case "raise":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
-          if (this.client.getOption("parseDoubleQuotes"))
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
+          if (this._getOption("parseDoubleQuotes"))
             args.forEach((a) => {
               return a.replace(/^\"(.*)\"$/g, (v, e, w) => {
                 return e.replace(/\\\"/g, '"');
               });
             });
-          if (this.client.getOption("parseSingleQuotes"))
+          if (this._getOption("parseSingleQuotes"))
             args.forEach((a) => {
               return a.replace(/^\'(.*)\'$/g, (v, e, w) => {
                 return e.replace(/\\\'/g, "'");
@@ -11326,15 +11376,15 @@
           return null;
         case "cl":
         case "close":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
-          if (this.client.getOption("parseDoubleQuotes"))
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
+          if (this._getOption("parseDoubleQuotes"))
             args.forEach((a) => {
               return a.replace(/^\"(.*)\"$/g, (v, e, w) => {
                 return e.replace(/\\\"/g, '"');
               });
             });
-          if (this.client.getOption("parseSingleQuotes"))
+          if (this._getOption("parseSingleQuotes"))
             args.forEach((a) => {
               return a.replace(/^\'(.*)\'$/g, (v, e, w) => {
                 return e.replace(/\\\'/g, "'");
@@ -11349,15 +11399,15 @@
           return null;
         case "window":
         case "win":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
-          if (this.client.getOption("parseDoubleQuotes"))
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
+          if (this._getOption("parseDoubleQuotes"))
             args.forEach((a) => {
               return a.replace(/^\"(.*)\"$/g, (v, e, w) => {
                 return e.replace(/\\\"/g, '"');
               });
             });
-          if (this.client.getOption("parseSingleQuotes"))
+          if (this._getOption("parseSingleQuotes"))
             args.forEach((a) => {
               return a.replace(/^\'(.*)\'$/g, (v, e, w) => {
                 return e.replace(/\\\'/g, "'");
@@ -11374,8 +11424,8 @@
           return null;
         case "raisedelayed":
         case "raisede":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length < 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "raisede\x1B[0;-11;-12mlayed milliseconds name or \x1B[4m" + cmdChar + "raisede\x1B[0;-11;-12mlayed milliseconds name arguments");
           i2 = parseInt(this.stripQuotes(this.parseInline(args[0])), 10);
@@ -11384,13 +11434,13 @@
           if (i2 < 1)
             throw new Error("Must be greater then zero for raisedelayed");
           args.shift();
-          if (this.client.getOption("parseDoubleQuotes"))
+          if (this._getOption("parseDoubleQuotes"))
             args.forEach((a) => {
               return a.replace(/^\"(.*)\"$/g, (v, e, w) => {
                 return e.replace(/\\\"/g, '"');
               });
             });
-          if (this.client.getOption("parseSingleQuotes"))
+          if (this._getOption("parseSingleQuotes"))
             args.forEach((a) => {
               return a.replace(/^\'(.*)\'$/g, (v, e, w) => {
                 return e.replace(/\\\'/g, "'");
@@ -11403,8 +11453,8 @@
           return null;
         case "notify":
         case "not":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "not\x1B[0;-11;-12mify title \x1B[3mmessage icon\x1B[0;-11;-12m");
           else {
@@ -11423,51 +11473,51 @@
           return null;
         case "idle":
         case "idletime":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (!this.client.lastSendTime)
-            this.client.echo("Not connected", -7, -8, true, true);
+            this._echo("Not connected", -7, -8, true, true);
           else
-            this.client.echo("You have been idle: " + getTimeSpan(Date.now() - this.client.lastSendTime), -7, -8, true, true);
+            this._echo("You have been idle: " + getTimeSpan(Date.now() - this.client.lastSendTime), -7, -8, true, true);
           return null;
         case "connect":
         case "connecttime":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (!this.client.connectTime) {
             if (!moment && this.client.disconnectTime)
-              this.client.echo("Disconnected since: " + new Date(this.client.disconnectTime).toLocaleString(), -7, -8, true, true);
+              this._echo("Disconnected since: " + new Date(this.client.disconnectTime).toLocaleString(), -7, -8, true, true);
             else if (this.client.disconnectTime)
-              this.client.echo("Disconnected since: " + new moment(this.client.disconnectTime).format("MM/DD/YYYY hh:mm:ss A"), -7, -8, true, true);
+              this._echo("Disconnected since: " + new moment(this.client.disconnectTime).format("MM/DD/YYYY hh:mm:ss A"), -7, -8, true, true);
             else
-              this.client.echo("Not connected", -7, -8, true, true);
+              this._echo("Not connected", -7, -8, true, true);
           } else
-            this.client.echo("You have been connected: " + getTimeSpan(Date.now() - this.client.connectTime), -7, -8, true, true);
+            this._echo("You have been connected: " + getTimeSpan(Date.now() - this.client.connectTime), -7, -8, true, true);
           return null;
         case "beep":
         case "be":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           this.client.beep();
           return null;
         case "version":
         case "ve":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
-          this.client.echo(this.client.telnet.terminal + " v" + this.client.version, -7, -8, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
+          this._echo(this.client.telnet.terminal + " v" + this.client.version, -7, -8, true, true);
           return null;
         case "showprompt":
         case "showp":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           args = this.parseInline(args.join(" "));
           this.client.telnet.receivedData(StringToUint8Array(args), true, true);
           this.client.telnet.prompt = true;
           return null;
         case "show":
         case "sh":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           args = this.parseInline(args.join(" ") + "\n");
           this.client.telnet.receivedData(StringToUint8Array(args), true, true);
           return null;
@@ -11475,8 +11525,8 @@
         case "sayp":
         case "echoprompt":
         case "echop":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           args = this.parseInline(args.join(" "));
           this.client.print("\x1B[-7;-8m" + args + "\x1B[0m", false);
           return null;
@@ -11484,8 +11534,8 @@
         case "sa":
         case "echo":
         case "ec":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           args = this.parseInline(args.join(" "));
           if (this.client.telnet.prompt)
             this.client.print("\n\x1B[-7;-8m" + args + "\x1B[0m\n", false);
@@ -11494,8 +11544,8 @@
           this.client.telnet.prompt = false;
           return null;
         case "print":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           i2 = this.client.enableTriggers;
           this.client.enableTriggers = false;
           args = this.parseInline(args.join(" "));
@@ -11508,8 +11558,8 @@
           return null;
         case "printprompt":
         case "printp":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           i2 = this.client.enableTriggers;
           this.client.enableTriggers = false;
           args = this.parseInline(args.join(" "));
@@ -11518,8 +11568,8 @@
           return null;
         case "alias":
         case "al":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "al\x1B[0;-11;-12mias name value or \x1B[4m" + cmdChar + "al\x1B[0;-11;-12mias name {value} \x1B[3mprofile\x1B[0;-11;-12m");
           else if (args.length === 1)
@@ -11533,10 +11583,10 @@
                 throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "al\x1B[0;-11;-12mias name value or \x1B[4m" + cmdChar + "al\x1B[0;-11;-12mias name {value} \x1B[3mprofile\x1B[0;-11;-12m");
               if (args.length === 2) {
                 profile = this.parseInline(this.stripQuotes(args[1]));
-                if (this.client.profiles.contains(profile))
-                  profile = this.client.profiles.items[profile.toLowerCase()];
+                if (this._profiles.contains(profile))
+                  profile = this._profiles.items[profile.toLowerCase()];
                 else
-                  throw new Error("Profile not found: " + profile);
+                  throw new ProfileNotFound(profile);
               } else
                 profile = this.client.activeProfile;
               if (args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g))
@@ -11555,13 +11605,13 @@
                 throw new Error("Alias index must be >= 0 and < " + items.length);
               else {
                 items[n].value = args;
-                this.client.echo("Alias '" + items[n].pattern + "' updated.", -7, -8, true, true);
+                this._echo("Alias '" + items[n].pattern + "' updated.", -7, -8, true, true);
               }
             } else {
               for (i2 = 0, al = items.length; i2 < al; i2++) {
                 if (items[i2]["pattern"] === n) {
                   items[i2].value = args;
-                  this.client.echo("Alias '" + n + "' updated.", -7, -8, true, true);
+                  this._echo("Alias '" + n + "' updated.", -7, -8, true, true);
                   this.emit("item-updated", "alias", profile.name, i2, tmp);
                   f = true;
                   break;
@@ -11571,7 +11621,7 @@
                 tmp = new Alias(n, args);
                 items.push(tmp);
                 this.emit("item-added", "alias", profile.name, tmp);
-                this.client.echo("Alias '" + n + "' added.", -7, -8, true, true);
+                this._echo("Alias '" + n + "' added.", -7, -8, true, true);
               }
             }
             profile.aliases = items;
@@ -11583,8 +11633,8 @@
           return null;
         case "unalias":
         case "una":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m");
           else {
@@ -11596,10 +11646,10 @@
               if (args.length === 2) {
                 profile = this.stripQuotes(args[1]);
                 profile = this.parseInline(profile);
-                if (this.client.profiles.contains(profile))
-                  profile = this.client.profiles.items[profile.toLowerCase()];
+                if (this._profiles.contains(profile))
+                  profile = this._profiles.items[profile.toLowerCase()];
                 else
-                  throw new Error("Profile not found: " + profile);
+                  throw new ProfileNotFound(profile);
               } else
                 profile = this.client.activeProfile;
               if (args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g))
@@ -11625,9 +11675,9 @@
               f = n !== -1;
             }
             if (!f)
-              this.client.echo("Alias '" + tmp + "' not found.", -7, -8, true, true);
+              this._echo("Alias '" + tmp + "' not found.", -7, -8, true, true);
             else {
-              this.client.echo("Alias '" + items[n].pattern + "' removed.", -7, -8, true, true);
+              this._echo("Alias '" + items[n].pattern + "' removed.", -7, -8, true, true);
               items.splice(n, 1);
               profile.aliases = items;
               this.client.saveProfiles();
@@ -11640,8 +11690,8 @@
           return null;
         case "setsetting":
         case "sets":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "sets\x1B[0;-11;-12metting name value");
           else if (args.length === 1)
@@ -11674,7 +11724,7 @@
                     throw new Error("String can not be longer then " + SettingList[n][4] + " characters");
                   else {
                     this.client.setOption(SettingList[n][1] || SettingList[n][0], args);
-                    this.client.echo("Setting '" + SettingList[n][0] + "' set to '" + args + "'.", -7, -8, true, true);
+                    this._echo("Setting '" + SettingList[n][0] + "' set to '" + args + "'.", -7, -8, true, true);
                     this.client.loadOptions();
                   }
                   break;
@@ -11685,20 +11735,20 @@
                     case "1":
                     case "yes":
                       this.client.setOption(SettingList[n][1] || SettingList[n][0], true);
-                      this.client.echo("Setting '" + SettingList[n][0] + "' set to true.", -7, -8, true, true);
+                      this._echo("Setting '" + SettingList[n][0] + "' set to true.", -7, -8, true, true);
                       this.client.loadOptions();
                       break;
                     case "no":
                     case "false":
                     case "0":
                       this.client.setOption(SettingList[n][1] || SettingList[n][0], false);
-                      this.client.echo("Setting '" + SettingList[n][0] + "' set to false.", -7, -8, true, true);
+                      this._echo("Setting '" + SettingList[n][0] + "' set to false.", -7, -8, true, true);
                       this.client.loadOptions();
                       break;
                     case "toggle":
-                      args = this.client.getOption(SettingList[n][1] || SettingList[n][0]) ? false : true;
+                      args = this._getOption(SettingList[n][1] || SettingList[n][0]) ? false : true;
                       this.client.setOption(SettingList[n][1] || SettingList[n][0], args);
-                      this.client.echo("Setting '" + SettingList[n][0] + "' set to " + args + ".", -7, -8, true, true);
+                      this._echo("Setting '" + SettingList[n][0] + "' set to " + args + ".", -7, -8, true, true);
                       this.client.loadOptions();
                       break;
                     default:
@@ -11711,7 +11761,7 @@
                     throw new Error("Invalid number '" + args + "'");
                   else {
                     this.client.setOption(SettingList[n][1] || SettingList[n][0], i2);
-                    this.client.echo("Setting '" + SettingList[n][0] + "' set to '" + i2 + "'.", -7, -8, true, true);
+                    this._echo("Setting '" + SettingList[n][0] + "' set to '" + i2 + "'.", -7, -8, true, true);
                     this.client.loadOptions();
                   }
                   break;
@@ -11724,8 +11774,8 @@
           return null;
         case "getsetting":
         case "gets":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "gets\x1B[0;-11;-12metting name");
           else {
@@ -11754,32 +11804,32 @@
                   switch (SettingList[i2][2]) {
                     case 0:
                     case 2:
-                      tmp += "    " + SettingList[i2][0] + ": " + this.client.getOption(SettingList[n][1] || SettingList[n][0]) + "\n";
+                      tmp += "    " + SettingList[i2][0] + ": " + this._getOption(SettingList[n][1] || SettingList[n][0]) + "\n";
                       break;
                     case 1:
                     case 3:
-                      if (this.client.getOption(SettingList[n][1] || SettingList[n][0]))
+                      if (this._getOption(SettingList[n][1] || SettingList[n][0]))
                         tmp += "    " + SettingList[i2][0] + ": true\n";
                       else
                         tmp += "    " + SettingList[i2][0] + ": false\n";
                       break;
                   }
                 }
-                this.client.echo(tmp, -7, -8, true, true);
+                this._echo(tmp, -7, -8, true, true);
               } else if (!f)
                 throw new Error("Unknown setting '" + n + "'");
               else {
                 switch (SettingList[n][2]) {
                   case 0:
                   case 2:
-                    this.client.echo("Setting '" + SettingList[n][0] + "' is '" + this.client.getOption(SettingList[n][1] || SettingList[n][0]) + "'", -7, -8, true, true);
+                    this._echo("Setting '" + SettingList[n][0] + "' is '" + this._getOption(SettingList[n][1] || SettingList[n][0]) + "'", -7, -8, true, true);
                     break;
                   case 1:
                   case 3:
-                    if (this.client.getOption(SettingList[n][1] || SettingList[n][0]))
-                      this.client.echo("Setting '" + SettingList[n][0] + "' is true", -7, -8, true, true);
+                    if (this._getOption(SettingList[n][1] || SettingList[n][0]))
+                      this._echo("Setting '" + SettingList[n][0] + "' is true", -7, -8, true, true);
                     else
-                      this.client.echo("Setting '" + SettingList[n][0] + "' is false", -7, -8, true, true);
+                      this._echo("Setting '" + SettingList[n][0] + "' is false", -7, -8, true, true);
                     break;
                 }
               }
@@ -11787,41 +11837,41 @@
           }
           return null;
         case "profilelist":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
-          this.client.echo("\x1B[4mProfiles:\x1B[0m", -7, -8, true, true);
-          const files = this.client.profiles.keys;
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
+          this._echo("\x1B[4mProfiles:\x1B[0m", -7, -8, true, true);
+          const files = this._profiles.keys;
           al = files.length;
           for (i2 = 0; i2 < al; i2++) {
-            if (this.client.profiles.items[files[i2]] && this.client.profiles.items[files[i2]].enabled)
-              this.client.echo("   " + this.client.profiles.keys[i2] + " is enabled", -7, -8, true, true);
+            if (this._profiles.items[files[i2]] && this._profiles.items[files[i2]].enabled)
+              this._echo("   " + this._profiles.keys[i2] + " is enabled", -7, -8, true, true);
             else
-              this.client.echo("   " + files[i2] + " is disabled", -7, -8, true, true);
+              this._echo("   " + files[i2] + " is disabled", -7, -8, true, true);
           }
           return null;
         case "profile":
         case "pro":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "pro\x1B[0;-11;-12mfile name or \x1B[4m" + cmdChar + "pro\x1B[0;-11;-12mfile name enable/disable");
           else if (args.length === 1) {
             args[0] = this.parseInline(args[0]);
             this.client.toggleProfile(args[0]);
-            if (!this.client.profiles.contains(args[0]))
-              throw new Error("Profile not found");
-            else if (this.client.profiles.length === 1)
+            if (!this._profiles.contains(args[0]))
+              throw new ProfileNotFound(args[0]);
+            else if (this._profiles.length === 1)
               throw new Error(args[0] + " can not be disabled as it is the only one enabled");
-            if (!this.client.profiles.contains(args[0].toLowerCase()))
+            if (!this._profiles.contains(args[0].toLowerCase()))
               args = "Profile not found";
-            else if (this.client.profiles.items[args[0].toLowerCase()].enabled)
+            else if (this._profiles.items[args[0].toLowerCase()].enabled)
               args = args[0] + " is enabled";
             else
               args = args[0] + " is disabled";
           } else {
             args[0] = this.parseInline(args[0]).toLowerCase();
-            if (!this.client.profiles.contains(args[0]))
-              throw new Error("Profile not found");
+            if (!this._profiles.contains(args[0]))
+              throw new ProfileNotFound(args[0]);
             if (!args[1])
               throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "pro\x1B[0;-11;-12mfile name or \x1B[4m" + cmdChar + "pro\x1B[0;-11;-12mfile name enable/disable");
             args[1] = this.parseInline(args[1]);
@@ -11829,11 +11879,11 @@
               case "enable":
               case "on":
               case "yes":
-                if (this.client.profiles.items[args[0].toLowerCase()].enabled)
+                if (this._profiles.items[args[0].toLowerCase()].enabled)
                   args = args[0] + " is already enabled";
                 else {
                   this.client.toggleProfile(args[0]);
-                  if (this.client.profiles.items[args[0].toLowerCase()].enabled !== -1)
+                  if (this._profiles.items[args[0].toLowerCase()].enabled !== -1)
                     args = args[0] + " is enabled";
                   else
                     args = args[0] + " remains disabled";
@@ -11842,10 +11892,10 @@
               case "disable":
               case "off":
               case "no":
-                if (!this.client.profiles.items[args[0].toLowerCase()].enabled)
+                if (!this._profiles.items[args[0].toLowerCase()].enabled)
                   args = args[0] + " is already disabled";
                 else {
-                  if (this.client.profiles.length === 1)
+                  if (this._profiles.length === 1)
                     throw new Error(args[0] + " can not be disabled as it is the only one enabled");
                   this.client.toggleProfile(args[0]);
                   args = args[0] + " is disabled";
@@ -11863,8 +11913,8 @@
           return null;
         case "color":
         case "co":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length > 1 && args.length < 4) {
             item = {
               profile: null,
@@ -11917,7 +11967,7 @@
                   if (isMXPColor(args[0]))
                     i2 = args[0];
                   else
-                    throw new Error("Invalid fore color");
+                    throw new InvalidForeColorError();
                 }
               }
               setTimeout(() => {
@@ -11926,7 +11976,7 @@
               }, 0);
             } else if (args.length === 2) {
               if (args[0] === "bold" && args[1] === "bold")
-                throw new Error("Invalid fore color");
+                throw new InvalidForeColorError();
               if (args[0] === "bold")
                 i2 = 370;
               else if (args[0] === "current")
@@ -11941,7 +11991,7 @@
                   if (isMXPColor(args[0]))
                     i2 = args[0];
                   else
-                    throw new Error("Invalid fore color");
+                    throw new InvalidForeColorError();
                 }
               }
               if (args[1] === "bold") {
@@ -11964,7 +12014,7 @@
                     if (isMXPColor(args[1]))
                       i2 = args[1];
                     else
-                      throw new Error("Invalid back color");
+                      throw new InvalidBackColorError();
                   }
                 }
                 setTimeout(() => {
@@ -11989,7 +12039,7 @@
                   if (isMXPColor(args[0]))
                     i2 = args[0];
                   else
-                    throw new Error("Invalid fore color");
+                    throw new InvalidForeColorError();
                 }
               }
               if (args[2] !== "bold")
@@ -12008,7 +12058,7 @@
                   if (isMXPColor(args[1]))
                     i2 = args[0];
                   else
-                    throw new Error("Invalid back color");
+                    throw new InvalidBackColorError();
                 }
               }
               setTimeout(() => {
@@ -12019,8 +12069,8 @@
           }
           return null;
         case "cw":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           trigger = this.stack.regex;
           if (args.length > 1 && args.length < 4) {
             item = {
@@ -12089,7 +12139,7 @@
                   if (isMXPColor(args[0]))
                     i2 = args[0];
                   else
-                    throw new Error("Invalid fore color");
+                    throw new InvalidForeColorError();
                 }
               }
               setTimeout(() => {
@@ -12106,7 +12156,7 @@
               }, 0);
             } else if (args.length === 2) {
               if (args[0] === "bold" && args[1] === "bold")
-                throw new Error("Invalid fore color");
+                throw new InvalidForeColorError();
               if (args[0] === "bold")
                 i2 = 370;
               else if (args[0] === "current")
@@ -12121,7 +12171,7 @@
                   if (isMXPColor(args[0]))
                     i2 = args[0];
                   else
-                    throw new Error("Invalid fore color");
+                    throw new InvalidForeColorError();
                 }
               }
               if (args[1] === "bold") {
@@ -12151,7 +12201,7 @@
                     if (isMXPColor(args[1]))
                       i2 = args[1];
                     else
-                      throw new Error("Invalid back color");
+                      throw new InvalidBackColorError();
                   }
                 }
                 setTimeout(() => {
@@ -12184,7 +12234,7 @@
                   if (isMXPColor(args[0]))
                     i2 = args[0];
                   else
-                    throw new Error("Invalid fore color");
+                    throw new InvalidForeColorError();
                 }
               }
               if (args[2] !== "bold")
@@ -12203,7 +12253,7 @@
                   if (isMXPColor(args[1]))
                     i2 = args[0];
                   else
-                    throw new Error("Invalid back color");
+                    throw new InvalidBackColorError();
                 }
               }
               setTimeout(() => {
@@ -12222,8 +12272,8 @@
           }
           return null;
         case "pcol":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length < 1 || args.length > 5)
             throw new Error("Invalid syntax use " + cmdChar + "pcol color \x1B[3mXStart, XEnd, YStart, YEnd\x1B[0;-11;-12m");
           if (args.length > 1) {
@@ -12271,7 +12321,7 @@
                   if (isMXPColor(args[0]))
                     i2 = args[0];
                   else
-                    throw new Error("Invalid fore color");
+                    throw new InvalidForeColorError();
                 }
               }
               setTimeout(() => {
@@ -12279,7 +12329,7 @@
               }, 0);
             } else if (args.length === 2) {
               if (args[0] === "bold" && args[1] === "bold")
-                throw new Error("Invalid fore color");
+                throw new InvalidForeColorError();
               if (args[0] === "bold")
                 i2 = 370;
               else if (args[0] === "current")
@@ -12294,7 +12344,7 @@
                   if (isMXPColor(args[0]))
                     i2 = args[0];
                   else
-                    throw new Error("Invalid fore color");
+                    throw new InvalidForeColorError();
                 }
               }
               if (args[1] === "bold") {
@@ -12313,7 +12363,7 @@
                     if (isMXPColor(args[1]))
                       i2 = args[1];
                     else
-                      throw new Error("Invalid back color");
+                      throw new InvalidBackColorError();
                   }
                 }
                 setTimeout(() => {
@@ -12337,7 +12387,7 @@
                   if (isMXPColor(args[0]))
                     i2 = args[0];
                   else
-                    throw new Error("Invalid fore color");
+                    throw new InvalidForeColorError();
                 }
               }
               if (args[2] !== "bold")
@@ -12356,7 +12406,7 @@
                   if (isMXPColor(args[1]))
                     i2 = args[0];
                   else
-                    throw new Error("Invalid back color");
+                    throw new InvalidBackColorError();
                 }
               }
               setTimeout(() => {
@@ -12367,8 +12417,8 @@
           return null;
         case "highlight":
         case "hi":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length > 0 && args.length < 2) {
             item = {
               profile: null,
@@ -12394,8 +12444,8 @@
           return null;
         case "break":
         case "br":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "br\x1B[0;-11;-12meak\x1B[0;-11;-12m");
           if (!this.loops.length)
@@ -12407,8 +12457,8 @@
           return -1;
         case "continue":
         case "cont":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "cont\x1B[0;-11;-12minue\x1B[0;-11;-12m");
           if (!this.loops.length)
@@ -12416,8 +12466,8 @@
           this.stack.continue = true;
           return -2;
         case "if":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (!args.length || args.length > 3)
             throw new Error("Invalid syntax use " + cmdChar + "if {expression} {true-command} \x1B[3m{false-command}\x1B[0;-11;-12m");
           if (args[0].match(/^\{[\s\S]*\}$/g))
@@ -12437,8 +12487,8 @@
           return null;
         case "case":
         case "ca":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (!args.length || args.length < 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "ca\x1B[0;-11;-12mse\x1B[0;-11;-12m index {command 1} \x1B[3m{command n}\x1B[0;-11;-12m");
           if (args[0].match(/^\{[\s\S]*\}$/g))
@@ -12456,8 +12506,8 @@
           return null;
         case "switch":
         case "sw":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (!args.length || args.length < 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "sw\x1B[0;-11;-12mitch\x1B[0;-11;-12m (expression) {command} \x1B[3m(expression) {command} ... {else_command}\x1B[0;-11;-12m");
           if (args.length % 2 === 1)
@@ -12487,8 +12537,8 @@
           return null;
         case "loop":
         case "loo":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length < 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "loo\x1B[0;-11;-12mp\x1B[0;-11;-12m range {commands}");
           n = this.parseInline(args.shift()).split(",");
@@ -12512,8 +12562,8 @@
           return this._executeForLoop(tmp, i2, args);
         case "repeat":
         case "rep":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length < 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "rep\x1B[0;-11;-12meat\x1B[0;-11;-12m expression {commands}");
           i2 = args.shift();
@@ -12529,8 +12579,8 @@
             return this._executeForLoop(-i2 + 1, 1, args);
           return this._executeForLoop(0, i2, args);
         case "until":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length < 2)
             throw new Error("Invalid syntax use " + cmdChar + "until expression {commands}");
           i2 = args.shift();
@@ -12560,8 +12610,8 @@
           return null;
         case "while":
         case "wh":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length < 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "wh\x1B[0;-11;-12mile expression {commands}");
           i2 = args.shift();
@@ -12591,8 +12641,8 @@
           return null;
         case "forall":
         case "fo":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length < 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "fo\x1B[0;-11;-12mrall stringlist {commands}");
           i2 = args.shift();
@@ -12625,8 +12675,8 @@
         case "variable":
         case "var":
         case "va":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0) {
             i2 = Object.keys(this.client.variables);
             al = i2.length;
@@ -12660,8 +12710,8 @@
           return null;
         case "unvar":
         case "unv":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length !== 1)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unv\x1B[0;-11;-12mar name ");
           i2 = args.shift();
@@ -12672,8 +12722,8 @@
           return null;
         case "add":
         case "ad":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length < 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "ad\x1B[0;-11;-12md name value");
           i2 = args.shift();
@@ -12695,8 +12745,8 @@
           return null;
         case "math":
         case "mat":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length < 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "mat\x1B[0;-11;-12mh name value");
           i2 = args.shift();
@@ -12713,12 +12763,12 @@
           return null;
         case "evaluate":
         case "eva":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "eva\x1B[0;-11;-12mluate expression");
           args = this.evaluate(this.parseInline(args.join(" ")));
-          if (this.client.getOption("ignoreEvalUndefined") && typeof args === "undefined")
+          if (this._getOption("ignoreEvalUndefined") && typeof args === "undefined")
             args = "";
           else
             args = "" + args;
@@ -12730,8 +12780,8 @@
           return null;
         case "freeze":
         case "fr":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0) {
             this.scrollLock = !this.scrollLock;
             if (this.scrollLock) {
@@ -12755,8 +12805,8 @@
           return null;
         //#endregion freeze                
         case "clr":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length)
             throw new Error("Invalid syntax use " + cmdChar + "CLR");
           if (this.client.display.lines.length === 0)
@@ -12774,16 +12824,16 @@
           this.client.print(tmp.join(""), true);
           return null;
         case "fire":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           args = this.parseInline(args.join(" ") + "\n");
           this.ExecuteTriggers(4 /* Regular */ | 8 /* Pattern */ | 128 /* LoopExpression */, args, args, false, false);
           return null;
         case "state":
         //#STATE id state profile
         case "sta":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           args = args.map((m) => {
             if (!m || !m.length)
               return m;
@@ -12802,23 +12852,23 @@
                 n = trigger.state;
                 trigger.state = parseInt(args[0], 10);
               } else {
-                const keys = this.client.profiles.keys;
+                const keys = this._profiles.keys;
                 let k = 0;
                 const kl = keys.length;
                 if (kl === 0)
                   return null;
                 if (kl === 1) {
-                  if (!this.client.profiles.items[keys[0]].enabled || !this.client.profiles.items[keys[0]].enableTriggers)
+                  if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
                     throw Error("No enabled profiles found!");
-                  trigger = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+                  trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   trigger = trigger.find((t) => {
                     return t.name === args[0] || t.pattern === args[0];
                   });
                 } else {
                   for (; k < kl; k++) {
-                    if (!this.client.profiles.items[keys[k]].enabled || !this.client.profiles.items[keys[k]].enableTriggers || this.client.profiles.items[keys[k]].triggers.length === 0)
+                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                       continue;
-                    trigger = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+                    trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                     trigger = trigger.find((t) => {
                       return t.name === args[0] || t.pattern === args[0];
                     });
@@ -12827,7 +12877,7 @@
                   }
                 }
                 if (!trigger)
-                  throw new Error("Trigger not found: " + args[0]);
+                  throw new TriggerNotFound(args[0]);
                 n = trigger.state;
                 trigger.state = 0;
               }
@@ -12836,23 +12886,23 @@
               if (args[0].match(/^\s*?[-|+]?\d+\s*?$/))
                 throw new Error("Invalid argument to " + cmdChar + "state, first argument must be name|pattern");
               if (args[1].match(/^\s*?[-|+]?\d+\s*?$/)) {
-                const keys = this.client.profiles.keys;
+                const keys = this._profiles.keys;
                 let k = 0;
                 const kl = keys.length;
                 if (kl === 0)
                   return null;
                 if (kl === 1) {
-                  if (!this.client.profiles.items[keys[0]].enabled || !this.client.profiles.items[keys[0]].enableTriggers)
+                  if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
                     throw Error("No enabled profiles found!");
-                  trigger = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+                  trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   trigger = trigger.find((t) => {
                     return t.name === args[0] || t.pattern === args[0];
                   });
                 } else {
                   for (; k < kl; k++) {
-                    if (!this.client.profiles.items[keys[k]].enabled || !this.client.profiles.items[keys[k]].enableTriggers || this.client.profiles.items[keys[k]].triggers.length === 0)
+                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                       continue;
-                    trigger = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+                    trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                     trigger = trigger.find((t) => {
                       return t.name === args[0] || t.pattern === args[0];
                     });
@@ -12861,21 +12911,21 @@
                   }
                 }
                 if (!trigger)
-                  throw new Error("Trigger not found: " + args[0]);
+                  throw new TriggerNotFound(args[0]);
                 n = trigger.state;
                 trigger.state = parseInt(args[1], 10);
               } else {
                 profile = args[1];
-                if (this.client.profiles.contains(profile))
-                  profile = this.client.profiles.items[profile.toLowerCase()];
+                if (this._profiles.contains(profile))
+                  profile = this._profiles.items[profile.toLowerCase()];
                 else
-                  throw new Error("Profile not found: " + args[1]);
+                  throw new ProfileNotFound(args[1]);
                 trigger = SortItemArrayByPriority(profile.triggers);
                 trigger = trigger.find((t) => {
                   return t.name === args[0] || t.pattern === args[0];
                 });
                 if (!trigger)
-                  throw new Error("Trigger not found: " + args[0] + " in profile: " + profile.name);
+                  throw new TriggerNotFound(args[0], profile.name);
                 n = trigger.state;
                 trigger.state = 0;
               }
@@ -12884,16 +12934,16 @@
               if (args[0].match(/^\s*?[-|+]?\d+\s*?$/))
                 throw new Error("Invalid argument to " + cmdChar + "state, first argument must be name|pattern");
               profile = args[2];
-              if (this.client.profiles.contains(profile))
-                profile = this.client.profiles.items[profile.toLowerCase()];
+              if (this._profiles.contains(profile))
+                profile = this._profiles.items[profile.toLowerCase()];
               else
-                throw new Error("Profile not found: " + args[2]);
+                throw new ProfileNotFound(args[2]);
               trigger = SortItemArrayByPriority(profile.triggers);
               trigger = trigger.find((t) => {
                 return t.name === args[0] || t.pattern === args[0];
               });
               if (!trigger)
-                throw new Error("Trigger not found: " + args[0]);
+                throw new TriggerNotFound(args[0]);
               n = trigger.state;
               trigger.state = parseInt(args[1], 10);
               break;
@@ -12910,11 +12960,11 @@
           this.client.restartAlarmState(trigger, n, trigger.state);
           this.client.saveProfiles();
           this.client.emit("item-updated", "trigger", trigger.profile.name, trigger.profile.triggers.indexOf(trigger), trigger);
-          this.client.echo("Trigger state set to " + trigger.state + ".", -7, -8, true, true);
+          this._echo("Trigger state set to " + trigger.state + ".", -7, -8, true, true);
           return null;
         case "set":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           args = args.map((m) => {
             if (!m || !m.length)
               return m;
@@ -12963,23 +13013,23 @@
                   trigger.triggers[n - 1].fired = args[1] === "1" || args[1] === "true";
                 }
               } else {
-                const keys = this.client.profiles.keys;
+                const keys = this._profiles.keys;
                 let k = 0;
                 const kl = keys.length;
                 if (kl === 0)
                   return null;
                 if (kl === 1) {
-                  if (!this.client.profiles.items[keys[0]].enabled || !this.client.profiles.items[keys[0]].enableTriggers)
+                  if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
                     throw Error("No enabled profiles found!");
-                  trigger = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+                  trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   trigger = trigger.find((t) => {
                     return t.name === args[0] || t.pattern === args[0];
                   });
                 } else {
                   for (; k < kl; k++) {
-                    if (!this.client.profiles.items[keys[k]].enabled || !this.client.profiles.items[keys[k]].enableTriggers || this.client.profiles.items[keys[k]].triggers.length === 0)
+                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                       continue;
-                    trigger = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+                    trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                     trigger = trigger.find((t) => {
                       return t.name === args[0] || t.pattern === args[0];
                     });
@@ -12988,7 +13038,7 @@
                   }
                 }
                 if (!trigger)
-                  throw new Error("Trigger not found: " + args[0]);
+                  throw new TriggerNotFound(args[0]);
                 n = parseInt(args[1], 10);
                 if (n < 0 || n > trigger.triggers.length)
                   throw new Error("Trigger state must be greater than or equal to 0 or less than or equal to " + trigger.triggers.length);
@@ -13004,16 +13054,16 @@
             case 3:
               if (args[2] === "0" && args[2] !== "1" && args[2] !== "true" && args[21] !== "false") {
                 profile = args[2];
-                if (this.client.profiles.contains(profile))
-                  profile = this.client.profiles.items[profile.toLowerCase()];
+                if (this._profiles.contains(profile))
+                  profile = this._profiles.items[profile.toLowerCase()];
                 else
-                  throw new Error("Profile not found: " + profile);
+                  throw new ProfileNotFound(profile);
                 trigger = SortItemArrayByPriority(profile.triggers);
                 trigger = trigger.find((t) => {
                   return t.name === args[0] || t.pattern === args[0];
                 });
                 if (!trigger)
-                  throw new Error("Trigger not found: " + args[0] + " in profile: " + profile.name);
+                  throw new TriggerNotFound(args[0], profile.name);
                 n = parseInt(args[1], 10);
                 if (n < 0 || n > trigger.triggers.length)
                   throw new Error("Trigger state must be greater than or equal to 0 or less than or equal to " + trigger.triggers.length);
@@ -13025,23 +13075,23 @@
                   trigger.triggers[n - 1].fired = true;
                 }
               } else {
-                const keys = this.client.profiles.keys;
+                const keys = this._profiles.keys;
                 let k = 0;
                 const kl = keys.length;
                 if (kl === 0)
                   return null;
                 if (kl === 1) {
-                  if (!this.client.profiles.items[keys[0]].enabled || !this.client.profiles.items[keys[0]].enableTriggers)
+                  if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
                     throw Error("No enabled profiles found!");
-                  trigger = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+                  trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   trigger = trigger.find((t) => {
                     return t.name === args[0] || t.pattern === args[0];
                   });
                 } else {
                   for (; k < kl; k++) {
-                    if (!this.client.profiles.items[keys[k]].enabled || !this.client.profiles.items[keys[k]].enableTriggers || this.client.profiles.items[keys[k]].triggers.length === 0)
+                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                       continue;
-                    trigger = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+                    trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                     trigger = trigger.find((t) => {
                       return t.name === args[0] || t.pattern === args[0];
                     });
@@ -13050,7 +13100,7 @@
                   }
                 }
                 if (!trigger)
-                  throw new Error("Trigger not found: " + args[0]);
+                  throw new TriggerNotFound(args[0]);
                 n = parseInt(args[1], 10);
                 if (n < 0 || n > trigger.triggers.length)
                   throw new Error("Trigger state must be greater than or equal to 0 or less than or equal to " + trigger.triggers.length);
@@ -13065,16 +13115,16 @@
               break;
             case 4:
               profile = args[2];
-              if (this.client.profiles.contains(profile))
-                profile = this.client.profiles.items[profile.toLowerCase()];
+              if (this._profiles.contains(profile))
+                profile = this._profiles.items[profile.toLowerCase()];
               else
-                throw new Error("Profile not found: " + profile);
+                throw new ProfileNotFound(profile);
               trigger = SortItemArrayByPriority(profile.triggers);
               trigger = trigger.find((t) => {
                 return t.name === args[0] || t.pattern === args[0];
               });
               if (!trigger)
-                throw new Error("Trigger not found: " + args[0] + " in profile: " + profile.name);
+                throw new TriggerNotFound(args[0], profile.name);
               if (args[2] !== "0" && args[2] !== "1" && args[2] !== "true" && args[2] !== "false")
                 throw new Error("Value must be 0, 1, true, or false");
               if (n === 0) {
@@ -13092,9 +13142,9 @@
           this.client.emit("item-updated", "trigger", trigger.profile.name, trigger.profile.triggers.indexOf(trigger), trigger);
           this.resetTriggerState(this._TriggerCache.indexOf(trigger), n, i2);
           if (n === 0)
-            this.client.echo("Trigger state 0 fired state set to " + trigger.fired + ".", -7, -8, true, true);
+            this._echo("Trigger state 0 fired state set to " + trigger.fired + ".", -7, -8, true, true);
           else {
-            this.client.echo("Trigger state " + n + " fired state set to " + trigger.triggers[n - 1].fired + ".", -7, -8, true, true);
+            this._echo("Trigger state " + n + " fired state set to " + trigger.triggers[n - 1].fired + ".", -7, -8, true, true);
             if (trigger.enabled && trigger.triggers[n - 1].enabled && trigger.triggers[n - 1].type === 65536 /* Manual */) {
               this._LastTriggered = "";
               this.ExecuteTrigger(trigger, [], false, this._TriggerCache.indexOf(trigger), 0, 0, trigger);
@@ -13103,8 +13153,8 @@
           return null;
         case "condition":
         case "cond":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           item = {
             profile: null,
             name: null,
@@ -13115,14 +13165,14 @@
           if (args.length < 2 || args.length > 5)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "cond\x1B[0;-11;-12mition name|pattern {pattern} {commands} \x1B[3moptions profile\x1B[0;-11;-12m or \x1B[4m" + cmdChar + "cond\x1B[0;-11;-12mition {pattern} {commands} \x1B[3m{options} profile\x1B[0;-11;-12m");
           if (args[0].length === 0)
-            throw new Error("Invalid trigger name or pattern");
+            throw new InvalidTrigger("name or pattern");
           if (args[0].match(/^\{.*\}$/g)) {
             item.pattern = args.shift();
             item.pattern = this.parseInline(item.pattern.substr(1, item.pattern.length - 2));
           } else {
             item.name = this.parseInline(this.stripQuotes(args.shift()));
             if (!item.name || item.name.length === 0)
-              throw new Error("Invalid trigger name");
+              throw new InvalidTrigger("name");
             if (args[0].match(/^\{.*\}$/g)) {
               item.pattern = args.shift();
               item.pattern = this.parseInline(item.pattern.substr(1, item.pattern.length - 2));
@@ -13173,29 +13223,29 @@
                       if (o.trim().startsWith("param=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid trigger param option '${o.trim()}'`);
+                          throw new InvalidTrigger(`param option '${o.trim()}'`);
                         item.options["params"] = tmp[1];
                       } else if (o.trim().startsWith("type=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid trigger type option '${o.trim()}'`);
+                          throw new InvalidTrigger(`type option '${o.trim()}'`);
                         if (!this._isTriggerType(tmp[1]))
-                          throw new Error("Invalid trigger type");
+                          throw new InvalidTrigger("type");
                         item.options["type"] = tmp[1];
                       } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid trigger priority option '${o.trim()}'`);
+                          throw new InvalidTrigger(`priority option '${o.trim()}'`);
                         i2 = parseInt(tmp[1], 10);
                         if (isNaN(i2))
-                          throw new Error("Invalid trigger priority value '" + tmp[1] + "' must be a number");
+                          throw new InvalidTrigger("priority value '" + tmp[1] + "' must be a number");
                         item.options["priority"] = i2;
                       } else
-                        throw new Error(`Invalid trigger option '${o.trim()}'`);
+                        throw new InvalidTrigger(`option '${o.trim()}'`);
                   }
                 });
               } else
-                throw new Error("Invalid trigger options");
+                throw new InvalidTrigger("options");
             } else if (args.length === 2) {
               if (args[0].match(/^\{[\s\S]*\}$/g))
                 args[0] = args[0].substr(1, args[0].length - 2);
@@ -13234,29 +13284,29 @@
                       if (o.trim().startsWith("param=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid trigger param option '${o.trim()}'`);
+                          throw new InvalidTrigger(`param option '${o.trim()}'`);
                         item.options["params"] = tmp[1];
                       } else if (o.trim().startsWith("type=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid trigger type option '${o.trim()}'`);
+                          throw new InvalidTrigger(`type option '${o.trim()}'`);
                         if (!this._isTriggerType(tmp[1]))
-                          throw new Error("Invalid trigger type");
+                          throw new InvalidTrigger("type");
                         item.options["type"] = tmp[1];
                       } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid trigger priority option '${o.trim()}'`);
+                          throw new InvalidTrigger(`priority option '${o.trim()}'`);
                         i2 = parseInt(tmp[1], 10);
                         if (isNaN(i2))
-                          throw new Error("Invalid trigger priority value '" + tmp[1] + "' must be a number");
+                          throw new InvalidTrigger("priority value '" + tmp[1] + "' must be a number");
                         item.options["priority"] = i2;
                       } else
-                        throw new Error(`Invalid trigger option '${o.trim()}'`);
+                        throw new InvalidTrigger(`option '${o.trim()}'`);
                   }
                 });
               } else
-                throw new Error("Invalid trigger options");
+                throw new InvalidTrigger("options");
               item.profile = this.stripQuotes(args[1]);
               if (item.profile.length !== 0)
                 item.profile = this.parseInline(item.profile);
@@ -13265,20 +13315,20 @@
           this.createTrigger(item.pattern, item.commands, item.profile, item.options, item.name, true);
           return null;
         case "cr":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           this.client.sendBackground("\n");
           return null;
         case "send":
         case "se":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "se\x1B[0;-11;-12mnd file \x1B[3mprefix suffix\x1B[0;-11;-12m or \x1B[4m" + cmdChar + "se\x1B[0;-11;-12mnd text");
           args = args.join(" ");
           if (args.length === 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "se\x1B[0;-11;-12mnd file \x1B[3mprefix suffix\x1B[0;-11;-12m or \x1B[4m" + cmdChar + "se\x1B[0;-11;-12mnd text");
-          this.client.sendBackground(this.stripQuotes(args), this.client.getOption("allowCommentsFromCommand"));
+          this.client.sendBackground(this.stripQuotes(args), this._getOption("allowCommentsFromCommand"));
           return null;
         //work around for send as can not access files so we open a file dialog and ask for the file they want to send instead
         case "sendfile":
@@ -13286,8 +13336,8 @@
           ((a, r) => {
             openFileDialog().then((files2) => {
               readFile(files2[0]).then((contents) => {
-                if ((this.client.getOption("echo") & 4) === 4)
-                  this.client.echo(r, -3, -4, true, true);
+                if ((this._getOption("echo") & 4) === 4)
+                  this._echo(r, -3, -4, true, true);
                 p = "";
                 i2 = "";
                 if (a.length > 1)
@@ -13296,7 +13346,7 @@
                   i2 = this.stripQuotes(this.parseInline(a[1]));
                 items = contents.split(/\r?\n/);
                 items.forEach((line2) => {
-                  this.client.sendBackground(p + line2 + i2, null, this.client.getOption("allowCommentsFromCommand"));
+                  this.client.sendBackground(p + line2 + i2, null, this._getOption("allowCommentsFromCommand"));
                 });
               }).catch(this.client.error);
             }).catch(() => {
@@ -13309,8 +13359,8 @@
           ((a, r) => {
             openFileDialog().then((files2) => {
               readFile(files2[0]).then((contents) => {
-                if ((this.client.getOption("echo") & 4) === 4)
-                  this.client.echo(r, -3, -4, true, true);
+                if ((this._getOption("echo") & 4) === 4)
+                  this._echo(r, -3, -4, true, true);
                 p = "";
                 i2 = "";
                 if (a.length > 1)
@@ -13327,8 +13377,8 @@
           })(args, raw);
           return null;
         case "sendraw":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0)
             throw new Error("Invalid syntax use " + cmdChar + "sendraw text or " + cmdChar + "sendraw file \x1B[3mprefix suffix\x1B[0;-11;-12m");
           args = args.join(" ");
@@ -13340,8 +13390,8 @@
           return null;
         case "sendprompt":
         case "sendp":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "sendp\x1B[0;-11;-12mrompt text");
           args = args.join(" ");
@@ -13351,13 +13401,13 @@
           return null;
         case "character":
         case "char":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           this.client.sendRaw(window.$character || "");
           return null;
         case "speak":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0)
             throw new Error("Invalid syntax use " + cmdChar + "speak text");
           args = args.join(" ");
@@ -13368,41 +13418,41 @@
             window.speechSynthesis.speak(new SpeechSynthesisUtterance(args));
           return null;
         case "speakstop":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length !== 0)
             throw new Error("Invalid syntax use " + cmdChar + "speakstop");
           window.speechSynthesis.cancel();
           return null;
         case "speakpause":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length !== 0)
             throw new Error("Invalid syntax use " + cmdChar + "speakpause");
           window.speechSynthesis.pause();
           return null;
         case "speakresume":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length !== 0)
             throw new Error("Invalid syntax use " + cmdChar + "speakresume");
           window.speechSynthesis.resume();
           return null;
         case "comment":
         case "comm":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           return null;
         case "noop":
         case "no":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length)
             this.parseInline(args.join(" "));
           return null;
         case "temp":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           item = {
             profile: null,
             name: null,
@@ -13413,14 +13463,14 @@
           if (args.length < 2 || args.length > 5)
             throw new Error("Invalid syntax use " + cmdChar + "temp name {pattern} {commands} \x1B[3moptions profile\x1B[0;-11;-12m or " + cmdChar + "temp {pattern} {commands} \x1B[3m{options} profile\x1B[0;-11;-12m");
           if (args[0].length === 0)
-            throw new Error("Invalid temporary trigger or pattern");
+            throw new InvalidTemporaryTrigger("or pattern");
           if (args[0].match(/^\{.*\}$/g)) {
             item.pattern = args.shift();
             item.pattern = this.parseInline(item.pattern.substr(1, item.pattern.length - 2));
           } else {
             item.name = this.parseInline(this.stripQuotes(args.shift()));
             if (!item.name || item.name.length === 0)
-              throw new Error("Invalid temporary trigger name");
+              throw new InvalidTemporaryTrigger("name");
             if (args[0].match(/^\{.*\}$/g)) {
               item.pattern = args.shift();
               item.pattern = this.parseInline(item.pattern.substr(1, item.pattern.length - 2));
@@ -13459,29 +13509,29 @@
                       if (o.trim().startsWith("param=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid temporary trigger param option '${o.trim()}'`);
+                          throw new InvalidTemporaryTrigger(`param option '${o.trim()}'`);
                         item.options["params"] = tmp[1];
                       } else if (o.trim().startsWith("type=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid temporary trigger type option '${o.trim()}'`);
+                          throw new InvalidTemporaryTrigger(`type option '${o.trim()}'`);
                         if (!this._isTriggerType(tmp[1], 1 /* Main */))
-                          throw new Error("Invalid temporary trigger type");
+                          throw new InvalidTemporaryTrigger("type");
                         item.options["type"] = tmp[1];
                       } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid temporary trigger priority option '${o.trim()}'`);
+                          throw new InvalidTemporaryTrigger(`priority option '${o.trim()}'`);
                         i2 = parseInt(tmp[1], 10);
                         if (isNaN(i2))
-                          throw new Error("Invalid temporary trigger priority value '" + tmp[1] + "' must be a number");
+                          throw new InvalidTemporaryTrigger("priority value '" + tmp[1] + "' must be a number");
                         item.options["priority"] = i2;
                       } else
-                        throw new Error(`Invalid temporary trigger option '${o.trim()}'`);
+                        throw new InvalidTemporaryTrigger(`option '${o.trim()}'`);
                   }
                 });
               } else
-                throw new Error("Invalid temporary trigger options");
+                throw new InvalidTemporaryTrigger("options");
             } else if (args.length === 2) {
               if (args[0].match(/^\{[\s\S]*\}$/g))
                 args[0] = args[0].substr(1, args[0].length - 2);
@@ -13508,29 +13558,29 @@
                       if (o.trim().startsWith("param=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid temporary trigger param option '${o.trim()}'`);
+                          throw new InvalidTemporaryTrigger(`param option '${o.trim()}'`);
                         item.options["params"] = tmp[1];
                       } else if (o.trim().startsWith("type=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid temporary trigger type option '${o.trim()}'`);
+                          throw new InvalidTemporaryTrigger(`type option '${o.trim()}'`);
                         if (!this._isTriggerType(tmp[1], 1 /* Main */))
-                          throw new Error("Invalid temporary trigger type");
+                          throw new InvalidTemporaryTrigger("type");
                         item.options["type"] = tmp[1];
                       } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
                         tmp = o.trim().split("=");
                         if (tmp.length !== 2)
-                          throw new Error(`Invalid temporary trigger priority option '${o.trim()}'`);
+                          throw new InvalidTemporaryTrigger(`priority option '${o.trim()}'`);
                         i2 = parseInt(tmp[1], 10);
                         if (isNaN(i2))
-                          throw new Error("Invalid temporary trigger priority value '" + tmp[1] + "' must be a number");
+                          throw new InvalidTemporaryTrigger("priority value '" + tmp[1] + "' must be a number");
                         item.options["priority"] = i2;
                       } else
-                        throw new Error(`Invalid temporary trigger option '${o.trim()}'`);
+                        throw new InvalidTemporaryTrigger(`option '${o.trim()}'`);
                   }
                 });
               } else
-                throw new Error("Invalid temporary trigger options");
+                throw new InvalidTemporaryTrigger("options");
               item.profile = this.stripQuotes(args[1]);
               if (item.profile.length !== 0)
                 item.profile = this.parseInline(item.profile);
@@ -13541,14 +13591,14 @@
           return null;
         case "wrap":
         case "wr":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           args = args.filter((a) => a);
           if (args.length > 1)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "wr\x1B[0;-11;-12map or \x1B[4m" + cmdChar + "wr\x1B[0;-11;-12map number");
           if (args.length === 0) {
-            this.client.setOption("display.wordWrap", !this.client.getOption("display.wordWrap"));
-            this.client.display.wordWrap = this.client.getOption("display.wordWrap");
+            this.client.setOption("display.wordWrap", !this._getOption("display.wordWrap"));
+            this.client.display.wordWrap = this._getOption("display.wordWrap");
           } else {
             i2 = parseInt(this.parseInline(args[0]), 10);
             if (isNaN(i2))
@@ -13563,8 +13613,8 @@
           return null;
         case "prompt":
         case "pr":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0 || args.length > 4)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "pr\x1B[0;-11;-12mompt variable \x1B[3mmessage defaultValue mask\x1B[0;-11;-12m");
           else {
@@ -13591,8 +13641,8 @@
           }
           return null;
         case "setmap":
-          if ((this.client.getOption("echo") & 4) === 4)
-            this.client.echo(raw, -3, -4, true, true);
+          if ((this._getOption("echo") & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
           if (args.length === 0)
             throw new Error("Invalid syntax use " + cmdChar + "setmap file \x1B[3msetCharacter\x1B[0;-11;-12m");
           tmp = this.stripQuotes(this.parseInline(args.shift())) || "";
@@ -13606,8 +13656,8 @@
           return null;
       }
       if (fun.match(/^[-|+]?\d+$/)) {
-        if ((this.client.getOption("echo") & 4) === 4)
-          this.client.echo(raw, -3, -4, true, true);
+        if ((this._getOption("echo") & 4) === 4)
+          this._echo(raw, -3, -4, true, true);
         i2 = parseInt(fun, 10);
         if (args.length === 0)
           throw new Error("Invalid syntax use " + cmdChar + "nnn commands");
@@ -13621,8 +13671,8 @@
       const data = { name: fun, args, raw, handled: false, return: null };
       this.client.emit("function", data);
       if (data.handled) {
-        if ((this.client.getOption("echo") & 4) === 4)
-          this.client.echo(raw, -3, -4, true, true);
+        if ((this._getOption("echo") & 4) === 4)
+          this._echo(raw, -3, -4, true, true);
         return data.return;
       }
       if (data.raw.startsWith(cmdChar))
@@ -13691,27 +13741,27 @@
       let AliasesCached;
       let state = 0;
       const aliases = this.client.aliases;
-      const stackingChar = this.client.getOption("commandStackingChar");
-      const spChar = this.client.getOption("speedpathsChar");
-      const ePaths = this.client.getOption("enableSpeedpaths");
-      const eCmd = this.client.getOption("enableCommands");
-      const cmdChar = this.client.getOption("commandChar");
-      const eEscape = this.client.getOption("allowEscape");
-      const escChar = this.client.getOption("escapeChar");
-      const verbatimChar = this.client.getOption("verbatimChar");
-      const eVerbatim = this.client.getOption("enableVerbatim");
-      const eParamEscape = this.client.getOption("enableDoubleParameterEscaping");
-      const paramChar = this.client.getOption("parametersChar");
-      const eParam = this.client.getOption("enableParameters");
-      const nParamChar = this.client.getOption("nParametersChar");
-      const eNParam = this.client.getOption("enableNParameters");
-      const eEval = this.client.getOption("allowEval");
-      const iEval = this.client.getOption("ignoreEvalUndefined");
-      const iComments = this.client.getOption("enableInlineComments") && !noComments;
-      const bComments = this.client.getOption("enableBlockComments") && !noComments;
-      const iCommentsStr = this.client.getOption("inlineCommentString").split("");
-      const bCommentsStr = this.client.getOption("blockCommentString").split("");
-      const bTrim = this.client.getOption("ignoreInputLeadingWhitespace");
+      const stackingChar = this._getOption("commandStackingChar");
+      const spChar = this._getOption("speedpathsChar");
+      const ePaths = this._getOption("enableSpeedpaths");
+      const eCmd = this._getOption("enableCommands");
+      const cmdChar = this._getOption("commandChar");
+      const eEscape = this._getOption("allowEscape");
+      const escChar = this._getOption("escapeChar");
+      const verbatimChar = this._getOption("verbatimChar");
+      const eVerbatim = this._getOption("enableVerbatim");
+      const eParamEscape = this._getOption("enableDoubleParameterEscaping");
+      const paramChar = this._getOption("parametersChar");
+      const eParam = this._getOption("enableParameters");
+      const nParamChar = this._getOption("nParametersChar");
+      const eNParam = this._getOption("enableNParameters");
+      const eEval = this._getOption("allowEval");
+      const iEval = this._getOption("ignoreEvalUndefined");
+      const iComments = this._getOption("enableInlineComments") && !noComments;
+      const bComments = this._getOption("enableBlockComments") && !noComments;
+      const iCommentsStr = this._getOption("inlineCommentString").split("");
+      const bCommentsStr = this._getOption("blockCommentString").split("");
+      const bTrim = this._getOption("ignoreInputLeadingWhitespace");
       let sTrim = "";
       let args = [];
       let arg = "";
@@ -13728,8 +13778,8 @@
       let _pos = false;
       let _fall = false;
       let nest = 0;
-      const pd = this.client.getOption("parseDoubleQuotes");
-      const ps = this.client.getOption("parseSingleQuotes");
+      const pd = this._getOption("parseDoubleQuotes");
+      const ps = this._getOption("parseSingleQuotes");
       if (eAlias == null)
         eAlias = aliases.length > 0;
       else
@@ -13737,9 +13787,9 @@
       if (stackingChar.length === 0)
         stacking = false;
       else if (stacking == null)
-        stacking = this.client.getOption("commandStacking");
+        stacking = this._getOption("commandStacking");
       else
-        stacking = stacking && this.client.getOption("commandStacking");
+        stacking = stacking && this._getOption("commandStacking");
       for (idx = 0; idx < tl; idx++) {
         c = text.charAt(idx);
         switch (state) {
@@ -14887,7 +14937,7 @@
       let args;
       let min;
       let max2;
-      let escape2 = this.client.getOption("allowEscape") ? this.client.getOption("escapeChar") : "";
+      let escape2 = this._getOption("allowEscape") ? this._getOption("escapeChar") : "";
       switch (res[1]) {
         case "time":
           if (!moment) return (/* @__PURE__ */ new Date()).toISOString();
@@ -14908,7 +14958,7 @@
           return ProperCase(this.stripQuotes(this.parseInline(res[2])));
         case "eval":
           args = this.evaluate(this.parseInline(res[2]));
-          if (this.client.getOption("ignoreEvalUndefined") && typeof args === "undefined")
+          if (this._getOption("ignoreEvalUndefined") && typeof args === "undefined")
             return null;
           return "" + args;
         case "dice":
@@ -14927,7 +14977,7 @@
             if (args.length > 2)
               mod = args[2].trim();
           } else
-            throw new Error("Too many arguments for dice");
+            throw new ArgumentTooManyError("dice");
           if (sides === "F" || sides === "f")
             sides = "F";
           else if (sides !== "%")
@@ -14962,7 +15012,7 @@
             if (args.length > 2)
               mod = args[2].trim();
           } else
-            throw new Error("Too many arguments for diceavg");
+            throw new ArgumentTooManyError("diceavg");
           min = 1;
           if (sides === "F" || sides === "f") {
             min = -1;
@@ -14991,7 +15041,7 @@
             if (args.length > 2)
               mod = args[2];
           } else
-            throw new Error("Too many arguments for dicemin");
+            throw new ArgumentTooManyError("dicemin");
           min = 1;
           if (sides === "F" || sides === "f")
             min = -1;
@@ -15016,7 +15066,7 @@
             if (args.length > 2)
               mod = args[2].trim();
           } else
-            throw new Error("Too many arguments for dicemax");
+            throw new ArgumentTooManyError("dicemax");
           if (sides === "F" || sides === "f")
             max2 = 1;
           else if (sides === "%")
@@ -15044,7 +15094,7 @@
             if (args.length > 2)
               mod = args[2].trim();
           } else
-            throw new Error("Too many arguments for " + fun);
+            throw new ArgumentTooManyError("" + fun);
           if (sides === "F" || sides === "f")
             max2 = 6;
           else if (sides === "%")
@@ -15059,13 +15109,13 @@
         case "color":
           args = this.parseInline(res[2]).split(",");
           if (args.length === 0)
-            throw new Error("Missing arguments for color");
+            throw new ArgumentMissingError("color");
           else if (args.length === 1) {
             if (args[0] === "bold")
               return "370";
             c = getAnsiColorCode(args[0]);
             if (c === -1)
-              throw new Error("Invalid fore color");
+              throw new InvalidForeColorError();
             return c.toString();
           } else if (args.length === 2) {
             if (args[0] === "bold")
@@ -15073,14 +15123,14 @@
             else {
               c = getAnsiColorCode(args[0]);
               if (c === -1)
-                throw new Error("Invalid fore color");
+                throw new InvalidForeColorError();
               if (args[1] === "bold")
                 return (c * 10).toString();
             }
             sides = c.toString();
             c = getAnsiColorCode(args[1], true);
             if (c === -1)
-              throw new Error("Invalid back color");
+              throw new InvalidBackColorError();
             return sides + "," + c.toString();
           } else if (args.length === 3) {
             if (args[0] === "bold") {
@@ -15091,25 +15141,25 @@
               throw new Error("Only bold is supported as third argument for color");
             c = getAnsiColorCode(args[0]);
             if (c === -1)
-              throw new Error("Invalid fore color");
+              throw new InvalidForeColorError();
             sides = (c * 10).toString();
             c = getAnsiColorCode(args[1], true);
             if (c === -1)
-              throw new Error("Invalid back color");
+              throw new InvalidBackColorError();
             return sides + "," + c.toString();
           }
-          throw new Error("Too many arguments");
+          throw new ArgumentTooManyError("color");
         case "zcolor":
           args = this.parseInline(res[2]).split(",");
           if (args.length === 0)
-            throw new Error("Missing arguments for zcolor");
+            throw new ArgumentMissingError("zcolor");
           else if (args.length > 1)
-            throw new Error("Too many arguments for zcolor");
+            throw new ArgumentTooManyError("zcolor");
           return getColorCode(parseInt(args[0], 10));
         case "ansi":
           args = this.parseInline(res[2]).split(",");
           if (args.length === 0)
-            throw new Error("Missing arguments for ansi");
+            throw new ArgumentMissingError("ansi");
           c = args.length;
           mod = [];
           min = {};
@@ -15155,11 +15205,11 @@
           else if (args.length === 2)
             return mathjs().randomInt(parseInt(args[0], 10), parseInt(args[1], 10) + 1);
           else
-            throw new Error("Too many arguments for random");
+            throw new ArgumentTooManyError("random");
         case "case":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length === 0)
-            throw new Error("Missing arguments for case");
+            throw new ArgumentMissingError("case");
           c = this.evaluate(this.parseInline(args[0]));
           if (typeof c !== "number")
             return "";
@@ -15169,7 +15219,7 @@
         case "switch":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length === 0)
-            throw new Error("Missing arguments for switch");
+            throw new ArgumentMissingError("switch");
           if (args.length % 2 === 1)
             throw new Error("All expressions must have a value for switch");
           sides = args.length;
@@ -15181,44 +15231,44 @@
         case "if":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length < 3)
-            throw new Error("Missing arguments for if");
+            throw new ArgumentMissingError("if");
           if (args.length !== 3)
-            throw new Error("Too many arguments for if");
+            throw new ArgumentTooManyError("if");
           if (this.evaluate(args[0]))
             return this.stripQuotes(args[1].trim());
           return this.stripQuotes(args[2].trim());
         case "ascii":
           args = this.parseInline(res[2]).split(",");
           if (args.length === 0)
-            throw new Error("Missing arguments for ascii");
+            throw new ArgumentMissingError("ascii");
           else if (args.length > 1)
-            throw new Error("Too many arguments for ascii");
+            throw new ArgumentTooManyError("ascii");
           if (args[0].trim().length === 0)
             throw new Error("Invalid argument, empty string for ascii");
           return args[0].trim().charCodeAt(0);
         case "char":
           args = this.parseInline(res[2]).split(",");
           if (args.length === 0)
-            throw new Error("Missing arguments for char");
+            throw new ArgumentMissingError("char");
           else if (args.length > 1)
-            throw new Error("Too many arguments for char");
+            throw new ArgumentTooManyError("char");
           c = parseInt(args[0], 10);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0] + "' must be a number for char");
+            throw new ArgumentInvalidNumberError(args[0], "char");
           return String.fromCharCode(c);
         case "begins":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length < 2)
-            throw new Error("Missing arguments for begins");
+            throw new ArgumentMissingError("begins");
           else if (args.length > 2)
-            throw new Error("Too many arguments for begins");
+            throw new ArgumentTooManyError("begins");
           return this.stripQuotes(args[0]).startsWith(this.stripQuotes(args[1]));
         case "ends":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length < 2)
-            throw new Error("Missing arguments for ends");
+            throw new ArgumentMissingError("ends");
           else if (args.length > 2)
-            throw new Error("Too many arguments for ends");
+            throw new ArgumentTooManyError("ends");
           return this.stripQuotes(args[0]).endsWith(this.stripQuotes(args[1]));
         case "len":
           return this.stripQuotes(this.parseInline(res[2])).length;
@@ -15228,21 +15278,21 @@
         case "pos":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length < 2)
-            throw new Error("Missing arguments for pos");
+            throw new ArgumentMissingError("pos");
           else if (args.length > 2)
-            throw new Error("Too many arguments for pos");
+            throw new ArgumentTooManyError("pos");
           return this.stripQuotes(args[1]).indexOf(this.stripQuotes(args[0])) + 1;
         case "ipos":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length < 2)
-            throw new Error("Missing arguments for ipos");
+            throw new ArgumentMissingError("ipos");
           else if (args.length > 2)
-            throw new Error("Too many arguments for ipos");
+            throw new ArgumentTooManyError("ipos");
           return this.stripQuotes(args[1]).toLowerCase().indexOf(this.stripQuotes(args[0]).toLowerCase()) + 1;
         case "regex":
           args = this.splitByQuotes(res[2], ",");
           if (args.length < 2)
-            throw new Error("Missing arguments for regex");
+            throw new ArgumentMissingError("regex");
           c = new RegExp(this.stripQuotes(args[1]), "gd");
           c = c.exec(this.stripQuotes(this.parseInline(args[0])));
           args.shift();
@@ -15271,107 +15321,107 @@
         case "bitand":
           args = this.parseInline(res[2]).split(",");
           if (args.length === 0)
-            throw new Error("Missing arguments for bitand");
+            throw new ArgumentMissingError("bitand");
           else if (args.length !== 2)
-            throw new Error("Too many arguments for bitand");
+            throw new ArgumentTooManyError("bitand");
           c = parseInt(args[0], 10);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0] + "' must be a number for bitand");
+            throw new ArgumentInvalidNumberError(args[0], "bitand");
           sides = parseInt(args[1], 10);
           if (isNaN(sides))
-            throw new Error("Invalid argument '" + args[1] + "' must be a number for bitand");
+            throw new ArgumentInvalidNumberError(args[1], "bitand");
           return c & sides;
         case "bitnot":
           args = this.parseInline(res[2]).split(",");
           if (args.length === 0)
-            throw new Error("Missing arguments for bitnot");
+            throw new ArgumentMissingError("bitnot");
           else if (args.length !== 1)
-            throw new Error("Too many arguments for bitnot");
+            throw new ArgumentTooManyError("bitnot");
           c = parseInt(args[0], 10);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0] + "' must be a number for bitnot");
+            throw new ArgumentInvalidNumberError(args[0], "bitnot");
           return ~c;
         case "bitor":
           args = this.parseInline(res[2]).split(",");
           if (args.length === 0)
-            throw new Error("Missing arguments for bitor");
+            throw new ArgumentMissingError("bitor");
           else if (args.length !== 2)
-            throw new Error("Too many arguments for bitor");
+            throw new ArgumentTooManyError("bitor");
           c = parseInt(args[0], 10);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0] + "' must be a number for bitor");
+            throw new ArgumentInvalidNumberError(args[0], "bitor");
           sides = parseInt(args[1], 10);
           if (isNaN(sides))
-            throw new Error("Invalid argument '" + args[1] + "' must be a number for bitor");
+            throw new ArgumentInvalidNumberError(args[1], "bitor");
           return c | sides;
         case "bitset":
           args = this.parseInline(res[2]).split(",");
           if (args.length === 0)
-            throw new Error("Missing arguments for bitset");
+            throw new ArgumentMissingError("bitset");
           else if (args.length > 3)
-            throw new Error("Too many arguments for bitset");
+            throw new ArgumentTooManyError("bitset");
           c = parseInt(args[0], 10);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0] + "' must be a number for bitset");
+            throw new ArgumentInvalidNumberError(args[0], "bitset");
           sides = parseInt(args[1], 10);
           if (isNaN(sides))
-            throw new Error("Invalid argument '" + args[1] + "' must be a number for bitset");
+            throw new ArgumentInvalidNumberError(args[1], "bitset");
           sides--;
           mod = 1;
           if (args.length === 3) {
             mod = parseInt(args[2], 10);
             if (isNaN(mod))
-              throw new Error("Invalid argument '" + args[2] + "' must be a number for bitset");
+              throw new ArgumentInvalidNumberError(args[2], "bitset");
           }
           return c & ~(1 << sides) | (mod ? 1 : 0) << sides;
         case "bitshift":
           args = this.parseInline(res[2]).split(",");
           if (args.length === 0)
-            throw new Error("Missing arguments for bitshift");
+            throw new ArgumentMissingError("bitshift");
           else if (args.length !== 2)
-            throw new Error("Too many arguments for bitshift");
+            throw new ArgumentTooManyError("bitshift");
           c = parseInt(args[0], 10);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0] + "' must be a number for bitshift");
+            throw new ArgumentInvalidNumberError(args[0], "bitshift");
           sides = parseInt(args[1], 10);
           if (isNaN(sides))
-            throw new Error("Invalid argument '" + args[1] + "' must be a number for bitshift");
+            throw new ArgumentInvalidNumberError(args[1], "bitshift");
           if (sides < 0)
             return c >> -sides;
           return c << sides;
         case "bittest":
           args = this.parseInline(res[2]).split(",");
           if (args.length === 0)
-            throw new Error("Missing arguments for bittest");
+            throw new ArgumentMissingError("bittest");
           else if (args.length !== 2)
-            throw new Error("Too many arguments for bittest");
+            throw new ArgumentTooManyError("bittest");
           c = parseInt(args[0], 10);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0] + "' must be a number for bittest");
+            throw new ArgumentInvalidNumberError(args[0], "bittest");
           sides = parseInt(args[1], 10);
           if (isNaN(sides))
-            throw new Error("Invalid argument '" + args[1] + "' must be a number for bittest");
+            throw new ArgumentInvalidNumberError(args[1], "bittest");
           sides--;
           return (c >> sides) % 2 != 0 ? 1 : 0;
         case "bitxor":
           args = this.parseInline(res[2]).split(",");
           if (args.length === 0)
-            throw new Error("Missing arguments for bitxor");
+            throw new ArgumentMissingError("bitxor");
           else if (args.length !== 2)
-            throw new Error("Too many arguments for bitxor");
+            throw new ArgumentTooManyError("bitxor");
           c = parseInt(args[0], 10);
           if (isNaN(c))
-            throw new Error("Invalid argument '" + args[0] + "' must be a number for bitxor");
+            throw new ArgumentInvalidNumberError(args[0], "bitxor");
           sides = parseInt(args[1], 10);
           if (isNaN(sides))
-            throw new Error("Invalid argument '" + args[1] + "' must be a number for bitxor");
+            throw new ArgumentInvalidNumberError(args[1], "bitxor");
           return c ^ sides;
         case "number":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length === 0)
-            throw new Error("Missing arguments for number");
+            throw new ArgumentMissingError("number");
           else if (args.length > 1)
-            throw new Error("Too many arguments for number");
+            throw new ArgumentTooManyError("number");
           args[0] = this.stripQuotes(args[0], true);
           if (args[0].match(/^\s*?[-|+]?\d+\s*?$/))
             return parseInt(args[0], 10);
@@ -15385,34 +15435,34 @@
         case "isfloat":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length === 0)
-            throw new Error("Missing arguments for isfloat");
+            throw new ArgumentMissingError("isfloat");
           else if (args.length > 1)
-            throw new Error("Too many arguments for isfloat");
+            throw new ArgumentTooManyError("isfloat");
           if (args[0].match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
             return 1;
           return 0;
         case "isnumber":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length === 0)
-            throw new Error("Missing arguments for isnumber");
+            throw new ArgumentMissingError("isnumber");
           else if (args.length > 1)
-            throw new Error("Too many arguments for isnumber");
+            throw new ArgumentTooManyError("isnumber");
           if (args[0].match(/^\s*?[-|+]?\d+\s*?$/) || args[0].match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
             return 1;
           return 0;
         case "string":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length === 0)
-            throw new Error("Missing arguments for string");
+            throw new ArgumentMissingError("string");
           else if (args.length > 1)
-            throw new Error("Too many arguments for string");
+            throw new ArgumentTooManyError("string");
           return `"${this.stripQuotes(args[0]), true}"`;
         case "float":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length === 0)
-            throw new Error("Missing arguments for float");
+            throw new ArgumentMissingError("float");
           else if (args.length > 1)
-            throw new Error("Too many arguments for float");
+            throw new ArgumentTooManyError("float");
           args[0] = this.stripQuotes(args[0], true);
           if (args[0].match(/^\s*?[-|+]?\d+\s*?$/) || args[0].match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
             return parseFloat(args[0]);
@@ -15424,9 +15474,9 @@
         case "isdefined":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length === 0)
-            throw new Error("Missing arguments for isdefined");
+            throw new ArgumentMissingError("isdefined");
           else if (args.length > 1)
-            throw new Error("Too many arguments for isdefined");
+            throw new ArgumentTooManyError("isdefined");
           args[0] = this.stripQuotes(args[0], true);
           if (this.client.variables.hasOwnProperty(args[0]))
             return 1;
@@ -15434,30 +15484,30 @@
         case "defined":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length === 0)
-            throw new Error("Missing arguments for defined");
+            throw new ArgumentMissingError("defined");
           else if (args.length === 1) {
             args[0] = this.stripQuotes(args[0], true);
-            const keys = this.client.profiles.keys;
+            const keys = this._profiles.keys;
             let k = 0;
             const kl = keys.length;
             if (kl === 0) return 0;
             for (; k < kl; k++) {
-              sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
+              sides = SortItemArrayByPriority(this._profiles.items[keys[k]].aliases);
               sides = sides.find((i2) => {
                 return i2.pattern === args[0];
               });
               if (sides) return 1;
-              sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+              sides = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
               sides = sides.find((i2) => {
                 return i2.pattern === args[0] || i2.name === args[0];
               });
               if (sides) return 1;
-              sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].macros);
+              sides = SortItemArrayByPriority(this._profiles.items[keys[k]].macros);
               sides = sides.find((i2) => {
                 return MacroDisplay(i2).toLowerCase() === args[0].toLowerCase() || i2.name === args[0];
               });
               if (sides) return 1;
-              sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
+              sides = SortItemArrayByPriority(this._profiles.items[keys[k]].aliases);
               sides = sides.find((i2) => {
                 return i2.caption === args[0] || i2.name === args[0];
               });
@@ -15467,42 +15517,42 @@
           } else if (args.length === 2) {
             args[0] = this.stripQuotes(args[0], true);
             args[1] = this.stripQuotes(args[1], true).toLowerCase();
-            const keys = this.client.profiles.keys;
+            const keys = this._profiles.keys;
             let k = 0;
             const kl = keys.length;
             if (kl === 0) return 0;
             for (; k < kl; k++) {
               switch (args[1]) {
                 case "alias":
-                  sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
+                  sides = SortItemArrayByPriority(this._profiles.items[keys[k]].aliases);
                   sides = sides.find((i2) => {
                     return i2.pattern === args[0];
                   });
                   if (sides) return 1;
                   return 0;
                 case "event":
-                  sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+                  sides = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   sides = sides.find((i2) => {
                     return i2.type === 2 /* Event */ && (i2.pattern === args[0] || i2.name === args[0]);
                   });
                   if (sides) return 1;
                   return 0;
                 case "trigger":
-                  sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+                  sides = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   sides = sides.find((i2) => {
                     return i2.pattern === args[0] || i2.name === args[0];
                   });
                   if (sides) return 1;
                   return 0;
                 case "macro":
-                  sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].macros);
+                  sides = SortItemArrayByPriority(this._profiles.items[keys[k]].macros);
                   sides = sides.find((i2) => {
                     return MacroDisplay(i2).toLowerCase() === args[0].toLowerCase() || i2.name === args[0];
                   });
                   if (sides) return 1;
                   return 0;
                 case "button":
-                  sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].aliases);
+                  sides = SortItemArrayByPriority(this._profiles.items[keys[k]].aliases);
                   sides = sides.find((i2) => {
                     return i2.caption === args[0] || i2.name === args[0];
                   });
@@ -15513,55 +15563,55 @@
             if (args[1] === "variable")
               return this.client.variables.hasOwnProperty(args[0]);
           } else
-            throw new Error("Too many arguments for defined");
+            throw new ArgumentTooManyError("defined");
           return 0;
         case "escape":
           args = this.stripQuotes(this.parseInline(res[2]));
-          if (this.client.getOption("allowEscape")) {
+          if (this._getOption("allowEscape")) {
             c = escape2;
             if (escape2 === "\\")
               c += escape2;
-            if (this.client.getOption("parseDoubleQuotes"))
+            if (this._getOption("parseDoubleQuotes"))
               c += '"';
-            if (this.client.getOption("parseSingleQuotes"))
+            if (this._getOption("parseSingleQuotes"))
               c += "'";
-            if (this.client.getOption("commandStacking"))
-              c += this.client.getOption("commandStackingChar");
-            if (this.client.getOption("enableSpeedpaths"))
-              c += this.client.getOption("speedpathsChar");
-            if (this.client.getOption("enableCommands"))
-              c += this.client.getOption("commandChar");
-            if (this.client.getOption("enableVerbatim"))
-              c += this.client.getOption("verbatimChar");
-            if (this.client.getOption("enableDoubleParameterEscaping"))
-              c += this.client.getOption("parametersChar");
-            if (this.client.getOption("enableNParameters"))
-              c += this.client.getOption("nParametersChar");
+            if (this._getOption("commandStacking"))
+              c += this._getOption("commandStackingChar");
+            if (this._getOption("enableSpeedpaths"))
+              c += this._getOption("speedpathsChar");
+            if (this._getOption("enableCommands"))
+              c += this._getOption("commandChar");
+            if (this._getOption("enableVerbatim"))
+              c += this._getOption("verbatimChar");
+            if (this._getOption("enableDoubleParameterEscaping"))
+              c += this._getOption("parametersChar");
+            if (this._getOption("enableNParameters"))
+              c += this._getOption("nParametersChar");
             return args.replace(new RegExp(`[${c}]`, "g"), escape2 + "$&");
           }
           return args.replace(/[\\"']/g, "$&");
         case "unescape":
           args = this.stripQuotes(this.parseInline(res[2]));
-          if (this.client.getOption("allowEscape")) {
+          if (this._getOption("allowEscape")) {
             c = escape2;
             if (escape2 === "\\")
               c += escape2;
-            if (this.client.getOption("parseDoubleQuotes"))
+            if (this._getOption("parseDoubleQuotes"))
               c += '"';
-            if (this.client.getOption("parseSingleQuotes"))
+            if (this._getOption("parseSingleQuotes"))
               c += "'";
-            if (this.client.getOption("commandStacking"))
-              c += this.client.getOption("commandStackingChar");
-            if (this.client.getOption("enableSpeedpaths"))
-              c += this.client.getOption("speedpathsChar");
-            if (this.client.getOption("enableCommands"))
-              c += this.client.getOption("commandChar");
-            if (this.client.getOption("enableVerbatim"))
-              c += this.client.getOption("verbatimChar");
-            if (this.client.getOption("enableDoubleParameterEscaping"))
-              c += this.client.getOption("parametersChar");
-            if (this.client.getOption("enableNParameters"))
-              c += this.client.getOption("nParametersChar");
+            if (this._getOption("commandStacking"))
+              c += this._getOption("commandStackingChar");
+            if (this._getOption("enableSpeedpaths"))
+              c += this._getOption("speedpathsChar");
+            if (this._getOption("enableCommands"))
+              c += this._getOption("commandChar");
+            if (this._getOption("enableVerbatim"))
+              c += this._getOption("verbatimChar");
+            if (this._getOption("enableDoubleParameterEscaping"))
+              c += this._getOption("parametersChar");
+            if (this._getOption("enableNParameters"))
+              c += this._getOption("nParametersChar");
             if (escape2 === "\\")
               return args.replace(new RegExp(`\\\\[${c}]`, "g"), (m) => m.substr(1));
             return args.replace(new RegExp(`${escape2}[${c}]`, "g"), (m) => m.substr(1));
@@ -15570,9 +15620,9 @@
         case "alarm":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length === 0)
-            throw new Error("Missing arguments for alarm");
+            throw new ArgumentMissingError("alarm");
           if (args.length > 3)
-            throw new Error("Too many arguments for alarm");
+            throw new ArgumentTooManyError("alarm");
           args[0] = this.stripQuotes(args[0]);
           sides = this.client.alarms;
           max2 = sides.length;
@@ -15635,29 +15685,29 @@
         case "state":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length === 0)
-            throw new Error("Missing arguments for state");
+            throw new ArgumentMissingError("state");
           if (args.length > 2)
-            throw new Error("Too many arguments for state");
+            throw new ArgumentTooManyError("state");
           args[0] = this.stripQuotes(args[0]);
           mod = null;
           if (args.length === 1) {
-            const keys = this.client.profiles.keys;
+            const keys = this._profiles.keys;
             let k = 0;
             const kl = keys.length;
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this.client.profiles.items[keys[0]].enabled || !this.client.profiles.items[keys[0]].enableTriggers)
+              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
-              sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+              sides = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
               sides = sides.find((t) => {
                 return t.name === args[0] || t.pattern === args[0];
               });
             } else {
               for (; k < kl; k++) {
-                if (!this.client.profiles.items[keys[k]].enabled || !this.client.profiles.items[keys[k]].enableTriggers || this.client.profiles.items[keys[k]].triggers.length === 0)
+                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
-                sides = SortItemArrayByPriority(this.client.profiles.items[keys[k]].triggers);
+                sides = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                 sides = sides.find((t) => {
                   return t.name === args[0] || t.pattern === args[0];
                 });
@@ -15667,10 +15717,10 @@
             }
           } else if (args.length === 2) {
             args[1] = this.stripQuotes(args[1].trim());
-            if (this.client.profiles.contains(args[1]))
-              mod = this.client.profiles.items[args[1].toLowerCase()];
+            if (this._profiles.contains(args[1]))
+              mod = this._profiles.items[args[1].toLowerCase()];
             else
-              throw new Error("Profile not found: " + args[1]);
+              throw new ProfileNotFound(args[1]);
             sides = SortItemArrayByPriority(mod.triggers);
             sides = sides.find((t) => {
               return t.name === args[0] || t.pattern === args[0];
@@ -15678,20 +15728,20 @@
           }
           if (sides)
             return sides.triggers && sides.triggers.length ? sides.state : 0;
-          throw new Error("Trigger not found");
+          throw new TriggerNotFound();
         case "isnull":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length === 0)
             return null;
           if (args.length !== 1)
-            throw new Error("Too many arguments for null");
+            throw new ArgumentTooManyError("null");
           return this.evaluate(args[0]) === null ? 1 : 0;
         case "prompt":
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length === 0)
             return window.prompt() || "";
           if (args.length > 3)
-            throw new Error("Too many arguments");
+            throw new ArgumentTooManyError("prompt");
           args = args.map((a) => this.stripQuotes(a));
           return window.prompt(...args) || "";
       }
@@ -15739,8 +15789,8 @@
             this._stack.pop();
             break;
           case 2:
-            if ((this.client.getOption("echo") & 2) === 2)
-              this.client.echo(alias.value, -7, -8, true, true);
+            if ((this._getOption("echo") & 2) === 2)
+              this._echo(alias.value, -7, -8, true, true);
             const named = this.GetNamedArguments(alias.params, args);
             if (named)
               ret = Object.keys(named).map((v) => `let ${v} = this.input.stack.named["${v}"];`).join("") + "\n";
@@ -15769,7 +15819,7 @@
         return null;
       if (typeof ret !== "string")
         ret = ret.toString();
-      if (ret.length === 0 && !this.client.getOption("returnNewlineOnEmptyValue"))
+      if (ret.length === 0 && !this._getOption("returnNewlineOnEmptyValue"))
         return null;
       if (ret.endsWith("\n"))
         return ret;
@@ -15777,7 +15827,7 @@
     }
     ProcessMacros(keycode, alt, ctrl, shift, meta) {
       if (!keycode || keycode > 9 && keycode < 19) return false;
-      if (!this.client.profiles) return false;
+      if (!this._profiles) return false;
       const macros = this._MacroCache[keycode] || (this._MacroCache[keycode] = FilterArrayByKeyValue(this.client.macros, "key", keycode));
       let m = 0;
       const ml = macros.length;
@@ -15813,8 +15863,8 @@
             }
             break;
           case 2:
-            if ((this.client.getOption("echo") & 2) === 2)
-              this.client.echo(macro.value, -7, -8, true, true);
+            if ((this._getOption("echo") & 2) === 2)
+              this._echo(macro.value, -7, -8, true, true);
             const f = new Function("try { " + macro.value + "\n} catch (e) { if(this.getOption('showScriptErrors')) this.error(e);}");
             this._stack.push({ loops: [], args: 0, named: 0, used: 0 });
             try {
@@ -15833,14 +15883,14 @@
         return true;
       if (typeof ret !== "string")
         ret = ret.toString();
-      if (ret.length === 0 && !this.client.getOption("returnNewlineOnEmptyValue"))
+      if (ret.length === 0 && !this._getOption("returnNewlineOnEmptyValue"))
         return null;
       if (macro.send) {
         if (!ret.endsWith("\n"))
           ret += "\n";
         if (macro.chain && this.client.commandInput.value.endsWith(" ")) {
           this.client.commandInput.value = this.client.commandInput.value + ret;
-          this.client.sendCommand(null, null, this.client.getOption("allowCommentsFromCommand"));
+          this.client.sendCommand(null, null, this._getOption("allowCommentsFromCommand"));
         } else
           this.client.send(ret, true);
       } else if (macro.append)
@@ -15957,12 +16007,12 @@
     }
     ExecutePath() {
       if (this._pathTimeout || !this._pathQueue.length || this._pathPaused) return;
-      let delay = this.client.getOption("pathDelay");
+      let delay = this._getOption("pathDelay");
       if (delay < 0) delay = 0;
       this._pathTimeout = setTimeout(() => {
-        const pPath = this.client.getOption("parseSpeedpaths");
-        const ePath = this.client.getOption("echoSpeedpaths");
-        let cnt = this.client.getOption("pathDelayCount");
+        const pPath = this._getOption("parseSpeedpaths");
+        const ePath = this._getOption("echoSpeedpaths");
+        let cnt = this._getOption("pathDelayCount");
         if (cnt < 1) cnt = 1;
         const current = this._pathQueue[0];
         while (cnt--) {
@@ -16071,7 +16121,7 @@
             changed = true;
           }
           if (changed) {
-            if (this.client.getOption("saveTriggerStateChanges"))
+            if (this._getOption("saveTriggerStateChanges"))
               this.client.saveProfiles();
             this.client.emit("item-updated", "trigger", parent.profile.name, parent.profile.triggers.indexOf(parent), parent);
           }
@@ -16180,7 +16230,7 @@
             }
             let args;
             this._LastTriggered = trigger.raw ? raw : line2;
-            if ((trigger.raw ? raw : line2) === res[0] || !this.client.getOption("prependTriggeredLine"))
+            if ((trigger.raw ? raw : line2) === res[0] || !this._getOption("prependTriggeredLine"))
               args = res;
             else {
               args = [this._LastTriggered, ...res];
@@ -16198,14 +16248,14 @@
             t--;
           } else if (ret) return val;
         } catch (e) {
-          if (this.client.getOption("disableTriggerOnError")) {
+          if (this._getOption("disableTriggerOnError")) {
             trigger.enabled = false;
             setTimeout(() => {
               this.client.saveProfiles();
               this.emit("item-updated", "trigger", parent.profile, parent.profile.triggers.indexOf(parent), parent);
             });
           }
-          if (this.client.getOption("showScriptErrors"))
+          if (this._getOption("showScriptErrors"))
             this.client.error(e);
           else
             this.client.debug(e);
@@ -16253,7 +16303,7 @@
           }
           let args;
           this._LastTriggered = trigger.raw ? raw : line2;
-          if ((trigger.raw ? raw : line2) === res[0] || !this.client.getOption("prependTriggeredLine"))
+          if ((trigger.raw ? raw : line2) === res[0] || !this._getOption("prependTriggeredLine"))
             args = res;
           else {
             args = [this._LastTriggered, ...res];
@@ -16265,14 +16315,14 @@
         }
         t = this.cleanUpTriggerState(t);
       } catch (e) {
-        if (this.client.getOption("disableTriggerOnError")) {
+        if (this._getOption("disableTriggerOnError")) {
           trigger.enabled = false;
           setTimeout(() => {
             this.client.saveProfiles();
             this.emit("item-updated", "trigger", parent.profile, parent.profile.triggers.indexOf(parent), parent);
           });
         }
-        if (this.client.getOption("showScriptErrors"))
+        if (this._getOption("showScriptErrors"))
           this.client.error(e);
         else
           this.client.debug(e);
@@ -16327,8 +16377,8 @@
         }
       } else if (parent.triggers.length)
         this._advanceTrigger(trigger, parent, idx);
-      if ((this.client.getOption("echo") & 8) === 8)
-        this.client.echo("Trigger fired: " + trigger.pattern, -7, -8, true, true);
+      if ((this._getOption("echo") & 8) === 8)
+        this._echo("Trigger fired: " + trigger.pattern, -7, -8, true, true);
       if (trigger.value.length)
         switch (trigger.style) {
           case 1:
@@ -16342,8 +16392,8 @@
             }
             break;
           case 2:
-            if ((this.client.getOption("echo") & 2) === 2)
-              this.client.echo(trigger.value, -7, -8, true, true);
+            if ((this._getOption("echo") & 2) === 2)
+              this._echo(trigger.value, -7, -8, true, true);
             if (trigger.temp) {
               ret = new Function("try { " + trigger.value + "\n} catch (e) { if(this.getOption('showScriptErrors')) this.error(e);}");
               ret = ret.apply(this.client, args);
@@ -16377,15 +16427,15 @@
         return ret;
       if (typeof ret !== "string")
         ret = ret.toString();
-      if (ret.length === 0 && !this.client.getOption("returnNewlineOnEmptyValue"))
+      if (ret.length === 0 && !this._getOption("returnNewlineOnEmptyValue"))
         return null;
       if (!ret.endsWith("\n"))
         ret += "\n";
       if (this.client.connected)
         this.client.telnet.sendData(ret);
-      if (this.client.telnet.echo && this.client.getOption("commandEcho")) {
+      if (this.client.telnet.echo && this._getOption("commandEcho")) {
         setTimeout(() => {
-          this.client.echo(ret);
+          this._echo(ret);
         }, 1);
       }
     }
@@ -16412,7 +16462,7 @@
       parent.state++;
       if (parent.state > parent.triggers.length)
         parent.state = 0;
-      if (this.client.getOption("saveTriggerStateChanges"))
+      if (this._getOption("saveTriggerStateChanges"))
         this.client.saveProfiles();
       this.client.emit("item-updated", "trigger", parent.profile.name, parent.profile.triggers.indexOf(parent), parent);
       if (parent.state !== 0) {
@@ -16674,7 +16724,7 @@
             changed = true;
           }
           if (changed) {
-            if (this.client.getOption("saveTriggerStateChanges"))
+            if (this._getOption("saveTriggerStateChanges"))
               this.client.saveProfiles();
             this.client.emit("item-updated", "trigger", parent.profile.name, parent.profile.triggers.indexOf(parent), parent);
           }
@@ -16716,11 +16766,11 @@
     stripQuotes(str, force, forceSingle) {
       if (!str || str.length === 0)
         return str;
-      if (force || this.client.getOption("parseDoubleQuotes"))
+      if (force || this._getOption("parseDoubleQuotes"))
         str = str.replace(/^\"(.*)\"$/g, (v, e, w) => {
           return e.replace(/\\\"/g, '"');
         });
-      if (forceSingle || this.client.getOption("parseSingleQuotes"))
+      if (forceSingle || this._getOption("parseSingleQuotes"))
         str = str.replace(/^\'(.*)\'$/g, (v, e, w) => {
           return e.replace(/\\\'/g, "'");
         });
@@ -16731,15 +16781,15 @@
       let e = 0;
       if (!str || str.length === 0)
         return [];
-      if (force || this.client.getOption("parseDoubleQuotes")) {
+      if (force || this._getOption("parseDoubleQuotes")) {
         t |= 2;
-        e |= this.client.getOption("allowEscape") ? 2 : 0;
+        e |= this._getOption("allowEscape") ? 2 : 0;
       }
-      if (forceSingle || this.client.getOption("parseSingleQuotes")) {
+      if (forceSingle || this._getOption("parseSingleQuotes")) {
         t |= 1;
-        e |= this.client.getOption("allowEscape") ? 1 : 0;
+        e |= this._getOption("allowEscape") ? 1 : 0;
       }
-      return splitQuoted(str, sep, t, e, this.client.getOption("escapeChar"));
+      return splitQuoted(str, sep, t, e, this._getOption("escapeChar"));
     }
     createTrigger(pattern, commands, profile, options, name2, subTrigger) {
       let trigger;
@@ -16749,43 +16799,43 @@
       if (!pattern && !name2)
         throw new Error(`Trigger '${name2 || ""}' not found`);
       if (!profile) {
-        const keys = this.client.profiles.keys;
+        const keys = this._profiles.keys;
         let k = 0;
         const kl = keys.length;
         if (kl === 0)
           return;
         if (kl === 1) {
-          if (!this.client.profiles.items[keys[0]].enabled || !this.client.profiles.items[keys[0]].enableTriggers)
+          if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
             throw Error("No enabled profiles found!");
-          profile = this.client.profiles.items[keys[0]];
+          profile = this._profiles.items[keys[0]];
           if (subTrigger) {
             if (!name2) {
-              if (!this.client.profiles.items[keys[k]].triggers.length)
+              if (!this._profiles.items[keys[k]].triggers.length)
                 throw new Error(`No triggers exist`);
-              trigger = this.client.profiles.items[keys[k]].triggers[this.client.profiles.items[keys[k]].triggers.length - 1];
+              trigger = this._profiles.items[keys[k]].triggers[this._profiles.items[keys[k]].triggers.length - 1];
             } else
-              trigger = this.client.profiles.items[keys[k]].findAny("triggers", { name: name2, pattern: name2 });
+              trigger = this._profiles.items[keys[k]].findAny("triggers", { name: name2, pattern: name2 });
           } else if (name2 !== null)
-            trigger = this.client.profiles.items[keys[k]].find("triggers", "name", name2);
+            trigger = this._profiles.items[keys[k]].find("triggers", "name", name2);
           else
-            trigger = this.client.profiles.items[keys[k]].find("triggers", "pattern", pattern);
+            trigger = this._profiles.items[keys[k]].find("triggers", "pattern", pattern);
         } else {
           for (; k < kl; k++) {
-            if (!this.client.profiles.items[keys[k]].enabled || !this.client.profiles.items[keys[k]].enableTriggers || this.client.profiles.items[keys[k]].triggers.length === 0)
+            if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
               continue;
             if (subTrigger) {
               if (!name2) {
-                if (!this.client.profiles.items[keys[k]].triggers.length)
+                if (!this._profiles.items[keys[k]].triggers.length)
                   throw new Error(`No triggers exist`);
-                trigger = this.client.profiles.items[keys[k]].triggers[this.client.profiles.items[keys[k]].triggers.length - 1];
+                trigger = this._profiles.items[keys[k]].triggers[this._profiles.items[keys[k]].triggers.length - 1];
               } else
-                trigger = this.client.profiles.items[keys[k]].findAny("triggers", { name: name2, pattern: name2 });
+                trigger = this._profiles.items[keys[k]].findAny("triggers", { name: name2, pattern: name2 });
             } else if (name2 !== null)
-              trigger = this.client.profiles.items[keys[k]].find("triggers", "name", name2);
+              trigger = this._profiles.items[keys[k]].find("triggers", "name", name2);
             else
-              trigger = this.client.profiles.items[keys[k]].find("triggers", "pattern", pattern);
+              trigger = this._profiles.items[keys[k]].find("triggers", "pattern", pattern);
             if (trigger) {
-              profile = this.client.profiles.items[keys[k]];
+              profile = this._profiles.items[keys[k]];
               break;
             }
           }
@@ -16793,10 +16843,10 @@
             profile = this.client.activeProfile;
         }
       } else if (typeof profile === "string") {
-        if (this.client.profiles.contains(profile.toLowerCase()))
-          profile = this.client.profiles.items[profile.toLowerCase()];
+        if (this._profiles.contains(profile.toLowerCase()))
+          profile = this._profiles.items[profile.toLowerCase()];
         else
-          throw new Error("Profile not found: " + profile);
+          throw new ProfileNotFound(profile);
         if (subTrigger) {
           if (!name2) {
             if (!profile.triggers.length)
@@ -16875,11 +16925,11 @@
             if (this._isTriggerType(options.type))
               sTrigger.type = this._convertTriggerType(options.type);
             else
-              throw new Error("Invalid trigger type");
+              throw new InvalidTrigger("type");
           }
         }
         trigger.triggers.push(sTrigger);
-        this.client.echo("Trigger sub state added.", -7, -8, true, true);
+        this._echo("Trigger sub state added.", -7, -8, true, true);
       } else {
         if (!trigger) {
           if (!pattern)
@@ -16888,10 +16938,10 @@
           trigger.name = name2 || "";
           trigger.pattern = pattern;
           profile.triggers.push(trigger);
-          this.client.echo("Trigger added.", -7, -8, true, true);
+          this._echo("Trigger added.", -7, -8, true, true);
           isNew = true;
         } else
-          this.client.echo("Trigger updated.", -7, -8, true, true);
+          this._echo("Trigger updated.", -7, -8, true, true);
         if (pattern !== null)
           trigger.pattern = pattern;
         if (commands !== null)
@@ -16933,7 +16983,7 @@
             if (this._isTriggerType(options.type, 1 /* Main */))
               trigger.type = this._convertTriggerType(options.type);
             else
-              throw new Error("Invalid trigger type");
+              throw new InvalidTrigger("type");
           }
           trigger.priority = options.priority;
         } else
@@ -17035,7 +17085,7 @@
         case "REPARSEPATTERN":
           return SubTriggerTypes[type];
       }
-      throw new Error("Invalid trigger type");
+      throw new InvalidTrigger("type");
     }
     _colorPosition(n, fore, back, item) {
       n = this.adjustLastLine(n);
@@ -17053,6 +17103,15 @@
           line2++;
         }
       }
+    }
+    _getOption(option) {
+      return this.client.getOption(option);
+    }
+    get _profiles() {
+      return this.client.profiles;
+    }
+    _echo(str, fore, back, newline, forceLine) {
+      this.client.echo(str, fore, back, newline, forceLine);
     }
   };
 
@@ -33167,7 +33226,7 @@ Devanagari
   window.initializeInterface = initializeInterface;
 
   // src/html/mapper.menu.htm
-  var mapper_menu_default = '<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="mapper-menu" aria-labelledby="mapper-menu-Label" style="position:absolute"><div class="offcanvas-body"><button type="button" class="btn btn-close text-reset btn-danger btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" style="position:absolute;right:5px;top:5px"></button><ul class="navbar-nav justify-content-end flex-grow-1"><li id="mapper-enable" class="nav-item" title="Enable"><a class="nav-link" href="javascript:void(0)"><i class="bi bi-map"></i>&nbsp;<span>Enabled</span></a></li><li id="mapper-legend" class="nav-item" title="Show legend"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-map-marker"></i>&nbsp;<span>Show legend</span></a></li><li id="mapper-room" class="nav-item" title="Show room properties"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-list-alt"></i>&nbsp;<span>Show room properties</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-refresh" class="nav-item" title="Refresh"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-refresh"></i>&nbsp;<span>Refresh</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-split" class="nav-item" title="Split areas"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-object-ungroup"></i>&nbsp;<span>Split areas</span></a></li><li id="mapper-fill" class="nav-item" title="Display walls"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-building"></i>&nbsp;<span>Display walls</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-remove" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#remove-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="remove-submenu"><i class="fa fa-eraser"></i>&nbsp;<span>Remove</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="remove-submenu"><li class="nav-item" id="mapper-remove-selected"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left:40px">Remove selected room</a></li><li class="nav-item" id="mapper-remove-current"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left:40px">Remove current room</a></li><li><hr class="dropdown-divider"></li><li id="mapper-remove-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left:40px">Remove current area</a></li><li id="mapper-remove-all" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left:40px">Remove all</a></li></ul></li><li id="mapper-export" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#export-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="export-submenu"><i class="fa fa-exchange"></i>&nbsp;<span>Export/Import</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="export-submenu"><li id="mapper-export-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left:40px">Export as image</a></li><li id="mapper-export-scaled-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left:40px">Export as scaled image</a></li><li id="mapper-export-current-image" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left:40px">Export current view as image</a></li><li><hr class="dropdown-divider"></li><li id="mapper-export-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left:40px">Export current area</a></li><li id="mapper-export-all" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left:40px">Export all</a></li><li><hr class="dropdown-divider"></li><li id="mapper-import-merge" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left:40px">Import and merge</a></li><li id="mapper-import-replace" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left:40px">Import and replace</a></li></ul></li><li><hr class="dropdown-divider"></li><li id="mapper-export" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#actions-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="actions-submenu"><i class="fa-solid fa-shoe-prints"></i>&nbsp;<span>Actions</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="actions-submenu"><li id="mapper-follow" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left:40px">Follow</a></li><li><hr class="dropdown-divider"></li><li id="mapper-focus" class="nav-item"><a class="nav-link" href="javascript:void(0)" style="padding-left:40px">Focus on current room</a></li><li id="mapper-set-current" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left:40px">Set selected as current</a></li><li><hr class="dropdown-divider"></li><li id="mapper-highlight-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left:40px">Highlight path</a></li><li id="mapper-clear-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left:40px">Clear path</a></li><li><hr class="dropdown-divider"></li><li id="mapper-walk-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left:40px">Walk path</a></li><li id="mapper-walk-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left:40px">Walk highlighted path</a></li><li><hr class="dropdown-divider"></li><li id="mapper-copy-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left:40px">Copy path</a></li><li id="mapper-copy-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left:40px">Copy as stacked</a></li><li id="mapper-copy-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left:40px">Copy as speedpath</a></li><li id="mapper-copy-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left:40px">Copy highlighted path</a></li><li id="mapper-copy-highlighted-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left:40px">Copy highlighted as stacked</a></li><li id="mapper-copy-highlighted-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)" style="padding-left:40px">Copy highlighted as speedpath</a></li></ul></li><li><hr class="dropdown-divider"></li><li id="mapper-about" class="nav-item" title="About map"><a class="nav-link" href="javascript:void(0)"><i class="bi-info-circle"></i>&nbsp;<span>About</span></a></li></ul></div></div>';
+  var mapper_menu_default = '<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="mapper-menu" aria-labelledby="mapper-menu-Label" style="position:absolute"><div class="offcanvas-body"><button type="button" class="btn btn-close text-reset btn-danger btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" style="position:absolute;right:5px;top:5px"></button><ul class="navbar-nav justify-content-end flex-grow-1"><li id="mapper-enable" class="nav-item" title="Enable"><a class="nav-link" href="javascript:void(0)"><i class="bi bi-map"></i>&nbsp;<span>Enabled</span></a></li><li id="mapper-legend" class="nav-item" title="Show legend"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-map-marker"></i>&nbsp;<span>Show legend</span></a></li><li id="mapper-room" class="nav-item" title="Show room properties"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-list-alt"></i>&nbsp;<span>Show room properties</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-refresh" class="nav-item" title="Refresh"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-refresh"></i>&nbsp;<span>Refresh</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-split" class="nav-item" title="Split areas"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-object-ungroup"></i>&nbsp;<span>Split areas</span></a></li><li id="mapper-fill" class="nav-item" title="Display walls"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-building"></i>&nbsp;<span>Display walls</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-remove" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#remove-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="remove-submenu"><i class="fa fa-eraser"></i>&nbsp;<span>Remove</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="remove-submenu"><li class="nav-item" id="mapper-remove-selected"><a class="nav-link disabled" href="javascript:void(0)">Remove selected room</a></li><li class="nav-item" id="mapper-remove-current"><a class="nav-link disabled" href="javascript:void(0)">Remove current room</a></li><li><hr class="dropdown-divider"></li><li id="mapper-remove-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)">Remove current area</a></li><li id="mapper-remove-all" class="nav-item"><a class="nav-link" href="javascript:void(0)">Remove all</a></li></ul></li><li id="mapper-export" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#export-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="export-submenu"><i class="fa fa-exchange"></i>&nbsp;<span>Export/Import</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="export-submenu"><li id="mapper-export-image" class="nav-item"><a class="nav-link" href="javascript:void(0)">Export as image</a></li><li id="mapper-export-scaled-image" class="nav-item"><a class="nav-link" href="javascript:void(0)">Export as scaled image</a></li><li id="mapper-export-current-image" class="nav-item"><a class="nav-link" href="javascript:void(0)">Export current view as image</a></li><li><hr class="dropdown-divider"></li><li id="mapper-export-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)">Export current area</a></li><li id="mapper-export-all" class="nav-item"><a class="nav-link" href="javascript:void(0)">Export all</a></li><li><hr class="dropdown-divider"></li><li id="mapper-import-merge" class="nav-item"><a class="nav-link" href="javascript:void(0)">Import and merge</a></li><li id="mapper-import-replace" class="nav-item"><a class="nav-link" href="javascript:void(0)">Import and replace</a></li></ul></li><li><hr class="dropdown-divider"></li><li id="mapper-export" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#actions-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="actions-submenu"><i class="fa-solid fa-shoe-prints"></i>&nbsp;<span>Actions</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="actions-submenu"><li id="mapper-follow" class="nav-item"><a class="nav-link" href="javascript:void(0)">Follow</a></li><li><hr class="dropdown-divider"></li><li id="mapper-focus" class="nav-item"><a class="nav-link" href="javascript:void(0)">Focus on current room</a></li><li id="mapper-set-current" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Set selected as current</a></li><li><hr class="dropdown-divider"></li><li id="mapper-highlight-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Highlight path</a></li><li id="mapper-clear-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Clear path</a></li><li><hr class="dropdown-divider"></li><li id="mapper-walk-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Walk path</a></li><li id="mapper-walk-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Walk highlighted path</a></li><li><hr class="dropdown-divider"></li><li id="mapper-copy-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Copy path</a></li><li id="mapper-copy-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Copy as stacked</a></li><li id="mapper-copy-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Copy as speedpath</a></li><li id="mapper-copy-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Copy highlighted path</a></li><li id="mapper-copy-highlighted-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Copy highlighted as stacked</a></li><li id="mapper-copy-highlighted-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Copy highlighted as speedpath</a></li></ul></li><li><hr class="dropdown-divider"></li><li id="mapper-about" class="nav-item" title="About map"><a class="nav-link" href="javascript:void(0)"><i class="bi-info-circle"></i>&nbsp;<span>About</span></a></li></ul></div></div>';
 
   // src/html/mapper.room.htm
   var mapper_room_default = '<div class="dialog-header"><button id="mapper-room-close" style="padding:4px" type="button" class="btn btn-close float-end btn-danger" data-dismiss="modal" title="Hide properties"></button><div><i class="fa fa-list-alt"></i>&nbsp;Room properties</div></div><div class="accordion" id="mapper-room-accordion"><div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-general" aria-expanded="true" aria-controls="General">General</button></h2><div id="mapper-room-general" class="accordion-collapse collapse show" data-bs-parent="#mapper-room-accordion"><div class="accordion-body" style="padding:5px"><div class="mb-3"><label for="mapper-room-name">Name</label><input type="text" class="form-control" id="mapper-room-name" placeholder=""></div><div class="mb-3"><label for="mapper-room-background">Background</label><input type="text" class="form-control" id="mapper-room-background" placeholder=""></div></div></div></div><div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-location" aria-expanded="true" aria-controls="mapper-room-location">Location</button></h2><div id="mapper-room-location" class="accordion-collapse collapse" data-bs-parent="#mapper-room-accordion"><div class="accordion-body" style="padding:5px"><div class="mb-3"><label for="mapper-room-area" class="form-label">Area</label><select id="mapper-room-area" class="form-select"></select></div><div class="mb-3"><label for="mapper-room-x" class="form-label">X</label><input type="number" class="form-control" id="mapper-room-x"></div><div class="mb-3"><label for="mapper-room-y" class="form-label">Y</label><input type="number" class="form-control" id="mapper-room-y"></div><div class="mb-3"><label for="mapper-room-z" class="form-label">Z</label><input type="number" class="form-control" id="mapper-room-z"></div><div class="mb-3"><label for="mapper-room-zone" class="form-label">Zone</label><input type="number" class="form-control" id="mapper-room-zone"></div></div></div></div><div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-details" aria-expanded="true" aria-controls="mapper-room-details">Details</button></h2><div id="mapper-room-details" class="accordion-collapse collapse" data-bs-parent="#mapper-room-accordion"><div class="accordion-body" style="padding:5px"><div class="form-check form-switch"><input type="checkbox" class="form-check-input" id="mapper-room-indoors"><label class="form-check-label" for="mapper-room-indoors">Indoors</label></div><div class="mb-3"><label for="font" class="form-label">Terrain</label><div class="input-group"><input id="mapper-room-env" type="text" class="form-control" aria-label="Room terrain"><button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" style="border:var(--bs-border-width) solid var(--bs-border-color)" data-bs-toggle="dropdown" aria-expanded="false"><span class="visually-hidden">Toggle Dropdown</span></button><ul id="mapper-room-terrains" class="dropdown-menu dropdown-menu-end" style="height:200px;overflow:auto"><li><a class="dropdown-item" href="javascript:void(0)">beach</a></li><li><a class="dropdown-item" href="javascript:void(0)">bog</a></li><li><a class="dropdown-item" href="javascript:void(0)">city</a></li><li><a class="dropdown-item" href="javascript:void(0)">cliff</a></li><li><a class="dropdown-item" href="javascript:void(0)">cobble</a></li><li><a class="dropdown-item" href="javascript:void(0)">desert</a></li><li><a class="dropdown-item" href="javascript:void(0)">dirt</a></li><li><a class="dropdown-item" href="javascript:void(0)">dirtroad</a></li><li><a class="dropdown-item" href="javascript:void(0)">farmland</a></li><li><a class="dropdown-item" href="javascript:void(0)">forest</a></li><li><a class="dropdown-item" href="javascript:void(0)">grass</a></li><li><a class="dropdown-item" href="javascript:void(0)">grassland</a></li><li><a class="dropdown-item" href="javascript:void(0)">highmountain</a></li><li><a class="dropdown-item" href="javascript:void(0)">hills</a></li><li><a class="dropdown-item" href="javascript:void(0)">icesheet</a></li><li><a class="dropdown-item" href="javascript:void(0)">jungle</a></li><li><a class="dropdown-item" href="javascript:void(0)">lake</a></li><li><a class="dropdown-item" href="javascript:void(0)">mountain</a></li><li><a class="dropdown-item" href="javascript:void(0)">ocean</a></li><li><a class="dropdown-item" href="javascript:void(0)">pavedroad</a></li><li><a class="dropdown-item" href="javascript:void(0)">plains</a></li><li><a class="dropdown-item" href="javascript:void(0)">prairie</a></li><li><a class="dropdown-item" href="javascript:void(0)">river</a></li><li><a class="dropdown-item" href="javascript:void(0)">rockdesert</a></li><li><a class="dropdown-item" href="javascript:void(0)">rocky</a></li><li><a class="dropdown-item" href="javascript:void(0)">sand</a></li><li><a class="dropdown-item" href="javascript:void(0)">sanddesert</a></li><li><a class="dropdown-item" href="javascript:void(0)">savannah</a></li><li><a class="dropdown-item" href="javascript:void(0)">stone</a></li><li><a class="dropdown-item" href="javascript:void(0)">swamp</a></li><li><a class="dropdown-item" href="javascript:void(0)">tundra</a></li><li><a class="dropdown-item" href="javascript:void(0)">underwater</a></li><li><a class="dropdown-item" href="javascript:void(0)">water</a></li></ul></div></div><div><label for="font" class="form-label">Details</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="1" id="mapper-room-details-1" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-1">Dock</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="2" id="mapper-room-details-2" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-2">Pier</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="4" id="mapper-room-details-4" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-4">Bank</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="8" id="mapper-room-details-8" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-8">Shop</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="16" id="mapper-room-details-16" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-16">Hospital</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="32" id="mapper-room-details-32" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-32">Bar</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="64" id="mapper-room-details-64" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-64">Restaurant</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="128" id="mapper-room-details-128" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-128">WaterSource</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="256" id="mapper-room-details-256" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-256">Trainer</label></div><div class="form-check"><input class="form-check-input" type="checkbox" value="512" id="mapper-room-details-512" name="details" data-enum="true"><label class="form-check-label" for="mapper-room-details-512">Stable</label></div></div></div></div><div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mapper-room-notes" aria-expanded="true" aria-controls="mapper-room-notes">Notes</button></h2><div id="mapper-room-notes" class="accordion-collapse collapse" data-bs-parent="#mapper-room-accordion"><div class="accordion-body" style="padding:5px"><textarea class="form-control" rows="10" style="width:100%" id="mapper-room-notes"></textarea></div></div></div></div>';

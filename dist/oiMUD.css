@@ -351,6 +351,11 @@ a.disabled-link:hover {
   bottom: 0;
   overflow: auto;
 }
+#remove-submenu .nav-link,
+#export-submenu .nav-link,
+#actions-submenu .nav-link {
+  padding-left: 40px;
+}
 
 /* src/css/dialog.css */
 .dialog,

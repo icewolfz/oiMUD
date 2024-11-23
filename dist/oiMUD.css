@@ -2473,7 +2473,7 @@ li.submenu.dropstart > a.dropdown-toggle::after {
 #overall {
   background: #000;
   border-radius: 5px;
-  border: 1px solid var(--theme-border-colo);
+  border: 1px solid var(--theme-border-color);
   margin: 4px;
 }
 #armor,
@@ -2879,6 +2879,82 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   fill: rgb(255, 255, 255);
   color: rgb(255, 255, 255);
   stroke: rgb(255, 255, 255);
+}
+#overall.health-100 {
+  background-color: rgb(255, 0, 0);
+  color: white;
+}
+#overall.health-80-99 {
+  background-color: rgb(252, 71, 29);
+  color: white;
+}
+#overall.health-60-79 {
+  background-color: rgb(252, 165, 40);
+  color: black;
+}
+#overall.health-40-59 {
+  background-color: rgb(251, 217, 48);
+  color: black;
+}
+#overall.health-20-39 {
+  background-color: rgb(251, 255, 55);
+  color: black;
+}
+#overall.health-1-19 {
+  background-color: rgb(167, 255, 69);
+  color: black;
+}
+#overall.health-full {
+  background-color: rgb(0, 255, 31);
+  color: black;
+}
+#overall.armor-unarmored {
+  background-color: rgb(128, 0, 0);
+  color: white;
+}
+#overall.armor-barely {
+  background-color: rgb(255, 0, 0);
+  color: white;
+}
+#overall.armor-slightly {
+  background-color: rgb(128, 128, 0);
+  color: white;
+}
+#overall.armor-somewhat {
+  background-color: rgb(255, 255, 0);
+  color: black;
+}
+#overall.armor-moderately {
+  background-color: rgb(0, 128, 128);
+  color: white;
+}
+#overall.armor-fairly {
+  background-color: rgb(0, 255, 255);
+  color: black;
+}
+#overall.armor-adequately {
+  background-color: rgb(0, 128, 0);
+  color: white;
+}
+#overall.armor-well {
+  background-color: rgb(0, 255, 0);
+  color: black;
+}
+#overall.armor-considerably {
+  background-color: rgb(0, 0, 128);
+  color: white;
+}
+#overall.armor-significantly {
+  background-color: rgb(0, 0, 255);
+  color: white;
+}
+#overall.armor-completely {
+  background-color: rgb(128, 128, 110);
+  color: white;
+}
+#overall.armor-extensively {
+  background-color: rgb(255, 255, 255);
+  color: black;
 }
 .progressbar {
   height: 18px;

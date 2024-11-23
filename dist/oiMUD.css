@@ -2510,13 +2510,6 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   float: right;
   overflow: hidden;
 }
-.progressbar .progressbar-text {
-  position: absolute;
-  z-index: 1;
-}
-.progressbar .progressbar-value {
-  float: right;
-}
 #lagMeter {
   width: auto;
   box-sizing: border-box;
@@ -2605,6 +2598,8 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   text-align: left;
 }
 .progressbar .progressbar-text {
+  position: absolute;
+  z-index: 1;
   left: 0px;
   right: 0px;
   text-align: center;
@@ -2614,7 +2609,8 @@ li.submenu.dropstart > a.dropdown-toggle::after {
 .progressbar .progressbar-value {
   height: 100%;
   width: 0%;
-  background-color: wheat;
+  background-color: #fff;
+  float: right;
 }
 #lagMeter {
   font-size: 0.75em;

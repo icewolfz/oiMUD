@@ -251,15 +251,6 @@
   overflow: hidden;
 }
 
-.progressbar .progressbar-text {
-  position: absolute;
-  z-index: 1;
-}
-
-.progressbar .progressbar-value {
-  float: right;
-}
-
 #lagMeter {
   width: auto;
   box-sizing: border-box;
@@ -366,6 +357,8 @@
 }
 
 .progressbar .progressbar-text {
+  position: absolute;
+  z-index: 1;
   left: 0px;
   right: 0px;
   text-align: center;
@@ -376,7 +369,8 @@
 .progressbar .progressbar-value {
   height: 100%;
   width: 0%;
-  background-color: wheat;
+  background-color: #fff;
+  float: right;
 }
 
 #lagMeter {

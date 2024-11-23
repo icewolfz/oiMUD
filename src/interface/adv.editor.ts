@@ -1,7 +1,7 @@
 import '../css/tinymce.css';
-import { EventEmitter } from '../events';
+import { EventEmitter } from '../core/events';
 import { RGBColor } from '../lib/rgbcolor';
-import { insertValue, htmlEncode, getColors, copyText, openFileDialog, readFile, pinkfishToHTML } from '../library'
+import { insertValue, htmlEncode, getColors, copyText, openFileDialog, readFile, pinkfishToHTML } from '../core/library'
 import { Dialog } from './dialog';
 
 export class AdvEditor extends EventEmitter {

@@ -1,6 +1,6 @@
 import { Dialog, DialogButtons, DialogIcon } from './dialog';
-import { capitalize, clone, openFileDialog, readFile, scrollChildIntoView } from '../library';
-import { Settings, SettingList } from '../settings';
+import { capitalize, clone, openFileDialog, readFile, scrollChildIntoView } from '../core/library';
+import { Settings, SettingList } from '../core/settings';
 import { RGBColor } from '../lib/rgbcolor';
 import { removeHash } from './interface';
 import { buildBreadcrumb } from './breadcrumb'

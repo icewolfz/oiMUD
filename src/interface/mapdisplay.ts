@@ -1,8 +1,8 @@
 import '../css/mapper.css';
-import { EventEmitter } from '../events';
-import { copyText } from '../library';
+import { EventEmitter } from '../core/events';
+import { copyText } from '../core/library';
 import * as PF from './../lib/pathfinding3D.js'
-import { Map, Room, RoomDetails } from '../map';
+import { Map, Room, RoomDetails } from '../core/map';
 
 declare let fileSaveAs;
 

@@ -1,12 +1,12 @@
 import '../css/status.css';
 import '../css/status.theme.css';
-import { Client } from './../client';
-import { Plugin } from '../plugin';
-import { MenuItem } from '../types';
+import { Client } from '../core/client';
+import { Plugin } from '../core/plugin';
+import { MenuItem } from '../core/types';
 import { Dialog } from '../interface/dialog';
 import { removeHash } from '../interface/interface';
-import { capitalize, isMobile } from '../library';
-import { Settings } from '../settings';
+import { capitalize, isMobile } from '../core/library';
+import { Settings } from '../core/settings';
 
 export enum UpdateType { none = 0, sortCombat = 1, sortParty = 2, overall = 4, xp = 8, status = 16 }
 

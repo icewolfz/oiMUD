@@ -25,13 +25,13 @@ declare global {
 
 import * as buzz from './../lib/buzz.js'
 
-import { EventEmitter } from './../events';
-import { stripQuotes } from './../library';
-import { TelnetOption } from './../telnet';
-import { Client } from './../client';
-import { Plugin } from '../plugin';
-import { AnsiColorCode } from '../ansi';
-import { FunctionEvent, MenuItem } from '../types';
+import { EventEmitter } from '../core/events.js';
+import { stripQuotes } from '../core/library.js';
+import { TelnetOption } from '../core/telnet.js';
+import { Client } from '../core/client.js';
+import { Plugin } from '../core/plugin.js';
+import { AnsiColorCode } from '../core/ansi.js';
+import { FunctionEvent, MenuItem } from '../core/types.js';
 
 enum ParseMode {
     default = 0,

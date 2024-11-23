@@ -3,7 +3,7 @@ import { Dialog } from './dialog';
 import { Splitter, Orientation, PanelAnchor } from './splitter';
 import { removeHash, updateHash, closeDropdowns } from './interface';
 import { buildBreadcrumb } from './breadcrumb';
-import { debounce, scrollChildIntoView, capitalize } from '../library';
+import { debounce, scrollChildIntoView, capitalize } from '../core/library';
 
 export class HelpDialog extends Dialog {
     private _menu;

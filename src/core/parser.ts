@@ -1,5 +1,5 @@
 import { EventEmitter } from './events';
-import { RGBColor } from './lib/rgbcolor';
+import { RGBColor } from '../lib/rgbcolor';
 import { ParserLine, FormatType, ParserOptions, FontStyle, LineFormat, LinkFormat, ImageFormat, Size } from './types';
 import { stripQuotes, CharAllowedInURL, htmlDecode } from './library';
 import { Display } from './display';

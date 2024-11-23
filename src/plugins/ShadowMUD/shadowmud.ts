@@ -1,6 +1,6 @@
-import { Plugin } from '../../plugin';
-import { MenuItem } from '../../types';
-import { Client } from '../../client';
+import { Plugin } from '../../core/plugin';
+import { MenuItem } from '../../core/types';
+import { Client } from '../../core/client';
 import { Backup } from './backup';
 import { removeHash } from '../../all';
 import { Dialog } from '../../interface/dialog';

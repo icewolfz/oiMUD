@@ -2,9 +2,9 @@ import '../css/interface.css';
 import '../css/buttons.css';
 import '../css/theme.css';
 import { initMenu } from './menu';
-import { Client } from '../client';
+import { Client } from '../core/client';
 import { Dialog, DialogButtons } from './dialog';
-import { openFileDialog, readFile, debounce, copyText, pasteText, setSelectionRange, offset } from '../library';
+import { openFileDialog, readFile, debounce, copyText, pasteText, setSelectionRange, offset } from '../core/library';
 import { AdvEditor } from './adv.editor';
 import { SettingsDialog } from './settingsdialog';
 import { ProfilesDialog } from './profilesdialog';
@@ -878,15 +878,15 @@ export function showDialog(name: string) {
             if (name === 'profiles' && (window.location.hash.length < 2 || hashContains('profiles'))) {
                 if (this.client.profiles && this.client.profiles.contains(this.client.getOption('profiles.profileSelected'))) {
                     setTimeout(() => {
-                        updateHash('profiles/' + this.client.getOption('profiles.profileSelected'), name);
                         _dialogs.profiles.expandPath(this.client.getOption('profiles.profileSelected') + '/aliases')
-                    }, 1);
+                        updateHash('profiles/' + this.client.getOption('profiles.profileSelected'), name);
+                    }, 100);
                 }
                 else if (!this.client.profiles)
                     this.client.once('profiles-loaded', () => {
                         if (this.client.profiles.contains(this.client.getOption('profiles.profileSelected'))) {
-                            updateHash('profiles/' + this.client.getOption('profiles.profileSelected'), name);
                             _dialogs.profiles.expandPath(this.client.getOption('profiles.profileSelected') + '/aliases')
+                            updateHash('profiles/' + this.client.getOption('profiles.profileSelected'), name);                            
                         }
                     });
             }

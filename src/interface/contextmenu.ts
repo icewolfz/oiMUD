@@ -1,5 +1,5 @@
-import { EventEmitter } from '../events';
-import { MenuItem } from '../types';
+import { EventEmitter } from '../core/events';
+import { MenuItem } from '../core/types';
 
 export class Contextmenu extends EventEmitter {
     private _items: MenuItem[];

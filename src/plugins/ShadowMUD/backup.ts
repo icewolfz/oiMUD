@@ -1,10 +1,10 @@
-import { EventEmitter } from '../../events';
-import { Client } from '../../client';
+import { EventEmitter } from '../../core/events';
+import { Client } from '../../core/client';
 import { Mapper } from '../mapper';
-import { Map } from '../../map';
-import { Settings, SettingProperties } from '../../settings';
+import { Map } from '../../core/map';
+import { Settings, SettingProperties } from '../../core/settings';
 import { DialogIcon } from '../../interface/dialog';
-import { ProfileCollection, Profile, Alias, Macro, Button, Trigger, Context } from '../../profile';
+import { ProfileCollection, Profile, Alias, Macro, Button, Trigger, Context } from '../../core/profile';
 import { Log } from '../logger';
 
 declare let LZString;

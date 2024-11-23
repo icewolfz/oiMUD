@@ -2,9 +2,9 @@ import '../css/nav.css';
 import '../css/profiles.css';
 import { Dialog, DialogButtons, DialogIcon } from './dialog';
 import { Splitter, Orientation, PanelAnchor } from './splitter';
-import { capitalize, openFileDialog, readFile, keyCodeToChar, keyCharToCode, scrollChildIntoView, debounce, FilterArrayByKeyValue, htmlEncode } from '../library';
+import { capitalize, openFileDialog, readFile, keyCodeToChar, keyCharToCode, scrollChildIntoView, debounce, FilterArrayByKeyValue, htmlEncode } from '../core/library';
 import { removeHash, updateHash } from './interface';
-import { ProfileCollection, MacroDisplay, Profile, Alias, Trigger, Button, Macro, Context } from '../profile';
+import { ProfileCollection, MacroDisplay, Profile, Alias, Trigger, Button, Macro, Context } from '../core/profile';
 import { buildBreadcrumb } from './breadcrumb';
 
 declare let confirm_box;

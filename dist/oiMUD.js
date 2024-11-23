@@ -2284,7 +2284,7 @@
     }
   });
 
-  // src/events.ts
+  // src/core/events.ts
   var EventEmitter = class {
     #events = {};
     bind(type, listener, caller, once) {
@@ -2387,7 +2387,7 @@
     }
   };
 
-  // src/library.ts
+  // src/core/library.ts
   if (!Array.prototype.filter) {
     Array.prototype.filter = function(fun) {
       let len = this.length >>> 0;
@@ -3915,7 +3915,7 @@
     return false;
   }
 
-  // src/telnet.ts
+  // src/core/telnet.ts
   var import_inflate_stream_min = __toESM(require_inflate_stream_min());
   var Telnet = class extends EventEmitter {
     /**
@@ -5517,7 +5517,7 @@
   };
   window.telnet = new Telnet();
 
-  // src/ansi.ts
+  // src/core/ansi.ts
   var Ansi = /* @__PURE__ */ ((Ansi2) => {
     Ansi2[Ansi2["None"] = 0] = "None";
     Ansi2[Ansi2["Bold"] = 1] = "Bold";
@@ -6048,7 +6048,7 @@
     return -1;
   }
 
-  // src/types.ts
+  // src/core/types.ts
   var Size = class {
     constructor(width, height) {
       this.width = width || 0;
@@ -6056,7 +6056,7 @@
     }
   };
 
-  // src/settings.ts
+  // src/core/settings.ts
   var SettingList = [
     ["bufferSize", 0, 2, 500],
     ["commandDelay", 0, 2, 500],
@@ -7006,7 +7006,7 @@
     }
   };
 
-  // src/profile.ts
+  // src/core/profile.ts
   var TriggerType = /* @__PURE__ */ ((TriggerType2) => {
     TriggerType2[TriggerType2["Regular"] = 0] = "Regular";
     TriggerType2[TriggerType2["CommandInputRegular"] = 1] = "CommandInputRegular";
@@ -8666,7 +8666,7 @@
     return stringBuilder.join("");
   }
 
-  // src/input.ts
+  // src/core/input.ts
   var mathjs;
   var _mathjs;
   var WindowVariables = ["$selectedword", "$selword", "$selectedurl", "$selurl", "$selectedline", "$selline", "$selected", "$character", "$copied", "$action", "$trigger", "$caption", "$characterid"];
@@ -17330,7 +17330,7 @@
     };
   }
 
-  // src/parser.ts
+  // src/core/parser.ts
   var MXPTag = /* @__PURE__ */ ((MXPTag2) => {
     MXPTag2[MXPTag2["None"] = 0] = "None";
     MXPTag2[MXPTag2["B"] = 1] = "B";
@@ -21091,7 +21091,7 @@
     }
   };
 
-  // src/display.ts
+  // src/core/display.ts
   var Display = class extends EventEmitter {
     //#endregion
     constructor(container, options) {
@@ -22771,7 +22771,7 @@
   // src/plugins/msp.ts
   var buzz = __toESM(require_buzz());
 
-  // src/plugin.ts
+  // src/core/plugin.ts
   var Plugin = class extends EventEmitter {
     #client;
     get client() {
@@ -24547,7 +24547,7 @@ Devanagari
   // src/interface/mapdisplay.ts
   var PF = __toESM(require_pathfinding3D());
 
-  // src/map.ts
+  // src/core/map.ts
   var RoomExits = {
     out: 4096,
     enter: 2048,
@@ -32717,14 +32717,14 @@ Devanagari
         if (name2 === "profiles" && (window.location.hash.length < 2 || hashContains("profiles"))) {
           if (this.client.profiles && this.client.profiles.contains(this.client.getOption("profiles.profileSelected"))) {
             setTimeout(() => {
-              updateHash("profiles/" + this.client.getOption("profiles.profileSelected"), name2);
               _dialogs.profiles.expandPath(this.client.getOption("profiles.profileSelected") + "/aliases");
-            }, 1);
+              updateHash("profiles/" + this.client.getOption("profiles.profileSelected"), name2);
+            }, 100);
           } else if (!this.client.profiles)
             this.client.once("profiles-loaded", () => {
               if (this.client.profiles.contains(this.client.getOption("profiles.profileSelected"))) {
-                updateHash("profiles/" + this.client.getOption("profiles.profileSelected"), name2);
                 _dialogs.profiles.expandPath(this.client.getOption("profiles.profileSelected") + "/aliases");
+                updateHash("profiles/" + this.client.getOption("profiles.profileSelected"), name2);
               }
             });
         }
@@ -37602,7 +37602,7 @@ Devanagari
     }
   };
 
-  // src/client.ts
+  // src/core/client.ts
   var Client = class extends EventEmitter {
     constructor(options) {
       super();

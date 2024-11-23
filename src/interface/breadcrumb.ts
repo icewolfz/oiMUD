@@ -1,4 +1,4 @@
-import { capitalize } from '../library';
+import { capitalize } from '../core/library';
 
 export interface breadcrumbOptions {
     small?;

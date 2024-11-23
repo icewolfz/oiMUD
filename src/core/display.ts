@@ -1,5 +1,5 @@
-import './css/ansi.css';
-import './css/display.css';
+import '../css/ansi.css';
+import '../css/display.css';
 import { EventEmitter } from './events';
 import { Parser } from './parser';
 import { Size, DisplayOptions, ParserLine, FormatType, FontStyle, Point } from './types';

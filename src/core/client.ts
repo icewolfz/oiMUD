@@ -1,4 +1,4 @@
-import './css/client.css';
+import '../css/client.css';
 import { EventEmitter } from './events';
 import { Telnet } from './telnet';
 import { AnsiColorCode } from './ansi';
@@ -8,18 +8,18 @@ import { Input } from './input';
 import { ProfileCollection, Alias, Trigger, Alarm, Macro, Profile, Button, Context, TriggerType, SubTriggerTypes } from './profile';
 import { Display } from './display';
 import { Plugin } from './plugin';
-import { version } from '../package.json'
+import { version } from '../../package.json'
 
 //import core plugins
-import { MSP } from './plugins/msp';
-import { Test } from './plugins/test';
-import { Mapper } from './plugins/mapper';
-import { Status } from './plugins/status';
-import { Logger } from './plugins/logger';
-import { Chat } from './plugins/chat';
-import { ShadowMUD } from './plugins/ShadowMUD/shadowmud';
+import { MSP } from '../plugins/msp';
+import { Test } from '../plugins/test';
+import { Mapper } from '../plugins/mapper';
+import { Status } from '../plugins/status';
+import { Logger } from '../plugins/logger';
+import { Chat } from '../plugins/chat';
+import { ShadowMUD } from '../plugins/ShadowMUD/shadowmud';
 export { ShadowMUD };
-import { PanelBar } from './plugins/panelbar';
+import { PanelBar } from '../plugins/panelbar';
 
 declare global {
     interface Window {

@@ -1,5 +1,5 @@
 import { RGBColor } from '../lib/rgbcolor';
-import { FormatType, FontStyle, ParserLine } from '../types';
+import { FormatType, FontStyle, ParserLine } from '../core/types';
 
 importScripts('https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js');
 

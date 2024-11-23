@@ -1,6 +1,6 @@
 import '../css/dialog.css';
-import { EventEmitter } from '../events';
-import { debounce } from '../library';
+import { EventEmitter } from '../core/events';
+import { debounce } from '../core/library';
 
 export interface DialogOptions {
     title?: string;

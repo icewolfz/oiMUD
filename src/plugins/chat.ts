@@ -1,11 +1,11 @@
 import '../css/chat.css';
-import { Plugin } from '../plugin';
-import { MenuItem } from '../types';
+import { Plugin } from '../core/plugin';
+import { MenuItem } from '../core/types';
 import { Dialog } from '../interface/dialog';
 import { removeHash } from '../interface/interface';
-import { Display } from '../display';
+import { Display } from '../core/display';
 import { Logger } from './logger';
-import { debounce } from '../library';
+import { debounce } from '../core/library';
 
 declare let localforage;
 

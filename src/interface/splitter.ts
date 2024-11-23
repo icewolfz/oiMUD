@@ -1,6 +1,6 @@
 //spellchecker:ignore
 import '../css/splitter.css';
-import { EventEmitter } from '../events';
+import { EventEmitter } from '../core/events';
 
 export interface SplitterOptions {
     container?: any;

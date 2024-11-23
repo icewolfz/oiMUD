@@ -2584,8 +2584,8 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   right: 1px;
   left: 5px;
   bottom: 2px;
-  height: 14px;
-  min-height: 14px;
+  height: 16px;
+  min-height: 16px;
   font-size: 0.6em;
 }
 #body {

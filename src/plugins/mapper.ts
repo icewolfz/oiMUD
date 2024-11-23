@@ -1,12 +1,12 @@
 import '../css/mapper.css';
-import { Client } from './../client';
-import { Plugin } from '../plugin';
-import { MenuItem } from '../types';
+import { Client } from '../core/client';
+import { Plugin } from '../core/plugin';
+import { MenuItem } from '../core/types';
 import { MapDisplay } from '../interface/mapdisplay';
-import { Map, Room, RoomDetails, ImportType } from '../map';
+import { Map, Room, RoomDetails, ImportType } from '../core/map';
 import { Dialog, DialogButtons, ProgressDialog } from '../interface/dialog';
 import { removeHash } from '../interface/interface';
-import { debounce, readFile, openFileDialog } from '../library';
+import { debounce, readFile, openFileDialog } from '../core/library';
 import { Splitter, Orientation } from '../interface/splitter';
 
 //store menu and room editor as htm file for easier editing

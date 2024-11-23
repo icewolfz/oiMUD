@@ -339,8 +339,8 @@
   /*left: 38px;*/ /*readd to enable icons*/
   left: 5px; /*remove to readd icons and uncomment above line*/
   bottom: 2px;
-  height: 14px;
-  min-height: 14px;
+  height: 16px;
+  min-height: 16px;
   font-size: 0.6em;
 }
 

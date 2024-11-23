@@ -9,7 +9,7 @@ declare global {
 }
 
 declare let UTF8;
-import { Zlib } from './lib/inflate_stream.min.js';
+import { Zlib } from '../lib/inflate_stream.min.js';
 
 export interface TelnetOption {
     telnet: Telnet;

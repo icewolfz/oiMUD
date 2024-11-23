@@ -14,6 +14,7 @@
     - Add advanced value editor using ace or maybe monaco editor, granted this is more complex with how the interface is designed, would require recreating the editor every time one of the pages loaded and could be slow, may be best to try code mirror as it is newer and more modern and easier to use then monaco i think
         - Docs: - `Enable profile manager code editor` disable or enable the code editor for the profile manager
     - Add max/min value button to expand value box to full side panel or maybe open a model dialog for more rooms
+    - Add lazy loading support instead of building entire menu at once
 - recode advanced editor to not use jquery when possible
 - Add paste special? may not be possible as cant control paste
 - Mapper

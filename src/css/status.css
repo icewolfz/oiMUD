@@ -204,9 +204,9 @@
 }
 
 #overall {
-  background: #bfb893;
+  background: #000;
   border-radius: 5px;
-  border: 1px solid var(--theme-bg-secondary-border);
+  border: 1px solid var(--theme-border-colo);
   margin: 4px;
 }
 

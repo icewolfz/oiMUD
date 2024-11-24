@@ -8272,10 +8272,15 @@
       });
     }
     save(key) {
-      return localforage.setItem(key || "OoMUDProfiles", JSON.parse(JSON.stringify(this.items, (key2, value) => {
+      const data = JSON.parse(JSON.stringify(this.items, (key2, value) => {
         if (key2 === "profile") return void 0;
         return value;
-      })));
+      }));
+      if (!key || key === "OoMUDProfiles") {
+        data["Default"] = data["default"];
+        delete data["default"];
+      }
+      return localforage.setItem(key || "OoMUDProfiles", data);
     }
     get length() {
       return this.keys.length;

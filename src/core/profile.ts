@@ -1398,10 +1398,16 @@ export class ProfileCollection {
     }
 
     public save(key?) {
-        return localforage.setItem(key || 'OoMUDProfiles', JSON.parse(JSON.stringify(this.items, (key, value) => {
+        const data = JSON.parse(JSON.stringify(this.items, (key, value) => {
             if (key === 'profile') return undefined;
             return value;
-        })));
+        }));
+        //backwards compatibility as old client used Default instead of default
+        if (!key || key === 'OoMUDProfiles') {
+            data['Default'] = data['default'];
+            delete data['default'];
+        }
+        return localforage.setItem(key || 'OoMUDProfiles', data);
     }
 
     get length(): number {

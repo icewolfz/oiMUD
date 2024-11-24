@@ -2,4 +2,4 @@
 
 ## v1.0.0
 
-- Initial release, based on the original oiMUD 1.0 [ShadowMUD](www.shadowmud.com) mobile client
+- Initial release, based on the original oiMUD 0.x [ShadowMUD](www.shadowmud.com) mobile client

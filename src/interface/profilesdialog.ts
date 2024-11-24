@@ -292,10 +292,8 @@ export class ProfilesDialog extends Dialog {
         indent = indent || 0;
         let padding = indent * 20 + 16;
         menu += `<li class="nav-item" title="${htmlEncode(GetDisplay(collection[index]))}" id="${idPrefix + '-' + (collection[index].useName ? this._sanitizeID(collection[index].name.toLowerCase()) : index)}">`;
-        if (collection[index].items && collection[index].items.length) {
-            menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark" href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start bi bi-chevron-right"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this._sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? ' checked' : ''}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
-            menu += this._getItems(collection[index].items, idPrefix + '-' + this._sanitizeID(collection[index].name.toLowerCase()), hrefPrefix + '/' + encodeURIComponent(collection[index].name.toLowerCase()), indent + 1);
-        }
+        if (collection[index].items && collection[index].items.length)
+            menu += `<a data-indent="${indent}" data-id="${idPrefix + '-' + this._sanitizeID(collection[index].name.toLowerCase())}" data-lazy="true" style="padding-left: ${padding}px" class="nav-link text-dark" href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start bi bi-chevron-right"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this._sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? ' checked' : ''}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
         else if (collection[index].useName)
             menu += `<a style="padding-left: ${padding}px" class="nav-link text-dark " href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start no-icon"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this._sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? ' checked' : ''}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
         else
@@ -325,11 +323,49 @@ export class ProfilesDialog extends Dialog {
         }
     }
 
+    private _lazyLoad(item) {
+        const data = item.getAttribute('href').split('/');
+        if (item.dataset.type === 'profile') {
+            item.insertAdjacentHTML('afterend', this._getItems([{
+                name: 'Aliases',
+                items: this.profiles.items[data[1]].aliases,
+                useName: true,
+                enabled: this.profiles.items[data[1]].enableAliases,
+            },
+            {
+                name: 'Macros',
+                items: this.profiles.items[data[1]].macros,
+                useName: true,
+                enabled: this.profiles.items[data[1]].enableMacros
+            },
+            {
+                name: 'Triggers',
+                items: this.profiles.items[data[1]].triggers,
+                useName: true,
+                enabled: this.profiles.items[data[1]].enableTriggers
+            },
+            {
+                name: 'Buttons',
+                items: this.profiles.items[data[1]].buttons,
+                useName: true,
+                enabled: this.profiles.items[data[1]].enableButtons
+            }], this._sanitizeID(data[1]), 'profiles/' + encodeURIComponent(data[1]), 1));
+        }
+        else {
+            const collection = this.profiles.items[data[1]][data[2]];
+            item.insertAdjacentHTML('afterend', this._getItems(collection, item.dataset.id, item.getAttribute('href').substring(1), +item.dataset.indent + 1))
+        }
+        item.dataset.lazy = 'false';
+        this._profileEvents(item.nextElementSibling);
+    }
+
     private _profileEvents(item) {
         let items = item.querySelectorAll('.bi-chevron-right');
         let i, il;
         for (i = 0, il = items.length; i < il; i++)
             items[i].addEventListener('click', e => {
+                if (e.currentTarget.parentElement.dataset.lazy === 'true')
+                    this._lazyLoad(e.currentTarget.parentElement);
                 e.target.closest('li').querySelector('.dropdown-menu').classList.toggle('show');
                 e.target.classList.toggle('bi-chevron-right');
                 e.target.classList.toggle('bi-chevron-down');
@@ -386,36 +422,12 @@ export class ProfilesDialog extends Dialog {
 
     private _profile(profile) {
         let nav = `<li class="nav-item" data-profile="${profile}" title="${capitalize(profile)}" id="${this._sanitizeID(profile)}">`;
-        nav += `<a class="nav-link text-dark" href="#profiles/${encodeURIComponent(profile)}">`;
+        nav += `<a data-lazy="true" data-type="profile" data-id="${this._sanitizeID(profile)}" class="nav-link text-dark" href="#profiles/${encodeURIComponent(profile)}">`;
         if (profile !== 'default')
             nav += `<span class="list-badge-button badge text-bg-danger" data-profile="${profile}"><i class="bi bi-trash"></i></span>`;
         nav += `<i class="align-middle float-start bi bi-chevron-right"></i> `;
         nav += this._item(capitalize(profile), 'enabled-' + profile, this.profiles.items[profile].enabled);
         nav += `</a>`;
-        nav += this._getItems([{
-            name: 'Aliases',
-            items: this.profiles.items[profile].aliases,
-            useName: true,
-            enabled: this.profiles.items[profile].enableAliases,
-        },
-        {
-            name: 'Macros',
-            items: this.profiles.items[profile].macros,
-            useName: true,
-            enabled: this.profiles.items[profile].enableMacros
-        },
-        {
-            name: 'Triggers',
-            items: this.profiles.items[profile].triggers,
-            useName: true,
-            enabled: this.profiles.items[profile].enableTriggers
-        },
-        {
-            name: 'Buttons',
-            items: this.profiles.items[profile].buttons,
-            useName: true,
-            enabled: this.profiles.items[profile].enableButtons
-        }], this._sanitizeID(profile), 'profiles/' + encodeURIComponent(profile), 1);
         nav += '</li>';
         return nav;
     }
@@ -896,6 +908,12 @@ export class ProfilesDialog extends Dialog {
             }
             else {
                 expand = el.querySelector('.dropdown-menu');
+                if (!expand) {
+                    expand = el.querySelector('[data-lazy="true"]')
+                    if (!expand) return;
+                    this._lazyLoad(expand);
+                    expand = el.querySelector('.dropdown-menu');
+                }
                 if (!expand || expand.classList.contains('show')) continue;
                 el = el.querySelector('i');
                 if (el) {

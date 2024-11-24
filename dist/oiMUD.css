@@ -379,6 +379,14 @@ dialog {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.dialog:focus,
+.dialog:focus-within {
+  border: 1px solid #d5d5d5;
+}
+.dialog:focus .dialog-header,
+.dialog:focus-within .dialog-header {
+  background-color: #d5d5d5;
+}
 .dialog-header div {
   overflow: hidden;
   text-overflow: ellipsis;

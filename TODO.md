@@ -9,6 +9,8 @@
         - The old web client had a simple upload for uploading a file to current working directory, seems ot have broken at some point
     - Add mail composer like jiMUD using advanced editor dialog as a base as exact same code but adds to/cc/subject fields and instead of sending directly it executes a set of commands to open mail and send contents
 - Profile manager:
+    - Add delete button for main collections to allow remove of all of that type
+    - Add cut/copy/paste system, will require custom shortcuts as the due to browser protections can not access native copy/cut/paste system outside of basic copy of text
     - Add undo system
     - Add search system
     - Add advanced value editor using ace or maybe monaco editor, granted this is more complex with how the interface is designed, would require recreating the editor every time one of the pages loaded and could be slow, may be best to try code mirror as it is newer and more modern and easier to use then monaco i think

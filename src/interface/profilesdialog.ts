@@ -1172,10 +1172,13 @@ export class ProfilesDialog extends Dialog {
         }
         else {
             menuItem = this._getItem(this._current.profile[collection], index, `${this._sanitizeID(this._current.profileName)}-${collection}`, `profiles/${encodeURIComponent(this._current.profileName)}/${collection}`, 2);
-            m = m.querySelector('ul');
-            m.insertAdjacentHTML('beforeend', menuItem);
-            m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
-            this._profileEvents(m.lastChild);
+            //only add if already loaded as the tree will be created when the alias is selected below
+            if (m.firstChild.dataset.lazy !== 'true') {
+                m = m.querySelector('ul');
+                m.insertAdjacentHTML('beforeend', menuItem);
+                m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
+                this._profileEvents(m.lastChild);
+            }
         }
         updateHash(`profiles/${encodeURIComponent(this._current.profileName)}/${collection}/${index}`, this._page);
         this.changed = true;

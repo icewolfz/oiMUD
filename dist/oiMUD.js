@@ -31421,10 +31421,12 @@ Devanagari
         this._profileEvents(m);
       } else {
         menuItem = this._getItem(this._current.profile[collection], index, `${this._sanitizeID(this._current.profileName)}-${collection}`, `profiles/${encodeURIComponent(this._current.profileName)}/${collection}`, 2);
-        m = m.querySelector("ul");
-        m.insertAdjacentHTML("beforeend", menuItem);
-        m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
-        this._profileEvents(m.lastChild);
+        if (m.firstChild.dataset.lazy !== "true") {
+          m = m.querySelector("ul");
+          m.insertAdjacentHTML("beforeend", menuItem);
+          m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
+          this._profileEvents(m.lastChild);
+        }
       }
       updateHash(`profiles/${encodeURIComponent(this._current.profileName)}/${collection}/${index}`, this._page);
       this.changed = true;

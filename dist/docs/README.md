@@ -1,6 +1,6 @@
 # oiMUD
 
-A mud wen client that can connect to muds that expose a websocket port
+A mud web client that can connect to muds that expose a websocket port
 
 ## FAQ
 

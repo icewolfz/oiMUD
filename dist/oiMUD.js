@@ -26694,6 +26694,8 @@ Devanagari
           t = this._resize.height - e.clientY + this._resize.y - this._resize.borderHeight;
           if (t + this._resize.borderHeight > window.innerHeight) t = window.innerHeight;
           if (t + this._resize.borderHeight <= this._resize.minHeight) {
+            let rect = this._dialog.getBoundingClientRect();
+            this._dialog.style.top = rect.bottom - this._resize.minHeight + "px";
             this._dialog.style.height = this._resize.minHeight + "px";
             return;
           }
@@ -26706,6 +26708,8 @@ Devanagari
           t = this._resize.width - e.clientX + this._resize.x - this._resize.borderWidth;
           if (t + this._resize.borderWidth > window.innerWidth) t = window.innerWidth;
           if (t + this._resize.borderWidth <= this._resize.minWidth) {
+            let rect = this._dialog.getBoundingClientRect();
+            this._dialog.style.left = rect.right - this._resize.minWidth + "px";
             this._dialog.style.width = this._resize.minWidth + "px";
             return;
           }
@@ -26735,6 +26739,8 @@ Devanagari
           t = this._resize.height - e.touches[0].clientY + this._resize.y - this._resize.borderHeight;
           if (t + this._resize.borderHeight > window.innerHeight) t = window.innerHeight;
           if (t + this._resize.borderHeight <= this._resize.minHeight) {
+            let rect = this._dialog.getBoundingClientRect();
+            this._dialog.style.top = rect.bottom - this._resize.minHeight + "px";
             this._dialog.style.height = this._resize.minHeight + "px";
             return;
           }
@@ -26747,6 +26753,8 @@ Devanagari
           t = this._resize.width - e.touches[0].clientX + this._resize.x - this._resize.borderWidth;
           if (t + this._resize.borderWidth > window.innerWidth) t = window.innerWidth;
           if (t + this._resize.borderWidth <= this._resize.minWidth) {
+            let rect = this._dialog.getBoundingClientRect();
+            this._dialog.style.left = rect.right - this._resize.minWidth + "px";
             this._dialog.style.width = this._resize.minWidth + "px";
             return;
           }
@@ -27280,8 +27288,8 @@ Devanagari
       this._resize.type = type;
       this._resize.minHeight = parseInt(styles.minHeight, 10);
       this._resize.minWidth = parseInt(styles.minWidth, 10);
-      this._resize.borderHeight = e.offsetY + parseInt(styles.borderTopWidth);
-      this._resize.borderWidth = e.offsetX + parseInt(styles.borderLeftWidth);
+      this._resize.borderHeight = parseInt(styles.borderTopWidth);
+      this._resize.borderWidth = parseInt(styles.borderLeftWidth);
       this._body.style.pointerEvents = "none";
       this._document.documentElement.addEventListener("mousemove", this._resizeDoDrag, false);
       this._document.documentElement.addEventListener("mouseup", this._resizeStopDrag, false);
@@ -27296,11 +27304,8 @@ Devanagari
       this._resize.type = type;
       this._resize.minHeight = parseInt(styles.minHeight, 10);
       this._resize.minWidth = parseInt(styles.minWidth, 10);
-      let rect = e.target.getBoundingClientRect();
-      let x2 = e.targetTouches[0].clientX - rect.x;
-      let y2 = e.targetTouches[0].clientY - rect.y;
-      this._resize.borderHeight = y2 + parseInt(styles.borderTopWidth);
-      this._resize.borderWidth = x2 + parseInt(styles.borderLeftWidth);
+      this._resize.borderHeight = parseInt(styles.borderTopWidth);
+      this._resize.borderWidth = parseInt(styles.borderLeftWidth);
       this._body.style.pointerEvents = "none";
       this._document.documentElement.addEventListener("touchmove", this._resizeTouchDrag, false);
       this._document.documentElement.addEventListener("touchend", this._resizeStopDrag, false);
@@ -30327,7 +30332,7 @@ Devanagari
   // src/interface/profilesdialog.ts
   var ProfilesDialog = class extends Dialog {
     constructor() {
-      super(Object.assign({}, client.getWindowState("profiles") || { center: true }, { title: '<i class="fas fa-users"></i> Profiles', minWidth: 410 }));
+      super(Object.assign({}, client.getWindowState("profiles") || { center: true }, { title: '<i class="fas fa-users"></i> Profiles', minWidth: 500, minHeight: 350 }));
       this._profilesChanged = false;
       this._current = {
         profile: null,

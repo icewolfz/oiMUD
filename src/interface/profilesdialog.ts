@@ -52,7 +52,7 @@ export class ProfilesDialog extends Dialog {
     public get contents() { return this._contents; }
 
     constructor() {
-        super(Object.assign({}, client.getWindowState('profiles') || { center: true }, { title: '<i class="fas fa-users"></i> Profiles', minWidth: 410 }));
+        super(Object.assign({}, client.getWindowState('profiles') || { center: true }, { title: '<i class="fas fa-users"></i> Profiles', minWidth: 500, minHeight: 350 }));
         this._client = client;
         this.on('resized', e => {
             this._updateSmall(e.width);

@@ -31591,14 +31591,14 @@ Devanagari
     _copyItem(data) {
       this._resetClip();
       this._clip = data || this._getClipData();
-      this._updateEditMenu();
       this._clip.action = 1 /* copy */;
+      this._updateEditMenu();
     }
     _cutItem(data) {
       this._resetClip();
       this._clip = data || this._getClipData();
-      this._updateEditMenu();
       this._clip.action = 0 /* cut */;
+      this._updateEditMenu();
       if (this._clip.type.endsWith("s") && !this._clip.collection)
         this._clipId = `${this._sanitizeID(this._clip.profileName)}-${this._clip.type}`;
       else if (this._clip.type === "profile")
@@ -31702,7 +31702,7 @@ Devanagari
       }
     }
     _updateEditMenu() {
-      this.footer.querySelector(`#${this.id}-paste`).style.display = this._clip && (this._clip.profileName !== this._current.profileName || this._clip.type === "profile") ? "" : "none";
+      this.footer.querySelector(`#${this.id}-paste`).style.display = this._clip && (this._clip.action === 1 /* copy */ || this._clip.profileName !== this._current.profileName || this._clip.type === "profile") ? "" : "none";
       this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this.footer.querySelector(`#${this.id}-paste`).style.display === "none" && this.footer.querySelector(`#${this.id}-cut`).style.display === "none" && this.footer.querySelector(`#${this.id}-copy`).style.display === "none" ? "none" : "";
     }
     setValue(obj, prop, value) {

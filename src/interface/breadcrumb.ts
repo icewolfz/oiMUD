@@ -12,7 +12,7 @@ export function buildBreadcrumb(pages, options?: breadcrumbOptions) {
     let last = pages.length - 1;
     options = Object.assign({
         sep: '-',
-        formatter: (item => capitalize(item.match(/([A-Z]|^[a-z])[a-z]+/g).join(' '))),
+        formatter: (item => capitalize(item.match(/([A-Z]|^[a-z]|[0-9])[a-z0-9]*/g).join(' '))),
         icon: '<i class="bi bi-question-circle"></i>'
     }, options || {})
 

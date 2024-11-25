@@ -461,6 +461,8 @@ export class ProfilesDialog extends Dialog {
         this._contents.scrollTop = 0;
         if (!this._setCurrent(pages)) {
             this.title = buildBreadcrumb(pages, { small: this._small, sep: '/', icon: '<i class="fas fa-users" style="padding: 2px;margin-right: 2px;"></i>' });
+            if (pages.length > 2)
+                this._splitter.panel2Collapsed = false;
             return;
         }
         if (pages.length === 4)
@@ -602,6 +604,7 @@ export class ProfilesDialog extends Dialog {
         }
         else if (pages.length === 3) {
             let pp = '';
+            let b = `<button id="${this.id}-add" type="button" class="btn-sm float-start btn btn-outline-secondary" title="Add ${this._getItemType()}"><i class="bi bi-plus-lg"></i></button>`;
             if (this._current.item.length === 0) {
                 p = '<h1 id="empty" style="width: 100%;text-align:center">No ' + this._current.collection + '.</h1>';
                 p += `<button id="${this.id}-add-contents" type="button" class="btn-sm float-start btn btn-outline-secondary" title="Add ${this._getItemType()}"><i class="bi bi-plus-lg"></i> Add ${this._getItemType()}</button>`
@@ -616,8 +619,8 @@ export class ProfilesDialog extends Dialog {
                     p += `</div>${htmlEncode(GetDisplay(this._current.item[k]))}</a>`;
                 }
                 pp = `<button id="${this.id}-add-contents" type="button" class="btn-sm btn btn-outline-secondary" title="Add ${this._getItemType()}" style="margin-bottom: 5px;width:100%;"><i class="bi bi-plus-lg"></i> Add ${this._getItemType()}</button>`;
+                b = `<button id="${this.id}-remove-all" type="button" class="btn-sm float-start btn btn-danger" title="Remove all ${this._getItemType() === 'alias' ? 'aliases' : this._getItemType() + 's'}"><i class="bi bi-trash"></i></button>` + b;
             }
-            let b = `<button id="${this.id}-add" type="button" class="btn-sm float-start btn btn-outline-secondary" title="Add ${this._getItemType()}"><i class="bi bi-plus-lg"></i></button>`;
             this.footer.querySelector('#profile-page-buttons').innerHTML = b;
             this._setContents(pp + '<div class="list-group">' + p + '</div>');
             let items = this._contents.querySelectorAll('.list-badge-button');
@@ -632,6 +635,10 @@ export class ProfilesDialog extends Dialog {
             this.footer.querySelector(`#${this.id}-add`).addEventListener('click', () => {
                 this._addItem();
             });
+            if (this.footer.querySelector(`#${this.id}-remove-all`))
+                this.footer.querySelector(`#${this.id}-remove-all`).addEventListener('click', () => {
+                    this._removeItems();
+                });
             if (this._contents.querySelector(`#${this.id}-add-contents`))
                 this._contents.querySelector(`#${this.id}-add-contents`).addEventListener('click', () => {
                     this._addItem();
@@ -722,10 +729,10 @@ export class ProfilesDialog extends Dialog {
         }
         if (pages.length > 3) {
             this._current.itemIdx = +pages[3];
-            if (this._current.itemIdx < 0 || this._current.itemIdx >= this._current.item.length) {
+            if (isNaN(this._current.itemIdx) || this._current.itemIdx < 0 || this._current.itemIdx >= this._current.item.length) {
                 this._setContents(`<h1 id="empty" style="width: 100%;text-align:center">${capitalize(this._getItemType())} not found.</h1>`);
                 this._contentPage = null;
-                return;
+                return false;
             }
             this._current.item = this._current.profile[pages[2]][this._current.itemIdx];
         }
@@ -1187,7 +1194,7 @@ export class ProfilesDialog extends Dialog {
     private _removeItem(index, collection?, back?) {
         if (!collection) collection = this._current.collection;
         if (!collection) return;
-        confirm_box('Remove profile?', `Delete ${this._getItemType()}?`).then(e => {
+        confirm_box(`Remove ${this._getItemType()}?`, `Delete ${this._getItemType()}?`).then(e => {
             if (e.button === DialogButtons.Yes) {
                 const id = `${this._sanitizeID(this._current.profileName)}-${collection}`;
                 const items = this._current.profile[collection];
@@ -1212,6 +1219,28 @@ export class ProfilesDialog extends Dialog {
                         item.firstChild.children[1].id = `enabled-${id}-${index}`;
                     }
                 }
+                this.changed = true;
+                if (back)
+                    this._goBack();
+            }
+        });
+    }
+
+
+    private _removeItems(collection?, back?) {
+        if (!collection) collection = this._current.collection;
+        if (!collection) return;
+        let type = this._getItemType();
+        type += type === 'alias' ? 'es' : 's';
+        confirm_box(`Remove all ${type}?`, `Delete all ${type}?`).then(e => {
+            if (e.button === DialogButtons.Yes) {
+                const id = `${this._sanitizeID(this._current.profileName)}-${collection}`;
+                this._current.profile[collection] = [];
+                this.setBody(this._page);
+                this._menu.querySelector(`#${id} i`).remove();
+                this._menu.querySelector(`#${id} a`).insertAdjacentHTML('afterbegin', '<i class="align-middle float-start no-icon"></i>');
+                this._menu.querySelector(`#${id} .dropdown-menu`).innerHTML = '';
+
                 this.changed = true;
                 if (back)
                     this._goBack();
@@ -1267,6 +1296,7 @@ export class ProfilesDialog extends Dialog {
 }
 
 export function GetDisplay(arr) {
+    if (!arr) return '';
     if (arr.displaytype === 1) {
         /*jslint evil: true */
         const f = new Function('item', 'keyCodeToChar', 'MacroDisplay', arr.display);

@@ -128,9 +128,9 @@ export class ProfilesDialog extends Dialog {
         footer += `<ul id="${this.id}-edit-menu" class="dropdown-menu" style="overflow: auto;">`;
         //footer += `<li id="${this.id}-find"><a class="dropdown-item">Find</a></li>`;
         //footer += '<li><hr class="dropdown-divider"></li>';
-        footer += `<li id="${this.id}-cut"><a class="dropdown-item">Cut</a></li>`;
-        footer += `<li id="${this.id}-copy"><a class="dropdown-item">Copy</a></li>`;
-        footer += `<li id="${this.id}-paste"><a class="dropdown-item">Paste</a></li>`;
+        footer += `<li id="${this.id}-cut"><a class="dropdown-item">Cut <span class="float-end" style="padding-left: 40px;">Ctrl+X</span></a></li>`;
+        footer += `<li id="${this.id}-copy"><a class="dropdown-item">Copy <span class="float-end" style="padding-left: 40px;">Ctrl+C</span></a></li>`;
+        footer += `<li id="${this.id}-paste"><a class="dropdown-item">Paste <span class="float-end" style="padding-left: 40px;">Ctrl+V</span></a></li>`;
         footer += '</ul>';
         footer += '<span id="profile-page-buttons"></span>';
         footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Close dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;
@@ -298,6 +298,35 @@ export class ProfilesDialog extends Dialog {
                 return;
             }
             this._save();
+        });
+        this.dialog.addEventListener('keydown', e => {
+            if (e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+                if (document.activeElement) {
+                    if (document.activeElement.nodeName === 'TEXTAREA' || (document.activeElement as HTMLElement).isContentEditable)
+                        return;
+                    if (document.activeElement.nodeName === 'INPUT' && (document.activeElement as HTMLInputElement).type !== 'checkbox' && (document.activeElement as HTMLInputElement).type !== 'radio')
+                        return
+                }
+                if (e.code === 'KeyC') {
+                    this._copyItem();
+                    e.preventDefault();
+                    e.returnValue = false;
+                    return false;
+                }
+                else if (e.code === 'KeyX') {
+                    this._cutItem();
+                    e.preventDefault();
+                    e.returnValue = false;
+                    return false;
+                }
+                else if (e.code === 'KeyV' && this._clip) {
+                    this._paste();
+                    e.preventDefault();
+                    e.returnValue = false;
+                    return false;
+                }
+            }
+
         });
     }
 
@@ -512,10 +541,8 @@ export class ProfilesDialog extends Dialog {
             this.footer.querySelector(`#${this.id}-add-sep2`).style.display = 'none';
             this.footer.querySelector(`#${this.id}-add-default-buttons`).style.display = 'none';
             this.footer.querySelector(`#${this.id}-add-default-macros`).style.display = 'none';
-            this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this._clip && this._clip.profileName !== this._current.profileName ? '' : 'none';
             this.footer.querySelector(`#${this.id}-cut`).style.display = 'none';
             this.footer.querySelector(`#${this.id}-copy`).style.display = 'none';
-            this.footer.querySelector(`#${this.id}-paste`).style.display = this._clip && this._clip.profileName !== this._current.profileName ? '' : 'none';
             this._splitter.panel2Collapsed = true;
             this.footer.querySelector(`#${this.id}-back`).style.display = 'none';
         }
@@ -529,12 +556,11 @@ export class ProfilesDialog extends Dialog {
             this.footer.querySelector(`#${this.id}-add-sep2`).style.display = '';
             this.footer.querySelector(`#${this.id}-add-default-buttons`).style.display = '';
             this.footer.querySelector(`#${this.id}-add-default-macros`).style.display = '';
-            this.footer.querySelector(`#btn-profile-edit-menu`).style.display = '';
             this.footer.querySelector(`#${this.id}-cut`).style.display = '';
             this.footer.querySelector(`#${this.id}-copy`).style.display = '';
-            this.footer.querySelector(`#${this.id}-paste`).style.display = this._clip && this._clip.profileName !== this._current.profileName ? '' : 'none';
             this._splitter.panel2Collapsed = false;
         }
+        this._updateEditMenu();
         if (pages.length === 2) {
             if (this._contentPage !== 'properties') {
                 this._loadPage('properties').then(contents => {
@@ -1277,6 +1303,8 @@ export class ProfilesDialog extends Dialog {
                 if (items.length === 0) {
                     this._menu.querySelector(`#${id} i`).remove();
                     this._menu.querySelector(`#${id} a`).insertAdjacentHTML('afterbegin', '<i class="align-middle float-start no-icon"></i>');
+                    if (this._menu.querySelector(`#${id} a`).dataset.lazy !== 'true')
+                        this._menu.querySelector(`#${id} .dropdown-menu`).innerHTML = '';
                 }
                 else {
                     const menuItems = this._menu.querySelector(`#${id} ul`);
@@ -1330,24 +1358,21 @@ export class ProfilesDialog extends Dialog {
         if (clear) {
             this._clip = null;
             this._clipId = null;
-            this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this._splitter.panel2Collapsed || (Array.isArray(this._current.item) && !this._current.item.length) ? 'none' : '';
-            this.footer.querySelector(`#${this.id}-paste`).style.display = 'none';
+            this._updateEditMenu();
         }
     }
 
     private _copyItem(data?) {
         this._resetClip();
         this._clip = data || this._getClipData();
-        this.footer.querySelector(`#${this.id}-paste`).style.display = '';
-        this.footer.querySelector(`#btn-profile-edit-menu`).style.display = '';
+        this._updateEditMenu();
         this._clip.action = ClipAction.copy;
     }
 
     private _cutItem(data?) {
         this._resetClip();
         this._clip = data || this._getClipData();
-        this.footer.querySelector(`#${this.id}-paste`).style.display = this._current.profileName !== this._clip.profileName ? '' : 'none';
-        this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this._current.profileName !== this._clip.profileName ? '' : 'none';
+        this._updateEditMenu();
         this._clip.action = ClipAction.cut;
         if (this._clip.type.endsWith('s') && !this._clip.collection)
             this._clipId = `${this._sanitizeID(this._clip.profileName)}-${this._clip.type}`;
@@ -1384,7 +1409,6 @@ export class ProfilesDialog extends Dialog {
         let il;
         let item;
         if (!this._clip) return;
-        console.log(this._clip);
         //as long as not same profile and not cutting, as pasting back a cut just leaves it where it started
         if (!(this._clip.profileName === this._current.profileName && this._clip.action === ClipAction.cut)) {
             if (this._clip.type.endsWith('s') && !this._clip.collection) {
@@ -1405,19 +1429,21 @@ export class ProfilesDialog extends Dialog {
                 }
             }
             else if (this._clip.type === 'profile') {
-                const profile = this._clip.profile.clone();
-                profile.name = this._profileCopyName(profile.name);
-                let name = profile.name.toLowerCase();
-                this.profiles.add(profile);
-                this.profiles.SortByPriority();
-                let menuItem = this._profile(name);
-                i = this.profiles.keys.indexOf(name);
-                const menu = document.getElementById('profile-menu');
-                if (i === -1 || i >= menu.children.length)
-                    i = menu.children.length - 1;
-                if (i < 0) i = 0;
-                menu.children[i].insertAdjacentHTML("afterend", menuItem);
-                this._profileEvents(menu.children[i + 1]);
+                if (this.profiles.contains(this._clip.profileName)) {
+                    const profile = this.profiles.items[this._clip.profileName].clone();
+                    profile.name = this._profileCopyName(profile.name);
+                    let name = profile.name.toLowerCase();
+                    this.profiles.add(profile);
+                    this.profiles.SortByPriority();
+                    let menuItem = this._profile(name);
+                    i = this.profiles.keys.indexOf(name);
+                    const menu = document.getElementById('profile-menu');
+                    if (i === -1 || i >= menu.children.length)
+                        i = menu.children.length - 1;
+                    if (i < 0) i = 0;
+                    menu.children[i].insertAdjacentHTML("afterend", menuItem);
+                    this._profileEvents(menu.children[i + 1]);
+                }
             }
             else {
                 if (this._clip.action === ClipAction.copy)
@@ -1435,6 +1461,8 @@ export class ProfilesDialog extends Dialog {
                     if (items.length === 0) {
                         this._menu.querySelector(`#${id} i`).remove();
                         this._menu.querySelector(`#${id} a`).insertAdjacentHTML('afterbegin', '<i class="align-middle float-start no-icon"></i>');
+                        if (this._menu.querySelector(`#${id} a`).dataset.lazy !== 'true')
+                            this._menu.querySelector(`#${id} .dropdown-menu`).innerHTML = '';
                     }
                     else {
                         const menuItems = this._menu.querySelector(`#${id} ul`);
@@ -1451,8 +1479,15 @@ export class ProfilesDialog extends Dialog {
                 }
             }
             this.changed = true;
+            //only reset if cut as the data has been moved
+            if (this._clip.action === ClipAction.cut)
+                this._resetClip(true);
         }
-        this._resetClip(true);
+    }
+
+    private _updateEditMenu() {
+        this.footer.querySelector(`#${this.id}-paste`).style.display = this._clip && (this._clip.profileName !== this._current.profileName || this._clip.type === 'profile') ? '' : 'none';
+        this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this.footer.querySelector(`#${this.id}-paste`).style.display === 'none' && this.footer.querySelector(`#${this.id}-cut`).style.display === 'none' && this.footer.querySelector(`#${this.id}-copy`).style.display === 'none' ? 'none' : '';
     }
 
     public setValue(obj, prop, value) {

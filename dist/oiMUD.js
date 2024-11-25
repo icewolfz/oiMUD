@@ -30416,9 +30416,9 @@ Devanagari
       footer += "</ul>";
       footer += `<button id="btn-profile-edit-menu" class="btn-sm float-start btn btn-outline-secondary" type="button" aria-controls="edit-menu" title="Show edit menu" data-bs-toggle="dropdown" aria-expanded="false" style="margin-right: 4px;"><i class="bi bi-pencil-square"></i></button>`;
       footer += `<ul id="${this.id}-edit-menu" class="dropdown-menu" style="overflow: auto;">`;
-      footer += `<li id="${this.id}-cut"><a class="dropdown-item">Cut</a></li>`;
-      footer += `<li id="${this.id}-copy"><a class="dropdown-item">Copy</a></li>`;
-      footer += `<li id="${this.id}-paste"><a class="dropdown-item">Paste</a></li>`;
+      footer += `<li id="${this.id}-cut"><a class="dropdown-item">Cut <span class="float-end" style="padding-left: 40px;">Ctrl+X</span></a></li>`;
+      footer += `<li id="${this.id}-copy"><a class="dropdown-item">Copy <span class="float-end" style="padding-left: 40px;">Ctrl+C</span></a></li>`;
+      footer += `<li id="${this.id}-paste"><a class="dropdown-item">Paste <span class="float-end" style="padding-left: 40px;">Ctrl+V</span></a></li>`;
       footer += "</ul>";
       footer += '<span id="profile-page-buttons"></span>';
       footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Close dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;
@@ -30532,7 +30532,7 @@ Devanagari
               if (data.version == 2) {
                 if (data.profiles) {
                   let keys = Object.keys(data.profiles);
-                  let n, i2, k = 0, kl = keys.length;
+                  let k = 0, kl = keys.length;
                   for (; k < kl; k++) {
                     data.profiles[keys[k]].name = this._profileCopyName(keys[k]);
                     const p = Profile.load(data.profiles[keys[k]]);
@@ -30575,6 +30575,32 @@ Devanagari
           return;
         }
         this._save();
+      });
+      this.dialog.addEventListener("keydown", (e) => {
+        if (e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+          if (document.activeElement) {
+            if (document.activeElement.nodeName === "TEXTAREA" || document.activeElement.isContentEditable)
+              return;
+            if (document.activeElement.nodeName === "INPUT" && document.activeElement.type !== "checkbox" && document.activeElement.type !== "radio")
+              return;
+          }
+          if (e.code === "KeyC") {
+            this._copyItem();
+            e.preventDefault();
+            e.returnValue = false;
+            return false;
+          } else if (e.code === "KeyX") {
+            this._cutItem();
+            e.preventDefault();
+            e.returnValue = false;
+            return false;
+          } else if (e.code === "KeyV" && this._clip) {
+            this._paste();
+            e.preventDefault();
+            e.returnValue = false;
+            return false;
+          }
+        }
       });
     }
     set errorField(value) {
@@ -30801,10 +30827,8 @@ Devanagari
         this.footer.querySelector(`#${this.id}-add-sep2`).style.display = "none";
         this.footer.querySelector(`#${this.id}-add-default-buttons`).style.display = "none";
         this.footer.querySelector(`#${this.id}-add-default-macros`).style.display = "none";
-        this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this._clip && this._clip.profileName !== this._current.profileName ? "" : "none";
         this.footer.querySelector(`#${this.id}-cut`).style.display = "none";
         this.footer.querySelector(`#${this.id}-copy`).style.display = "none";
-        this.footer.querySelector(`#${this.id}-paste`).style.display = this._clip && this._clip.profileName !== this._current.profileName ? "" : "none";
         this._splitter.panel2Collapsed = true;
         this.footer.querySelector(`#${this.id}-back`).style.display = "none";
       } else {
@@ -30817,12 +30841,11 @@ Devanagari
         this.footer.querySelector(`#${this.id}-add-sep2`).style.display = "";
         this.footer.querySelector(`#${this.id}-add-default-buttons`).style.display = "";
         this.footer.querySelector(`#${this.id}-add-default-macros`).style.display = "";
-        this.footer.querySelector(`#btn-profile-edit-menu`).style.display = "";
         this.footer.querySelector(`#${this.id}-cut`).style.display = "";
         this.footer.querySelector(`#${this.id}-copy`).style.display = "";
-        this.footer.querySelector(`#${this.id}-paste`).style.display = this._clip && this._clip.profileName !== this._current.profileName ? "" : "none";
         this._splitter.panel2Collapsed = false;
       }
+      this._updateEditMenu();
       if (pages.length === 2) {
         if (this._contentPage !== "properties") {
           this._loadPage("properties").then(
@@ -31511,6 +31534,8 @@ Devanagari
           if (items.length === 0) {
             this._menu.querySelector(`#${id} i`).remove();
             this._menu.querySelector(`#${id} a`).insertAdjacentHTML("afterbegin", '<i class="align-middle float-start no-icon"></i>');
+            if (this._menu.querySelector(`#${id} a`).dataset.lazy !== "true")
+              this._menu.querySelector(`#${id} .dropdown-menu`).innerHTML = "";
           } else {
             const menuItems = this._menu.querySelector(`#${id} ul`);
             let i2 = menuItems.children.length;
@@ -31560,22 +31585,19 @@ Devanagari
       if (clear) {
         this._clip = null;
         this._clipId = null;
-        this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this._splitter.panel2Collapsed || Array.isArray(this._current.item) && !this._current.item.length ? "none" : "";
-        this.footer.querySelector(`#${this.id}-paste`).style.display = "none";
+        this._updateEditMenu();
       }
     }
     _copyItem(data) {
       this._resetClip();
       this._clip = data || this._getClipData();
-      this.footer.querySelector(`#${this.id}-paste`).style.display = "";
-      this.footer.querySelector(`#btn-profile-edit-menu`).style.display = "";
+      this._updateEditMenu();
       this._clip.action = 1 /* copy */;
     }
     _cutItem(data) {
       this._resetClip();
       this._clip = data || this._getClipData();
-      this.footer.querySelector(`#${this.id}-paste`).style.display = this._current.profileName !== this._clip.profileName ? "" : "none";
-      this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this._current.profileName !== this._clip.profileName ? "" : "none";
+      this._updateEditMenu();
       this._clip.action = 0 /* cut */;
       if (this._clip.type.endsWith("s") && !this._clip.collection)
         this._clipId = `${this._sanitizeID(this._clip.profileName)}-${this._clip.type}`;
@@ -31605,15 +31627,12 @@ Devanagari
       return data;
     }
     _paste() {
-      let os;
       let i2;
       let il;
       let item;
       if (!this._clip) return;
-      console.log(this._clip);
       if (!(this._clip.profileName === this._current.profileName && this._clip.action === 0 /* cut */)) {
         if (this._clip.type.endsWith("s") && !this._clip.collection) {
-          os = this._current.profile[this._clip.type].length;
           let items = this._clip.items;
           for (i2 = 0, il = items.length; i2 < il; i2++) {
             item = items[i2].clone();
@@ -31630,19 +31649,21 @@ Devanagari
               this._menu.querySelector(`#${id} .dropdown-menu`).innerHTML = "";
           }
         } else if (this._clip.type === "profile") {
-          const profile = this._clip.profile.clone();
-          profile.name = this._profileCopyName(profile.name);
-          let name2 = profile.name.toLowerCase();
-          this.profiles.add(profile);
-          this.profiles.SortByPriority();
-          let menuItem = this._profile(name2);
-          i2 = this.profiles.keys.indexOf(name2);
-          const menu = document.getElementById("profile-menu");
-          if (i2 === -1 || i2 >= menu.children.length)
-            i2 = menu.children.length - 1;
-          if (i2 < 0) i2 = 0;
-          menu.children[i2].insertAdjacentHTML("afterend", menuItem);
-          this._profileEvents(menu.children[i2 + 1]);
+          if (this.profiles.contains(this._clip.profileName)) {
+            const profile = this.profiles.items[this._clip.profileName].clone();
+            profile.name = this._profileCopyName(profile.name);
+            let name2 = profile.name.toLowerCase();
+            this.profiles.add(profile);
+            this.profiles.SortByPriority();
+            let menuItem = this._profile(name2);
+            i2 = this.profiles.keys.indexOf(name2);
+            const menu = document.getElementById("profile-menu");
+            if (i2 === -1 || i2 >= menu.children.length)
+              i2 = menu.children.length - 1;
+            if (i2 < 0) i2 = 0;
+            menu.children[i2].insertAdjacentHTML("afterend", menuItem);
+            this._profileEvents(menu.children[i2 + 1]);
+          }
         } else {
           if (this._clip.action === 1 /* copy */)
             item = this._clip.item.clone();
@@ -31659,6 +31680,8 @@ Devanagari
             if (items.length === 0) {
               this._menu.querySelector(`#${id} i`).remove();
               this._menu.querySelector(`#${id} a`).insertAdjacentHTML("afterbegin", '<i class="align-middle float-start no-icon"></i>');
+              if (this._menu.querySelector(`#${id} a`).dataset.lazy !== "true")
+                this._menu.querySelector(`#${id} .dropdown-menu`).innerHTML = "";
             } else {
               const menuItems = this._menu.querySelector(`#${id} ul`);
               let i3 = menuItems.children.length;
@@ -31674,8 +31697,13 @@ Devanagari
           }
         }
         this.changed = true;
+        if (this._clip.action === 0 /* cut */)
+          this._resetClip(true);
       }
-      this._resetClip(true);
+    }
+    _updateEditMenu() {
+      this.footer.querySelector(`#${this.id}-paste`).style.display = this._clip && (this._clip.profileName !== this._current.profileName || this._clip.type === "profile") ? "" : "none";
+      this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this.footer.querySelector(`#${this.id}-paste`).style.display === "none" && this.footer.querySelector(`#${this.id}-cut`).style.display === "none" && this.footer.querySelector(`#${this.id}-copy`).style.display === "none" ? "none" : "";
     }
     setValue(obj, prop, value) {
       if (value == "false") value = false;

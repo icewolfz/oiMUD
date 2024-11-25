@@ -10,15 +10,15 @@
 </div>
 
 <div class="mb-3">
-    <label class="form-label" for="style">Style</label>
-    <select class="form-select" id="style">
-        <option value="0">Text</option>
-        <option value="1">Parse</option>
-        <option value="2">Script</option>
-    </select>
-</div>
-<div class="mb-3">
-    <label class="form-label" for="value">Value</label>
+    <div class="mb-2 d-flex align-items-center">
+        <label class="form-label align-self-baseline me-2 flex-grow-1" for="value">Value</label>
+        <label class="form-label align-self-baseline me-2" for="style">Style</label>
+        <select class="form-select align-self-baseline" id="style" style="width: auto;display: inline-block;">
+            <option value="0">Text</option>
+            <option value="1">Parse</option>
+            <option value="2">Script</option>
+        </select>
+    </div>
     <textarea class="form-control" id="value" rows="6"></textarea>
 </div>
 

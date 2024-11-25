@@ -83,3 +83,13 @@
   i {
   display: inline-block !important;
 }
+
+.cut-item {
+  opacity: 0.5;
+  border: 1px dashed #0a0a0a;
+  border-radius: 10px;
+}
+
+.cut-item ul {
+  border-radius: 10px;
+}

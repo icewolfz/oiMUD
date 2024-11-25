@@ -30414,6 +30414,12 @@ Devanagari
       footer += '<li><hr class="dropdown-divider"></li>';
       footer += `<li id="${this.id}-refresh"><a class="dropdown-item">Refresh</a></li>`;
       footer += "</ul>";
+      footer += `<button id="btn-profile-edit-menu" class="btn-sm float-start btn btn-outline-secondary" type="button" aria-controls="edit-menu" title="Show edit menu" data-bs-toggle="dropdown" aria-expanded="false" style="margin-right: 4px;"><i class="bi bi-pencil-square"></i></button>`;
+      footer += `<ul id="${this.id}-edit-menu" class="dropdown-menu" style="overflow: auto;">`;
+      footer += `<li id="${this.id}-cut"><a class="dropdown-item">Cut</a></li>`;
+      footer += `<li id="${this.id}-copy"><a class="dropdown-item">Copy</a></li>`;
+      footer += `<li id="${this.id}-paste"><a class="dropdown-item">Paste</a></li>`;
+      footer += "</ul>";
       footer += '<span id="profile-page-buttons"></span>';
       footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Close dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;
       footer += `<button id="${this.id}-save" type="button" class="btn-sm float-end btn btn-primary" title="Save changes" disabled><i class="bi bi-save"></i><span class="icon-only"> Save</span></button>`;
@@ -30440,6 +30446,15 @@ Devanagari
       });
       this.footer.querySelector(`#${this.id}-back`).addEventListener("click", () => {
         this._goBack();
+      });
+      this.footer.querySelector(`#${this.id}-cut`).addEventListener("click", () => {
+        this._cutItem();
+      });
+      this.footer.querySelector(`#${this.id}-copy`).addEventListener("click", () => {
+        this._copyItem();
+      });
+      this.footer.querySelector(`#${this.id}-paste`).addEventListener("click", () => {
+        this._paste();
       });
       this.on("closed", () => {
         this._client.setOption("windows.profiles", this.windowState);
@@ -30519,16 +30534,7 @@ Devanagari
                   let keys = Object.keys(data.profiles);
                   let n, i2, k = 0, kl = keys.length;
                   for (; k < kl; k++) {
-                    n = keys[k];
-                    i2 = 0;
-                    while (this.profiles.contains(n)) {
-                      if (i2 === 0)
-                        n = keys[k] + " Copy";
-                      else
-                        n = keys[k] + " Copy (" + i2 + ")";
-                      i2++;
-                    }
-                    data.profiles[keys[k]].name = n;
+                    data.profiles[keys[k]].name = this._profileCopyName(keys[k]);
                     const p = Profile.load(data.profiles[keys[k]]);
                     this.profiles.add(p);
                   }
@@ -30597,7 +30603,8 @@ Devanagari
       let menu = "";
       indent = indent || 0;
       let padding = indent * 20 + 16;
-      menu += `<li class="nav-item" title="${htmlEncode(GetDisplay(collection[index]))}" id="${idPrefix + "-" + (collection[index].useName ? this._sanitizeID(collection[index].name.toLowerCase()) : index)}">`;
+      const id = `${idPrefix + "-" + (collection[index].useName ? this._sanitizeID(collection[index].name.toLowerCase()) : index)}`;
+      menu += `<li class="nav-item${this._clipId === id ? " cut-item" : ""}" title="${htmlEncode(GetDisplay(collection[index]))}" id="${id}">`;
       if (collection[index].items && collection[index].items.length)
         menu += `<a data-indent="${indent}" data-id="${idPrefix + "-" + this._sanitizeID(collection[index].name.toLowerCase())}" data-lazy="true" style="padding-left: ${padding}px" class="nav-link text-dark" href="#${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}"><i class="align-middle float-start bi bi-chevron-right"></i> <input data-page="${hrefPrefix}/${encodeURIComponent(collection[index].name.toLowerCase())}" type="checkbox" class="form-check-input" id="enabled-${idPrefix}-${this._sanitizeID(collection[index].name.toLowerCase())}"${collection[index].enabled ? " checked" : ""}> ${htmlEncode(GetDisplay(collection[index]))}</a>`;
       else if (collection[index].useName)
@@ -30713,10 +30720,22 @@ Devanagari
           e.stopPropagation();
           e.cancelBubble = true;
         });
-      items = item.querySelectorAll(".list-badge-button");
+      items = item.querySelectorAll(".list-badge-button.text-bg-danger");
       for (i2 = 0, il = items.length; i2 < il; i2++)
         items[i2].addEventListener("click", (e) => {
           this._deleteProfile(e.target.parentElement.dataset.profile);
+          e.preventDefault();
+        });
+      items = item.querySelectorAll(".list-badge-button.text-bg-light");
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].addEventListener("click", (e) => {
+          this._copyItem({ type: "profile", profileName: e.target.parentElement.dataset.profile });
+          e.preventDefault();
+        });
+      items = item.querySelectorAll(".list-badge-button.text-bg-warning");
+      for (i2 = 0, il = items.length; i2 < il; i2++)
+        items[i2].addEventListener("click", (e) => {
+          this._cutItem({ type: "profile", profileName: e.target.parentElement.dataset.profile });
           e.preventDefault();
         });
     }
@@ -30724,7 +30743,10 @@ Devanagari
       let nav = `<li class="nav-item" data-profile="${profile}" title="${capitalize(profile)}" id="${this._sanitizeID(profile)}">`;
       nav += `<a data-lazy="true" data-type="profile" data-id="${this._sanitizeID(profile)}" class="nav-link text-dark" href="#profiles/${encodeURIComponent(profile)}">`;
       if (profile !== "default")
-        nav += `<span class="list-badge-button badge text-bg-danger" data-profile="${profile}"><i class="bi bi-trash"></i></span>`;
+        nav += `<span class="list-badge-button badge text-bg-danger" data-profile="${profile}" title="Remove profile"><i class="bi bi-trash"></i></span>`;
+      nav += `<span class="list-badge-button badge text-bg-light me-1" data-profile="${profile}" title="Copy profile"><i class="bi bi-copy"></i></span>`;
+      if (profile !== "default")
+        nav += `<span class="list-badge-button badge text-bg-warning me-1" data-profile="${profile}" title="Cut profile"><i class="bi bi-scissors"></i></span>`;
       nav += `<i class="align-middle float-start bi bi-chevron-right"></i> `;
       nav += this._item(capitalize(profile), "enabled-" + profile, this.profiles.items[profile].enabled);
       nav += `</a>`;
@@ -30779,6 +30801,10 @@ Devanagari
         this.footer.querySelector(`#${this.id}-add-sep2`).style.display = "none";
         this.footer.querySelector(`#${this.id}-add-default-buttons`).style.display = "none";
         this.footer.querySelector(`#${this.id}-add-default-macros`).style.display = "none";
+        this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this._clip && this._clip.profileName !== this._current.profileName ? "" : "none";
+        this.footer.querySelector(`#${this.id}-cut`).style.display = "none";
+        this.footer.querySelector(`#${this.id}-copy`).style.display = "none";
+        this.footer.querySelector(`#${this.id}-paste`).style.display = this._clip && this._clip.profileName !== this._current.profileName ? "" : "none";
         this._splitter.panel2Collapsed = true;
         this.footer.querySelector(`#${this.id}-back`).style.display = "none";
       } else {
@@ -30791,6 +30817,10 @@ Devanagari
         this.footer.querySelector(`#${this.id}-add-sep2`).style.display = "";
         this.footer.querySelector(`#${this.id}-add-default-buttons`).style.display = "";
         this.footer.querySelector(`#${this.id}-add-default-macros`).style.display = "";
+        this.footer.querySelector(`#btn-profile-edit-menu`).style.display = "";
+        this.footer.querySelector(`#${this.id}-cut`).style.display = "";
+        this.footer.querySelector(`#${this.id}-copy`).style.display = "";
+        this.footer.querySelector(`#${this.id}-paste`).style.display = this._clip && this._clip.profileName !== this._current.profileName ? "" : "none";
         this._splitter.panel2Collapsed = false;
       }
       if (pages.length === 2) {
@@ -30891,17 +30921,23 @@ Devanagari
             this._deleteProfile(this._current.profileName);
           });
         }
+        this.footer.querySelector(`#${this.id}-cut`).style.display = "none";
       } else if (pages.length === 3) {
         let pp = "";
         let b = `<button id="${this.id}-add" type="button" class="btn-sm float-start btn btn-outline-secondary" title="Add ${this._getItemType()}"><i class="bi bi-plus-lg"></i></button>`;
         if (this._current.item.length === 0) {
           p = '<h1 id="empty" style="width: 100%;text-align:center">No ' + this._current.collection + ".</h1>";
           p += `<button id="${this.id}-add-contents" type="button" class="btn-sm float-start btn btn-outline-secondary" title="Add ${this._getItemType()}"><i class="bi bi-plus-lg"></i> Add ${this._getItemType()}</button>`;
+          this.footer.querySelector(`#${this.id}-cut`).style.display = "none";
+          this.footer.querySelector(`#${this.id}-copy`).style.display = "none";
+          this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this._clip ? "" : "none";
         } else {
           p = "";
           for (k = 0, kl = this._current.item.length; k < kl; k++) {
             p += `<a data-profile ="${this._current.profileName}" id="item-${k}" data-index="${k}" href="#profiles/${encodeURIComponent(this._current.profileName)}/${this._current.collection}/${k}" class="list-group-item list-group-item-action">`;
-            p += `<span data-index="${k}" class="list-badge-button badge text-bg-danger"><i class="bi bi-trash"></i></span>`;
+            p += `<span data-index="${k}" class="list-badge-button badge text-bg-danger"><i class="bi bi-trash" title="Remove ${this._getItemType()}"></i></span>`;
+            p += `<span data-index="${k}" class="list-badge-button badge text-bg-light me-1" title="Copy ${this._getItemType()}"><i class="bi bi-copy"></i></span>`;
+            p += `<span data-index="${k}" class="list-badge-button badge text-bg-warning me-1" title="Cut ${this._getItemType()}"><i class="bi bi-scissors"></i></span>`;
             p += `<div class="form-check-inline form-switch" style="margin: 0;">`;
             p += `<input type="checkbox" class="form-check-input" id="check-${k}" data-profile="${this._current.profileName}" data-index="${k}" data-field="enabled" data-items="${this._current.collection}"${this._current.item[k].enabled ? ' checked="checked"' : ""}>`;
             p += `</div>${htmlEncode(GetDisplay(this._current.item[k]))}</a>`;
@@ -30911,10 +30947,30 @@ Devanagari
         }
         this.footer.querySelector("#profile-page-buttons").innerHTML = b;
         this._setContents(pp + '<div class="list-group">' + p + "</div>");
-        let items = this._contents.querySelectorAll(".list-badge-button");
+        let items = this._contents.querySelectorAll(".list-badge-button.text-bg-danger");
         for (let i2 = 0, il = items.length; i2 < il; i2++)
           items[i2].addEventListener("click", (e) => {
             this._removeItem(+e.target.parentElement.dataset.index);
+            e.stopPropagation();
+            e.cancelBubble = true;
+            e.preventDefault();
+          });
+        items = this._contents.querySelectorAll(".list-badge-button.text-bg-light,.list-badge-button.text-bg-warning");
+        for (let i2 = 0, il = items.length; i2 < il; i2++)
+          items[i2].addEventListener("click", (e) => {
+            let idx = +e.target.parentElement.dataset.index;
+            let data = {
+              type: this._getItemType(),
+              item: this._current.item[idx],
+              index: idx,
+              profile: this._current.profile,
+              profileName: this._current.profileName,
+              collection: this._current.collection
+            };
+            if (e.currentTarget.classList.contains("text-bg-warning"))
+              this._cutItem(data);
+            else
+              this._copyItem(data);
             e.stopPropagation();
             e.cancelBubble = true;
             e.preventDefault();
@@ -30989,6 +31045,8 @@ Devanagari
         return false;
       this._current.itemIdx = this._current.itemSubIdx = -1;
       this._current.parent = null;
+      this._current.collection = "";
+      this._current.item = null;
       if (pages.length > 1) {
         this._current.profileName = pages[1];
         if (!this.profiles.contains(this._current.profileName)) {
@@ -31189,7 +31247,7 @@ Devanagari
             expand = el.querySelector(".dropdown-menu");
           }
           if (!expand || expand.classList.contains("show")) continue;
-          el = el.querySelector("i");
+          el = el.querySelector("i.bi-chevron-right") || el.querySelector("i.bi-chevron-down");
           if (el) {
             el.closest("li").querySelector(".dropdown-menu").classList.toggle("show");
             el.classList.toggle("bi-chevron-right");
@@ -31409,32 +31467,33 @@ Devanagari
       }
       this._current.profile[collection].push(item);
       let m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
-      if (index === 0) {
-        menuItem = this._getItem([{
-          name: capitalize(collection),
-          items: this._current.profile[collection],
-          useName: true,
-          enabled: this._current.profile[collection]
-        }], 0, this._sanitizeID(this._current.profileName), "profiles/" + encodeURIComponent(this._current.profileName), 1);
-        let newNode = document.createElement("div");
-        newNode.innerHTML = menuItem;
-        if (m.replaceWith)
-          m.replaceWith(newNode.firstChild);
-        else if (m.replaceChild)
-          m.parentNode.replaceChild(newNode.firstChild, m);
-        else
-          m.outerHTML = menuItem;
-        m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
-        this._profileEvents(m);
-      } else {
-        menuItem = this._getItem(this._current.profile[collection], index, `${this._sanitizeID(this._current.profileName)}-${collection}`, `profiles/${encodeURIComponent(this._current.profileName)}/${collection}`, 2);
-        if (m.firstChild.dataset.lazy !== "true") {
-          m = m.querySelector("ul");
-          m.insertAdjacentHTML("beforeend", menuItem);
+      if (m)
+        if (index === 0) {
+          menuItem = this._getItem([{
+            name: capitalize(collection),
+            items: this._current.profile[collection],
+            useName: true,
+            enabled: this._current.profile[collection]
+          }], 0, this._sanitizeID(this._current.profileName), "profiles/" + encodeURIComponent(this._current.profileName), 1);
+          let newNode = document.createElement("div");
+          newNode.innerHTML = menuItem;
+          if (m.replaceWith)
+            m.replaceWith(newNode.firstChild);
+          else if (m.replaceChild)
+            m.parentNode.replaceChild(newNode.firstChild, m);
+          else
+            m.outerHTML = menuItem;
           m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
-          this._profileEvents(m.lastChild);
+          this._profileEvents(m);
+        } else {
+          menuItem = this._getItem(this._current.profile[collection], index, `${this._sanitizeID(this._current.profileName)}-${collection}`, `profiles/${encodeURIComponent(this._current.profileName)}/${collection}`, 2);
+          if (m.firstChild.dataset.lazy !== "true") {
+            m = m.querySelector("ul");
+            m.insertAdjacentHTML("beforeend", menuItem);
+            m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
+            this._profileEvents(m.lastChild);
+          }
         }
-      }
       updateHash(`profiles/${encodeURIComponent(this._current.profileName)}/${collection}/${index}`, this._page);
       this.changed = true;
     }
@@ -31466,6 +31525,8 @@ Devanagari
           this.changed = true;
           if (back)
             this._goBack();
+          if (id === this._clipId)
+            this._resetClip(true);
         }
       });
     }
@@ -31481,12 +31542,140 @@ Devanagari
           this.setBody(this._page);
           this._menu.querySelector(`#${id} i`).remove();
           this._menu.querySelector(`#${id} a`).insertAdjacentHTML("afterbegin", '<i class="align-middle float-start no-icon"></i>');
-          this._menu.querySelector(`#${id} .dropdown-menu`).innerHTML = "";
+          if (this._menu.querySelector(`#${id} a`).dataset.lazy !== "true")
+            this._menu.querySelector(`#${id} .dropdown-menu`).innerHTML = "";
           this.changed = true;
           if (back)
             this._goBack();
+          if (id === this._clipId)
+            this._resetClip(true);
         }
       });
+    }
+    _resetClip(clear) {
+      if (this._clip && this._clip.action === 0 /* cut */) {
+        let items = this.body.querySelectorAll(".cut-item");
+        items.forEach((item) => item.classList.remove("cut-item"));
+      }
+      if (clear) {
+        this._clip = null;
+        this._clipId = null;
+        this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this._splitter.panel2Collapsed || Array.isArray(this._current.item) && !this._current.item.length ? "none" : "";
+        this.footer.querySelector(`#${this.id}-paste`).style.display = "none";
+      }
+    }
+    _copyItem(data) {
+      this._resetClip();
+      this._clip = data || this._getClipData();
+      this.footer.querySelector(`#${this.id}-paste`).style.display = "";
+      this.footer.querySelector(`#btn-profile-edit-menu`).style.display = "";
+      this._clip.action = 1 /* copy */;
+    }
+    _cutItem(data) {
+      this._resetClip();
+      this._clip = data || this._getClipData();
+      this.footer.querySelector(`#${this.id}-paste`).style.display = this._current.profileName !== this._clip.profileName ? "" : "none";
+      this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this._current.profileName !== this._clip.profileName ? "" : "none";
+      this._clip.action = 0 /* cut */;
+      if (this._clip.type.endsWith("s") && !this._clip.collection)
+        this._clipId = `${this._sanitizeID(this._clip.profileName)}-${this._clip.type}`;
+      else if (this._clip.type === "profile")
+        this._clipId = `${this._sanitizeID(this._clip.profileName)}`;
+      else
+        this._clipId = `${this._sanitizeID(this._clip.profileName)}-${this._clip.type === "alias" ? "aliase" : this._clip.type}s-${this._clip.index}`;
+      if (this.body.querySelector("#" + this._clipId))
+        this.body.querySelector("#" + this._clipId).classList.add("cut-item");
+    }
+    _getClipData() {
+      let data = {
+        type: "profile",
+        profileName: this._current.profileName
+      };
+      if (this._current.itemIdx != -1) {
+        data.type = this._getItemType();
+        data.item = this._current.itemSubIdx !== -1 ? this._current.parent : this._current.item;
+        data.index = this._current.itemIdx;
+        data.profile = this._current.profile;
+        data.collection = this._current.collection;
+      } else if (this._current.collection.length) {
+        data.type = this._current.collection;
+        data.items = this._current.item;
+        data.profile = this._current.profile;
+      }
+      return data;
+    }
+    _paste() {
+      let os;
+      let i2;
+      let il;
+      let item;
+      if (!this._clip) return;
+      console.log(this._clip);
+      if (!(this._clip.profileName === this._current.profileName && this._clip.action === 0 /* cut */)) {
+        if (this._clip.type.endsWith("s") && !this._clip.collection) {
+          os = this._current.profile[this._clip.type].length;
+          let items = this._clip.items;
+          for (i2 = 0, il = items.length; i2 < il; i2++) {
+            item = items[i2].clone();
+            item.profile = this._current.profile;
+            this._addItem(this._clip.type, item);
+          }
+          if (this._clip.action === 0 /* cut */) {
+            const id = `${this._sanitizeID(this._clip.profileName)}-${this._clip.type}`;
+            this._clip.profile[this._clip.type] = [];
+            this.setBody(this._page);
+            this._menu.querySelector(`#${id} i`).remove();
+            this._menu.querySelector(`#${id} a`).insertAdjacentHTML("afterbegin", '<i class="align-middle float-start no-icon"></i>');
+            if (this._menu.querySelector(`#${id} a`).dataset.lazy !== "true")
+              this._menu.querySelector(`#${id} .dropdown-menu`).innerHTML = "";
+          }
+        } else if (this._clip.type === "profile") {
+          const profile = this._clip.profile.clone();
+          profile.name = this._profileCopyName(profile.name);
+          let name2 = profile.name.toLowerCase();
+          this.profiles.add(profile);
+          this.profiles.SortByPriority();
+          let menuItem = this._profile(name2);
+          i2 = this.profiles.keys.indexOf(name2);
+          const menu = document.getElementById("profile-menu");
+          if (i2 === -1 || i2 >= menu.children.length)
+            i2 = menu.children.length - 1;
+          if (i2 < 0) i2 = 0;
+          menu.children[i2].insertAdjacentHTML("afterend", menuItem);
+          this._profileEvents(menu.children[i2 + 1]);
+        } else {
+          if (this._clip.action === 1 /* copy */)
+            item = this._clip.item.clone();
+          else
+            item = this._clip.item;
+          item.profile = this._current.profile;
+          this._addItem(this._clip.collection, item);
+          if (this._clip.action === 0 /* cut */) {
+            const id = `${this._sanitizeID(this._clip.profileName)}-${this._clip.collection}`;
+            const items = this._clip.profile[this._clip.collection];
+            items.splice(this._clip.index, 1);
+            this._menu.querySelector(`#${id}-${this._clip.index}`).remove();
+            this.setBody(this._page);
+            if (items.length === 0) {
+              this._menu.querySelector(`#${id} i`).remove();
+              this._menu.querySelector(`#${id} a`).insertAdjacentHTML("afterbegin", '<i class="align-middle float-start no-icon"></i>');
+            } else {
+              const menuItems = this._menu.querySelector(`#${id} ul`);
+              let i3 = menuItems.children.length;
+              const href = `#profiles/${encodeURIComponent(this._clip.profileName)}/${this._clip.collection}/`;
+              let index = this._clip.index;
+              for (; index < i3; index++) {
+                const item2 = menuItems.children[index];
+                item2.id = `${id}-${index}`;
+                item2.firstChild.href = `${href}${index}`;
+                item2.firstChild.children[1].id = `enabled-${id}-${index}`;
+              }
+            }
+          }
+        }
+        this.changed = true;
+      }
+      this._resetClip(true);
     }
     setValue(obj, prop, value) {
       if (value == "false") value = false;
@@ -31529,6 +31718,18 @@ Devanagari
         item.classList.remove("breadcrumb-sm");
         this._small = false;
       }
+    }
+    _profileCopyName(name2) {
+      let n = name2;
+      let i2 = 0;
+      while (this.profiles.contains(n)) {
+        if (i2 === 0)
+          n = name2 + " Copy";
+        else
+          n = name2 + " Copy (" + i2 + ")";
+        i2++;
+      }
+      return n;
     }
   };
   function GetDisplay(arr) {

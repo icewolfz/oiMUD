@@ -2214,6 +2214,14 @@ li.submenu.dropstart > a.dropdown-toggle::after {
 #profile-splitter-panel1[data-collapsed=false] #profile-menu .list-badge-button i {
   display: inline-block !important;
 }
+.cut-item {
+  opacity: 0.5;
+  border: 1px dashed #0a0a0a;
+  border-radius: 10px;
+}
+.cut-item ul {
+  border-radius: 10px;
+}
 
 /* src/css/splitter.css */
 .splitter {

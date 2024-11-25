@@ -247,7 +247,7 @@ export class ProfilesDialog extends Dialog {
                         if (data.version == 2) {
                             if (data.profiles) {
                                 let keys = Object.keys(data.profiles);
-                                let n, i, k = 0, kl = keys.length;
+                                let k = 0, kl = keys.length;
                                 for (; k < kl; k++) {
                                     //set the new name
                                     data.profiles[keys[k]].name = this._profileCopyName(keys[k]);
@@ -1380,7 +1380,6 @@ export class ProfilesDialog extends Dialog {
     }
 
     private _paste() {
-        let os;
         let i;
         let il;
         let item;
@@ -1389,7 +1388,6 @@ export class ProfilesDialog extends Dialog {
         //as long as not same profile and not cutting, as pasting back a cut just leaves it where it started
         if (!(this._clip.profileName === this._current.profileName && this._clip.action === ClipAction.cut)) {
             if (this._clip.type.endsWith('s') && !this._clip.collection) {
-                os = this._current.profile[this._clip.type].length;
                 let items = this._clip.items;
                 for (i = 0, il = items.length; i < il; i++) {
                     item = items[i].clone();

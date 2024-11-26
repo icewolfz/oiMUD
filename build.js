@@ -130,7 +130,7 @@ async function main() {
         if (args.all || args.core) {
             console.time('Built release core');
             await esbuild.build(Object.assign(release, {
-                entryPoints: ['src/client.ts'],
+                entryPoints: ['src/core/client.ts'],
                 outfile: 'dist/oiMUD.core.min.js'
             })).then(console.timeEnd('Built release core'));
         }
@@ -157,7 +157,7 @@ async function main() {
         if (args.all || args.core) {
             console.time('Built debug core');
             await esbuild.build(Object.assign(debug, {
-                entryPoints: ['src/client.ts'],
+                entryPoints: ['src/core/client.ts'],
                 outfile: 'dist/oiMUD.core.js'
             })).then(console.timeEnd('Built debug core'));
         }

@@ -6,6 +6,10 @@
 You should always make sure you have the latest updates, clear cache, refresh to see if issue is fixed.
 If you are getting garbled or missing text try disabling MCCP, MXP, or UTF-8 in the [Telnet settings](preferences.md#telnet) then disconnect and reconnect, if still happens try clearing cache and refreshing
 
+## Error when connecting
+
+Try reconnecting, check to ensure no extensions are blocking the attempt, check your site settings in case security permissions are blocking it
+
 ## I am getting 'TypeError - some message. ', what does it mean?
 
 This means there is an error, most of the time the error is from a broken profile item with bad or invalid javascript, can view error log in about dialog

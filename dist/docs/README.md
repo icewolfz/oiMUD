@@ -2,6 +2,14 @@
 
 A mud web client that can connect to muds that expose a websocket port
 
+## Supported URL parameters
+
+- `host` set a custom host to connect to, overrides set host
+- `port` set a custom port to connect to, overrides set port
+
+This will attempt to connect to example.com on port 23: 
+  http://URL/index.htm?host=www.example.com&port=23
+
 ## FAQ
 
 Basic questions answered about oiMUD

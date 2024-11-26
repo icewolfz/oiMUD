@@ -52,8 +52,15 @@ For more advanced control you can run the build script directly using  node buil
 
 **Note** All arguments but all and tinymce need release or debug flag to build
 
-
 The build script includes several advanced arguments to control what is built
+
+## Supported URL parameters
+
+- `host` set a custom host to connect to, overrides set host
+- `port` set a custom port to connect to, overrides set port
+
+This will attempt to connect to example.com on port 23: 
+  http://URL/index.htm?host=www.example.com&port=23
 
 ## FAQ
 

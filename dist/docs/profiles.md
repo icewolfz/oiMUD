@@ -31,7 +31,15 @@ The navigation breadcrumb to allow easier jumping to other pages
 - `Export current profile` Export current profile
 - `Export profiles` Export all profiles as one file
 - `Import` import profiles
-- `Refresh` Refresh manager 
+- `Refresh` Refresh manager
+- `Reload` Reload profiles
+
+## Edit menu
+
+- `Find` Open find panel
+- `Cut` Cut the currently selected item, cut items remain in original location until pasted and will copy any updates or changes made since cut
+- `Copy` Copy the currently selected item
+- `Paste` Paste item, then cut/copy state, items contain any changes made to item after cut/copy action
 
 ## Profiles
 

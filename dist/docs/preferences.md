@@ -303,6 +303,7 @@ Controls what is captured into the chat window
 - `Fix hidden windows` Adjust the x/y location of dialogs to ensure when opened appear in visible window area
 - `Profile to select on load` select which profile to pick when profile manager is first opened, falls back to Default if profile not found
 - `Expand selected profile on load` auto expand selected profile when profile manager is first opened
+- `Update profiles on change when manager open` Update profiles when items are changed outside of manager using #commands
 
 ## ShadowMUD
 

@@ -30640,6 +30640,7 @@ Devanagari
     constructor() {
       super(Object.assign({}, client.getWindowState("profiles") || { center: true }, { id: "profiles", title: '<i class="fas fa-users"></i> Profiles', minWidth: 550, minHeight: 350 }));
       this._profilesChanged = false;
+      this._outsideChange = false;
       this._current = {
         profile: null,
         profileName: "",
@@ -30673,6 +30674,60 @@ Devanagari
           this.profiles = this._client.profiles.clone();
           this.profiles.SortByPriority();
           this._buildMenu();
+        }
+      });
+      this._client.on("item-added", (type, profileName, index, item) => {
+        if (!this._client.getOption("profiles.updateOnChange"))
+          this._outsideChange = true;
+        else if (this.profiles.contains(profileName))
+          this._addItem(type + (type === "alias" ? "es" : "s"), item, this.profiles.items[profileName]);
+      });
+      this._client.on("item-removed", (type, profileName, index, item) => {
+        if (!this._client.getOption("profiles.updateOnChange"))
+          this._outsideChange = true;
+        else if (this.profiles.contains(profileName)) {
+          let collection = type + (type === "alias" ? "es" : "s");
+          let profile = this.profiles.items[profileName];
+          if (index < 0 || index >= profile[collection].length || !profile[collection][index].equals(item)) return;
+          const id = `${this._sanitizeID(profileName)}-${collection}`;
+          const items = profile[collection];
+          items.splice(index, 1);
+          this._menu.querySelector(`#${id}-${index}`).remove();
+          if (this._current.itemIdx === -1)
+            this.setBody(this._page);
+          if (items.length === 0) {
+            this._menu.querySelector(`#${id} i`).remove();
+            this._menu.querySelector(`#${id} a`).insertAdjacentHTML("afterbegin", '<i class="align-middle float-start no-icon"></i>');
+            if (this._menu.querySelector(`#${id} a`).dataset.lazy !== "true")
+              this._menu.querySelector(`#${id} .dropdown-menu`).innerHTML = "";
+          } else {
+            const menuItems = this._menu.querySelector(`#${id} ul`);
+            let i2 = menuItems.children.length;
+            const href = `#profiles/${encodeURIComponent(profileName)}/${collection}/`;
+            for (; index < i2; index++) {
+              const item2 = menuItems.children[index];
+              item2.id = `${id}-${index}`;
+              item2.firstChild.href = `${href}${index}`;
+              item2.firstChild.children[1].id = `enabled-${id}-${index}`;
+            }
+          }
+          this.changed = true;
+          if (id === this._clipId)
+            this._resetClip(true);
+        }
+      });
+      this._client.on("item-updated", (type, profileName, index, item) => {
+        if (!this._client.getOption("profiles.updateOnChange"))
+          this._outsideChange = true;
+        else if (this.profiles.contains(profileName)) {
+          let collection = type + (type === "alias" ? "es" : "s");
+          let profile = this.profiles.items[profileName];
+          if (index < 0 || index >= profile[collection].length) return;
+          profile[collection][index] = item;
+          if (this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}-${this._current.collection}-${index}`))
+            this._menu.querySelector(`#enabled-${this._sanitizeID(this._current.profileName)}-${this._current.collection}-${index}`).checked = item.enabled;
+          if (this._current.profileName === profileName && collection === this._current.collection && this._current.itemIdx === index)
+            this.loadPage(this._page);
         }
       });
       this.body.style.padding = "10px";
@@ -30714,6 +30769,7 @@ Devanagari
       footer += `<li id="${this.id}-import"><a class="dropdown-item">Import profiles</a></li>`;
       footer += '<li><hr class="dropdown-divider"></li>';
       footer += `<li id="${this.id}-refresh"><a class="dropdown-item">Refresh</a></li>`;
+      footer += `<li id="${this.id}-reload"><a class="dropdown-item">Reload</a></li>`;
       footer += "</ul>";
       footer += `<button id="btn-profile-edit-menu" class="btn-sm float-start btn btn-outline-secondary" type="button" aria-controls="edit-menu" title="Show edit menu" data-bs-toggle="dropdown" aria-expanded="false" style="margin-right: 4px;"><i class="bi bi-pencil-square"></i></button>`;
       footer += `<ul id="${this.id}-edit-menu" class="dropdown-menu" style="overflow: auto;">`;
@@ -30868,20 +30924,55 @@ Devanagari
         this._buildMenu();
         this.setBody(this._page);
       });
+      this.footer.querySelector(`#${this.id}-reload a`).addEventListener("click", () => {
+        if (this.changed) {
+          confirm_box("Reload profiles?", `Reload and lose changes?`).then((e) => {
+            if (e.button === 4 /* Yes */) {
+              this.profiles = this._client.profiles.clone();
+              this.profiles.SortByPriority();
+              this._buildMenu();
+              this.setBody(this._page);
+            }
+          });
+        } else {
+          this.profiles = this._client.profiles.clone();
+          this.profiles.SortByPriority();
+          this._buildMenu();
+          this.setBody(this._page);
+        }
+      });
       this.footer.querySelector(`#${this.id}-save`).addEventListener("click", () => {
         if (this._errorField) {
           this._errorField.focus();
           return;
         }
-        this._save();
-        this.close();
+        if (this._outsideChange) {
+          confirm_box("Profiles changed", `Profiles have been changed outside of manager, overwrite?`, null, 12 /* YesNo */).then((e) => {
+            if (e.button === 4 /* Yes */) {
+              this._save();
+              this.close();
+              this._outsideChange = false;
+            }
+          });
+        } else {
+          this._save();
+          this.close();
+        }
       });
       this.footer.querySelector(`#${this.id}-apply`).addEventListener("click", () => {
         if (this._errorField) {
           this._errorField.focus();
           return;
         }
-        this._save();
+        if (this._outsideChange) {
+          confirm_box("Profiles changed", `Profiles have been changed outside of manager, overwrite?`, null, 12 /* YesNo */).then((e) => {
+            if (e.button === 4 /* Yes */) {
+              this._save();
+              this._outsideChange = false;
+            }
+          });
+        } else
+          this._save();
       });
       this.dialog.addEventListener("keydown", (e) => {
         if (e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
@@ -31773,15 +31864,23 @@ Devanagari
     }
     close() {
       if (!this._canClose) {
-        this._confirmSave().then((r) => {
-          if (r) {
-            if (!this._save()) return;
-          }
-          this._canClose = true;
-          this.close();
-        }).catch(() => {
-          this._canClose = false;
-        });
+        if (this._outsideChange) {
+          confirm_box("Profiles changed", `Profiles have been changed outside of manager, overwrite?`, null, 12 /* YesNo */).then((e) => {
+            if (e.button === 4 /* Yes */) {
+              this._outsideChange = false;
+              this.close();
+            }
+          });
+        } else
+          this._confirmSave().then((r) => {
+            if (r) {
+              if (!this._save()) return;
+            }
+            this._canClose = true;
+            this.close();
+          }).catch(() => {
+            this._canClose = false;
+          });
       } else
         super.close();
     }
@@ -31817,10 +31916,12 @@ Devanagari
       if (collection === "aliases") return "alias";
       return collection.substring(0, collection.length - 1);
     }
-    _addItem(collection, item) {
+    _addItem(collection, item, profile) {
       if (!collection) collection = this._current.collection;
       if (!collection) return;
-      let index = this._current.profile[collection].length;
+      if (!profile) profile = this._current.profile;
+      let profileName = profile.name.toLowerCase();
+      let index = profile[collection].length;
       let menuItem;
       if (!item) {
         if (collection === "aliases")
@@ -31834,16 +31935,16 @@ Devanagari
         else if (collection === "context")
           item = new Context();
       }
-      this._current.profile[collection].push(item);
-      let m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
+      profile[collection].push(item);
+      let m = this._menu.querySelector(`#${this._sanitizeID(profileName)}-${collection}`);
       if (m)
         if (index === 0) {
           menuItem = this._getItem([{
             name: capitalize(collection),
-            items: this._current.profile[collection],
+            items: profile[collection],
             useName: true,
-            enabled: this._current.profile[collection]
-          }], 0, this._sanitizeID(this._current.profileName), "profiles/" + encodeURIComponent(this._current.profileName), 1);
+            enabled: profile[collection]
+          }], 0, this._sanitizeID(profileName), "profiles/" + encodeURIComponent(profileName), 1);
           let newNode = document.createElement("div");
           newNode.innerHTML = menuItem;
           if (m.replaceWith)
@@ -31852,27 +31953,29 @@ Devanagari
             m.parentNode.replaceChild(newNode.firstChild, m);
           else
             m.outerHTML = menuItem;
-          m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
+          m = this._menu.querySelector(`#${this._sanitizeID(profileName)}-${collection}`);
           this._profileEvents(m);
         } else {
-          menuItem = this._getItem(this._current.profile[collection], index, `${this._sanitizeID(this._current.profileName)}-${collection}`, `profiles/${encodeURIComponent(this._current.profileName)}/${collection}`, 2);
+          menuItem = this._getItem(profile[collection], index, `${this._sanitizeID(profileName)}-${collection}`, `profiles/${encodeURIComponent(profileName)}/${collection}`, 2);
           if (m.firstChild.dataset.lazy !== "true") {
             m = m.querySelector("ul");
             m.insertAdjacentHTML("beforeend", menuItem);
-            m = this._menu.querySelector(`#${this._sanitizeID(this._current.profileName)}-${collection}`);
+            m = this._menu.querySelector(`#${this._sanitizeID(profileName)}-${collection}`);
             this._profileEvents(m.lastChild);
           }
         }
-      this.loadPage(`profiles/${encodeURIComponent(this._current.profileName)}/${collection}/${index}`);
+      this.loadPage(`profiles/${encodeURIComponent(profileName)}/${collection}/${index}`);
       this.changed = true;
     }
-    _removeItem(index, collection, back) {
+    _removeItem(index, collection, back, profile) {
       if (!collection) collection = this._current.collection;
       if (!collection) return;
+      if (!profile) profile = this._current.profile;
+      let profileName = profile.name.toLowerCase();
       confirm_box(`Remove ${this._getItemType()}?`, `Delete ${this._getItemType()}?`).then((e) => {
         if (e.button === 4 /* Yes */) {
-          const id = `${this._sanitizeID(this._current.profileName)}-${collection}`;
-          const items = this._current.profile[collection];
+          const id = `${this._sanitizeID(profileName)}-${collection}`;
+          const items = profile[collection];
           items.splice(index, 1);
           this._menu.querySelector(`#${id}-${index}`).remove();
           if (this._current.itemIdx === -1)
@@ -31885,7 +31988,7 @@ Devanagari
           } else {
             const menuItems = this._menu.querySelector(`#${id} ul`);
             let i2 = menuItems.children.length;
-            const href = `#profiles/${encodeURIComponent(this._current.profileName)}/${collection}/`;
+            const href = `#profiles/${encodeURIComponent(profileName)}/${collection}/`;
             for (; index < i2; index++) {
               const item = menuItems.children[index];
               item.id = `${id}-${index}`;
@@ -31901,15 +32004,17 @@ Devanagari
         }
       });
     }
-    _removeItems(collection, back) {
+    _removeItems(collection, back, profile) {
       if (!collection) collection = this._current.collection;
       if (!collection) return;
+      if (!profile) profile = this._current.profile;
+      let profileName = profile.name.toLowerCase();
       let type = this._getItemType();
       type += type === "alias" ? "es" : "s";
       confirm_box(`Remove all ${type}?`, `Delete all ${type}?`).then((e) => {
         if (e.button === 4 /* Yes */) {
-          const id = `${this._sanitizeID(this._current.profileName)}-${collection}`;
-          this._current.profile[collection] = [];
+          const id = `${this._sanitizeID(profileName)}-${collection}`;
+          profile[collection] = [];
           this.setBody(this._page);
           this._menu.querySelector(`#${id} i`).remove();
           this._menu.querySelector(`#${id} a`).insertAdjacentHTML("afterbegin", '<i class="align-middle float-start no-icon"></i>');

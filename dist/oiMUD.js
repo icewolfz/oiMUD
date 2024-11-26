@@ -3914,6 +3914,58 @@
       return true;
     return false;
   }
+  function isArrayEqual(a, b) {
+    if (!a || !b)
+      return false;
+    if (a.length != b.length)
+      return false;
+    for (var i2 = 0, l2 = a.length; i2 < l2; i2++) {
+      if (Array.isArray(a[i2]) && Array.isArray(b[i2])) {
+        if (!isArrayEqual(a[i2], b[i2]))
+          return false;
+      } else if (a[i2] instanceof Object && b[i2] instanceof Object) {
+        if (!isObjectEqual(a[i2], b[i2]))
+          return false;
+      } else if (a[i2] !== b[i2]) {
+        return false;
+      }
+    }
+    return true;
+  }
+  function isObjectEqual(a, b) {
+    let propName;
+    if (a === b) return true;
+    if (a === null || b === null) return false;
+    if (Object.keys(a).length !== Object.keys(b).length) return false;
+    if (Array.isArray(a) || Array.isArray(b))
+      return isArrayEqual(a, b);
+    for (propName in a) {
+      if (a.hasOwnProperty(propName) != b.hasOwnProperty(propName)) {
+        return false;
+      } else if (typeof a[propName] != typeof b[propName]) {
+        return false;
+      }
+    }
+    for (propName in b) {
+      if (a.hasOwnProperty(propName) != b.hasOwnProperty(propName)) {
+        return false;
+      } else if (typeof a[propName] != typeof b[propName]) {
+        return false;
+      }
+      if (!a.hasOwnProperty(propName))
+        continue;
+      if (Array.isArray(a[propName]) && Array.isArray(b[propName])) {
+        if (!isArrayEqual(a[propName], b[propName]))
+          return false;
+      } else if (a[propName] instanceof Object && b[propName] instanceof Object) {
+        if (!isObjectEqual(a[propName], b[propName]))
+          return false;
+      } else if (a[propName] !== b[propName]) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   // src/core/telnet.ts
   var import_inflate_stream_min = __toESM(require_inflate_stream_min());
@@ -7250,6 +7302,10 @@
     }
     clone() {
       return new _Item(this);
+    }
+    equals(item) {
+      if (!item) return false;
+      return isObjectEqual(this, item);
     }
   };
   var Button = class _Button extends Item {

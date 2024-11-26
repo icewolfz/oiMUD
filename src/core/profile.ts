@@ -1,5 +1,5 @@
 //spell-checker:ignore displaytype, submenu, triggernewline, triggerprompt
-import { clone, keyCodeToChar, SortItemArrayByPriority, splitQuoted, isValidIdentifier } from './library';
+import { clone, keyCodeToChar, SortItemArrayByPriority, splitQuoted, isValidIdentifier, isObjectEqual } from './library';
 declare let localforage;
 
 export enum MacroModifiers {
@@ -315,6 +315,11 @@ export class Item {
 
     public clone() {
         return new Item(this);
+    }
+
+    public equals(item) {
+        if (!item) return false;
+        return isObjectEqual(this, item);
     }
 }
 

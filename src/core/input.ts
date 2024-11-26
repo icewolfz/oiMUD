@@ -2392,7 +2392,7 @@ export class Input extends EventEmitter {
                 this.client.saveProfiles();
                 this.client.clearCache();
                 if (item.new)
-                    this.emit('item-added', 'trigger', profile.name, trigger);
+                    this.emit('item-added', 'trigger', profile.name, profile.triggers.length - 1, trigger);
                 else
                     this.emit('item-updated', 'trigger', profile.name, profile.triggers.indexOf(trigger), trigger);
                 profile = null;
@@ -2634,7 +2634,7 @@ export class Input extends EventEmitter {
                 this.client.saveProfiles();
                 this.client.clearCache();
                 if (item.new)
-                    this.emit('item-added', 'button', profile.name, trigger);
+                    this.emit('item-added', 'button', profile.name, profile.buttons.length - 1, trigger);
                 else
                     this.emit('item-updated', 'button', profile.name, profile.buttons.indexOf(trigger), trigger);
                 profile = null;
@@ -2671,11 +2671,12 @@ export class Input extends EventEmitter {
                             this._echo('Button \'' + tmp + '\' removed.', -7, -8, true, true);
                         else
                             this._echo('Button \'' + (items[n].name || items[n].caption) + '\' removed.', -7, -8, true, true);
+                        trigger = items[n];
                         n = profile.buttons.indexOf(items[n]);
                         profile.buttons.splice(n, 1);
                         this.client.saveProfiles();
                         this.client.clearCache();
-                        this.emit('item-removed', 'button', profile.name, n);
+                        this.emit('item-removed', 'button', profile.name, n, trigger);
                         profile = null;
                     }
                 }
@@ -2725,7 +2726,7 @@ export class Input extends EventEmitter {
                     this._lastSuspend = -1;
                     this.client.updateAlarms();
                     this._echo('Alarm \'' + trigger.pattern + '\' added.', -7, -8, true, true);
-                    this.emit('item-added', 'trigger', profile.name, trigger);
+                    this.emit('item-added', 'trigger', profile.name, profile.triggers.length - 1, trigger);
                     profile = null;
                     return null;
                 }
@@ -2824,7 +2825,7 @@ export class Input extends EventEmitter {
                 this.client.saveProfiles();
                 this.client.clearCache();
                 if (n)
-                    this.emit('item-added', 'trigger', profile.name, trigger);
+                    this.emit('item-added', 'trigger', profile.name, profile.triggers.length - 1, trigger);
                 else
                     this.emit('item-updated', 'trigger', profile.name, profile.triggers.indexOf(trigger), trigger);
                 profile = null;
@@ -3197,7 +3198,7 @@ export class Input extends EventEmitter {
                         if (!f) {
                             tmp = new Alias(n, args);
                             items.push(tmp);
-                            this.emit('item-added', 'alias', profile.name, tmp);
+                            this.emit('item-added', 'alias', profile.name, items.length - 1, tmp);
                             this._echo('Alias \'' + n + '\' added.', -7, -8, true, true);
                         }
                     }
@@ -3236,11 +3237,12 @@ export class Input extends EventEmitter {
                         this._echo('Alias \'' + tmp + '\' not found.', -7, -8, true, true);
                     else {
                         this._echo('Alias \'' + items[n].pattern + '\' removed.', -7, -8, true, true);
+                        trigger = items[n];
                         items.splice(n, 1);
                         profile.aliases = items;
                         this.client.saveProfiles();
                         this.client.clearCache();
-                        this.emit('item-removed', 'alias', profile.name, n);
+                        this.emit('item-removed', 'alias', profile.name, n, trigger);
                         profile = null;
                     }
                 }
@@ -9059,7 +9061,7 @@ export class Input extends EventEmitter {
         if (reload)
             this.client.clearCache();
         if (isNew)
-            this.emit('item-added', 'trigger', (<Profile>profile).name, trigger);
+            this.emit('item-added', 'trigger', (<Profile>profile).name, trigger.triggers.length - 1, trigger);
         else
             this.emit('item-updated', 'trigger', (<Profile>profile).name, (<Profile>profile).triggers.indexOf(trigger), trigger);
         profile = null;

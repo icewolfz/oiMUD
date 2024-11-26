@@ -10784,7 +10784,7 @@
           this.client.saveProfiles();
           this.client.clearCache();
           if (item.new)
-            this.emit("item-added", "trigger", profile.name, trigger);
+            this.emit("item-added", "trigger", profile.name, profile.triggers.length - 1, trigger);
           else
             this.emit("item-updated", "trigger", profile.name, profile.triggers.indexOf(trigger), trigger);
           profile = null;
@@ -11005,7 +11005,7 @@
           this.client.saveProfiles();
           this.client.clearCache();
           if (item.new)
-            this.emit("item-added", "button", profile.name, trigger);
+            this.emit("item-added", "button", profile.name, profile.buttons.length - 1, trigger);
           else
             this.emit("item-updated", "button", profile.name, profile.buttons.indexOf(trigger), trigger);
           profile = null;
@@ -11039,11 +11039,12 @@
                 this._echo("Button '" + tmp + "' removed.", -7, -8, true, true);
               else
                 this._echo("Button '" + (items[n].name || items[n].caption) + "' removed.", -7, -8, true, true);
+              trigger = items[n];
               n = profile.buttons.indexOf(items[n]);
               profile.buttons.splice(n, 1);
               this.client.saveProfiles();
               this.client.clearCache();
-              this.emit("item-removed", "button", profile.name, n);
+              this.emit("item-removed", "button", profile.name, n, trigger);
               profile = null;
             }
           }
@@ -11088,7 +11089,7 @@
             this._lastSuspend = -1;
             this.client.updateAlarms();
             this._echo("Alarm '" + trigger.pattern + "' added.", -7, -8, true, true);
-            this.emit("item-added", "trigger", profile.name, trigger);
+            this.emit("item-added", "trigger", profile.name, profile.triggers.length - 1, trigger);
             profile = null;
             return null;
           }
@@ -11181,7 +11182,7 @@
           this.client.saveProfiles();
           this.client.clearCache();
           if (n)
-            this.emit("item-added", "trigger", profile.name, trigger);
+            this.emit("item-added", "trigger", profile.name, profile.triggers.length - 1, trigger);
           else
             this.emit("item-updated", "trigger", profile.name, profile.triggers.indexOf(trigger), trigger);
           profile = null;
@@ -11543,7 +11544,7 @@
               if (!f) {
                 tmp = new Alias(n, args);
                 items.push(tmp);
-                this.emit("item-added", "alias", profile.name, tmp);
+                this.emit("item-added", "alias", profile.name, items.length - 1, tmp);
                 this._echo("Alias '" + n + "' added.", -7, -8, true, true);
               }
             }
@@ -11581,11 +11582,12 @@
               this._echo("Alias '" + tmp + "' not found.", -7, -8, true, true);
             else {
               this._echo("Alias '" + items[n].pattern + "' removed.", -7, -8, true, true);
+              trigger = items[n];
               items.splice(n, 1);
               profile.aliases = items;
               this.client.saveProfiles();
               this.client.clearCache();
-              this.emit("item-removed", "alias", profile.name, n);
+              this.emit("item-removed", "alias", profile.name, n, trigger);
               profile = null;
             }
           }
@@ -16880,7 +16882,7 @@
       if (reload)
         this.client.clearCache();
       if (isNew)
-        this.emit("item-added", "trigger", profile.name, trigger);
+        this.emit("item-added", "trigger", profile.name, trigger.triggers.length - 1, trigger);
       else
         this.emit("item-updated", "trigger", profile.name, profile.triggers.indexOf(trigger), trigger);
       profile = null;
@@ -38461,14 +38463,14 @@ Devanagari
         this.emit("scroll-lock", lock);
       });
       this._input.on("command-history-changed", (history2) => this.emit("command-history-changed", history2));
-      this._input.on("item-added", (type, profile, item) => {
-        this.emit("item-added", type, profile, item);
+      this._input.on("item-added", (type, profile, idx, item) => {
+        this.emit("item-added", type, profile, idx, item);
       });
       this._input.on("item-updated", (type, profile, idx, item) => {
         this.emit("item-updated", type, profile, idx, item);
       });
-      this._input.on("item-removed", (type, profile, idx) => {
-        this.emit("item-removed", type, profile, idx);
+      this._input.on("item-removed", (type, profile, idx, item) => {
+        this.emit("item-removed", type, profile, idx, item);
       });
       this.loadOptions();
       this._commandInput.value = "";
@@ -38696,7 +38698,7 @@ Devanagari
         }
       }
       this.saveProfiles();
-      this.emit("item-removed", "trigger", keys[k], idx);
+      this.emit("item-removed", "trigger", keys[k], idx, trigger);
     }
     get alarms() {
       if (this._itemCache.alarms)
@@ -39058,7 +39060,7 @@ Devanagari
           if (changed) {
             if (this.getOption("saveTriggerStateChanges"))
               this.saveProfiles();
-            this.emit("item-updated", "trigger", parent.profile.name, parent.profile.triggers.indexOf(parent));
+            this.emit("item-updated", "trigger", parent.profile.name, parent.profile.triggers.indexOf(parent), parent);
           }
           if (!trigger.enabled) continue;
         }

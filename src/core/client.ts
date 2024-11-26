@@ -277,7 +277,7 @@ export class Client extends EventEmitter {
             }
         }
         this.saveProfiles();
-        this.emit('item-removed', 'trigger', keys[k], idx);
+        this.emit('item-removed', 'trigger', keys[k], idx, trigger);
     }
 
     get alarms(): Trigger[] {
@@ -688,7 +688,7 @@ export class Client extends EventEmitter {
                 if (changed) {
                     if (this.getOption('saveTriggerStateChanges'))
                         this.saveProfiles();
-                    this.emit('item-updated', 'trigger', parent.profile.name, parent.profile.triggers.indexOf(parent));
+                    this.emit('item-updated', 'trigger', parent.profile.name, parent.profile.triggers.indexOf(parent), parent);
                 }
                 //last check to be 100% sure enabled
                 if (!trigger.enabled) continue;
@@ -1108,16 +1108,16 @@ export class Client extends EventEmitter {
         });
         this._input.on('command-history-changed', history => this.emit('command-history-changed', history));
 
-        this._input.on('item-added', (type, profile, item) => {
-            this.emit('item-added', type, profile, item);
+        this._input.on('item-added', (type, profile, idx, item) => {
+            this.emit('item-added', type, profile, idx, item);
         });
 
         this._input.on('item-updated', (type, profile, idx, item) => {
             this.emit('item-updated', type, profile, idx, item);
         });
 
-        this._input.on('item-removed', (type, profile, idx) => {
-            this.emit('item-removed', type, profile, idx);
+        this._input.on('item-removed', (type, profile, idx, item) => {
+            this.emit('item-removed', type, profile, idx, item);
         });
         this.loadOptions();
         this._commandInput.value = '';

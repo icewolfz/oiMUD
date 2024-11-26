@@ -2263,6 +2263,50 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   border-bottom: 1px solid rgb(221, 221, 221);
 }
 
+/* src/css/profiles.search.css */
+.find {
+  z-index: 100;
+  display: none;
+  box-shadow: inset 0px -1px 0px white;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 5px;
+  padding: 0 5px 5px;
+  margin-left: -5px;
+  margin-right: -5px;
+}
+@media (orientation: landscape) and (max-width: 641px), (orientation: landscape) and (max-height: 480px), (orientation: portrait) and (max-width: 480px), (orientation: portrait) and (max-height: 641px) {
+  .find {
+    flex-wrap: wrap !important;
+  }
+}
+.find-count {
+  display: inline-block;
+  white-space: nowrap;
+  padding: 5px;
+}
+.find-case {
+  font-size: 10px;
+}
+.find-word {
+  text-decoration: overline underline;
+  font-size: 10px;
+}
+.find-highlight {
+  border-radius: 4px;
+  background: rgb(171, 102, 31);
+}
+.find-no-results {
+  color: #f08080;
+}
+.find-highlight.current {
+  border-radius: 4px;
+  background: rgb(116, 192, 114);
+  z-index: 10;
+}
+.find-selection {
+  display: none !important;
+}
+
 /* src/css/help.css */
 #help-toolbar {
   position: absolute;

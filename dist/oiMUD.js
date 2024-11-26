@@ -30334,10 +30334,340 @@ Devanagari
     }
   };
 
+  // src/interface/profilesdialog.search.ts
+  var ProfileSearch = class extends EventEmitter {
+    constructor(manager, parent) {
+      super();
+      this.parent = parent;
+      this.manager = manager;
+      this.createControl();
+      this._key = (e) => {
+        if (e.keyCode === 27) {
+          this.hide();
+        }
+      };
+      window.document.addEventListener("keyup", this._key.bind(this));
+      this._control.on("keydown", (e) => {
+        if (e.keyCode !== 8) return;
+        clearTimeout(this._timer);
+        this._timer = setTimeout(() => {
+          this.find(true);
+        }, this._regex ? 500 : 250);
+      });
+      this._control.on("keypress", () => {
+        clearTimeout(this._timer);
+        this._timer = setTimeout(() => {
+          this.find(true);
+        }, this._regex ? 500 : 250);
+      });
+      this._control.on("paste", (e) => {
+        clearTimeout(this._timer);
+        this._timer = setTimeout(() => {
+          this.find(true);
+        }, this._regex ? 500 : 250);
+      });
+      this._control.on("cut", (e) => {
+        clearTimeout(this._timer);
+        this._timer = setTimeout(() => {
+          this.find(true);
+        }, this._regex ? 500 : 250);
+      });
+    }
+    get id() {
+      if (!this.parent) return "";
+      return this.parent.id;
+    }
+    set parent(parent) {
+      if (typeof parent === "string") {
+        if (parent.startsWith("#"))
+          this.$parent = document.getElementById(parent.substr(1));
+        else
+          this.$parent = document.getElementById(parent);
+      } else if (parent instanceof $)
+        this.$parent = parent[0];
+      else if (parent instanceof HTMLElement)
+        this.$parent = parent;
+      if (!this.$parent)
+        this.$parent = document.body;
+    }
+    get parent() {
+      return this.$parent;
+    }
+    get MatchCase() {
+      return this._case;
+    }
+    set MatchCase(value) {
+      if (value !== this._case) {
+        this._case = value;
+        if (this._case)
+          $("#" + this.id + "-find-case", this._control).addClass("active");
+        else
+          $("#" + this.id + "-find-case", this._control).removeClass("active");
+        this.find(true);
+        this.emit("case");
+      }
+    }
+    get RegularExpression() {
+      return this._regex;
+    }
+    set RegularExpression(value) {
+      if (value !== this._regex) {
+        this._regex = value;
+        if (this._regex)
+          $("#" + this.id + "-find-regex", this._control).addClass("active");
+        else
+          $("#" + this.id + "-find-regex", this._control).removeClass("active");
+        this.find(true);
+        this.emit("regex");
+      }
+    }
+    get MatchWord() {
+      return this._word;
+    }
+    set MatchWord(value) {
+      if (value !== this._word) {
+        this._word = value;
+        if (this._word)
+          $("#" + this.id + "-find-word", this._control).addClass("active");
+        else
+          $("#" + this.id + "-find-word", this._control).removeClass("active");
+        this.find(true);
+        this.emit("word");
+      }
+    }
+    get Reverse() {
+      return this._reverse;
+    }
+    set Reverse(value) {
+      if (value !== this._reverse) {
+        this._reverse = value;
+        if (this._reverse) {
+          $("#" + this.id + "-find-reverse", this._control).addClass("active");
+          $("#" + this.id + "-find-next", this._control).html('<i class="bi bi-arrow-up"></i>');
+          $("#" + this.id + "-find-prev", this._control).html('<i class="bi bi-arrow-down"></i>');
+        } else {
+          $("#" + this.id + "-find-reverse", this._control).removeClass("active");
+          $("#" + this.id + "-find-next", this._control).html('<i class="bi bi-arrow-down"></i>');
+          $("#" + this.id + "-find-prev", this._control).html('<i class="bi bi-arrow-up"></i>');
+        }
+        this._position = this._results.length - this._position - 1;
+        this.updateButtons();
+        this.updateCount();
+        this.find(true);
+        this.emit("reverse");
+      }
+    }
+    get SearchValue() {
+      return this._value;
+    }
+    set SearchValue(value) {
+      if (value !== this._value) {
+        this._value = value;
+        if (this._value)
+          $("#" + this.id + "-find-value", this._control).addClass("active");
+        else
+          $("#" + this.id + "-find-value", this._control).removeClass("active");
+        this.find(true);
+        this.emit("value");
+      }
+    }
+    createControl() {
+      this._control = $('<div id="' + this.id + '-find" class="find"><div class="input-group flex-grow-1" style="width: auto;"><input placeholder="Find" class="form-control" /><button id="' + this.id + '-find-case" title="Match Case" class="find-case btn btn-outline-secondary">Aa</button><button id="' + this.id + '-find-word" title="Match Whole Word" class="find-word btn btn-outline-secondary">Aa|</button><button id="' + this.id + '-find-regex" title="Use Regular Expression" class="find-regex btn btn-outline-secondary">.*</button><button id="' + this.id + '-find-value" title="Search values" class="find-value btn btn-outline-secondary"><i class="bi bi-code"></i></button></div><div id="' + this.id + '-find-count" class="find-count flex-grow-1"></div><div class="btn-group me-1" role="group" aria-label="Find navigation"><button id="' + this.id + '-find-prev" title="Previous Match" disabled="disabled" class="find-prev btn btn-outline-secondary"><i class="bi bi-arrow-up"></i></button><button id="' + this.id + '-find-next" title="Next Match" disabled="disabled" class="find-next btn btn-outline-secondary"><i class="bi bi-arrow-down"></i></button><button id="' + this.id + '-find-selection" title="Find in selection" disabled="disabled" class="find-selection btn btn-outline-secondary"><i class="fa fa-align-left"></i></button><button id="' + this.id + '-find-reverse" title="Search Up" class="find-reverse btn btn-outline-secondary"><i class="bi bi-caret-up-fill"></i></button></div><button id="' + this.id + '-find-close" title="Close" class="find-close btn btn-danger"><i class="bi bi-x-lg"></i></button></div>');
+      $("#" + this.id + "-find-close", this._control).on("click", () => {
+        this.hide();
+      });
+      $("#" + this.id + "-find-prev", this._control).on("click", () => {
+        this.gotoPrevious();
+      });
+      $("#" + this.id + "-find-next", this._control).on("click", () => {
+        this.gotoNext();
+      });
+      $("#" + this.id + "-find-case", this._control).on("click", () => {
+        this.MatchCase = !this.MatchCase;
+      });
+      $("#" + this.id + "-find-word", this._control).on("click", () => {
+        this.MatchWord = !this.MatchWord;
+      });
+      $("#" + this.id + "-find-reverse", this._control).on("click", () => {
+        this.Reverse = !this.Reverse;
+      });
+      $("#" + this.id + "-find-regex", this._control).on("click", () => {
+        this.RegularExpression = !this.RegularExpression;
+      });
+      $("#" + this.id + "-find-value", this._control).on("click", () => {
+        this.SearchValue = !this.SearchValue;
+      });
+      this.$parent.insertAdjacentElement("afterbegin", this._control[0]);
+    }
+    show(selection) {
+      this._control.css("display", "flex");
+      if (selection && selection.length)
+        $("input", this._control).val(selection);
+      $("input", this._control).focus().select();
+      this.find();
+      this.emit("shown");
+    }
+    get open() {
+      return this._control.css("display") !== "none";
+    }
+    hide() {
+      this._control.css("display", "none");
+      $("input", this._control).val("");
+      this.clear();
+      this.emit("closed");
+    }
+    find(focus) {
+      const val = $("input", this._control).val();
+      this.clear();
+      if (val.length === 0) {
+        this.updateCount();
+        this.emit("found-results", this._results);
+        return;
+      }
+      if (!this.manager.profiles.length) {
+        this.updateCount();
+        this.emit("found-results", this._results);
+        return;
+      }
+      let pattern;
+      if (this._regex)
+        pattern = val;
+      else
+        pattern = val.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+      let re;
+      if (this._word)
+        pattern = "\\b" + pattern + "\\b";
+      if (this._case)
+        re = new RegExp(pattern, "g");
+      else
+        re = new RegExp(pattern, "gi");
+      let items = [];
+      let m;
+      let i2;
+      let il;
+      let item;
+      const profiles = Object.values(this.manager.profiles.items);
+      for (let p = 0, pl = profiles.length; p < pl; p++) {
+        let profile = profiles[p];
+        m = re.exec(profile.name);
+        const key = "profiles/" + encodeURIComponent(profile.name.toLowerCase());
+        if (m) {
+          items.push({
+            key
+          });
+        }
+        il = profile.aliases.length;
+        for (i2 = 0; i2 < il; i2++) {
+          item = profile.aliases[i2];
+          if (this.matchItem(re, item) || re.exec(item.pattern))
+            items.push({ key: key + "/aliases/" + i2 });
+        }
+        il = profile.macros.length;
+        for (i2 = 0; i2 < il; i2++) {
+          item = profile.macros[i2];
+          if (this.matchItem(re, item))
+            items.push({ key: key + "/macros/" + i2 });
+        }
+        il = profile.triggers.length;
+        for (i2 = 0; i2 < il; i2++) {
+          item = profile.triggers[i2];
+          if (this.matchItem(re, item) || re.exec(item.pattern))
+            items.push({ key: key + "/triggers/" + i2 });
+          else if (item.triggers.length) {
+            for (let t = 0, tl = item.triggers.length; t < tl; t++)
+              if (this.matchItem(re, item.triggers[t]) || re.exec(item.triggers[t].pattern))
+                items.push({ key: `${key}/triggers/${i2}/${t + 1}` });
+          }
+        }
+        il = profile.buttons.length;
+        for (i2 = 0; i2 < il; i2++) {
+          item = profile.buttons[i2];
+          if (this.matchItem(re, item) || re.exec(item.caption))
+            items.push({ key: key + "/buttons/" + i2 });
+        }
+        il = profile.contexts.length;
+        for (i2 = 0; i2 < il; i2++) {
+          item = profile.contexts[i2];
+          if (this.matchItem(re, item) || re.exec(item.caption))
+            items.push({ key: key + "/contexts/" + i2 });
+        }
+      }
+      this._results.push.apply(this._results, items);
+      if (this.Reverse)
+        this._results.reverse();
+      this.gotoResult(0, focus);
+      this.emit("found-results", this._results);
+    }
+    matchItem(re, item) {
+      if (re.exec(item.name))
+        return true;
+      if (re.exec(GetDisplay(item)))
+        return true;
+      if (this._value && re.exec(item.value))
+        return true;
+      return false;
+    }
+    gotoNext() {
+      this._position++;
+      this.gotoResult(this._position, true);
+    }
+    gotoPrevious() {
+      this._position--;
+      this.gotoResult(this._position, true);
+    }
+    gotoCurrent() {
+      this.gotoResult(this._position, true);
+    }
+    gotoResult(idx, focus) {
+      if (!this.manager.profiles.length) return;
+      if (idx < 0) idx = 0;
+      if (idx >= this._results.length)
+        idx = this._results.length - 1;
+      this._position = idx;
+      this.updateCount();
+      if (this._results.length > 0) {
+        const r = this._results[idx];
+        this.manager.loadPage(r.key);
+      }
+      setTimeout(() => {
+        this.emit("moved", this._position, idx);
+      }, 0);
+      this.updateButtons();
+    }
+    clear() {
+      this._results = [];
+      this._position = 0;
+      this.updateButtons();
+      this.emit("reset");
+    }
+    updateButtons() {
+      if (this._position >= this._results.length - 1)
+        $("#" + this.id + "-find-next", this._control).prop("disabled", true);
+      else
+        $("#" + this.id + "-find-next", this._control).prop("disabled", false);
+      if (this._position === 0 || this._results.length === 0)
+        $("#" + this.id + "-find-prev", this._control).prop("disabled", true);
+      else
+        $("#" + this.id + "-find-prev", this._control).prop("disabled", false);
+    }
+    updateCount() {
+      if (this._results.length === 0)
+        $("#" + this.id + "-find-count", this._control).html("<span class='find-no-results'>No Results</span>");
+      else if (this._results.length > 999)
+        $("#" + this.id + "-find-count", this._control).html(this._position + 1 + " of 999+");
+      else
+        $("#" + this.id + "-find-count", this._control).html(this._position + 1 + " of " + this._results.length);
+    }
+    dispose() {
+      this._control.remove();
+      window.document.removeEventListener("keyup", this._key);
+    }
+  };
+
   // src/interface/profilesdialog.ts
-  var ProfilesDialog = class extends Dialog {
+  var ProfilesDialog2 = class extends Dialog {
     constructor() {
-      super(Object.assign({}, client.getWindowState("profiles") || { center: true }, { title: '<i class="fas fa-users"></i> Profiles', minWidth: 500, minHeight: 350 }));
+      super(Object.assign({}, client.getWindowState("profiles") || { center: true }, { id: "profiles", title: '<i class="fas fa-users"></i> Profiles', minWidth: 550, minHeight: 350 }));
       this._profilesChanged = false;
       this._current = {
         profile: null,
@@ -30416,6 +30746,8 @@ Devanagari
       footer += "</ul>";
       footer += `<button id="btn-profile-edit-menu" class="btn-sm float-start btn btn-outline-secondary" type="button" aria-controls="edit-menu" title="Show edit menu" data-bs-toggle="dropdown" aria-expanded="false" style="margin-right: 4px;"><i class="bi bi-pencil-square"></i></button>`;
       footer += `<ul id="${this.id}-edit-menu" class="dropdown-menu" style="overflow: auto;">`;
+      footer += `<li id="${this.id}-find"><a class="dropdown-item">Find <span class="float-end" style="padding-left: 40px;">Ctrl+F</span></a></li>`;
+      footer += `<li id="${this.id}-find-div"><hr class="dropdown-divider"></li>`;
       footer += `<li id="${this.id}-cut"><a class="dropdown-item">Cut <span class="float-end" style="padding-left: 40px;">Ctrl+X</span></a></li>`;
       footer += `<li id="${this.id}-copy"><a class="dropdown-item">Copy <span class="float-end" style="padding-left: 40px;">Ctrl+C</span></a></li>`;
       footer += `<li id="${this.id}-paste"><a class="dropdown-item">Paste <span class="float-end" style="padding-left: 40px;">Ctrl+V</span></a></li>`;
@@ -30424,6 +30756,7 @@ Devanagari
       footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Close dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;
       footer += `<button id="${this.id}-save" type="button" class="btn-sm float-end btn btn-primary" title="Save changes" disabled><i class="bi bi-save"></i><span class="icon-only"> Save</span></button>`;
       footer += `<button id="${this.id}-apply" type="button" class="btn-sm float-end btn btn-secondary" title="Apply changes" disabled><i class="bi bi-check-lg"></i><span class="icon-only"> Apply</span></button>`;
+      this.footer.id = "profiles-footer";
       this.footer.innerHTML = footer;
       this.footer.classList.add("dropup");
       document.getElementById("btn-profile-menu").addEventListener("shown.bs.dropdown", () => {
@@ -30455,6 +30788,9 @@ Devanagari
       });
       this.footer.querySelector(`#${this.id}-paste`).addEventListener("click", () => {
         this._paste();
+      });
+      this.footer.querySelector(`#${this.id}-find`).addEventListener("click", () => {
+        this._search.show();
       });
       this.on("closed", () => {
         this._client.setOption("windows.profiles", this.windowState);
@@ -30578,6 +30914,16 @@ Devanagari
       });
       this.dialog.addEventListener("keydown", (e) => {
         if (e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+          if (e.code === "KeyF") {
+            const sOpen = this._search.open;
+            this._search.show();
+            if (!sOpen) {
+              e.preventDefault();
+              e.returnValue = false;
+              return false;
+            }
+            return true;
+          }
           if (document.activeElement) {
             if (document.activeElement.nodeName === "TEXTAREA" || document.activeElement.isContentEditable)
               return;
@@ -30601,6 +30947,35 @@ Devanagari
             return false;
           }
         }
+      });
+      this._search = new ProfileSearch(this, this.footer);
+      this._search.MatchCase = this._client.getOption("profiles.find.case");
+      this._search.MatchWord = this._client.getOption("profiles.find.word");
+      this._search.Reverse = this._client.getOption("profiles.find.reverse");
+      this._search.RegularExpression = this._client.getOption("profiles.find.regex");
+      this._search.SearchValue = this._client.getOption("profiles.find.value");
+      if (this._client.getOption("profiles.find.show"))
+        this._search.show();
+      this._search.on("word", () => {
+        this._client.setOption("profiles.find.word", this._search.MatchWord);
+      });
+      this._search.on("case", () => {
+        this._client.setOption("profiles.find.case", this._search.MatchCase);
+      });
+      this._search.on("reverse", () => {
+        this._client.setOption("profiles.find.reverse", this._search.Reverse);
+      });
+      this._search.on("regex", () => {
+        this._client.setOption("profiles.find.regex", this._search.RegularExpression);
+      });
+      this._search.on("value", () => {
+        this._client.setOption("profiles.find.value", this._search.SearchValue);
+      });
+      this._search.on("shown", () => {
+        this._client.setOption("profiles.find.show", true);
+      });
+      this._search.on("closed", () => {
+        this._client.setOption("profiles.find.show", false);
       });
     }
     set errorField(value) {
@@ -30953,7 +31328,7 @@ Devanagari
           p += `<button id="${this.id}-add-contents" type="button" class="btn-sm float-start btn btn-outline-secondary" title="Add ${this._getItemType()}"><i class="bi bi-plus-lg"></i> Add ${this._getItemType()}</button>`;
           this.footer.querySelector(`#${this.id}-cut`).style.display = "none";
           this.footer.querySelector(`#${this.id}-copy`).style.display = "none";
-          this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this._clip ? "" : "none";
+          this._updateEditMenu();
         } else {
           p = "";
           for (k = 0, kl = this._current.item.length; k < kl; k++) {
@@ -31286,9 +31661,9 @@ Devanagari
       }
       const pages = this._page.split("/");
       if (pages.length === 5)
-        updateHash(pages.slice(0, pages.length - 2).join("/"), this._page);
+        this.loadPage(pages.slice(0, pages.length - 2).join("/"));
       else
-        updateHash(pages.slice(0, pages.length - 1).join("/"), this._page);
+        this.loadPage(pages.slice(0, pages.length - 1).join("/"));
     }
     _createProfile(defaults) {
       let i2 = this.profiles.length;
@@ -31310,7 +31685,7 @@ Devanagari
       menu.children[i2].insertAdjacentHTML("afterend", menuItem);
       this._profileEvents(menu.children[i2 + 1]);
       this.changed = true;
-      updateHash("profiles/" + name2, this._page);
+      this.loadPage("profiles/" + name2);
     }
     _deleteProfile(profile) {
       if (!profile) return false;
@@ -31319,7 +31694,7 @@ Devanagari
           this.profiles.remove(profile);
           this._menu.querySelector("#" + profile).remove();
           if (this._page.startsWith("profiles/" + profile))
-            updateHash("profiles", this._page);
+            this.loadPage("profiles");
           this.changed = true;
         }
       });
@@ -31517,7 +31892,7 @@ Devanagari
             this._profileEvents(m.lastChild);
           }
         }
-      updateHash(`profiles/${encodeURIComponent(this._current.profileName)}/${collection}/${index}`, this._page);
+      this.loadPage(`profiles/${encodeURIComponent(this._current.profileName)}/${collection}/${index}`);
       this.changed = true;
     }
     _removeItem(index, collection, back) {
@@ -31703,7 +32078,7 @@ Devanagari
     }
     _updateEditMenu() {
       this.footer.querySelector(`#${this.id}-paste`).style.display = this._clip && (this._clip.action === 1 /* copy */ || this._clip.profileName !== this._current.profileName || this._clip.type === "profile") ? "" : "none";
-      this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this.footer.querySelector(`#${this.id}-paste`).style.display === "none" && this.footer.querySelector(`#${this.id}-cut`).style.display === "none" && this.footer.querySelector(`#${this.id}-copy`).style.display === "none" ? "none" : "";
+      this.footer.querySelector(`#${this.id}-find-div`).style.display = this.footer.querySelector(`#${this.id}-paste`).style.display === "none" && this.footer.querySelector(`#${this.id}-cut`).style.display === "none" && this.footer.querySelector(`#${this.id}-copy`).style.display === "none" ? "none" : "";
     }
     setValue(obj, prop, value) {
       if (value == "false") value = false;
@@ -31758,6 +32133,9 @@ Devanagari
         i2++;
       }
       return n;
+    }
+    loadPage(page) {
+      updateHash(page, this._page);
     }
   };
   function GetDisplay(arr) {
@@ -32990,7 +33368,7 @@ Devanagari
     }
     if (name2.startsWith("profiles")) {
       if (!_dialogs.profiles) {
-        _dialogs.profiles = new ProfilesDialog();
+        _dialogs.profiles = new ProfilesDialog2();
         _dialogs.profiles.on("closed", () => {
           _dialogs.profiles.removeAllListeners();
           delete _dialogs.profiles;
@@ -36936,6 +37314,24 @@ Devanagari
             }
             data.settings[props[p]] = prop;
           }
+          if (!data.settings["profiles"])
+            data.settings["profiles"] = { "find": {} };
+          else if (!data.settings["profiles"]["find"])
+            data.settings["profiles"]["find"] = {};
+          data.settings["profiles"]["find"].case = Settings.getValue("profiles.find.case");
+          data.settings["profiles"]["find"].word = Settings.getValue("profiles.find.word");
+          data.settings["profiles"]["find"].reverse = Settings.getValue("profiles.find.reverse");
+          data.settings["profiles"]["find"].regex = Settings.getValue("profiles.find.regex");
+          data.settings["profiles"]["find"].selection = Settings.getValue("profiles.find.selection");
+          data.settings["profiles"]["find"].show = Settings.getValue("profiles.find.show");
+          data.settings["profiles"]["find"].value = Settings.getValue("profiles.find.value");
+          delete data.settings["profiles.find.case"];
+          delete data.settings["profiles.find.word"];
+          delete data.settings["profiles.find.reverse"];
+          delete data.settings["profiles.find.regex"];
+          delete data.settings["profiles.find.selection"];
+          delete data.settings["profiles.find.show"];
+          delete data.settings["profiles.find.value"];
         }
         let jData = JSON.stringify(data);
         jData = LZString.compressToEncodedURIComponent(jData);
@@ -37183,7 +37579,7 @@ Devanagari
             if (!data.settings.hasOwnProperty(prop)) {
               continue;
             }
-            if (prop.startsWith("profiles.") || prop.startsWith("codeEditor.") || prop.startsWith("buttons.") || prop.startsWith("find.") || prop.startsWith("extensions.") || prop.startsWith("windows."))
+            if (prop.startsWith("profiles.") || prop.startsWith("codeEditor.") || prop.startsWith("buttons.") || prop.startsWith("find.") || prop.startsWith("extensions.") || prop.startsWith("windows.") || prop.startsWith("profiles."))
               continue;
             this.client.setOption(prop, data.settings[prop]);
           }
@@ -37208,6 +37604,15 @@ Devanagari
             for (k = keys.length - 1; k >= 0; k--) {
               this.client.setOption(`${props[p]}.${keys[k]}`, data.settings[props[p]][keys[k]]);
             }
+          }
+          if (data.settings.profiles && data.settings.profiles.find) {
+            this.client.setOption(`profiles.find.case`, data.settings.profiles.find.case);
+            this.client.setOption(`profiles.find.word`, data.settings.profiles.find.word);
+            this.client.setOption(`profiles.find.reverse`, data.settings.profiles.find.reverse);
+            this.client.setOption(`profiles.find.regex`, data.settings.profiles.find.regex);
+            this.client.setOption(`profiles.find.selection`, data.settings.profiles.find.selection);
+            this.client.setOption(`profiles.find.show`, data.settings.profiles.find.show);
+            this.client.setOption(`profiles.find.value`, data.settings.profiles.find.value);
           }
           this.client.clearCache();
           this.client.loadOptions();

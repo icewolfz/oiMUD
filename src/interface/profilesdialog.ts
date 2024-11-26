@@ -6,6 +6,7 @@ import { capitalize, openFileDialog, readFile, keyCodeToChar, keyCharToCode, scr
 import { removeHash, updateHash } from './interface';
 import { ProfileCollection, MacroDisplay, Profile, Alias, Trigger, Button, Macro, Context } from '../core/profile';
 import { buildBreadcrumb } from './breadcrumb';
+import { ProfileSearch } from './profilesdialog.search';
 
 declare let confirm_box;
 declare let fileSaveAs;
@@ -38,6 +39,7 @@ export class ProfilesDialog extends Dialog {
     private _small: boolean = false;
     private _clip;
     private _clipId;
+    private _search;
 
     public set errorField(value) {
         this._errorField = value;
@@ -58,7 +60,7 @@ export class ProfilesDialog extends Dialog {
     public get contents() { return this._contents; }
 
     constructor() {
-        super(Object.assign({}, client.getWindowState('profiles') || { center: true }, { title: '<i class="fas fa-users"></i> Profiles', minWidth: 500, minHeight: 350 }));
+        super(Object.assign({}, client.getWindowState('profiles') || { center: true }, { id: 'profiles', title: '<i class="fas fa-users"></i> Profiles', minWidth: 550, minHeight: 350 }));
         this._client = client;
         this.on('resized', e => {
             this._updateSmall(e.width);
@@ -126,8 +128,8 @@ export class ProfilesDialog extends Dialog {
         footer += '</ul>';
         footer += `<button id="btn-profile-edit-menu" class="btn-sm float-start btn btn-outline-secondary" type="button" aria-controls="edit-menu" title="Show edit menu" data-bs-toggle="dropdown" aria-expanded="false" style="margin-right: 4px;"><i class="bi bi-pencil-square"></i></button>`;
         footer += `<ul id="${this.id}-edit-menu" class="dropdown-menu" style="overflow: auto;">`;
-        //footer += `<li id="${this.id}-find"><a class="dropdown-item">Find</a></li>`;
-        //footer += '<li><hr class="dropdown-divider"></li>';
+        footer += `<li id="${this.id}-find"><a class="dropdown-item">Find <span class="float-end" style="padding-left: 40px;">Ctrl+F</span></a></li>`;
+        footer += `<li id="${this.id}-find-div"><hr class="dropdown-divider"></li>`;
         footer += `<li id="${this.id}-cut"><a class="dropdown-item">Cut <span class="float-end" style="padding-left: 40px;">Ctrl+X</span></a></li>`;
         footer += `<li id="${this.id}-copy"><a class="dropdown-item">Copy <span class="float-end" style="padding-left: 40px;">Ctrl+C</span></a></li>`;
         footer += `<li id="${this.id}-paste"><a class="dropdown-item">Paste <span class="float-end" style="padding-left: 40px;">Ctrl+V</span></a></li>`;
@@ -136,6 +138,7 @@ export class ProfilesDialog extends Dialog {
         footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Close dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;
         footer += `<button id="${this.id}-save" type="button" class="btn-sm float-end btn btn-primary" title="Save changes" disabled><i class="bi bi-save"></i><span class="icon-only"> Save</span></button>`;
         footer += `<button id="${this.id}-apply" type="button" class="btn-sm float-end btn btn-secondary" title="Apply changes" disabled><i class="bi bi-check-lg"></i><span class="icon-only"> Apply</span></button>`;
+        this.footer.id = 'profiles-footer';
         this.footer.innerHTML = footer;
         this.footer.classList.add('dropup');
 
@@ -170,7 +173,9 @@ export class ProfilesDialog extends Dialog {
         this.footer.querySelector(`#${this.id}-paste`).addEventListener('click', () => {
             this._paste();
         });
-
+        this.footer.querySelector(`#${this.id}-find`).addEventListener('click', () => {
+            this._search.show();
+        });
         this.on('closed', () => {
             this._client.setOption('windows.profiles', this.windowState);
             removeHash(this._page);
@@ -301,6 +306,17 @@ export class ProfilesDialog extends Dialog {
         });
         this.dialog.addEventListener('keydown', e => {
             if (e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+                if (e.code === 'KeyF') {
+                    const sOpen = this._search.open;
+                    this._search.show();
+                    //if it was not open prevent browser find open for first time
+                    if (!sOpen) {
+                        e.preventDefault();
+                        e.returnValue = false;
+                        return false;
+                    }
+                    return true;
+                }
                 if (document.activeElement) {
                     if (document.activeElement.nodeName === 'TEXTAREA' || (document.activeElement as HTMLElement).isContentEditable)
                         return;
@@ -327,6 +343,35 @@ export class ProfilesDialog extends Dialog {
                 }
             }
 
+        });
+        this._search = new ProfileSearch(this, this.footer);
+        this._search.MatchCase = this._client.getOption('profiles.find.case');
+        this._search.MatchWord = this._client.getOption('profiles.find.word');
+        this._search.Reverse = this._client.getOption('profiles.find.reverse');
+        this._search.RegularExpression = this._client.getOption('profiles.find.regex');
+        this._search.SearchValue = this._client.getOption('profiles.find.value');
+        if (this._client.getOption('profiles.find.show'))
+            this._search.show();
+        this._search.on('word', () => {
+            this._client.setOption('profiles.find.word', this._search.MatchWord);
+        });
+        this._search.on('case', () => {
+            this._client.setOption('profiles.find.case', this._search.MatchCase);
+        });
+        this._search.on('reverse', () => {
+            this._client.setOption('profiles.find.reverse', this._search.Reverse);
+        });
+        this._search.on('regex', () => {
+            this._client.setOption('profiles.find.regex', this._search.RegularExpression);
+        });
+        this._search.on('value', () => {
+            this._client.setOption('profiles.find.value', this._search.SearchValue);
+        });
+        this._search.on('shown', () => {
+            this._client.setOption('profiles.find.show', true);
+        });
+        this._search.on('closed', () => {
+            this._client.setOption('profiles.find.show', false);
         });
     }
 
@@ -676,7 +721,7 @@ export class ProfilesDialog extends Dialog {
                 p += `<button id="${this.id}-add-contents" type="button" class="btn-sm float-start btn btn-outline-secondary" title="Add ${this._getItemType()}"><i class="bi bi-plus-lg"></i> Add ${this._getItemType()}</button>`;
                 this.footer.querySelector(`#${this.id}-cut`).style.display = 'none';
                 this.footer.querySelector(`#${this.id}-copy`).style.display = 'none';
-                this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this._clip ? '' : 'none';
+                this._updateEditMenu();
             }
             else {
                 p = '';
@@ -1034,9 +1079,9 @@ export class ProfilesDialog extends Dialog {
         }
         const pages = this._page.split('/');
         if (pages.length === 5)
-            updateHash(pages.slice(0, pages.length - 2).join('/'), this._page);
+            this.loadPage(pages.slice(0, pages.length - 2).join('/'));
         else
-            updateHash(pages.slice(0, pages.length - 1).join('/'), this._page);
+            this.loadPage(pages.slice(0, pages.length - 1).join('/'));
     }
 
     private _createProfile(defaults: boolean) {
@@ -1059,7 +1104,7 @@ export class ProfilesDialog extends Dialog {
         menu.children[i].insertAdjacentHTML("afterend", menuItem);
         this._profileEvents(menu.children[i + 1]);
         this.changed = true;
-        updateHash('profiles/' + name, this._page);
+        this.loadPage('profiles/' + name);
     }
 
     private _deleteProfile(profile) {
@@ -1069,7 +1114,7 @@ export class ProfilesDialog extends Dialog {
                 this.profiles.remove(profile);
                 this._menu.querySelector('#' + profile).remove();
                 if (this._page.startsWith('profiles/' + profile))
-                    updateHash('profiles', this._page);
+                    this.loadPage('profiles');
                 this.changed = true;
             }
         });
@@ -1283,7 +1328,7 @@ export class ProfilesDialog extends Dialog {
                     this._profileEvents(m.lastChild);
                 }
             }
-        updateHash(`profiles/${encodeURIComponent(this._current.profileName)}/${collection}/${index}`, this._page);
+        this.loadPage(`profiles/${encodeURIComponent(this._current.profileName)}/${collection}/${index}`);
         this.changed = true;
     }
 
@@ -1367,14 +1412,13 @@ export class ProfilesDialog extends Dialog {
         this._clip = data || this._getClipData();
         this._clip.action = ClipAction.copy;
         this._updateEditMenu();
-        
     }
 
     private _cutItem(data?) {
         this._resetClip();
         this._clip = data || this._getClipData();
         this._clip.action = ClipAction.cut;
-        this._updateEditMenu();        
+        this._updateEditMenu();
         if (this._clip.type.endsWith('s') && !this._clip.collection)
             this._clipId = `${this._sanitizeID(this._clip.profileName)}-${this._clip.type}`;
         else if (this._clip.type === 'profile')
@@ -1488,7 +1532,7 @@ export class ProfilesDialog extends Dialog {
 
     private _updateEditMenu() {
         this.footer.querySelector(`#${this.id}-paste`).style.display = this._clip && (this._clip.action === ClipAction.copy || this._clip.profileName !== this._current.profileName || this._clip.type === 'profile') ? '' : 'none';
-        this.footer.querySelector(`#btn-profile-edit-menu`).style.display = this.footer.querySelector(`#${this.id}-paste`).style.display === 'none' && this.footer.querySelector(`#${this.id}-cut`).style.display === 'none' && this.footer.querySelector(`#${this.id}-copy`).style.display === 'none' ? 'none' : '';
+        this.footer.querySelector(`#${this.id}-find-div`).style.display = this.footer.querySelector(`#${this.id}-paste`).style.display === 'none' && this.footer.querySelector(`#${this.id}-cut`).style.display === 'none' && this.footer.querySelector(`#${this.id}-copy`).style.display === 'none' ? 'none' : '';
     }
 
     public setValue(obj, prop, value) {
@@ -1548,6 +1592,10 @@ export class ProfilesDialog extends Dialog {
             i++;
         }
         return n
+    }
+
+    public loadPage(page) {
+        updateHash(page, this._page);
     }
 }
 

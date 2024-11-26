@@ -163,6 +163,25 @@ export class Backup extends EventEmitter {
                     }
                     data.settings[props[p]] = prop;
                 }
+                if (!data.settings['profiles'])
+                    data.settings['profiles'] = { 'find': {} }
+                else if (!data.settings['profiles']['find'])
+                    data.settings['profiles']['find'] = {};
+                //convert to object instead of flat style
+                data.settings['profiles']['find'].case = Settings.getValue('profiles.find.case');
+                data.settings['profiles']['find'].word = Settings.getValue('profiles.find.word');
+                data.settings['profiles']['find'].reverse = Settings.getValue('profiles.find.reverse');
+                data.settings['profiles']['find'].regex = Settings.getValue('profiles.find.regex');
+                data.settings['profiles']['find'].selection = Settings.getValue('profiles.find.selection');
+                data.settings['profiles']['find'].show = Settings.getValue('profiles.find.show');
+                data.settings['profiles']['find'].value = Settings.getValue('profiles.find.value');
+                delete data.settings['profiles.find.case'];
+                delete data.settings['profiles.find.word'];
+                delete data.settings['profiles.find.reverse'];
+                delete data.settings['profiles.find.regex'];
+                delete data.settings['profiles.find.selection'];
+                delete data.settings['profiles.find.show'];
+                delete data.settings['profiles.find.value'];
             }
 
             let jData = JSON.stringify(data);
@@ -424,7 +443,7 @@ export class Backup extends EventEmitter {
                     if (!data.settings.hasOwnProperty(prop)) {
                         continue;
                     }
-                    if (prop.startsWith('profiles.') || prop.startsWith('codeEditor.') || prop.startsWith('buttons.') || prop.startsWith('find.') || prop.startsWith('extensions.') || prop.startsWith('windows.'))
+                    if (prop.startsWith('profiles.') || prop.startsWith('codeEditor.') || prop.startsWith('buttons.') || prop.startsWith('find.') || prop.startsWith('extensions.') || prop.startsWith('windows.') || prop.startsWith('profiles.'))
                         continue;
                     this.client.setOption(prop, data.settings[prop]);
                 }
@@ -450,6 +469,16 @@ export class Backup extends EventEmitter {
                     for (k = keys.length - 1; k >= 0; k--) {
                         this.client.setOption(`${props[p]}.${keys[k]}`, data.settings[props[p]][keys[k]]);
                     }
+                }
+                //convert to flat style
+                if (data.settings.profiles && data.settings.profiles.find) {
+                    this.client.setOption(`profiles.find.case`, data.settings.profiles.find.case);
+                    this.client.setOption(`profiles.find.word`, data.settings.profiles.find.word);
+                    this.client.setOption(`profiles.find.reverse`, data.settings.profiles.find.reverse);
+                    this.client.setOption(`profiles.find.regex`, data.settings.profiles.find.regex);
+                    this.client.setOption(`profiles.find.selection`, data.settings.profiles.find.selection);
+                    this.client.setOption(`profiles.find.show`, data.settings.profiles.find.show);
+                    this.client.setOption(`profiles.find.value`, data.settings.profiles.find.value);
                 }
                 this.client.clearCache();
                 this.client.loadOptions();

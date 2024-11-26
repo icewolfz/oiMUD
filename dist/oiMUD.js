@@ -8305,8 +8305,8 @@
         return this.items["default"];
       }
       for (const key in keys) {
-        if (this.items[key].enabled)
-          return this.items[key];
+        if (this.items[keys[key]].enabled)
+          return this.items[keys[key]];
       }
       if (this.items["default"]) {
         this.items["default"].enabled = true;
@@ -10361,7 +10361,6 @@
       let name2 = null;
       let item;
       let p;
-      let reload;
       let trigger;
       switch (fun.toLowerCase()) {
         //spell-checker:ignore untrigger unaction
@@ -10372,7 +10371,6 @@
             this._echo(raw, -3, -4, true, true);
           profile = null;
           name2 = null;
-          reload = true;
           if (args.length < 1 || args.length > 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unt\x1B[0;-11;-12mrigger {pattern|name} \x1B[3mprofile\x1B[0;-11;-12m");
           if (args[0].length === 0)
@@ -10631,7 +10629,6 @@
           if ((this._getOption("echo") & 4) === 4)
             this._echo(raw, -3, -4, true, true);
           profile = null;
-          reload = true;
           item = {
             profile: null,
             name: null,
@@ -10785,8 +10782,7 @@
             trigger.temp = true;
           trigger.priority = item.options.priority;
           this.client.saveProfiles();
-          if (reload)
-            this.client.clearCache();
+          this.client.clearCache();
           if (item.new)
             this.emit("item-added", "trigger", profile.name, trigger);
           else
@@ -10800,27 +10796,9 @@
           if (args.length === 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent name or \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent {name} \x1B[3mprofile\x1B[0;-11;-12m");
           else {
-            reload = true;
-            profile = null;
-            if (args[0].match(/^\{.*\}$/g) || args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g)) {
-              if (args.length > 2)
-                throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent name or \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent {name} \x1B[3mprofile\x1B[0;-11;-12m");
-              if (args.length === 2) {
-                profile = this.parseInline(this.stripQuotes(args[1])).toLowerCase();
-                if (this._profiles.contains(profile))
-                  profile = this._profiles.items[profile];
-                else
-                  throw new ProfileNotFound(profile);
-              } else
-                profile = this.client.activeProfile;
-              if (args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g))
-                n = this.parseInline(this.stripQuotes(args[0]));
-              else
-                n = this.parseInline(args[0].substr(1, args[0].length - 2));
-            } else {
-              n = this.parseInline(args.join(" "));
-              profile = this.client.activeProfile;
-            }
+            profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent name or \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent {name} \x1B[3mprofile\x1B[0;-11;-12m");
+            n = profile.results;
+            profile = profile.profile;
             items = SortItemArrayByPriority(profile.triggers.filter((t) => t.type === 2 /* Event */));
             n = this.stripQuotes(n);
             tmp = n;
@@ -10830,19 +10808,11 @@
               this._echo("Event '" + tmp + "' not found.", -7, -8, true, true);
             else {
               this._echo("Event '" + (items[n].name || items[n].pattern) + "' removed.", -7, -8, true, true);
-              if (reload)
-                this.client.removeTrigger(items[n]);
-              else {
-                n = profile.triggers.indexOf(items[n]);
-                profile.triggers.splice(n, 1);
-                this.client.saveProfiles();
-                this.emit("item-removed", "trigger", profile.name, n);
-              }
+              this.client.removeTrigger(items[n]);
               profile = null;
             }
           }
           return null;
-        //#endregion
         case "button":
         case "bu":
           if ((this._getOption("echo") & 4) === 4)
@@ -10863,7 +10833,6 @@
             return null;
           }
           profile = null;
-          reload = true;
           item = {
             profile: null,
             name: null,
@@ -11034,8 +11003,7 @@
             trigger.enabled = true;
           trigger.priority = item.options.priority;
           this.client.saveProfiles();
-          if (reload)
-            this.client.clearCache();
+          this.client.clearCache();
           if (item.new)
             this.emit("item-added", "button", profile.name, trigger);
           else
@@ -11049,27 +11017,9 @@
           if (args.length === 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton name or \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton {name} \x1B[3mprofile\x1B[0;-11;-12m");
           else {
-            reload = true;
-            profile = null;
-            if (args[0].match(/^\{.*\}$/g) || args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g)) {
-              if (args.length > 2)
-                throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton name or \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton {name} \x1B[3mprofile\x1B[0;-11;-12m");
-              if (args.length === 2) {
-                profile = this.parseInline(this.stripQuotes(args[1]));
-                if (this._profiles.contains(profile))
-                  profile = this._profiles.items[profile.toLowerCase()];
-                else
-                  throw new ProfileNotFound(profile);
-              } else
-                profile = this.client.activeProfile;
-              if (args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g))
-                n = this.parseInline(this.stripQuotes(args[0]));
-              else
-                n = this.parseInline(args[0].substr(1, args[0].length - 2));
-            } else {
-              n = this.parseInline(args.join(" "));
-              profile = this.client.activeProfile;
-            }
+            profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton name or \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton {name} \x1B[3mprofile\x1B[0;-11;-12m");
+            n = profile.results;
+            profile = profile.profile;
             items = SortItemArrayByPriority(profile.buttons);
             tmp = n;
             if (/^\s*?\d+\s*?$/.exec(n)) {
@@ -11092,21 +11042,18 @@
               n = profile.buttons.indexOf(items[n]);
               profile.buttons.splice(n, 1);
               this.client.saveProfiles();
-              if (reload)
-                this.client.clearCache();
+              this.client.clearCache();
               this.emit("item-removed", "button", profile.name, n);
               profile = null;
             }
           }
           return null;
-        //#endregion button
         case "alarm":
         case "ala":
           if ((this._getOption("echo") & 4) === 4)
             this._echo(raw, -3, -4, true, true);
           profile = null;
           name2 = null;
-          reload = true;
           n = false;
           if (args.length < 2 || args.length > 4)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "ala\x1B[0;-11;-12mrm name {timepattern} {commands} \x1B[3mprofile\x1B[0;-11;-12m, \x1B[4m" + cmdChar + "ala\x1B[0;-11;-12mrm name {timepattern} \x1B[3mprofile\x1B[0;-11;-12m, or \x1B[4m" + cmdChar + "ala\x1B[0;-11;-12mrm {timepattern} {commands} \x1B[3mprofile\x1B[0;-11;-12m");
@@ -11137,10 +11084,9 @@
             trigger.type = 3 /* Alarm */;
             profile.triggers.push(trigger);
             this.client.saveProfiles();
-            if (reload) {
-              this._lastSuspend = -1;
-              this.client.updateAlarms();
-            }
+            this.client.clearCache();
+            this._lastSuspend = -1;
+            this.client.updateAlarms();
             this._echo("Alarm '" + trigger.pattern + "' added.", -7, -8, true, true);
             this.emit("item-added", "trigger", profile.name, trigger);
             profile = null;
@@ -11233,17 +11179,15 @@
           if (commands)
             trigger.value = commands;
           this.client.saveProfiles();
+          this.client.clearCache();
           if (n)
             this.emit("item-added", "trigger", profile.name, trigger);
           else
             this.emit("item-updated", "trigger", profile.name, profile.triggers.indexOf(trigger), trigger);
           profile = null;
-          if (reload) {
-            this._lastSuspend = -1;
-            this.client.updateAlarms();
-          }
+          this._lastSuspend = -1;
+          this.client.updateAlarms();
           return null;
-        //#endregion alarm
         case "ungag":
         case "ung":
           if ((this._getOption("echo") & 4) === 4)
@@ -11317,7 +11261,6 @@
             this._gag = 0;
           }
           return null;
-        //#endregion gag
         case "wait":
         case "wa":
           if ((this._getOption("echo") & 4) === 4)
@@ -11574,27 +11517,9 @@
             throw new Error("Must supply an alias value");
           else {
             n = this.parseInline(this.stripQuotes(args.shift()));
-            reload = true;
-            profile = null;
-            if (args[0].match(/^\{.*\}$/g) || args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g)) {
-              if (args.length > 2)
-                throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "al\x1B[0;-11;-12mias name value or \x1B[4m" + cmdChar + "al\x1B[0;-11;-12mias name {value} \x1B[3mprofile\x1B[0;-11;-12m");
-              if (args.length === 2) {
-                profile = this.parseInline(this.stripQuotes(args[1]));
-                if (this._profiles.contains(profile))
-                  profile = this._profiles.items[profile.toLowerCase()];
-                else
-                  throw new ProfileNotFound(profile);
-              } else
-                profile = this.client.activeProfile;
-              if (args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g))
-                args = this.parseInline(this.stripQuotes(args[0]));
-              else
-                args = this.parseInline(args[0].substr(1, args[0].length - 2));
-            } else {
-              args = args.join(" ");
-              profile = this.client.activeProfile;
-            }
+            profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "al\x1B[0;-11;-12mias name value or \x1B[4m" + cmdChar + "al\x1B[0;-11;-12mias name {value} \x1B[3mprofile\x1B[0;-11;-12m");
+            args = profile.results;
+            profile = profile.profile;
             items = profile.aliases;
             args = this.stripQuotes(args);
             if (/^\s*?\d+\s*?$/.exec(n)) {
@@ -11624,9 +11549,8 @@
             }
             profile.aliases = items;
             this.client.saveProfiles();
+            this.client.clearCache();
             profile = null;
-            if (reload)
-              this.client.clearCache();
           }
           return null;
         case "unalias":
@@ -11636,28 +11560,9 @@
           if (args.length === 0)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m");
           else {
-            reload = true;
-            profile = null;
-            if (args[0].match(/^\{.*\}$/g) || args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g)) {
-              if (args.length > 2)
-                throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m");
-              if (args.length === 2) {
-                profile = this.stripQuotes(args[1]);
-                profile = this.parseInline(profile);
-                if (this._profiles.contains(profile))
-                  profile = this._profiles.items[profile.toLowerCase()];
-                else
-                  throw new ProfileNotFound(profile);
-              } else
-                profile = this.client.activeProfile;
-              if (args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g))
-                n = this.parseInline(this.stripQuotes(args[0]));
-              else
-                n = this.parseInline(args[0].substr(1, args[0].length - 2));
-            } else {
-              n = this.parseInline(args.join(" "));
-              profile = this.client.activeProfile;
-            }
+            profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m");
+            n = profile.results;
+            profile = profile.profile;
             items = profile.aliases;
             n = this.stripQuotes(n);
             if (/^\s*?\d+\s*?$/.exec(n)) {
@@ -11679,10 +11584,9 @@
               items.splice(n, 1);
               profile.aliases = items;
               this.client.saveProfiles();
-              if (reload)
-                this.client.clearCache();
-              profile = null;
+              this.client.clearCache();
               this.emit("item-removed", "alias", profile.name, n);
+              profile = null;
             }
           }
           return null;
@@ -12801,7 +12705,6 @@
           } else if (args.length > 1)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "fr\x1B[0;-11;-12meeze \x1B[3mnumber\x1B[0;-11;-12m");
           return null;
-        //#endregion freeze                
         case "clr":
           if ((this._getOption("echo") & 4) === 4)
             this._echo(raw, -3, -4, true, true);
@@ -13637,20 +13540,6 @@
             else
               this.client.variables[i2] = args;
           }
-          return null;
-        case "setmap":
-          if ((this._getOption("echo") & 4) === 4)
-            this._echo(raw, -3, -4, true, true);
-          if (args.length === 0)
-            throw new Error("Invalid syntax use " + cmdChar + "setmap file \x1B[3msetCharacter\x1B[0;-11;-12m");
-          tmp = this.stripQuotes(this.parseInline(args.shift())) || "";
-          if (!tmp || !tmp.length)
-            throw new Error("Empty file\x1B[0;-11;-12m");
-          if (args.length > 1)
-            p = this.stripQuotes(this.parseInline(args.join(" "))).toLocaleLowerCase().trim();
-          else
-            p = "";
-          this.emit("setmap", tmp, p === "true" || p === "yes", true);
           return null;
       }
       if (fun.match(/^[-|+]?\d+$/)) {
@@ -17110,6 +16999,30 @@
     }
     _echo(str, fore, back, newline, forceLine) {
       this.client.echo(str, fore, back, newline, forceLine);
+    }
+    _processCommandItemArgs(args, syntax) {
+      let profile = null;
+      let n;
+      if (args[0].match(/^\{.*\}$/g) || args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g)) {
+        if (args.length > 2)
+          throw new Error(syntax);
+        if (args.length === 2) {
+          profile = this.parseInline(this.stripQuotes(args[1])).toLowerCase();
+          if (this._profiles.contains(profile))
+            profile = this._profiles.items[profile];
+          else
+            throw new ProfileNotFound(profile);
+        } else
+          profile = this.client.activeProfile;
+        if (args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g))
+          n = this.parseInline(this.stripQuotes(args[0]));
+        else
+          n = this.parseInline(args[0].substr(1, args[0].length - 2));
+      } else {
+        n = this.parseInline(args.join(" "));
+        profile = this.client.activeProfile;
+      }
+      return { profile, results: n };
     }
   };
 

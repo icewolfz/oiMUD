@@ -1439,8 +1439,8 @@ export class ProfileCollection {
         }
         //search for first enabled profile
         for (const key in keys) {
-            if (this.items[key].enabled)
-                return this.items[key];
+            if (this.items[keys[key]].enabled)
+                return this.items[keys[key]];
         }
         //none found, see if default exist, if so enable and return
         if (this.items['default']) {

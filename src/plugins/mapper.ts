@@ -109,6 +109,31 @@ export class Mapper extends Plugin {
             if ((options && options.show) || this.client.getOption('showMapper'))
                 this.show();
         });
+        /*
+        this.client.on('function', data => {
+            if (!data) return;
+            let args = data.args;
+            switch (data.name.toLowerCase()) {
+                //spell-checker:ignore setmap
+                case 'setmap':
+                    if ((this.client.getOption('echo') & 4) === 4)
+                        this.client.echo(data.raw, -3, -4, true, true);
+                    if (args.length === 0)
+                        throw new Error('Invalid syntax use ' + this.client.getOption('commandChar') + 'setmap file \x1b[3msetCharacter\x1b[0;-11;-12m');
+                    let tmp = this.client.input.stripQuotes(this.client.parseInline(args.shift())) || '';
+                    let p;
+                    if (!tmp || !tmp.length)
+                        throw new Error('Empty file\x1b[0;-11;-12m');
+                    if (args.length > 1)
+                        p = this.client.input.stripQuotes(this.client.parseInline(args.join(' '))).toLocaleLowerCase().trim();
+                    else
+                        p = '';
+                    this.client.input.emit('setmap', tmp, p === 'true' || p === 'yes', true);
+                    data.handled = true;
+                    break;
+            }
+        }, this);
+        */
         this.on('debug', e => this.client.debug(e), this);
         this.on('error', e => this.client.error(e), this);
         let options = client.getWindowState('mapper');

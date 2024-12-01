@@ -884,6 +884,9 @@ export class Client extends EventEmitter {
         this.display.on('scroll-lock', (lock) => {
             this.scrollLock = lock;
         });
+        this.display.on('split-move-done', (h) => {
+            this.setOption('display.splitHeight', h);
+        });        
         this.display.on('update-window', (width, height) => {
             this.telnet.updateWindow(width, height);
         });
@@ -1184,6 +1187,10 @@ export class Client extends EventEmitter {
         this.display.showTimestamp = this._options['display.showTimestamp'];
         this.display.tabWidth = this._options['display.tabWidth'];
         this.display.timestampFormat = this._options['display.timestampFormat'];
+        this.display.splitHeight = this._options['display.splitHeight'];
+        this.display.enableSplit = this._options['display.split'];
+        this.display.splitLive = this._options['display.splitLive'];
+
         const colors = this.getOption('colors');
         if (colors && colors.length > 0) {
             let c;

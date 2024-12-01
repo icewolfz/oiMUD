@@ -143,6 +143,32 @@
         Shared with main display
     </small>
 </div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="chat.split">
+    <label class="form-check-label" for="chat.split">Enable split scroll</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="chat.splitLive">
+    <label class="form-check-label" for="chat.splitLive">Split scroll live update</label>
+</div>
+<div class="mb-3">
+    <label for="chat.splitHeight" class="form-label">Split height</label>
+    <div class="input-group">
+        <input type="number" class="form-control" id="chat.splitHeight" min="150">
+        <span class="input-group-text">px</span>
+    </div>
+    <small class="form-text text-muted alert alert-warning" style="margin-top:3px;padding: 2px">
+        min is 150 and a max of display height - 150 and will adjust as display
+        resized, a value of -1 will reset to default
+    </small>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="chat.customSelection">
+    <label class="form-check-label" for="chat.customSelection">Enable custom selection system</label>
+    <small class="form-text text-muted alert alert-warning" style="margin-top:3px;padding: 2px">
+        This setting is always on when split scroll enabled
+    </small>    
+</div>
 <script>
     const fontEl = body.querySelector('[id="chat.font"]')
     let items = body.querySelectorAll('.active');

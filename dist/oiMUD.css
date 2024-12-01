@@ -157,6 +157,9 @@ textarea {
 .line hr {
   border: 0px;
 }
+.line br {
+  display: none;
+}
 .line a,
 .line a:link,
 .line a:link span {
@@ -223,6 +226,56 @@ a.MXPLink:hover span {
   padding: 2px;
   position: absolute;
   z-index: 0;
+}
+.display-split-view {
+  position: absolute;
+  overflow: hidden;
+  visibility: hidden;
+  right: 17px;
+  bottom: 0;
+  left: 0;
+  top: auto;
+}
+.display-split-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: #f5f5f5;
+  z-index: 1000;
+  display: none;
+  border-top: 1px solid rgb(221, 221, 221);
+  border-bottom: 1px solid rgb(221, 221, 221);
+  cursor: ns-resize;
+  box-sizing: border-box;
+}
+.display-split-bar:hover {
+  background-color: #000;
+  transition-delay: 1s;
+}
+.display-split-ghost-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: #000;
+  z-index: 1000;
+  cursor: ns-resize;
+  box-sizing: border-box;
+  opacity: 0.5;
+}
+::highlight(oiMUD-selection),
+::selection,
+.display:focus ::selection {
+  background-color: Highlight;
+  color: HighlightText;
+}
+::highlight(oiMUD-selection):window-inactive,
+::selection:window-inactive,
+.text-blur ::selection,
+.display ::selection {
+  background-color: #c6c1b7;
+  color: black;
 }
 
 /* src/css/mapper.css */
@@ -1050,6 +1103,24 @@ div.offcanvas-body ul li hr {
 }
 #command-input-container .btn:hover .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+.display-split-bar {
+  height: 3px;
+  background-color: var(--theme-border-color);
+  border-top: 1px solid #856a45;
+  border-bottom: 1px solid #a68555;
+}
+.display-split-bar:hover {
+  background-color: var(--theme-hover-bg-color);
+  border-top: 1px solid var(--theme-hover-border-color);
+  border-bottom: 1px solid var(--theme-hover-border-color);
+}
+.display-split-ghost-bar {
+  height: 3px;
+  border-top: 1px solid var(--theme-hover-border-color);
+  border-bottom: 1px solid var(--theme-hover-border-color);
+  background-color: var(--theme-hover-bg-color);
+  opacity: 0.75;
 }
 
 /* src/css/tinymce.css */
@@ -2221,6 +2292,10 @@ li.submenu.dropstart > a.dropdown-toggle::after {
 }
 .cut-item ul {
   border-radius: 10px;
+}
+.profile-editor {
+  white-space: nowrap;
+  overflow: auto;
 }
 
 /* src/css/splitter.css */

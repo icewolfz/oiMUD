@@ -93,3 +93,8 @@
 .cut-item ul {
   border-radius: 10px;
 }
+
+.profile-editor {
+  white-space: nowrap;
+  overflow: auto;
+}

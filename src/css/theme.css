@@ -131,3 +131,24 @@
 #command-input-container .btn:hover .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
+
+.display-split-bar {
+  height: 3px;
+  background-color: var(--theme-border-color);
+  border-top: 1px solid #856a45;
+  border-bottom: 1px solid #a68555;
+}
+
+.display-split-bar:hover {
+  background-color: var(--theme-hover-bg-color);
+  border-top: 1px solid var(--theme-hover-border-color);
+  border-bottom: 1px solid var(--theme-hover-border-color);  
+}
+
+.display-split-ghost-bar {
+  height: 3px;
+  border-top: 1px solid var(--theme-hover-border-color);
+  border-bottom: 1px solid var(--theme-hover-border-color);
+  background-color: var(--theme-hover-bg-color);
+  opacity: 0.75;  
+}

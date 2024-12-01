@@ -284,6 +284,9 @@ export class PanelBar extends Plugin {
         this._miniMap.active = new Room(client.getOption('mapper.active'));
         this._miniMap.active.num = this._miniMap.active.num || (this._miniMap.active as any).ID;
         this._chatDisplay = new Display(document.createElement('div'));
+        this._chatDisplay.on('split-move-done', (h) => {
+            this.client.setOption('chat.splitHeight', h);
+        });
         this._chatDisplay.container.classList.add('panel-container');
         this._updateOrder();
         const toolbar = document.createElement('div');
@@ -486,6 +489,11 @@ export class PanelBar extends Plugin {
         display.wrapAt = client.getOption('chat.wrapAt');
         display.indent = client.getOption('chat.indent');
         display.scrollLock = client.getOption('chat.scrollLocked');
+
+        //display.enableSplit = client.getOption('chat.split');
+        //display.splitLive = client.getOption('chat.splitLive');
+        //display.splitHeight = client.getOption('chat.splitHeight');
+
         display.scrollDisplay();
     }
 

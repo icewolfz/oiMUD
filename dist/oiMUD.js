@@ -6253,7 +6253,7 @@
     ["find.show", 0, 1, false],
     ["display.split", 0, 1, false],
     ["display.splitHeight", 0, 2, -1],
-    ["display.splitLive", 0, 1, true],
+    ["display.splitLive", 0, 1, false],
     ["display.roundedOverlays", 0, 1, true],
     ["backupLoad", 0, 2, 30],
     ["backupSave", 0, 2, 30],
@@ -6287,7 +6287,7 @@
     ["display.showSplitButton", 0, 1, true],
     ["chat.split", 0, 1, false],
     ["chat.splitHeight", 0, 2, -1],
-    ["chat.splitLive", 0, 1, true],
+    ["chat.splitLive", 0, 1, false],
     ["chat.roundedOverlays", 0, 1, true],
     ["chat.showSplitButton", 0, 1, true],
     ["chat.bufferSize", 0, 2, 500],
@@ -6426,9 +6426,11 @@
     ["logger.split", 0, 2 /* Number */, 204],
     ["showChatWindow", 0, 2 /* Number */, 0],
     ["chat.enableColors", 0, 2 /* Number */, true],
-    ["chat.enableBackgroundColors", 0, 2 /* Number */, true]
+    ["chat.enableBackgroundColors", 0, 2 /* Number */, true],
+    ["display.customSelection", 0, 1 /* Boolean */, true],
+    ["chat.customSelection", 0, 1 /* Boolean */, true]
   ];
-  var SettingProperties = ["bufferSize", "commandDelay", "commandDelayCount", "commandHistorySize", "fontSize", "cmdfontSize", "commandEcho", "flashing", "autoConnect", "enableAliases", "enableTriggers", "enableMacros", "showScriptErrors", "commandStacking", "commandStackingChar", "htmlLog", "keepLastCommand", "enableMCCP", "enableUTF8", "font", "cmdfont", "mapper.follow", "mapper.enabled", "mapper.split", "mapper.fill", "showMapper", "fullScreen", "enableMXP", "enableMSP", "parseCommands", "lagMeter", "enablePing", "enableEcho", "enableSpeedpaths", "speedpathsChar", "parseSpeedpaths", "profile", "parseSingleQuotes", "parseDoubleQuotes", "logEnabled", "logPrepend", "logOffline", "logUniqueOnConnect", "enableURLDetection", "notifyMSPPlay", "CommandonClick", "allowEval", "allowEscape", "AutoCopySelectedToClipboard", "enableDebug", "editorPersistent", "askonclose", "dev", "chat.captureLines", "chat.captureAllLines", "chat.captureReviews", "chat.captureTells", "chat.captureTalk", "chat.gag", "chat.CaptureOnlyOpen", "checkForUpdates", "autoCreateCharacter", "askonchildren", "mapper.legend", "mapper.room", "mapper.importType", "mapper.vscroll", "mapper.hscroll", "mapper.scale", "mapper.alwaysOnTop", "mapper.alwaysOnTopClient", "mapper.memory", "mapper.memorySavePeriod", "mapper.active.ID", "mapper.active.x", "mapper.active.y", "mapper.active.z", "mapper.active.area", "mapper.active.zone", "mapper.persistent", "profiles.split", "profiles.askoncancel", "profiles.triggersAdvanced", "profiles.aliasesAdvanced", "profiles.buttonsAdvanced", "profiles.macrosAdvanced", "profiles.contextsAdvanced", "profiles.codeEditor", "profiles.watchFiles", "chat.alwaysOnTop", "chat.alwaysOnTopClient", "chat.log", "chat.persistent", "chat.zoom", "chat.font", "chat.fontSize", "title", "logGagged", "logTimeFormat", "autoConnectDelay", "autoLogin", "onDisconnect", "enableKeepAlive", "keepAliveDelay", "newlineShortcut", "logWhat", "logErrors", "showErrorsExtended", "reportCrashes", "enableCommands", "commandChar", "escapeChar", "enableVerbatim", "verbatimChar", "soundPath", "logPath", "theme", "gamepads", "buttons.connect", "buttons.characters", "buttons.preferences", "buttons.log", "buttons.clear", "buttons.lock", "buttons.map", "buttons.user", "buttons.mail", "buttons.compose", "buttons.immortal", "buttons.codeEditor", "find.case", "find.word", "find.reverse", "find.regex", "find.selection", "find.show", "display.split", "display.splitHeight", "display.splitLive", "display.roundedOverlays", "backupLoad", "backupSave", "backupAllProfiles", "backupReplaceCharacters", "scrollLocked", "showStatus", "showCharacterManager", "showChat", "showEditor", "showArmor", "showStatusWeather", "showStatusLimbs", "showStatusHealth", "showStatusExperience", "showStatusPartyHealth", "showStatusCombatHealth", "showButtonBar", "allowNegativeNumberNeeded", "spellchecking", "hideOnMinimize", "showTrayIcon", "statusExperienceNeededProgressbar", "trayClick", "trayDblClick", "pasteSpecialPrefix", "pasteSpecialPostfix", "pasteSpecialReplace", "pasteSpecialPrefixEnabled", "pasteSpecialPostfixEnabled", "pasteSpecialReplaceEnabled", "display.showSplitButton", "chat.split", "chat.splitHeight", "chat.splitLive", "chat.roundedOverlays", "chat.showSplitButton", "chat.bufferSize", "chat.flashing", "display.hideTrailingEmptyLine", "display.enableColors", "display.enableBackgroundColors", "enableSound", "allowHalfOpen", "editorClearOnSend", "editorCloseOnSend", "askOnCloseAll", "askonloadCharacter", "mapper.roomWidth", "mapper.roomGroups", "mapper.showInTaskBar", "profiles.enabled", "profiles.sortOrder", "profiles.sortDirection", "profiles.showInTaskBar", "profiles.profileSelected", "profiles.profileExpandSelected", "chat.lines", "chat.showInTaskBar", "chat.showTimestamp", "chat.timestampFormat", "chat.tabWidth", "chat.displayControlCodes", "chat.emulateTerminal", "chat.emulateControlCodes", "chat.wordWrap", "chat.wrapAt", "chat.indent", "chat.scrollLocked", "chat.find.case", "chat.find.word", "chat.find.reverse", "chat.find.regex", "chat.find.selection", "chat.find.show", "chat.find.highlight", "chat.find.location", "codeEditor.showInTaskBar", "codeEditor.persistent", "codeEditor.alwaysOnTop", "codeEditor.alwaysOnTopClient", "autoTakeoverLogin", "fixHiddenWindows", "maxReconnectDelay", "enableBackgroundThrottling", "enableBackgroundThrottlingClients", "showInTaskBar", "showLagInTitle", "mspMaxRetriesOnError", "logTimestamp", "logTimestampFormat", "disableTriggerOnError", "prependTriggeredLine", "enableParameters", "parametersChar", "enableNParameters", "nParametersChar", "enableParsing", "externalWho", "externalHelp", "watchForProfilesChanges", "onProfileChange", "onProfileDeleted", "enableDoubleParameterEscaping", "ignoreEvalUndefined", "enableInlineComments", "enableBlockComments", "inlineCommentString", "blockCommentString", "allowCommentsFromCommand", "saveTriggerStateChanges", "groupProfileSaves", "groupProfileSaveDelay", "returnNewlineOnEmptyValue", "pathDelay", "pathDelayCount", "echoSpeedpaths", "alwaysShowTabs", "scriptEngineType", "initializeScriptEngineOnLoad", "find.highlight", "find.location", "display.showInvalidMXPTags", "display.showTimestamp", "display.timestampFormat", "display.displayControlCodes", "display.emulateTerminal", "display.emulateControlCodes", "display.wordWrap", "display.tabWidth", "display.wrapAt", "display.indent", "statusWidth", "showEditorInTaskBar", "trayMenu", "lockLayout", "loadLayout", "useSingleInstance", "statusWidth", "characterManagerDblClick", "warnAdvancedSettings", "showAdvancedSettings", "enableTabCompletion", "tabCompletionBufferLimit", "ignoreCaseTabCompletion", "enableNotifications", "commandAutoSize", "commandWordWrap", "commandScrollbars", "tabCompletionList", "tabCompletionLookupType", "tabCompletionReplaceCasing", "characterManagerAddButtonAction", "enableCrashReporting", "characterManagerPanelWidth", "ignoreInputLeadingWhitespace", "profiles.find.case", "profiles.find.word", "profiles.find.reverse", "profiles.find.regex", "profiles.find.selection", "profiles.find.show", "profiles.find.value", "skipMore", "skipMoreDelay", "commandMinLines", "simpleAlarms", "simpleEditor", "selectLastCommand", "statusMode", "logger.split", "showChatWindow", "chat.enableColors", "chat.enableBackgroundColors"];
+  var SettingProperties = ["bufferSize", "commandDelay", "commandDelayCount", "commandHistorySize", "fontSize", "cmdfontSize", "commandEcho", "flashing", "autoConnect", "enableAliases", "enableTriggers", "enableMacros", "showScriptErrors", "commandStacking", "commandStackingChar", "htmlLog", "keepLastCommand", "enableMCCP", "enableUTF8", "font", "cmdfont", "mapper.follow", "mapper.enabled", "mapper.split", "mapper.fill", "showMapper", "fullScreen", "enableMXP", "enableMSP", "parseCommands", "lagMeter", "enablePing", "enableEcho", "enableSpeedpaths", "speedpathsChar", "parseSpeedpaths", "profile", "parseSingleQuotes", "parseDoubleQuotes", "logEnabled", "logPrepend", "logOffline", "logUniqueOnConnect", "enableURLDetection", "notifyMSPPlay", "CommandonClick", "allowEval", "allowEscape", "AutoCopySelectedToClipboard", "enableDebug", "editorPersistent", "askonclose", "dev", "chat.captureLines", "chat.captureAllLines", "chat.captureReviews", "chat.captureTells", "chat.captureTalk", "chat.gag", "chat.CaptureOnlyOpen", "checkForUpdates", "autoCreateCharacter", "askonchildren", "mapper.legend", "mapper.room", "mapper.importType", "mapper.vscroll", "mapper.hscroll", "mapper.scale", "mapper.alwaysOnTop", "mapper.alwaysOnTopClient", "mapper.memory", "mapper.memorySavePeriod", "mapper.active.ID", "mapper.active.x", "mapper.active.y", "mapper.active.z", "mapper.active.area", "mapper.active.zone", "mapper.persistent", "profiles.split", "profiles.askoncancel", "profiles.triggersAdvanced", "profiles.aliasesAdvanced", "profiles.buttonsAdvanced", "profiles.macrosAdvanced", "profiles.contextsAdvanced", "profiles.codeEditor", "profiles.watchFiles", "chat.alwaysOnTop", "chat.alwaysOnTopClient", "chat.log", "chat.persistent", "chat.zoom", "chat.font", "chat.fontSize", "title", "logGagged", "logTimeFormat", "autoConnectDelay", "autoLogin", "onDisconnect", "enableKeepAlive", "keepAliveDelay", "newlineShortcut", "logWhat", "logErrors", "showErrorsExtended", "reportCrashes", "enableCommands", "commandChar", "escapeChar", "enableVerbatim", "verbatimChar", "soundPath", "logPath", "theme", "gamepads", "buttons.connect", "buttons.characters", "buttons.preferences", "buttons.log", "buttons.clear", "buttons.lock", "buttons.map", "buttons.user", "buttons.mail", "buttons.compose", "buttons.immortal", "buttons.codeEditor", "find.case", "find.word", "find.reverse", "find.regex", "find.selection", "find.show", "display.split", "display.splitHeight", "display.splitLive", "display.roundedOverlays", "backupLoad", "backupSave", "backupAllProfiles", "backupReplaceCharacters", "scrollLocked", "showStatus", "showCharacterManager", "showChat", "showEditor", "showArmor", "showStatusWeather", "showStatusLimbs", "showStatusHealth", "showStatusExperience", "showStatusPartyHealth", "showStatusCombatHealth", "showButtonBar", "allowNegativeNumberNeeded", "spellchecking", "hideOnMinimize", "showTrayIcon", "statusExperienceNeededProgressbar", "trayClick", "trayDblClick", "pasteSpecialPrefix", "pasteSpecialPostfix", "pasteSpecialReplace", "pasteSpecialPrefixEnabled", "pasteSpecialPostfixEnabled", "pasteSpecialReplaceEnabled", "display.showSplitButton", "chat.split", "chat.splitHeight", "chat.splitLive", "chat.roundedOverlays", "chat.showSplitButton", "chat.bufferSize", "chat.flashing", "display.hideTrailingEmptyLine", "display.enableColors", "display.enableBackgroundColors", "enableSound", "allowHalfOpen", "editorClearOnSend", "editorCloseOnSend", "askOnCloseAll", "askonloadCharacter", "mapper.roomWidth", "mapper.roomGroups", "mapper.showInTaskBar", "profiles.enabled", "profiles.sortOrder", "profiles.sortDirection", "profiles.showInTaskBar", "profiles.profileSelected", "profiles.profileExpandSelected", "chat.lines", "chat.showInTaskBar", "chat.showTimestamp", "chat.timestampFormat", "chat.tabWidth", "chat.displayControlCodes", "chat.emulateTerminal", "chat.emulateControlCodes", "chat.wordWrap", "chat.wrapAt", "chat.indent", "chat.scrollLocked", "chat.find.case", "chat.find.word", "chat.find.reverse", "chat.find.regex", "chat.find.selection", "chat.find.show", "chat.find.highlight", "chat.find.location", "codeEditor.showInTaskBar", "codeEditor.persistent", "codeEditor.alwaysOnTop", "codeEditor.alwaysOnTopClient", "autoTakeoverLogin", "fixHiddenWindows", "maxReconnectDelay", "enableBackgroundThrottling", "enableBackgroundThrottlingClients", "showInTaskBar", "showLagInTitle", "mspMaxRetriesOnError", "logTimestamp", "logTimestampFormat", "disableTriggerOnError", "prependTriggeredLine", "enableParameters", "parametersChar", "enableNParameters", "nParametersChar", "enableParsing", "externalWho", "externalHelp", "watchForProfilesChanges", "onProfileChange", "onProfileDeleted", "enableDoubleParameterEscaping", "ignoreEvalUndefined", "enableInlineComments", "enableBlockComments", "inlineCommentString", "blockCommentString", "allowCommentsFromCommand", "saveTriggerStateChanges", "groupProfileSaves", "groupProfileSaveDelay", "returnNewlineOnEmptyValue", "pathDelay", "pathDelayCount", "echoSpeedpaths", "alwaysShowTabs", "scriptEngineType", "initializeScriptEngineOnLoad", "find.highlight", "find.location", "display.showInvalidMXPTags", "display.showTimestamp", "display.timestampFormat", "display.displayControlCodes", "display.emulateTerminal", "display.emulateControlCodes", "display.wordWrap", "display.tabWidth", "display.wrapAt", "display.indent", "statusWidth", "showEditorInTaskBar", "trayMenu", "lockLayout", "loadLayout", "useSingleInstance", "statusWidth", "characterManagerDblClick", "warnAdvancedSettings", "showAdvancedSettings", "enableTabCompletion", "tabCompletionBufferLimit", "ignoreCaseTabCompletion", "enableNotifications", "commandAutoSize", "commandWordWrap", "commandScrollbars", "tabCompletionList", "tabCompletionLookupType", "tabCompletionReplaceCasing", "characterManagerAddButtonAction", "enableCrashReporting", "characterManagerPanelWidth", "ignoreInputLeadingWhitespace", "profiles.find.case", "profiles.find.word", "profiles.find.reverse", "profiles.find.regex", "profiles.find.selection", "profiles.find.show", "profiles.find.value", "skipMore", "skipMoreDelay", "commandMinLines", "simpleAlarms", "simpleEditor", "selectLastCommand", "statusMode", "logger.split", "showChatWindow", "chat.enableColors", "chat.enableBackgroundColors", "display.customSelection", "chat.customSelection"];
   var Settings = class _Settings {
     constructor() {
       for (let s = 0, sl = SettingList.length; s < sl; s++) {
@@ -6518,6 +6520,10 @@
           case "simpleEditor":
           case "selectLastCommand":
           case "showLagInTitle":
+          case "display.split":
+          case "chat.split":
+          case "display.customSelection":
+          case "chat.customSelection":
             if (tmp == 1)
               return true;
             return false;
@@ -6848,6 +6854,8 @@
           return true;
         case "display.showSplitButton":
           return true;
+        case "chat.showSplitButton":
+          return true;
         case "chat.bufferSize":
           return 500;
         case "chat.flashing":
@@ -7036,6 +7044,22 @@
           isMobile() ? 1 : 0;
         case "showChatWindow":
           return 0;
+        case "display.split":
+          return false;
+        case "display.splitLive":
+          return false;
+        case "display.splitHeight":
+          return -1;
+        case "display.customSelection":
+          return true;
+        case "chat.split":
+          return false;
+        case "chat.splitLive":
+          return false;
+        case "chat.return":
+          return -1;
+        case "chat.customSelection":
+          return true;
       }
       return null;
     }
@@ -21084,6 +21108,7 @@
       this._indent = 4;
       this._indentPadding = 0;
       this._wrapAt = 0;
+      this.splitLive = false;
       this._scrollAtEnd = false;
       this._lineCache = [];
       this._expireCache = [];
@@ -21091,9 +21116,9 @@
       this._timestampFormat = "[[]MM-DD HH:mm:ss.SSS[]] ";
       this._timestampWidth = (/* @__PURE__ */ new Date()).toISOString().length + 1;
       this._mouseDown = false;
-      //#endregion
-      //#region Public properties
-      this.scrollLock = false;
+      this._scrollLock = false;
+      this._selection = { start: null, end: null, timer: null };
+      this._customSelection = true;
       if (!container)
         throw new Error("Container must be a selector, element, jquery object or display options");
       if (typeof container === "object" && "container" in container) {
@@ -21115,6 +21140,9 @@
         throw new Error("Container must be a selector, element or jquery object");
       this._document = this._container.ownerDocument;
       this._window = this._document.defaultView;
+      this._container.tabIndex = -1;
+      this._container.classList.add("display");
+      this._container.display = this;
       this._styles = this._document.createElement("style");
       this._container.appendChild(this._styles);
       this._character = this._document.createElement("span");
@@ -21127,6 +21155,7 @@
       this._view.className = "view";
       this._view.addEventListener("scroll", () => {
         this._scrollAtEnd = this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight;
+        this._doUpdate(128 /* toggleSplit */);
       });
       this._view.addEventListener("click", (e) => {
         this.emit("click", e);
@@ -21135,14 +21164,69 @@
         this.emit("contextmenu", e);
       });
       this._view.addEventListener("mousedown", (e) => {
+        if (this._split && this._split.visible) {
+          let caret = this._getMouseEventCaretRange(e);
+          if (caret) {
+            this._window.getSelection().removeAllRanges();
+            if (caret.startContainer)
+              this._window.getSelection().addRange(caret);
+            else if (caret.offsetNode) {
+              const range = document.createRange();
+              range.setStart(caret.offsetNode, caret.offset);
+              range.setEnd(caret.offsetNode, caret.offset);
+              this._window.getSelection().addRange(range);
+            }
+            e.preventDefault();
+          }
+        }
         this.emit("mousedown", e);
-        this._mouseDown = true;
+        const bounds = this._view.getBoundingClientRect();
+        let w = bounds.width - this._view.clientWidth;
+        let h = bounds.height - this._view.clientHeight;
+        if (e.button === 0 && e.pageX < bounds.right - w && e.pageY < bounds.bottom - h) {
+          if (this.customSelection)
+            this.clearSelection();
+          this._mouseDown = true;
+          if (this._split)
+            this._split._bar.style.pointerEvents = "none";
+        } else if (this.customSelection && e.button === 2 && this._selection.start) {
+          let caret = this._getMouseEventCaretRange(e);
+          let range = this._document.createRange();
+          range.setStart(this._selection.start.node, this._selection.start.offset);
+          range.setEnd(this._selection.end.node, this._selection.end.offset);
+          if (caret.offsetNode && range.intersectsNode(caret.offsetNode) || caret.startContainer && range.intersectsNode(caret.startContainer)) {
+            this._window.getSelection().removeAllRanges();
+            this._window.getSelection().addRange(range);
+          } else {
+            this.clearSelection();
+          }
+        }
+      });
+      this._view.addEventListener("mousemove", async (e) => {
+        this._lastMouse = e;
+        if (this._split && this._split.visible && this._mouseDown) {
+          if (e.pageY >= this._split._bounds.top) return;
+          this._extendSelection(e);
+        }
+        if (this._mouseDown)
+          this._createScrollTimer();
       });
       this._view.addEventListener("mouseup", (e) => {
         this.emit("mouseup", e);
-        if (this._mouseDown)
-          this.emit("selection-done");
-        this._mouseDown = false;
+        if (e.button === 0)
+          this._clearMouseDown();
+      });
+      this._view.addEventListener("mouseenter", (e) => {
+        if (this._mouseDown && (e.buttons & 1) !== 1)
+          this._clearMouseDown();
+        else
+          this._clearScrollTimer();
+      });
+      this._view.addEventListener("mouseleave", (e) => {
+        if (this._mouseDown) {
+          this._lastMouse = e;
+          this._createScrollTimer();
+        }
       });
       this._container.appendChild(this._view);
       this._charHeight = parseFloat(this._window.getComputedStyle(this._character).height);
@@ -21156,17 +21240,47 @@
         if (this._scrollAtEnd)
           this.scrollDisplay();
         debounce(() => {
-          this._doUpdate(1 /* update */ | 16 /* updateWindow */);
+          this._doUpdate(1 /* update */ | 16 /* updateWindow */ | 64 /* split */);
         }, 250, this.id + "resize");
       };
-      this._selection = (e) => {
+      this._selectionChange = (e) => {
+        if (this._window.getSelection().rangeCount)
+          this._window.getSelection().getRangeAt(0);
         if (this._mouseDown)
           debounce(() => {
-            this.emit("selection-changed");
-          }, 250, this.id + "selection-changed");
+            let selection = this._window.getSelection();
+            if (this.customSelection && selection.rangeCount > 0) {
+              const range = selection.getRangeAt(0);
+              let nOffset = null;
+              nOffset = this._getNodeOffset(this._view, this._view.firstChild, range.startContainer, range.startOffset, range);
+              if (nOffset === null && this._split && this._split.visible)
+                nOffset = this._getNodeOffset(this._split._view, this._split._view.firstChild, range.startContainer, range.startOffset, range);
+              this._selection.start = nOffset;
+              nOffset = null;
+              if (this._split && this._split.visible)
+                nOffset = this._getNodeOffset(this._split._view, this._split._view.lastChild, range.endContainer, range.endOffset, range);
+              if (nOffset === null)
+                nOffset = this._getNodeOffset(this._view, this._view.lastChild, range.endContainer, range.endOffset, range);
+              this._selection.end = nOffset;
+              this._updateSelectionHighlight();
+            }
+            this.emit("selection-changed", selection);
+          }, 10, this.id + "selection-changed");
+      };
+      this._wUp = (e) => {
+        if (this._mouseDown && e.button === 0) {
+          this._lastMouse = e;
+          this._clearMouseDown();
+        }
+      };
+      this._wMove = (e) => {
+        if (this._mouseDown)
+          this._lastMouse = e;
       };
       this._window.addEventListener("resize", this._wResize.bind(this));
-      this._document.addEventListener("selectionchange", this._selection.bind(this));
+      this._window.addEventListener("mouseup", this._wUp.bind(this));
+      this._window.addEventListener("mousemove", this._wMove.bind(this));
+      this._document.addEventListener("selectionchange", this._selectionChange.bind(this));
       this._resizeObserver = new ResizeObserver((entries, observer) => {
         if (entries.length === 0) return;
         if (!entries[0].contentRect || entries[0].contentRect.width === 0 || entries[0].contentRect.height === 0)
@@ -21176,9 +21290,10 @@
             if (this._scrollAtEnd)
               this.scrollDisplay();
             this._resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
-            this._doUpdate(1 /* update */ | 16 /* updateWindow */);
+            this._doUpdate(1 /* update */ | 16 /* updateWindow */ | 64 /* split */);
           }
         }, 250, this.id + "resize");
+        this._updateSplit();
         this.emit("resize");
       });
       this._resizeObserver.observe(this._container);
@@ -21188,7 +21303,7 @@
           if (mutation.type === "attributes" && mutation.attributeName === "style") {
             if (this._scrollAtEnd)
               this.scrollDisplay();
-            this._doUpdate(1 /* update */ | 16 /* updateWindow */);
+            this._doUpdate(1 /* update */ | 16 /* updateWindow */ | 64 /* split */);
             this.emit("resize");
           }
         }
@@ -21199,6 +21314,38 @@
       else
         this._timestampWidth = moment().format(this._timestampFormat).length;
       this.updateFont();
+      this.splitHeight = -1;
+    }
+    get _horizontalScrollBarHeight() {
+      return this._view.scrollWidth > this._view.clientWidth ? getScrollbarWidth() : 0;
+    }
+    get _verticalScrollBarHeight() {
+      return getScrollbarWidth();
+    }
+    //#endregion
+    //#region Public properties
+    get customSelection() {
+      return this._customSelection || this._split;
+    }
+    set customSelection(value) {
+      if (value === this._customSelection) return;
+      this._customSelection = value;
+      if (!value && this._selection.timer) {
+        this._window.clearTimeout(this._selection.timer);
+        this._selection.timer = null;
+      }
+      this._updateSelectionHighlight();
+    }
+    get scrollLock() {
+      return this._scrollLock;
+    }
+    set scrollLock(value) {
+      if (this._scrollLock === value) return;
+      this._scrollLock = value;
+      if (!this._scrollLock && this._split && this._split.visible) {
+        this.scrollDisplay(true);
+      } else if (this._scrollLock && this._split && !this._split.visible)
+        this.scrollUp();
     }
     get showTimestamp() {
       return this._timestamp;
@@ -21213,7 +21360,7 @@
       else
         this._timestampWidth = moment().format(this._timestampFormat).length;
       this._buildStyleSheet();
-      this._doUpdate(2 /* display */ | 1 /* update */ | 32 /* rebuildLines */);
+      this._doUpdate(2 /* display */ | 1 /* update */ | 32 /* rebuildLines */ | 64 /* split */);
     }
     get timestampFormat() {
       return this._timestampFormat;
@@ -21225,7 +21372,7 @@
         this._timestampWidth = (/* @__PURE__ */ new Date()).toISOString().length + 1;
       else
         this._timestampWidth = moment().format(this._timestampFormat).length;
-      this._doUpdate(2 /* display */ | 32 /* rebuildLines */ | 16 /* updateWindow */ | 1 /* update */);
+      this._doUpdate(2 /* display */ | 32 /* rebuildLines */ | 16 /* updateWindow */ | 1 /* update */ | 64 /* split */);
     }
     get wordWrap() {
       return this._wordWrap;
@@ -21234,7 +21381,7 @@
       if (value === this._wordWrap) return;
       this._wordWrap = value;
       this._buildStyleSheet();
-      this._doUpdate(1 /* update */);
+      this._doUpdate(1 /* update */ | 64 /* split */);
     }
     get wrapAt() {
       return this._wrapAt;
@@ -21243,7 +21390,7 @@
       if (value === this._wrapAt) return;
       this._wrapAt = value;
       this._buildStyleSheet();
-      this._doUpdate(1 /* update */ | 2 /* display */);
+      this._doUpdate(1 /* update */ | 2 /* display */ | 64 /* split */);
     }
     get indent() {
       return this._indent;
@@ -21253,7 +21400,167 @@
         return;
       this._indent = value;
       this._buildStyleSheet();
-      this._doUpdate(1 /* update */ | 2 /* display */);
+      this._doUpdate(1 /* update */ | 2 /* display */ | 64 /* split */);
+    }
+    get splitHeight() {
+      return this._splitHeight;
+    }
+    set splitHeight(value) {
+      if (this._splitHeight !== value) {
+        this._splitHeight = value;
+        const bounds = this._view.getBoundingClientRect();
+        bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
+        if (this._splitHeight <= bounds.top + 150)
+          this._splitHeight = 150;
+        else if (this._splitHeight > bounds.bottom - 150)
+          this._splitHeight = bounds.height - 150;
+        this._updateSplitLocation();
+      }
+    }
+    get enableSplit() {
+      return this._split === null;
+    }
+    set enableSplit(value) {
+      const id = this.id;
+      if (!this._split && value) {
+        this._split = {
+          _view: document.createElement("div"),
+          _bar: document.createElement("div"),
+          visible: false
+        };
+        this._split._view.id = id + "-split-view";
+        this._split._view.classList.add("view", "display-split-view");
+        this._split._view.style.right = this._verticalScrollBarHeight + "px";
+        this._split._bar.id = id + "-split-bar";
+        this._split._bar.classList.add("display-split-bar", "user-select-none");
+        this._view.insertAdjacentElement("afterend", this._split._view);
+        this._container.insertAdjacentElement("afterbegin", this._split._bar);
+        this._updateSplitLocation();
+        this._split._bar.style.right = this._verticalScrollBarHeight + "px";
+        this._split._bar.style.top = this._view.clientHeight - this._split._view.clientHeight - this._horizontalScrollBarHeight + "px";
+        this._split._bar.addEventListener("mousedown", (e) => {
+          if (e.buttons !== 1) return;
+          e.preventDefault();
+          e.cancelBubble = true;
+          this._split.ghostBar = document.createElement("div");
+          this._split.ghostBar.id = id + "-split-ghost-bar";
+          this._split.ghostBar.classList.add("display-split-ghost-bar");
+          this._split.ghostBar.style.top = this._split._bar.style.top;
+          this._split.ghostBar.style.display = "block";
+          this._split.ghostBar.style.right = this._verticalScrollBarHeight + "px";
+          this._container.appendChild(this._split.ghostBar);
+          const bounds = this._view.getBoundingClientRect();
+          bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
+          this._split.mouseMove = (e2) => {
+            e2.preventDefault();
+            e2.cancelBubble = true;
+            e2.stopPropagation();
+            if (e2.pageY < bounds.top + 150)
+              this._split.ghostBar.style.top = "150px";
+            else if (e2.pageY > bounds.bottom - 150)
+              this._split.ghostBar.style.top = bounds.height - 150 + "px";
+            else
+              this._split.ghostBar.style.top = e2.pageY - bounds.top + "px";
+            if (this.splitLive) {
+              let h;
+              if (e2.pageY < bounds.top + 150)
+                h = 150;
+              else if (e2.pageY > bounds.bottom - 150)
+                h = bounds.height - 150;
+              else
+                h = e2.pageY - bounds.top;
+              this._split._view.style.top = h + "px";
+              this._split._bar.style.top = this._view.clientHeight - this._split._view.clientHeight + "px";
+              this._split._view.scrollTop = this._split._view.scrollHeight;
+              this.emit("split-move", h);
+            }
+          };
+          this._container.addEventListener("mousemove", this._split.mouseMove);
+          this._container.addEventListener("mouseup", this._split.moveDone);
+        });
+        this._split.moveDone = (e) => {
+          if (this._split.ghostBar) {
+            const bounds = this._view.getBoundingClientRect();
+            bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
+            let h;
+            if (e.pageY < bounds.top + 150)
+              h = 150;
+            else if (e.pageY > bounds.bottom - 150)
+              h = bounds.height - 150;
+            else
+              h = e.pageY - bounds.top;
+            this._split._view.style.top = h + "px";
+            this._split._bar.style.top = this._view.clientHeight - this._split._view.clientHeight + "px";
+            this._split._view.scrollTop = this._split._view.scrollHeight;
+            this._splitHeight = h;
+            this._container.removeChild(this._split.ghostBar);
+            delete this._split.ghostBar;
+            this.emit("split-move-done", h);
+          }
+          this._container.removeEventListener("mousemove", this._split.mouseMove);
+          this._container.removeEventListener("mouseup", this._split.moveDone);
+          this._split.mouseMove = null;
+        };
+        this._split._view.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          this.emit("mousedown", e);
+          if (e.button === 0) {
+            let caret = this._getMouseEventCaretRange(e);
+            this._window.getSelection().removeAllRanges();
+            if (caret.startContainer)
+              this._window.getSelection().addRange(caret);
+            else if (caret.offsetNode) {
+              const range = document.createRange();
+              range.setStart(caret.offsetNode, caret.offset);
+              range.setEnd(caret.offsetNode, caret.offset);
+              this._window.getSelection().addRange(range);
+            }
+            this._mouseDown = true;
+            this._split._bar.style.pointerEvents = "none";
+          }
+        });
+        this._split._view.addEventListener("mousemove", async (e) => {
+          if (this._mouseDown) {
+            this._lastMouse = e;
+            this._extendSelection(e);
+            this._createScrollTimer();
+          }
+        });
+        this._split._view.addEventListener("mouseleave", (e) => {
+          if (this._mouseDown && e.toElement !== this._split._bar && e.target !== this._split._bar && (e.pageX >= this._split._bounds.right || e.pageY >= this._split._bounds.bottom)) {
+            this._lastMouse = e;
+            this._window.getSelection().extend(this._split._view.lastChild, this._split._view.lastChild.childNodes.length);
+          }
+        });
+        this._split._view.addEventListener("mouseenter", (e) => {
+          if (this._mouseDown && (e.buttons & 1) !== 1) {
+            this._clearMouseDown();
+          } else if (this._mouseDown) {
+            this._lastMouse = e;
+            this._extendSelection(e);
+            this._createScrollTimer();
+          }
+        });
+        this._split._view.addEventListener("mouseup", (e) => {
+          this.emit("mouseup", e);
+          if (e.button === 0)
+            this._clearMouseDown();
+          if (!e.button)
+            this._view.click();
+        });
+        this._split._view.addEventListener("wheel", (e) => {
+          const delta = e.deltaY || e.wheelDelta;
+          this._view.scrollTop += delta;
+        }, { passive: true });
+        this._toggleSplit();
+        this._doUpdate(64 /* split */ | 128 /* toggleSplit */);
+      } else if (this._split && !value) {
+        this._container.removeEventListener("mouseup", this._split.moveDone);
+        this._container.removeEventListener("mouseleave", this._split.moveDone);
+        this._container.removeChild(this._split._view);
+        this._container.removeChild(this._split._bar);
+        this._split = null;
+      }
     }
     get linkFunction() {
       return this._linkFunction || "doLink";
@@ -21321,7 +21628,7 @@
       this._model.on("parse-done", () => {
         this._view.insertAdjacentHTML("beforeend", this._lineCache.join(""));
         this._lineCache = [];
-        this._doUpdate(2 /* display */);
+        this._doUpdate(2 /* display */ | 64 /* split */);
         this.emit("parse-done");
       });
       this._model.on("set-title", (title, type) => {
@@ -21338,7 +21645,7 @@
       });
       this._model.on("expire-link-line", (idx) => {
         this._expireCache.push(idx);
-        this._doUpdate(2 /* display */);
+        this._doUpdate(2 /* display */ | 64 /* split */);
       });
     }
     get maxLines() {
@@ -21472,7 +21779,7 @@
     }
     get WindowHeight() {
       if (this._view.scrollWidth > this._view.clientWidth)
-        return Math.trunc((this._innerHeight - getScrollbarWidth() - this._padding[0] - this._padding[2]) / this._charHeight);
+        return Math.trunc((this._innerHeight - this._verticalScrollBarHeight - this._padding[0] - this._padding[2]) / this._charHeight);
       return Math.trunc((this._innerHeight - this._padding[0] - this._padding[2]) / this._charHeight);
     }
     get html() {
@@ -21494,8 +21801,11 @@
     debug(msg) {
       this.emit("debug", msg);
     }
-    scrollDisplay() {
-      if (!this.scrollLock)
+    scrollDisplay(force) {
+      if (this._split) {
+        if (force || !this.scrollLock && !this._split.visible)
+          this._view.scrollTop = this._view.scrollHeight;
+      } else if (!this.scrollLock)
         this._view.scrollTop = this._view.scrollHeight;
     }
     scrollTo(x2, y2) {
@@ -21540,9 +21850,10 @@
       if (line2 < 0 || line2 >= this.lines.length) return;
       this.emit("line-removed", line2, this.lines[line2].text);
       const id = this._model.getLineID(line2);
-      const elLine = this._document.querySelector(`[data-id="${id}"]`);
+      const elLine = this._view.querySelector(`[data-id="${id}"]`);
       this._view.removeChild(elLine);
       this._model.removeLine(line2);
+      this._doUpdate(64 /* split */);
     }
     removeLines(line2, amt) {
       if (line2 < 0 || line2 >= this.lines.length) return;
@@ -21550,13 +21861,14 @@
       this.emit("lines-removed", line2, this.lines.slice(line2, line2 + amt - 1));
       this._view.replaceChildren(...[].slice.call(this._view.children, 0, line2), ...[].slice.call(this._view.children, line2 + amt));
       this._model.removeLines(line2, amt);
+      this._doUpdate(64 /* split */);
     }
     _updateDisplay() {
       this._view.classList.remove("animate");
       this._doUpdate(4 /* trim */);
       if (this._hideTrailingEmptyLine && this.lines.length && this.lines[this.lines.length - 1].text.length === 0)
         this._view.lastChild.style.display = "none";
-      this._doUpdate(8 /* scrollEnd */ | 16 /* updateWindow */);
+      this._doUpdate(8 /* scrollEnd */ | 16 /* updateWindow */ | 64 /* split */);
       this._view.classList.add("animate");
     }
     updateWindow(width, height) {
@@ -21577,11 +21889,12 @@
       while (this._container.firstChild)
         this._view.removeChild(this._view.firstChild);
       this._window.removeEventListener("resize", this._wResize);
-      this._document.removeEventListener("selectionchange", this._selection);
+      this._window.removeEventListener("mouseup", this._wUp);
+      this._window.removeEventListener("mousemove", this._wMove);
+      this._document.removeEventListener("selectionchange", this._selectionChange);
     }
     _update() {
-      const scrollWidth = getScrollbarWidth();
-      this._maxView = this._view.clientWidth - this._padding[1] - this._padding[3] - scrollWidth - this._indentPadding;
+      this._maxView = this._view.clientWidth - this._padding[1] - this._padding[3] - this._verticalScrollBarHeight - this._indentPadding;
       if (this._timestamp !== 0 /* None */)
         this._maxView -= this._timestampWidth * this._charWidth;
       this._innerHeight = this._view.clientHeight;
@@ -21838,18 +22151,20 @@
         if (right && len < this.lines[idx].text.length)
           return parts.join("");
         if (right)
-          return parts.join("") + "<br>";
+          return parts.join("") + "<br>\n";
         if (len < this.lines[idx].text.length)
           return parts.join("");
-        return parts.join("") + "<br>";
+        return parts.join("") + "<br>\n";
       }
       if (right && len < this.lines[idx].text.length)
         return `<span data-id="${id}" class="line" style="min-width:100%">${parts.join("")}</span>`;
       if (right)
-        return `<span data-id="${id}" class="line" style="min-width:100%">${parts.join("")}<br></span>`;
+        return `<span data-id="${id}" class="line" style="min-width:100%">${parts.join("")}<br>
+</span>`;
       if (len < this.lines[idx].text.length)
         return `<span data-id="${id}" class="line">${parts.join("")}</span>`;
-      return `<span  data-id="${id}" class="line">${parts.join("")}<br></span>`;
+      return `<span data-id="${id}" class="line">${parts.join("")}<br>
+</span>`;
     }
     getLineText(line2, full) {
       if (line2 < 0 || line2 >= this.lines.length || !this.lines[line2]) return "";
@@ -21912,6 +22227,14 @@
           this.updateWindow();
           this._updating &= ~16 /* updateWindow */;
         }
+        if ((this._updating & 64 /* split */) === 64 /* split */) {
+          this._updateSplit();
+          this._updating &= ~64 /* split */;
+        }
+        if ((this._updating & 128 /* toggleSplit */) === 128 /* toggleSplit */) {
+          this._toggleSplit();
+          this._updating &= ~128 /* toggleSplit */;
+        }
         this._doUpdate(this._updating);
       });
     }
@@ -21951,62 +22274,89 @@
       this._model.ResetMXPLine();
     }
     get hasSelection() {
-      const selection = this._window.getSelection();
-      if (selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        return this._view.contains(range.commonAncestorContainer) && selection.toString().length !== 0;
-      }
-      return false;
-    }
-    get selection() {
-      if (this._window.getSelection) {
+      if (!this.customSelection) {
         const selection = this._window.getSelection();
         if (selection.rangeCount > 0) {
           const range = selection.getRangeAt(0);
-          if (this._view.contains(range.startContainer) || this._view.contains(range.endContainer)) {
+          return this._view.contains(range.commonAncestorContainer) && selection.toString().length !== 0;
+        }
+      } else if (this._selection.start)
+        return true;
+      return false;
+    }
+    get selection() {
+      if (!this.customSelection) {
+        const selection = this._window.getSelection();
+        if (selection.rangeCount > 0) {
+          const range2 = selection.getRangeAt(0);
+          if (this._view.contains(range2.startContainer) || this._view.contains(range2.endContainer)) {
             return selection.toString();
           }
         }
       }
-      return "";
+      if (!this.hasSelection) return "";
+      const range = this._document.createRange();
+      if (this._split && this._split.visible)
+        this._adjustSplitSelection(this._view, this._split._view);
+      range.setStart(this._selection.start.node, this._selection.start.offset);
+      range.setEnd(this._selection.end.node, this._selection.end.offset);
+      if (this._split && this._split.visible)
+        this._adjustSplitSelection(this._split._view, this._view);
+      return range.toString();
     }
     get selectionAsHTML() {
-      let range;
-      if (this._window.getSelection) {
+      if (!this.customSelection) {
         let selection = this._window.getSelection();
         if (selection.rangeCount > 0) {
-          range = selection.getRangeAt(0);
-          if (!this._view.contains(range.startContainer) && !this._view.contains(range.endContainer))
+          let range2 = selection.getRangeAt(0);
+          if (!this._view.contains(range2.startContainer) && !this._view.contains(range2.endContainer))
             return "";
-          let clonedSelection = range.cloneContents();
-          let div = this._document.createElement("div");
-          div.appendChild(clonedSelection);
-          return div.innerHTML;
-        } else {
-          return "";
+          let clonedSelection2 = range2.cloneContents();
+          let div2 = this._document.createElement("div");
+          div2.appendChild(clonedSelection2);
+          return div2.innerHTML;
         }
-      } else if (this._document.selection && this._document.selection.createRange) {
-        range = this._document.selection.createRange();
-        return range.htmlText;
-      } else {
         return "";
       }
+      if (!this.hasSelection) return "";
+      const range = this._document.createRange();
+      if (this._split && this._split.visible)
+        this._adjustSplitSelection(this._view, this._split._view);
+      range.setStart(this._selection.start.node, this._selection.start.offset);
+      range.setEnd(this._selection.end.node, this._selection.end.offset);
+      if (this._split && this._split.visible)
+        this._adjustSplitSelection(this._split._view, this._view);
+      let clonedSelection = range.cloneContents();
+      let div = this._document.createElement("div");
+      div.appendChild(clonedSelection);
+      return div.innerHTML;
     }
     selectAll() {
       let range;
       if (this._window.getSelection) {
-        if (this._window.getSelection().selectAllChildren)
-          this._window.getSelection().selectAllChildren(this._view);
-        else {
-          range = this._document.createRange();
-          range.selectNode(this._view);
-          this._window.getSelection().addRange(range);
-        }
-      } else if (this._document.selection) {
-        range = this._document.body.createTextRange();
-        range.moveToElementText(this._view);
-        range.select();
+        range = document.createRange();
+        range.setStart(this._view.firstChild, 0);
+        range.setEnd(this._view.lastChild, this._view.lastChild.childNodes.length);
+        this._window.getSelection().removeAllRanges();
+        this._window.getSelection().addRange(range);
       }
+      if (this.customSelection) {
+        this._selection = {
+          start: {
+            node: this._view.firstChild,
+            offset: 0
+          },
+          end: {
+            node: this._view.lastChild,
+            offset: this._view.lastChild.childNodes.length
+          },
+          timer: null
+        };
+        if (this._split && this._split.visible)
+          this._adjustSplitSelection(this._split._view, this._view);
+        this._updateSelectionHighlight();
+      }
+      this.emit("selection-changed", this._window.getSelection());
     }
     clearSelection() {
       const selection = this._window.getSelection();
@@ -22016,6 +22366,9 @@
           selection.removeAllRanges();
         }
       }
+      this._selection = { start: null, end: null, timer: null };
+      this._updateSelectionHighlight();
+      this.emit("selection-changed", this._window.getSelection());
     }
     getLineOffset(x2, y2) {
       const elements = this._document.elementsFromPoint(x2, y2);
@@ -22057,6 +22410,294 @@
         return word;
       }
       return "";
+    }
+    _updateSplit() {
+      if (!this._split || this._view.clientHeight >= this._view.scrollHeight) return;
+      let ll = this.lines.length;
+      let lines = [];
+      for (let l2 = ll - this.WindowHeight; l2 < ll; l2++)
+        lines.push(this.getLineHTML(l2));
+      this._split._view.classList.remove("animate");
+      this._split._view.innerHTML = lines.join("");
+      this._split._view.firstChild.style.width = this._view.scrollWidth + "px";
+      if (this._hideTrailingEmptyLine && this.lines.length && this.lines[this.lines.length - 1].text.length === 0)
+        this._split._view.lastChild.style.display = "none";
+      this._updateSplitLocation();
+      this._split._view.classList.add("animate");
+      this._split._view.scrollTop = this._split._view.scrollHeight;
+      this._split._bar.style.top = this._view.clientHeight - this._split._view.clientHeight + "px";
+    }
+    _updateSplitLocation() {
+      if (!this._split) return;
+      this._split._view.style.top = this._splitHeight + "px";
+      if (this._view.scrollWidth > this._view.clientWidth)
+        this._split._view.style.bottom = this._horizontalScrollBarHeight + "px";
+      else
+        this._split._view.style.bottom = "";
+      this._split._bounds = this._split._view.getBoundingClientRect();
+    }
+    _toggleSplit() {
+      if (!this._split) return;
+      if (this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight) {
+        if (this._split.visible) {
+          this._split._view.style.visibility = "hidden";
+          this._split._bar.style.display = "none";
+          this._split.visible = false;
+          this._adjustSplitSelection(this._view, this._split._view);
+          this.emit("scroll-lock", false);
+        }
+      } else {
+        this._split._view.scrollTop = this._split._view.scrollHeight;
+        this._split._view.scrollLeft = this._view.scrollLeft;
+        if (!this._split.visible) {
+          this._split._view.style.visibility = "visible";
+          this._split._bar.style.display = "block";
+          this._split._bar.style.top = this._view.clientHeight - this._split._view.clientHeight + "px";
+          this._split.visible = true;
+          this._split._bounds = this._split._view.getBoundingClientRect();
+          this._adjustSplitSelection(this._split._view, this._view);
+          this.emit("scroll-lock", true);
+        }
+      }
+    }
+    _adjustSplitSelection(target, source) {
+      const selection = this._window.getSelection();
+      let range;
+      if (selection.isCollapsed || selection.rangeCount === 0) {
+        if (!this._selection.start)
+          return;
+        else {
+          range = this._document.createRange();
+          range.setStart(this._selection.start.node, this._selection.start.offset);
+          range.setEnd(this._selection.end.node, this._selection.end.offset);
+        }
+      } else
+        range = selection.getRangeAt(0);
+      let so = range.startOffset;
+      let eo = range.endOffset;
+      let eElement = this._getElement(target, source, range.endContainer);
+      let sElement = this._getElement(target, source, range.startContainer);
+      if (eElement && this._isElementVisible(eElement, target)) {
+        range.setEnd(eElement, eo);
+        this._selection.end = { node: eElement, offset: eo };
+      } else if (!eElement && this._selection.start) {
+        eElement = this._getElement(target, source, this._selection.end.node);
+        eo = this._selection.end.offset;
+        if (eElement && this._isElementVisible(eElement, target))
+          this._selection.end = { node: eElement, offset: eo };
+      }
+      if (sElement && this._isElementVisible(sElement, target)) {
+        range.setStart(sElement, so);
+        this._selection.start = { node: sElement, offset: so };
+      } else if (!sElement && this._selection.start) {
+        sElement = this._getElement(target, source, this._selection.start.node);
+        so = this._selection.start.offset;
+        if (eElement && this._isElementVisible(sElement, target))
+          this._selection.start = { node: sElement, offset: so };
+      }
+      this._updateSelectionHighlight();
+    }
+    _getMouseEventCaretRange(evt) {
+      var range, x2 = evt.clientX, y2 = evt.clientY;
+      if (document.body.createTextRange) {
+        range = document.body.createTextRange();
+        range.moveToPoint(x2, y2);
+      } else if (typeof document.createRange != "undefined" && document.createRange !== null) {
+        if (typeof evt.rangeParent != "undefined" && evt.rangeParent !== null) {
+          range = document.createRange();
+          range.setStart(evt.rangeParent, evt.rangeOffset);
+          range.collapse(true);
+        } else if (document.body.caretPositionFromPoint) {
+          var pos = document.body.caretPositionFromPoint(x2, y2);
+          range = document.createRange();
+          range.setStart(pos.offsetNode, pos.offset);
+          range.collapse(true);
+        } else if (document.caretRangeFromPoint) {
+          range = document.caretRangeFromPoint(x2, y2);
+        }
+      }
+      return range;
+    }
+    _getElement(target, source, node) {
+      let id = -1;
+      let element;
+      let tree;
+      let idx;
+      if (!target.contains(node)) {
+        tree = [{ node, idx: -1 }];
+        element = node;
+        while (element && element.parentNode && source.contains(element) && source.contains(element.parentNode) && (!element.classList || !element.classList.contains("line"))) {
+          tree.push({ node: element.parentNode, idx: Array.from(element.parentNode.childNodes).indexOf(element) });
+          element = element.parentNode;
+        }
+        idx = tree.length - 1;
+        if (tree[idx].node && tree[idx].node.dataset)
+          id = tree[idx].node.dataset.id;
+        if (element = target.querySelector(`[data-id="${id}"]`)) {
+          for (; idx > 0; idx--) {
+            element = element.childNodes[tree[idx].idx];
+          }
+          return element;
+        }
+      }
+      return null;
+    }
+    _isElementVisible(element, container) {
+      if (!element || !container) return false;
+      if (!container.contains(element)) return false;
+      let elRect;
+      if (element.nodeType === 3) {
+        if (element.parentNode.style.display === "none") return true;
+        elRect = element.parentNode.getBoundingClientRect();
+      } else {
+        if (element.style.display === "none") return true;
+        elRect = element.getBoundingClientRect();
+      }
+      const conRect = container.getBoundingClientRect();
+      if (elRect.y >= conRect.y)
+        return true;
+      return false;
+    }
+    _getNodeOffset(view, node, container, containerOffset, range) {
+      if (view.contains(container) || node === container)
+        return { node: container, offset: containerOffset };
+      else if (node && range.intersectsNode(node))
+        return { node, offset: 0 };
+      return null;
+    }
+    _updateSelectionHighlight() {
+      if (!("Highlight" in window)) return;
+      if (!this._selection.start || !this.customSelection) {
+        if (this._highlightRange) {
+          this._highlight.delete(this._highlightRange);
+          this._highlightRange = null;
+        }
+        if (!this.customSelection && this._highlight) {
+          CSS.highlights.delete("oiMUD-selection");
+          this._highlight = null;
+        }
+        return;
+      }
+      this._highlight = this._highlight || CSS.highlights.get("oiMUD-selection");
+      if (!this._highlight) {
+        this._highlight = new Highlight();
+        CSS.highlights.set("oiMUD-selection", this._highlight);
+      }
+      if (!this._highlightRange) {
+        this._highlightRange = this._document.createRange();
+        this._highlight.add(this._highlightRange);
+      }
+      this._highlightRange.setStart(this._selection.start.node, this._selection.start.offset);
+      this._highlightRange.setEnd(this._selection.end.node, this._selection.end.offset);
+    }
+    _extendSelection(e) {
+      let caret = this._getMouseEventCaretRange(e);
+      if (!caret) return;
+      if (caret.startContainer) {
+        if (this._window.getSelection().rangeCount === 0) {
+          let range = this._document.createRange();
+          range.setStart(caret.startContainer, caret.startOffset);
+          range.setEnd(caret.startContainer, caret.startOffset);
+          this._window.getSelection().addRange(range);
+        } else
+          this._window.getSelection().extend(caret.startContainer, caret.startOffset);
+      } else if (caret.offsetNode) {
+        if (this._window.getSelection().rangeCount === 0) {
+          let range = this._document.createRange();
+          range.setStart(caret.offsetNode, caret.offset);
+          range.setEnd(caret.offsetNode, caret.offset);
+          this._window.getSelection().addRange(range);
+        } else
+          this._window.getSelection().extend(caret.offsetNode, caret.offset);
+      }
+    }
+    _clearMouseDown() {
+      if (this._mouseDown)
+        this.emit("selection-done");
+      this._mouseDown = false;
+      if (this._split)
+        this._split._bar.style.pointerEvents = "";
+      this._clearScrollTimer();
+    }
+    _clearScrollTimer() {
+      if (this.customSelection || this._selection.timer) {
+        clearInterval(this._selection.timer);
+        this._selection.timer = null;
+      }
+    }
+    _createScrollTimer() {
+      if (!this.customSelection) return;
+      var bounds = this._view.getBoundingClientRect();
+      var viewportX = this._lastMouse.clientX;
+      var viewportY = this._lastMouse.clientY;
+      var viewportWidth = this._view.clientWidth;
+      var viewportHeight = this._view.clientHeight;
+      var edgeSize = 20;
+      var edgeTop = bounds.top + edgeSize;
+      var edgeLeft = bounds.left + edgeSize;
+      var edgeBottom = bounds.top + (viewportHeight - edgeSize);
+      var edgeRight = bounds.left + (viewportWidth - edgeSize);
+      var isInLeftEdge = viewportX < edgeLeft;
+      var isInRightEdge = viewportX > edgeRight;
+      var isInTopEdge = viewportY < edgeTop;
+      var isInBottomEdge = viewportY > edgeBottom;
+      if (!(isInLeftEdge || isInRightEdge || isInTopEdge || isInBottomEdge)) {
+        this._clearScrollTimer();
+        return;
+      }
+      var viewWidth = Math.max(
+        this._view.scrollWidth,
+        this._view.offsetWidth,
+        this._view.clientWidth
+      );
+      var viewHeight = Math.max(
+        this._view.scrollHeight,
+        this._view.offsetHeight,
+        this._view.clientHeight
+      );
+      var maxScrollX = viewWidth - viewportWidth;
+      var maxScrollY = viewHeight - viewportHeight;
+      var _display = this;
+      var _selection = this._selection;
+      var _view = this._view;
+      (function checkForViewScroll() {
+        clearTimeout(_selection.timer);
+        if (_adjustViewScroll()) {
+          _selection.timer = setTimeout(checkForViewScroll, 30);
+        }
+      })();
+      function _adjustViewScroll() {
+        var currentScrollX = _view.scrollLeft;
+        var currentScrollY = _view.scrollTop;
+        var canScrollUp = currentScrollY > 0;
+        var canScrollDown = currentScrollY < maxScrollY;
+        var canScrollLeft = currentScrollX > 0;
+        var canScrollRight = currentScrollX < maxScrollX;
+        var nextScrollX = currentScrollX;
+        var nextScrollY = currentScrollY;
+        var maxStep = 50;
+        if (isInLeftEdge && canScrollLeft) {
+          var intensity = (edgeLeft - viewportX) / edgeSize;
+          nextScrollX = nextScrollX - maxStep * intensity;
+        } else if (isInRightEdge && canScrollRight) {
+          var intensity = (viewportX - edgeRight) / edgeSize;
+          nextScrollX = nextScrollX + maxStep * intensity;
+        }
+        if (isInTopEdge && canScrollUp) {
+          var intensity = (edgeTop - viewportY) / edgeSize;
+          nextScrollY = nextScrollY - maxStep * intensity;
+        } else if (isInBottomEdge && canScrollDown) {
+          var intensity = (viewportY - edgeBottom) / edgeSize;
+          nextScrollY = nextScrollY + maxStep * intensity;
+        }
+        nextScrollX = Math.max(0, Math.min(maxScrollX, nextScrollX));
+        nextScrollY = Math.max(0, Math.min(maxScrollY, nextScrollY));
+        if (nextScrollX !== currentScrollX || nextScrollY !== currentScrollY) {
+          _display.scrollTo(nextScrollX, nextScrollY);
+          return true;
+        }
+        return false;
+      }
     }
   };
   var DisplayModel = class extends EventEmitter {
@@ -33153,6 +33794,20 @@ Devanagari
       _loadHistory();
     });
     showButtons();
+    document.addEventListener("copy", (e) => {
+      const ae = document.activeElement;
+      if (ae && ae.display && ae.display.hasSelection) {
+        e.preventDefault();
+        e.clipboardData.setData("text/plain", ae.display.selection);
+        e.clipboardData.setData("text/html", ae.display.selectionAsHTML);
+      } else if (!window.getSelection().toString().length && client.display.hasSelection) {
+        if ((ae.tagName === "TEXTAREA" || ae.tagName === "INPUT") && ae.value.substring(ae.selectionStart, ae.selectionEnd).length)
+          return;
+        e.preventDefault();
+        e.clipboardData.setData("text/plain", client.display.selection);
+        e.clipboardData.setData("text/html", client.display.selectionAsHTML);
+      }
+    });
   }
   function removeHash(string) {
     if (!string || string.length === 0) return;
@@ -37011,6 +37666,9 @@ Devanagari
           el.id = "chat-display";
           this._window.document.body.append(el);
           this._window.display = new Display(el);
+          this._window.display.on("split-move-done", (h) => {
+            this.client.setOption("chat.splitHeight", h);
+          });
           this._loadDisplayOptions(this._window.display);
           this._loadWindowOptions(this._window.document);
           const toolbar = this._buildToolbar(this._window.document, this._window.display);
@@ -37030,6 +37688,9 @@ Devanagari
         el.id = "chat-display";
         this._dialog.body.append(el);
         this._dialog.display = new Display(el);
+        this._dialog.display.on("split-move-done", (h) => {
+          this.client.setOption("chat.splitHeight", h);
+        });
         this._loadDisplayOptions(this._dialog.display);
         this._loadWindowOptions(this._dialog.body);
         const toolbar = this._buildToolbar(document, this._dialog.display);
@@ -37214,6 +37875,9 @@ Devanagari
       display.wrapAt = client.getOption("chat.wordWrapAt");
       display.indent = client.getOption("chat.indent");
       display.scrollLock = client.getOption("chat.scrollLocked");
+      display.enableSplit = client.getOption("chat.split");
+      display.splitLive = client.getOption("chat.splitLive");
+      display.splitHeight = client.getOption("chat.splitHeight");
       display.scrollDisplay();
     }
     _loadWindowOptions(target) {
@@ -38091,6 +38755,9 @@ Devanagari
       this._miniMap.active = new Room(client.getOption("mapper.active"));
       this._miniMap.active.num = this._miniMap.active.num || this._miniMap.active.ID;
       this._chatDisplay = new Display(document.createElement("div"));
+      this._chatDisplay.on("split-move-done", (h) => {
+        this.client.setOption("chat.splitHeight", h);
+      });
       this._chatDisplay.container.classList.add("panel-container");
       this._updateOrder();
       const toolbar = document.createElement("div");
@@ -38410,6 +39077,9 @@ Devanagari
       });
       this.display.on("scroll-lock", (lock) => {
         this.scrollLock = lock;
+      });
+      this.display.on("split-move-done", (h) => {
+        this.setOption("display.splitHeight", h);
       });
       this.display.on("update-window", (width, height) => {
         this.telnet.updateWindow(width, height);
@@ -39388,6 +40058,9 @@ Devanagari
       this.display.showTimestamp = this._options["display.showTimestamp"];
       this.display.tabWidth = this._options["display.tabWidth"];
       this.display.timestampFormat = this._options["display.timestampFormat"];
+      this.display.splitHeight = this._options["display.splitHeight"];
+      this.display.enableSplit = this._options["display.split"];
+      this.display.splitLive = this._options["display.splitLive"];
       const colors = this.getOption("colors");
       if (colors && colors.length > 0) {
         let c;

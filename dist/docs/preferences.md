@@ -63,6 +63,10 @@ The navigation breadcrumb to allow easier jumping to other pages
 - `Emulate terminal extended characters` Enable/disable Terminal IBM/OEM (code page 437) extended characters, will convert them to the correct unicode character in an attempt to display like classic terminal
 - `Emulate control codes` Emulate control codes: bell, tab, backspace, escape
 - `Hide trailing line` Hide trailing empty line, **Note** if more then one it will only hide the final line **Note** Effects both chat and main display
+- `Split scroll` Enable split screen scroll, this will allow you to scroll while displaying the most recent lines at the bottom, has known issues with text selection and find system scroll to view
+- `Split scroll live update` determines how the split screen updates as resize bar is adjusted, if on it will update as resize bar is moved, if slow resizing disable this as it should reduce cpu load during drag
+- `Split height` The height of the display when split view is visible
+- `Enable custom selection system` Enable custom selection system for display, will use custom highlighting and tracking, **Note** this is always on when using split scroll
 
 ## Colors
 
@@ -255,6 +259,10 @@ Controls what is captured into the chat window
 - `Emulate terminal extended characters` Enable/disable Terminal IBM/OEM (code page 437) extended characters, will convert them to the correct unicode character in an attempt to display like classic terminal
 - `Emulate control codes` Emulate control codes: bell, tab, backspace, escape
 - `Hide trailing line` Hide trailing empty line, **Note** if more then one it will only hide the final line, **Note** Effects both chat and main displayay
+- `Split scroll` Enable split screen scroll, this will allow you to scroll while displaying the most recent lines at the bottom, has known issues with text selection and find system scroll to view
+- `Split scroll live update` determines how the split screen updates as resize bar is adjusted, if on it will update as resize bar is moved, if slow resizing disable this as it should reduce cpu load during drag
+- `Split height` The height of the display when split view is visible
+- `Enable custom selection system` Enable custom selection system for display, will use custom highlighting and tracking, **Note** this is always on when using split scroll
 
 ## Status
 

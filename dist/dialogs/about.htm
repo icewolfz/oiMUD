@@ -24,7 +24,7 @@
         alert_box('No log', 'No error log.', 2);
       else {
         const d = new Dialog({ title: '<i class="fa-regular fa-circle-xmark"></i> Error log', keepCentered: true, center: true, noFooter: true });
-        d.body.innerHTML = `<pre style="margin: 0;position: absolute;left: 0;right: 0;bottom: 0;top: 0;">${value}</pre>`;
+        d.body.innerHTML = `<pre class="user-select-auto" style="margin: 0;position: absolute;left: 0;right: 0;bottom: 0;top: 0;">${value}</pre>`;
         d.showModal();
       }
     });

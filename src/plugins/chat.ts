@@ -498,6 +498,9 @@ export class Chat extends Plugin {
                 el.id = 'chat-display';
                 this._window.document.body.append(el);
                 (<any>this._window).display = new Display(el);
+                (<any>this._window).display.on('split-move-done', (h) => {
+                    this.client.setOption('chat.splitHeight', h);
+                });   
                 this._loadDisplayOptions((<any>this._window).display);
                 this._loadWindowOptions(this._window.document);
                 const toolbar = this._buildToolbar(this._window.document, (<any>this._window).display);
@@ -518,6 +521,9 @@ export class Chat extends Plugin {
             el.id = 'chat-display';
             this._dialog.body.append(el);
             (<any>this._dialog).display = new Display(el);
+            (<any>this._dialog).display.on('split-move-done', (h) => {
+                this.client.setOption('chat.splitHeight', h);
+            });             
             this._loadDisplayOptions((<any>this._dialog).display);
             this._loadWindowOptions(this._dialog.body);
             const toolbar = this._buildToolbar(document, (<any>this._dialog).display);
@@ -708,6 +714,9 @@ export class Chat extends Plugin {
         display.wrapAt = client.getOption('chat.wordWrapAt');
         display.indent = client.getOption('chat.indent');
         display.scrollLock = client.getOption('chat.scrollLocked');
+        display.enableSplit = client.getOption('chat.split');
+        display.splitLive = client.getOption('chat.splitLive');
+        display.splitHeight = client.getOption('chat.splitHeight');        
         display.scrollDisplay();
     }
 

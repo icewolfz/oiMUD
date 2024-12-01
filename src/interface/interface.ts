@@ -461,6 +461,7 @@ export function initializeInterface() {
         showDialog('editor');
     });
     //#endregion
+    //#region restore dialogs
     //restore advanced editor
     options = client.getWindowState('editor');
     if (options && options.show)
@@ -474,7 +475,7 @@ export function initializeInterface() {
     options = client.getWindowState('help');
     if (options && options.show)
         showDialog('help');
-
+    //#endregion
     document.getElementById('btn-command-history').addEventListener('show.bs.dropdown', function () {
         document.body.appendChild(document.getElementById('command-history-menu'));
         let h = '';
@@ -558,12 +559,27 @@ export function initializeInterface() {
     window.addEventListener('hashchange', hashChange, false);
     window.addEventListener('load', hashChange);
     //#endregion
-
-
     client.on('command-history-changed', history => {
         _loadHistory();
     });
     showButtons();
+    document.addEventListener('copy', e => {
+        const ae = document.activeElement as any;
+        //if active control has a display use that display selection if set so we can add html formating
+        if (ae && ae.display && ae.display.hasSelection) {
+            e.preventDefault();
+            e.clipboardData.setData('text/plain', ae.display.selection);
+            e.clipboardData.setData('text/html', ae.display.selectionAsHTML);
+        }
+        //else if no selection but the main display has a selection copy that
+        else if (!window.getSelection().toString().length && client.display.hasSelection) {
+            if ((ae.tagName === 'TEXTAREA' || ae.tagName === 'INPUT') && ae.value.substring(ae.selectionStart, ae.selectionEnd).length)
+                return;
+            e.preventDefault();
+            e.clipboardData.setData('text/plain', client.display.selection);
+            e.clipboardData.setData('text/html', client.display.selectionAsHTML);
+        }
+    })
 }
 
 export function removeHash(string) {
@@ -886,7 +902,7 @@ export function showDialog(name: string) {
                     this.client.once('profiles-loaded', () => {
                         if (this.client.profiles.contains(this.client.getOption('profiles.profileSelected'))) {
                             _dialogs.profiles.expandPath(this.client.getOption('profiles.profileSelected') + '/aliases')
-                            updateHash('profiles/' + this.client.getOption('profiles.profileSelected'), name);                            
+                            updateHash('profiles/' + this.client.getOption('profiles.profileSelected'), name);
                         }
                     });
             }

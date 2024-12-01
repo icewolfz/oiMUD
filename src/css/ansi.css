@@ -71,6 +71,10 @@
     border: 0px;
 }
 
+.line br {
+    display: none;
+}
+
 /* --- End CSS for ansi display --- */
 
 .line a,

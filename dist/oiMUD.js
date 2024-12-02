@@ -21115,7 +21115,7 @@
       this._timestamp = 0 /* None */;
       this._timestampFormat = "[[]MM-DD HH:mm:ss.SSS[]] ";
       this._timestampWidth = (/* @__PURE__ */ new Date()).toISOString().length + 1;
-      this._mouseDown = false;
+      this._mouseDown = 0;
       this._scrollLock = false;
       this._selection = { start: null, end: null, timer: null };
       this._customSelection = true;
@@ -21164,6 +21164,7 @@
         this.emit("contextmenu", e);
       });
       this._view.addEventListener("mousedown", (e) => {
+        this._container.focus();
         if (this._split && this._split.visible) {
           let caret = this._getMouseEventCaretRange(e);
           if (caret) {
@@ -21186,7 +21187,7 @@
         if (e.button === 0 && e.pageX < bounds.right - w && e.pageY < bounds.bottom - h) {
           if (this.customSelection)
             this.clearSelection();
-          this._mouseDown = true;
+          this._mouseDown = 1;
           if (this._split)
             this._split._bar.style.pointerEvents = "none";
         } else if (this.customSelection && e.button === 2 && this._selection.start) {
@@ -21211,6 +21212,8 @@
       });
       this._view.addEventListener("mouseup", (e) => {
         this.emit("mouseup", e);
+        if (this._mouseDown === 2)
+          this._view.click();
         if (e.button === 0)
           this._clearMouseDown();
       });
@@ -21504,9 +21507,10 @@
           this._split.mouseMove = null;
         };
         this._split._view.addEventListener("mousedown", (e) => {
-          e.preventDefault();
+          this._container.focus();
           this.emit("mousedown", e);
           if (e.button === 0) {
+            e.preventDefault();
             let caret = this._getMouseEventCaretRange(e);
             this._window.getSelection().removeAllRanges();
             if (caret.startContainer)
@@ -21517,7 +21521,7 @@
               range.setEnd(caret.offsetNode, caret.offset);
               this._window.getSelection().addRange(range);
             }
-            this._mouseDown = true;
+            this._mouseDown = 2;
             this._split._bar.style.pointerEvents = "none";
           }
         });
@@ -22603,7 +22607,7 @@
           range.setEnd(caret.startContainer, caret.startOffset);
           this._window.getSelection().addRange(range);
         } else
-          this._window.getSelection().extend(caret.startContainer, caret.startOffset);
+          this._window.getSelection().extend(caret.endContainer, caret.endOffset);
       } else if (caret.offsetNode) {
         if (this._window.getSelection().rangeCount === 0) {
           let range = this._document.createRange();

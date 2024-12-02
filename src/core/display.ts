@@ -84,7 +84,7 @@ export class Display extends EventEmitter {
     private _timestamp: TimeStampStyle = TimeStampStyle.None;
     private _timestampFormat: string = '[[]MM-DD HH:mm:ss.SSS[]] ';
     private _timestampWidth: number = new Date().toISOString().length + 1;
-    private _mouseDown = false;
+    private _mouseDown = 0;
     private _document: Document;
     private _window: Window;
     private _scrollLock: boolean = false;
@@ -278,9 +278,10 @@ export class Display extends EventEmitter {
                 this._split.mouseMove = null;
             };
             this._split._view.addEventListener('mousedown', (e) => {
-                e.preventDefault();
+                this._container.focus();
                 this.emit('mousedown', e);
                 if (e.button === 0) {
+                    e.preventDefault();
                     let caret = this._getMouseEventCaretRange(e);
                     this._window.getSelection().removeAllRanges();
                     if (caret.startContainer)
@@ -291,7 +292,7 @@ export class Display extends EventEmitter {
                         range.setEnd(caret.offsetNode, caret.offset);
                         this._window.getSelection().addRange(range);
                     }
-                    this._mouseDown = true;
+                    this._mouseDown = 2;
                     this._split._bar.style.pointerEvents = 'none';
                 }
             });
@@ -660,6 +661,7 @@ export class Display extends EventEmitter {
             this.emit('contextmenu', e);
         });
         this._view.addEventListener('mousedown', e => {
+            this._container.focus();
             //only do custom selection if split view
             if (this._split && this._split.visible) {
                 let caret = this._getMouseEventCaretRange(e);
@@ -683,7 +685,7 @@ export class Display extends EventEmitter {
             if (e.button === 0 && e.pageX < bounds.right - w && e.pageY < bounds.bottom - h) {
                 if (this.customSelection)
                     this.clearSelection();
-                this._mouseDown = true;
+                this._mouseDown = 1;
                 if (this._split)
                     this._split._bar.style.pointerEvents = 'none';
             }
@@ -711,6 +713,8 @@ export class Display extends EventEmitter {
         });
         this._view.addEventListener('mouseup', e => {
             this.emit('mouseup', e);
+            if(this._mouseDown === 2)
+                this._view.click();
             if (e.button === 0)
                 this._clearMouseDown();
         });
@@ -1754,7 +1758,7 @@ export class Display extends EventEmitter {
                 this._window.getSelection().addRange(range);
             }
             else
-                this._window.getSelection().extend(caret.startContainer, caret.startOffset);
+                this._window.getSelection().extend(caret.endContainer, caret.endOffset);
         }
         else if (caret.offsetNode) {
             if (this._window.getSelection().rangeCount === 0) {

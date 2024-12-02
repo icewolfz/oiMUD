@@ -2447,17 +2447,17 @@
     return res.sort(SortArrayByPriority);
   }
   var _edCache = document.createElement("div");
-  function htmlEncode(value) {
+  function htmlEncode(value, nonBreaking) {
     if (!value || !value.length) return "";
-    _edCache.textContent = value;
+    _edCache.textContent = nonBreaking ? value.replace(/ /g, "\xA0") : value;
     value = _edCache.innerHTML;
     _edCache.textContent = "";
     return value;
   }
-  function htmlDecode(value) {
+  function htmlDecode(value, nonBreaking) {
     if (!value || !value.length) return "";
     _edCache.innerHTML = value;
-    value = _edCache.textContent;
+    value = nonBreaking ? _edCache.textContent.replace(/\u00A0/g, " ") : _edCache.textContent;
     _edCache.innerHTML = "";
     return value;
   }
@@ -2470,8 +2470,8 @@
     const box = el.getBoundingClientRect();
     const docElem = document.documentElement;
     return {
-      top: box.top + window.pageYOffset - docElem.clientTop,
-      left: box.left + window.pageXOffset - docElem.clientLeft
+      top: box.top + (window.scrollY || window.pageYOffset) - docElem.clientTop,
+      left: box.left + (window.scrollX || window.pageXOffset) - docElem.clientLeft
     };
   }
   var StringBuffer = class {
@@ -3056,15 +3056,6 @@
       return this[idx];
     };
   }
-  function addSlashes(string, all) {
-    if (!string || !string.length) return string;
-    if (all)
-      return string.replace(/\\/g, "\\\\").replace(/\u0008/g, "\\b").replace(/\t/g, "\\t").replace(/\n/g, "\\n").replace(/\f/g, "\\f").replace(/\r/g, "\\r").replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\u0000/g, "\\0");
-    return string.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '\\"');
-  }
-  String.prototype.addSlashes = function() {
-    return addSlashes(this);
-  };
   String.prototype.splitQuote = function(sep, type, escape2, escapeChar) {
     if (this.length === 0)
       return [];
@@ -3584,7 +3575,7 @@
         if (typeof navigator !== "undefined" && typeof navigator.clipboard !== "undefined" && typeof navigator.permissions !== "undefined") {
           let blob = new Blob([text], { type: "text/plain" });
           let data = [new ClipboardItem({ "text/plain": blob })];
-          navigator.permissions.query({ name: "clipboardWrite" }).then(function(permission) {
+          navigator.permissions.query({ name: "clipboard-write" }).then(function(permission) {
             if (permission.state === "granted" || permission.state === "prompt") {
               navigator.clipboard.write(data).then(resolve, reject).catch(reject);
             } else {
@@ -3613,7 +3604,7 @@
     return new Promise(function(resolve, reject) {
       try {
         if (typeof navigator !== "undefined" && typeof navigator.clipboard !== "undefined" && typeof navigator.permissions !== "undefined") {
-          navigator.permissions.query({ name: "clipboardRead" }).then(function(permission) {
+          navigator.permissions.query({ name: "clipboard-read" }).then(function(permission) {
             if (permission.state === "granted" || permission.state === "prompt") {
               navigator.clipboard.readText().then(resolve, reject).catch(reject);
             } else {

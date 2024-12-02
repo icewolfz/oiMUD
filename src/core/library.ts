@@ -97,34 +97,18 @@ export function FilterArrayByKeyValue(array, k, v) {
 
 const _edCache = document.createElement('div');
 
-export function htmlEncode2(value) {
+export function htmlEncode(value, nonBreaking?) {
     if (!value || !value.length) return '';
-    _edCache.textContent = value.replace(/ /g, '\u00A0');
-    value = _edCache.innerHTML;
-    _edCache.textContent = '';
-    return value;
-}
-
-export function htmlDecode2(value) {
-    if (!value || !value.length) return '';
-    _edCache.innerHTML = value;
-    value = _edCache.textContent.replace(/\u00A0/g, ' ');
-    _edCache.innerHTML = '';
-    return value;
-}
-
-export function htmlEncode(value) {
-    if (!value || !value.length) return '';
-    _edCache.textContent = value;
+    _edCache.textContent = nonBreaking ? value.replace(/ /g, '\u00A0') : value;
     value = _edCache.innerHTML;
     _edCache.textContent = ''
     return value;
 }
 
-export function htmlDecode(value) {
+export function htmlDecode(value, nonBreaking?) {
     if (!value || !value.length) return '';
     _edCache.innerHTML = value;
-    value = _edCache.textContent;
+    value = nonBreaking ? _edCache.textContent.replace(/\u00A0/g, ' ') : _edCache.textContent;
     _edCache.innerHTML = '';
     return value;
 }
@@ -133,6 +117,7 @@ export function htmlEntities(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+/*
 export function stripHTML(html) {
     _edCache.innerHTML = html;
     html = _edCache.textContent || _edCache.innerText || '';
@@ -143,7 +128,7 @@ export function stripHTML(html) {
 export function stripParentheses(str) {
     return str.replace(/(^\()|(\)$)/g, '');
 }
-
+*/
 export function stripQuotes(str) {
     str = str.replace(/^"(.+(?="$))?"$/, '$1');
     str = str.replace(/^'(.+(?='$))?'$/, '$1');
@@ -154,8 +139,8 @@ export function offset(el) {
     const box = el.getBoundingClientRect();
     const docElem = document.documentElement;
     return {
-        top: box.top + window.pageYOffset - docElem.clientTop,
-        left: box.left + window.pageXOffset - docElem.clientLeft
+        top: box.top + (window.scrollY || window.pageYOffset) - docElem.clientTop,
+        left: box.left + (window.scrollX || window.pageXOffset) - docElem.clientLeft
     };
 }
 
@@ -663,6 +648,7 @@ export function clone(obj, replacer?) {
     return JSON.parse(JSON.stringify(obj, replacer));
 }
 
+/*
 export function cloneObject(obj) {
     if (!obj) return obj;
     const nObj = {};
@@ -695,7 +681,7 @@ export function cloneArray(arr) {
     }
     return nArr;
 }
-
+*/
 export function copy(o) {
     let output;
     let v;
@@ -734,14 +720,14 @@ export function selectAll(input) {
     else
         input.select();
 }
-
+/*
 export function getSelectionText() {
     let text = '';
     if (window.getSelection)
         text = window.getSelection().toString();
     return text;
 }
-
+*/
 CanvasRenderingContext2D.prototype.fillRoundedRect = function (this, x: number, y: number, w: number, h: number, r: number) {
     this.beginPath();
     this.moveTo(x + r, y);
@@ -848,6 +834,7 @@ if (typeof Uint8Array.prototype.charCodeAt != 'function') {
     };
 }
 
+/*
 export function addSlashes(string, all?) {
     if (!string || !string.length) return string;
     if (all)
@@ -869,6 +856,7 @@ String.prototype.addSlashes = function (this: string) {
     //no need to do (str+'') anymore because 'this' can only be a string
     return addSlashes(this);
 }
+*/
 
 String.prototype.splitQuote = function (this: string, sep: string, type?, escape?, escapeChar?) {
     if (this.length === 0)
@@ -981,7 +969,7 @@ export function naturalCompare(a, b) {
 
     return ax.length - bx.length;
 }
-
+/*
 export function getScrollBarWidth(el) {
     if (!el) return 0;
     const inner = document.createElement('p');
@@ -1007,7 +995,8 @@ export function getScrollBarWidth(el) {
 
     return (w1 - w2);
 }
-
+*/
+/*
 export function getScrollBarHeight(el) {
     if (!el) return 0;
     const inner = document.createElement('p');
@@ -1064,7 +1053,7 @@ export function getScrollBarSize(el) {
 
     return [(w1 - w2), (h1 - h2)];
 }
-
+*/
 export function formatSize(size) {
     if (size >= 1073741824)
         return Math.round(size / 1073741824).toLocaleString() + ' GB';
@@ -1094,7 +1083,7 @@ export function capitalize(s, first?) {
     }
     return s.join(' ');
 }
-
+/*
 export function capitalizePinkfish(s) {
     const p = _string_parts(s);
     if (p.length !== 3)
@@ -1178,7 +1167,8 @@ function _string_parts(str) {
     }
     return [ss, sm, se];
 }
-
+*/
+/*
 export function inverse(s) {
     if (!s) return '';
     s = s.split(' ');
@@ -1341,7 +1331,7 @@ export function wordwrap(str, maxWidth, newLineStr?) {
 function _testWhite(x) {
     return /^\s$/.test(x.charAt(0));
 }
-
+*/
 export function splitQuoted(str, sep, t?, e?, ec?) {
     if (typeof (t) === 'undefined') t = 1 | 2;
     if (typeof (e) === 'undefined') e = 0;
@@ -1404,7 +1394,7 @@ export function splitQuoted(str, sep, t?, e?, ec?) {
         strings.push(str.substring(ps, s));
     return strings;
 }
-
+/*
 export function leadingZeros(num, totalChars: number, padWith: string, trim?: boolean) {
     num = num + '';
     padWith = (padWith) ? padWith : '0';
@@ -1448,7 +1438,7 @@ export function moveCursorToEnd(el) {
         range.select();
     }
 }
-
+*/
 export function getCursor(el) {
     if (!el) return 0;
     if (typeof el.selectionStart === 'number') {
@@ -1515,7 +1505,7 @@ export function enumToString(value, en, exact?) {
     }
     return f.join(', ');
 }
-
+/*
 //https://j11y.io/snippets/wordwrap-for-javascript/
 export function wordWrap(str, width, brk, cut) {
     brk = brk || 'n';
@@ -1733,7 +1723,7 @@ export function stripPinkfish(text) {
     }
     return stack.join('');
 }
-
+*/
 let _colorCodes;
 export function pinkfishToHTML(text) {
     text = text || '';
@@ -1993,20 +1983,21 @@ export function formatUnit(str, ch?) {
     return str;
 }
 
+/*
 export function replaceHtml(el, html) {
     const oldEl = typeof el === 'string' ? document.getElementById(el) : el;
+    */
     /*@cc_on // Pure innerHTML is slightly faster in IE
         oldEl.innerHTML = html;
         return oldEl;
     @*/
+    /*
     const newEl = oldEl.cloneNode(false);
     newEl.innerHTML = html;
     oldEl.parentNode.replaceChild(newEl, oldEl);
-    /* Since we just removed the old element from the DOM, return a reference
-    to the new element, which can be used to restore variable references. */
     return newEl;
 }
-
+*/
 export function isValidIdentifier(str: string): boolean {
     if (!str || str.length === 0) return false;
     //valid character check
@@ -2016,9 +2007,11 @@ export function isValidIdentifier(str: string): boolean {
     return ['break', 'case', 'catch', 'continue', 'debugger', 'default', 'delete', 'do', 'else', 'finally', 'for', 'function', 'if', 'in', 'instanceof', 'new', 'return', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with', 'class', 'const', 'enum', 'export', 'extends', 'import', 'super', 'implements', 'interface', 'let', 'package', 'private', 'protected', 'public', 'static', 'yield', 'null', 'true', 'false', 'NaN', 'Infinity', 'undefined', 'eval', 'arguments'].indexOf(str) === -1;
 }
 
+/*
 export function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
+*/
 
 export function insertValue(input, value) {
     if (!input) return;
@@ -2134,7 +2127,7 @@ export function copyText(text: string) {
             if (typeof navigator !== 'undefined' && typeof navigator.clipboard !== 'undefined' && typeof navigator.permissions !== 'undefined') {
                 let blob = new Blob([text], { type: 'text/plain' });
                 let data = [new ClipboardItem({ 'text/plain': blob })];
-                navigator.permissions.query({ name: 'clipboardWrite' as PermissionName }).then(function (permission) {
+                navigator.permissions.query({ name: 'clipboard-write' as PermissionName }).then(function (permission) {
                     if (permission.state === 'granted' || permission.state === 'prompt') {
                         navigator.clipboard.write(data).then(resolve, reject).catch(reject);
                     }
@@ -2168,7 +2161,7 @@ export function pasteText() {
     return new Promise<string>(function (resolve, reject) {
         try {
             if (typeof navigator !== 'undefined' && typeof navigator.clipboard !== 'undefined' && typeof navigator.permissions !== 'undefined') {
-                navigator.permissions.query({ name: 'clipboardRead' as PermissionName }).then(function (permission) {
+                navigator.permissions.query({ name: 'clipboard-read' as PermissionName }).then(function (permission) {
                     if (permission.state === 'granted' || permission.state === 'prompt') {
                         navigator.clipboard.readText().then(resolve, reject).catch(reject);
                     }
@@ -2198,21 +2191,22 @@ export function pasteText() {
     });
 }
 
-export function pasteSync() {
-    let value = '';
-    if (document.queryCommandSupported && document.queryCommandSupported('paste')) {
-        let textarea = _createTextarea();
-        try {
-            document.execCommand('paste', false, null);
-            value = textarea.value;
-        }
-        catch (e) {
-        }
-        finally {
-            document.body.removeChild(textarea);
-        }
-    }
-    return value;
+export function isPasteSupported() {
+    if (typeof navigator !== 'undefined' && typeof navigator.clipboard !== 'undefined' && typeof navigator.permissions !== 'undefined')
+        return true;
+    if (document.queryCommandSupported && document.queryCommandSupported('paste'))
+        return true;
+    const el = document.createElement('div');
+    el.setAttribute('contenteditable', 'true');
+    document.body.appendChild(el);
+    el.focus();
+
+    const pasteEvent = new ClipboardEvent('paste');
+    el.dispatchEvent(pasteEvent);
+
+    let isSupported = pasteEvent.defaultPrevented;
+    document.body.removeChild(el);
+    return isSupported;
 }
 
 export function getParameterByName(name: string, url?: string): string {

@@ -22621,7 +22621,7 @@
     _clearMouseDown() {
       if (this._mouseDown)
         this.emit("selection-done");
-      this._mouseDown = false;
+      this._mouseDown = 0;
       if (this._split)
         this._split._bar.style.pointerEvents = "";
       this._clearScrollTimer();

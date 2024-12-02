@@ -1987,15 +1987,15 @@ export function formatUnit(str, ch?) {
 export function replaceHtml(el, html) {
     const oldEl = typeof el === 'string' ? document.getElementById(el) : el;
     */
-    /*@cc_on // Pure innerHTML is slightly faster in IE
-        oldEl.innerHTML = html;
-        return oldEl;
-    @*/
-    /*
-    const newEl = oldEl.cloneNode(false);
-    newEl.innerHTML = html;
-    oldEl.parentNode.replaceChild(newEl, oldEl);
-    return newEl;
+/*@cc_on // Pure innerHTML is slightly faster in IE
+    oldEl.innerHTML = html;
+    return oldEl;
+@*/
+/*
+const newEl = oldEl.cloneNode(false);
+newEl.innerHTML = html;
+oldEl.parentNode.replaceChild(newEl, oldEl);
+return newEl;
 }
 */
 export function isValidIdentifier(str: string): boolean {
@@ -2164,6 +2164,54 @@ export function pasteText() {
                 navigator.permissions.query({ name: 'clipboard-read' as PermissionName }).then(function (permission) {
                     if (permission.state === 'granted' || permission.state === 'prompt') {
                         navigator.clipboard.readText().then(resolve, reject).catch(reject);
+                    }
+                    else {
+                        reject(new Error('Permission not granted!'));
+                    }
+                });
+            }
+            else if (document.queryCommandSupported && document.queryCommandSupported('paste')) {
+                let textarea = _createTextarea();
+                try {
+                    document.execCommand('paste', false, null);
+                    resolve(textarea.value);
+                    document.body.removeChild(textarea);
+                }
+                catch (e) {
+                    document.body.removeChild(textarea);
+                    reject(e);
+                }
+            }
+            else {
+                reject(new Error('None of pasting methods are supported by this browser!'));
+            }
+        } catch (err) {
+            reject(err);
+        }
+    });
+}
+
+export function pasteType(type, fallBack?) {
+    return new Promise<string>(function (resolve, reject) {
+        try {
+            if (typeof navigator !== 'undefined' && typeof navigator.clipboard !== 'undefined' && typeof navigator.permissions !== 'undefined') {
+                navigator.permissions.query({ name: 'clipboard-read' as PermissionName }).then(function (permission) {
+                    if (permission.state === 'granted' || permission.state === 'prompt') {
+                        navigator.clipboard.read().then((items) => {
+                            if (items.length) {
+                                //if html fall back to plain text
+                                if (fallBack && !items[0].types.includes(type))
+                                    type = fallBack;
+                                if (items[0].types.includes(type))
+                                    items[0].getType(type).then(data => {
+                                        resolve(data.text());
+                                    }).catch(reject);
+                                else
+                                    resolve('');
+                            }
+                            else
+                                resolve('');
+                        }).catch(reject);
                     }
                     else {
                         reject(new Error('Permission not granted!'));

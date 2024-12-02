@@ -1,7 +1,7 @@
 import '../css/tinymce.css';
 import { EventEmitter } from '../core/events';
 import { RGBColor } from '../lib/rgbcolor';
-import { insertValue, htmlEncode, getColors, copyText, openFileDialog, readFile, pinkfishToHTML } from '../core/library'
+import { insertValue, htmlEncode, getColors, copyText, openFileDialog, readFile, pinkfishToHTML, isPasteSupported, pasteText, pasteType } from '../core/library'
 import { Dialog } from './dialog';
 
 export class AdvEditor extends EventEmitter {
@@ -714,7 +714,8 @@ export class AdvEditor extends EventEmitter {
             editor.ui.registry.addIcon('dblunderline', '<i class="mce-i-dblunderline"></i>');
             editor.ui.registry.addIcon('flash', '<i class="mce-i-flash"></i>');
             editor.ui.registry.addIcon('reverse', '<i class="mce-i-reverse"></i>');
-            //editor.ui.registry.addIcon('pasteformatted', '<i class="mce-i-pasteformatted"></i>');
+            if (isPasteSupported())
+                editor.ui.registry.addIcon('pasteformatted', '<i class="mce-i-pasteformatted"></i>');
             editor.ui.registry.addIcon('copyformatted', '<i class="mce-i-copyformatted"></i>');
 
             editor.ui.registry.addSplitButton('send', {
@@ -814,40 +815,56 @@ export class AdvEditor extends EventEmitter {
                 tooltip: 'Clear',
                 onAction: () => _editor.clear()
             });
-            /*
-            editor.ui.registry.addButton('pasteformatted', {
-                icon: 'pasteformatted',
-                tooltip: 'Paste formatted',
-                onAction: buttonApi => {
-                    pasteText().then(text => {
-                        _editor.insertFormatted(text || '');
-                    }).catch(err => {
-                        if (client.enableDebug)
-                            client.debug(err);
-                        if (err.message && err.message === 'Permission not granted!')
-                            alert('Paste permission not granted.');
-                        else
-                            alert('Paste not supported.');
-                    });
-                }
-            });
-            editor.ui.registry.addButton('pasteastext', {
-                icon: 'paste-text',
-                tooltip: 'Paste as text',
-                onAction: buttonApi => {
-                    pasteText().then(text => {
-                        tinymce.activeEditor.execCommand('mceInsertContent', false, (text || '').replace(/(\r\n|\r|\n)/g, '<br/>').replaceAll('  ', '&nbsp;&nbsp;'));
-                    }).catch(err => {
-                        if (client.enableDebug)
-                            client.debug(err);
-                        if (err.message && err.message === 'Permission not granted!')
-                            alert('Paste permission not granted.');
-                        else
-                            alert('Paste not supported.');
-                    });
-                }
-            });
-*/
+            if (isPasteSupported()) {
+                editor.ui.registry.addButton('pastecustom', {
+                    icon: 'paste',
+                    tooltip: 'Paste',
+                    onAction: buttonApi => {
+                        pasteType('text/html', 'text/plain').then(text => {
+                            _editor.insertFormatted(text || '');
+                        }).catch(err => {
+                            if (client.enableDebug)
+                                client.debug(err);
+                            if (err.message && err.message === 'Permission not granted!')
+                                alert('Paste permission not granted.');
+                            else
+                                alert('Paste not supported.');
+                        });
+                    }
+                });
+                editor.ui.registry.addButton('pasteformatted', {
+                    icon: 'pasteformatted',
+                    tooltip: 'Paste formatted',
+                    onAction: buttonApi => {
+                        pasteText().then(text => {
+                            _editor.insertFormatted(text || '');
+                        }).catch(err => {
+                            if (client.enableDebug)
+                                client.debug(err);
+                            if (err.message && err.message === 'Permission not granted!')
+                                alert('Paste permission not granted.');
+                            else
+                                alert('Paste not supported.');
+                        });
+                    }
+                });
+                editor.ui.registry.addButton('pasteastext', {
+                    icon: 'paste-text',
+                    tooltip: 'Paste as text',
+                    onAction: buttonApi => {
+                        pasteText().then(text => {
+                            tinymce.activeEditor.execCommand('mceInsertContent', false, (text || '').replace(/(\r\n|\r|\n)/g, '<br/>').replaceAll('  ', '&nbsp;&nbsp;'));
+                        }).catch(err => {
+                            if (client.enableDebug)
+                                client.debug(err);
+                            if (err.message && err.message === 'Permission not granted!')
+                                alert('Paste permission not granted.');
+                            else
+                                alert('Paste not supported.');
+                        });
+                    }
+                });
+            }
             editor.ui.registry.addButton('copyformatted', {
                 icon: 'copyformatted',
                 tooltip: 'Copy formatted',
@@ -1533,7 +1550,7 @@ export class AdvEditor extends EventEmitter {
             color_picker_caption: 'More&hellip;',
             textcolor_rows: '3',
             textcolor_cols: '8',
-            toolbar: 'send | append | undo redo | pinkfishforecolor pinkfishbackcolor | italic underline strikethrough overline dblunderline flash reverse | clear | copy copyformatted | insertdatetime',
+            toolbar: `send | append | undo redo ${isPasteSupported() ? '| pastecustom pasteastext pasteformatted ' : ''}| pinkfishforecolor pinkfishbackcolor | italic underline strikethrough overline dblunderline flash reverse | clear | copy copyformatted | insertdatetime`,
             toolbar_mode: 'sliding',
             content_css: 'css/tinymce.content.min.css',
             formats: {
@@ -1552,14 +1569,32 @@ export class AdvEditor extends EventEmitter {
             },
             init_instance_callback: (editor) => {
                 editor.shortcuts.add('ctrl+shift+c', 'Copy formatted', () => copyText(this.getFormattedSelection().replace(/(?:\r)/g, '')));
-                /*
-                editor.shortcuts.add('ctrl+shift+p', 'Paste formatted', () => {
-                    //this.insertFormatted(clipboard.readText('selection') || '');
-                });
-                editor.shortcuts.add('ctrl+alt+p', 'Paste as text', () => {
-                    //tinymce.activeEditor.execCommand('mceInsertContent', false, (clipboard.readText('selection') || '').replace(/(\r\n|\r|\n)/g, '<br/>').replaceAll('  ', '&nbsp;&nbsp;'));
-                });
-                */
+                if (isPasteSupported()) {
+                    editor.shortcuts.add('ctrl+shift+p', 'Paste formatted', () => {
+                        pasteText().then(text => {
+                            this.insertFormatted(text || '');
+                        }).catch(err => {
+                            if (client.enableDebug)
+                                client.debug(err);
+                            if (err.message && err.message === 'Permission not granted!')
+                                alert('Paste permission not granted.');
+                            else
+                                alert('Paste not supported.');
+                        });
+                    });
+                    editor.shortcuts.add('ctrl+alt+p', 'Paste as text', () => {
+                        pasteText().then(text => {
+                            tinymce.activeEditor.execCommand('mceInsertContent', false, (text || '').replace(/(\r\n|\r|\n)/g, '<br/>').replaceAll('  ', '&nbsp;&nbsp;'));
+                        }).catch(err => {
+                            if (client.enableDebug)
+                                client.debug(err);
+                            if (err.message && err.message === 'Permission not granted!')
+                                alert('Paste permission not granted.');
+                            else
+                                alert('Paste not supported.');
+                        });
+                    });
+                }
                 editor.on('PastePreProcess', e => {
                     if (client.getOption('enableDebug'))
                         client.debug('Advanced Before Editor PastePreProcess: ' + e.content);

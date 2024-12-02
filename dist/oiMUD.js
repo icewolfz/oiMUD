@@ -3629,6 +3629,62 @@
       }
     });
   }
+  function pasteType(type, fallBack) {
+    return new Promise(function(resolve, reject) {
+      try {
+        if (typeof navigator !== "undefined" && typeof navigator.clipboard !== "undefined" && typeof navigator.permissions !== "undefined") {
+          navigator.permissions.query({ name: "clipboard-read" }).then(function(permission) {
+            if (permission.state === "granted" || permission.state === "prompt") {
+              navigator.clipboard.read().then((items) => {
+                if (items.length) {
+                  if (fallBack && !items[0].types.includes(type))
+                    type = fallBack;
+                  if (items[0].types.includes(type))
+                    items[0].getType(type).then((data) => {
+                      resolve(data.text());
+                    }).catch(reject);
+                  else
+                    resolve("");
+                } else
+                  resolve("");
+              }).catch(reject);
+            } else {
+              reject(new Error("Permission not granted!"));
+            }
+          });
+        } else if (document.queryCommandSupported && document.queryCommandSupported("paste")) {
+          let textarea = _createTextarea();
+          try {
+            document.execCommand("paste", false, null);
+            resolve(textarea.value);
+            document.body.removeChild(textarea);
+          } catch (e) {
+            document.body.removeChild(textarea);
+            reject(e);
+          }
+        } else {
+          reject(new Error("None of pasting methods are supported by this browser!"));
+        }
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+  function isPasteSupported() {
+    if (typeof navigator !== "undefined" && typeof navigator.clipboard !== "undefined" && typeof navigator.permissions !== "undefined")
+      return true;
+    if (document.queryCommandSupported && document.queryCommandSupported("paste"))
+      return true;
+    const el = document.createElement("div");
+    el.setAttribute("contenteditable", "true");
+    document.body.appendChild(el);
+    el.focus();
+    const pasteEvent = new ClipboardEvent("paste");
+    el.dispatchEvent(pasteEvent);
+    let isSupported = pasteEvent.defaultPrevented;
+    document.body.removeChild(el);
+    return isSupported;
+  }
   function getParameterByName(name2, url) {
     if (!name2) return null;
     if (!url) url = window.location.href;
@@ -29143,6 +29199,8 @@ Devanagari
         editor2.ui.registry.addIcon("dblunderline", '<i class="mce-i-dblunderline"></i>');
         editor2.ui.registry.addIcon("flash", '<i class="mce-i-flash"></i>');
         editor2.ui.registry.addIcon("reverse", '<i class="mce-i-reverse"></i>');
+        if (isPasteSupported())
+          editor2.ui.registry.addIcon("pasteformatted", '<i class="mce-i-pasteformatted"></i>');
         editor2.ui.registry.addIcon("copyformatted", '<i class="mce-i-copyformatted"></i>');
         editor2.ui.registry.addSplitButton("send", {
           icon: "send",
@@ -29241,6 +29299,56 @@ Devanagari
           tooltip: "Clear",
           onAction: () => _editor.clear()
         });
+        if (isPasteSupported()) {
+          editor2.ui.registry.addButton("pastecustom", {
+            icon: "paste",
+            tooltip: "Paste",
+            onAction: (buttonApi) => {
+              pasteType("text/html", "text/plain").then((text) => {
+                _editor.insertFormatted(text || "");
+              }).catch((err) => {
+                if (client.enableDebug)
+                  client.debug(err);
+                if (err.message && err.message === "Permission not granted!")
+                  alert("Paste permission not granted.");
+                else
+                  alert("Paste not supported.");
+              });
+            }
+          });
+          editor2.ui.registry.addButton("pasteformatted", {
+            icon: "pasteformatted",
+            tooltip: "Paste formatted",
+            onAction: (buttonApi) => {
+              pasteText().then((text) => {
+                _editor.insertFormatted(text || "");
+              }).catch((err) => {
+                if (client.enableDebug)
+                  client.debug(err);
+                if (err.message && err.message === "Permission not granted!")
+                  alert("Paste permission not granted.");
+                else
+                  alert("Paste not supported.");
+              });
+            }
+          });
+          editor2.ui.registry.addButton("pasteastext", {
+            icon: "paste-text",
+            tooltip: "Paste as text",
+            onAction: (buttonApi) => {
+              pasteText().then((text) => {
+                tinymce.activeEditor.execCommand("mceInsertContent", false, (text || "").replace(/(\r\n|\r|\n)/g, "<br/>").replaceAll("  ", "&nbsp;&nbsp;"));
+              }).catch((err) => {
+                if (client.enableDebug)
+                  client.debug(err);
+                if (err.message && err.message === "Permission not granted!")
+                  alert("Paste permission not granted.");
+                else
+                  alert("Paste not supported.");
+              });
+            }
+          });
+        }
         editor2.ui.registry.addButton("copyformatted", {
           icon: "copyformatted",
           tooltip: "Copy formatted",
@@ -29876,7 +29984,7 @@ Devanagari
         color_picker_caption: "More&hellip;",
         textcolor_rows: "3",
         textcolor_cols: "8",
-        toolbar: "send | append | undo redo | pinkfishforecolor pinkfishbackcolor | italic underline strikethrough overline dblunderline flash reverse | clear | copy copyformatted | insertdatetime",
+        toolbar: `send | append | undo redo ${isPasteSupported() ? "| pastecustom pasteastext pasteformatted " : ""}| pinkfishforecolor pinkfishbackcolor | italic underline strikethrough overline dblunderline flash reverse | clear | copy copyformatted | insertdatetime`,
         toolbar_mode: "sliding",
         content_css: "css/tinymce.content.min.css",
         formats: {
@@ -29895,6 +30003,32 @@ Devanagari
         },
         init_instance_callback: (editor2) => {
           editor2.shortcuts.add("ctrl+shift+c", "Copy formatted", () => copyText(this.getFormattedSelection().replace(/(?:\r)/g, "")));
+          if (isPasteSupported()) {
+            editor2.shortcuts.add("ctrl+shift+p", "Paste formatted", () => {
+              pasteText().then((text) => {
+                this.insertFormatted(text || "");
+              }).catch((err) => {
+                if (client.enableDebug)
+                  client.debug(err);
+                if (err.message && err.message === "Permission not granted!")
+                  alert("Paste permission not granted.");
+                else
+                  alert("Paste not supported.");
+              });
+            });
+            editor2.shortcuts.add("ctrl+alt+p", "Paste as text", () => {
+              pasteText().then((text) => {
+                tinymce.activeEditor.execCommand("mceInsertContent", false, (text || "").replace(/(\r\n|\r|\n)/g, "<br/>").replaceAll("  ", "&nbsp;&nbsp;"));
+              }).catch((err) => {
+                if (client.enableDebug)
+                  client.debug(err);
+                if (err.message && err.message === "Permission not granted!")
+                  alert("Paste permission not granted.");
+                else
+                  alert("Paste not supported.");
+              });
+            });
+          }
           editor2.on("PastePreProcess", (e) => {
             if (client.getOption("enableDebug"))
               client.debug("Advanced Before Editor PastePreProcess: " + e.content);

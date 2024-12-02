@@ -21180,7 +21180,7 @@
           }
         }
         this.emit("mousedown", e);
-        const bounds = this._view.getBoundingClientRect();
+        const bounds = this._bounds;
         let w = bounds.width - this._view.clientWidth;
         let h = bounds.height - this._view.clientHeight;
         if (e.button === 0 && e.pageX < bounds.right - w && e.pageY < bounds.bottom - h) {
@@ -21204,12 +21204,10 @@
       });
       this._view.addEventListener("mousemove", async (e) => {
         this._lastMouse = e;
-        if (this._split && this._split.visible && this._mouseDown) {
-          if (e.pageY >= this._split._bounds.top) return;
+        if (this._mouseDown) {
           this._extendSelection(e);
-        }
-        if (this._mouseDown)
           this._createScrollTimer();
+        }
       });
       this._view.addEventListener("mouseup", (e) => {
         this.emit("mouseup", e);
@@ -21225,6 +21223,10 @@
       this._view.addEventListener("mouseleave", (e) => {
         if (this._mouseDown) {
           this._lastMouse = e;
+          if (e.pageY >= this._bounds.bottom - this._horizontalScrollBarHeight) {
+            this._window.getSelection().extend(this._view.lastChild, this._view.lastChild.childNodes.length);
+            this._updateSelectionHighlight();
+          }
           this._createScrollTimer();
         }
       });
@@ -21314,6 +21316,7 @@
       else
         this._timestampWidth = moment().format(this._timestampFormat).length;
       this.updateFont();
+      this._bounds = this._view.getBoundingClientRect();
       this.splitHeight = -1;
     }
     get _horizontalScrollBarHeight() {
@@ -21408,12 +21411,11 @@
     set splitHeight(value) {
       if (this._splitHeight !== value) {
         this._splitHeight = value;
-        const bounds = this._view.getBoundingClientRect();
-        bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
-        if (this._splitHeight <= bounds.top + 150)
+        this._bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
+        if (this._splitHeight <= this._bounds.top + 150)
           this._splitHeight = 150;
-        else if (this._splitHeight > bounds.bottom - 150)
-          this._splitHeight = bounds.height - 150;
+        else if (this._splitHeight > this._bounds.bottom - 150)
+          this._splitHeight = this._bounds.height - 150;
         this._updateSplitLocation();
       }
     }
@@ -21449,7 +21451,7 @@
           this._split.ghostBar.style.display = "block";
           this._split.ghostBar.style.right = this._verticalScrollBarHeight + "px";
           this._container.appendChild(this._split.ghostBar);
-          const bounds = this._view.getBoundingClientRect();
+          const bounds = this._bounds;
           bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
           this._split.mouseMove = (e2) => {
             e2.preventDefault();
@@ -21480,7 +21482,7 @@
         });
         this._split.moveDone = (e) => {
           if (this._split.ghostBar) {
-            const bounds = this._view.getBoundingClientRect();
+            const bounds = this._bounds;
             bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
             let h;
             if (e.pageY < bounds.top + 150)
@@ -21527,7 +21529,7 @@
           }
         });
         this._split._view.addEventListener("mouseleave", (e) => {
-          if (this._mouseDown && e.toElement !== this._split._bar && e.target !== this._split._bar && (e.pageX >= this._split._bounds.right || e.pageY >= this._split._bounds.bottom)) {
+          if (this._mouseDown && e.toElement !== this._split._bar && e.target !== this._split._bar && (e.pageX >= this._split._bounds.right || e.pageY >= this._bounds.bottom - this._horizontalScrollBarHeight)) {
             this._lastMouse = e;
             this._window.getSelection().extend(this._split._view.lastChild, this._split._view.lastChild.childNodes.length);
           }
@@ -21898,6 +21900,7 @@
       if (this._timestamp !== 0 /* None */)
         this._maxView -= this._timestampWidth * this._charWidth;
       this._innerHeight = this._view.clientHeight;
+      this._bounds = this._view.getBoundingClientRect();
     }
     updateFont(font, size) {
       if (!font || font.length === 0)
@@ -22627,7 +22630,7 @@
     }
     _createScrollTimer() {
       if (!this.customSelection) return;
-      var bounds = this._view.getBoundingClientRect();
+      var bounds = this._bounds;
       var viewportX = this._lastMouse.clientX;
       var viewportY = this._lastMouse.clientY;
       var viewportWidth = this._view.clientWidth;

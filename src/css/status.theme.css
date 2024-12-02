@@ -78,3 +78,12 @@
 #status:hover #status-close {
   display: block;
 }
+
+#lagMeter {
+  margin-top: 2px;
+}
+
+#bars {
+  margin-top: 2px;
+  scrollbar-color: var(--theme-button-bg-color) var(--theme-bg-secondary-color);
+}

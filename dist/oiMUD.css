@@ -1122,6 +1122,55 @@ div.offcanvas-body ul li hr {
   background-color: var(--theme-hover-bg-color);
   opacity: 0.75;
 }
+.view {
+  scrollbar-color: var(--theme-button-bg-color) var(--theme-bg-secondary-color);
+}
+.view::-webkit-scrollbar {
+  background: var(--theme-button-bg-color);
+  color: black;
+}
+.view::-webkit-scrollbar:hover {
+  background: var(--theme-hover-bg-color);
+  color: var(--theme-hover-color);
+}
+.view::-webkit-scrollbar-track {
+  background: var(--theme-bg-secondary-color);
+  color: black;
+}
+.view::-webkit-scrollbar-thumb {
+  background: var(--theme-button-bg-color);
+  border: 1px solid var(--theme-bg-secondary-border);
+}
+.view::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-hover-bg-color);
+  border: 1px solid var(--theme-hover-border-color);
+}
+.view::-webkit-scrollbar-corner {
+  background: var(--theme-bg-color);
+}
+.view::-webkit-scrollbar-thumb:active {
+  background-color: var(--theme-active-bg-color);
+  border: 1px solid var(--theme-border-color);
+  outline: none;
+}
+.view::-webkit-scrollbar-button {
+  background-color: var(--theme-button-bg-color);
+  border: 1px solid var(--theme-bg-secondary-border);
+  color: black;
+}
+.view::-webkit-scrollbar-button:hover {
+  background-color: var(--theme-hover-bg-color);
+  border: 1px solid var(--theme-hover-border-color);
+  color: white;
+}
+.view::-webkit-scrollbar-button:active {
+  background-color: var(--theme-active-bg-color);
+  border: 1px solid var(--theme-border-color);
+  color: white;
+}
+.view:hover {
+  --fix: ;
+}
 
 /* src/css/tinymce.css */
 .mce-tinymce,
@@ -3362,6 +3411,13 @@ li.submenu.dropstart > a.dropdown-toggle::after {
 }
 #status:hover #status-close {
   display: block;
+}
+#lagMeter {
+  margin-top: 2px;
+}
+#bars {
+  margin-top: 2px;
+  scrollbar-color: var(--theme-button-bg-color) var(--theme-bg-secondary-color);
 }
 
 /* src/css/logger.css */

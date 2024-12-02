@@ -92,6 +92,7 @@ export class Display extends EventEmitter {
     private _customSelection: boolean = true;
     private _highlightRange;
     private _highlight;
+    private _bounds;
 
     private get _horizontalScrollBarHeight() {
         return (this._view.scrollWidth > this._view.clientWidth ? getScrollbarWidth() : 0);
@@ -180,12 +181,11 @@ export class Display extends EventEmitter {
     set splitHeight(value: number) {
         if (this._splitHeight !== value) {
             this._splitHeight = value;
-            const bounds = this._view.getBoundingClientRect();
-            bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
-            if (this._splitHeight <= bounds.top + 150)
+            this._bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
+            if (this._splitHeight <= this._bounds.top + 150)
                 this._splitHeight = 150;
-            else if (this._splitHeight > bounds.bottom - 150)
-                this._splitHeight = bounds.height - 150;
+            else if (this._splitHeight > this._bounds.bottom - 150)
+                this._splitHeight = this._bounds.height - 150;
             this._updateSplitLocation();
         }
     }
@@ -220,7 +220,7 @@ export class Display extends EventEmitter {
                 this._split.ghostBar.style.display = 'block';
                 this._split.ghostBar.style.right = this._verticalScrollBarHeight + 'px';
                 this._container.appendChild(this._split.ghostBar);
-                const bounds = this._view.getBoundingClientRect();
+                const bounds = this._bounds;
                 bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
 
                 this._split.mouseMove = (e) => {
@@ -255,7 +255,7 @@ export class Display extends EventEmitter {
 
             this._split.moveDone = (e) => {
                 if (this._split.ghostBar) {
-                    const bounds = this._view.getBoundingClientRect();
+                    const bounds = this._bounds;
                     bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
                     let h;
                     if (e.pageY < bounds.top + 150)
@@ -305,7 +305,7 @@ export class Display extends EventEmitter {
             });
 
             this._split._view.addEventListener('mouseleave', e => {
-                if (this._mouseDown && e.toElement !== this._split._bar && e.target !== this._split._bar && (e.pageX >= this._split._bounds.right || e.pageY >= this._split._bounds.bottom)) {
+                if (this._mouseDown && e.toElement !== this._split._bar && e.target !== this._split._bar && (e.pageX >= this._split._bounds.right || e.pageY >= this._bounds.bottom - this._horizontalScrollBarHeight)) {
                     this._lastMouse = e;
                     this._window.getSelection().extend(this._split._view.lastChild, this._split._view.lastChild.childNodes.length);
                 }
@@ -677,7 +677,7 @@ export class Display extends EventEmitter {
                 }
             }
             this.emit('mousedown', e);
-            const bounds = this._view.getBoundingClientRect();
+            const bounds = this._bounds;
             let w = bounds.width - this._view.clientWidth;
             let h = bounds.height - this._view.clientHeight;
             if (e.button === 0 && e.pageX < bounds.right - w && e.pageY < bounds.bottom - h) {
@@ -703,14 +703,11 @@ export class Display extends EventEmitter {
         });
         this._view.addEventListener('mousemove', async e => {
             this._lastMouse = e;
-            //only if split view
-            if (this._split && this._split.visible && this._mouseDown) {
-                if (e.pageY >= this._split._bounds.top) return;
-                this._extendSelection(e);
-            }
-            //when near edge of view start auto scroll
-            if (this._mouseDown)
+            if (this._mouseDown) {
+                this._extendSelection(e);              
+                //when near edge of view start auto scroll
                 this._createScrollTimer();
+            }
         });
         this._view.addEventListener('mouseup', e => {
             this.emit('mouseup', e);
@@ -727,6 +724,10 @@ export class Display extends EventEmitter {
         this._view.addEventListener('mouseleave', e => {
             if (this._mouseDown) {
                 this._lastMouse = e;
+                if (e.pageY >= (this._bounds.bottom - this._horizontalScrollBarHeight)) {
+                    this._window.getSelection().extend(this._view.lastChild, this._view.lastChild.childNodes.length);
+                    this._updateSelectionHighlight();
+                }
                 this._createScrollTimer();
             }
         });
@@ -820,6 +821,7 @@ export class Display extends EventEmitter {
         else
             this._timestampWidth = moment().format(this._timestampFormat).length;
         this.updateFont();
+        this._bounds = this._view.getBoundingClientRect();
         this.splitHeight = -1;
     }
 
@@ -944,6 +946,7 @@ export class Display extends EventEmitter {
         if (this._timestamp !== TimeStampStyle.None)
             this._maxView -= this._timestampWidth * this._charWidth;
         this._innerHeight = this._view.clientHeight;
+        this._bounds = this._view.getBoundingClientRect();
     }
 
     public updateFont(font?: string, size?: string) {
@@ -1742,7 +1745,7 @@ export class Display extends EventEmitter {
 
     private _extendSelection(e) {
         let caret = this._getMouseEventCaretRange(e);
-        if(!caret) return;
+        if (!caret) return;
         if (caret.startContainer) {
             if (this._window.getSelection().rangeCount === 0) {
                 let range = this._document.createRange();
@@ -1783,7 +1786,7 @@ export class Display extends EventEmitter {
 
     private _createScrollTimer() {
         if (!this.customSelection) return;
-        var bounds = this._view.getBoundingClientRect();
+        var bounds = this._bounds;
         var viewportX = this._lastMouse.clientX;
         var viewportY = this._lastMouse.clientY;
         var viewportWidth = this._view.clientWidth;

@@ -142,7 +142,7 @@
 .display-split-bar:hover {
   background-color: var(--theme-hover-bg-color);
   border-top: 1px solid var(--theme-hover-border-color);
-  border-bottom: 1px solid var(--theme-hover-border-color);  
+  border-bottom: 1px solid var(--theme-hover-border-color);
 }
 
 .display-split-ghost-bar {
@@ -150,5 +150,62 @@
   border-top: 1px solid var(--theme-hover-border-color);
   border-bottom: 1px solid var(--theme-hover-border-color);
   background-color: var(--theme-hover-bg-color);
-  opacity: 0.75;  
+  opacity: 0.75;
+}
+
+.view {
+  scrollbar-color: var(--theme-button-bg-color) var(--theme-bg-secondary-color);
+}
+
+.view::-webkit-scrollbar {
+  background: var(--theme-button-bg-color);
+  color: black;
+}
+.view::-webkit-scrollbar:hover {
+  background: var(--theme-hover-bg-color);
+  color: var(--theme-hover-color);
+}
+
+/* Track */
+.view::-webkit-scrollbar-track {
+  background: var(--theme-bg-secondary-color);
+  color: black;
+}
+
+/* Handle */
+.view::-webkit-scrollbar-thumb {
+  background: var(--theme-button-bg-color);
+  border: 1px solid var(--theme-bg-secondary-border);
+}
+
+/* Handle on hover */
+.view::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-hover-bg-color);
+  border: 1px solid var(--theme-hover-border-color);
+}
+.view::-webkit-scrollbar-corner {
+  background: var(--theme-bg-color);
+}
+.view::-webkit-scrollbar-thumb:active {
+  background-color: var(--theme-active-bg-color);
+  border: 1px solid var(--theme-border-color);
+  outline: none;
+}
+.view::-webkit-scrollbar-button {
+  background-color: var(--theme-button-bg-color);
+  border: 1px solid var(--theme-bg-secondary-border);
+  color: black;
+}
+.view::-webkit-scrollbar-button:hover {
+  background-color: var(--theme-hover-bg-color);
+  border: 1px solid var(--theme-hover-border-color);
+  color: white;
+}
+.view::-webkit-scrollbar-button:active {
+  background-color: var(--theme-active-bg-color);
+  border: 1px solid var(--theme-border-color);
+  color: white;
+}
+.view:hover {
+  --fix: ; /* This custom property invalidates styles on hover, thereby enforcing a style recomputation. This is needed to work around a bug in Safari. */
 }

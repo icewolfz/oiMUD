@@ -186,11 +186,11 @@ export class ProfilesDialog extends Dialog {
         footer += '</ul>';
         footer += `<button id="btn-profile-edit-menu" class="btn-sm float-start btn btn-outline-secondary" type="button" aria-controls="edit-menu" title="Show edit menu" data-bs-toggle="dropdown" aria-expanded="false" style="margin-right: 4px;"><i class="bi bi-pencil-square"></i></button>`;
         footer += `<ul id="${this.id}-edit-menu" class="dropdown-menu" style="overflow: auto;">`;
-        footer += `<li id="${this.id}-find"><a class="dropdown-item">Find <span class="float-end" style="padding-left: 40px;">Ctrl+F</span></a></li>`;
+        footer += `<li id="${this.id}-find"><a class="dropdown-item">Find <span class="float-end" style="padding-left: 40px;">(Ctrl or Cmd)+F</span></a></li>`;
         footer += `<li id="${this.id}-find-div"><hr class="dropdown-divider"></li>`;
-        footer += `<li id="${this.id}-cut"><a class="dropdown-item">Cut <span class="float-end" style="padding-left: 40px;">Ctrl+X</span></a></li>`;
-        footer += `<li id="${this.id}-copy"><a class="dropdown-item">Copy <span class="float-end" style="padding-left: 40px;">Ctrl+C</span></a></li>`;
-        footer += `<li id="${this.id}-paste"><a class="dropdown-item">Paste <span class="float-end" style="padding-left: 40px;">Ctrl+V</span></a></li>`;
+        footer += `<li id="${this.id}-cut"><a class="dropdown-item">Cut <span class="float-end" style="padding-left: 40px;">(Ctrl or Cmd)+X</span></a></li>`;
+        footer += `<li id="${this.id}-copy"><a class="dropdown-item">Copy <span class="float-end" style="padding-left: 40px;">(Ctrl or Cmd)+C</span></a></li>`;
+        footer += `<li id="${this.id}-paste"><a class="dropdown-item">Paste <span class="float-end" style="padding-left: 40px;">(Ctrl or Cmd)+V</span></a></li>`;
         footer += '</ul>';
         footer += '<span id="profile-page-buttons"></span>';
         footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Close dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;

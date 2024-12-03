@@ -728,7 +728,7 @@ export class Display extends EventEmitter {
         this._view.addEventListener('mouseleave', e => {
             if (this._mouseDown) {
                 this._lastMouse = e;
-                if (e.pageY >= (this._bounds.bottom - this._horizontalScrollBarHeight)) {
+                if (this._view.lastChild && e.pageY >= (this._bounds.bottom - this._horizontalScrollBarHeight)) {
                     this._window.getSelection().extend(this._view.lastChild, this._view.lastChild.childNodes.length);
                     this._updateSelectionHighlight();
                 }
@@ -1743,7 +1743,10 @@ export class Display extends EventEmitter {
             this._highlight.add(this._highlightRange);
         }
         this._highlightRange.setStart(this._selection.start.node, this._selection.start.offset);
-        this._highlightRange.setEnd(this._selection.end.node, this._selection.end.offset);
+        if(this._selection.end)
+            this._highlightRange.setEnd(this._selection.end.node, this._selection.end.offset);
+        else
+            this._highlightRange.setEnd(this._selection.start.node, this._selection.start.offset);
 
     }
 

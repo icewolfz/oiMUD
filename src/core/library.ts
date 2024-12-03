@@ -2018,7 +2018,16 @@ export function insertValue(input, value) {
     const active = <HTMLElement>document.activeElement;
     if (!active || active != input)
         input.focus();
-    document.execCommand('insertText', false, value);
+    if (!document.execCommand('insertText', false, value)) {
+        //failed so try old school manually replace
+        var startPos = input.selectionStart;
+        var endPos = input.selectionEnd;
+        input.value = input.value.substring(0, startPos)
+            + value
+            + input.value.substring(endPos, input.value.length);
+        input.selectionStart = startPos;
+        input.selectionEnd = startPos + value.length;
+    }
     if (active && active != input)
         active.focus();
 }

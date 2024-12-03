@@ -3,8 +3,8 @@ import '../css/buttons.css';
 import '../css/theme.css';
 import { initMenu } from './menu';
 import { Client } from '../core/client';
-import { Dialog, DialogButtons } from './dialog';
-import { openFileDialog, readFile, debounce, copyText, pasteText, setSelectionRange, offset } from '../core/library';
+import { Dialog, DialogButtons, pasteSpecial } from './dialog';
+import { openFileDialog, readFile, debounce, copyText, pasteText, setSelectionRange, offset, isPasteSupported, insertValue } from '../core/library';
 import { AdvEditor } from './adv.editor';
 import { SettingsDialog } from './settingsdialog';
 import { ProfilesDialog } from './profilesdialog';
@@ -514,6 +514,7 @@ export function initializeInterface() {
     client.commandInput.removeEventListener('change', resizeCommandInput);
     initCommandInput();
     updateCommandInput();
+
     if (client.getOption('commandAutoSize') || client.getOption('commandScrollbars'))
         resizeCommandInput();
     //#region window events
@@ -522,6 +523,13 @@ export function initializeInterface() {
             client.display.pageUp();
         else if (event.which === 34) //page up
             client.display.pageDown();
+        else if (event.ctrlKey && event.shiftKey && !event.metaKey && !event.altKey && event.code === 'KeyV') {
+            client.commandInput.dataset.selectionStart = '' + client.commandInput.selectionStart;
+            client.commandInput.dataset.selectionEnd = '' + client.commandInput.selectionEnd;
+            event.preventDefault();
+            event.stopPropagation();
+            (document.querySelector('#menu-paste a') as HTMLAnchorElement).click();
+        }
     });
 
     window.addEventListener('error', (e) => {
@@ -579,7 +587,19 @@ export function initializeInterface() {
             e.clipboardData.setData('text/plain', client.display.selection);
             e.clipboardData.setData('text/html', client.display.selectionAsHTML);
         }
-    })
+    });
+    client.commandInput.addEventListener('paste', async e => {
+        if (isPasteSupported() || !document.querySelector('#menu-paste').classList.contains('active')) {
+            client.commandInput.focus();
+            return true;
+        }
+        try {
+            e.preventDefault();
+            doPasteSpecial(e.clipboardData.getData('text/plain'), true);
+        }
+        catch (err) { }
+        //console.log(await confirm_box('test'));
+    });
 }
 
 export function removeHash(string) {
@@ -1472,3 +1492,46 @@ function readyInterface() {
 }
 readyInterface();
 */
+
+export async function doPasteSpecial(txt, showDisable?) {
+    let results: any = await pasteSpecial({
+        prefixEnabled: client.getOption('pasteSpecialPrefixEnabled'),
+        postfixEnabled: client.getOption('pasteSpecialPostfixEnabled'),
+        replaceEnabled: client.getOption('pasteSpecialReplaceEnabled'),
+        prefix: client.getOption('pasteSpecialPrefix'),
+        postfix: client.getOption('pasteSpecialPostfix'),
+        replace: client.getOption('pasteSpecialReplace'),
+        disable: client.getOption('pasteSpecialDisable'),
+        showDisable: showDisable
+    });
+    if (results.button === 1) {
+        client.setOption('pasteSpecialPrefixEnabled', results.options.prefixEnabled);
+        client.setOption('pasteSpecialPostfixEnabled', results.options.postfixEnabled);
+        client.setOption('pasteSpecialReplaceEnabled', results.options.replaceEnabled);
+        client.setOption('pasteSpecialPrefix', results.options.prefix);
+        client.setOption('pasteSpecialPostfix', results.options.postfix);
+        client.setOption('pasteSpecialReplace', results.options.replace);
+        client.setOption('pasteSpecialDisable', results.options.disable);
+        var post = results.options.postfixEnabled ? results.options.postfix : 0;
+        var pre = results.options.prefixEnabled ? results.options.prefix : 0;
+        var replace = results.options.replaceEnabled ? results.options.replace : 0;
+        if (replace && replace.length)
+            txt = txt.replace(/\n/g, replace);
+        if (pre && pre.length && post && post.length)
+            txt = pre + txt.replace(/\n/g, `${post}\n${pre}`) + post;
+        else if (pre && pre.length)
+            txt = pre + txt.replace(/\n/g, `\n${pre}`);
+        else if (post && post.length)
+            txt = txt.replace(/\n/g, `${post}\n`) + post;
+        if (client.commandInput.dataset.selectionStart && client.commandInput.dataset.selectionStart.length) {
+            client.commandInput.selectionStart = +client.commandInput.dataset.selectionStart;
+            client.commandInput.selectionEnd = +client.commandInput.dataset.selectionEnd;
+        }        
+        insertValue(client.commandInput, txt);
+        client.commandInput.dataset.selectionStart = '';
+        client.commandInput.dataset.selectionEnd = '';        
+        if (results.options.disable)
+            document.querySelector('#menu-paste').classList.remove('active');
+    }
+    client.commandInput.focus();
+}

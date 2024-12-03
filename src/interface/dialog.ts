@@ -2,6 +2,9 @@ import '../css/dialog.css';
 import { EventEmitter } from '../core/events';
 import { debounce } from '../core/library';
 
+// @ts-ignore
+import _pasteSpecialBody from '../html/paste.special.htm'
+
 export interface DialogOptions {
     title?: string;
     width?: string | number;
@@ -1129,13 +1132,112 @@ window.confirm_box = (title, message?, icon?, buttons?, win?) => {
         confirm.on('canceled', () => reject(null));
         confirm.on('closed', reason => reason === 'Yes' ? 0 : reject(null));
     });
-
 }
 window.alert_box = (title, message?, icon?, win?) => {
     new AlertDialog(title, message, icon, win).showModal();
 }
 window.progress_box = (title, message?, icon?, win?) => {
     return new ProgressDialog(title, message, icon, win);
+}
+
+export function pasteSpecial(options?) {
+    return new Promise((resolve, reject) => {
+        options = Object.assign({
+            prefixEnabled: true,
+            postfixEnabled: true,
+            replaceEnabled: true,
+            prefix: '',
+            postfix: '',
+            replace: '',
+            disable: true,
+            showDisable: true,
+        }, options || {});
+        const paste = new Dialog({ title: '<i class="bi bi-clipboard-plus"></i> Paste special...', width: 350, height: 358, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: DialogButtons.Standard });
+        paste.body.innerHTML = _pasteSpecialBody;
+        paste.body.style.padding = '10px';
+        paste.body.style.overflow = 'hidden';
+
+        paste.body.querySelector('#pasteSpecial-prefix').disabled = !options.prefixEnabled;
+        paste.body.querySelector('#pasteSpecial-postfix').disabled = !options.postfixEnabled;
+        paste.body.querySelector('#pasteSpecial-prefix').value = options.prefix;
+        paste.body.querySelector('#pasteSpecial-postfix').value = options.postfix;
+        paste.body.querySelector('#pasteSpecial-prefix-enable').checked = options.prefixEnabled;
+        paste.body.querySelector('#pasteSpecial-postfix-enable').checked = options.postfixEnabled;
+        paste.body.querySelector('#pasteSpecial-replace').value = options.replace;
+        paste.body.querySelector('#pasteSpecial-replace').disabled = !options.replaceEnabled;
+        paste.body.querySelector('#pasteSpecial-replace-enable').checked = options.replaceEnabled;
+        const forms = paste.body.querySelectorAll('input[type="checkbox"]');
+        for (let f = 0, fl = forms.length; f < fl; f++) {
+            forms[f].addEventListener('click', e => {
+                (document.getElementById(e.target.id.slice(0, -7)) as HTMLInputElement).disabled = !e.target.checked;
+            });
+        };
+        const _keydown = e => {
+            if (e.which === 13) {
+                var i;
+                if (document.activeElement.id === 'pasteSpecial-replace') {
+                    if (!(document.getElementById('pasteSpecial-prefix') as HTMLInputElement).disabled)
+                        i = document.getElementById('pasteSpecial-prefix');
+                    else if (!(document.getElementById('pasteSpecial-postfix') as HTMLInputElement).disabled)
+                        i = document.getElementById('pasteSpecial-postfix');
+                }
+                else if (document.activeElement.id === 'pasteSpecial-prefix' && !(document.getElementById('pasteSpecial-postfix') as HTMLInputElement).disabled)
+                    i = document.getElementById('pasteSpecial-postfix');
+                if (i)
+                    i.focus();
+                else
+                    paste.footer.querySelector(`#${paste.id}-ok`).click();
+                e.preventDefault();
+            }
+        }
+        document.addEventListener('keydown', _keydown);
+        if (options.showDisable)
+            paste.footer.insertAdjacentHTML('afterbegin', `<div class="form-check float-start" style="margin-top: 3px;"><input type="checkbox" class="form-check-input" id="pasteSpecial-disable"><label class="form-check-label" for="pasteSpecial-disable">Disable</label></div>`);
+        paste.footer.insertAdjacentHTML('afterbegin', `<button id="btn-pasteSpecial-reset" class="btn-sm float-start btn btn-outline-secondary" type="button" title="Show menu" style="margin-right: 4px;">Reset</button>`);
+        if (options.showDisable)
+            paste.footer.querySelector('#pasteSpecial-disable').checked = options.disable;
+        paste.footer.querySelector('#btn-pasteSpecial-reset').addEventListener('click', e => {
+            (document.getElementById('pasteSpecial-replace') as HTMLInputElement).disabled = false;
+            (document.getElementById('pasteSpecial-replace-enable') as HTMLInputElement).checked = true;
+            (document.getElementById('pasteSpecial-replace') as HTMLInputElement).value = '';
+            (document.getElementById('pasteSpecial-prefix') as HTMLInputElement).disabled = false;
+            (document.getElementById('pasteSpecial-postfix') as HTMLInputElement).disabled = false;
+            (document.getElementById('pasteSpecial-prefix') as HTMLInputElement).value = '';
+            (document.getElementById('pasteSpecial-postfix') as HTMLInputElement).value = '';
+            (document.getElementById('pasteSpecial-prefix-enable') as HTMLInputElement).checked = true;
+            (document.getElementById('pasteSpecial-postfix-enable') as HTMLInputElement).checked = true;
+        });
+        paste.showModal();
+        if (!paste.body.querySelector('#pasteSpecial-replace').disabled)
+            paste.body.querySelector('#pasteSpecial-replace').focus();
+        else if (!paste.body.querySelector('#pasteSpecial-prefix').disabled)
+            paste.body.querySelector('#pasteSpecial-prefix').focus();
+        else if (!paste.body.querySelector('#pasteSpecial-postfix').disabled)
+            paste.body.querySelector('#pasteSpecial-postfix').focus();
+        else
+            paste.footer.querySelector(`#${paste.id}-cancel`).focus();
+        paste.on('button-click', e => {
+            options.prefix = (document.getElementById('pasteSpecial-prefix') as HTMLInputElement).value;
+            options.postfix = (document.getElementById('pasteSpecial-postfix') as HTMLInputElement).value;
+            options.prefixEnabled = (document.getElementById('pasteSpecial-prefix-enable') as HTMLInputElement).checked;
+            options.postfixEnabled = (document.getElementById('pasteSpecial-postfix-enable') as HTMLInputElement).checked;
+            options.replace = (document.getElementById('pasteSpecial-replace') as HTMLInputElement).value;
+            options.replaceEnabled = (document.getElementById('pasteSpecial-replace-enable') as HTMLInputElement).checked;
+            if (options.showDisable)
+                options.disable = (document.getElementById('pasteSpecial-disable') as HTMLInputElement).checked;
+            e.options = options;
+            document.addEventListener('keydown', _keydown);
+            resolve(e);
+        });
+        paste.on('canceled', () => {
+            reject(null);
+            document.removeEventListener('keydown', _keydown);
+        });
+        paste.on('closed', reason => {
+            document.removeEventListener('keydown', _keydown);
+            if (reason !== 'Yes') reject(null);
+        });
+    });
 }
 
 window.Dialog = Dialog;

@@ -1,7 +1,8 @@
 declare let client;
 declare let bootstrap;
 
-import { showDialog, toggleButtons } from './interface';
+import { showDialog, toggleButtons, doPasteSpecial } from './interface';
+import { isPasteSupported, pasteText, insertValue } from '../core/library';
 
 export function closeMenu() {
     const instance = bootstrap.Offcanvas.getInstance(document.getElementById('clientMenu'));
@@ -117,6 +118,15 @@ export function initMenu() {
         }
         closeMenu();
     });
+    document.querySelector('#menu-paste a').addEventListener('click', e => {
+        if (isPasteSupported())
+            pasteText().then(doPasteSpecial);
+        else {
+            document.querySelector('#menu-paste').classList.toggle('active');
+            client.commandInput.focus();
+        }
+        closeMenu();
+    })
     updateScrollLock();
 
     let pl = client.plugins.length;

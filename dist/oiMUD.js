@@ -3486,7 +3486,13 @@
     const active = document.activeElement;
     if (!active || active != input)
       input.focus();
-    document.execCommand("insertText", false, value);
+    if (!document.execCommand("insertText", false, value)) {
+      var startPos = input.selectionStart;
+      var endPos = input.selectionEnd;
+      input.value = input.value.substring(0, startPos) + value + input.value.substring(endPos, input.value.length);
+      input.selectionStart = startPos;
+      input.selectionEnd = startPos + value.length;
+    }
     if (active && active != input)
       active.focus();
   }
@@ -6475,9 +6481,10 @@
     ["chat.enableColors", 0, 2 /* Number */, true],
     ["chat.enableBackgroundColors", 0, 2 /* Number */, true],
     ["display.customSelection", 0, 1 /* Boolean */, true],
-    ["chat.customSelection", 0, 1 /* Boolean */, true]
+    ["chat.customSelection", 0, 1 /* Boolean */, true],
+    ["pasteSpecialDisable", 0, 1 /* Boolean */, true]
   ];
-  var SettingProperties = ["bufferSize", "commandDelay", "commandDelayCount", "commandHistorySize", "fontSize", "cmdfontSize", "commandEcho", "flashing", "autoConnect", "enableAliases", "enableTriggers", "enableMacros", "showScriptErrors", "commandStacking", "commandStackingChar", "htmlLog", "keepLastCommand", "enableMCCP", "enableUTF8", "font", "cmdfont", "mapper.follow", "mapper.enabled", "mapper.split", "mapper.fill", "showMapper", "fullScreen", "enableMXP", "enableMSP", "parseCommands", "lagMeter", "enablePing", "enableEcho", "enableSpeedpaths", "speedpathsChar", "parseSpeedpaths", "profile", "parseSingleQuotes", "parseDoubleQuotes", "logEnabled", "logPrepend", "logOffline", "logUniqueOnConnect", "enableURLDetection", "notifyMSPPlay", "CommandonClick", "allowEval", "allowEscape", "AutoCopySelectedToClipboard", "enableDebug", "editorPersistent", "askonclose", "dev", "chat.captureLines", "chat.captureAllLines", "chat.captureReviews", "chat.captureTells", "chat.captureTalk", "chat.gag", "chat.CaptureOnlyOpen", "checkForUpdates", "autoCreateCharacter", "askonchildren", "mapper.legend", "mapper.room", "mapper.importType", "mapper.vscroll", "mapper.hscroll", "mapper.scale", "mapper.alwaysOnTop", "mapper.alwaysOnTopClient", "mapper.memory", "mapper.memorySavePeriod", "mapper.active.ID", "mapper.active.x", "mapper.active.y", "mapper.active.z", "mapper.active.area", "mapper.active.zone", "mapper.persistent", "profiles.split", "profiles.askoncancel", "profiles.triggersAdvanced", "profiles.aliasesAdvanced", "profiles.buttonsAdvanced", "profiles.macrosAdvanced", "profiles.contextsAdvanced", "profiles.codeEditor", "profiles.watchFiles", "chat.alwaysOnTop", "chat.alwaysOnTopClient", "chat.log", "chat.persistent", "chat.zoom", "chat.font", "chat.fontSize", "title", "logGagged", "logTimeFormat", "autoConnectDelay", "autoLogin", "onDisconnect", "enableKeepAlive", "keepAliveDelay", "newlineShortcut", "logWhat", "logErrors", "showErrorsExtended", "reportCrashes", "enableCommands", "commandChar", "escapeChar", "enableVerbatim", "verbatimChar", "soundPath", "logPath", "theme", "gamepads", "buttons.connect", "buttons.characters", "buttons.preferences", "buttons.log", "buttons.clear", "buttons.lock", "buttons.map", "buttons.user", "buttons.mail", "buttons.compose", "buttons.immortal", "buttons.codeEditor", "find.case", "find.word", "find.reverse", "find.regex", "find.selection", "find.show", "display.split", "display.splitHeight", "display.splitLive", "display.roundedOverlays", "backupLoad", "backupSave", "backupAllProfiles", "backupReplaceCharacters", "scrollLocked", "showStatus", "showCharacterManager", "showChat", "showEditor", "showArmor", "showStatusWeather", "showStatusLimbs", "showStatusHealth", "showStatusExperience", "showStatusPartyHealth", "showStatusCombatHealth", "showButtonBar", "allowNegativeNumberNeeded", "spellchecking", "hideOnMinimize", "showTrayIcon", "statusExperienceNeededProgressbar", "trayClick", "trayDblClick", "pasteSpecialPrefix", "pasteSpecialPostfix", "pasteSpecialReplace", "pasteSpecialPrefixEnabled", "pasteSpecialPostfixEnabled", "pasteSpecialReplaceEnabled", "display.showSplitButton", "chat.split", "chat.splitHeight", "chat.splitLive", "chat.roundedOverlays", "chat.showSplitButton", "chat.bufferSize", "chat.flashing", "display.hideTrailingEmptyLine", "display.enableColors", "display.enableBackgroundColors", "enableSound", "allowHalfOpen", "editorClearOnSend", "editorCloseOnSend", "askOnCloseAll", "askonloadCharacter", "mapper.roomWidth", "mapper.roomGroups", "mapper.showInTaskBar", "profiles.enabled", "profiles.sortOrder", "profiles.sortDirection", "profiles.showInTaskBar", "profiles.profileSelected", "profiles.profileExpandSelected", "chat.lines", "chat.showInTaskBar", "chat.showTimestamp", "chat.timestampFormat", "chat.tabWidth", "chat.displayControlCodes", "chat.emulateTerminal", "chat.emulateControlCodes", "chat.wordWrap", "chat.wrapAt", "chat.indent", "chat.scrollLocked", "chat.find.case", "chat.find.word", "chat.find.reverse", "chat.find.regex", "chat.find.selection", "chat.find.show", "chat.find.highlight", "chat.find.location", "codeEditor.showInTaskBar", "codeEditor.persistent", "codeEditor.alwaysOnTop", "codeEditor.alwaysOnTopClient", "autoTakeoverLogin", "fixHiddenWindows", "maxReconnectDelay", "enableBackgroundThrottling", "enableBackgroundThrottlingClients", "showInTaskBar", "showLagInTitle", "mspMaxRetriesOnError", "logTimestamp", "logTimestampFormat", "disableTriggerOnError", "prependTriggeredLine", "enableParameters", "parametersChar", "enableNParameters", "nParametersChar", "enableParsing", "externalWho", "externalHelp", "watchForProfilesChanges", "onProfileChange", "onProfileDeleted", "enableDoubleParameterEscaping", "ignoreEvalUndefined", "enableInlineComments", "enableBlockComments", "inlineCommentString", "blockCommentString", "allowCommentsFromCommand", "saveTriggerStateChanges", "groupProfileSaves", "groupProfileSaveDelay", "returnNewlineOnEmptyValue", "pathDelay", "pathDelayCount", "echoSpeedpaths", "alwaysShowTabs", "scriptEngineType", "initializeScriptEngineOnLoad", "find.highlight", "find.location", "display.showInvalidMXPTags", "display.showTimestamp", "display.timestampFormat", "display.displayControlCodes", "display.emulateTerminal", "display.emulateControlCodes", "display.wordWrap", "display.tabWidth", "display.wrapAt", "display.indent", "statusWidth", "showEditorInTaskBar", "trayMenu", "lockLayout", "loadLayout", "useSingleInstance", "statusWidth", "characterManagerDblClick", "warnAdvancedSettings", "showAdvancedSettings", "enableTabCompletion", "tabCompletionBufferLimit", "ignoreCaseTabCompletion", "enableNotifications", "commandAutoSize", "commandWordWrap", "commandScrollbars", "tabCompletionList", "tabCompletionLookupType", "tabCompletionReplaceCasing", "characterManagerAddButtonAction", "enableCrashReporting", "characterManagerPanelWidth", "ignoreInputLeadingWhitespace", "profiles.find.case", "profiles.find.word", "profiles.find.reverse", "profiles.find.regex", "profiles.find.selection", "profiles.find.show", "profiles.find.value", "skipMore", "skipMoreDelay", "commandMinLines", "simpleAlarms", "simpleEditor", "selectLastCommand", "statusMode", "logger.split", "showChatWindow", "chat.enableColors", "chat.enableBackgroundColors", "display.customSelection", "chat.customSelection"];
+  var SettingProperties = ["bufferSize", "commandDelay", "commandDelayCount", "commandHistorySize", "fontSize", "cmdfontSize", "commandEcho", "flashing", "autoConnect", "enableAliases", "enableTriggers", "enableMacros", "showScriptErrors", "commandStacking", "commandStackingChar", "htmlLog", "keepLastCommand", "enableMCCP", "enableUTF8", "font", "cmdfont", "mapper.follow", "mapper.enabled", "mapper.split", "mapper.fill", "showMapper", "fullScreen", "enableMXP", "enableMSP", "parseCommands", "lagMeter", "enablePing", "enableEcho", "enableSpeedpaths", "speedpathsChar", "parseSpeedpaths", "profile", "parseSingleQuotes", "parseDoubleQuotes", "logEnabled", "logPrepend", "logOffline", "logUniqueOnConnect", "enableURLDetection", "notifyMSPPlay", "CommandonClick", "allowEval", "allowEscape", "AutoCopySelectedToClipboard", "enableDebug", "editorPersistent", "askonclose", "dev", "chat.captureLines", "chat.captureAllLines", "chat.captureReviews", "chat.captureTells", "chat.captureTalk", "chat.gag", "chat.CaptureOnlyOpen", "checkForUpdates", "autoCreateCharacter", "askonchildren", "mapper.legend", "mapper.room", "mapper.importType", "mapper.vscroll", "mapper.hscroll", "mapper.scale", "mapper.alwaysOnTop", "mapper.alwaysOnTopClient", "mapper.memory", "mapper.memorySavePeriod", "mapper.active.ID", "mapper.active.x", "mapper.active.y", "mapper.active.z", "mapper.active.area", "mapper.active.zone", "mapper.persistent", "profiles.split", "profiles.askoncancel", "profiles.triggersAdvanced", "profiles.aliasesAdvanced", "profiles.buttonsAdvanced", "profiles.macrosAdvanced", "profiles.contextsAdvanced", "profiles.codeEditor", "profiles.watchFiles", "chat.alwaysOnTop", "chat.alwaysOnTopClient", "chat.log", "chat.persistent", "chat.zoom", "chat.font", "chat.fontSize", "title", "logGagged", "logTimeFormat", "autoConnectDelay", "autoLogin", "onDisconnect", "enableKeepAlive", "keepAliveDelay", "newlineShortcut", "logWhat", "logErrors", "showErrorsExtended", "reportCrashes", "enableCommands", "commandChar", "escapeChar", "enableVerbatim", "verbatimChar", "soundPath", "logPath", "theme", "gamepads", "buttons.connect", "buttons.characters", "buttons.preferences", "buttons.log", "buttons.clear", "buttons.lock", "buttons.map", "buttons.user", "buttons.mail", "buttons.compose", "buttons.immortal", "buttons.codeEditor", "find.case", "find.word", "find.reverse", "find.regex", "find.selection", "find.show", "display.split", "display.splitHeight", "display.splitLive", "display.roundedOverlays", "backupLoad", "backupSave", "backupAllProfiles", "backupReplaceCharacters", "scrollLocked", "showStatus", "showCharacterManager", "showChat", "showEditor", "showArmor", "showStatusWeather", "showStatusLimbs", "showStatusHealth", "showStatusExperience", "showStatusPartyHealth", "showStatusCombatHealth", "showButtonBar", "allowNegativeNumberNeeded", "spellchecking", "hideOnMinimize", "showTrayIcon", "statusExperienceNeededProgressbar", "trayClick", "trayDblClick", "pasteSpecialPrefix", "pasteSpecialPostfix", "pasteSpecialReplace", "pasteSpecialPrefixEnabled", "pasteSpecialPostfixEnabled", "pasteSpecialReplaceEnabled", "display.showSplitButton", "chat.split", "chat.splitHeight", "chat.splitLive", "chat.roundedOverlays", "chat.showSplitButton", "chat.bufferSize", "chat.flashing", "display.hideTrailingEmptyLine", "display.enableColors", "display.enableBackgroundColors", "enableSound", "allowHalfOpen", "editorClearOnSend", "editorCloseOnSend", "askOnCloseAll", "askonloadCharacter", "mapper.roomWidth", "mapper.roomGroups", "mapper.showInTaskBar", "profiles.enabled", "profiles.sortOrder", "profiles.sortDirection", "profiles.showInTaskBar", "profiles.profileSelected", "profiles.profileExpandSelected", "chat.lines", "chat.showInTaskBar", "chat.showTimestamp", "chat.timestampFormat", "chat.tabWidth", "chat.displayControlCodes", "chat.emulateTerminal", "chat.emulateControlCodes", "chat.wordWrap", "chat.wrapAt", "chat.indent", "chat.scrollLocked", "chat.find.case", "chat.find.word", "chat.find.reverse", "chat.find.regex", "chat.find.selection", "chat.find.show", "chat.find.highlight", "chat.find.location", "codeEditor.showInTaskBar", "codeEditor.persistent", "codeEditor.alwaysOnTop", "codeEditor.alwaysOnTopClient", "autoTakeoverLogin", "fixHiddenWindows", "maxReconnectDelay", "enableBackgroundThrottling", "enableBackgroundThrottlingClients", "showInTaskBar", "showLagInTitle", "mspMaxRetriesOnError", "logTimestamp", "logTimestampFormat", "disableTriggerOnError", "prependTriggeredLine", "enableParameters", "parametersChar", "enableNParameters", "nParametersChar", "enableParsing", "externalWho", "externalHelp", "watchForProfilesChanges", "onProfileChange", "onProfileDeleted", "enableDoubleParameterEscaping", "ignoreEvalUndefined", "enableInlineComments", "enableBlockComments", "inlineCommentString", "blockCommentString", "allowCommentsFromCommand", "saveTriggerStateChanges", "groupProfileSaves", "groupProfileSaveDelay", "returnNewlineOnEmptyValue", "pathDelay", "pathDelayCount", "echoSpeedpaths", "alwaysShowTabs", "scriptEngineType", "initializeScriptEngineOnLoad", "find.highlight", "find.location", "display.showInvalidMXPTags", "display.showTimestamp", "display.timestampFormat", "display.displayControlCodes", "display.emulateTerminal", "display.emulateControlCodes", "display.wordWrap", "display.tabWidth", "display.wrapAt", "display.indent", "statusWidth", "showEditorInTaskBar", "trayMenu", "lockLayout", "loadLayout", "useSingleInstance", "statusWidth", "characterManagerDblClick", "warnAdvancedSettings", "showAdvancedSettings", "enableTabCompletion", "tabCompletionBufferLimit", "ignoreCaseTabCompletion", "enableNotifications", "commandAutoSize", "commandWordWrap", "commandScrollbars", "tabCompletionList", "tabCompletionLookupType", "tabCompletionReplaceCasing", "characterManagerAddButtonAction", "enableCrashReporting", "characterManagerPanelWidth", "ignoreInputLeadingWhitespace", "profiles.find.case", "profiles.find.word", "profiles.find.reverse", "profiles.find.regex", "profiles.find.selection", "profiles.find.show", "profiles.find.value", "skipMore", "skipMoreDelay", "commandMinLines", "simpleAlarms", "simpleEditor", "selectLastCommand", "statusMode", "logger.split", "showChatWindow", "chat.enableColors", "chat.enableBackgroundColors", "display.customSelection", "chat.customSelection", "pasteSpecialDisable"];
   var Settings = class _Settings {
     constructor() {
       for (let s = 0, sl = SettingList.length; s < sl; s++) {
@@ -6898,6 +6905,8 @@
         case "pasteSpecialPostfixEnabled":
           return true;
         case "pasteSpecialReplaceEnabled":
+          return true;
+        case "pasteSpecialDisable":
           return true;
         case "display.showSplitButton":
           return true;
@@ -21273,7 +21282,7 @@
       this._view.addEventListener("mouseleave", (e) => {
         if (this._mouseDown) {
           this._lastMouse = e;
-          if (e.pageY >= this._bounds.bottom - this._horizontalScrollBarHeight) {
+          if (this._view.lastChild && e.pageY >= this._bounds.bottom - this._horizontalScrollBarHeight) {
             this._window.getSelection().extend(this._view.lastChild, this._view.lastChild.childNodes.length);
             this._updateSelectionHighlight();
           }
@@ -22642,7 +22651,10 @@
         this._highlight.add(this._highlightRange);
       }
       this._highlightRange.setStart(this._selection.start.node, this._selection.start.offset);
-      this._highlightRange.setEnd(this._selection.end.node, this._selection.end.offset);
+      if (this._selection.end)
+        this._highlightRange.setEnd(this._selection.end.node, this._selection.end.offset);
+      else
+        this._highlightRange.setEnd(this._selection.start.node, this._selection.start.offset);
     }
     _extendSelection(e) {
       let caret = this._getMouseEventCaretRange(e);
@@ -27321,6 +27333,9 @@ Devanagari
     }
   };
 
+  // src/html/paste.special.htm
+  var paste_special_default = '<div class="mb-3"><label class="form-label" for="pasteSpecial-replace">Replace with</label><div class="input-group"><input id="pasteSpecial-replace" class="form-control"><div class="input-group-text"><input class="form-check-input" type="checkbox" id="pasteSpecial-replace-enable" checked="checked"></div></div></div><div class="mb-3"><label class="form-label" for="pasteSpecial-prefix">Prefix</label><div class="input-group"><input id="pasteSpecial-prefix" class="form-control"><div class="input-group-text"><input class="form-check-input" type="checkbox" id="pasteSpecial-prefix-enable" checked="checked"></div></div></div><div class="mb-3"><label class="form-label" for="pasteSpecial-postfix">Postfix</label><div class="input-group"><input id="pasteSpecial-postfix" class="form-control"><div class="input-group-text"><input class="form-check-input" type="checkbox" id="pasteSpecial-postfix-enable" checked="checked"></div></div></div>';
+
   // src/interface/dialog.ts
   var DialogButtons = /* @__PURE__ */ ((DialogButtons2) => {
     DialogButtons2[DialogButtons2["None"] = 0] = "None";
@@ -28367,6 +28382,104 @@ Devanagari
   window.progress_box = (title, message, icon, win) => {
     return new ProgressDialog(title, message, icon, win);
   };
+  function pasteSpecial(options) {
+    return new Promise((resolve, reject) => {
+      options = Object.assign({
+        prefixEnabled: true,
+        postfixEnabled: true,
+        replaceEnabled: true,
+        prefix: "",
+        postfix: "",
+        replace: "",
+        disable: true,
+        showDisable: true
+      }, options || {});
+      const paste = new Dialog({ title: '<i class="bi bi-clipboard-plus"></i> Paste special...', width: 350, height: 358, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: 3 /* Standard */ });
+      paste.body.innerHTML = paste_special_default;
+      paste.body.style.padding = "10px";
+      paste.body.style.overflow = "hidden";
+      paste.body.querySelector("#pasteSpecial-prefix").disabled = !options.prefixEnabled;
+      paste.body.querySelector("#pasteSpecial-postfix").disabled = !options.postfixEnabled;
+      paste.body.querySelector("#pasteSpecial-prefix").value = options.prefix;
+      paste.body.querySelector("#pasteSpecial-postfix").value = options.postfix;
+      paste.body.querySelector("#pasteSpecial-prefix-enable").checked = options.prefixEnabled;
+      paste.body.querySelector("#pasteSpecial-postfix-enable").checked = options.postfixEnabled;
+      paste.body.querySelector("#pasteSpecial-replace").value = options.replace;
+      paste.body.querySelector("#pasteSpecial-replace").disabled = !options.replaceEnabled;
+      paste.body.querySelector("#pasteSpecial-replace-enable").checked = options.replaceEnabled;
+      const forms = paste.body.querySelectorAll('input[type="checkbox"]');
+      for (let f = 0, fl = forms.length; f < fl; f++) {
+        forms[f].addEventListener("click", (e) => {
+          document.getElementById(e.target.id.slice(0, -7)).disabled = !e.target.checked;
+        });
+      }
+      ;
+      const _keydown = (e) => {
+        if (e.which === 13) {
+          var i2;
+          if (document.activeElement.id === "pasteSpecial-replace") {
+            if (!document.getElementById("pasteSpecial-prefix").disabled)
+              i2 = document.getElementById("pasteSpecial-prefix");
+            else if (!document.getElementById("pasteSpecial-postfix").disabled)
+              i2 = document.getElementById("pasteSpecial-postfix");
+          } else if (document.activeElement.id === "pasteSpecial-prefix" && !document.getElementById("pasteSpecial-postfix").disabled)
+            i2 = document.getElementById("pasteSpecial-postfix");
+          if (i2)
+            i2.focus();
+          else
+            paste.footer.querySelector(`#${paste.id}-ok`).click();
+          e.preventDefault();
+        }
+      };
+      document.addEventListener("keydown", _keydown);
+      if (options.showDisable)
+        paste.footer.insertAdjacentHTML("afterbegin", `<div class="form-check float-start" style="margin-top: 3px;"><input type="checkbox" class="form-check-input" id="pasteSpecial-disable"><label class="form-check-label" for="pasteSpecial-disable">Disable</label></div>`);
+      paste.footer.insertAdjacentHTML("afterbegin", `<button id="btn-pasteSpecial-reset" class="btn-sm float-start btn btn-outline-secondary" type="button" title="Show menu" style="margin-right: 4px;">Reset</button>`);
+      if (options.showDisable)
+        paste.footer.querySelector("#pasteSpecial-disable").checked = options.disable;
+      paste.footer.querySelector("#btn-pasteSpecial-reset").addEventListener("click", (e) => {
+        document.getElementById("pasteSpecial-replace").disabled = false;
+        document.getElementById("pasteSpecial-replace-enable").checked = true;
+        document.getElementById("pasteSpecial-replace").value = "";
+        document.getElementById("pasteSpecial-prefix").disabled = false;
+        document.getElementById("pasteSpecial-postfix").disabled = false;
+        document.getElementById("pasteSpecial-prefix").value = "";
+        document.getElementById("pasteSpecial-postfix").value = "";
+        document.getElementById("pasteSpecial-prefix-enable").checked = true;
+        document.getElementById("pasteSpecial-postfix-enable").checked = true;
+      });
+      paste.showModal();
+      if (!paste.body.querySelector("#pasteSpecial-replace").disabled)
+        paste.body.querySelector("#pasteSpecial-replace").focus();
+      else if (!paste.body.querySelector("#pasteSpecial-prefix").disabled)
+        paste.body.querySelector("#pasteSpecial-prefix").focus();
+      else if (!paste.body.querySelector("#pasteSpecial-postfix").disabled)
+        paste.body.querySelector("#pasteSpecial-postfix").focus();
+      else
+        paste.footer.querySelector(`#${paste.id}-cancel`).focus();
+      paste.on("button-click", (e) => {
+        options.prefix = document.getElementById("pasteSpecial-prefix").value;
+        options.postfix = document.getElementById("pasteSpecial-postfix").value;
+        options.prefixEnabled = document.getElementById("pasteSpecial-prefix-enable").checked;
+        options.postfixEnabled = document.getElementById("pasteSpecial-postfix-enable").checked;
+        options.replace = document.getElementById("pasteSpecial-replace").value;
+        options.replaceEnabled = document.getElementById("pasteSpecial-replace-enable").checked;
+        if (options.showDisable)
+          options.disable = document.getElementById("pasteSpecial-disable").checked;
+        e.options = options;
+        document.addEventListener("keydown", _keydown);
+        resolve(e);
+      });
+      paste.on("canceled", () => {
+        reject(null);
+        document.removeEventListener("keydown", _keydown);
+      });
+      paste.on("closed", (reason) => {
+        document.removeEventListener("keydown", _keydown);
+        if (reason !== "Yes") reject(null);
+      });
+    });
+  }
   window.Dialog = Dialog;
 
   // src/interface/menu.ts
@@ -28475,6 +28588,15 @@ Devanagari
         button2.title = "Show buttons";
         button2.classList.remove("active");
         document.querySelector("#menu-buttons a span").textContent = "Show buttons";
+      }
+      closeMenu();
+    });
+    document.querySelector("#menu-paste a").addEventListener("click", (e) => {
+      if (isPasteSupported())
+        pasteText().then(doPasteSpecial);
+      else {
+        document.querySelector("#menu-paste").classList.toggle("active");
+        client.commandInput.focus();
       }
       closeMenu();
     });
@@ -31546,11 +31668,11 @@ Devanagari
       footer += "</ul>";
       footer += `<button id="btn-profile-edit-menu" class="btn-sm float-start btn btn-outline-secondary" type="button" aria-controls="edit-menu" title="Show edit menu" data-bs-toggle="dropdown" aria-expanded="false" style="margin-right: 4px;"><i class="bi bi-pencil-square"></i></button>`;
       footer += `<ul id="${this.id}-edit-menu" class="dropdown-menu" style="overflow: auto;">`;
-      footer += `<li id="${this.id}-find"><a class="dropdown-item">Find <span class="float-end" style="padding-left: 40px;">Ctrl+F</span></a></li>`;
+      footer += `<li id="${this.id}-find"><a class="dropdown-item">Find <span class="float-end" style="padding-left: 40px;">(Ctrl or Cmd)+F</span></a></li>`;
       footer += `<li id="${this.id}-find-div"><hr class="dropdown-divider"></li>`;
-      footer += `<li id="${this.id}-cut"><a class="dropdown-item">Cut <span class="float-end" style="padding-left: 40px;">Ctrl+X</span></a></li>`;
-      footer += `<li id="${this.id}-copy"><a class="dropdown-item">Copy <span class="float-end" style="padding-left: 40px;">Ctrl+C</span></a></li>`;
-      footer += `<li id="${this.id}-paste"><a class="dropdown-item">Paste <span class="float-end" style="padding-left: 40px;">Ctrl+V</span></a></li>`;
+      footer += `<li id="${this.id}-cut"><a class="dropdown-item">Cut <span class="float-end" style="padding-left: 40px;">(Ctrl or Cmd)+X</span></a></li>`;
+      footer += `<li id="${this.id}-copy"><a class="dropdown-item">Copy <span class="float-end" style="padding-left: 40px;">(Ctrl or Cmd)+C</span></a></li>`;
+      footer += `<li id="${this.id}-paste"><a class="dropdown-item">Paste <span class="float-end" style="padding-left: 40px;">(Ctrl or Cmd)+V</span></a></li>`;
       footer += "</ul>";
       footer += '<span id="profile-page-buttons"></span>';
       footer += `<button id="${this.id}-cancel" type="button" class="btn-sm float-end btn btn-light" title="Close dialog"><i class="bi bi-x-lg"></i><span class="icon-only"> Cancel</span></button>`;
@@ -33890,6 +34012,13 @@ Devanagari
         client.display.pageUp();
       else if (event2.which === 34)
         client.display.pageDown();
+      else if (event2.ctrlKey && event2.shiftKey && !event2.metaKey && !event2.altKey && event2.code === "KeyV") {
+        client.commandInput.dataset.selectionStart = "" + client.commandInput.selectionStart;
+        client.commandInput.dataset.selectionEnd = "" + client.commandInput.selectionEnd;
+        event2.preventDefault();
+        event2.stopPropagation();
+        document.querySelector("#menu-paste a").click();
+      }
     });
     window.addEventListener("error", (e) => {
       const { message, filename, lineno, colno, error } = e;
@@ -33938,6 +34067,17 @@ Devanagari
         e.preventDefault();
         e.clipboardData.setData("text/plain", client.display.selection);
         e.clipboardData.setData("text/html", client.display.selectionAsHTML);
+      }
+    });
+    client.commandInput.addEventListener("paste", async (e) => {
+      if (isPasteSupported() || !document.querySelector("#menu-paste").classList.contains("active")) {
+        client.commandInput.focus();
+        return true;
+      }
+      try {
+        e.preventDefault();
+        doPasteSpecial(e.clipboardData.getData("text/plain"), true);
+      } catch (err) {
       }
     });
   }
@@ -34742,6 +34882,51 @@ Devanagari
     });
   }
   window.initializeInterface = initializeInterface;
+  async function doPasteSpecial(txt, showDisable) {
+    let results = await pasteSpecial({
+      prefixEnabled: client.getOption("pasteSpecialPrefixEnabled"),
+      postfixEnabled: client.getOption("pasteSpecialPostfixEnabled"),
+      replaceEnabled: client.getOption("pasteSpecialReplaceEnabled"),
+      prefix: client.getOption("pasteSpecialPrefix"),
+      postfix: client.getOption("pasteSpecialPostfix"),
+      replace: client.getOption("pasteSpecialReplace"),
+      disable: client.getOption("pasteSpecialDisable"),
+      showDisable
+    });
+    if (results.button === 1) {
+      client.setOption("pasteSpecialPrefixEnabled", results.options.prefixEnabled);
+      client.setOption("pasteSpecialPostfixEnabled", results.options.postfixEnabled);
+      client.setOption("pasteSpecialReplaceEnabled", results.options.replaceEnabled);
+      client.setOption("pasteSpecialPrefix", results.options.prefix);
+      client.setOption("pasteSpecialPostfix", results.options.postfix);
+      client.setOption("pasteSpecialReplace", results.options.replace);
+      client.setOption("pasteSpecialDisable", results.options.disable);
+      var post = results.options.postfixEnabled ? results.options.postfix : 0;
+      var pre = results.options.prefixEnabled ? results.options.prefix : 0;
+      var replace = results.options.replaceEnabled ? results.options.replace : 0;
+      if (replace && replace.length)
+        txt = txt.replace(/\n/g, replace);
+      if (pre && pre.length && post && post.length)
+        txt = pre + txt.replace(/\n/g, `${post}
+${pre}`) + post;
+      else if (pre && pre.length)
+        txt = pre + txt.replace(/\n/g, `
+${pre}`);
+      else if (post && post.length)
+        txt = txt.replace(/\n/g, `${post}
+`) + post;
+      if (client.commandInput.dataset.selectionStart && client.commandInput.dataset.selectionStart.length) {
+        client.commandInput.selectionStart = +client.commandInput.dataset.selectionStart;
+        client.commandInput.selectionEnd = +client.commandInput.dataset.selectionEnd;
+      }
+      insertValue(client.commandInput, txt);
+      client.commandInput.dataset.selectionStart = "";
+      client.commandInput.dataset.selectionEnd = "";
+      if (results.options.disable)
+        document.querySelector("#menu-paste").classList.remove("active");
+    }
+    client.commandInput.focus();
+  }
 
   // src/html/mapper.menu.htm
   var mapper_menu_default = '<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="mapper-menu" aria-labelledby="mapper-menu-Label" style="position:absolute"><div class="offcanvas-body"><button type="button" class="btn btn-close text-reset btn-danger btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" style="position:absolute;right:5px;top:5px"></button><ul class="navbar-nav justify-content-end flex-grow-1"><li id="mapper-enable" class="nav-item" title="Enable"><a class="nav-link" href="javascript:void(0)"><i class="bi bi-map"></i>&nbsp;<span>Enabled</span></a></li><li id="mapper-legend" class="nav-item" title="Show legend"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-map-marker"></i>&nbsp;<span>Show legend</span></a></li><li id="mapper-room" class="nav-item" title="Show room properties"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-list-alt"></i>&nbsp;<span>Show room properties</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-refresh" class="nav-item" title="Refresh"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-refresh"></i>&nbsp;<span>Refresh</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-split" class="nav-item" title="Split areas"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-object-ungroup"></i>&nbsp;<span>Split areas</span></a></li><li id="mapper-fill" class="nav-item" title="Display walls"><a class="nav-link" href="javascript:void(0)"><i class="fa fa-building"></i>&nbsp;<span>Display walls</span></a></li><li><hr class="dropdown-divider"></li><li id="mapper-remove" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#remove-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="remove-submenu"><i class="fa fa-eraser"></i>&nbsp;<span>Remove</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="remove-submenu"><li class="nav-item" id="mapper-remove-selected"><a class="nav-link disabled" href="javascript:void(0)">Remove selected room</a></li><li class="nav-item" id="mapper-remove-current"><a class="nav-link disabled" href="javascript:void(0)">Remove current room</a></li><li><hr class="dropdown-divider"></li><li id="mapper-remove-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)">Remove current area</a></li><li id="mapper-remove-all" class="nav-item"><a class="nav-link" href="javascript:void(0)">Remove all</a></li></ul></li><li id="mapper-export" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#export-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="export-submenu"><i class="fa fa-exchange"></i>&nbsp;<span>Export/Import</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="export-submenu"><li id="mapper-export-image" class="nav-item"><a class="nav-link" href="javascript:void(0)">Export as image</a></li><li id="mapper-export-scaled-image" class="nav-item"><a class="nav-link" href="javascript:void(0)">Export as scaled image</a></li><li id="mapper-export-current-image" class="nav-item"><a class="nav-link" href="javascript:void(0)">Export current view as image</a></li><li><hr class="dropdown-divider"></li><li id="mapper-export-current-area" class="nav-item"><a class="nav-link" href="javascript:void(0)">Export current area</a></li><li id="mapper-export-all" class="nav-item"><a class="nav-link" href="javascript:void(0)">Export all</a></li><li><hr class="dropdown-divider"></li><li id="mapper-import-merge" class="nav-item"><a class="nav-link" href="javascript:void(0)">Import and merge</a></li><li id="mapper-import-replace" class="nav-item"><a class="nav-link" href="javascript:void(0)">Import and replace</a></li></ul></li><li><hr class="dropdown-divider"></li><li id="mapper-export" class="nav-item"><a class="nav-link" href="javascript:void(0)" role="button" data-bs-target="#actions-submenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="actions-submenu"><i class="fa-solid fa-shoe-prints"></i>&nbsp;<span>Actions</span></a><ul class="navbar-nav justify-content-end flex-grow-1 collapse" id="actions-submenu"><li id="mapper-follow" class="nav-item"><a class="nav-link" href="javascript:void(0)">Follow</a></li><li><hr class="dropdown-divider"></li><li id="mapper-focus" class="nav-item"><a class="nav-link" href="javascript:void(0)">Focus on current room</a></li><li id="mapper-set-current" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Set selected as current</a></li><li><hr class="dropdown-divider"></li><li id="mapper-highlight-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Highlight path</a></li><li id="mapper-clear-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Clear path</a></li><li><hr class="dropdown-divider"></li><li id="mapper-walk-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Walk path</a></li><li id="mapper-walk-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Walk highlighted path</a></li><li><hr class="dropdown-divider"></li><li id="mapper-copy-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Copy path</a></li><li id="mapper-copy-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Copy as stacked</a></li><li id="mapper-copy-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Copy as speedpath</a></li><li id="mapper-copy-highlighted-path" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Copy highlighted path</a></li><li id="mapper-copy-highlighted-stacked" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Copy highlighted as stacked</a></li><li id="mapper-copy-highlighted-speedpath" class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">Copy highlighted as speedpath</a></li></ul></li><li><hr class="dropdown-divider"></li><li id="mapper-about" class="nav-item" title="About map"><a class="nav-link" href="javascript:void(0)"><i class="bi-info-circle"></i>&nbsp;<span>About</span></a></li></ul></div></div>';

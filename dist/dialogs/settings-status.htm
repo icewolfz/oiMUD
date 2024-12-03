@@ -85,7 +85,7 @@
     state</button>
 <script>
     body.querySelector('#reset-window').addEventListener('click', () => {
-        dialog.settings['windows.skills'] = null;
+        dialog.settings['windows.skills'] = { persistent: body.querySelector('#windows.skills.persistent').checked };
     });
     body.querySelector('#statusWidth').max = Math.floor(document.body.clientWidth * 0.33);
     body.querySelector('#statusMax').textContent = body.querySelector('#statusWidth').max;

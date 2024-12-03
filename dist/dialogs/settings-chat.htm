@@ -82,7 +82,7 @@
     state</button>
 <script>
     body.querySelector('#reset-dialog').addEventListener('click', () => {
-        dialog.settings['windows.chat'] = null;
+        dialog.settings['windows.chat'] = { persistent: body.querySelector('#windows.chat.persistent').checked };
     });
     body.querySelector('#reset-window').addEventListener('click', () => {
         dialog.settings['windows.chatWindow'] = null;

@@ -330,3 +330,7 @@ Controls what is captured into the chat window
 - `Mapper backup import type` determines how mapper imports loaded data
 - `Open ShadowMUD help in new window` Open the ShadowMUD help in a browser window, if disabled will open in dialog
 - `Reset help dialog state` Reset the help dialog state, **Note** if dialog open will reuse active state on close
+- `Simple composer` Turn off advanced editor formatting and enable simple text editing only
+- `Persistent composer` Keep composer loaded in background instead of unloading, uses more memory but window opens faster
+- `Composer send timeout` Timeout in milliseconds if the send command get stuck sending mail while checking if in edit mode, min 1000, max 20000
+- `Reset composer dialog state` Reset the composer window state, **Note** if dialog open will reuse active state on close

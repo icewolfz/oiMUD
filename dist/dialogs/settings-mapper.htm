@@ -46,7 +46,7 @@
 <button id="reset-map" type="button" class="btn btn-light" title="Reset dialog state">Reset map</button>
 <script>
     body.querySelector('#reset-window').addEventListener('click', () => {
-        dialog.settings['windows.mapper'] = null;
+        dialog.settings['windows.mapper'] = { persistent: body.querySelector('#windows.mapper.persistent').checked };
     });
     body.querySelector('#reset-map').addEventListener('click', () => {
         dialog.settings['mapper.scale'] = 100;

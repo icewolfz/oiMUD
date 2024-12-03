@@ -790,6 +790,7 @@ export function showDialog(name: string) {
                         editorDialog.dialog.editor.removeAllListeners();
                         delete editorDialog.dialog.editor;
                         editorDialog.removeAllListeners();
+                        editor.remove();
                         editor = null;
                         editorDialog = null;
                     }
@@ -807,6 +808,7 @@ export function showDialog(name: string) {
                         editorDialog.dialog.editor.removeAllListeners();
                         delete editorDialog.dialog.editor;
                         editor.removeAllListeners();
+                        editor.remove();
                         editor = null;
                         editorDialog = null;
                     }

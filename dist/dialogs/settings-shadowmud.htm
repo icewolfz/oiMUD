@@ -76,8 +76,32 @@
 </div>
 <button id="reset-help" type="button" class="btn btn-light" title="Reset help dialog state">Reset help dialog
     state</button>
+
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="simpleComposerr">
+    <label class="form-check-label" for="simpleComposerr">Simple composer</label>
+</div>
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="windows.composer.persistent" data-parent="windows.composer"
+        data-field="persistent" data-default="true">
+    <label class="form-check-label" for="windows.composer.persistent">Persistent composer</label>
+</div>
+<div class="mb-3">
+    <label for="mail.timeout" class="form-label">Composer send timeout</label>
+    <div class="input-group">
+        <input type="number" class="form-control" id="mail.timeout" min="1000" max="20000">
+        <span class="input-group-text">ms</span>
+    </div>
+</div>
+
+<button id="reset-composer" type="button" class="btn btn-light" title="Reset editor dialog state">Reset composer dialog
+    state</button>
+
 <script>
     body.querySelector('#reset-help').addEventListener('click', () => {
         dialog.settings['windows.smhelp'] = null;
+    });
+    body.querySelector('#reset-composer').addEventListener('click', () => {
+        dialog.settings['windows.composer'] = { persistent: body.querySelector('#windows.composer.persistent').checked };
     });
 </script>

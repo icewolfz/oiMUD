@@ -272,11 +272,13 @@ export class AdvEditor extends EventEmitter {
         'mono22': 'Grey 89',
         'mono23': 'Grey 93'
     };
+    public options;
 
     private _colorDialog: Dialog;
 
-    constructor(element: string | JQuery | HTMLElement, enabledAdvanced?: boolean) {
+    constructor(element: string | JQuery | HTMLElement, enabledAdvanced?: boolean, options?) {
         super();
+        this.options = options || {};
         if (!element)
             throw new Error('AdvEditor must be a selector, element or jquery object');
         if (typeof element === 'string') {
@@ -315,7 +317,7 @@ export class AdvEditor extends EventEmitter {
     }
     public clear() {
         if (TINYMCE && !this.isSimple)
-            tinymce.activeEditor.setContent('');
+            tinymce.get(this._element.id).setContent('');
         else
             this._element.value = '';
     }
@@ -328,7 +330,21 @@ export class AdvEditor extends EventEmitter {
         if (this.isSimple)
             this._element.value = value;
         else
-            tinymce.activeEditor.setContent(value);
+            tinymce.get(this._element.id).setContent(value);
+    }
+
+    public set readOnly(value) {
+        if (this.isSimple)
+            this._element.disabled = value;
+        else if (value)
+            tinymce.get(this._element.id).mode.set('readonly');
+        else
+            tinymce.get(this._element.id).mode.set('design');
+    }
+    public get readOnly() {
+        if (this.isSimple)
+            return this._element.disabled;
+        return tinymce.get(this._element.id).mode.isReadOnly();
     }
 
     public insert(value) {
@@ -339,15 +355,15 @@ export class AdvEditor extends EventEmitter {
             value = value.replace(/(?:\r\n|\r|\n)/g, '<br/>');
             let content = this.getText();
             if (content === '\n') {
-                tinymce.activeEditor.undoManager.transact(() => {
-                    tinymce.activeEditor.setContent(value);
+                tinymce.get(this._element.id).undoManager.transact(() => {
+                    tinymce.get(this._element.id).setContent(value);
                 });
             }
             else {
                 if (!content.endsWith('\n'))
                     value = '<br>' + value;
-                tinymce.activeEditor.undoManager.transact(() => {
-                    tinymce.activeEditor.dom.add(tinymce.activeEditor.getBody(), 'span', {}, value);
+                tinymce.get(this._element.id).undoManager.transact(() => {
+                    tinymce.get(this._element.id).dom.add(tinymce.get(this._element.id).getBody(), 'span', {}, value);
                 });
             }
 
@@ -456,7 +472,7 @@ export class AdvEditor extends EventEmitter {
             this._colors['B' + _bold[b]] = this._colors[this._nearestHex('#' + _bold[b]).substr(1)].toUpperCase();
         }
         this._colors['BFFFFFF'] = 'RGB555';
-        tinymce.activeEditor.options.set('color_map', this._ColorTable);
+        tinymce.get(this._element.id).options.set('color_map', this._ColorTable);
     }
 
     private _initPlugins() {
@@ -700,15 +716,14 @@ export class AdvEditor extends EventEmitter {
 
             function toggleFormat(format) {
                 if (!format || typeof format !== 'string') format = this.settings.format;
-                tinymce.activeEditor.undoManager.transact(() => {
-                    $('#tinymce', tinymce.activeEditor.getDoc()).removeClass('animate');
+                tinymce.get(_editor.id).undoManager.transact(() => {
+                    $('#tinymce', tinymce.get(_editor.id).getDoc()).removeClass('animate');
                     this.clearReverse($('.reverse', $(editor.getDoc()).contents()));
                     editor.execCommand('mceToggleFormat', false, format);
                     this.addReverse($('.reverse', $(editor.getDoc()).contents()));
-                    $('#tinymce', tinymce.activeEditor.getDoc()).addClass('animate');
+                    $('#tinymce', tinymce.get(_editor.id).getDoc()).addClass('animate');
                 });
             }
-
 
             editor.ui.registry.addIcon('overline', '<i class="mce-i-overline"></i>');
             editor.ui.registry.addIcon('dblunderline', '<i class="mce-i-dblunderline"></i>');
@@ -720,15 +735,21 @@ export class AdvEditor extends EventEmitter {
 
             editor.ui.registry.addSplitButton('send', {
                 icon: 'send',
-                tooltip: 'Send to mud',
+                tooltip: _editor.options.sendTitle || 'Send to mud',
                 onAction: () => {
-                    client.sendCommand(_editor.getFormattedText().replace(/(?:\r)/g, ''));
+                    const e = { preventDefault: false, contents: _editor.getFormattedText().replace(/(?:\r)/g, '') };
+                    _editor.emit('send-action', e);
+                    if (e.preventDefault) return;
+                    client.sendCommand(e.contents);
                     if (client.getOption('editorClearOnSend'))
-                        tinymce.activeEditor.setContent('');
+                        tinymce.get(_editor.id).setContent('');
                     if (client.getOption('editorCloseOnSend'))
                         _editor.emit('close');
                 },
                 onItemAction: (api, value) => {
+                    const e = { preventDefault: false, value: value };
+                    _editor.emit('send-item-action', e);
+                    if (e.preventDefault) return;
                     switch (value) {
                         case 'formatted':
                             client.sendCommand(_editor.getFormattedText().replace(/(?:\r)/g, ''));
@@ -756,12 +777,12 @@ export class AdvEditor extends EventEmitter {
                             break;
                     }
                     if (client.getOption('editorClearOnSend'))
-                        tinymce.activeEditor.setContent('');
+                        tinymce.get(_editor.id).setContent('');
                     if (client.getOption('editorCloseOnSend'))
                         _editor.emit('close');
                 },
                 fetch: callback => {
-                    callback([
+                    callback(_editor.options.sendFetch || [
                         {
                             text: 'Formatted as commands',
                             value: 'formatted',
@@ -853,7 +874,7 @@ export class AdvEditor extends EventEmitter {
                     tooltip: 'Paste as text',
                     onAction: buttonApi => {
                         pasteText().then(text => {
-                            tinymce.activeEditor.execCommand('mceInsertContent', false, (text || '').replace(/(\r\n|\r|\n)/g, '<br/>').replaceAll('  ', '&nbsp;&nbsp;'));
+                            tinymce.get(_editor.id).execCommand('mceInsertContent', false, (text || '').replace(/(\r\n|\r|\n)/g, '<br/>').replaceAll('  ', '&nbsp;&nbsp;'));
                         }).catch(err => {
                             if (client.enableDebug)
                                 client.debug(err);
@@ -1147,10 +1168,10 @@ export class AdvEditor extends EventEmitter {
                 cells[c].addEventListener('click', e => {
                     color = (e.currentTarget as HTMLElement).dataset.mceColor;
                     if (color === 'transparent')
-                        tinymce.activeEditor.execCommand('mceRemoveFormat', this._colorDialog.dialog.dataset.type);
+                        tinymce.get(this._element.id).execCommand('mceRemoveFormat', this._colorDialog.dialog.dataset.type);
                     else
-                        tinymce.activeEditor.execCommand('mceApplyFormat', this._colorDialog.dialog.dataset.type, '#' + color);
-                    tinymce.activeEditor.execCommand('mceSetTextcolor', this._colorDialog.dialog.dataset.type, '#' + color);
+                        tinymce.get(this._element.id).execCommand('mceApplyFormat', this._colorDialog.dialog.dataset.type, '#' + color);
+                    tinymce.get(this._element.id).execCommand('mceSetTextcolor', this._colorDialog.dialog.dataset.type, '#' + color);
                     this._colorDialog.close();
                 });
         }
@@ -1171,15 +1192,15 @@ export class AdvEditor extends EventEmitter {
         if (this.isSimple)
             insertValue(this._element, text);
         else
-            tinymce.activeEditor.execCommand('insertHTML', false, pinkfishToHTML(text).replace(/(\r\n|\r|\n)/g, '<br/>'));
+            tinymce.get(this._element.id).execCommand('insertHTML', false, pinkfishToHTML(text).replace(/(\r\n|\r|\n)/g, '<br/>'));
     }
 
     public setFormatted(text) {
         if (this.isSimple)
             this._element.value = text;
         else {
-            tinymce.activeEditor.getBody().innerHTML = pinkfishToHTML(text).replace(/(\r\n|\r|\n)/g, '<br/>');
-            //tinymce.activeEditor.setContent(pinkfishToHTML(text).replace(/(\r\n|\r|\n)/g, '<br/>'), { format: 'html' });
+            tinymce.get(this._element.id).getBody().innerHTML = pinkfishToHTML(text).replace(/(\r\n|\r|\n)/g, '<br/>');
+            //tinymce.get(this._element.id).setContent(pinkfishToHTML(text).replace(/(\r\n|\r|\n)/g, '<br/>'), { format: 'html' });
         }
     }
 
@@ -1262,7 +1283,7 @@ export class AdvEditor extends EventEmitter {
 
     public getFormattedSelection() {
         //build all previous nodes to ensure all formatting is captures
-        let nodes = tinymce.activeEditor.dom.getParents(tinymce.activeEditor.selection.getNode());
+        let nodes = tinymce.get(this._element.id).dom.getParents(tinymce.get(this._element.id).selection.getNode());
         let n = 0, nl = nodes.length;
         let start = '<html>';
         let end = '</html>';
@@ -1298,7 +1319,7 @@ export class AdvEditor extends EventEmitter {
                 break;
             }
         }
-        return this._formatHtml($(start + tinymce.activeEditor.selection.getContent({ format: 'raw' }).replace(/<\/div><div>/g, '<br>') + end));
+        return this._formatHtml($(start + tinymce.get(this._element.id).selection.getContent({ format: 'raw' }).replace(/<\/div><div>/g, '<br>') + end));
     }
 
     public getFormattedText() {
@@ -1311,20 +1332,20 @@ export class AdvEditor extends EventEmitter {
     public getText() {
         if (this.isSimple)
             return this._element.value;
-        return tinymce.activeEditor.getContent({ format: 'text' });
+        return tinymce.get(this._element.id).getContent({ format: 'text' });
     }
 
     // eslint-disable-next-line no-unused-vars
     public getHTML() {
         if (this.isSimple)
             return this._element.value;
-        return tinymce.activeEditor.getContent({ format: 'html' });
+        return tinymce.get(this._element.id).getContent({ format: 'html' });
     }
 
     public getRaw() {
         if (this.isSimple)
             return this._element.value;
-        return tinymce.activeEditor.getContent({ format: 'raw' });
+        return tinymce.get(this._element.id).getContent({ format: 'raw' });
     }
 
     private _formatHtml(text) {
@@ -1584,7 +1605,7 @@ export class AdvEditor extends EventEmitter {
                     });
                     editor.shortcuts.add('ctrl+alt+p', 'Paste as text', () => {
                         pasteText().then(text => {
-                            tinymce.activeEditor.execCommand('mceInsertContent', false, (text || '').replace(/(\r\n|\r|\n)/g, '<br/>').replaceAll('  ', '&nbsp;&nbsp;'));
+                            tinymce.get(this._element.id).execCommand('mceInsertContent', false, (text || '').replace(/(\r\n|\r|\n)/g, '<br/>').replaceAll('  ', '&nbsp;&nbsp;'));
                         }).catch(err => {
                             if (client.enableDebug)
                                 client.debug(err);
@@ -1622,12 +1643,12 @@ export class AdvEditor extends EventEmitter {
                 editor.on('PastePreProcess', () => {
                     this._addReverse($('.reverse', $(editor.getDoc()).contents()));
                 });
-                $('.mce-content-body', tinymce.activeEditor.getDoc()).css('font-size', client.getOption('cmdfontSize'));
-                $('.mce-content-body', tinymce.activeEditor.getDoc()).css('font-family', client.getOption('cmdfont') + ', monospace');
-                if (tinymce.activeEditor.formatter)
-                    tinymce.activeEditor.formatter.register('flash', { inline: 'span', 'classes': client.getOption('flashing') ? 'flash' : 'noflash', links: true, remove_similar: true });
+                $('.mce-content-body', tinymce.get(this._element.id).getDoc()).css('font-size', client.getOption('cmdfontSize'));
+                $('.mce-content-body', tinymce.get(this._element.id).getDoc()).css('font-family', client.getOption('cmdfont') + ', monospace');
+                if (tinymce.get(this._element.id).formatter)
+                    tinymce.get(this._element.id).formatter.register('flash', { inline: 'span', 'classes': client.getOption('flashing') ? 'flash' : 'noflash', links: true, remove_similar: true });
                 else
-                    tinymce.activeEditor.settings.formats['flash'] = { inline: 'span', 'classes': client.getOption('flashing') ? 'flash' : 'noflash', links: true, remove_similar: true };
+                    tinymce.get(this._element.id).settings.formats['flash'] = { inline: 'span', 'classes': client.getOption('flashing') ? 'flash' : 'noflash', links: true, remove_similar: true };
                 this._loadColors();
                 this.setFormatted(this._element.value);
                 editor.on('click', e => {
@@ -1649,7 +1670,7 @@ export class AdvEditor extends EventEmitter {
     public focus() {
         if (this.isSimple)
             this._element.focus();
-        else if (this._init && TINYMCE && tinymce.activeEditor && tinymce.activeEditor.initialized)
-            tinymce.activeEditor.focus();
+        else if (this._init && TINYMCE && tinymce.get(this._element.id) && tinymce.get(this._element.id).initialized)
+            tinymce.get(this._element.id).focus();
     }
 }

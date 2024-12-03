@@ -75,6 +75,6 @@
     state</button>
 <script>
     body.querySelector('#reset-window').addEventListener('click', () => {
-        dialog.settings['windows.log-view'] = null;
+        dialog.settings['windows.log-view'] = { persistent: body.querySelector('#windows.log-view.persistent').checked };
     });
 </script>

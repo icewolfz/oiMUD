@@ -49,6 +49,10 @@ The client menu
 - `Manage settings` Show setting dialog
 - `Manage profile` Manager your user profiles
 - `Show editor` Show the advanced editor dialog
+- `Compose mail` Compose mail if ShadowMUD plugin enabled
+    - `To` The player or players the mail will be sent to, for multi names either separate by a space or comma
+    - `CC` Carbon copy player mail list, for multi names either separate by a space or comma
+    - `Subject` The subject of the mail
 - `Paste special` If paste is supported open paste special dialog and paste modified text into command input on ok, if paste not supported enable inline paste modification flag to open dialog when paste detected `(Ctrl or Cmd) + Alt + V`
     - `Replace with` Replace all new lines with text
     - `Prefix` Prefix all lines with text

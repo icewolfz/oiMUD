@@ -193,13 +193,15 @@ export class Input extends EventEmitter {
     private _pathTimeout: any = null;
     private _pathPaused: boolean = false;
 
-    public client: Client = null;
+    private _client: Client = null;
+    private _display;
+    private _commandInput;
     public enableParsing: boolean = true;
     public enableTriggers: boolean = true;
 
     public getScope() {
         let scope: any = {};
-        Object.assign(scope, this.client.variables);
+        Object.assign(scope, this._client.variables);
         WindowVariables.forEach((a) => {
             scope[a] = window[a];
             scope[a.substr(1)] = window[a];
@@ -225,7 +227,7 @@ export class Input extends EventEmitter {
 
     public setScope(scope) {
         //if same object no need to update
-        if (scope === this.client.variables) return;
+        if (scope === this._client.variables) return;
         const ll = this.loops.length;
         for (const name in scope) {
             //not a property, i or repeatnum
@@ -244,7 +246,7 @@ export class Input extends EventEmitter {
             if (this.stack.named && Object.prototype.hasOwnProperty.call(this.stack.named, name))
                 continue;
             //update/add new variables
-            this.client.variables[name] = scope[name];
+            this._client.variables[name] = scope[name];
         }
     }
 
@@ -580,7 +582,7 @@ export class Input extends EventEmitter {
             isdefined: (args, math, scope) => {
                 if (args.length === 1) {
                     args[0] = this.stripQuotes(args[0].toString());
-                    if (this.client.variables.hasOwnProperty(args[0]))
+                    if (this._client.variables.hasOwnProperty(args[0]))
                         return 1;
                     if (scope.has(args[0]))
                         return 1;
@@ -621,7 +623,7 @@ export class Input extends EventEmitter {
                         });
                         if (sides) return 1;
                     }
-                    return this.client.variables.hasOwnProperty(args[0]);
+                    return this._client.variables.hasOwnProperty(args[0]);
                 }
                 else if (args.length === 2) {
                     args[0] = this.stripQuotes(args[0].toString());
@@ -677,7 +679,7 @@ export class Input extends EventEmitter {
                         }
                     }
                     if (args[1] === 'variable')
-                        return this.client.variables.hasOwnProperty(args[0]) || scope.has(args[0]);
+                        return this._client.variables.hasOwnProperty(args[0]) || scope.has(args[0]);
                 }
                 else
                     throw new ArgumentTooManyError('defined');
@@ -695,10 +697,10 @@ export class Input extends EventEmitter {
                 if (args.length > 1)
                     throw new ArgumentTooManyError('clip');
                 if (args.length) {
-                    (<any>this.client).writeClipboard(args[0].compile().evaluate(scope));
+                    (<any>this._client).writeClipboard(args[0].compile().evaluate(scope));
                     return;
                 }
-                return (<any>this.client).readClipboard();
+                return (<any>this._client).readClipboard();
             },
             if: (args, math, scope) => {
                 if (args.length < 3)
@@ -1090,7 +1092,7 @@ export class Input extends EventEmitter {
                         throw new ArgumentMissingError('alarm');
                     case 1:
                         args[0] = args[0].compile().evaluate(scope).toString();
-                        alarms = this.client.alarms;
+                        alarms = this._client.alarms;
                         al = alarms.length;
                         if (al === 0)
                             throw new Error('No alarms set.');
@@ -1101,14 +1103,14 @@ export class Input extends EventEmitter {
                             if (alarms[a].name === args[0] || alarms[a].pattern === args[0]) {
                                 if (alarms[a].suspended)
                                     return 0;
-                                return this.client.getRemainingAlarmTime(a);
+                                return this._client.getRemainingAlarmTime(a);
                             }
                         }
                         return;
                     case 2:
                         t = args[1].compile().evaluate(scope);
                         args[0] = args[0].compile().evaluate(scope).toString();
-                        alarms = this.client.alarms;
+                        alarms = this._client.alarms;
                         al = alarms.length;
                         if (al === 0)
                             throw new Error('No alarms set.');
@@ -1122,7 +1124,7 @@ export class Input extends EventEmitter {
                                         continue;
                                     if (alarms[a].suspended)
                                         return 0;
-                                    return this.client.getRemainingAlarmTime(a);
+                                    return this._client.getRemainingAlarmTime(a);
                                 }
                             }
                             throw new Error('Alarm not found in profile: ' + t + '.');
@@ -1133,7 +1135,7 @@ export class Input extends EventEmitter {
                                 if (alarms[a].type !== TriggerType.Alarm) continue;
                                 if (alarms[a].name === args[0] || alarms[a].pattern === args[0]) {
                                     if (!alarms[a].suspended)
-                                        this.client.setAlarmTempTime(a, t);
+                                        this._client.setAlarmTempTime(a, t);
                                     return t;
                                 }
                             }
@@ -1143,7 +1145,7 @@ export class Input extends EventEmitter {
                         t = args[1].compile().evaluate(scope);
                         args[0] = args[0].compile().evaluate(scope).toString()
                         p = args[2].compile().evaluate(scope).toString();
-                        alarms = this.client.alarms;
+                        alarms = this._client.alarms;
                         al = alarms.length;
                         if (al === 0)
                             throw new Error('No alarms set.');
@@ -1155,7 +1157,7 @@ export class Input extends EventEmitter {
                                 if (alarms[a].profile.name.toUpperCase() !== p.toUpperCase())
                                     continue;
                                 if (!alarms[a].suspended)
-                                    this.client.setAlarmTempTime(a, t);
+                                    this._client.setAlarmTempTime(a, t);
                                 return t;
                             }
                         }
@@ -1335,7 +1337,9 @@ export class Input extends EventEmitter {
         super();
         if (!client)
             throw new Error('Invalid client!');
-        this.client = client;
+        this._client = client;
+        this._commandInput = this._client.commandInput;
+        this._display = this._client.display;
         //wrap mathjs to load on demand for speed as not every may need math
         mathjs = () => {
             if (_mathjs) return _mathjs;
@@ -1353,12 +1357,12 @@ export class Input extends EventEmitter {
                 this.toggleScrollLock();
         });
 
-        this.client.on('parse-command', (data) => {
+        this._client.on('parse-command', (data) => {
             if (this._getOption('parseCommands'))
                 data.value = this.parseOutgoing(data.value, null, null, null, null, !data.comments);
         });
 
-        this.client.on('add-line', (data) => {
+        this._client.on('add-line', (data) => {
             this.ExecuteTriggers(TriggerTypes.Regular | TriggerTypes.Pattern | TriggerTypes.LoopExpression, data.line, data.raw, data.fragment, false, true);
             if (this._gag > 0 && !data.fragment) {
                 data.gagged = true;
@@ -1374,25 +1378,25 @@ export class Input extends EventEmitter {
                 }
         });
 
-        this.client.on('options-loaded', () => {
+        this._client.on('options-loaded', () => {
             if (!_mathjs && this._getOption('initializeScriptEngineOnLoad'))
                 this._initMathJS();
             this._initPads();
         });
 
-        this.client.commandInput.addEventListener('keyup', event => {
+        this._commandInput.addEventListener('keyup', event => {
             if (event.key !== 'Escape' && event.key !== 'ArrowUp' && event.key !== 'ArrowDown')
                 this._historyIdx = this._commandHistory.length;
         })
 
-        this.client.commandInput.addEventListener('keydown', event => {
+        this._commandInput.addEventListener('keydown', event => {
             switch (event.key) {
                 case 'Escape': //esc
                     //any modifier set not a proper history navigation    
                     if (event.ctrlKey || event.shiftKey || event.metaKey || event.altKey) return;
-                    this.client.commandInput.blur();
-                    this.client.commandInput.value = '';
-                    this.client.commandInput.select();
+                    this._commandInput.blur();
+                    this._commandInput.value = '';
+                    this._commandInput.select();
                     this._historyIdx = this._commandHistory.length;
                     this._tabIdx = -1;
                     this._tabWords = null;
@@ -1402,9 +1406,9 @@ export class Input extends EventEmitter {
                 case 'ArrowUp': //up
                     //any modifier set not a proper history navigation    
                     if (event.ctrlKey || event.shiftKey || event.metaKey || event.altKey) return;
-                    if (this._historyIdx === this._commandHistory.length && this.client.commandInput.value.length > 0) {
-                        this.AddCommandToHistory(this.client.commandInput.value);
-                        if (this.client.commandInput.value === this._commandHistory[this._historyIdx - 1])
+                    if (this._historyIdx === this._commandHistory.length && this._commandInput.value.length > 0) {
+                        this.AddCommandToHistory(this._commandInput.value);
+                        if (this._commandInput.value === this._commandHistory[this._historyIdx - 1])
                             this._historyIdx--;
                     }
                     this._historyIdx--;
@@ -1412,65 +1416,65 @@ export class Input extends EventEmitter {
                         this._historyIdx = 0;
                     if (this._commandHistory.length < 0) {
                         this._historyIdx = -1;
-                        this.client.commandInput.value = '';
+                        this._commandInput.value = '';
                     }
                     else if (this._commandHistory.length > 0 && this._historyIdx < this._commandHistory.length && this._historyIdx >= 0) {
-                        this.client.commandInput.value = this._commandHistory[this._historyIdx];
+                        this._commandInput.value = this._commandHistory[this._historyIdx];
                     }
-                    setTimeout(() => this.client.commandInput.select(), 0);
+                    setTimeout(() => this._commandInput.select(), 0);
                     this.emit('history-navigate', event);
                     break;
                 case 'ArrowDown': //down
                     //any modifier set not a proper history navigation    
                     if (event.ctrlKey || event.shiftKey || event.metaKey || event.altKey) return;
-                    if (this._historyIdx === this._commandHistory.length && this.client.commandInput.value.length > 0)
-                        this.AddCommandToHistory(this.client.commandInput.value);
+                    if (this._historyIdx === this._commandHistory.length && this._commandInput.value.length > 0)
+                        this.AddCommandToHistory(this._commandInput.value);
                     this._historyIdx++;
                     if (this._historyIdx >= this._commandHistory.length || this._commandHistory.length < 1) {
                         this._historyIdx = this._commandHistory.length;
-                        this.client.commandInput.value = '';
+                        this._commandInput.value = '';
                     }
                     else if (this._commandHistory.length > 0 && this._historyIdx < this._commandHistory.length && this._historyIdx >= 0) {
-                        this.client.commandInput.value = this._commandHistory[this._historyIdx];
+                        this._commandInput.value = this._commandHistory[this._historyIdx];
                     }
-                    setTimeout(() => this.client.commandInput.select(), 0);
+                    setTimeout(() => this._commandInput.select(), 0);
                     this.emit('history-navigate', event);
                     break;
                 case 'Enter': // return
                     switch (this._getOption('newlineShortcut')) {
                         case NewLineType.Ctrl:
                             if (event.ctrlKey && !event.shiftKey && !event.metaKey && !event.altKey) {
-                                insertValue(this.client.commandInput, '\n');
+                                insertValue(this._commandInput, '\n');
                                 this.emit('history-navigate', event);
-                                this.client.commandInput.blur();
-                                this.client.commandInput.focus();
+                                this._commandInput.blur();
+                                this._commandInput.focus();
                                 return true;
                             }
                             break;
                         case NewLineType.CtrlAndShift:
                             if (event.ctrlKey && event.shiftKey && !event.metaKey && !event.altKey) {
-                                insertValue(this.client.commandInput, '\n');
+                                insertValue(this._commandInput, '\n');
                                 this.emit('history-navigate', event);
-                                this.client.commandInput.blur();
-                                this.client.commandInput.focus();
+                                this._commandInput.blur();
+                                this._commandInput.focus();
                                 return true;
                             }
                             break;
                         case NewLineType.CtrlOrShift:
                             if ((event.ctrlKey || event.shiftKey) && !event.metaKey && !event.altKey) {
-                                insertValue(this.client.commandInput, '\n');
+                                insertValue(this._commandInput, '\n');
                                 this.emit('history-navigate', event);
-                                this.client.commandInput.blur();
-                                this.client.commandInput.focus();
+                                this._commandInput.blur();
+                                this._commandInput.focus();
                                 return true;
                             }
                             break;
                         case NewLineType.Shift:
                             if ((event.ctrlKey && event.shiftKey) && !event.metaKey && !event.altKey) {
-                                insertValue(this.client.commandInput, '\n');
+                                insertValue(this._commandInput, '\n');
                                 this.emit('history-navigate', event);
-                                this.client.commandInput.blur();
-                                this.client.commandInput.focus();
+                                this._commandInput.blur();
+                                this._commandInput.focus();
                                 return true;
                             }
                             break;
@@ -1481,32 +1485,32 @@ export class Input extends EventEmitter {
                         this._tabWords = null;
                         this._tabSearch = null
                         event.preventDefault();
-                        this.client.sendCommand(null, null, this._getOption('allowCommentsFromCommand'));
+                        this._client.sendCommand(null, null, this._getOption('allowCommentsFromCommand'));
                         this.emit('history-navigate', event);
                     }
                     event.preventDefault();
                     break;
                 case 'Tab':
-                    if (!this._getOption('enableTabCompletion') || this.client.commandInput.value.length === 0) return;
+                    if (!this._getOption('enableTabCompletion') || this._commandInput.value.length === 0) return;
                     //any modifiers down do not do tab complete
                     if (event.altKey || event.ctrlKey || event.metaKey) return;
                     if (event.shiftKey)
                         this._tabIdx--;
                     else
                         this._tabIdx++;
-                    let start = this.client.commandInput.selectionStart;
-                    let end = this.client.commandInput.selectionEnd;
+                    let start = this._commandInput.selectionStart;
+                    let end = this._commandInput.selectionEnd;
                     if (this._tabWords === null) {
-                        const cursorPos = getCursor(this.client.commandInput);
+                        const cursorPos = getCursor(this._commandInput);
                         //(?=\s[\S]+$)
-                        let endPos = this.client.commandInput.value.indexOf(' ', cursorPos);
+                        let endPos = this._commandInput.value.indexOf(' ', cursorPos);
                         if (endPos === -1)
-                            endPos = this.client.commandInput.value.indexOf('\n', cursorPos);
-                        let startPos = this.client.commandInput.value.lastIndexOf(' ', cursorPos - 1);
+                            endPos = this._commandInput.value.indexOf('\n', cursorPos);
+                        let startPos = this._commandInput.value.lastIndexOf(' ', cursorPos - 1);
                         if (startPos === -1)
-                            startPos = this.client.commandInput.value.indexOf('\n', cursorPos - 1);
+                            startPos = this._commandInput.value.indexOf('\n', cursorPos - 1);
                         if (endPos === -1)
-                            endPos = this.client.commandInput.value.length;
+                            endPos = this._commandInput.value.length;
                         if (startPos === -1)
                             startPos = 0;
                         else
@@ -1515,7 +1519,7 @@ export class Input extends EventEmitter {
                         end = endPos;
                         if (start === end)
                             end++;
-                        const findStr = this.client.commandInput.value.substring(startPos, endPos);
+                        const findStr = this._commandInput.value.substring(startPos, endPos);
                         //nothing to find so bail
                         if (findStr.length === 0) return;
                         //tabCompletionList
@@ -1528,7 +1532,7 @@ export class Input extends EventEmitter {
                             this._tabWords = [...new Set(<string>this._getOption('tabCompletionList').split(/\s+/).filter(word => word.match(regSearch)))];
                         else {
                             //get all words that start with findStr then reverse as you want last words first as they are the newest
-                            this._tabWords = [].concat(...this.client.display.lines.slice(this.client.display.lines.length - this._getOption('tabCompletionBufferLimit')).map(line => line.text.split(/\s+/))).filter(word => word.match(regSearch)).reverse();
+                            this._tabWords = [].concat(...this._display.lines.slice(this._display.lines.length - this._getOption('tabCompletionBufferLimit')).map(line => line.text.split(/\s+/))).filter(word => word.match(regSearch)).reverse();
                             if (this._getOption('tabCompletionLookupType') === TabCompletion.PrependBuffer)
                                 this._tabWords = [...new Set(<string>this._getOption('tabCompletionList').split(/\s+/).filter(word => word.match(regSearch)).reverse())].concat(this._tabWords);
                             else if (this._getOption('tabCompletionLookupType') === TabCompletion.AppendBuffer)
@@ -1548,11 +1552,11 @@ export class Input extends EventEmitter {
                     //this.client.commandInput.selectionStart = start;
                     //this.client.commandInput.selectionEnd = end;
                     //insertValue(this.client.commandInput, (tabCasing === 1 ? (this._tabWords[this._tabIdx].toLowerCase()) : (tabCasing === 2 ? this._tabWords[this._tabIdx].toUpperCase() : this._tabWords[this._tabIdx])));
-                    this.client.commandInput.value = this.client.commandInput.value.substring(0, start)
+                    this._commandInput.value = this._commandInput.value.substring(0, start)
                         + (tabCasing === 1 ? (this._tabWords[this._tabIdx].toLowerCase()) : (tabCasing === 2 ? this._tabWords[this._tabIdx].toUpperCase() : this._tabWords[this._tabIdx]))
-                        + this.client.commandInput.value.substring(end, this.client.commandInput.value.length);
-                    this.client.commandInput.selectionStart = this._tabSearch.start + this._tabSearch.find;
-                    this.client.commandInput.selectionEnd = this._tabSearch.start + this._tabWords[this._tabIdx].length;
+                        + this._commandInput.value.substring(end, this._commandInput.value.length);
+                    this._commandInput.selectionStart = this._tabSearch.start + this._tabSearch.find;
+                    this._commandInput.selectionEnd = this._tabSearch.start + this._tabWords[this._tabIdx].length;
                     event.preventDefault();
                     this.emit('history-navigate', event);
                     break;
@@ -1583,7 +1587,7 @@ export class Input extends EventEmitter {
             }
         });
 
-        this.client.commandInput.addEventListener('mouseup', event => {
+        this._commandInput.addEventListener('mouseup', event => {
             this._tabIdx = -1;
             this._tabWords = null;
             this._tabSearch = null
@@ -1607,7 +1611,7 @@ export class Input extends EventEmitter {
     }
 
     private async _initPads() {
-        if (!this.client || !this.client.options) {
+        if (!this._client || !this._client.options) {
             setTimeout(this._initPads, 5);
             return;
         }
@@ -1644,7 +1648,7 @@ export class Input extends EventEmitter {
             let i;
             let macros;
             if (!this._gamepadCaches[c])
-                this._gamepadCaches[c] = FilterArrayByKeyValue(this.client.macros, 'gamepad', c + 1);
+                this._gamepadCaches[c] = FilterArrayByKeyValue(this._client.macros, 'gamepad', c + 1);
             macros = this._gamepadCaches[c];
             let m = 0;
             const ml = macros.length;
@@ -1714,23 +1718,23 @@ export class Input extends EventEmitter {
     }
 
     public adjustLastLine(n, raw?) {
-        if (!this.client.display.lines || this.client.display.lines.length === 0)
+        if (!this._display.lines || this._display.lines.length === 0)
             return 0;
         if (raw) {
-            if (n === this.client.display.lines.length) {
+            if (n === this._display.lines.length) {
                 n--;
-                if (this.client.display.lines[n].text.length === 0 && this.client.display.lines[n].raw.length)
+                if (this._display.lines[n].text.length === 0 && this._display.lines[n].raw.length)
                     n--;
             }
-            else if (n === this.client.display.lines.length - 1 && this.client.display.lines[n].text.length === 0 && this.client.display.lines[n].raw.length)
+            else if (n === this._display.lines.length - 1 && this._display.lines[n].text.length === 0 && this._display.lines[n].raw.length)
                 n--;
         }
-        else if (n === this.client.display.lines.length) {
+        else if (n === this._display.lines.length) {
             n--;
-            if (this.client.display.lines[n].text.length === 0)
+            if (this._display.lines[n].text.length === 0)
                 n--;
         }
-        else if (n === this.client.display.lines.length - 1 && this.client.display.lines[n].text.length === 0)
+        else if (n === this._display.lines.length - 1 && this._display.lines[n].text.length === 0)
             n--;
         return n;
     }
@@ -1941,8 +1945,7 @@ export class Input extends EventEmitter {
             case 'unaction':
             case 'untrigger':
             case 'unt':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 profile = null;
                 name = null;
                 if (args.length < 1 || args.length > 2)
@@ -1982,7 +1985,7 @@ export class Input extends EventEmitter {
                     }
                     if (!item)
                         throw new Error('Trigger \'' + args[0] + '\' not found in \'' + profile.name + '\'!');
-                    this.client.removeTrigger(item);
+                    this._client.removeTrigger(item);
                     this._echo('Trigger \'' + args[0] + '\' removed from \'' + profile.name + '\'.', -7, -8, true, true);
                 }
                 else {
@@ -1992,7 +1995,7 @@ export class Input extends EventEmitter {
                         item = profile.findAny('triggers', { name: args[0], pattern: args[0] });
                         if (!item)
                             throw new Error('Trigger \'' + args[0] + '\' not found in \'' + profile.name + '\'!');
-                        this.client.removeTrigger(item);
+                        this._client.removeTrigger(item);
                         this._echo('Trigger \'' + args[0] + '\' removed from \'' + profile.name + '\'.', -7, -8, true, true);
                     }
                     else
@@ -2001,26 +2004,25 @@ export class Input extends EventEmitter {
                 return null;
             case 'suspend':
             case 'sus':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 switch (args.length) {
                     case 0:
-                        tmp = this.client.alarms;
+                        tmp = this._client.alarms;
                         if (tmp.length === 0)
                             this._echo('No alarms defined.', -7, -8, true, true);
                         else {
-                            this.client.setAlarmState(0, false);
+                            this._client.setAlarmState(0, false);
                             this._lastSuspend = 0;
                             this._echo('Last alarm suspended.', -7, -8, true, true);
                         }
                         return null;
                     case 1:
                         items = this.parseInline(this.stripQuotes(args[0]));
-                        tmp = this.client.alarms;
+                        tmp = this._client.alarms;
                         al = tmp.length;
                         for (let a = tmp.length - 1; a >= 0; a--) {
                             if (tmp[a].name === items || tmp[a].pattern === items) {
-                                this.client.setAlarmState(a, false);
+                                this._client.setAlarmState(a, false);
                                 this._echo('Alarm \'' + items + '\' suspended.', -7, -8, true, true);
                                 this._lastSuspend = a;
                                 break;
@@ -2032,23 +2034,22 @@ export class Input extends EventEmitter {
                 }
             case 'resume':
             case 'resu':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 switch (args.length) {
                     case 0:
                         if (this._lastSuspend === -1)
                             return null;
-                        this.client.setAlarmState(this._lastSuspend, true);
+                        this._client.setAlarmState(this._lastSuspend, true);
                         this._echo('Last alarm suspended resumed.', -7, -8, true, true);
                         this._lastSuspend = -1;
                         return null;
                     case 1:
                         items = this.parseInline(this.stripQuotes(args[0]));
-                        tmp = this.client.alarms;
+                        tmp = this._client.alarms;
                         al = tmp.length;
                         for (let a = al - 1; a >= 0; a--) {
                             if (tmp[a].name === items || tmp[a].pattern === items) {
-                                this.client.setAlarmState(a, true);
+                                this._client.setAlarmState(a, true);
                                 this._echo('Alarm \'' + items + '\' resumed.', -7, -8, true, true);
                                 break;
                             }
@@ -2061,8 +2062,7 @@ export class Input extends EventEmitter {
             case 'ac':
             case 'trigger':
             case 'tr':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 //#region trigger
                 item = {
                     profile: null,
@@ -2220,8 +2220,7 @@ export class Input extends EventEmitter {
                 return null;
             case 'event':
             case 'ev':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 //#region event
                 profile = null;
                 item = {
@@ -2346,7 +2345,7 @@ export class Input extends EventEmitter {
                             }
                         }
                         if (!profile)
-                            profile = this.client.activeProfile;
+                            profile = this._client.activeProfile;
                     }
                 }
                 else {
@@ -2389,8 +2388,8 @@ export class Input extends EventEmitter {
                 if (item.options.temporary || item.options.temp)
                     trigger.temp = true;
                 trigger.priority = item.options.priority;
-                this.client.saveProfiles();
-                this.client.clearCache();
+                this._client.saveProfiles();
+                this._client.clearCache();
                 if (item.new)
                     this.emit('item-added', 'trigger', profile.name, profile.triggers.length - 1, trigger);
                 else
@@ -2400,8 +2399,7 @@ export class Input extends EventEmitter {
                 return null;
             case 'unevent':
             case 'une':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 //#region unevent
                 if (args.length === 0)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'une\x1b[0;-11;-12mvent name or \x1b[4m' + cmdChar + 'une\x1b[0;-11;-12mvent {name} \x1b[3mprofile\x1b[0;-11;-12m');
@@ -2418,7 +2416,7 @@ export class Input extends EventEmitter {
                         this._echo('Event \'' + tmp + '\' not found.', -7, -8, true, true);
                     else {
                         this._echo('Event \'' + (items[n].name || items[n].pattern) + '\' removed.', -7, -8, true, true);
-                        this.client.removeTrigger(items[n]);
+                        this._client.removeTrigger(items[n]);
                         profile = null;
                     }
                 }
@@ -2426,8 +2424,7 @@ export class Input extends EventEmitter {
                 return null;
             case 'button':
             case 'bu':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 //#region button
                 //#button name caption {commands} {icon} options profile
                 //#button name|index
@@ -2585,7 +2582,7 @@ export class Input extends EventEmitter {
                             }
                         }
                         if (!profile)
-                            profile = this.client.activeProfile;
+                            profile = this._client.activeProfile;
                     }
                 }
                 else {
@@ -2631,8 +2628,8 @@ export class Input extends EventEmitter {
                 else if (item.options.enable)
                     trigger.enabled = true;
                 trigger.priority = item.options.priority;
-                this.client.saveProfiles();
-                this.client.clearCache();
+                this._client.saveProfiles();
+                this._client.clearCache();
                 if (item.new)
                     this.emit('item-added', 'button', profile.name, profile.buttons.length - 1, trigger);
                 else
@@ -2642,8 +2639,7 @@ export class Input extends EventEmitter {
                 return null;
             case 'unbutton':
             case 'unb':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 //#region unbutton
                 if (args.length === 0)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'unb\x1b[0;-11;-12mtton name or \x1b[4m' + cmdChar + 'unb\x1b[0;-11;-12mtton {name} \x1b[3mprofile\x1b[0;-11;-12m');
@@ -2674,8 +2670,8 @@ export class Input extends EventEmitter {
                         trigger = items[n];
                         n = profile.buttons.indexOf(items[n]);
                         profile.buttons.splice(n, 1);
-                        this.client.saveProfiles();
-                        this.client.clearCache();
+                        this._client.saveProfiles();
+                        this._client.clearCache();
                         this.emit('item-removed', 'button', profile.name, n, trigger);
                         profile = null;
                     }
@@ -2684,8 +2680,7 @@ export class Input extends EventEmitter {
                 return null;
             case 'alarm':
             case 'ala':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 //#region alarm
                 //spell-checker:ignore timepattern
                 profile = null;
@@ -2709,7 +2704,7 @@ export class Input extends EventEmitter {
                     }
 
                     if (!profile || profile.length === 0)
-                        profile = this.client.activeProfile;
+                        profile = this._client.activeProfile;
                     else {
                         if (this._profiles.contains(profile))
                             profile = this._profiles.items[profile.toLowerCase()];
@@ -2721,10 +2716,10 @@ export class Input extends EventEmitter {
                     trigger.value = args[1];
                     trigger.type = TriggerType.Alarm;
                     profile.triggers.push(trigger);
-                    this.client.saveProfiles();
-                    this.client.clearCache();
+                    this._client.saveProfiles();
+                    this._client.clearCache();
                     this._lastSuspend = -1;
-                    this.client.updateAlarms();
+                    this._client.updateAlarms();
                     this._echo('Alarm \'' + trigger.pattern + '\' added.', -7, -8, true, true);
                     this.emit('item-added', 'trigger', profile.name, profile.triggers.length - 1, trigger);
                     profile = null;
@@ -2787,7 +2782,7 @@ export class Input extends EventEmitter {
                         if (!profile && !commands)
                             throw new Error('Alarm not found!');
                         if (!profile)
-                            profile = this.client.activeProfile;
+                            profile = this._client.activeProfile;
                         if (!trigger) {
                             trigger = new Trigger();
                             n = true;
@@ -2822,21 +2817,20 @@ export class Input extends EventEmitter {
                 trigger.type = TriggerType.Alarm;
                 if (commands)
                     trigger.value = commands;
-                this.client.saveProfiles();
-                this.client.clearCache();
+                this._client.saveProfiles();
+                this._client.clearCache();
                 if (n)
                     this.emit('item-added', 'trigger', profile.name, profile.triggers.length - 1, trigger);
                 else
                     this.emit('item-updated', 'trigger', profile.name, profile.triggers.indexOf(trigger), trigger);
                 profile = null;
                 this._lastSuspend = -1;
-                this.client.updateAlarms();
+                this._client.updateAlarms();
                 //#endregion
                 return null;
             case 'ungag':
             case 'ung':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length > 0)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'ung\x1b[0;-11;-12mag number or \x1b[4m' + cmdChar + 'ung\x1b[0;-11;-12mag');
                 if (this._gagID.length) {
@@ -2847,16 +2841,15 @@ export class Input extends EventEmitter {
                 return null;
             case 'gag':
             case 'ga':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 //#region gag
                 if (args.length === 0) {
                     //if one exist for this line remove it and replace it with new one
-                    if (this._gags.length && this._gags[this._gags.length - 1] == this.client.display.lines.length) {
+                    if (this._gags.length && this._gags[this._gags.length - 1] == this._display.lines.length) {
                         this._gag = 0;
                         this._gags.pop();
                     }
-                    this._gags.push(this.client.display.lines.length);
+                    this._gags.push(this._display.lines.length);
                     this._gagID.push(setTimeout(() => {
                         n = this.adjustLastLine(this._gags.pop());
                         if (this._gags.length) {
@@ -2867,7 +2860,7 @@ export class Input extends EventEmitter {
                                     this._gags[gl]--;
                             }
                         }
-                        this.client.display.removeLine(n);
+                        this._display.removeLine(n);
                     }, 0));
                     this._gag = 0;
                     return null;
@@ -2878,11 +2871,11 @@ export class Input extends EventEmitter {
                 if (isNaN(i))
                     throw new Error('Invalid number \'' + args[0] + '\'');
                 //if one exist for this line remove it and replace it with new one
-                if (this._gags.length && this._gags[this._gags.length - 1] == this.client.display.lines.length) {
+                if (this._gags.length && this._gags[this._gags.length - 1] == this._display.lines.length) {
                     this._gag = 0;
                     this._gags.pop();
                 }
-                this._gags.push(this.client.display.lines.length);
+                this._gags.push(this._display.lines.length);
                 if (i >= 0) {
                     this._gagID.push(setTimeout(() => {
                         n = this.adjustLastLine(this._gags.pop());
@@ -2894,7 +2887,7 @@ export class Input extends EventEmitter {
                                     this._gags[gl]--;
                             }
                         }
-                        this.client.display.removeLine(n);
+                        this._display.removeLine(n);
                         this._gag = i;
                     }, 0));
                     this._gag = 0;
@@ -2903,9 +2896,9 @@ export class Input extends EventEmitter {
                     this._gagID.push(setTimeout(() => {
                         n = this.adjustLastLine(this._gags.pop());
                         i *= -1;
-                        if (i > this.client.display.lines.length)
-                            i = this.client.display.lines.length;
-                        this.client.display.removeLines(n - i, i);
+                        if (i > this._display.lines.length)
+                            i = this._display.lines.length;
+                        this._display.removeLines(n - i, i);
                         this._gag = 0;
                     }, 0));
                     this._gag = 0;
@@ -2914,8 +2907,7 @@ export class Input extends EventEmitter {
                 return null;
             case 'wait':
             case 'wa':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 //filter out empty arguments to avoid trailing spaces
                 args = args.filter(a => a);
                 if (args.length === 0 || args.length > 1)
@@ -2928,26 +2920,22 @@ export class Input extends EventEmitter {
                 return i;
             case 'showclient':
             case 'showcl':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
-                this.client.show();
+                this._echoRaw(raw);
+                this._client.show();
                 return null;
             case 'hideclient':
             case 'hidecl':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
-                this.client.hide();
+                this._echoRaw(raw);
+                this._client.hide();
                 return null;
             case 'toggleclient':
             case 'togglecl':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
-                this.client.toggle();
+                this._echoRaw(raw);
+                this._client.toggle();
                 return null;
             case 'raiseevent':
             case 'raise':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (this._getOption('parseDoubleQuotes'))
                     args.forEach((a) => {
                         return a.replace(/^\"(.*)\"$/g, (v, e, w) => {
@@ -2963,14 +2951,13 @@ export class Input extends EventEmitter {
                 if (args.length === 0)
                     throw new Error('Invalid syntax use ' + cmdChar + '\x1b[4mraise\x1b[0;-11;-12mevent name or ' + cmdChar + '\x1b[4mraise\x1b[0;-11;-12mevent name arguments');
                 else if (args.length === 1)
-                    this.client.raise(args[0]);
+                    this._client.raise(args[0]);
                 else
-                    this.client.raise(args[0], args.slice(1));
+                    this._client.raise(args[0], args.slice(1));
                 return null;
             case 'cl':
             case 'close':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (this._getOption('parseDoubleQuotes'))
                     args.forEach((a) => {
                         return a.replace(/^\"(.*)\"$/g, (v, e, w) => {
@@ -2986,14 +2973,13 @@ export class Input extends EventEmitter {
                 if (args.length > 2)
                     throw new Error('Invalid syntax use ' + cmdChar + '\x1b[4mcl\x1b[0;-11;-12mose');
                 else if (args.length === 0)
-                    (<any>this.client).closeWindow();
+                    (<any>this._client).closeWindow();
                 else
-                    (<any>this.client).closeWindow(this.stripQuotes(this.parseInline(args[0])));
+                    (<any>this._client).closeWindow(this.stripQuotes(this.parseInline(args[0])));
                 return null;
             case 'window':
             case 'win':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (this._getOption('parseDoubleQuotes'))
                     args.forEach((a) => {
                         return a.replace(/^\"(.*)\"$/g, (v, e, w) => {
@@ -3009,16 +2995,15 @@ export class Input extends EventEmitter {
                 if (args.length === 0 || args.length > 3)
                     throw new Error('Invalid syntax use ' + cmdChar + '\x1b[4mwin\x1b[0;-11;-12mdow name \x1b[3mclose\x1b[0;-11;-12m or ' + cmdChar + '\x1b[4mwin\x1b[0;-11;-12mdow new \x1b[3mcharacter\x1b[0;-11;-12m');
                 else if (args.length === 3)
-                    this.client.emit('window', this.stripQuotes(this.parseInline(args[0])), this.stripQuotes(this.parseInline(args[1])), this.stripQuotes(this.parseInline(args.slice(2).join(' '))));
+                    this._client.emit('window', this.stripQuotes(this.parseInline(args[0])), this.stripQuotes(this.parseInline(args[1])), this.stripQuotes(this.parseInline(args.slice(2).join(' '))));
                 else if (args.length === 1)
-                    this.client.emit('window', this.stripQuotes(this.parseInline(args[0])));
+                    this._client.emit('window', this.stripQuotes(this.parseInline(args[0])));
                 else
-                    this.client.emit('window', this.stripQuotes(this.parseInline(args[0])), this.stripQuotes(this.parseInline(args.slice(1).join(' '))));
+                    this._client.emit('window', this.stripQuotes(this.parseInline(args[0])), this.stripQuotes(this.parseInline(args.slice(1).join(' '))));
                 return null;
             case 'raisedelayed':
             case 'raisede':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length < 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'raisede\x1b[0;-11;-12mlayed milliseconds name or \x1b[4m' + cmdChar + 'raisede\x1b[0;-11;-12mlayed milliseconds name arguments');
                 i = parseInt(this.stripQuotes(this.parseInline(args[0])), 10);
@@ -3041,14 +3026,13 @@ export class Input extends EventEmitter {
                     });
 
                 if (args.length === 1)
-                    this.client.raise(args[0], 0, i);
+                    this._client.raise(args[0], 0, i);
                 else
-                    this.client.raise(args[0], args.slice(1), i);
+                    this._client.raise(args[0], args.slice(1), i);
                 return null;
             case 'notify':
             case 'not':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length === 0)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'not\x1b[0;-11;-12mify title \x1b[3mmessage icon\x1b[0;-11;-12m');
                 else {
@@ -3060,111 +3044,100 @@ export class Input extends EventEmitter {
                     if (args.length === 0)
                         throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'not\x1b[0;-11;-12mify title \x1b[3mmessage icon\x1b[0;-11;-12m');
                     if (args.length === 1)
-                        this.client.notify(this.parseInline(this.stripQuotes(args[0])), null, n);
+                        this._client.notify(this.parseInline(this.stripQuotes(args[0])), null, n);
                     else
-                        this.client.notify(this.parseInline(this.stripQuotes(args[0])), this.parseInline(args.slice(1).join(' ')), n);
+                        this._client.notify(this.parseInline(this.stripQuotes(args[0])), this.parseInline(args.slice(1).join(' ')), n);
                 }
                 return null;
             case 'idle':
             case 'idletime':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
-                if (!this.client.lastSendTime)
+                this._echoRaw(raw);
+                if (!this._client.lastSendTime)
                     this._echo('Not connected', -7, -8, true, true);
                 else
-                    this._echo('You have been idle: ' + getTimeSpan(Date.now() - this.client.lastSendTime), -7, -8, true, true);
+                    this._echo('You have been idle: ' + getTimeSpan(Date.now() - this._client.lastSendTime), -7, -8, true, true);
                 return null;
             case 'connect':
             case 'connecttime':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
-                if (!this.client.connectTime) {
-                    if (!moment && this.client.disconnectTime)
-                        this._echo('Disconnected since: ' + (new Date(this.client.disconnectTime).toLocaleString()), -7, -8, true, true);
-                    else if (this.client.disconnectTime)
-                        this._echo('Disconnected since: ' + new moment(this.client.disconnectTime).format('MM/DD/YYYY hh:mm:ss A'), -7, -8, true, true);
+                this._echoRaw(raw);
+                if (!this._client.connectTime) {
+                    if (!moment && this._client.disconnectTime)
+                        this._echo('Disconnected since: ' + (new Date(this._client.disconnectTime).toLocaleString()), -7, -8, true, true);
+                    else if (this._client.disconnectTime)
+                        this._echo('Disconnected since: ' + new moment(this._client.disconnectTime).format('MM/DD/YYYY hh:mm:ss A'), -7, -8, true, true);
                     else
                         this._echo('Not connected', -7, -8, true, true);
                 }
                 else
-                    this._echo('You have been connected: ' + getTimeSpan(Date.now() - this.client.connectTime), -7, -8, true, true);
+                    this._echo('You have been connected: ' + getTimeSpan(Date.now() - this._client.connectTime), -7, -8, true, true);
                 return null;
             case 'beep':
             case 'be':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
-                this.client.beep();
+                this._echoRaw(raw);
+                this._client.beep();
                 return null;
             case 'version':
             case 've':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
-                this._echo(this.client.telnet.terminal + ' v' + this.client.version, -7, -8, true, true);
+                this._echoRaw(raw);
+                this._echo(this._client.telnet.terminal + ' v' + this._client.version, -7, -8, true, true);
                 return null;
             case 'showprompt':
             case 'showp':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 args = this.parseInline(args.join(' '));
-                this.client.telnet.receivedData(StringToUint8Array(args), true, true);
-                this.client.telnet.prompt = true;
+                this._client.telnet.receivedData(StringToUint8Array(args), true, true);
+                this._client.telnet.prompt = true;
                 return null;
             case 'show':
             case 'sh':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 args = this.parseInline(args.join(' ') + '\n');
-                this.client.telnet.receivedData(StringToUint8Array(args), true, true);
+                this._client.telnet.receivedData(StringToUint8Array(args), true, true);
                 return null;
             case 'sayprompt':
             case 'sayp':
             case 'echoprompt':
             case 'echop':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 args = this.parseInline(args.join(' '));
-                this.client.print('\x1b[-7;-8m' + args + '\x1b[0m', false);
+                this._client.print('\x1b[-7;-8m' + args + '\x1b[0m', false);
                 return null;
             case 'say':
             case 'sa':
             case 'echo':
             case 'ec':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 args = this.parseInline(args.join(' '));
-                if (this.client.telnet.prompt)
-                    this.client.print('\n\x1b[-7;-8m' + args + '\x1b[0m\n', false);
+                if (this._client.telnet.prompt)
+                    this._client.print('\n\x1b[-7;-8m' + args + '\x1b[0m\n', false);
                 else
-                    this.client.print('\x1b[-7;-8m' + args + '\x1b[0m\n', false);
-                this.client.telnet.prompt = false;
+                    this._client.print('\x1b[-7;-8m' + args + '\x1b[0m\n', false);
+                this._client.telnet.prompt = false;
                 return null;
             case 'print':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
-                i = this.client.enableTriggers;
-                this.client.enableTriggers = false;
+                this._echoRaw(raw);
+                i = this._client.enableTriggers;
+                this._client.enableTriggers = false;
                 args = this.parseInline(args.join(' '));
-                if (this.client.telnet.prompt)
-                    this.client.print('\n\x1b[-7;-8m' + args + '\x1b[0m\n', false);
+                if (this._client.telnet.prompt)
+                    this._client.print('\n\x1b[-7;-8m' + args + '\x1b[0m\n', false);
                 else
-                    this.client.print('\x1b[-7;-8m' + args + '\x1b[0m\n', false);
-                this.client.telnet.prompt = false;
-                this.client.enableTriggers = i;
+                    this._client.print('\x1b[-7;-8m' + args + '\x1b[0m\n', false);
+                this._client.telnet.prompt = false;
+                this._client.enableTriggers = i;
                 return null;
             case 'printprompt':
             case 'printp':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
-                i = this.client.enableTriggers;
-                this.client.enableTriggers = false;
+                this._echoRaw(raw);
+                i = this._client.enableTriggers;
+                this._client.enableTriggers = false;
                 args = this.parseInline(args.join(' '));
-                this.client.print('\x1b[-7;-8m' + args + '\x1b[0m', false);
-                this.client.enableTriggers = i;
+                this._client.print('\x1b[-7;-8m' + args + '\x1b[0m', false);
+                this._client.enableTriggers = i;
                 return null;
             case 'alias':
             case 'al':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length === 0)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'al\x1b[0;-11;-12mias name value or \x1b[4m' + cmdChar + 'al\x1b[0;-11;-12mias name {value} \x1b[3mprofile\x1b[0;-11;-12m');
                 else if (args.length === 1)
@@ -3203,15 +3176,14 @@ export class Input extends EventEmitter {
                         }
                     }
                     profile.aliases = items;
-                    this.client.saveProfiles();
-                    this.client.clearCache();
+                    this._client.saveProfiles();
+                    this._client.clearCache();
                     profile = null;
                 }
                 return null;
             case 'unalias':
             case 'una':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length === 0)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias name or \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias {name} \x1b[3mprofile\x1b[0;-11;-12m');
                 else {
@@ -3240,8 +3212,8 @@ export class Input extends EventEmitter {
                         trigger = items[n];
                         items.splice(n, 1);
                         profile.aliases = items;
-                        this.client.saveProfiles();
-                        this.client.clearCache();
+                        this._client.saveProfiles();
+                        this._client.clearCache();
                         this.emit('item-removed', 'alias', profile.name, n, trigger);
                         profile = null;
                     }
@@ -3249,8 +3221,7 @@ export class Input extends EventEmitter {
                 return null;
             case 'setsetting':
             case 'sets':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length === 0)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'sets\x1b[0;-11;-12metting name value');
                 else if (args.length === 1)
@@ -3283,9 +3254,9 @@ export class Input extends EventEmitter {
                                 if (SettingList[n][4] > 0 && args.length > SettingList[n][4])
                                     throw new Error('String can not be longer then ' + SettingList[n][4] + ' characters');
                                 else {
-                                    this.client.setOption(SettingList[n][1] || SettingList[n][0], args);
+                                    this._client.setOption(SettingList[n][1] || SettingList[n][0], args);
                                     this._echo('Setting \'' + SettingList[n][0] + '\' set to \'' + args + '\'.', -7, -8, true, true);
-                                    this.client.loadOptions();
+                                    this._client.loadOptions();
                                 }
                                 break;
                             case 1:
@@ -3294,22 +3265,22 @@ export class Input extends EventEmitter {
                                     case 'true':
                                     case '1':
                                     case 'yes':
-                                        this.client.setOption(SettingList[n][1] || SettingList[n][0], true);
+                                        this._client.setOption(SettingList[n][1] || SettingList[n][0], true);
                                         this._echo('Setting \'' + SettingList[n][0] + '\' set to true.', -7, -8, true, true);
-                                        this.client.loadOptions();
+                                        this._client.loadOptions();
                                         break;
                                     case 'no':
                                     case 'false':
                                     case '0':
-                                        this.client.setOption(SettingList[n][1] || SettingList[n][0], false);
+                                        this._client.setOption(SettingList[n][1] || SettingList[n][0], false);
                                         this._echo('Setting \'' + SettingList[n][0] + '\' set to false.', -7, -8, true, true);
-                                        this.client.loadOptions();
+                                        this._client.loadOptions();
                                         break;
                                     case 'toggle':
                                         args = this._getOption(SettingList[n][1] || SettingList[n][0]) ? false : true;
-                                        this.client.setOption(SettingList[n][1] || SettingList[n][0], args);
+                                        this._client.setOption(SettingList[n][1] || SettingList[n][0], args);
                                         this._echo('Setting \'' + SettingList[n][0] + '\' set to ' + args + '.', -7, -8, true, true);
-                                        this.client.loadOptions();
+                                        this._client.loadOptions();
                                         break;
                                     default:
                                         throw new Error('Invalid value, must be true or false');
@@ -3320,9 +3291,9 @@ export class Input extends EventEmitter {
                                 if (isNaN(i))
                                     throw new Error('Invalid number \'' + args + '\'');
                                 else {
-                                    this.client.setOption(SettingList[n][1] || SettingList[n][0], i);
+                                    this._client.setOption(SettingList[n][1] || SettingList[n][0], i);
                                     this._echo('Setting \'' + SettingList[n][0] + '\' set to \'' + i + '\'.', -7, -8, true, true);
-                                    this.client.loadOptions();
+                                    this._client.loadOptions();
                                 }
                                 break;
                             case 4:
@@ -3334,8 +3305,7 @@ export class Input extends EventEmitter {
                 return null;
             case 'getsetting':
             case 'gets':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length === 0)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'gets\x1b[0;-11;-12metting name');
                 else {
@@ -3404,8 +3374,7 @@ export class Input extends EventEmitter {
                 }
                 return null;
             case 'profilelist':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 this._echo('\x1b[4mProfiles:\x1b[0m', -7, -8, true, true);
                 const files = this._profiles.keys;
                 al = files.length;
@@ -3418,13 +3387,12 @@ export class Input extends EventEmitter {
                 return null;
             case 'profile':
             case 'pro':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length === 0)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'pro\x1b[0;-11;-12mfile name or \x1b[4m' + cmdChar + 'pro\x1b[0;-11;-12mfile name enable/disable');
                 else if (args.length === 1) {
                     args[0] = this.parseInline(args[0]);
-                    this.client.toggleProfile(args[0]);
+                    this._client.toggleProfile(args[0]);
                     if (!this._profiles.contains(args[0]))
                         throw new ProfileNotFound(args[0]);
                     else if (this._profiles.length === 1)
@@ -3450,7 +3418,7 @@ export class Input extends EventEmitter {
                             if (this._profiles.items[args[0].toLowerCase()].enabled)
                                 args = args[0] + ' is already enabled';
                             else {
-                                this.client.toggleProfile(args[0]);
+                                this._client.toggleProfile(args[0]);
                                 if (this._profiles.items[args[0].toLowerCase()].enabled !== -1)
                                     args = args[0] + ' is enabled';
                                 else
@@ -3465,7 +3433,7 @@ export class Input extends EventEmitter {
                             else {
                                 if (this._profiles.length === 1)
                                     throw new Error(args[0] + ' can not be disabled as it is the only one enabled');
-                                this.client.toggleProfile(args[0]);
+                                this._client.toggleProfile(args[0]);
                                 args = args[0] + ' is disabled';
                             }
                             break;
@@ -3473,16 +3441,15 @@ export class Input extends EventEmitter {
                             throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'pro\x1b[0;-11;-12mfile name or \x1b[4m' + cmdChar + 'pro\x1b[0;-11;-12mfile name enable/disable');
                     }
                 }
-                if (this.client.telnet.prompt)
-                    this.client.print('\n\x1b[-7;-8m' + args + '\x1b[0m\n', false);
+                if (this._client.telnet.prompt)
+                    this._client.print('\n\x1b[-7;-8m' + args + '\x1b[0m\n', false);
                 else
-                    this.client.print('\x1b[-7;-8m' + args + '\x1b[0m\n', false);
-                this.client.telnet.prompt = false;
+                    this._client.print('\x1b[-7;-8m' + args + '\x1b[0m\n', false);
+                this._client.telnet.prompt = false;
                 return null;
             case 'color':
             case 'co':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length > 1 && args.length < 4) {
                     item = {
                         profile: null,
@@ -3510,11 +3477,11 @@ export class Input extends EventEmitter {
                 if (args.length !== 1)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'co\x1b[0;-11;-12mlor color or \x1b[4m' + cmdChar + 'co\x1b[0;-11;-12mlor {pattern} color \x1b[3mprofile\x1b[0;-11;-12m');
                 args[0] = this.parseInline(this.stripQuotes(args[0]));
-                n = this.client.display.lines.length;
+                n = this._display.lines.length;
                 if (args[0].trim().match(/^[-|+]?\d+$/g)) {
                     setTimeout(() => {
                         n = this.adjustLastLine(n);
-                        this.client.display.colorSubStrByLine(n, parseInt(args[0], 10));
+                        this._display.colorSubStrByLine(n, parseInt(args[0], 10));
                     }, 0);
                 }
                 //back,fore from color function
@@ -3522,7 +3489,7 @@ export class Input extends EventEmitter {
                     args[0] = args[0].split(',');
                     setTimeout(() => {
                         n = this.adjustLastLine(n);
-                        this.client.display.colorSubStrByLine(n, parseInt(args[0][0], 10), parseInt(args[0][1], 10));
+                        this._display.colorSubStrByLine(n, parseInt(args[0][0], 10), parseInt(args[0][1], 10));
                     }, 0);
                 }
                 else {
@@ -3545,7 +3512,7 @@ export class Input extends EventEmitter {
                         }
                         setTimeout(() => {
                             n = this.adjustLastLine(n);
-                            this.client.display.colorSubStrByLine(n, i);
+                            this._display.colorSubStrByLine(n, i);
                         }, 0);
                     }
                     else if (args.length === 2) {
@@ -3572,9 +3539,9 @@ export class Input extends EventEmitter {
                             setTimeout(() => {
                                 n = this.adjustLastLine(n);
                                 if (i === 370)
-                                    this.client.display.colorSubStrByLine(n, i);
+                                    this._display.colorSubStrByLine(n, i);
                                 else
-                                    this.client.display.colorSubStrByLine(n, i * 10);
+                                    this._display.colorSubStrByLine(n, i * 10);
                             }, 0);
                         }
                         else {
@@ -3594,7 +3561,7 @@ export class Input extends EventEmitter {
                             }
                             setTimeout(() => {
                                 n = this.adjustLastLine(n);
-                                this.client.display.colorSubStrByLine(n, p, i);
+                                this._display.colorSubStrByLine(n, p, i);
                             }, 0);
                         }
                     }
@@ -3639,14 +3606,13 @@ export class Input extends EventEmitter {
                         }
                         setTimeout(() => {
                             n = this.adjustLastLine(n);
-                            this.client.display.colorSubStrByLine(n, p, i);
+                            this._display.colorSubStrByLine(n, p, i);
                         }, 0);
                     }
                 }
                 return null;
             case 'cw':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 trigger = this.stack.regex;
                 if (args.length > 1 && args.length < 4) {
                     item = {
@@ -3675,18 +3641,18 @@ export class Input extends EventEmitter {
                 //no regex so
                 if (!trigger) return null;
                 args[0] = this.parseInline(this.stripQuotes(args[0]));
-                n = this.client.display.lines.length;
+                n = this._display.lines.length;
                 if (args[0].trim().match(/^[-|+]?\d+$/g)) {
                     setTimeout(() => {
                         n = this.adjustLastLine(n);
                         //verbatim so color whole line
                         if (trigger.length === 1)
-                            this.client.display.colorSubStrByLine(n, parseInt(args[0], 10));
+                            this._display.colorSubStrByLine(n, parseInt(args[0], 10));
                         else {
                             trigger[1].lastIndex = 0;
                             tmp = trigger[0].matchAll(trigger[1]);
                             for (const match of tmp) {
-                                this.client.display.colorSubStrByLine(n, parseInt(args[0], 10), null, match.index, match[0].length);
+                                this._display.colorSubStrByLine(n, parseInt(args[0], 10), null, match.index, match[0].length);
                             }
                         }
                     }, 0);
@@ -3698,12 +3664,12 @@ export class Input extends EventEmitter {
                         n = this.adjustLastLine(n);
                         //verbatim so color whole line
                         if (trigger.length === 1)
-                            this.client.display.colorSubStrByLine(n, parseInt(args[0][0], 10), parseInt(args[0][1], 10));
+                            this._display.colorSubStrByLine(n, parseInt(args[0][0], 10), parseInt(args[0][1], 10));
                         else {
                             trigger[1].lastIndex = 0;
                             tmp = trigger[0].matchAll(trigger[1]);
                             for (const match of tmp) {
-                                this.client.display.colorSubStrByLine(n, parseInt(args[0], 10), parseInt(args[0][1], 10), match.index, match[0].length);
+                                this._display.colorSubStrByLine(n, parseInt(args[0], 10), parseInt(args[0][1], 10), match.index, match[0].length);
                             }
                         }
                     }, 0);
@@ -3730,12 +3696,12 @@ export class Input extends EventEmitter {
                             n = this.adjustLastLine(n);
                             //verbatim so color whole line
                             if (trigger.length === 1)
-                                this.client.display.colorSubStrByLine(n, i);
+                                this._display.colorSubStrByLine(n, i);
                             else {
                                 trigger[1].lastIndex = 0;
                                 tmp = trigger[0].matchAll(trigger[1]);
                                 for (const match of tmp) {
-                                    this.client.display.colorSubStrByLine(n, i, null, match.index, match[0].length);
+                                    this._display.colorSubStrByLine(n, i, null, match.index, match[0].length);
                                 }
                             }
                         }, 0);
@@ -3767,12 +3733,12 @@ export class Input extends EventEmitter {
                                     i *= 10;
                                 //verbatim so color whole line
                                 if (trigger.length === 1)
-                                    this.client.display.colorSubStrByLine(n, i);
+                                    this._display.colorSubStrByLine(n, i);
                                 else {
                                     trigger[1].lastIndex = 0;
                                     tmp = trigger[0].matchAll(trigger[1]);
                                     for (const match of tmp) {
-                                        this.client.display.colorSubStrByLine(n, i, null, match.index, match[0].length);
+                                        this._display.colorSubStrByLine(n, i, null, match.index, match[0].length);
                                     }
                                 }
                             }, 0);
@@ -3796,12 +3762,12 @@ export class Input extends EventEmitter {
                                 n = this.adjustLastLine(n);
                                 //verbatim so color whole line
                                 if (trigger.length === 1)
-                                    this.client.display.colorSubStrByLine(n, p, i);
+                                    this._display.colorSubStrByLine(n, p, i);
                                 else {
                                     trigger[1].lastIndex = 0;
                                     tmp = trigger[0].matchAll(trigger[1]);
                                     for (const match of tmp) {
-                                        this.client.display.colorSubStrByLine(n, p, i, match.index, match[0].length);
+                                        this._display.colorSubStrByLine(n, p, i, match.index, match[0].length);
                                     }
                                 }
                             }, 0);
@@ -3850,12 +3816,12 @@ export class Input extends EventEmitter {
                             n = this.adjustLastLine(n);
                             //verbatim so color whole line
                             if (trigger.length === 1)
-                                this.client.display.colorSubStrByLine(n, p, i);
+                                this._display.colorSubStrByLine(n, p, i);
                             else {
                                 trigger[1].lastIndex = 0;
                                 tmp = trigger[0].matchAll(trigger[1]);
                                 for (const match of tmp) {
-                                    this.client.display.colorSubStrByLine(n, p, i, match.index, match[0].length);
+                                    this._display.colorSubStrByLine(n, p, i, match.index, match[0].length);
                                 }
                             }
                         }, 0);
@@ -3863,8 +3829,7 @@ export class Input extends EventEmitter {
                 }
                 return null;
             case 'pcol':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length < 1 || args.length > 5)
                     throw new Error('Invalid syntax use ' + cmdChar + 'pcol color \x1b[3mXStart, XEnd, YStart, YEnd\x1b[0;-11;-12m');
                 if (args.length > 1) {
@@ -3888,7 +3853,7 @@ export class Input extends EventEmitter {
                 else
                     item = { xStart: 0 };
                 args[0] = this.parseInline(this.stripQuotes(args[0]));
-                n = this.adjustLastLine(this.client.display.lines.length);
+                n = this.adjustLastLine(this._display.lines.length);
                 if (args[0].trim().match(/^[-|+]?\d+$/g)) {
                     setTimeout(() => {
                         this._colorPosition(n, parseInt(args[0], 10), null, item);
@@ -4015,8 +3980,7 @@ export class Input extends EventEmitter {
                 return null;
             case 'highlight':
             case 'hi':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length > 0 && args.length < 2) {
                     item = {
                         profile: null,
@@ -4035,16 +3999,15 @@ export class Input extends EventEmitter {
                 }
                 else if (args.length)
                     throw new Error('Too many arguments use \x1b[4m' + cmdChar + 'hi\x1b[0;-11;-12mghlight \x1b[3mpattern profile\x1b[0;-11;-12m');
-                n = this.client.display.lines.length;
+                n = this._display.lines.length;
                 setTimeout(() => {
                     n = this.adjustLastLine(n);
-                    this.client.display.highlightSubStrByLine(n);
+                    this._display.highlightSubStrByLine(n);
                 }, 0);
                 return null;
             case 'break':
             case 'br':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'br\x1b[0;-11;-12meak\x1b[0;-11;-12m');
                 if (!this.loops.length)
@@ -4056,8 +4019,7 @@ export class Input extends EventEmitter {
                 return -1;
             case 'continue':
             case 'cont':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'cont\x1b[0;-11;-12minue\x1b[0;-11;-12m');
                 if (!this.loops.length)
@@ -4065,8 +4027,7 @@ export class Input extends EventEmitter {
                 this.stack.continue = true;
                 return -2;
             case 'if':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (!args.length || args.length > 3)
                     throw new Error('Invalid syntax use ' + cmdChar + 'if {expression} {true-command} \x1b[3m{false-command}\x1b[0;-11;-12m');
                 if (args[0].match(/^\{[\s\S]*\}$/g))
@@ -4087,8 +4048,7 @@ export class Input extends EventEmitter {
                 return null;
             case 'case':
             case 'ca':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (!args.length || args.length < 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'ca\x1b[0;-11;-12mse\x1b[0;-11;-12m index {command 1} \x1b[3m{command n}\x1b[0;-11;-12m');
                 if (args[0].match(/^\{[\s\S]*\}$/g))
@@ -4106,8 +4066,7 @@ export class Input extends EventEmitter {
                 return null;
             case 'switch':
             case 'sw':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (!args.length || args.length < 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'sw\x1b[0;-11;-12mitch\x1b[0;-11;-12m (expression) {command} \x1b[3m(expression) {command} ... {else_command}\x1b[0;-11;-12m');
                 if (args.length % 2 === 1)
@@ -4138,8 +4097,7 @@ export class Input extends EventEmitter {
                 return null
             case 'loop':
             case 'loo':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length < 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'loo\x1b[0;-11;-12mp\x1b[0;-11;-12m range {commands}');
                 n = this.parseInline(args.shift()).split(',');
@@ -4163,8 +4121,7 @@ export class Input extends EventEmitter {
                 return this._executeForLoop(tmp, i, args);
             case 'repeat':
             case 'rep':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length < 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'rep\x1b[0;-11;-12meat\x1b[0;-11;-12m expression {commands}');
                 i = args.shift();
@@ -4180,8 +4137,7 @@ export class Input extends EventEmitter {
                     return this._executeForLoop((-i) + 1, 1, args);
                 return this._executeForLoop(0, i, args);
             case 'until':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length < 2)
                     throw new Error('Invalid syntax use ' + cmdChar + 'until expression {commands}');
                 i = args.shift();
@@ -4211,8 +4167,7 @@ export class Input extends EventEmitter {
                 return null;
             case 'while':
             case 'wh':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length < 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'wh\x1b[0;-11;-12mile expression {commands}');
                 i = args.shift();
@@ -4242,8 +4197,7 @@ export class Input extends EventEmitter {
                 return null;
             case 'forall':
             case 'fo':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length < 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'fo\x1b[0;-11;-12mrall stringlist {commands}');
                 i = args.shift();
@@ -4276,14 +4230,13 @@ export class Input extends EventEmitter {
             case 'variable':
             case 'var':
             case 'va':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length === 0) {
-                    i = Object.keys(this.client.variables);
+                    i = Object.keys(this._client.variables);
                     al = i.length;
                     tmp = [];
                     for (n = 0; n < al; n++)
-                        tmp.push(i[n] + ' = ' + this.client.variables[i[n]]);
+                        tmp.push(i[n] + ' = ' + this._client.variables[i[n]]);
                     return tmp.join('\n');
                 }
                 i = args.shift();
@@ -4293,45 +4246,43 @@ export class Input extends EventEmitter {
                 if (!isValidIdentifier(i))
                     throw new Error('Invalid variable name');
                 if (args.length === 0)
-                    return this.client.variables[i]?.toString();
+                    return this._client.variables[i]?.toString();
                 args = args.join(' ');
                 if (args.match(/^\{[\s\S]*\}$/g))
                     args = args.substr(1, args.length - 2);
                 args = this.parseInline(args);
                 if (args.match(/^\s*?[-|+]?\d+\s*?$/))
-                    this.client.variables[i] = parseInt(args, 10);
+                    this._client.variables[i] = parseInt(args, 10);
                 else if (args.match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
-                    this.client.variables[i] = parseFloat(args);
+                    this._client.variables[i] = parseFloat(args);
                 else if (args === 'true')
-                    this.client.variables[i] = true;
+                    this._client.variables[i] = true;
                 else if (args === 'false')
-                    this.client.variables[i] = false;
+                    this._client.variables[i] = false;
                 else
-                    this.client.variables[i] = this.stripQuotes(args);
+                    this._client.variables[i] = this.stripQuotes(args);
                 return null;
             case 'unvar':
             case 'unv':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length !== 1)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'unv\x1b[0;-11;-12mar name ');
                 i = args.shift();
                 if (i.match(/^\{[\s\S]*\}$/g))
                     i = i.substr(1, i.length - 2);
                 i = this.parseInline(i);
-                delete this.client.variables[i];
+                delete this._client.variables[i];
                 return null;
             case 'add':
             case 'ad':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length < 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'ad\x1b[0;-11;-12md name value');
                 i = args.shift();
                 if (i.match(/^\{[\s\S]*\}$/g))
                     i = i.substr(1, i.length - 2);
                 i = this.parseInline(i);
-                if (this.client.variables.hasOwnProperty(i) && typeof this.client.variables[i] !== 'number')
+                if (this._client.variables.hasOwnProperty(i) && typeof this._client.variables[i] !== 'number')
                     throw new Error(i + ' is not a number for add');
                 args = args.join(' ');
                 if (args.match(/^\{[\s\S]*\}$/g))
@@ -4339,15 +4290,14 @@ export class Input extends EventEmitter {
                 args = this.evaluate(this.parseInline(args));
                 if (typeof args !== 'number')
                     throw new Error('Value is not a number for add');
-                if (!this.client.variables.hasOwnProperty(i))
-                    this.client.variables[i] = args;
+                if (!this._client.variables.hasOwnProperty(i))
+                    this._client.variables[i] = args;
                 else
-                    this.client.variables[i] += args;
+                    this._client.variables[i] += args;
                 return null;
             case 'math':
             case 'mat':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length < 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'mat\x1b[0;-11;-12mh name value');
                 i = args.shift();
@@ -4360,12 +4310,11 @@ export class Input extends EventEmitter {
                 args = this.evaluate(this.parseInline(args));
                 if (typeof args !== 'number')
                     throw new Error('Value is not a number for add');
-                this.client.variables[i] = args;
+                this._client.variables[i] = args;
                 return null;
             case 'evaluate':
             case 'eva':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length === 0)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'eva\x1b[0;-11;-12mluate expression');
                 args = this.evaluate(this.parseInline(args.join(' ')));
@@ -4373,37 +4322,36 @@ export class Input extends EventEmitter {
                     args = '';
                 else
                     args = '' + args;
-                if (this.client.telnet.prompt)
-                    this.client.print('\n' + args + '\x1b[0m\n', false);
+                if (this._client.telnet.prompt)
+                    this._client.print('\n' + args + '\x1b[0m\n', false);
                 else
-                    this.client.print(args + '\x1b[0m\n', false);
-                this.client.telnet.prompt = false;
+                    this._client.print(args + '\x1b[0m\n', false);
+                this._client.telnet.prompt = false;
                 return null
             case 'freeze':
             case 'fr':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 //#region freeze
                 if (args.length === 0) {
                     this.scrollLock = !this.scrollLock;
                     if (this.scrollLock) {
-                        if (this.client.display.scrollAtBottom)
-                            this.client.display.scrollUp();
+                        if (this._display.scrollAtBottom)
+                            this._display.scrollUp();
                     }
                     else
-                        this.client.display.scrollDisplay();
+                        this._display.scrollDisplay();
                 }
                 else if (args.length === 1) {
                     if (args[0] === '0' || args[0] === 'false') {
                         if (this.scrollLock) {
                             this.scrollLock = false;
-                            this.client.display.scrollDisplay();
+                            this._display.scrollDisplay();
                         }
                     }
                     else if (!this.scrollLock) {
                         this.scrollLock = true;
-                        if (this.client.display.scrollAtBottom)
-                            this.client.display.scrollUp();
+                        if (this._display.scrollAtBottom)
+                            this._display.scrollUp();
                     }
                 }
                 else if (args.length > 1)
@@ -4411,36 +4359,33 @@ export class Input extends EventEmitter {
                 //#endregion   
                 return null;
             case 'clr':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length)
                     throw new Error('Invalid syntax use ' + cmdChar + 'CLR');
                 //nothing to clear so just bail
-                if (this.client.display.lines.length === 0)
+                if (this._display.lines.length === 0)
                     return null;
-                i = this.client.display.WindowSize.height + 2;
+                i = this._display.WindowSize.height + 2;
                 //skip trailing new lines
-                n = this.client.display.lines.length;
+                n = this._display.lines.length;
                 while (n-- && i) {
-                    if (this.client.display.lines[n].text.length)
+                    if (this._display.lines[n].text.length)
                         break;
                     i--;
                 }
                 tmp = [];
                 while (i--)
                     tmp.push('\n');
-                this.client.print(tmp.join(''), true);
+                this._client.print(tmp.join(''), true);
                 return null;
             case 'fire':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 args = this.parseInline(args.join(' ') + '\n');
                 this.ExecuteTriggers(TriggerTypes.Regular | TriggerTypes.Pattern | TriggerTypes.LoopExpression, args, args, false, false);
                 return null;
             case 'state': //#STATE id state profile
             case 'sta':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 //setup args for easy use
                 args = args.map(m => {
                     if (!m || !m.length)
@@ -4573,14 +4518,13 @@ export class Input extends EventEmitter {
                 i = trigger.fired;
                 trigger.fired = false;
                 this.resetTriggerState(this._TriggerCache.indexOf(trigger), n, i);
-                this.client.restartAlarmState(trigger, n, trigger.state);
-                this.client.saveProfiles();
-                this.client.emit('item-updated', 'trigger', trigger.profile.name, trigger.profile.triggers.indexOf(trigger), trigger);
+                this._client.restartAlarmState(trigger, n, trigger.state);
+                this._client.saveProfiles();
+                this._client.emit('item-updated', 'trigger', trigger.profile.name, trigger.profile.triggers.indexOf(trigger), trigger);
                 this._echo('Trigger state set to ' + trigger.state + '.', -7, -8, true, true);
                 return null;
             case 'set':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 //#SET pattern|name state value profile
                 //setup args for easy use
                 args = args.map(m => {
@@ -4773,8 +4717,8 @@ export class Input extends EventEmitter {
                     default:
                         throw new Error('Invalid syntax use ' + cmdChar + 'set \x1b[3mname|pattern\x1b[0;-11;-12m state \x1b[3mvalue profile\x1b[0;-11;-12m');
                 }
-                this.client.saveProfiles();
-                this.client.emit('item-updated', 'trigger', trigger.profile.name, trigger.profile.triggers.indexOf(trigger), trigger);
+                this._client.saveProfiles();
+                this._client.emit('item-updated', 'trigger', trigger.profile.name, trigger.profile.triggers.indexOf(trigger), trigger);
                 this.resetTriggerState(this._TriggerCache.indexOf(trigger), n, i);
                 if (n === 0)
                     this._echo('Trigger state 0 fired state set to ' + trigger.fired + '.', -7, -8, true, true);
@@ -4789,8 +4733,7 @@ export class Input extends EventEmitter {
                 return null;
             case 'condition':
             case 'cond':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 //#region condition
                 item = {
                     profile: null,
@@ -4965,20 +4908,18 @@ export class Input extends EventEmitter {
                 //#endregion
                 return null;
             case 'cr':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
-                this.client.sendBackground('\n');
+                this._echoRaw(raw);
+                this._client.sendBackground('\n');
                 return null;
             case 'send':
             case 'se':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length === 0)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'se\x1b[0;-11;-12mnd file \x1b[3mprefix suffix\x1b[0;-11;-12m or \x1b[4m' + cmdChar + 'se\x1b[0;-11;-12mnd text');
                 args = args.join(' ');
                 if (args.length === 0)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'se\x1b[0;-11;-12mnd file \x1b[3mprefix suffix\x1b[0;-11;-12m or \x1b[4m' + cmdChar + 'se\x1b[0;-11;-12mnd text');
-                this.client.sendBackground(this.stripQuotes(args), this._getOption('allowCommentsFromCommand'));
+                this._client.sendBackground(this.stripQuotes(args), this._getOption('allowCommentsFromCommand'));
                 return null;
             //work around for send as can not access files so we open a file dialog and ask for the file they want to send instead
             case 'sendfile':
@@ -4986,8 +4927,7 @@ export class Input extends EventEmitter {
                 ((a, r) => {
                     openFileDialog().then(files => {
                         readFile(files[0]).then((contents: any) => {
-                            if ((this._getOption('echo') & 4) === 4)
-                                this._echo(r, -3, -4, true, true);
+                            this._echoRaw(r);
                             p = '';
                             i = '';
                             if (a.length > 1)
@@ -4997,9 +4937,9 @@ export class Input extends EventEmitter {
                             //handle \n and \r\n for windows and linux files
                             items = contents.split(/\r?\n/);
                             items.forEach(line => {
-                                this.client.sendBackground(p + line + i, null, this._getOption('allowCommentsFromCommand'));
+                                this._client.sendBackground(p + line + i, null, this._getOption('allowCommentsFromCommand'));
                             });
-                        }).catch(this.client.error);
+                        }).catch(this._client.error);
                     }).catch(() => { });
                 })(args, raw);
                 return null;
@@ -5009,8 +4949,7 @@ export class Input extends EventEmitter {
                 ((a, r) => {
                     openFileDialog().then(files => {
                         readFile(files[0]).then((contents: any) => {
-                            if ((this._getOption('echo') & 4) === 4)
-                                this._echo(r, -3, -4, true, true);
+                            this._echoRaw(r);
                             p = '';
                             i = '';
                             if (a.length > 1)
@@ -5020,15 +4959,14 @@ export class Input extends EventEmitter {
                             //handle \n and \r\n for windows and linux files
                             items = contents.split(/\r?\n/);
                             items.forEach(line => {
-                                this.client.sendRaw(p + line + i);
+                                this._client.sendRaw(p + line + i);
                             });
-                        }).catch(this.client.error);
+                        }).catch(this._client.error);
                     }).catch(() => { });
                 })(args, raw);
                 return null;
             case 'sendraw':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length === 0)
                     throw new Error('Invalid syntax use ' + cmdChar + 'sendraw text or ' + cmdChar + 'sendraw file \x1b[3mprefix suffix\x1b[0;-11;-12m');
                 args = args.join(' ');
@@ -5036,28 +4974,25 @@ export class Input extends EventEmitter {
                     throw new Error('Invalid syntax use ' + cmdChar + 'sendraw text or ' + cmdChar + 'sendraw file \x1b[3mprefix suffix\x1b[0;-11;-12m');
                 if (!args.endsWith('\n'))
                     args = args + '\n';
-                this.client.sendRaw(args);
+                this._client.sendRaw(args);
                 return null;
             case 'sendprompt':
             case 'sendp':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length === 0)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'sendp\x1b[0;-11;-12mrompt text');
                 args = args.join(' ');
                 if (args.length === 0)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'sendp\x1b[0;-11;-12mrompt text');
-                this.client.sendRaw(args);
+                this._client.sendRaw(args);
                 return null;
             case 'character':
             case 'char':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
-                this.client.sendRaw(window.$character || '');
+                this._echoRaw(raw);
+                this._client.sendRaw(window.$character || '');
                 return null;
             case 'speak':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length === 0)
                     throw new Error('Invalid syntax use ' + cmdChar + 'speak text');
                 args = args.join(' ');
@@ -5068,41 +5003,35 @@ export class Input extends EventEmitter {
                     window.speechSynthesis.speak(new SpeechSynthesisUtterance(args));
                 return null;
             case 'speakstop':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length !== 0)
                     throw new Error('Invalid syntax use ' + cmdChar + 'speakstop');
                 window.speechSynthesis.cancel();
                 return null;
             case 'speakpause':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length !== 0)
                     throw new Error('Invalid syntax use ' + cmdChar + 'speakpause');
                 window.speechSynthesis.pause();
                 return null;
             case 'speakresume':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length !== 0)
                     throw new Error('Invalid syntax use ' + cmdChar + 'speakresume');
                 window.speechSynthesis.resume();
                 return null;
             case 'comment':
             case 'comm':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 return null;
             case 'noop':
             case 'no':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length)
                     this.parseInline(args.join(' '));
                 return null;
             case 'temp':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 //#region temp
                 item = {
                     profile: null,
@@ -5257,15 +5186,14 @@ export class Input extends EventEmitter {
                 return null;
             case 'wrap':
             case 'wr':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 //filter out empty arguments to avoid trailing spaces
                 args = args.filter(a => a);
                 if (args.length > 1)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'wr\x1b[0;-11;-12map or \x1b[4m' + cmdChar + 'wr\x1b[0;-11;-12map number');
                 if (args.length === 0) {
-                    this.client.setOption('display.wordWrap', !this._getOption('display.wordWrap'))
-                    this.client.display.wordWrap = this._getOption('display.wordWrap');
+                    this._client.setOption('display.wordWrap', !this._getOption('display.wordWrap'))
+                    this._display.wordWrap = this._getOption('display.wordWrap');
                 }
                 else {
                     i = parseInt(this.parseInline(args[0]), 10);
@@ -5273,16 +5201,15 @@ export class Input extends EventEmitter {
                         throw new Error('Invalid number \'' + i + '\' for wrap');
                     if (i < 0)
                         throw new Error('Must be greater then or equal to zero for wrap');
-                    this.client.setOption('display.wordWrap', true)
-                    this.client.setOption('display.wordWrap', i)
-                    this.client.display.wordWrap = true;
-                    this.client.display.wrapAt = i;
+                    this._client.setOption('display.wordWrap', true)
+                    this._client.setOption('display.wordWrap', i)
+                    this._display.wordWrap = true;
+                    this._display.wrapAt = i;
                 }
                 return null;
             case 'prompt':
             case 'pr':
-                if ((this._getOption('echo') & 4) === 4)
-                    this._echo(raw, -3, -4, true, true);
+                this._echoRaw(raw);
                 if (args.length === 0 || args.length > 4)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'pr\x1b[0;-11;-12mompt variable \x1b[3mmessage defaultValue mask\x1b[0;-11;-12m');
                 else {
@@ -5297,21 +5224,20 @@ export class Input extends EventEmitter {
                         args[2] = true;
                     args = window.prompt(...args);
                     if (args?.match(/^\s*?[-|+]?\d+\s*?$/))
-                        this.client.variables[i] = parseInt(args, 10);
+                        this._client.variables[i] = parseInt(args, 10);
                     else if (args?.match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
-                        this.client.variables[i] = parseFloat(args);
+                        this._client.variables[i] = parseFloat(args);
                     else if (args === 'true')
-                        this.client.variables[i] = true;
+                        this._client.variables[i] = true;
                     else if (args === 'false')
-                        this.client.variables[i] = false;
+                        this._client.variables[i] = false;
                     else
-                        this.client.variables[i] = args;
+                        this._client.variables[i] = args;
                 }
                 return null;
         }
         if (fun.match(/^[-|+]?\d+$/)) {
-            if ((this._getOption('echo') & 4) === 4)
-                this._echo(raw, -3, -4, true, true);
+            this._echoRaw(raw);
             i = parseInt(fun, 10);
             if (args.length === 0)
                 throw new Error('Invalid syntax use ' + cmdChar + 'nnn commands');
@@ -5323,10 +5249,9 @@ export class Input extends EventEmitter {
             return this._executeForLoop(0, i, args);
         }
         const data: FunctionEvent = { name: fun, args: args, raw: raw, handled: false, return: null };
-        this.client.emit('function', data);
+        this._client.emit('function', data);
         if (data.handled) {
-            if ((this._getOption('echo') & 4) === 4)
-                this._echo(raw, -3, -4, true, true);
+            this._echoRaw(raw);
             return data.return;
         }
         if (data.raw.startsWith(cmdChar))
@@ -5403,7 +5328,7 @@ export class Input extends EventEmitter {
         let AliasesCached;
         let state = 0;
         //store as local vars to speed up parsing
-        const aliases = this.client.aliases;
+        const aliases = this._client.aliases;
         const stackingChar: string = this._getOption('commandStackingChar');
         const spChar: string = this._getOption('speedpathsChar');
         const ePaths: boolean = this._getOption('enableSpeedpaths');
@@ -5978,11 +5903,11 @@ export class Input extends EventEmitter {
                             else
                                 str += this.stack.named[arg];
                         }
-                        else if (this.client.variables.hasOwnProperty(arg)) {
+                        else if (this._client.variables.hasOwnProperty(arg)) {
                             if (eAlias && findAlias)
-                                alias += this.client.variables[arg];
+                                alias += this._client.variables[arg];
                             else
-                                str += this.client.variables[arg];
+                                str += this._client.variables[arg];
                         }
                         else if (eAlias && findAlias)
                             alias += nParamChar + arg;
@@ -6389,8 +6314,8 @@ export class Input extends EventEmitter {
         else if (state === ParseState.paramsNNamed && arg.length > 0) {
             if (this.stack.named && this.stack.named[arg])
                 str += this.stack.named[arg];
-            else if (this.client.variables.hasOwnProperty(arg))
-                str += this.client.variables[arg];
+            else if (this._client.variables.hasOwnProperty(arg))
+                str += this._client.variables[arg];
             else {
                 arg = this.parseInline(arg);
                 str += nParamChar;
@@ -6727,7 +6652,7 @@ export class Input extends EventEmitter {
         let res = re.exec(text);
         if (!res || !res.length) {
             const data: FunctionEvent = { raw: text, name: text, args: [], handled: false, return: null };
-            this.client.emit('variable', data);
+            this._client.emit('variable', data);
             if (data.handled)
                 return data.return;
             return null;
@@ -6746,10 +6671,10 @@ export class Input extends EventEmitter {
                 return moment().format();
             case 'clip':
                 if (res[2] && res[2].length > 0) {
-                    (<any>this.client).writeClipboard(this.stripQuotes(this.parseInline(res[2])));
+                    (<any>this._client).writeClipboard(this.stripQuotes(this.parseInline(res[2])));
                     return null;
                 }
-                return (<any>this.client).readClipboard();
+                return (<any>this._client).readClipboard();
             case 'lower':
                 return this.stripQuotes(this.parseInline(res[2]).toLowerCase());
             case 'upper':
@@ -7132,11 +7057,11 @@ export class Input extends EventEmitter {
                     for (sides = 1; sides < c.length; sides++) {
                         if (!args.length)
                             break;
-                        this.client.variables[this.stripQuotes(this.parseInline(args[0]))] = c[sides];
+                        this._client.variables[this.stripQuotes(this.parseInline(args[0]))] = c[sides];
                         args.shift();
                     }
                     if (args.length)
-                        this.client.variables[this.stripQuotes(this.parseInline(args[0]))] = c[0].length;
+                        this._client.variables[this.stripQuotes(this.parseInline(args[0]))] = c[0].length;
                 }
                 if (!c.indices[0])
                     return 1;
@@ -7307,7 +7232,7 @@ export class Input extends EventEmitter {
                 else if (args.length > 1)
                     throw new ArgumentTooManyError('isdefined');
                 args[0] = this.stripQuotes(args[0], true);
-                if (this.client.variables.hasOwnProperty(args[0]))
+                if (this._client.variables.hasOwnProperty(args[0]))
                     return 1;
                 return 0;
             case 'defined':
@@ -7343,7 +7268,7 @@ export class Input extends EventEmitter {
                         });
                         if (sides) return 1;
                     }
-                    return this.client.variables.hasOwnProperty(args[0]);
+                    return this._client.variables.hasOwnProperty(args[0]);
                 }
                 else if (args.length === 2) {
                     args[0] = this.stripQuotes(args[0], true);
@@ -7399,7 +7324,7 @@ export class Input extends EventEmitter {
                         }
                     }
                     if (args[1] === 'variable')
-                        return this.client.variables.hasOwnProperty(args[0]);
+                        return this._client.variables.hasOwnProperty(args[0]);
                 }
                 else
                     throw new ArgumentTooManyError('defined');
@@ -7463,7 +7388,7 @@ export class Input extends EventEmitter {
                 if (args.length > 3)
                     throw new ArgumentTooManyError('alarm');
                 args[0] = this.stripQuotes(args[0]);
-                sides = this.client.alarms;
+                sides = this._client.alarms;
                 max = sides.length;
                 if (max === 0)
                     throw new Error('No alarms set.');
@@ -7475,7 +7400,7 @@ export class Input extends EventEmitter {
                         if (sides[c].name === args[0] || sides[c].pattern === args[0]) {
                             if (sides[c].suspended)
                                 return 0;
-                            return this.client.getRemainingAlarmTime(c);
+                            return this._client.getRemainingAlarmTime(c);
                         }
                     }
                 }
@@ -7491,7 +7416,7 @@ export class Input extends EventEmitter {
                                     continue;
                                 if (sides[c].suspended)
                                     return 0;
-                                return this.client.getRemainingAlarmTime(c);
+                                return this._client.getRemainingAlarmTime(c);
                             }
                         }
                         throw Error('Alarm not found in profile: ' + args[1] + '.');
@@ -7502,7 +7427,7 @@ export class Input extends EventEmitter {
                             if (sides[c].type !== TriggerType.Alarm) continue;
                             if (sides[c].name === args[0] || sides[c].pattern === args[0]) {
                                 if (!sides[c].suspended)
-                                    this.client.setAlarmTempTime(c, mod);
+                                    this._client.setAlarmTempTime(c, mod);
                                 return mod;
                             }
                         }
@@ -7521,7 +7446,7 @@ export class Input extends EventEmitter {
                             if (sides[c].profile.name.toUpperCase() !== args[2].toUpperCase())
                                 continue;
                             if (!sides[c].suspended)
-                                this.client.setAlarmTempTime(c, mod);
+                                this._client.setAlarmTempTime(c, mod);
                             return mod;
                         }
                     }
@@ -7618,7 +7543,7 @@ export class Input extends EventEmitter {
             */
         }
         const data: FunctionEvent = { raw: text, name: res[1], args: res[2] && res[2].length ? this.parseOutgoing(res[2]).split(',') : [], handled: false, return: null };
-        this.client.emit('variable', data);
+        this._client.emit('variable', data);
         if (data.handled)
             return data.return;
         return null;
@@ -7676,7 +7601,7 @@ export class Input extends EventEmitter {
                     const f = new Function('try { ' + ret + alias.value + '\n} catch (e) { if(this.getOption(\'showScriptErrors\')) this.error(e);}');
                     this._stack.push({ loops: [], args: args, named: named, append: alias.append, used: 0 });
                     try {
-                        ret = f.apply(this.client, args);
+                        ret = f.apply(this._client, args);
                     }
                     catch (e) {
                         throw e;
@@ -7713,7 +7638,7 @@ export class Input extends EventEmitter {
         //if(!this._getOption('enableMacros')) return false;
         //Possible cache by modifier but  not sure if it it matters as there is a limit of 1 macro per key combo so at most there probably wont be more then 5 to maybe 20 macros per key
         //const macros = this._MacroCache[`${keycode}_${mod}`] || (this._MacroCache[`${keycode}_${mod}`] = FilterArrayByKeyValue(FilterArrayByKeyValue(this.client.macros, 'key', keycode), 'modifiers', mod));
-        const macros = this._MacroCache[keycode] || (this._MacroCache[keycode] = FilterArrayByKeyValue(this.client.macros, 'key', keycode));
+        const macros = this._MacroCache[keycode] || (this._MacroCache[keycode] = FilterArrayByKeyValue(this._client.macros, 'key', keycode));
         let m = 0;
         const ml = macros.length;
         let mod = MacroModifiers.None;
@@ -7757,7 +7682,7 @@ export class Input extends EventEmitter {
                     const f = new Function('try { ' + macro.value + '\n} catch (e) { if(this.getOption(\'showScriptErrors\')) this.error(e);}');
                     this._stack.push({ loops: [], args: 0, named: 0, used: 0 });
                     try {
-                        ret = f.apply(this.client);
+                        ret = f.apply(this._client);
                     }
                     catch (e) {
                         throw e;
@@ -7780,15 +7705,15 @@ export class Input extends EventEmitter {
         if (macro.send) {
             if (!ret.endsWith('\n'))
                 ret += '\n';
-            if (macro.chain && this.client.commandInput.value.endsWith(' ')) {
-                this.client.commandInput.value = this.client.commandInput.value + ret;
-                this.client.sendCommand(null, null, this._getOption('allowCommentsFromCommand'));
+            if (macro.chain && this._commandInput.value.endsWith(' ')) {
+                this._commandInput.value = this._commandInput.value + ret;
+                this._client.sendCommand(null, null, this._getOption('allowCommentsFromCommand'));
             }
             else
-                this.client.send(ret, true);
+                this._client.send(ret, true);
         }
         else if (macro.append)
-            this.client.commandInput.value = this.client.commandInput.value + ret;
+            this._commandInput.value = this._commandInput.value + ret;
         return true;
     }
 
@@ -7932,9 +7857,9 @@ export class Input extends EventEmitter {
                 let cmd = current.current.shift();
                 current.previous.push(cmd);
                 if (pPath)
-                    this.client.sendBackground(cmd + '\n', !ePath);
+                    this._client.sendBackground(cmd + '\n', !ePath);
                 else
-                    this.client.send(cmd + '\n', !ePath);
+                    this._client.send(cmd + '\n', !ePath);
                 if (!current.current.length) break;
             }
             //if at the end remove
@@ -8054,8 +7979,8 @@ export class Input extends EventEmitter {
                 //changed state save
                 if (changed) {
                     if (this._getOption('saveTriggerStateChanges'))
-                        this.client.saveProfiles();
-                    this.client.emit('item-updated', 'trigger', parent.profile.name, parent.profile.triggers.indexOf(parent), parent);
+                        this._client.saveProfiles();
+                    this._client.emit('item-updated', 'trigger', parent.profile.name, parent.profile.triggers.indexOf(parent), parent);
                 }
                 //last check to be 100% sure enabled
                 if (!trigger.enabled) continue;
@@ -8180,7 +8105,7 @@ export class Input extends EventEmitter {
                 else {
                     let re;
                     if (trigger.type === TriggerType.Pattern || trigger.type === TriggerType.CommandInputPattern || trigger.type === SubTriggerTypes.ReParsePattern)
-                        pattern = convertPattern(trigger.pattern, this.client);
+                        pattern = convertPattern(trigger.pattern, this._client);
                     else
                         pattern = trigger.pattern;
                     if (trigger.caseSensitive)
@@ -8207,7 +8132,7 @@ export class Input extends EventEmitter {
                         args.indices = [[0, args[0].length], ...res.indices];
                     }
                     if (res.groups)
-                        Object.keys(res.groups).map(v => this.client.variables[v] = res.groups[v]);
+                        Object.keys(res.groups).map(v => this._client.variables[v] = res.groups[v]);
                     val = this.ExecuteTrigger(trigger, args, ret, t, [this._LastTriggered, re], res.groups, parent);
                 }
                 if (states[t] && states[t].reParse) {
@@ -8223,14 +8148,14 @@ export class Input extends EventEmitter {
                 if (this._getOption('disableTriggerOnError')) {
                     trigger.enabled = false;
                     setTimeout(() => {
-                        this.client.saveProfiles();
+                        this._client.saveProfiles();
                         this.emit('item-updated', 'trigger', parent.profile, parent.profile.triggers.indexOf(parent), parent);
                     });
                 }
                 if (this._getOption('showScriptErrors'))
-                    this.client.error(e);
+                    this._client.error(e);
                 else
-                    this.client.debug(e);
+                    this._client.debug(e);
             }
         }
         return line;
@@ -8262,7 +8187,7 @@ export class Input extends EventEmitter {
             else {
                 let re;
                 if (trigger.type === TriggerType.Pattern || trigger.type === TriggerType.CommandInputPattern || trigger.type === SubTriggerTypes.ReParsePattern)
-                    pattern = convertPattern(trigger.pattern, this.client);
+                    pattern = convertPattern(trigger.pattern, this._client);
                 else
                     pattern = trigger.pattern;
                 if (trigger.caseSensitive)
@@ -8289,7 +8214,7 @@ export class Input extends EventEmitter {
                     args.indices = [[0, args[0].length], ...res.indices];
                 }
                 if (res.groups)
-                    Object.keys(res.groups).map(v => this.client.variables[v] = res.groups[v]);
+                    Object.keys(res.groups).map(v => this._client.variables[v] = res.groups[v]);
                 this.ExecuteTrigger(trigger, args, false, t, [this._LastTriggered, re], res.groups, parent);
             }
             t = this.cleanUpTriggerState(t);
@@ -8298,14 +8223,14 @@ export class Input extends EventEmitter {
             if (this._getOption('disableTriggerOnError')) {
                 trigger.enabled = false;
                 setTimeout(() => {
-                    this.client.saveProfiles();
+                    this._client.saveProfiles();
                     this.emit('item-updated', 'trigger', parent.profile, parent.profile.triggers.indexOf(parent), parent);
                 });
             }
             if (this._getOption('showScriptErrors'))
-                this.client.error(e);
+                this._client.error(e);
             else
-                this.client.debug(e);
+                this._client.debug(e);
         }
         return t;
     }
@@ -8341,10 +8266,10 @@ export class Input extends EventEmitter {
                         item.state = 0;
                     if (idx >= 0)
                         this._TriggerCache[idx] = item;
-                    this.client.saveProfiles();
+                    this._client.saveProfiles();
                     const pIdx = parent.profile.triggers.indexOf(parent);
                     parent.profile.triggers[pIdx] = item;
-                    this.client.emit('item-updated', 'trigger', parent.profile.name, pIdx, item);
+                    this._client.emit('item-updated', 'trigger', parent.profile.name, pIdx, item);
                 }
                 else {
                     //remove only temp sub state
@@ -8352,8 +8277,8 @@ export class Input extends EventEmitter {
                     //if removed temp shift state adjust
                     if (parent.state > parent.triggers.length)
                         parent.state = 0;
-                    this.client.saveProfiles();
-                    this.client.emit('item-updated', 'trigger', parent.profile.name, parent.profile.triggers.indexOf(parent), parent);
+                    this._client.saveProfiles();
+                    this._client.emit('item-updated', 'trigger', parent.profile.name, parent.profile.triggers.indexOf(parent), parent);
                 }
             }
             else {
@@ -8361,7 +8286,7 @@ export class Input extends EventEmitter {
                     this._TriggerCache.splice(idx, 1);
                 if (this._TriggerStates[idx])
                     this.clearTriggerState(idx);
-                this.client.removeTrigger(parent);
+                this._client.removeTrigger(parent);
             }
         }
         else if (parent.triggers.length)
@@ -8389,7 +8314,7 @@ export class Input extends EventEmitter {
                     if (trigger.temp) {
                         /*jslint evil: true */
                         ret = new Function('try { ' + trigger.value + '\n} catch (e) { if(this.getOption(\'showScriptErrors\')) this.error(e);}');
-                        ret = ret.apply(this.client, args);
+                        ret = ret.apply(this._client, args);
                     }
                     else {
                         if (!this._TriggerFunctionCache[idx]) {
@@ -8402,7 +8327,7 @@ export class Input extends EventEmitter {
                         }
                         this._stack.push({ loops: [], args: args, named: 0, used: 0, regex: regex, indices: args.indices });
                         try {
-                            ret = this._TriggerFunctionCache[idx].apply(this.client, args);
+                            ret = this._TriggerFunctionCache[idx].apply(this._client, args);
                         }
                         catch (e) {
                             throw e;
@@ -8429,9 +8354,9 @@ export class Input extends EventEmitter {
             return null;
         if (!ret.endsWith('\n'))
             ret += '\n';
-        if (this.client.connected)
-            this.client.telnet.sendData(ret);
-        if (this.client.telnet.echo && this._getOption('commandEcho')) {
+        if (this._client.connected)
+            this._client.telnet.sendData(ret);
+        if (this._client.telnet.echo && this._getOption('commandEcho')) {
             setTimeout(() => {
                 this._echo(ret);
             }, 1);
@@ -8471,8 +8396,8 @@ export class Input extends EventEmitter {
             parent.state = 0;
         //changed state save
         if (this._getOption('saveTriggerStateChanges'))
-            this.client.saveProfiles();
-        this.client.emit('item-updated', 'trigger', parent.profile.name, parent.profile.triggers.indexOf(parent), parent);
+            this._client.saveProfiles();
+        this._client.emit('item-updated', 'trigger', parent.profile.name, parent.profile.triggers.indexOf(parent), parent);
         //is new subtype a reparse? if so reparse using current trigger instant
         if (parent.state !== 0) {
             const state = this.createTriggerState(parent.triggers[parent.state - 1]);
@@ -8701,7 +8626,7 @@ export class Input extends EventEmitter {
 
     public buildTriggerCache() {
         if (this._TriggerCache == null) {
-            this._TriggerCache = this.client.triggers.filter((a) => {
+            this._TriggerCache = this._client.triggers.filter((a) => {
                 if (a && a.enabled && a.triggers.length) {
                     if (a.type !== TriggerType.Alarm) return true;
                     //loop sub states if one is not alarm cache it for future
@@ -8769,16 +8694,16 @@ export class Input extends EventEmitter {
                 //changed state save
                 if (changed) {
                     if (this._getOption('saveTriggerStateChanges'))
-                        this.client.saveProfiles();
-                    this.client.emit('item-updated', 'trigger', parent.profile.name, parent.profile.triggers.indexOf(parent), parent);
+                        this._client.saveProfiles();
+                    this._client.emit('item-updated', 'trigger', parent.profile.name, parent.profile.triggers.indexOf(parent), parent);
                 }
                 //last check to be 100% sure enabled
                 if (!trigger.enabled) continue;
             }
             if (trigger.type === SubTriggerTypes.ReParse || trigger.type === SubTriggerTypes.ReParsePattern) {
-                const val = this.adjustLastLine(this.client.display.lines.length, true);
-                const line = this.client.display.lines[val];
-                t = this.TestTrigger(trigger, parent, t, line, this.client.display.lines[val].raw || line, val === this.client.display.lines.length - 1);
+                const val = this.adjustLastLine(this._display.lines.length, true);
+                const line = this._display.lines[val];
+                t = this.TestTrigger(trigger, parent, t, line, this._display.lines[val].raw || line, val === this._display.lines.length - 1);
                 continue;
             }
             if (trigger.type !== TriggerType.Event) continue;
@@ -8807,7 +8732,7 @@ export class Input extends EventEmitter {
             if (ret == null || typeof ret === 'undefined' || ret.length === 0) return;
             if (!ret.endsWith('\n'))
                 ret = ret + '\n';
-            this.client.send(ret, true);
+            this._client.send(ret, true);
         }, delay);
     }
 
@@ -8895,7 +8820,7 @@ export class Input extends EventEmitter {
                     }
                 }
                 if (!profile)
-                    profile = this.client.activeProfile;
+                    profile = this._client.activeProfile;
             }
         }
         else if (typeof profile === 'string') {
@@ -9057,9 +8982,9 @@ export class Input extends EventEmitter {
             else
                 trigger.priority = 0;
         }
-        this.client.saveProfiles();
+        this._client.saveProfiles();
         if (reload)
-            this.client.clearCache();
+            this._client.clearCache();
         if (isNew)
             this.emit('item-added', 'trigger', (<Profile>profile).name, trigger.triggers.length - 1, trigger);
         else
@@ -9164,7 +9089,7 @@ export class Input extends EventEmitter {
     private _colorPosition(n: number, fore, back, item) {
         n = this.adjustLastLine(n);
         if (!item.hasOwnProperty('yStart'))
-            this.client.display.colorSubStringByLine(n, fore, back, item.xStart, item.hasOwnProperty('xEnd') && item.xEnd >= 0 ? item.xEnd : null);
+            this._display.colorSubStringByLine(n, fore, back, item.xStart, item.hasOwnProperty('xEnd') && item.xEnd >= 0 ? item.xEnd : null);
         else {
             const xEnd = item.hasOwnProperty('xEnd') && item.xEnd >= 0 ? item.xEnd : null;
             const xStart = item.xStart;
@@ -9173,22 +9098,22 @@ export class Input extends EventEmitter {
             if (item.hasOwnProperty('yEnd'))
                 end = n - item.yEnd;
             while (line <= end) {
-                this.client.display.colorSubStringByLine(line, fore, back, xStart, xEnd);
+                this._display.colorSubStringByLine(line, fore, back, xStart, xEnd);
                 line++;
             }
         }
     }
 
     private _getOption(option) {
-        return this.client.getOption(option);
+        return this._client.getOption(option);
     }
 
     private get _profiles() {
-        return this.client.profiles;
+        return this._client.profiles;
     }
 
     private _echo(str: string, fore?: number, back?: number, newline?: boolean, forceLine?: boolean) {
-        this.client.echo(str, fore, back, newline, forceLine);
+        this._client.echo(str, fore, back, newline, forceLine);
     }
 
     private _processCommandItemArgs(args, syntax) {
@@ -9205,7 +9130,7 @@ export class Input extends EventEmitter {
                     throw new ProfileNotFound(profile);
             }
             else
-                profile = this.client.activeProfile;
+                profile = this._client.activeProfile;
             if (args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g))
                 n = this.parseInline(this.stripQuotes(args[0]));
             else
@@ -9213,8 +9138,13 @@ export class Input extends EventEmitter {
         }
         else {
             n = this.parseInline(args.join(' '));
-            profile = this.client.activeProfile;
+            profile = this._client.activeProfile;
         }
         return { profile: profile, results: n };
+    }
+
+    private _echoRaw(raw) {
+        if ((this._getOption('echo') & 4) === 4)
+            this._echo(raw, -3, -4, true, true);
     }
 }

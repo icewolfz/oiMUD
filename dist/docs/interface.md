@@ -49,7 +49,7 @@ The client menu
 - `Manage settings` Show setting dialog
 - `Manage profile` Manager your user profiles
 - `Show editor` Show the advanced editor dialog
-- `Paste special` If paste is supported open paste special dialog and paste modified text into command input on ok, if paste not supported enable inline paste modification flag to open dialog when paste detected
+- `Paste special` If paste is supported open paste special dialog and paste modified text into command input on ok, if paste not supported enable inline paste modification flag to open dialog when paste detected `(Ctrl or Cmd) + Alt + V`
     - `Replace with` Replace all new lines with text
     - `Prefix` Prefix all lines with text
     - `Postfix` Post fix all lines with text

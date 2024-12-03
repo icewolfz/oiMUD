@@ -523,7 +523,7 @@ export function initializeInterface() {
             client.display.pageUp();
         else if (event.which === 34) //page up
             client.display.pageDown();
-        else if (event.ctrlKey && event.shiftKey && !event.metaKey && !event.altKey && event.code === 'KeyV') {
+        else if (event.ctrlKey && !event.shiftKey && !event.metaKey && event.altKey && event.code === 'KeyV') {
             client.commandInput.dataset.selectionStart = '' + client.commandInput.selectionStart;
             client.commandInput.dataset.selectionEnd = '' + client.commandInput.selectionEnd;
             event.preventDefault();

@@ -33939,7 +33939,7 @@ Devanagari
         client.display.pageUp();
       else if (event2.which === 34)
         client.display.pageDown();
-      else if (event2.ctrlKey && event2.shiftKey && !event2.metaKey && !event2.altKey && event2.code === "KeyV") {
+      else if (event2.ctrlKey && !event2.shiftKey && !event2.metaKey && event2.altKey && event2.code === "KeyV") {
         client.commandInput.dataset.selectionStart = "" + client.commandInput.selectionStart;
         client.commandInput.dataset.selectionEnd = "" + client.commandInput.selectionEnd;
         event2.preventDefault();

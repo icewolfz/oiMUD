@@ -36,10 +36,10 @@ The navigation breadcrumb to allow easier jumping to other pages
 
 ## Edit menu
 
-- `Find` Open find panel
-- `Cut` Cut the currently selected item, cut items remain in original location until pasted and will copy any updates or changes made since cut
-- `Copy` Copy the currently selected item
-- `Paste` Paste item, then cut/copy state, items contain any changes made to item after cut/copy action
+- `Find` Open find panel `(Ctrl or Cmd)+F`
+- `Cut` Cut the currently selected item, cut items remain in original location until pasted and will copy any updates or changes made since cut `(Ctrl or Cmd)+X`
+- `Copy` Copy the currently selected item `(Ctrl or Cmd)+C`
+- `Paste` Paste item, then cut/copy state, items contain any changes made to item after cut/copy action `(Ctrl or Cmd)+V`
 
 ## Profiles
 

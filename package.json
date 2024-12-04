@@ -5,7 +5,7 @@
   "website": "https://github.com/icewolfz/oiMUD",
   "homepage": "https://github.com/icewolfz/oiMUD",
   "url": "https://github.com/icewolfz/oiMUD/issues",
-  "version": "1.0.0-alpha",
+  "version": "1.0.0-beta",
   "main": "dist/index.htm",
   "description": "A MUD websocket client.",
   "author": "Icewolfz",

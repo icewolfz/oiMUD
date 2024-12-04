@@ -52,7 +52,7 @@ export class Mapper extends Plugin {
     public initialize(): void {
         if (!this.client) return;
         this.client.telnet.GMCPSupports.push('Room 1');
-        this.client.on('received-GMCP', this.processGMCP, this);
+        this.client.on('received-GMCP', this._processGMCP, this);
         this.client.on('window', (window, args, name) => {
             if (window === 'mapper') {
                 if (args === 'close') {
@@ -177,21 +177,21 @@ export class Mapper extends Plugin {
      * @param {string} mod Client#received-GMCP module
      * @param {Object} data Client#received-GMCP data object
      */
-    public async processGMCP(mod: string, data: any) {
+    private async _processGMCP(mod: string, data: any) {
         if (!this.client.getOption('mapper.enabled')) return;
         switch (mod) {
             case 'Room.Info':
-                this.processData(data);
+                this._processData(data);
                 break;
             case 'Room.WrongDir':
                 break;
         }
     }
 
-    public processData(data) {
+    private _processData(data) {
         if (!this._map) {
             setTimeout(() => {
-                this.processData(data);
+                this._processData(data);
             }, 10);
             return;
         }
@@ -346,7 +346,7 @@ export class Mapper extends Plugin {
             this._dialogMap.refresh();
     }
 
-    public createDialog() {
+    private _createDialog() {
         if (this._dialog) return;
         this._dialog = new Dialog(Object.assign({ persistent: true }, client.getWindowState('mapper') || { center: true }, { title: '<i class="bi bi-map"></i><select id="mapper-area" class="form-select form-select-sm me-2 mb-1" title="Select Area"></select>', id: 'win-mapper', noFooter: true, minHeight: 350 }));
         this._dialog.on('resized', e => {
@@ -425,7 +425,7 @@ export class Mapper extends Plugin {
                 this._dialog.body.querySelector('#mapper-enable').classList.add('active');
             else
                 this._dialog.body.querySelector('#mapper-enable').classList.remove('active');
-            closeMenu();
+            this._closeMenu();
         });
         this._dialog.body.querySelector('#mapper-legend a').addEventListener('click', () => {
             this._dialogMap.showLegend = !this._dialogMap.showLegend;
@@ -433,7 +433,7 @@ export class Mapper extends Plugin {
                 this._dialog.body.querySelector('#mapper-legend').classList.add('active');
             else
                 this._dialog.body.querySelector('#mapper-legend').classList.remove('active');
-            closeMenu();
+            this._closeMenu();
         });
         this._dialog.body.querySelector('#mapper-room a').addEventListener('click', () => {
             this._dialogSplitter.panel2Collapsed = !this._dialogSplitter.panel2Collapsed;
@@ -451,12 +451,12 @@ export class Mapper extends Plugin {
             }
             this._dialogSplitter.panel1.parentElement.style.top = toolbar.offsetHeight + 'px';
             this.client.setOption('mapper.room', !this._dialogSplitter.panel2Collapsed);
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-refresh a').addEventListener('click', () => {
             this._dialogMap.refresh();
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-split a').addEventListener('click', () => {
@@ -465,7 +465,7 @@ export class Mapper extends Plugin {
                 this._dialog.body.querySelector('#mapper-split').classList.add('active');
             else
                 this._dialog.body.querySelector('#mapper-split').classList.remove('active');
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-fill a').addEventListener('click', () => {
@@ -474,7 +474,7 @@ export class Mapper extends Plugin {
                 this._dialog.body.querySelector('#mapper-fill').classList.add('active');
             else
                 this._dialog.body.querySelector('#mapper-fill').classList.remove('active');
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-follow a').addEventListener('click', () => {
@@ -483,69 +483,69 @@ export class Mapper extends Plugin {
                 this._dialog.body.querySelector('#mapper-follow').classList.add('active');
             else
                 this._dialog.body.querySelector('#mapper-follow').classList.remove('active');
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-focus a').addEventListener('click', () => {
             this._dialogMap.focusCurrentRoom();
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-set-current a').addEventListener('click', () => {
             this._dialogMap.current = this._dialogMap.selected;
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#btn-mapper-focus').addEventListener('click', () => {
             this._dialogMap.focusCurrentRoom();
-            closeMenu();
+            this._closeMenu();
         });
 
 
         this._dialog.body.querySelector('#mapper-highlight-path a').addEventListener('click', () => {
             this._dialogMap.focusCurrentRoom();
             this._dialogMap.showPath();
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-clear-path a').addEventListener('click', () => {
             this._dialogMap.clearPath();
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-walk-path a').addEventListener('click', () => {
             this._dialogMap.walkPath();
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-walk-highlighted-path a').addEventListener('click', () => {
             this._dialogMap.walkMarkedPath();
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-copy-path a').addEventListener('click', () => {
             this._dialogMap.copyPath('\n');
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-copy-stacked a').addEventListener('click', () => {
             this._dialogMap.copyPath(this.client.getOption('commandStackingChar'));
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-copy-speedpath a').addEventListener('click', () => {
             this._dialogMap.copySpeedpath();
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-copy-highlighted-path a').addEventListener('click', () => {
             this._dialogMap.copyMarkedPath('\n');
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-copy-highlighted-stacked a').addEventListener('click', () => {
             this._dialogMap.copyMarkedPath(this.client.getOption('commandStackingChar'));
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-remove-selected a').addEventListener('click', () => {
@@ -553,7 +553,7 @@ export class Mapper extends Plugin {
                 if (e.button === DialogButtons.Yes)
                     this._dialogMap.clearSelectedRoom();
             });
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-remove-current a').addEventListener('click', () => {
@@ -561,41 +561,41 @@ export class Mapper extends Plugin {
                 if (e.button === DialogButtons.Yes)
                     this._dialogMap.clearCurrentRoom();
             });
-            closeMenu();
+            this._closeMenu();
         });
         this._dialog.body.querySelector('#mapper-remove-current-area a').addEventListener('click', () => {
             confirm_box('Remove current area?', `Are you sure you want to remove all rooms from current area?`).then(e => {
                 if (e.button === DialogButtons.Yes)
                     this._dialogMap.clearArea();
             });
-            closeMenu();
+            this._closeMenu();
         });
         this._dialog.body.querySelector('#mapper-remove-all a').addEventListener('click', () => {
             confirm_box('Remove all rooms and areas?', `Are you sure you want to remove all rooms?`).then(e => {
                 if (e.button === DialogButtons.Yes)
                     this._dialogMap.clearAll();
             });
-            closeMenu();
+            this._closeMenu();
         });
         this._dialog.body.querySelector('#mapper-export-image a').addEventListener('click', () => {
             this._dialogMap.exportImage();
-            closeMenu();
+            this._closeMenu();
         });
         this._dialog.body.querySelector('#mapper-export-scaled-image a').addEventListener('click', () => {
             this._dialogMap.exportImage(true);
-            closeMenu();
+            this._closeMenu();
         });
         this._dialog.body.querySelector('#mapper-export-current-image a').addEventListener('click', () => {
             this._dialogMap.exportCurrentImage();
-            closeMenu();
+            this._closeMenu();
         });
         this._dialog.body.querySelector('#mapper-export-current-area a').addEventListener('click', () => {
             this._dialogMap.exportArea();
-            closeMenu();
+            this._closeMenu();
         });
         this._dialog.body.querySelector('#mapper-export-all a').addEventListener('click', () => {
             this._dialogMap.exportAll();
-            closeMenu();
+            this._closeMenu();
         });
         this._dialog.body.querySelector('#mapper-import-merge a').addEventListener('click', () => {
             openFileDialog('Import map and merge', false).then(files => {
@@ -603,7 +603,7 @@ export class Mapper extends Plugin {
                     this.import(data, ImportType.Merge);
                 }).catch(client.error);
             }).catch(() => { });
-            closeMenu();
+            this._closeMenu();
         });
         this._dialog.body.querySelector('#mapper-import-replace a').addEventListener('click', () => {
             confirm_box('Import and Replace?', `Are you sure you want to remove all rooms and replace them?`).then(e => {
@@ -614,17 +614,17 @@ export class Mapper extends Plugin {
                         }).catch(client.error);
                     }).catch(() => { });
             });
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-copy-highlighted-speedpath a').addEventListener('click', () => {
             this._dialogMap.copyMarkedSpeedpath();
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialog.body.querySelector('#mapper-about a').addEventListener('click', () => {
             alert_box({ title: '<i class="fa-solid fa-circle-info"></i> Map information', width: 300, height: 200, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: DialogButtons.Ok }, `Areas: ${this._map.Areas.length}<br>Rooms: ${this._map.count}<br>Highest zone: ${this._map.zone}`, 2);
-            closeMenu();
+            this._closeMenu();
         });
 
         this._dialogMap = new MapDisplay(document.createElement('div'), { map: this._map });
@@ -957,7 +957,7 @@ export class Mapper extends Plugin {
     }
 
     public show() {
-        this.createDialog();
+        this._createDialog();
         this._dialog.show();
     }
 
@@ -986,10 +986,10 @@ export class Mapper extends Plugin {
         });
         this._dialogProgress.showModal();
     }
-}
 
-function closeMenu() {
-    const instance = bootstrap.Offcanvas.getInstance(document.getElementById('mapper-menu'));
-    if (!instance) return
-    instance.hide();
+    private _closeMenu() {
+        const instance = bootstrap.Offcanvas.getInstance(document.getElementById('mapper-menu'));
+        if (!instance) return
+        instance.hide();
+    }
 }

@@ -208,7 +208,7 @@ export class PanelBar extends Plugin {
             document.addEventListener('mousemove', this._move);
         });
 
-        window.addEventListener('resize', () => this.resize());
+        window.addEventListener('resize', () => this._resize());
         document.addEventListener('mouseup', e => {
             if (!this._dragging) return;
             let d = 'width';
@@ -414,7 +414,7 @@ export class PanelBar extends Plugin {
         this.emit('split-moved', this._splitterDistance);
     }
 
-    public resize() {
+    private _resize() {
         if (!this.client.getOption('showPanelBar') || this.client.getOption('panelBar.panels') === Panels.none) return;
         let d = 'width';
         let b = 'right';

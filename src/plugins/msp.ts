@@ -285,12 +285,12 @@ export class MSP extends Plugin {
         this.client.telnet.GMCPSupports.push('Client.Media 1');
         this.client.on('connecting', () => this.reset(), this);
         this.client.on('close', () => this.reset(), this);
-        this.client.on('received-option', this.processOption, this);
-        this.client.on('received-GMCP', this.processGMCP, this);
+        this.client.on('received-option', this._processOption, this);
+        this.client.on('received-GMCP', this._processGMCP, this);
         this.client.on('music', this.music, this);
         this.client.on('sound', this.sound, this);
-        this.client.on('options-loaded', this.loadOptions, this);
-        this.client.on('option-loaded', this.setOption, this);
+        this.client.on('options-loaded', this._loadOptions, this);
+        this.client.on('option-loaded', this._setOption, this);
         this.client.on('function', this._processFunction, this);
         this.on('playing', (data) => {
             if (!this.client) return;
@@ -301,7 +301,7 @@ export class MSP extends Plugin {
         });
         this.on('debug', e => this.client.debug(e), this);
         this.on('error', e => this.client.error(e), this);
-        this.loadOptions();
+        this._loadOptions();
     }
 
     public get menu() {
@@ -312,14 +312,14 @@ export class MSP extends Plugin {
         return [];
     }
 
-    public loadOptions() {
+    private _loadOptions() {
         this.enableDebug = this.client.getOption('enableDebug');
         this.enabled = this.client.getOption('enableMSP');
         this.enableSound = this.client.getOption('enableSound');
         this.maxErrorRetries = this.client.getOption('mspMaxRetriesOnError');
     }
 
-    public setOption(option, value) {
+    private _setOption(option, value) {
         switch (option) {
             case 'enableMSP':
                 this.enabled = this.client.getOption('enableMSP');
@@ -389,6 +389,7 @@ export class MSP extends Plugin {
      * @param {Number} type the type of arguments to process, 0 SOUND, 1 MUSIC
      * @returns {Object} return a MUSIC or SOUND argument object
      */
+    /*
     public getArguments(text: string, type: number) {
         const e: MSPData = { off: false, file: '', url: '', volume: 100, repeat: 1, priority: 50, type: '', continue: true };
         const args = [];
@@ -529,6 +530,7 @@ export class MSP extends Plugin {
         this.debug(e);
         return e;
     }
+    */
 
     public reset() {
         this.server = false;
@@ -640,7 +642,7 @@ export class MSP extends Plugin {
      *
      * @param {Object} data Telnet#replyToOption event object
      */
-    public processOption(data: TelnetOption) {
+    private _processOption(data: TelnetOption) {
         if (data.option === 90) {
             this.debug('<MSP>');
             if (data.verb === 253) {
@@ -684,7 +686,7 @@ export class MSP extends Plugin {
      * @param {string} mod Client#received-GMCP module
      * @param {Object} data Client#received-GMCP data object
      */
-    public async processGMCP(mod: string, data: any) {
+    private async _processGMCP(mod: string, data: any) {
         switch (mod) {
             case 'Client.Media.Default':
                 if (data.type === 'sound' || !data.type)

@@ -398,9 +398,9 @@ class LogManager extends Dialog {
             sep: '/', formatter: (item, index, last) => {
                 if (index === last) {
                     if (this._logs[item] && !item.endsWith('.txt') && !item.endsWith('.raw') && !item.endsWith('.htm'))
-                        return `${formatDate(item)}${this._logs[item].character ? ', ' + this._logs[item].character : ''}>`;
+                        return `${this._formatDate(item)}${this._logs[item].character ? ', ' + this._logs[item].character : ''}>`;
                     else if (this._logs[item] && this._logs[item].timeStamp)
-                        return `${formatDate(this._logs[item].timeStamp)}${this._logs[item].character ? ', ' + this._logs[item].character : ''}, ${item.substring(item.length - 3, item.length)}${this._logs[item].prefix ? ', ' + this._logs[item].prefix : ''}${this._logs[item].postfix ? ', ' + this._logs[item].postfix : ''}`;
+                        return `${this._formatDate(this._logs[item].timeStamp)}${this._logs[item].character ? ', ' + this._logs[item].character : ''}, ${item.substring(item.length - 3, item.length)}${this._logs[item].prefix ? ', ' + this._logs[item].prefix : ''}${this._logs[item].postfix ? ', ' + this._logs[item].postfix : ''}`;
                 }
                 return capitalize(item);
             }, icon: '<i class="fas fa-list" style="margin-right: 2px;"></i>'
@@ -510,9 +510,9 @@ class LogManager extends Dialog {
                             icon = 'binary';
                         let title = keys[k];
                         if (!keys[k].endsWith('.txt') && !keys[k].endsWith('.raw') && !keys[k].endsWith('.htm'))
-                            title = `${formatDate(keys[k])}${this._logs[keys[k]].character ? ', ' + this._logs[keys[k]].character : ''}`;
+                            title = `${this._formatDate(keys[k])}${this._logs[keys[k]].character ? ', ' + this._logs[keys[k]].character : ''}`;
                         else if (this._logs[keys[k]].timeStamp)
-                            title = `${formatDate(this._logs[keys[k]].timeStamp)}${this._logs[keys[k]].character ? ', ' + this._logs[keys[k]].character : ''}, ${keys[k].substring(keys[k].length - 3, keys[k].length)}${this._logs[keys[k]].prefix ? ', ' + this._logs[keys[k]].prefix : ''}${this._logs[keys[k]].postfix ? ', ' + this._logs[keys[k]].postfix : ''}`;
+                            title = `${this._formatDate(this._logs[keys[k]].timeStamp)}${this._logs[keys[k]].character ? ', ' + this._logs[keys[k]].character : ''}, ${keys[k].substring(keys[k].length - 3, keys[k].length)}${this._logs[keys[k]].prefix ? ', ' + this._logs[keys[k]].prefix : ''}${this._logs[keys[k]].postfix ? ', ' + this._logs[keys[k]].postfix : ''}`;
                         p += `<a id="${keys[k]}" href="#logs/${encodeURIComponent(keys[k])}" class="list-group-item list-group-item-action" title="${title}"><span class="list-badge-button badge text-bg-danger" data-key="${keys[k]}" data-type="delete" title="Remove log"><i class="bi bi-trash"></i></span><span class="me-1 list-badge-button badge text-bg-secondary" data-key="${keys[k]}" data-type="export" title="Export log"><i class="bi bi-box-arrow-up"></i></span><i class="bi bi-file-${icon}"></i>${title}</a>`;
                     }
                     this._menu.innerHTML = '<div class="list-group" id="logs-menu">' + p + '</div>';
@@ -603,18 +603,19 @@ class LogManager extends Dialog {
             this._small = false;
         }
     }
+
+    private _formatDate(date) {
+        if (typeof date === 'string')
+            date = parseInt(date, 10);
+        date = new Date(date);
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+        let ampm = hours >= 12 ? 'pm' : 'am';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        let strTime = hours + ':' + minutes + ' ' + ampm;
+        return date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear() + '  ' + strTime;
+    }
 }
 
-function formatDate(date) {
-    if (typeof date === 'string')
-        date = parseInt(date, 10);
-    date = new Date(date);
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-    let ampm = hours >= 12 ? 'pm' : 'am';
-    hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-    minutes = minutes < 10 ? '0' + minutes : minutes;
-    let strTime = hours + ':' + minutes + ' ' + ampm;
-    return date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear() + '  ' + strTime;
-}

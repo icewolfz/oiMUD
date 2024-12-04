@@ -23,80 +23,80 @@ export enum BackupSelection {
 
 export class Backup extends EventEmitter {
     private _port: number = 1034;
-    private _abort: boolean = false;
+    private _aborted: boolean = false;
     private _user;
-    private _save;
+    private _saveState;
     private _mapper: Mapper;
-    public client: Client;
+    private _client: Client;
 
     private _dialogProgress;
 
     constructor(client: Client) {
         super();
-        this.client = client;
+        this._client = client;
         this.initialize();
     }
 
     public remove(): void {
-        this.client.removeListenersFromCaller(this);
+        this._client.removeListenersFromCaller(this);
     }
 
     public initialize(): void {
-        this.client.telnet.GMCPSupports.push('Client 1');
+        this._client.telnet.GMCPSupports.push('Client 1');
 
-        this.client.on('connected', () => {
-            this._port = this.client.port;
+        this._client.on('connected', () => {
+            this._port = this._client.port;
             this._closeDialog();
-            this._save = 0;
-            this._abort = false;
+            this._saveState = 0;
+            this._aborted = false;
         }, this);
 
-        this.client.on('closed', () => {
-            this._port = this.client.port;
+        this._client.on('closed', () => {
+            this._port = this._client.port;
             this._closeDialog();
-            this._save = 0;
-            this._abort = false;
+            this._saveState = 0;
+            this._aborted = false;
         }, this);
 
-        this.client.on('received-GMCP', async (mod, obj) => {
+        this._client.on('received-GMCP', async (mod, obj) => {
             if (mod.toLowerCase() !== 'client' || !obj) return;
             this._getMapper();
             switch (obj.action) {
                 case 'save':
-                    if (this._abort) return;
+                    if (this._aborted) return;
                     this._user = obj.user;
                     this._showDialog('Saving data');
-                    this._abort = false;
+                    this._aborted = false;
                     //if mapper make sure open map saved
                     if (this._mapper && this._mapper.map.changed) {
                         this._mapper.map.save().then(() => {
-                            this.save(2);
+                            this._save(2);
                         });
                     }
                     else
-                        this.save(2);
+                        this._save(2);
                     break;
                 case 'load':
-                    this.client.debug(`Starting load\n    Chunks: ${obj.chunks}\n    Start chunk: ${obj.chunk}\n    Size: ${obj.size}\n`);
-                    this._abort = false;
+                    this._client.debug(`Starting load\n    Chunks: ${obj.chunks}\n    Start chunk: ${obj.chunk}\n    Size: ${obj.size}\n`);
+                    this._aborted = false;
                     this._user = obj.user;
-                    this._save = [obj.chunks || 1, obj.chunk || 0, obj.size, ''];
+                    this._saveState = [obj.chunks || 1, obj.chunk || 0, obj.size, ''];
                     this._showDialog('Loading data');
                     //if mapper make sure open map saved
                     if (this._mapper && this._mapper.map.changed) {
                         this._mapper.map.save().then(() => {
-                            this.getChunk();
+                            this._getChunk();
                         });
                     }
                     else
-                        this.getChunk();
+                        this._getChunk();
                     break;
                 case 'error':
-                    this.abort(obj.error);
+                    this._abort(obj.error);
                     break;
             }
         });
-        this._port = this.client.port;
+        this._port = this._client.port;
     }
 
     get URL(): string {
@@ -105,25 +105,25 @@ export class Backup extends EventEmitter {
         return 'http://shadowmud.com:1130/client';
     }
 
-    public save(version?: number) {
+    private _save(version?: number) {
         Map.load().then((map: Map) => {
             const data = {
                 version: 2,
-                profiles: this.client.profiles.clone(2),
+                profiles: this._client.profiles.clone(2),
                 settings: new Settings(),
                 map: map ? map.Rooms : {}
             };
             let keys, k;
 
-            const saveSelection = this.client.getOption('backupSave');
+            const saveSelection = this._client.getOption('backupSave');
 
             if ((saveSelection & BackupSelection.Map) !== BackupSelection.Map) {
                 delete data.map;
-                this.client.debug('Backup save: setting for no mapper data enabled.');
+                this._client.debug('Backup save: setting for no mapper data enabled.');
             }
             if ((saveSelection & BackupSelection.Profiles) !== BackupSelection.Profiles) {
                 delete data.profiles;
-                this.client.debug('Backup save: setting for no profiles enabled.');
+                this._client.debug('Backup save: setting for no profiles enabled.');
             }
             if ((saveSelection & BackupSelection.Windows) !== BackupSelection.Windows) {
                 keys = Object.keys(data.settings);
@@ -131,7 +131,7 @@ export class Backup extends EventEmitter {
                     if (keys[k].startsWith('windows.'))
                         delete data.settings[keys[k]];
                 }
-                this.client.debug('Backup save: setting for no window data enabled.');
+                this._client.debug('Backup save: setting for no window data enabled.');
             }
             if ((saveSelection & BackupSelection.Settings) !== BackupSelection.Settings) {
                 let windows;
@@ -146,7 +146,7 @@ export class Backup extends EventEmitter {
                 delete data.settings;
                 if ((saveSelection & BackupSelection.Windows) === BackupSelection.Windows)
                     data.settings = windows;
-                this.client.debug('Backup save: setting for no settings data enabled.');
+                this._client.debug('Backup save: setting for no settings data enabled.');
             }
             else {
                 //convert flat setting format to object format
@@ -186,21 +186,21 @@ export class Backup extends EventEmitter {
 
             let jData = JSON.stringify(data);
             jData = LZString.compressToEncodedURIComponent(jData);
-            this._save = [jData.match(/((\S|\s|.){1,20000})/g), 0, 0];
-            this._save[3] = this._save[0].length;
-            this.saveChunk();
-        }).catch(err => this.client.error(err));
+            this._saveState = [jData.match(/((\S|\s|.){1,20000})/g), 0, 0];
+            this._saveState[3] = this._saveState[0].length;
+            this._saveChunk();
+        }).catch(err => this._client.error(err));
     }
 
-    public abort(err?) {
+    private _abort(err?) {
         if (err)
-            this.client.debug('client load/save aborted for' + err);
+            this._client.debug('client load/save aborted for' + err);
         else
-            this.client.debug('client load/save aborted');
+            this._client.debug('client load/save aborted');
         this._closeDialog();
         alert_box('Aborted', err || 'Aborted importing or exporting data.', DialogIcon.exclamation);
-        this._save = 0;
-        this._abort = true;
+        this._saveState = 0;
+        this._aborted = true;
         $.ajax({
             type: 'POST',
             url: this.URL,
@@ -212,10 +212,10 @@ export class Backup extends EventEmitter {
         });
     }
 
-    public close() {
+    private _close() {
         this._closeDialog();
-        this._save = 0;
-        this._abort = false;
+        this._saveState = 0;
+        this._aborted = false;
         $.ajax({
             type: 'POST',
             url: this.URL,
@@ -227,8 +227,8 @@ export class Backup extends EventEmitter {
         });
     }
 
-    public getChunk() {
-        this.client.debug('Requesting client chunk ' + this._save[1]);
+    private _getChunk() {
+        this._client.debug('Requesting client chunk ' + this._saveState[1]);
         $.ajax(
             {
                 type: 'POST',
@@ -237,35 +237,35 @@ export class Backup extends EventEmitter {
                 {
                     user: this._user,
                     a: 'get',
-                    c: ++this._save[1]
+                    c: ++this._saveState[1]
                 },
                 dataType: 'json',
                 success: (data) => {
-                    if (this._abort) return;
+                    if (this._aborted) return;
                     if (!data)
-                        this.abort('No data returned');
+                        this._abort('No data returned');
                     else if (data.msg)
-                        this.abort(data.msg || 'Error');
+                        this._abort(data.msg || 'Error');
                     else if (data.error)
-                        this.abort(data.error);
+                        this._abort(data.error);
                     else {
-                        this._save[1] = data.chunk || 0;
-                        this._save[3] += data.data || '';
-                        this.client.debug('Got client chunk ' + this._save[1]);
-                        this._updateProgress((this._save[1] + 1) / this._save[0] * 100);
-                        if (this._save[1] >= this._save[0] - 1)
-                            this.finishLoad();
+                        this._saveState[1] = data.chunk || 0;
+                        this._saveState[3] += data.data || '';
+                        this._client.debug('Got client chunk ' + this._saveState[1]);
+                        this._updateProgress((this._saveState[1] + 1) / this._saveState[0] * 100);
+                        if (this._saveState[1] >= this._saveState[0] - 1)
+                            this._finishLoad();
                         else
-                            this.getChunk();
+                            this._getChunk();
                     }
                 },
                 error: (data, error, errorThrown) => {
-                    this.abort(error);
+                    this._abort(error);
                 }
             });
     }
 
-    public saveChunk() {
+    private _saveChunk() {
         $.ajax(
             {
                 type: 'POST',
@@ -274,40 +274,40 @@ export class Backup extends EventEmitter {
                 {
                     user: this._user,
                     a: 'save',
-                    data: this._save[0].shift(),
-                    append: (this._save[1] > 0 ? 1 : 0)
+                    data: this._saveState[0].shift(),
+                    append: (this._saveState[1] > 0 ? 1 : 0)
                 },
                 dataType: 'json',
                 success: (data) => {
                     if (!data)
-                        this.abort('No data returned');
+                        this._abort('No data returned');
                     else if (data.msg !== 'Successfully saved')
-                        this.abort(data.msg || 'Error');
+                        this._abort(data.msg || 'Error');
                     else if (data.error)
-                        this.abort(data.error);
-                    else if (this._save[0].length > 0) {
-                        this._updateProgress(this._save[1] / this._save[3] * 100);
-                        this._save[1]++;
-                        this.saveChunk();
+                        this._abort(data.error);
+                    else if (this._saveState[0].length > 0) {
+                        this._updateProgress(this._saveState[1] / this._saveState[3] * 100);
+                        this._saveState[1]++;
+                        this._saveChunk();
                     }
                     else {
-                        if (typeof (this._save[2]) === 'function') this._save[2]();
+                        if (typeof (this._saveState[2]) === 'function') this._saveState[2]();
                         client.raise('backup-saved');
-                        this.close();
+                        this._close();
                     }
                 },
                 error: (data, error, errorThrown) => {
-                    this.abort(error);
+                    this._abort(error);
                 }
             });
     }
 
-    public finishLoad() {
-        this.client.debug('Got last chunk, processing data');
-        let data = LZString.decompressFromEncodedURIComponent(this._save[3]);
+    private _finishLoad() {
+        this._client.debug('Got last chunk, processing data');
+        let data = LZString.decompressFromEncodedURIComponent(this._saveState[3]);
         data = JSON.parse(data);
         if (data.version === 2) {
-            const loadSelection = this.client.getOption('backupLoad');
+            const loadSelection = this._client.getOption('backupLoad');
             if (data.map && (loadSelection & BackupSelection.Map) === BackupSelection.Map)
                 this._mapper.import(data.map, client.getOption('mapper.importType'))
 
@@ -421,22 +421,22 @@ export class Backup extends EventEmitter {
                 }
                 profiles.update();
                 profiles.save().then(() => {
-                    this.client.loadProfiles();
+                    this._client.loadProfiles();
                 });
             }
             let keys, k;
             if ((loadSelection & BackupSelection.Settings) === BackupSelection.Settings) {
-                this.client.setOption('mapper.enabled', data.settings.mapEnabled ? true : false);
-                this.client.setOption('mapper.follow', data.settings.mapFollow ? true : false);
-                this.client.setOption('mapper.legend', data.settings.legend ? true : false);
-                this.client.setOption('mapper.split', data.settings.MapperSplitArea ? true : false);
-                this.client.setOption('mapper.fill', data.settings.MapperFillWalls ? true : false);
-                this.client.setOption('mapper.vscroll', data.settings.vscroll);
-                this.client.setOption('mapper.hscroll', data.settings.hscroll);
-                this.client.setOption('mapper.memory', data.settings.mapperMemory ? true : false);
-                this.client.setOption('showScriptErrors', data.settings.showScriptErrors ? true : false);
-                this.client.setOption('logWhat', data.settings ? Log.Html : Log.None);
-                this.client.setOption('showMapper', data.settings.MapperOpen ? true : false);
+                this._client.setOption('mapper.enabled', data.settings.mapEnabled ? true : false);
+                this._client.setOption('mapper.follow', data.settings.mapFollow ? true : false);
+                this._client.setOption('mapper.legend', data.settings.legend ? true : false);
+                this._client.setOption('mapper.split', data.settings.MapperSplitArea ? true : false);
+                this._client.setOption('mapper.fill', data.settings.MapperFillWalls ? true : false);
+                this._client.setOption('mapper.vscroll', data.settings.vscroll);
+                this._client.setOption('mapper.hscroll', data.settings.hscroll);
+                this._client.setOption('mapper.memory', data.settings.mapperMemory ? true : false);
+                this._client.setOption('showScriptErrors', data.settings.showScriptErrors ? true : false);
+                this._client.setOption('logWhat', data.settings ? Log.Html : Log.None);
+                this._client.setOption('showMapper', data.settings.MapperOpen ? true : false);
                 let p, pl;
                 for (p = 0, pl = SettingProperties.length; p < pl; p++) {
                     let prop = SettingProperties[p];
@@ -445,19 +445,19 @@ export class Backup extends EventEmitter {
                     }
                     if (prop.startsWith('profiles.') || prop.startsWith('codeEditor.') || prop.startsWith('buttons.') || prop.startsWith('find.') || prop.startsWith('extensions.') || prop.startsWith('windows.') || prop.startsWith('profiles.'))
                         continue;
-                    this.client.setOption(prop, data.settings[prop]);
+                    this._client.setOption(prop, data.settings[prop]);
                 }
                 if (data.settings.windows && (loadSelection & BackupSelection.Windows) === BackupSelection.Windows) {
                     if (data.settings['windows']) {
                         keys = Object.keys(data.settings['windows']);
                         for (k = keys.length - 1; k >= 0; k--) {
-                            this.client.setOption(`windows.${keys[k]}`, data.settings['windows'][keys[k]]);
+                            this._client.setOption(`windows.${keys[k]}`, data.settings['windows'][keys[k]]);
                         }
                     }
                     keys = Object.keys(data.settings);
                     for (k = keys.length - 1; k >= 0; k--) {
                         if (keys[k].startsWith('windows.'))
-                            this.client.setOption(keys[k], data.settings[keys[k]]);
+                            this._client.setOption(keys[k], data.settings[keys[k]]);
                     }
                 }
                 //convert object format to flat format
@@ -467,38 +467,38 @@ export class Backup extends EventEmitter {
                         continue;
                     keys = Object.keys(data.settings[props[p]]);
                     for (k = keys.length - 1; k >= 0; k--) {
-                        this.client.setOption(`${props[p]}.${keys[k]}`, data.settings[props[p]][keys[k]]);
+                        this._client.setOption(`${props[p]}.${keys[k]}`, data.settings[props[p]][keys[k]]);
                     }
                 }
                 //convert to flat style
                 if (data.settings.profiles && data.settings.profiles.find) {
-                    this.client.setOption(`profiles.find.case`, data.settings.profiles.find.case);
-                    this.client.setOption(`profiles.find.word`, data.settings.profiles.find.word);
-                    this.client.setOption(`profiles.find.reverse`, data.settings.profiles.find.reverse);
-                    this.client.setOption(`profiles.find.regex`, data.settings.profiles.find.regex);
-                    this.client.setOption(`profiles.find.selection`, data.settings.profiles.find.selection);
-                    this.client.setOption(`profiles.find.show`, data.settings.profiles.find.show);
-                    this.client.setOption(`profiles.find.value`, data.settings.profiles.find.value);
+                    this._client.setOption(`profiles.find.case`, data.settings.profiles.find.case);
+                    this._client.setOption(`profiles.find.word`, data.settings.profiles.find.word);
+                    this._client.setOption(`profiles.find.reverse`, data.settings.profiles.find.reverse);
+                    this._client.setOption(`profiles.find.regex`, data.settings.profiles.find.regex);
+                    this._client.setOption(`profiles.find.selection`, data.settings.profiles.find.selection);
+                    this._client.setOption(`profiles.find.show`, data.settings.profiles.find.show);
+                    this._client.setOption(`profiles.find.value`, data.settings.profiles.find.value);
                 }
-                this.client.clearCache();
-                this.client.loadOptions();
+                this._client.clearCache();
+                this._client.loadOptions();
             }
             else if (data.settings && (loadSelection & BackupSelection.Windows) === BackupSelection.Windows) {
                 if (data.settings['windows']) {
                     keys = Object.keys(data.settings['windows']);
                     for (k = keys.length - 1; k >= 0; k--) {
-                        this.client.setOption(`windows.${keys[k]}`, data.settings['windows'][keys[k]]);
+                        this._client.setOption(`windows.${keys[k]}`, data.settings['windows'][keys[k]]);
                     }
                 }
                 keys = Object.keys(data.settings);
                 for (k = keys.length - 1; k >= 0; k--) {
                     if (keys[k].startsWith('windows.'))
-                        this.client.setOption(keys[k], data.settings[keys[k]]);
+                        this._client.setOption(keys[k], data.settings[keys[k]]);
                 }
             }
         }
         client.raise('backup-loaded');
-        this.close();
+        this._close();
     }
 
     private _showDialog(title) {
@@ -506,11 +506,11 @@ export class Backup extends EventEmitter {
             throw new Error('Client save/load is already in progress');
         this._dialogProgress = progress_box(title || 'Saving data');
         this._dialogProgress.on('canceled', () => {
-            this.abort();
+            this._abort();
         });
         this._dialogProgress.on('closed', reason => {
             if (reason === 'canceled')
-                this.abort();
+                this._abort();
         });
         this._dialogProgress.on('shown', () => {
 
@@ -531,14 +531,11 @@ export class Backup extends EventEmitter {
 
     private _getMapper() {
         if (this._mapper) return;
-        for (let p = 0, pl = this.client.plugins.length; p < pl; p++) {
-            if (this.client.plugins[p] instanceof Mapper) {
-                this._mapper = this.client.plugins[p] as Mapper;
+        for (let p = 0, pl = this._client.plugins.length; p < pl; p++) {
+            if (this._client.plugins[p] instanceof Mapper) {
+                this._mapper = this._client.plugins[p] as Mapper;
                 break;
             }
         }
     }
-
-
-
 }

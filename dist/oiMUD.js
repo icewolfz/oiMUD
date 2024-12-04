@@ -23376,7 +23376,7 @@
   };
 
   // package.json
-  var version = "1.0.0-alpha";
+  var version = "1.0.0-beta";
 
   // src/plugins/msp.ts
   var buzz = __toESM(require_buzz());
@@ -23595,12 +23595,12 @@
       this.client.telnet.GMCPSupports.push("Client.Media 1");
       this.client.on("connecting", () => this.reset(), this);
       this.client.on("close", () => this.reset(), this);
-      this.client.on("received-option", this.processOption, this);
-      this.client.on("received-GMCP", this.processGMCP, this);
+      this.client.on("received-option", this._processOption, this);
+      this.client.on("received-GMCP", this._processGMCP, this);
       this.client.on("music", this.music, this);
       this.client.on("sound", this.sound, this);
-      this.client.on("options-loaded", this.loadOptions, this);
-      this.client.on("option-loaded", this.setOption, this);
+      this.client.on("options-loaded", this._loadOptions, this);
+      this.client.on("option-loaded", this._setOption, this);
       this.client.on("function", this._processFunction, this);
       this.on("playing", (data) => {
         if (!this.client) return;
@@ -23611,7 +23611,7 @@
       });
       this.on("debug", (e) => this.client.debug(e), this);
       this.on("error", (e) => this.client.error(e), this);
-      this.loadOptions();
+      this._loadOptions();
     }
     get menu() {
       return [];
@@ -23619,13 +23619,13 @@
     get settings() {
       return [];
     }
-    loadOptions() {
+    _loadOptions() {
       this.enableDebug = this.client.getOption("enableDebug");
       this.enabled = this.client.getOption("enableMSP");
       this.enableSound = this.client.getOption("enableSound");
       this.maxErrorRetries = this.client.getOption("mspMaxRetriesOnError");
     }
-    setOption(option, value) {
+    _setOption(option, value) {
       switch (option) {
         case "enableMSP":
           this.enabled = this.client.getOption("enableMSP");
@@ -23696,134 +23696,148 @@
      * @param {Number} type the type of arguments to process, 0 SOUND, 1 MUSIC
      * @returns {Object} return a MUSIC or SOUND argument object
      */
-    getArguments(text, type) {
-      const e = { off: false, file: "", url: "", volume: 100, repeat: 1, priority: 50, type: "", continue: true };
-      const args = [];
-      let state = 0;
-      let str = [];
-      let x2 = 0;
-      let xl = text.length;
-      let c;
-      let arg;
-      let tmp;
-      for (; x2 < xl; x2++) {
-        c = text.charAt(x2);
-        switch (state) {
-          case 1:
-            if (c === "'") {
-              state = 0;
-              str.push(c);
-            } else
-              str.push(c);
-            break;
-          case 2:
-            if (c === "'") {
-              state = 0;
-              str.push(c);
-            } else
-              str.push(c);
-            break;
-          default:
-            if (c === " ") {
-              args.push(str.join(""));
-              str = [];
-            } else if (c === "'") {
-              state = 1;
-              str.push(c);
-            } else if (c === "'") {
-              state = 2;
-              str.push(c);
-            } else
-              str.push(c);
-            break;
+    /*
+        public getArguments(text: string, type: number) {
+            const e: MSPData = { off: false, file: '', url: '', volume: 100, repeat: 1, priority: 50, type: '', continue: true };
+            const args = [];
+            let state: number = 0;
+            let str = [];
+            let x: number = 0;
+            let xl: number = text.length;
+            let c: string;
+            let arg;
+            let tmp;
+            for (; x < xl; x++) {
+                c = text.charAt(x);
+                switch (state) {
+                    case 1:
+                        if (c === '\'') {
+                            state = 0;
+                            str.push(c);
+                        }
+                        else
+                            str.push(c);
+                        break;
+                    case 2:
+                        if (c === '\'') {
+                            state = 0;
+                            str.push(c);
+                        }
+                        else
+                            str.push(c);
+                        break;
+                    default:
+                        if (c === ' ') {
+                            args.push(str.join(''));
+                            str = [];
+                        }
+                        else if (c === '\'') {
+                            state = 1;
+                            str.push(c);
+                        }
+                        else if (c === '\'') {
+                            state = 2;
+                            str.push(c);
+                        }
+                        else
+                            str.push(c);
+    
+                        break;
+                }
+            }
+            if (str.length > 0) {
+                args.push(str.join(''));
+                str = [];
+            }
+            x = 0;
+            xl = args.length;
+            this.debug('MSP arguments found: ' + args);
+            for (x = 0; x < xl; x++) {
+                arg = args[x].split('=');
+                if (arg.length > 1) {
+                    switch (arg[0].toUpperCase()) {
+                        case 'FNAME':
+                            e.file = stripQuotes(arg[1]);
+                            if (e.file.toLowerCase() === 'off') {
+                                e.off = true;
+                                e.file = '';
+                            }
+                            break;
+                        case 'V': //volume
+                            tmp = parseInt(arg[1], 10);
+                            if (isNaN(tmp))
+                                tmp = 100;
+                            e.volume = tmp;
+                            break;
+                        case 'L': //repeat
+                            tmp = parseInt(arg[1], 10);
+                            if (isNaN(tmp))
+                                tmp = 1;
+                            e.repeat = tmp;
+                            break;
+                        //Sound only
+                        case 'P': //priority
+                            tmp = parseInt(arg[1], 10);
+                            if (isNaN(tmp))
+                                tmp = 1;
+                            e.priority = tmp;
+                            break;
+                        //Music only
+                        case 'C': //continue
+                            e.continue = arg[1] !== '0';
+                            break;
+                        case 'T': //type
+                            if (arg[1].length > 0)
+                                e.type = arg[1];
+                            break;
+                        case 'U': //url
+                            e.url = stripQuotes(arg[1]);
+                            if (!e.url.endsWith('/') && e.url.length > 0)
+                                e.url += '/';
+                            break;
+                    }
+                }
+                else if (x === 0) {
+                    e.file = stripQuotes(args[x]);
+                    if (e.file.toLowerCase() === 'off') {
+                        e.off = true;
+                        e.file = '';
+                    }
+                }
+                else if (x === 1) {
+                    tmp = parseInt(args[x], 10);
+                    if (isNaN(tmp))
+                        tmp = 100;
+                    e.volume = tmp;
+                }
+                else if (x === 2) {
+                    tmp = parseInt(args[x], 10);
+                    if (isNaN(tmp))
+                        tmp = 1;
+                    e.repeat = tmp;
+                }
+                else if (x === 3 && type === 1)
+                    e.continue = args[x] !== '0';
+                else if (x === 3) {
+                    tmp = parseInt(args[x], 10);
+                    if (isNaN(tmp))
+                        tmp = 1;
+                    e.priority = tmp;
+                }
+                else if (x === 4) {
+                    if (args[x].length > 0)
+                        e.type = args[x];
+                }
+                else if (x === 5) {
+                    e.url = stripQuotes(args[x]);
+                    if (!e.url.endsWith('/') && e.url.length > 0)
+                        e.url += '/';
+                }
+            }
+            this.debug(e);
+            return e;
         }
-      }
-      if (str.length > 0) {
-        args.push(str.join(""));
-        str = [];
-      }
-      x2 = 0;
-      xl = args.length;
-      this.debug("MSP arguments found: " + args);
-      for (x2 = 0; x2 < xl; x2++) {
-        arg = args[x2].split("=");
-        if (arg.length > 1) {
-          switch (arg[0].toUpperCase()) {
-            case "FNAME":
-              e.file = stripQuotes(arg[1]);
-              if (e.file.toLowerCase() === "off") {
-                e.off = true;
-                e.file = "";
-              }
-              break;
-            case "V":
-              tmp = parseInt(arg[1], 10);
-              if (isNaN(tmp))
-                tmp = 100;
-              e.volume = tmp;
-              break;
-            case "L":
-              tmp = parseInt(arg[1], 10);
-              if (isNaN(tmp))
-                tmp = 1;
-              e.repeat = tmp;
-              break;
-            //Sound only
-            case "P":
-              tmp = parseInt(arg[1], 10);
-              if (isNaN(tmp))
-                tmp = 1;
-              e.priority = tmp;
-              break;
-            //Music only
-            case "C":
-              e.continue = arg[1] !== "0";
-              break;
-            case "T":
-              if (arg[1].length > 0)
-                e.type = arg[1];
-              break;
-            case "U":
-              e.url = stripQuotes(arg[1]);
-              if (!e.url.endsWith("/") && e.url.length > 0)
-                e.url += "/";
-              break;
-          }
-        } else if (x2 === 0) {
-          e.file = stripQuotes(args[x2]);
-          if (e.file.toLowerCase() === "off") {
-            e.off = true;
-            e.file = "";
-          }
-        } else if (x2 === 1) {
-          tmp = parseInt(args[x2], 10);
-          if (isNaN(tmp))
-            tmp = 100;
-          e.volume = tmp;
-        } else if (x2 === 2) {
-          tmp = parseInt(args[x2], 10);
-          if (isNaN(tmp))
-            tmp = 1;
-          e.repeat = tmp;
-        } else if (x2 === 3 && type === 1)
-          e.continue = args[x2] !== "0";
-        else if (x2 === 3) {
-          tmp = parseInt(args[x2], 10);
-          if (isNaN(tmp))
-            tmp = 1;
-          e.priority = tmp;
-        } else if (x2 === 4) {
-          if (args[x2].length > 0)
-            e.type = args[x2];
-        } else if (x2 === 5) {
-          e.url = stripQuotes(args[x2]);
-          if (!e.url.endsWith("/") && e.url.length > 0)
-            e.url += "/";
-        }
-      }
-      this.debug(e);
-      return e;
-    }
+        */
     reset() {
       this.server = false;
     }
@@ -23926,7 +23940,7 @@
      *
      * @param {Object} data Telnet#replyToOption event object
      */
-    processOption(data) {
+    _processOption(data) {
       if (data.option === 90) {
         this.debug("<MSP>");
         if (data.verb === 253) {
@@ -23964,7 +23978,7 @@
      * @param {string} mod Client#received-GMCP module
      * @param {Object} data Client#received-GMCP data object
      */
-    async processGMCP(mod, data) {
+    async _processGMCP(mod, data) {
       switch (mod) {
         case "Client.Media.Default":
           if (data.type === "sound" || !data.type)
@@ -25644,14 +25658,14 @@ Devanagari
       this._canvas.addEventListener("pointerout", pointerUp);
       this._canvas.addEventListener("pointerleave", pointerUp);
       this._canvas.addEventListener("touchstart", (e) => {
-        this._Mouse = this.getMapMousePos(e);
-        this._MouseDown = this.getMapMousePos(e);
+        this._Mouse = this._getMapMousePos(e);
+        this._MouseDown = this._getMapMousePos(e);
         this._MouseDrag.state = true;
         this._drag = e.touches.length === 1;
       }, { passive: true });
       this._canvas.addEventListener("touchmove", (e) => {
         this._MousePrev = this._Mouse;
-        this._Mouse = this.getMapMousePos(event);
+        this._Mouse = this._getMapMousePos(event);
         if (this._drag) {
           this._MouseDrag.x += this._MousePrev.x - this._Mouse.x;
           this._MouseDrag.y += this._MousePrev.y - this._Mouse.y;
@@ -25667,9 +25681,9 @@ Devanagari
         e.preventDefault();
       }, { passive: true });
       this._canvas.addEventListener("touchend", (e) => {
-        this._Mouse = this.getMapMousePos(e);
+        this._Mouse = this._getMapMousePos(e);
         if (!this._MouseDown)
-          this._MouseDown = this.getMapMousePos(e);
+          this._MouseDown = this._getMapMousePos(e);
         if (this._Mouse.button === 0 && Math.floor(this._Mouse.x / 32 / this._scale) === Math.floor(this._MouseDown.x / 32 / this._scale) && Math.floor(this._Mouse.y / 32 / this._scale) === Math.floor(this._MouseDown.y / 32 / this._scale)) {
           const x2 = this._Mouse.x;
           const y2 = this._Mouse.y;
@@ -25683,7 +25697,7 @@ Devanagari
       }, { passive: true });
       this._canvas.addEventListener("mousemove", (event2) => {
         this._MousePrev = this._Mouse;
-        this._Mouse = this.getMapMousePos(event2);
+        this._Mouse = this._getMapMousePos(event2);
         if (this._drag) {
           this._MouseDrag.x += this._MousePrev.x - this._Mouse.x;
           this._MouseDrag.y += this._MousePrev.y - this._Mouse.y;
@@ -25699,15 +25713,15 @@ Devanagari
         event2.preventDefault();
       });
       this._canvas.addEventListener("mousedown", (event2) => {
-        this._Mouse = this.getMapMousePos(event2);
-        this._MouseDown = this.getMapMousePos(event2);
+        this._Mouse = this._getMapMousePos(event2);
+        this._MouseDown = this._getMapMousePos(event2);
         this._MouseDrag.state = true;
         this._drag = this._MouseDown.button === 0;
       });
       this._canvas.addEventListener("mouseup", (event2) => {
-        this._Mouse = this.getMapMousePos(event2);
+        this._Mouse = this._getMapMousePos(event2);
         if (!this._MouseDown)
-          this._MouseDown = this.getMapMousePos(event2);
+          this._MouseDown = this._getMapMousePos(event2);
         if (this._Mouse.button === 0 && Math.floor(this._Mouse.x / 32 / this._scale) === Math.floor(this._MouseDown.x / 32 / this._scale) && Math.floor(this._Mouse.y / 32 / this._scale) === Math.floor(this._MouseDown.y / 32 / this._scale)) {
           const x2 = this._Mouse.x;
           const y2 = this._Mouse.y;
@@ -25726,10 +25740,10 @@ Devanagari
           this.scale += 5;
       }, { passive: true });
       this._canvas.addEventListener("mouseenter", (event2) => {
-        this._Mouse = this.getMapMousePos(event2);
+        this._Mouse = this._getMapMousePos(event2);
       });
       this._canvas.addEventListener("mouseleave", (event2) => {
-        this._Mouse = this.getMapMousePos(event2);
+        this._Mouse = this._getMapMousePos(event2);
         if (this._drag) {
           this._doUpdate(1 /* draw */);
           this._drag = false;
@@ -25738,7 +25752,7 @@ Devanagari
       });
       this._canvas.addEventListener("contextmenu", (event2) => {
         event2.preventDefault();
-        const m = this.getMapMousePos(event2);
+        const m = this._getMapMousePos(event2);
         this.emit("context-menu", this.findActiveRoomByCoords(m.x, m.y).clone());
         return false;
       });
@@ -25750,8 +25764,8 @@ Devanagari
       });
       this._canvas.addEventListener("dblclick", (event2) => {
         event2.preventDefault();
-        this._Mouse = this.getMapMousePos(event2);
-        this._MouseDown = this.getMapMousePos(event2);
+        this._Mouse = this._getMapMousePos(event2);
+        this._MouseDown = this._getMapMousePos(event2);
         this._MouseDrag.state = true;
         this._drag = true;
         $(this._canvas).css("cursor", "move");
@@ -25948,7 +25962,7 @@ Devanagari
     get fillWalls() {
       return this._fillWalls;
     }
-    getMapMousePos(evt) {
+    _getMapMousePos(evt) {
       const rect = this._canvas.getBoundingClientRect();
       if (evt.touches && evt.touches.length)
         return {
@@ -25995,7 +26009,7 @@ Devanagari
         return this.map.getRoom({ x: x2, y: y2, z: this.active.z, zone: this.active.zone, area: this.active.area }) || new Room();
       return this.map.getRoom({ x: x2, y: y2, z: this.active.z, zone: this.active.zone }) || new Room();
     }
-    draw(canvas, context, ex2) {
+    _draw(canvas, context, ex2) {
       return new Promise((resolve, reject) => {
         if (!canvas)
           canvas = this._canvas;
@@ -26040,11 +26054,11 @@ Devanagari
         this.emit("debug", "Mapper: Draw - room calculations time: " + ((/* @__PURE__ */ new Date()).getTime() - s));
         for (let r = 0, rl = rooms.length; r < rl; r++) {
           const room = rooms[r];
-          this.DrawRoom(context, (room.x - x2) * 32 * this._scale + ox, (room.y - y2) * 32 * this._scale + oy, room, ex2, this._scale);
+          this._drawRoom(context, (room.x - x2) * 32 * this._scale + ox, (room.y - y2) * 32 * this._scale + oy, room, ex2, this._scale);
         }
         this.emit("debug", "Mapper: Draw - display time: " + ((/* @__PURE__ */ new Date()).getTime() - d2));
         this.emit("debug", "Mapper: Draw - final time: " + ((/* @__PURE__ */ new Date()).getTime() - s));
-        this.DrawLegend(context, 1, -4, 0);
+        this._drawLegend(context, 1, -4, 0);
         resolve(true);
       });
     }
@@ -26237,7 +26251,7 @@ Devanagari
     setRoom(room) {
       this._map.setRoom(room);
     }
-    DrawLegend(ctx, x2, y2, nc) {
+    _drawLegend(ctx, x2, y2, nc) {
       if (!this._showLegend) return;
       ctx.strokeStyle = "black";
       if (!nc) {
@@ -26336,7 +26350,7 @@ Devanagari
       const o = amt - amt * scale;
       ctx.translate(amt * scale + o, amt * scale + o);
     }
-    DrawRoom(ctx, x2, y2, room, ex2, scale) {
+    _drawRoom(ctx, x2, y2, room, ex2, scale) {
       if (!this._drawCache)
         this._drawCache = {};
       if (!scale) scale = this._scale;
@@ -26642,14 +26656,14 @@ Devanagari
         this._translate(tx, -0.5, scale);
       }
       ctx.drawImage(this._drawCache[key], x2 | 0, y2 | 0);
-      this.DrawDoor(ctx, x2 + 12 * scale, y2 - 2 * scale, 8 * scale, 3 * scale, room.exits.north);
-      this.DrawDoor(ctx, x2 + 31 * scale, y2 + 12 * scale, 3 * scale, 8 * scale, room.exits.east);
-      this.DrawDoor(ctx, x2 - 1 * scale, y2 + 12 * scale, 3 * scale, 8 * scale, room.exits.west);
-      this.DrawDoor(ctx, x2 + 12 * scale, y2 + 30 * scale, 8 * scale, 3 * scale, room.exits.south);
-      this.DrawDDoor(ctx, x2, y2, 5 * scale, 5 * scale, room.exits.northwest);
-      this.DrawDDoor(ctx, x2 + 32 * scale, y2, -5 * scale, 5 * scale, room.exits.northeast);
-      this.DrawDDoor(ctx, x2 + 32 * scale, y2 + 32 * scale, -5 * scale, -5 * scale, room.exits.southeast);
-      this.DrawDDoor(ctx, x2, y2 + 32 * scale, 5 * scale, -5 * scale, room.exits.southwest);
+      this._drawDoor(ctx, x2 + 12 * scale, y2 - 2 * scale, 8 * scale, 3 * scale, room.exits.north);
+      this._drawDoor(ctx, x2 + 31 * scale, y2 + 12 * scale, 3 * scale, 8 * scale, room.exits.east);
+      this._drawDoor(ctx, x2 - 1 * scale, y2 + 12 * scale, 3 * scale, 8 * scale, room.exits.west);
+      this._drawDoor(ctx, x2 + 12 * scale, y2 + 30 * scale, 8 * scale, 3 * scale, room.exits.south);
+      this._drawDDoor(ctx, x2, y2, 5 * scale, 5 * scale, room.exits.northwest);
+      this._drawDDoor(ctx, x2 + 32 * scale, y2, -5 * scale, 5 * scale, room.exits.northeast);
+      this._drawDDoor(ctx, x2 + 32 * scale, y2 + 32 * scale, -5 * scale, -5 * scale, room.exits.southeast);
+      this._drawDDoor(ctx, x2, y2 + 32 * scale, 5 * scale, -5 * scale, room.exits.southwest);
       if (!ex2 && this.selected.num === room.num) {
         if (this._focused) {
           ctx.fillStyle = "rgba(135, 206, 250, 0.5)";
@@ -26662,15 +26676,15 @@ Devanagari
         ctx.strokeRoundedRect(x2, y2, 32 * scale, 32 * scale, 8 * scale);
       }
       if (this._markers[room.num] === 2)
-        this.drawMarker(ctx, x2, y2, "green", scale);
+        this._drawMarker(ctx, x2, y2, "green", scale);
       else if (this._markers[room.num] === 3)
-        this.drawMarker(ctx, x2, y2, "blue", scale);
+        this._drawMarker(ctx, x2, y2, "blue", scale);
       else if (this._markers[room.num])
-        this.drawMarker(ctx, x2, y2, "yellow", scale);
+        this._drawMarker(ctx, x2, y2, "yellow", scale);
       if (!ex2 && room.num === this._map.current.num)
-        this.drawMarker(ctx, x2, y2, "red", scale);
+        this._drawMarker(ctx, x2, y2, "red", scale);
     }
-    drawMarker(ctx, x2, y2, color, scale) {
+    _drawMarker(ctx, x2, y2, color, scale) {
       if (!color) color = "yellow";
       ctx.beginPath();
       ctx.fillStyle = color;
@@ -26679,7 +26693,7 @@ Devanagari
       ctx.fill();
       ctx.closePath();
     }
-    DrawDoor(ctx, x2, y2, w, h, exit) {
+    _drawDoor(ctx, x2, y2, w, h, exit) {
       if (!exit || !exit.isdoor) return;
       ctx.beginPath();
       ctx.clearRect(x2, y2, w, h);
@@ -26691,7 +26705,7 @@ Devanagari
         ctx.strokeRect(x2, y2, w, h);
       ctx.closePath();
     }
-    DrawDDoor(ctx, x2, y2, w, h, exit) {
+    _drawDDoor(ctx, x2, y2, w, h, exit) {
       if (!exit || !exit.isdoor) return;
       ctx.beginPath();
       ctx.fillStyle = "black";
@@ -26706,11 +26720,13 @@ Devanagari
         ctx.stroke();
       ctx.closePath();
     }
-    PointInRect(x2, y2, x1, x22, y1, y22) {
-      if (x1 <= x2 && x2 <= x22 && (y1 <= y2 && y2 <= y22))
-        return true;
-      return false;
+    /*
+    public PointInRect(x, y, x1, x2, y1, y2) {
+        if ((x1 <= x && x <= x2) && (y1 <= y && y <= y2))
+            return true;
+        return false;
     }
+    */
     getRoom(id) {
       return this._map.Rooms[id];
     }
@@ -27047,7 +27063,7 @@ Devanagari
         return;
       this._rTimeout = this._window.requestAnimationFrame(() => {
         if ((this._updating & 1 /* draw */) === 1 /* draw */) {
-          this.draw().catch(() => {
+          this._draw().catch(() => {
           });
           this._updating &= ~1 /* draw */;
         }
@@ -27207,7 +27223,7 @@ Devanagari
         if (room === null) continue;
         cx = (room.x - x2) * 32 * scale + 30.5;
         cy = (room.y - y2) * 32 * scale + 30.5;
-        this.DrawRoom(ctx, cx, cy, room, true, scale);
+        this._drawRoom(ctx, cx, cy, room, true, scale);
       }
       ctx.save();
       ctx.strokeStyle = "black";
@@ -27228,7 +27244,7 @@ Devanagari
       ctx.fill();
       ctx.stroke();
       ctx.restore();
-      this.DrawLegend(ctx, rectWidth - 185, -10, 1);
+      this._drawLegend(ctx, rectWidth - 185, -10, 1);
       tempCanvas.toBlob((blob) => {
         let reader = new FileReader();
         reader.addEventListener("loadend", (evt) => {
@@ -27242,7 +27258,7 @@ Devanagari
       let context = tempCanvas.getContext("2d");
       tempCanvas.width = this._canvas.width;
       tempCanvas.height = this._canvas.height;
-      this.draw(tempCanvas, context, true).then(() => {
+      this._draw(tempCanvas, context, true).then(() => {
         tempCanvas.toBlob((blob) => {
           let reader = new FileReader();
           reader.addEventListener("loadend", (evt) => {
@@ -34903,7 +34919,7 @@ ${pre}`);
     initialize() {
       if (!this.client) return;
       this.client.telnet.GMCPSupports.push("Room 1");
-      this.client.on("received-GMCP", this.processGMCP, this);
+      this.client.on("received-GMCP", this._processGMCP, this);
       this.client.on("window", (window2, args, name2) => {
         if (window2 === "mapper") {
           if (args === "close") {
@@ -34999,20 +35015,20 @@ ${pre}`);
      * @param {string} mod Client#received-GMCP module
      * @param {Object} data Client#received-GMCP data object
      */
-    async processGMCP(mod, data) {
+    async _processGMCP(mod, data) {
       if (!this.client.getOption("mapper.enabled")) return;
       switch (mod) {
         case "Room.Info":
-          this.processData(data);
+          this._processData(data);
           break;
         case "Room.WrongDir":
           break;
       }
     }
-    processData(data) {
+    _processData(data) {
       if (!this._map) {
         setTimeout(() => {
-          this.processData(data);
+          this._processData(data);
         }, 10);
         return;
       }
@@ -35156,7 +35172,7 @@ ${pre}`);
       if (this._dialogMap)
         this._dialogMap.refresh();
     }
-    createDialog() {
+    _createDialog() {
       if (this._dialog) return;
       this._dialog = new Dialog(Object.assign({ persistent: true }, client.getWindowState("mapper") || { center: true }, { title: '<i class="bi bi-map"></i><select id="mapper-area" class="form-select form-select-sm me-2 mb-1" title="Select Area"></select>', id: "win-mapper", noFooter: true, minHeight: 350 }));
       this._dialog.on("resized", (e) => {
@@ -35232,7 +35248,7 @@ ${pre}`);
           this._dialog.body.querySelector("#mapper-enable").classList.add("active");
         else
           this._dialog.body.querySelector("#mapper-enable").classList.remove("active");
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-legend a").addEventListener("click", () => {
         this._dialogMap.showLegend = !this._dialogMap.showLegend;
@@ -35240,7 +35256,7 @@ ${pre}`);
           this._dialog.body.querySelector("#mapper-legend").classList.add("active");
         else
           this._dialog.body.querySelector("#mapper-legend").classList.remove("active");
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-room a").addEventListener("click", () => {
         this._dialogSplitter.panel2Collapsed = !this._dialogSplitter.panel2Collapsed;
@@ -35257,11 +35273,11 @@ ${pre}`);
         }
         this._dialogSplitter.panel1.parentElement.style.top = toolbar.offsetHeight + "px";
         this.client.setOption("mapper.room", !this._dialogSplitter.panel2Collapsed);
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-refresh a").addEventListener("click", () => {
         this._dialogMap.refresh();
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-split a").addEventListener("click", () => {
         this._dialogMap.splitArea = !this._dialogMap.splitArea;
@@ -35269,7 +35285,7 @@ ${pre}`);
           this._dialog.body.querySelector("#mapper-split").classList.add("active");
         else
           this._dialog.body.querySelector("#mapper-split").classList.remove("active");
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-fill a").addEventListener("click", () => {
         this._dialogMap.fillWalls = !this._dialogMap.fillWalls;
@@ -35277,7 +35293,7 @@ ${pre}`);
           this._dialog.body.querySelector("#mapper-fill").classList.add("active");
         else
           this._dialog.body.querySelector("#mapper-fill").classList.remove("active");
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-follow a").addEventListener("click", () => {
         this._dialogMap.follow = !this._dialogMap.follow;
@@ -35285,104 +35301,104 @@ ${pre}`);
           this._dialog.body.querySelector("#mapper-follow").classList.add("active");
         else
           this._dialog.body.querySelector("#mapper-follow").classList.remove("active");
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-focus a").addEventListener("click", () => {
         this._dialogMap.focusCurrentRoom();
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-set-current a").addEventListener("click", () => {
         this._dialogMap.current = this._dialogMap.selected;
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#btn-mapper-focus").addEventListener("click", () => {
         this._dialogMap.focusCurrentRoom();
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-highlight-path a").addEventListener("click", () => {
         this._dialogMap.focusCurrentRoom();
         this._dialogMap.showPath();
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-clear-path a").addEventListener("click", () => {
         this._dialogMap.clearPath();
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-walk-path a").addEventListener("click", () => {
         this._dialogMap.walkPath();
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-walk-highlighted-path a").addEventListener("click", () => {
         this._dialogMap.walkMarkedPath();
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-copy-path a").addEventListener("click", () => {
         this._dialogMap.copyPath("\n");
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-copy-stacked a").addEventListener("click", () => {
         this._dialogMap.copyPath(this.client.getOption("commandStackingChar"));
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-copy-speedpath a").addEventListener("click", () => {
         this._dialogMap.copySpeedpath();
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-copy-highlighted-path a").addEventListener("click", () => {
         this._dialogMap.copyMarkedPath("\n");
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-copy-highlighted-stacked a").addEventListener("click", () => {
         this._dialogMap.copyMarkedPath(this.client.getOption("commandStackingChar"));
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-remove-selected a").addEventListener("click", () => {
         confirm_box("Remove selected room?", `Are you sure you want to remove selected room?`).then((e) => {
           if (e.button === 4 /* Yes */)
             this._dialogMap.clearSelectedRoom();
         });
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-remove-current a").addEventListener("click", () => {
         confirm_box("Remove current room?", `Are you sure you want to remove current room?`).then((e) => {
           if (e.button === 4 /* Yes */)
             this._dialogMap.clearCurrentRoom();
         });
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-remove-current-area a").addEventListener("click", () => {
         confirm_box("Remove current area?", `Are you sure you want to remove all rooms from current area?`).then((e) => {
           if (e.button === 4 /* Yes */)
             this._dialogMap.clearArea();
         });
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-remove-all a").addEventListener("click", () => {
         confirm_box("Remove all rooms and areas?", `Are you sure you want to remove all rooms?`).then((e) => {
           if (e.button === 4 /* Yes */)
             this._dialogMap.clearAll();
         });
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-export-image a").addEventListener("click", () => {
         this._dialogMap.exportImage();
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-export-scaled-image a").addEventListener("click", () => {
         this._dialogMap.exportImage(true);
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-export-current-image a").addEventListener("click", () => {
         this._dialogMap.exportCurrentImage();
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-export-current-area a").addEventListener("click", () => {
         this._dialogMap.exportArea();
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-export-all a").addEventListener("click", () => {
         this._dialogMap.exportAll();
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-import-merge a").addEventListener("click", () => {
         openFileDialog("Import map and merge", false).then((files) => {
@@ -35391,7 +35407,7 @@ ${pre}`);
           }).catch(client.error);
         }).catch(() => {
         });
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-import-replace a").addEventListener("click", () => {
         confirm_box("Import and Replace?", `Are you sure you want to remove all rooms and replace them?`).then((e) => {
@@ -35403,15 +35419,15 @@ ${pre}`);
             }).catch(() => {
             });
         });
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-copy-highlighted-speedpath a").addEventListener("click", () => {
         this._dialogMap.copyMarkedSpeedpath();
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialog.body.querySelector("#mapper-about a").addEventListener("click", () => {
         alert_box({ title: '<i class="fa-solid fa-circle-info"></i> Map information', width: 300, height: 200, keepCentered: true, center: true, resizable: false, moveable: false, maximizable: false, buttons: 1 /* Ok */ }, `Areas: ${this._map.Areas.length}<br>Rooms: ${this._map.count}<br>Highest zone: ${this._map.zone}`, 2);
-        closeMenu2();
+        this._closeMenu();
       });
       this._dialogMap = new MapDisplay(document.createElement("div"), { map: this._map });
       this._dialogMap.on("error", (e) => this.client.error(e), this);
@@ -35711,7 +35727,7 @@ ${pre}`);
       this._dialogSplitter.panel1.parentElement.style.top = toolbar.offsetHeight + "px";
     }
     show() {
-      this.createDialog();
+      this._createDialog();
       this._dialog.show();
     }
     _updateMenu(selector, disabled) {
@@ -35738,12 +35754,12 @@ ${pre}`);
       });
       this._dialogProgress.showModal();
     }
+    _closeMenu() {
+      const instance = bootstrap.Offcanvas.getInstance(document.getElementById("mapper-menu"));
+      if (!instance) return;
+      instance.hide();
+    }
   };
-  function closeMenu2() {
-    const instance = bootstrap.Offcanvas.getInstance(document.getElementById("mapper-menu"));
-    if (!instance) return;
-    instance.hide();
-  }
 
   // src/html/status.htm
   var status_default = '<div id="status-drag-bar"></div><div id="status" class="d-flex flex-column"><button id="status-close" style="padding:4px" type="button" class="button button-sm btn-close" title="Hide status"></button><div id="character-name" class="status-panel">&nbsp;</div><div id="environment" class="status-panel day"><div id="environmentleft"><div class="overlay"></div></div><div id="environmentcenter"><div class="overlay"></div></div><div id="environmentright"><div class="overlay"></div></div><div id="environmentweather"></div></div><div id="body" class="status-panel"><div id="limbs"><button id="health" class="button button-sm active" title="Show limb health"><i class="fa fa-heart"></i></button><button id="armor" class="button button-sm" title="Show limb armor protection"><svg width="11" height="17" viewBox="0 0 10 17" preserveAspectRatio="xMidYMid"><path fill="currentColor" d="M5 0c0 0 1 0 1 0 1 0 2 1 3 1 1 1 1 2 1 3 0 2 0 5 0 8 -1 1-2 3-3 3 0-2 0-4 0-6 1-1 2-1 2-1C9 7 9 6 9 6 8 6 7 7 6 7 6 7 5 8 5 8 5 8 4 7 4 7 3 7 2 6 1 6 1 6 1 7 1 8c1 0 2 1 2 1 0 2 0 4 0 6 -1-1-2-1-3-2 0 0-1-1-1-1 0-1 0-1 0-2 0-1 0-1 0-2 0-1 0-3 0-4 0-1 1-2 2-2C3 1 4 0 5 0z"/></svg></button><svg id="fullbody" class="health-full" xmlns="http://www.w3.org/2000/svg" width="128" height="200" viewBox="-0.9 -0.8 179 297"><path id="rightwing" d="M140.5 0.1c7-0.8 8 6.4 7.7 11.8 -0.4 9.2-0.3 18.2 1.1 25.8 0.6 3.1 2 6 2 8.3 0.1 7.6-6.1 11.4-10 14.6 1.9 0.5 4.5 0.3 6 1.1 0.6 1.8 0.3 4.7 0 6.6 1.9 0.5 4.7 0.1 6 1.1 0.4 2.2-0.7 2.4-0.6 4 0.3 3 4.2 4.2 4.3 6.6 0.1 1.8-1.1 2.3-2 4 0.6 1.1 2.2 1.2 2.3 2.9 -2.3 2.3-4.2 4.2-1.4 6.9 5.8 5.6 20.4 8.8 21.8 18.6 -3.5 3.1-7.3-0.6-10-2.6 -3-2.2-5.1-5.5-7.7-7.7 -3.3-2.8-9.4-7.3-12.3-2 -0.3 1.6 0.9 1.8 0.6 3.4 -6-0.7-7.7 3-9.7 6.3 -4.9-0.5-6.6-5.4-12.3-4 -1.1-1-1.8-0.7-3.4-0.3 -0.3-1.5-1.6-2-3.2-2.3 -1.5-7.4-6.6-11.2-11.5-15.2 -1.3 5.8-4.9 9.5-11.8 9.8 -5.8-7.5-8.3-23-5.4-35.6 2-1.4 4.5-2.4 8-2.3C103.8 35.9 114.5 3 140.5 0.1zM138.2 6.1c3.6 0.1 5.2 2.3 4.6 6.6C146.3 8.9 141.8 0.5 138.2 6.1zM129.9 7.2c-7 3.1-12.1 10.6-15.5 18.4 1.6 0.2 2.8-2.6 4.6-4 1.4-1.1 3.6-1.8 4.9-3.2C126.7 15.3 126.6 9.9 129.9 7.2zM139.1 9.8c-6.4 4-8.6 12.1-11.5 19.5C133.3 26 139.7 19.4 139.1 9.8zM140.5 20.4c3.4-0.7 4 4.1 2.3 6C146.7 26.3 144.7 15.9 140.5 20.4zM124.7 20.7c-2.7 4.4-7.3 6.9-10.9 10.6 -7.8 8.1-10.7 20.2-13.2 32.7 4.9-6.8 9.9-13.3 15.8-19.8 1.8-2 4.7-4 5.7-6C124.6 33.4 123.5 27.4 124.7 20.7zM140.5 24.1c-1.2 0-2.6-0.1-3.4 0.3 -2.1 4-5.7 6.6-10 8.3 -0.2 1.1-0.6 2.1-0.9 3.2C132.1 33.1 138.4 30.8 140.5 24.1zM145.9 32.7c-0.9 1.9-1.6 4-2.6 5.7C146.1 38.4 146.3 35.1 145.9 32.7zM119.8 44.2c5.5 0.4 9.9-2.7 15.5-3.2 1.5-3 5.2-3.8 6.3-7.2C131.7 33.5 125.4 39.2 119.8 44.2zM144.2 42.8c0.6 2.8-1.6 4.8-3.7 5.7C144.8 50.7 149.8 43.7 144.2 42.8zM111.5 53.7c5.5-2.1 11.4-3.7 18.1-4.6 1.4-2.5 4.9-2.9 6.9-4.9C125.6 43.5 116.3 48.3 111.5 53.7zM108.7 57.7c4.6 0.6 10.2 0.3 14.3 1.4 2.4-1.8 4.6-3.8 7.5-5.2C122.4 52.3 113.7 54.5 108.7 57.7zM138.2 54.8c-3.6 0.5-4.2 3.8-8 4C133.9 59.7 138 58.4 138.2 54.8zM103.8 63.7c2.7-1.8 11.9 1.9 12-3.2C110.9 60 105.3 60 103.8 63.7zM119 61.7c0.7 1.4-0.4 2.9 0 3.7 2.4 0 3.7-1.1 3.4-3.7C121.8 61.3 119.6 61.3 119 61.7zM126.4 65.1c4.1-0.3 11.1 1.8 14.6-0.6C138.9 59.6 128.5 62.6 126.4 65.1zM130.7 67.7c3.4 3.1 8 5 14.6 4.9C143.7 69 137.3 66.5 130.7 67.7zM110.1 71.7c4.6 4.2 17.8 5.3 23.2 1.1 -3.3-2.2-6.9-4-12-3.2C118.1 70.3 114.1 72.8 110.1 71.7zM108.4 74.3c-0.5 0.2 0 0.5 0 0.9 9.8 7 20.8 12.9 34.7 15.8 -3.7-4.5-6.7-9.5-11.5-12.9C122.6 78.9 114.6 77.2 108.4 74.3zM135.6 76c2.6 2.5 9 2.6 13.8 2C147.2 74.3 140.9 76.5 135.6 76zM109.8 78.3c-0.4 0.1 0 0.3 0 0.6 3.9 3.2 8.4 5.5 12 8.9 3.6 3.3 7.2 6.8 8.9 12 1.5 0.5 2.8 1.2 3.7 2.3 0-6.3-5.4-10.3-9.7-13.8C120 84.6 114.9 81.2 109.8 78.3zM136.2 79.2c1.7 2.9 7.1 4.5 12.3 4.9 0.1-1-0.1-1.6-0.3-2.3C144.9 80.2 139 81.2 136.2 79.2zM152.5 81.2c-0.6 0.2-0.9 0.6-1.4 0.9 -0.1 1.2 0.4 1.9 0.9 2.6C152.5 83.8 152.3 82.3 152.5 81.2zM110.1 81.5c-0.8 0.6 0.1 1.8 0 2.6 4.4 2.6 7.6 6.4 8.9 12 0.5 0 1 0 1.4 0 0.8 2 2.3 3.5 3.4 5.2 1.7-0.2 2-1.9 4.3-1.4C125.3 90.5 116.8 86.9 110.1 81.5zM141.9 85.2c0.5 2.1 3 4.6 6 5.2 0.1-1.3 0-2.5-0.6-3.2C144.9 87.2 143.2 86.4 141.9 85.2zM149.7 86.7c0.1 1.6 0.9 2.5 1.4 3.7 0.8-0.6 1-1.8 1.4-2.9C151.4 87.4 151.1 86.4 149.7 86.7zM127.6 88.1c2.8 2.9 5.3 6.2 10 7.2C135.1 92.1 132.6 88.8 127.6 88.1zM140.5 93.2c0.5 1 0 3 2 2.6 0.3-0.3 0.3-1 0.3-1.7C142 93.9 141.6 93.2 140.5 93.2zM144.2 98.7c1.1-1.2 3.1-3 3.4-4C146 94.4 144.1 96.2 144.2 98.7zM136.8 98.1c-0.7 0.6 0.1 1.1 0 2 0.8 0.2 0.7-0.4 1.4-0.3C138.2 98.8 137.6 98.3 136.8 98.1zM140.5 101.6c-0.9-0.5-2.3 0.9-2.3 2.3C139 103.2 139.3 101.9 140.5 101.6z"/><path id="leftwing" d="M78.9 60c3.6-0.1 6 0.9 8 2.3 2.9 12.6 0.4 28-5.4 35.6 -6.9-0.3-10.4-3.9-11.8-9.7 -4.9 4-10 7.8-11.5 15.2 -1.5 0.3-2.9 0.8-3.2 2.3 -1.6-0.4-2.3-0.7-3.4 0.3 -5.8-1.3-7.5 3.5-12.3 4 -2.1-3.3-3.7-7-9.7-6.3 -0.3-1.6 0.9-1.8 0.6-3.4 -3-5.3-9-0.8-12.3 2 -2.6 2.3-4.7 5.5-7.7 7.7 -2.7 2-6.5 5.7-10 2.6 1.4-9.8 16-13 21.8-18.6 2.8-2.7 0.9-4.6-1.4-6.9 0.1-1.6 1.7-1.7 2.3-2.9 -0.9-1.8-2.1-2.2-2-4 0.1-2.4 4-3.6 4.3-6.6 0.2-1.6-0.9-1.8-0.6-4 1.3-1.1 4.1-0.6 6-1.1 -0.3-1.9-0.6-4.8 0-6.6 1.5-0.9 4.1-0.6 6-1.1 -3.9-3.2-10.2-7.1-10-14.6 0-2.3 1.4-5.2 2-8.3 1.5-7.6 1.6-16.6 1.1-25.8C29.3 6.5 30.3-0.7 37.3 0.1 63.3 3 74 35.9 78.9 60zM35 12.7c-0.6-4.3 1-6.5 4.6-6.6C36 0.5 31.5 8.9 35 12.7zM53.9 18.4c1.3 1.4 3.5 2 4.9 3.2 1.8 1.5 3 4.2 4.6 4C60 17.9 54.9 10.3 47.9 7.2 51.2 9.9 51 15.3 53.9 18.4zM50.2 29.3c-2.9-7.4-5.1-15.5-11.5-19.5C38.1 19.4 44.5 26 50.2 29.3zM35 26.4c-1.7-1.9-1.2-6.7 2.3-6C33 15.9 31.1 26.3 35 26.4zM55.6 38.2c1 2 3.9 4 5.7 6 5.9 6.4 10.9 12.9 15.8 19.8 -2.5-12.5-5.4-24.6-13.2-32.7 -3.6-3.7-8.2-6.2-10.9-10.6C54.3 27.4 53.2 33.4 55.6 38.2zM51.6 35.9c-0.3-1.1-0.6-2-0.9-3.2 -4.4-1.7-8-4.3-10-8.3 -0.9-0.4-2.2-0.3-3.4-0.3C39.3 30.8 45.7 33.1 51.6 35.9zM34.4 38.5c-1-1.8-1.7-3.9-2.6-5.7C31.4 35.1 31.7 38.4 34.4 38.5zM36.1 33.9c1.1 3.4 4.8 4.2 6.3 7.2 5.6 0.4 10 3.6 15.5 3.2C52.4 39.2 46.1 33.5 36.1 33.9zM37.3 48.5c-2.1-1-4.3-2.9-3.7-5.7C27.9 43.7 33 50.7 37.3 48.5zM41.3 44.2c2 1.9 5.4 2.4 6.9 4.9 6.7 0.9 12.6 2.5 18.1 4.6C61.5 48.3 52.2 43.5 41.3 44.2zM47.3 54c2.9 1.3 5.1 3.3 7.5 5.2 4.1-1.1 9.7-0.8 14.3-1.4C64.1 54.5 55.3 52.3 47.3 54zM47.6 58.8c-3.8-0.2-4.5-3.6-8-4C39.8 58.4 43.9 59.7 47.6 58.8zM61.9 60.6c0.2 5.1 9.3 1.3 12 3.2C72.5 60 66.9 60 61.9 60.6zM55.3 61.7c-0.2 2.6 1 3.8 3.4 3.7 0.4-0.8-0.7-2.3 0-3.7C58.1 61.3 56 61.3 55.3 61.7zM36.7 64.6c3.5 2.4 10.5 0.3 14.6 0.6C49.3 62.6 38.9 59.6 36.7 64.6zM32.4 72.6c6.6 0.1 11.2-1.8 14.6-4.9C40.5 66.5 34 69 32.4 72.6zM56.5 69.7c-5.2-0.8-8.7 0.9-12 3.2 5.5 4.1 18.7 3 23.2-1.1C63.7 72.8 59.7 70.3 56.5 69.7zM46.2 78.1c-4.7 3.4-7.8 8.4-11.5 12.9 13.9-2.9 24.9-8.8 34.7-15.8 0-0.3 0.5-0.6 0-0.9C63.2 77.2 55.2 78.9 46.2 78.1zM28.4 78.1c4.8 0.6 11.2 0.5 13.8-2C36.9 76.5 30.5 74.3 28.4 78.1zM53 88.4c-4.3 3.4-9.8 7.4-9.7 13.8 0.9-1.1 2.2-1.8 3.7-2.3 1.7-5.2 5.3-8.7 8.9-12 3.7-3.4 8.1-5.7 12-8.9 0-0.3 0.4-0.4 0-0.6C62.9 81.2 57.8 84.6 53 88.4zM29.5 81.8c-0.2 0.7-0.4 1.3-0.3 2.3 5.2-0.3 10.6-2 12.3-4.9C38.7 81.2 32.8 80.2 29.5 81.8zM25.8 84.6c0.5-0.7 0.9-1.4 0.9-2.6 -0.5-0.3-0.8-0.7-1.4-0.9C25.5 82.3 25.3 83.8 25.8 84.6zM49.6 99.8c2.3-0.4 2.6 1.3 4.3 1.4 1.2-1.7 2.6-3.1 3.4-5.2 0.5 0 1 0 1.4 0 1.3-5.7 4.5-9.5 8.9-12 -0.1-0.8 0.8-2 0-2.6C60.9 86.9 52.4 90.5 49.6 99.8zM30.4 87.2c-0.6 0.7-0.7 1.8-0.6 3.2 3-0.5 5.6-3 6-5.2C34.5 86.4 32.8 87.2 30.4 87.2zM25.2 87.5c0.4 1 0.6 2.2 1.4 2.9 0.5-1.2 1.3-2.1 1.4-3.7C26.6 86.4 26.4 87.4 25.2 87.5zM40.1 95.3c4.7-1 7.2-4.2 10-7.2C45.1 88.8 42.7 92.1 40.1 95.3zM35 94.1c0 0.7 0 1.4 0.3 1.7 2 0.4 1.5-1.6 2-2.6C36.2 93.2 35.8 93.9 35 94.1zM30.1 94.7c0.3 1 2.3 2.9 3.4 4C33.7 96.2 31.8 94.4 30.1 94.7zM39.6 99.8c0.7-0.1 0.6 0.5 1.4 0.3 -0.1-0.9 0.7-1.4 0-2C40.1 98.3 39.5 98.8 39.6 99.8zM39.6 103.9c0.1-1.4-1.4-2.8-2.3-2.3C38.5 101.9 38.7 103.2 39.6 103.9z"/><path id="tail" d="M146 229.8c1.8-3.3 1.5-7.5 4.3-10.1 -2-5.3 0.6-12.5-1.2-17.8 -5.6-7.1-8.8-15.2-18.3-20.7 -6.5-1.7-14.5-9.2-22.2-9.3 -4.7-2.4-5.9-6.3-10.4-8.7 0.8-0.8 1-1.7 0.9-2.6l-13.4-3.7c-0.9 3.9 0.5 6.9-0.2 10.8 4.4 4.3 5.6 10.4 11.7 13.6 3.1 1.6 6.9-0.4 9 3.6 8.4 4.5 18.5 0.8 23.2 10 0 0 0 0 0-0.1 5.3 3.7 6.6 9 9.4 13.7 0.2 3 0.4 6.7 0.6 8.9 0.5 4.1 0 2.9-1.8 6.8 -1 2.2-0.4 2.5-1 5 -4.8 0.9-6.5 6-10.2 8.7 -3.1 2.3-7.5 2.5-9.9 5.6 6.5 0.9 11.8-1.1 17.8-1.2 1.6-4.2 4.7-3.2 6.4-4.9 1.1-1.1 1-3.4 1.9-4.6C143.8 231.2 145.4 231 146 229.8z"/><path id="head" d="M97.5 43.8c0.5-1.7 1.8-3 2.6-4.7 0.4-0.9-0.1-2.1 0.5-3.2 0.1-0.2 0.9 0.1 1.1 0 1.1-1.1-0.1-4.1 1.1-6.3 0.5-2-2.3-0.9-1.6-3.2 1.6-4.8-0.3-12.8-3.2-13.2 1.8-0.6-1.5-0.2-0.5-1.6 -2.5-0.6-5-1.3-7.4-2.1 -1.1 0-2.1 0-3.2 0 -0.2 1.7-3 0.8-4.7 1.1 0.4 1.4-0.9 0.7-1.6 1.1 -0.6 0.4-1.3 1.3-1.6 1.6 -0.1 0.1-1 0.4-1.1 0.5 -0.5 1.2-0.8 3.1-2.1 4.2 0.9 2.7-0.9 6.1 0.5 9 0.3 1.1-0.8 1.1-1.1 1.6 -0.9 1.5-0.4 7.5 2.1 7.9 0 3.3 1.7 5 2.6 7.4 -0.1 1.4 0 3 0 4.6 5.8 0 11.6 0 17.4 0C97.4 46.8 97.5 45.3 97.5 43.8z"/><path id="lefthand" d="M48.4 162.4c0 0.7 0 1.4 0 2.1 0.3 0 0.6 0.4 0 0.5 0 1.6 0 3.2 0 4.7 1.7-0.6 0.8 1.5 1.1 2.1 0.3 0.8 1.2 1.4 1.6 2.1 1.7 3 2.5 4 5.3 5.3 0.9 0.4 1.9 1.6 3.2 1.1 1.3-2.9-0.6-3.8-2.1-5.3 -0.2-1.3 2.4 0.3 1.6-1.6 -2.1-2.3-7.7-3.9-5.3-9 4.1-0.6 1.3 5.7 5.3 5.3 0.5-3 0-7 0.5-11.1 -0.6-1.6-2.4-3.4-2.6-5.3 0 0 0-0.1 0-0.1l-7.3 0C49.4 156.6 49 159.6 48.4 162.4z"/><path id="leftleg" d="M78 266.8c-0.7-4.4-0.5-11.2 0-16.9 0.4-4.1 1.8-7.8 2.1-11.6 0.2-3.3 0.3-6.9 0-10 -0.4-3.5-2.2-6.2-2.1-9 0.1-1.9 1.4-3.7 2.1-5.8 1.1-3.3 2.2-6.8 2.6-10 0.9-6.3 0.6-13.4 1.1-20 0.4-5 1.6-8.6 2.6-12.1 0.3-0.9 0.9-1.4 1.1-2.1 0.7-3.5-0.9-6.7 1.3-8.1 -8.6 0-17.2 0-25.9 0 -0.1 9.7 1.1 19.4 1.5 28.6 0.2 3.8-0.3 7.7 0 11.1 0.3 3.5 0.7 7.9 0 11.1 0 0.2-1 1.3-1.1 1.6 -0.2 1.6-0.3 3.2-0.5 4.7 -0.7 5.4-0.9 12.8-0.5 17.9 0.3 4.6 1.5 7.4 2.6 10.5 1.1 3.2 2 6.1 2.6 9.5 0.2 1 0.9 2 1.1 3.2 0.2 1.3-0.2 2.9 0 4.2 0.2 1.5 0.9 2.4 1.1 3.7 0 0 0 0 0 0h8.5C78 267.1 78 267 78 266.8z"/><path id="leftfoot" d="M78.1 267.3h-8.5c0.5 5.9-1.2 9.3-1.1 14.2 -1.7 3-3.8 7.9-3.2 11.6 2 2.4 9.1-0.4 11.1 2.1 0.7 0 1.4 0 2.1 0 3.9-5-0.7-15.5 2.1-21.1C80 271.9 78.6 269.8 78.1 267.3z"/><path id="leftarm" d="M63.2 59.1c-0.6 0.2-0.7 0.9-1.1 1.1 -0.4 0.2-1.2-0.2-1.6 0 -0.5 0.3-0.2 0.8-0.5 1.1 -0.4 0.2-1.2-0.2-1.6 0 -0.5 0.3-0.2 0.8-0.5 1.1 -0.2 0.2-0.8-0.2-1.1 0 -0.2 0.1-0.4 1-0.5 1.1 -1.2 0.6-0.6 0.5-1.6 1.6 -0.6 0.6-1.5 1.4-2.1 3.2 -0.3 0.8-0.3 1.2-0.5 1.6 -0.8 1.8-1 7-1.6 11.1 -0.5 2.9-1.3 6-1.6 9 -0.7 8 2.4 17.9 0 24.3 0 0.1-0.5 0-0.5 0 0 4.9 0 9.8 0 14.8 0.9 7.7 1.6 16.6 1.1 24.7l7.3 0c-0.1-1.1 0.6-3.1 1.1-5.2 0.7-2.9 1.7-6.3 2.1-7.9 0.8-3.1 1.4-6.1 1.6-9 0.5-6.1-1.2-12.9-0.5-17.9 0.3-1.8 1.2-3.6 1.6-5.3 0.5-2.1 0.8-4.2 1.1-6.3 0.5-4.2 0-8.9 2.5-11.9V59.1C65.2 59 64.1 58.8 63.2 59.1z"/><path id="rightfoot" d="M96.9 274c1.3 2.8 1.2 6.6 1.1 10.1 -0.2 4.2-0.9 8.1 1.1 11.2 0.5 0 1.1 0 1.6 0 0.5-1.3 2.2-0.9 3.7-1.1 3-0.3 6.7 0.3 8.4-1.1 0.3-4.1-2.2-7.7-3.2-11.7 -0.4-1.6-0.2-3-0.5-4.8 -0.3-1.5-1-3.2-1.1-4.8 -0.1-1.3 0-2.6 0.1-4h-9C98.6 270.2 97.9 272.3 96.9 274z"/><path id="torso" d="M89.5 161.7c8.4 0 16.9 0 25.5 0 0-1.2-0.1-2.4-0.1-3.5 -0.5-7.1-1.7-14.2-2.6-21.2 -0.5-3.6-0.9-7.1-1.6-10.6 -1.1-5.7-3-12.3-2.1-19.1 0.3-2.7 1.8-5 2.1-7.4 0.4-3.2-1-6.5 0.8-9.7v-31.1c-0.8 0-1.6 0.1-2.4 0 -1.3-1.7-3.9-1.3-5.8-2.1 -0.3-0.1-1.4-1.2-2.1-1.6 -0.9-0.4-1.9-0.4-2.6-1.1 -0.8-1.5-1-3.7-1.1-6 -5.8 0-11.6 0-17.4 0 0 2 0 4-0.6 5.5 -1 0.3-1.7 1-2.6 1.6 -0.4 0.3-1 0.2-1.6 0.5 -0.5 0.3-0.5 0.8-1.1 1.1 -0.6 0.3-1.5-0.2-2.1 0 -0.4 0.2-0.4 0.9-1.1 1.1 -0.6 0.2-1.5-0.2-2.1 0 -0.2 0.1-0.9 1-1.1 1.1 -0.6 0.1-1.2 0.1-1.8 0v30.9c0.1-0.1 0.1-0.1 0.2-0.2 0.7 2.8 0.1 5.9 0.5 9 0.4 2.8 1.8 5.2 2.1 7.9 0.3 2.8 0.2 6.4 0 9.5 -0.4 4.9-2 9.2-2.6 13.2 -0.2 1.2 0.1 2.5 0 3.7 -0.1 1.2-0.9 2.1-1.1 3.2 -0.2 1.4 0.2 2.8 0 4.2 -0.2 1.1-0.9 2.2-1.1 3.2 -0.2 1.8 0.2 3.5 0 5.3 -0.2 1.5-0.9 3.2-1.1 4.8 -0.3 2.6-0.4 5.2-0.4 7.8 8.7 0 17.3 0 25.9 0H89.5z"/><path id="rightleg" d="M114.9 217.2c-0.5-4.3-2-8.4-2.1-12.7 -0.1-4.3 0.9-9.1 1.1-13.7 0.1-2.8-0.1-5.2 0-7.9 0.3-7.2 1.3-14.5 1.2-21.8 -8.6 0-17 0-25.5 0 -0.4 6.7 3.5 13.3 4.2 20.2 0.3 3.5-0.2 6.7 0 10 0.3 4.6 0.8 9.1 1.6 13.2 0.4 2.1 1 3.9 1.6 5.8 0.2 0.5-0.1 1.1 0 1.6 0.1 0.2 0.9 0.8 1.1 1.1 0.2 0.6-0.3 1.5 0 2.1 0.1 0.1 0.9-0.1 1.1 0 0.1 0.1-0.1 0.8 0 1.1 1.2 4-0.5 6.8-1.1 10.5 -0.6 4.7-0.6 10.8 0 15.8 0.1 1.2 0.8 2.5 1.1 3.7 0.3 1.5 0.4 2.9 0.5 4.2 0.6 6.4 0.5 12.6-0.5 17.6h9c0.2-2.9 0.6-5.9 1-7.6 0.7-3.3 1.3-5.8 2.1-8.4 0.6-2.2 1.5-5 2.1-6.3 0.6-1.3 1.3-3.1 1.6-4.2C116.5 233.7 115.9 225 114.9 217.2z"/><path id="rightarm" d="M128 154c-0.5-11.9 1.1-24.4 1.6-33.7 0-1.4 0-2.8 0-4.2 -3.4-6.7 0.2-18.4-1.1-29 -0.2-2-1.2-3.8-1.6-5.8 -0.9-5.7-0.5-10-2.6-14.2 -0.2-0.3-0.3-1.2-0.5-1.6 -0.1-0.2-0.9 0.2-1.1 0 -0.2-0.2-0.6-1.6-1.1-2.1 -0.6-0.7-1-1.2-2.6-2.1 -0.7-0.4-0.6-0.1-1.1-0.5 -0.7-0.7-1.4 0-3.2-0.5 -0.7-0.2-0.5-0.9-1.6-1.1 -0.6-0.1-1.2-0.1-1.8 0v31c0.1-0.1 0.1-0.3 0.2-0.4 -0.6 0.9 1 0.9 1.1 1.1 0.3 0.6-0.2 1.5 0 2.1 1.5 4.5 1.1 11.6 2.1 15.8 0.4 1.8 1.4 3.5 1.6 5.3 0.8 6.9-1.3 15.2 0 20.6 1.7 6.9 3.4 13.1 4.2 20h7.4C128.1 154.3 128.1 154.1 128 154z"/><path id="righthand" d="M120.7 154.5c0 0 0 0 0 0 -0.9 1.5-1.9 3-2.6 4.7 -0.4 1.7 0.5 3.6 0.5 5.3 0.1 1.9-1.6 4.8 0.5 5.3 2.1 0.7 1.5-5.8 5.3-5.3 0.6 2.2-0.1 3.8-1.1 5.3 -1 1.4-3.4 2.9-4.7 3.2 -0.3 2.7 1.9 0 1.6 2.1 -0.8 0.8-1.8 1.4-2.1 2.6 -1 0.7 1.2 1.1 0 2.6 2.4 0.1 4.9-1.2 5.8-2.1 0.5-0.5 0.5-1.4 1.1-2.1 0.8-1 2-2 2.6-3.2 2.9-5.2 1-10.9 0.6-18.5H120.7z"/></svg><div id="lefthandweapon"></div><div id="righthandweapon"></div><div id="overall" class="health-full">Top Shape</div></div><div id="hp-status"><div><span>HP:</span><div class="progressbar" id="hp-bar"><div class="progressbar-text">0/0</div><div class="progressbar-value"></div></div></div><div><span>SP:</span><div class="progressbar" id="sp-bar"><div class="progressbar-text">0/0</div><div class="progressbar-value"></div></div></div><div><span>MP:</span><div class="progressbar" id="mp-bar"><div class="progressbar-text">0/0</div><div class="progressbar-value"></div></div></div></div></div><div id="experience" class="status-panel"><div><span>XP:</span><span id="xp-value">0</span></div><div><span>Needed:</span><span id="need-value">0</span><div class="progressbar" id="need-percent"><div class="progressbar-text" style="text-align:right;right:2px;color:#000">0</div><div class="progressbar-value"></div></div></div><div><span>Earned:</span><span id="earn-value">0</span></div><div><span>BankedXP:</span><span id="xp-banked">0</span></div></div><div id="bars" class="flex-grow-1"><div id="party"></div><div id="combat"></div></div><div class="progressbar" id="lagMeter"><div class="progressbar-text">0.000 s</div><div class="progressbar-value" style="width:100%"></div></div></div><div id="status-simple"><div id="status-simple-hp" data-var="hp" class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div><div id="status-simple-sp" data-var="sp" class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div><div id="status-simple-mp" data-var="mp" class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div><div id="status-simple-xp" data-var="xp" class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div></div><div id="status-simple-lagMeter" class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div>';
@@ -35815,13 +35831,13 @@ ${pre}`);
       this._status = document.getElementById("status");
       this._styles = getComputedStyle(this._status);
       this.client.telnet.GMCPSupports.push("oMUD 1", "Char 1", "Char.Vitals 1", "Char.Experience 1", "Char.Skills 1");
-      this.client.on("received-GMCP", this.processGMCP, this);
+      this.client.on("received-GMCP", this._processGMCP, this);
       this.client.on("window", (window2, args, name2) => {
         if (window2 === "skills") {
           if (args === "close") {
             if (this._skillsDialog) this._skillsDialog.close();
           } else
-            this.showSkills();
+            this._showSkills();
         }
       });
       this.client.on("close-window", (window2) => {
@@ -35830,17 +35846,17 @@ ${pre}`);
       });
       this._lagMeter = document.getElementById("lagMeter");
       this.client.telnet.on("latency-changed", (lag, avg) => {
-        this.updateLagMeter(lag);
+        this._updateLagMeter(lag);
       });
       this.client.on("closed", () => {
-        this.updateLagMeter(0, true);
+        this._updateLagMeter(0, true);
       });
       this.client.telnet.GMCPSupports.push("oMUD 1");
       this.client.telnet.GMCPSupports.push("Char.Skills 1");
       this.client.on("add-line", (data) => {
         switch (data.line) {
           case "Connected...":
-            this.init();
+            this._initializeStatus();
             return;
           case "You feel a tingle as you are surrounded by magical shield.":
           case "You feel a tingle as you are surrounded by a magical shield.":
@@ -35914,7 +35930,7 @@ ${pre}`);
         };
         document.addEventListener("mousemove", this._move);
       });
-      window.addEventListener("resize", () => this.resize());
+      window.addEventListener("resize", () => this._resize());
       document.addEventListener("mouseup", (e) => {
         if (!this._dragging) return;
         const w2 = this._status.style.width;
@@ -35979,10 +35995,10 @@ ${pre}`);
       this.client.display.container.append(document.getElementById("status-simple-lagMeter"));
       this._updateSplitter();
       this._updateInterface();
-      this.init();
+      this._initializeStatus();
       let options = client.getWindowState("skills");
       if (options && options.show)
-        this.showSkills();
+        this._showSkills();
     }
     get menu() {
       return [
@@ -36006,7 +36022,7 @@ ${pre}`);
         },
         {
           name: " Show skills",
-          action: () => this.showSkills(),
+          action: () => this._showSkills(),
           icon: '<i class="bi bi-graph-up"></i>',
           position: "#menu-status"
         }
@@ -36020,32 +36036,32 @@ ${pre}`);
         position: 7
       }];
     }
-    async processGMCP(mod, obj) {
+    async _processGMCP(mod, obj) {
       try {
         let limb;
         switch (mod.toLowerCase()) {
           case "char.name":
             this._info["name"] = obj.name;
-            this.setTitle(obj.name);
+            this._setTitle(obj.name);
             break;
           case "char.base":
-            this.init();
+            this._initializeStatus();
             this._info["name"] = obj.name;
-            this.setTitle(obj.name);
+            this._setTitle(obj.name);
             break;
           case "char.vitals":
-            this.updateBar("hp-bar", obj.hp, obj.hpmax);
-            this.updateBar("sp-bar", obj.sp, obj.spmax);
-            this.updateBar("mp-bar", obj.mp, obj.mpmax);
+            this._updateBar("hp-bar", obj.hp, obj.hpmax);
+            this._updateBar("sp-bar", obj.sp, obj.spmax);
+            this._updateBar("mp-bar", obj.mp, obj.mpmax);
             this._info["hp"] = obj.hp;
             this._info["hpmax"] = obj.hpmax;
             this._info["sp"] = obj.sp;
             this._info["spmax"] = obj.spmax;
             this._info["mp"] = obj.mp;
             this._info["mpmax"] = obj.mpmax;
-            this.updateSimpleBar("status-simple-hp");
-            this.updateSimpleBar("status-simple-sp");
-            this.updateSimpleBar("status-simple-mp");
+            this._updateSimpleBar("status-simple-hp");
+            this._updateSimpleBar("status-simple-sp");
+            this._updateSimpleBar("status-simple-mp");
             this._doUpdate(4 /* overall */);
             break;
           case "char.experience":
@@ -36060,21 +36076,21 @@ ${pre}`);
           case "omud.ac":
             for (limb in obj) {
               if (!obj.hasOwnProperty(limb)) continue;
-              this.setLimbAC(limb, obj[limb]);
-              this.updateLimb(limb);
+              this._setLimbAC(limb, obj[limb]);
+              this._updateLimb(limb);
             }
             break;
           case "omud.limb":
             for (limb in obj) {
               if (!obj.hasOwnProperty(limb)) continue;
-              this.setLimbHealth(limb, obj[limb]);
-              this.updateLimb(limb);
+              this._setLimbHealth(limb, obj[limb]);
+              this._updateLimb(limb);
             }
             break;
           case "omud.weapons":
             for (limb in obj) {
               if (!obj.hasOwnProperty(limb)) continue;
-              this.setWeapon(limb, obj[limb]);
+              this._setWeapon(limb, obj[limb]);
             }
             break;
           case "omud.environment":
@@ -36107,28 +36123,28 @@ ${pre}`);
               this._clear("combat");
               this.emit("leave combat");
             } else if (obj.action === "add")
-              this.createIconBar("#combat", this._getID(obj, "combat_"), obj.name, obj.hp, 100, this._livingClass(obj, "monster-"), obj.order);
+              this._createIconBar("#combat", this._getID(obj, "combat_"), obj.name, obj.hp, 100, this._livingClass(obj, "monster-"), obj.order);
             else if (obj.action === "update") {
               if (obj.hp === 0)
-                this.removeBar(this._getID(obj, "combat_"));
+                this._removeBar(this._getID(obj, "combat_"));
               else
-                this.createIconBar("#combat", this._getID(obj, "combat_"), obj.name, obj.hp, 100, this._livingClass(obj, "monster-"), obj.order);
+                this._createIconBar("#combat", this._getID(obj, "combat_"), obj.name, obj.hp, 100, this._livingClass(obj, "monster-"), obj.order);
             } else if (obj.action === "remove")
-              this.removeBar(this._getID(obj, "combat_"));
+              this._removeBar(this._getID(obj, "combat_"));
             break;
           case "omud.party":
             if (obj.action === "leave") {
               this._clear("party");
               this.emit("leave party");
             } else if (obj.action === "add") {
-              this.createIconBar("#party", this._getID(obj, "party_"), obj.name, obj.hp, 100, this._livingClass(obj, "party-"), obj.name.replace('"', ""));
+              this._createIconBar("#party", this._getID(obj, "party_"), obj.name, obj.hp, 100, this._livingClass(obj, "party-"), obj.name.replace('"', ""));
             } else if (obj.action === "update") {
               if (obj.hp === 0)
-                this.removeBar(this._getID(obj, "party_"), true);
+                this._removeBar(this._getID(obj, "party_"), true);
               else
-                this.createIconBar("#party", this._getID(obj, "party_"), obj.name, obj.hp, 100, this._livingClass(obj, "party-"), obj.name.replace('"', ""));
+                this._createIconBar("#party", this._getID(obj, "party_"), obj.name, obj.hp, 100, this._livingClass(obj, "party-"), obj.name.replace('"', ""));
             } else if (obj.action === "remove")
-              this.removeBar(this._getID(obj, "party_"), true);
+              this._removeBar(this._getID(obj, "party_"), true);
             if ((limb = document.getElementById("party")).children.length)
               limb.classList.add("hasmembers");
             else
@@ -36225,7 +36241,7 @@ ${pre}`);
         if (this.client.getOption("lagMeter")) {
           this._lagMeter.style.visibility = "";
           this._lagMeter.style.display = "";
-          this.updateLagMeter(0, true);
+          this._updateLagMeter(0, true);
         } else {
           this._lagMeter.style.visibility = "hidden";
           this._lagMeter.style.display = "none";
@@ -36235,7 +36251,7 @@ ${pre}`);
         this._updateSplitter();
       this.emit("updated-interface");
     }
-    setTitle(title, lag) {
+    _setTitle(title, lag) {
       if (!title || title.length === 0)
         this._status.querySelector("#character-name").innerHTML = "&nbsp;";
       else
@@ -36248,9 +36264,9 @@ ${pre}`);
       }
       client.emit("set-title", title || "");
     }
-    init() {
+    _initializeStatus() {
       document.getElementById("fullbody").classList.remove("aura-red", "aura-blue");
-      this.setTitle("");
+      this._setTitle("");
       this._info = [];
       this._info["WEATHER"] = "none";
       this._info["WEATHER_INTENSITY"] = 0;
@@ -36287,23 +36303,23 @@ ${pre}`);
       document.getElementById("leftwing").style.display = "none";
       document.getElementById("rightwing").style.display = "none";
       document.getElementById("tail").style.display = "none";
-      this.updateBar("hp-bar", 0, 0);
-      this.updateBar("sp-bar", 0, 0);
-      this.updateBar("mp-bar", 0, 0);
-      this.updateSimpleBar("status-simple-hp");
-      this.updateSimpleBar("status-simple-sp");
-      this.updateSimpleBar("status-simple-mp");
+      this._updateBar("hp-bar", 0, 0);
+      this._updateBar("sp-bar", 0, 0);
+      this._updateBar("mp-bar", 0, 0);
+      this._updateSimpleBar("status-simple-hp");
+      this._updateSimpleBar("status-simple-sp");
+      this._updateSimpleBar("status-simple-mp");
       document.getElementById("xp-value").textContent = "0";
       document.getElementById("xp-banked").textContent = "0";
       document.getElementById("need-value").textContent = "0";
       document.getElementById("earn-value").textContent = "0";
-      this.updateBar("need-percent", 0, 0, "0");
-      this.updateBar("status-simple-xp", 0, 0, "", true);
+      this._updateBar("need-percent", 0, 0, "0");
+      this._updateBar("status-simple-xp", 0, 0, "", true);
       this._clear("combat");
       this._clear("party");
       document.getElementById("party").classList.remove("hasmembers");
-      this.updateOverall();
-      this.updateStatus();
+      this._updateOverall();
+      this._updateStatus();
       this._resetSkills();
       this.emit("skill init");
     }
@@ -36311,17 +36327,17 @@ ${pre}`);
       const el = document.getElementById(id);
       if (el) el.innerHTML = "";
     }
-    updateStatus() {
+    _updateStatus() {
       let limb;
       if (this._ac)
         for (limb in this._infoAC)
-          this.updateLimb(limb);
+          this._updateLimb(limb);
       else
         for (limb in this._infoLimb)
-          this.updateLimb(limb);
+          this._updateLimb(limb);
       this._doUpdate(4 /* overall */ | 8 /* xp */);
     }
-    updateOverall() {
+    _updateOverall() {
       const el = document.getElementById("overall");
       el.className = "";
       if (this._ac) {
@@ -36390,7 +36406,7 @@ ${pre}`);
         }
       }
     }
-    updateLimb(limb) {
+    _updateLimb(limb) {
       limb = limb.replace(/\s/g, "");
       limb = limb.toLowerCase();
       if (limb === "overall") {
@@ -36448,7 +36464,7 @@ ${pre}`);
           eLimb.classList.add("health-full");
       }
     }
-    updateBar(id, value, max2, text, noText) {
+    _updateBar(id, value, max2, text, noText) {
       const bar = document.getElementById(id);
       if (!bar)
         return;
@@ -36462,7 +36478,7 @@ ${pre}`);
         bar.lastElementChild.ariaValueNow = "" + p;
       }
     }
-    updateSimpleBar(bar) {
+    _updateSimpleBar(bar) {
       let p;
       const el = document.getElementById(bar);
       if (!el) return;
@@ -36475,7 +36491,7 @@ ${pre}`);
       progress.style.width = 100 - p + "%";
       progress.ariaValueNow = "" + p;
     }
-    createIconBar(parent, id, label, value, max2, icon, order) {
+    _createIconBar(parent, id, label, value, max2, icon, order) {
       let p = 100;
       if (max2 !== 0)
         p = value / max2 * 100;
@@ -36505,13 +36521,13 @@ ${pre}`);
         bar.lastElementChild.lastElementChild.style.width = 100 - p + "%";
       }
     }
-    removeBar(id, party) {
+    _removeBar(id, party) {
       const el = document.getElementById(id);
       if (!el) return;
       el.parentNode.removeChild(el);
       this._doUpdate(party ? 2 /* sortParty */ : 1 /* sortCombat */);
     }
-    sortBars(p) {
+    _sortBars(p) {
       const listItems = p.children("div").get();
       listItems.sort((a, b) => {
         const compA = +a.getAttribute("data-order");
@@ -36522,10 +36538,10 @@ ${pre}`);
         p.append(itm);
       });
     }
-    updateLagMeter(lag, force) {
+    _updateLagMeter(lag, force) {
       if (!this._lagMeter) return;
       if (this.client.getOption("showLagInTitle"))
-        this.setTitle(this._info["name"] || "", `${lag / 1e3}s`);
+        this._setTitle(this._info["name"] || "", `${lag / 1e3}s`);
       if (!this.client.getOption("lagMeter") && !force) return;
       let p = 100;
       p = lag / 200 * 100;
@@ -36543,44 +36559,44 @@ ${pre}`);
         return;
       this._rTimeout = window.requestAnimationFrame(() => {
         if ((this._updating & 16 /* status */) === 16 /* status */) {
-          this.updateStatus();
+          this._updateStatus();
           this._updating &= ~16 /* status */;
         }
         if ((this._updating & 1 /* sortCombat */) === 1 /* sortCombat */) {
-          this.sortBars($("#combat"));
+          this._sortBars($("#combat"));
           this._updating &= ~1 /* sortCombat */;
         }
         if ((this._updating & 2 /* sortParty */) === 2 /* sortParty */) {
-          this.sortBars($("#party"));
+          this._sortBars($("#party"));
           this._updating &= ~2 /* sortParty */;
         }
         if ((this._updating & 4 /* overall */) === 4 /* overall */) {
-          this.updateOverall();
+          this._updateOverall();
           this._updating &= ~4 /* overall */;
         }
         if ((this._updating & 8 /* xp */) === 8 /* xp */) {
-          this.updateXP();
+          this._updateXP();
           this._updating &= ~8 /* xp */;
         }
         this._rTimeout = 0;
         this._doUpdate(this._updating);
       });
     }
-    updateXP() {
+    _updateXP() {
       $("#xp-value").text(this._info["EXPERIENCE"]);
       $("#xp-banked").text(this._info["EXPERIENCE_BANKED"]);
       if (this._info["EXPERIENCE_NEED"] < 0) {
         $("#need-value").text(this.client.getOption("allowNegativeNumberNeeded") ? this._info["EXPERIENCE_NEED"] : 0);
-        this.updateBar("need-percent", 100 - this._info["EXPERIENCE_NEED_P"], 100, this.client.getOption("allowNegativeNumberNeeded") ? this._info["EXPERIENCE_NEED"].toString() : "0");
-        this.updateBar("status-simple-xp", 100 - this._info["EXPERIENCE_NEED_P"], 100, "", true);
+        this._updateBar("need-percent", 100 - this._info["EXPERIENCE_NEED_P"], 100, this.client.getOption("allowNegativeNumberNeeded") ? this._info["EXPERIENCE_NEED"].toString() : "0");
+        this._updateBar("status-simple-xp", 100 - this._info["EXPERIENCE_NEED_P"], 100, "", true);
       } else {
         $("#need-value").text(this._info["EXPERIENCE_NEED"]);
-        this.updateBar("need-percent", 100 - this._info["EXPERIENCE_NEED_P"], 100, this._info["EXPERIENCE_NEED"].toString());
-        this.updateBar("status-simple-xp", 100 - this._info["EXPERIENCE_NEED_P"], 100, "", true);
+        this._updateBar("need-percent", 100 - this._info["EXPERIENCE_NEED_P"], 100, this._info["EXPERIENCE_NEED"].toString());
+        this._updateBar("status-simple-xp", 100 - this._info["EXPERIENCE_NEED_P"], 100, "", true);
       }
       $("#earn-value").text(this._info["EXPERIENCE_EARNED"]);
     }
-    resize() {
+    _resize() {
       if (!this.client.getOption("showStatus")) return;
       const w = this._status.style.width;
       this._status.style.width = "";
@@ -36639,7 +36655,7 @@ ${pre}`);
         cls.push(prefix + this._sanitizeID(obj.name.replace(/\d+$/, "").trim()));
       return cls.join(" ").toLowerCase();
     }
-    setWeapon(limb, weapon) {
+    _setWeapon(limb, weapon) {
       const l2 = limb;
       limb = limb.replace(/\s/g, "");
       limb = limb.toLowerCase();
@@ -36668,7 +36684,7 @@ ${pre}`);
       else
         eLimb.title = "weapon in " + l2;
     }
-    setLimbAC(limb, ac) {
+    _setLimbAC(limb, ac) {
       limb = limb.replace(/\s/g, "");
       limb = limb.toLowerCase();
       if (limb === "righthoof")
@@ -36677,7 +36693,7 @@ ${pre}`);
         limb = "leftfoot";
       this._infoAC[limb] = ac;
     }
-    setLimbHealth(limb, health) {
+    _setLimbHealth(limb, health) {
       limb = limb.replace(/\s/g, "");
       limb = limb.toLowerCase();
       if (limb === "righthoof")
@@ -36686,7 +36702,7 @@ ${pre}`);
         limb = "leftfoot";
       this._infoLimb[limb] = health;
     }
-    showSkills() {
+    _showSkills() {
       if (!this._skillsDialog) {
         this._skillsDialog = new Dialog(Object.assign({}, client.getWindowState("skills") || { center: true }, { title: '<i class="bi bi-graph-up"></i><select id="filter-skills" class="form-select form-select-sm me-2 mb-1" title="Filter skills"><option value="All">All</option></select>', id: "win-skills", noFooter: true, minHeight: 350 }));
         this._skillsDialog.body.classList.add("skills");
@@ -37281,9 +37297,9 @@ ${pre}`);
         formatter: (item, index, last) => {
           if (index === last) {
             if (this._logs[item] && !item.endsWith(".txt") && !item.endsWith(".raw") && !item.endsWith(".htm"))
-              return `${formatDate(item)}${this._logs[item].character ? ", " + this._logs[item].character : ""}>`;
+              return `${this._formatDate(item)}${this._logs[item].character ? ", " + this._logs[item].character : ""}>`;
             else if (this._logs[item] && this._logs[item].timeStamp)
-              return `${formatDate(this._logs[item].timeStamp)}${this._logs[item].character ? ", " + this._logs[item].character : ""}, ${item.substring(item.length - 3, item.length)}${this._logs[item].prefix ? ", " + this._logs[item].prefix : ""}${this._logs[item].postfix ? ", " + this._logs[item].postfix : ""}`;
+              return `${this._formatDate(this._logs[item].timeStamp)}${this._logs[item].character ? ", " + this._logs[item].character : ""}, ${item.substring(item.length - 3, item.length)}${this._logs[item].prefix ? ", " + this._logs[item].prefix : ""}${this._logs[item].postfix ? ", " + this._logs[item].postfix : ""}`;
           }
           return capitalize(item);
         },
@@ -37386,9 +37402,9 @@ ${pre}`);
                 icon = "binary";
               let title = keys[k];
               if (!keys[k].endsWith(".txt") && !keys[k].endsWith(".raw") && !keys[k].endsWith(".htm"))
-                title = `${formatDate(keys[k])}${this._logs[keys[k]].character ? ", " + this._logs[keys[k]].character : ""}`;
+                title = `${this._formatDate(keys[k])}${this._logs[keys[k]].character ? ", " + this._logs[keys[k]].character : ""}`;
               else if (this._logs[keys[k]].timeStamp)
-                title = `${formatDate(this._logs[keys[k]].timeStamp)}${this._logs[keys[k]].character ? ", " + this._logs[keys[k]].character : ""}, ${keys[k].substring(keys[k].length - 3, keys[k].length)}${this._logs[keys[k]].prefix ? ", " + this._logs[keys[k]].prefix : ""}${this._logs[keys[k]].postfix ? ", " + this._logs[keys[k]].postfix : ""}`;
+                title = `${this._formatDate(this._logs[keys[k]].timeStamp)}${this._logs[keys[k]].character ? ", " + this._logs[keys[k]].character : ""}, ${keys[k].substring(keys[k].length - 3, keys[k].length)}${this._logs[keys[k]].prefix ? ", " + this._logs[keys[k]].prefix : ""}${this._logs[keys[k]].postfix ? ", " + this._logs[keys[k]].postfix : ""}`;
               p += `<a id="${keys[k]}" href="#logs/${encodeURIComponent(keys[k])}" class="list-group-item list-group-item-action" title="${title}"><span class="list-badge-button badge text-bg-danger" data-key="${keys[k]}" data-type="delete" title="Remove log"><i class="bi bi-trash"></i></span><span class="me-1 list-badge-button badge text-bg-secondary" data-key="${keys[k]}" data-type="export" title="Export log"><i class="bi bi-box-arrow-up"></i></span><i class="bi bi-file-${icon}"></i>${title}</a>`;
             }
             this._menu.innerHTML = '<div class="list-group" id="logs-menu">' + p + "</div>";
@@ -37474,20 +37490,20 @@ ${pre}`);
         this._small = false;
       }
     }
+    _formatDate(date) {
+      if (typeof date === "string")
+        date = parseInt(date, 10);
+      date = new Date(date);
+      let hours = date.getHours();
+      let minutes = date.getMinutes();
+      let ampm = hours >= 12 ? "pm" : "am";
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      let strTime = hours + ":" + minutes + " " + ampm;
+      return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear() + "  " + strTime;
+    }
   };
-  function formatDate(date) {
-    if (typeof date === "string")
-      date = parseInt(date, 10);
-    date = new Date(date);
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-    let ampm = hours >= 12 ? "pm" : "am";
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    minutes = minutes < 10 ? "0" + minutes : minutes;
-    let strTime = hours + ":" + minutes + " " + ampm;
-    return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear() + "  " + strTime;
-  }
 
   // src/plugins/chat.ts
   var Chat = class extends Plugin {
@@ -38200,89 +38216,89 @@ ${pre}`);
     constructor(client2) {
       super();
       this._port = 1034;
-      this._abort = false;
-      this.client = client2;
+      this._aborted = false;
+      this._client = client2;
       this.initialize();
     }
     remove() {
-      this.client.removeListenersFromCaller(this);
+      this._client.removeListenersFromCaller(this);
     }
     initialize() {
-      this.client.telnet.GMCPSupports.push("Client 1");
-      this.client.on("connected", () => {
-        this._port = this.client.port;
+      this._client.telnet.GMCPSupports.push("Client 1");
+      this._client.on("connected", () => {
+        this._port = this._client.port;
         this._closeDialog();
-        this._save = 0;
-        this._abort = false;
+        this._saveState = 0;
+        this._aborted = false;
       }, this);
-      this.client.on("closed", () => {
-        this._port = this.client.port;
+      this._client.on("closed", () => {
+        this._port = this._client.port;
         this._closeDialog();
-        this._save = 0;
-        this._abort = false;
+        this._saveState = 0;
+        this._aborted = false;
       }, this);
-      this.client.on("received-GMCP", async (mod, obj) => {
+      this._client.on("received-GMCP", async (mod, obj) => {
         if (mod.toLowerCase() !== "client" || !obj) return;
         this._getMapper();
         switch (obj.action) {
           case "save":
-            if (this._abort) return;
+            if (this._aborted) return;
             this._user = obj.user;
             this._showDialog("Saving data");
-            this._abort = false;
+            this._aborted = false;
             if (this._mapper && this._mapper.map.changed) {
               this._mapper.map.save().then(() => {
-                this.save(2);
+                this._save(2);
               });
             } else
-              this.save(2);
+              this._save(2);
             break;
           case "load":
-            this.client.debug(`Starting load
+            this._client.debug(`Starting load
     Chunks: ${obj.chunks}
     Start chunk: ${obj.chunk}
     Size: ${obj.size}
 `);
-            this._abort = false;
+            this._aborted = false;
             this._user = obj.user;
-            this._save = [obj.chunks || 1, obj.chunk || 0, obj.size, ""];
+            this._saveState = [obj.chunks || 1, obj.chunk || 0, obj.size, ""];
             this._showDialog("Loading data");
             if (this._mapper && this._mapper.map.changed) {
               this._mapper.map.save().then(() => {
-                this.getChunk();
+                this._getChunk();
               });
             } else
-              this.getChunk();
+              this._getChunk();
             break;
           case "error":
-            this.abort(obj.error);
+            this._abort(obj.error);
             break;
         }
       });
-      this._port = this.client.port;
+      this._port = this._client.port;
     }
     get URL() {
       if (this._port === 1039)
         return "http://shadowmud.com:1132/client";
       return "http://shadowmud.com:1130/client";
     }
-    save(version2) {
+    _save(version2) {
       Map.load().then((map) => {
         const data = {
           version: 2,
-          profiles: this.client.profiles.clone(2),
+          profiles: this._client.profiles.clone(2),
           settings: new Settings(),
           map: map ? map.Rooms : {}
         };
         let keys, k;
-        const saveSelection = this.client.getOption("backupSave");
+        const saveSelection = this._client.getOption("backupSave");
         if ((saveSelection & 2 /* Map */) !== 2 /* Map */) {
           delete data.map;
-          this.client.debug("Backup save: setting for no mapper data enabled.");
+          this._client.debug("Backup save: setting for no mapper data enabled.");
         }
         if ((saveSelection & 4 /* Profiles */) !== 4 /* Profiles */) {
           delete data.profiles;
-          this.client.debug("Backup save: setting for no profiles enabled.");
+          this._client.debug("Backup save: setting for no profiles enabled.");
         }
         if ((saveSelection & 16 /* Windows */) !== 16 /* Windows */) {
           keys = Object.keys(data.settings);
@@ -38290,7 +38306,7 @@ ${pre}`);
             if (keys[k].startsWith("windows."))
               delete data.settings[keys[k]];
           }
-          this.client.debug("Backup save: setting for no window data enabled.");
+          this._client.debug("Backup save: setting for no window data enabled.");
         }
         if ((saveSelection & 8 /* Settings */) !== 8 /* Settings */) {
           let windows;
@@ -38305,7 +38321,7 @@ ${pre}`);
           delete data.settings;
           if ((saveSelection & 16 /* Windows */) === 16 /* Windows */)
             data.settings = windows;
-          this.client.debug("Backup save: setting for no settings data enabled.");
+          this._client.debug("Backup save: setting for no settings data enabled.");
         } else {
           let props = ["chat", "mapper", "profiles", "codeEditor", "buttons", "find", "display", "extensions"];
           for (let p = 0, pl = props.length; p < pl; p++) {
@@ -38341,20 +38357,20 @@ ${pre}`);
         }
         let jData = JSON.stringify(data);
         jData = LZString.compressToEncodedURIComponent(jData);
-        this._save = [jData.match(/((\S|\s|.){1,20000})/g), 0, 0];
-        this._save[3] = this._save[0].length;
-        this.saveChunk();
-      }).catch((err) => this.client.error(err));
+        this._saveState = [jData.match(/((\S|\s|.){1,20000})/g), 0, 0];
+        this._saveState[3] = this._saveState[0].length;
+        this._saveChunk();
+      }).catch((err) => this._client.error(err));
     }
-    abort(err) {
+    _abort(err) {
       if (err)
-        this.client.debug("client load/save aborted for" + err);
+        this._client.debug("client load/save aborted for" + err);
       else
-        this.client.debug("client load/save aborted");
+        this._client.debug("client load/save aborted");
       this._closeDialog();
       alert_box("Aborted", err || "Aborted importing or exporting data.", 4 /* exclamation */);
-      this._save = 0;
-      this._abort = true;
+      this._saveState = 0;
+      this._aborted = true;
       $.ajax({
         type: "POST",
         url: this.URL,
@@ -38364,10 +38380,10 @@ ${pre}`);
         }
       });
     }
-    close() {
+    _close() {
       this._closeDialog();
-      this._save = 0;
-      this._abort = false;
+      this._saveState = 0;
+      this._aborted = false;
       $.ajax({
         type: "POST",
         url: this.URL,
@@ -38377,8 +38393,8 @@ ${pre}`);
         }
       });
     }
-    getChunk() {
-      this.client.debug("Requesting client chunk " + this._save[1]);
+    _getChunk() {
+      this._client.debug("Requesting client chunk " + this._saveState[1]);
       $.ajax(
         {
           type: "POST",
@@ -38386,35 +38402,35 @@ ${pre}`);
           data: {
             user: this._user,
             a: "get",
-            c: ++this._save[1]
+            c: ++this._saveState[1]
           },
           dataType: "json",
           success: (data) => {
-            if (this._abort) return;
+            if (this._aborted) return;
             if (!data)
-              this.abort("No data returned");
+              this._abort("No data returned");
             else if (data.msg)
-              this.abort(data.msg || "Error");
+              this._abort(data.msg || "Error");
             else if (data.error)
-              this.abort(data.error);
+              this._abort(data.error);
             else {
-              this._save[1] = data.chunk || 0;
-              this._save[3] += data.data || "";
-              this.client.debug("Got client chunk " + this._save[1]);
-              this._updateProgress((this._save[1] + 1) / this._save[0] * 100);
-              if (this._save[1] >= this._save[0] - 1)
-                this.finishLoad();
+              this._saveState[1] = data.chunk || 0;
+              this._saveState[3] += data.data || "";
+              this._client.debug("Got client chunk " + this._saveState[1]);
+              this._updateProgress((this._saveState[1] + 1) / this._saveState[0] * 100);
+              if (this._saveState[1] >= this._saveState[0] - 1)
+                this._finishLoad();
               else
-                this.getChunk();
+                this._getChunk();
             }
           },
           error: (data, error, errorThrown) => {
-            this.abort(error);
+            this._abort(error);
           }
         }
       );
     }
-    saveChunk() {
+    _saveChunk() {
       $.ajax(
         {
           type: "POST",
@@ -38422,39 +38438,39 @@ ${pre}`);
           data: {
             user: this._user,
             a: "save",
-            data: this._save[0].shift(),
-            append: this._save[1] > 0 ? 1 : 0
+            data: this._saveState[0].shift(),
+            append: this._saveState[1] > 0 ? 1 : 0
           },
           dataType: "json",
           success: (data) => {
             if (!data)
-              this.abort("No data returned");
+              this._abort("No data returned");
             else if (data.msg !== "Successfully saved")
-              this.abort(data.msg || "Error");
+              this._abort(data.msg || "Error");
             else if (data.error)
-              this.abort(data.error);
-            else if (this._save[0].length > 0) {
-              this._updateProgress(this._save[1] / this._save[3] * 100);
-              this._save[1]++;
-              this.saveChunk();
+              this._abort(data.error);
+            else if (this._saveState[0].length > 0) {
+              this._updateProgress(this._saveState[1] / this._saveState[3] * 100);
+              this._saveState[1]++;
+              this._saveChunk();
             } else {
-              if (typeof this._save[2] === "function") this._save[2]();
+              if (typeof this._saveState[2] === "function") this._saveState[2]();
               client.raise("backup-saved");
-              this.close();
+              this._close();
             }
           },
           error: (data, error, errorThrown) => {
-            this.abort(error);
+            this._abort(error);
           }
         }
       );
     }
-    finishLoad() {
-      this.client.debug("Got last chunk, processing data");
-      let data = LZString.decompressFromEncodedURIComponent(this._save[3]);
+    _finishLoad() {
+      this._client.debug("Got last chunk, processing data");
+      let data = LZString.decompressFromEncodedURIComponent(this._saveState[3]);
       data = JSON.parse(data);
       if (data.version === 2) {
-        const loadSelection = this.client.getOption("backupLoad");
+        const loadSelection = this._client.getOption("backupLoad");
         if (data.map && (loadSelection & 2 /* Map */) === 2 /* Map */)
           this._mapper.import(data.map, client.getOption("mapper.importType"));
         if (data.profiles && (loadSelection & 4 /* Profiles */) === 4 /* Profiles */) {
@@ -38563,22 +38579,22 @@ ${pre}`);
           }
           profiles.update();
           profiles.save().then(() => {
-            this.client.loadProfiles();
+            this._client.loadProfiles();
           });
         }
         let keys, k;
         if ((loadSelection & 8 /* Settings */) === 8 /* Settings */) {
-          this.client.setOption("mapper.enabled", data.settings.mapEnabled ? true : false);
-          this.client.setOption("mapper.follow", data.settings.mapFollow ? true : false);
-          this.client.setOption("mapper.legend", data.settings.legend ? true : false);
-          this.client.setOption("mapper.split", data.settings.MapperSplitArea ? true : false);
-          this.client.setOption("mapper.fill", data.settings.MapperFillWalls ? true : false);
-          this.client.setOption("mapper.vscroll", data.settings.vscroll);
-          this.client.setOption("mapper.hscroll", data.settings.hscroll);
-          this.client.setOption("mapper.memory", data.settings.mapperMemory ? true : false);
-          this.client.setOption("showScriptErrors", data.settings.showScriptErrors ? true : false);
-          this.client.setOption("logWhat", data.settings ? 1 /* Html */ : 0 /* None */);
-          this.client.setOption("showMapper", data.settings.MapperOpen ? true : false);
+          this._client.setOption("mapper.enabled", data.settings.mapEnabled ? true : false);
+          this._client.setOption("mapper.follow", data.settings.mapFollow ? true : false);
+          this._client.setOption("mapper.legend", data.settings.legend ? true : false);
+          this._client.setOption("mapper.split", data.settings.MapperSplitArea ? true : false);
+          this._client.setOption("mapper.fill", data.settings.MapperFillWalls ? true : false);
+          this._client.setOption("mapper.vscroll", data.settings.vscroll);
+          this._client.setOption("mapper.hscroll", data.settings.hscroll);
+          this._client.setOption("mapper.memory", data.settings.mapperMemory ? true : false);
+          this._client.setOption("showScriptErrors", data.settings.showScriptErrors ? true : false);
+          this._client.setOption("logWhat", data.settings ? 1 /* Html */ : 0 /* None */);
+          this._client.setOption("showMapper", data.settings.MapperOpen ? true : false);
           let p, pl;
           for (p = 0, pl = SettingProperties.length; p < pl; p++) {
             let prop = SettingProperties[p];
@@ -38587,19 +38603,19 @@ ${pre}`);
             }
             if (prop.startsWith("profiles.") || prop.startsWith("codeEditor.") || prop.startsWith("buttons.") || prop.startsWith("find.") || prop.startsWith("extensions.") || prop.startsWith("windows.") || prop.startsWith("profiles."))
               continue;
-            this.client.setOption(prop, data.settings[prop]);
+            this._client.setOption(prop, data.settings[prop]);
           }
           if (data.settings.windows && (loadSelection & 16 /* Windows */) === 16 /* Windows */) {
             if (data.settings["windows"]) {
               keys = Object.keys(data.settings["windows"]);
               for (k = keys.length - 1; k >= 0; k--) {
-                this.client.setOption(`windows.${keys[k]}`, data.settings["windows"][keys[k]]);
+                this._client.setOption(`windows.${keys[k]}`, data.settings["windows"][keys[k]]);
               }
             }
             keys = Object.keys(data.settings);
             for (k = keys.length - 1; k >= 0; k--) {
               if (keys[k].startsWith("windows."))
-                this.client.setOption(keys[k], data.settings[keys[k]]);
+                this._client.setOption(keys[k], data.settings[keys[k]]);
             }
           }
           let props = ["chat", "mapper", "profiles", "codeEditor", "buttons", "find", "display", "extensions"];
@@ -38608,47 +38624,47 @@ ${pre}`);
               continue;
             keys = Object.keys(data.settings[props[p]]);
             for (k = keys.length - 1; k >= 0; k--) {
-              this.client.setOption(`${props[p]}.${keys[k]}`, data.settings[props[p]][keys[k]]);
+              this._client.setOption(`${props[p]}.${keys[k]}`, data.settings[props[p]][keys[k]]);
             }
           }
           if (data.settings.profiles && data.settings.profiles.find) {
-            this.client.setOption(`profiles.find.case`, data.settings.profiles.find.case);
-            this.client.setOption(`profiles.find.word`, data.settings.profiles.find.word);
-            this.client.setOption(`profiles.find.reverse`, data.settings.profiles.find.reverse);
-            this.client.setOption(`profiles.find.regex`, data.settings.profiles.find.regex);
-            this.client.setOption(`profiles.find.selection`, data.settings.profiles.find.selection);
-            this.client.setOption(`profiles.find.show`, data.settings.profiles.find.show);
-            this.client.setOption(`profiles.find.value`, data.settings.profiles.find.value);
+            this._client.setOption(`profiles.find.case`, data.settings.profiles.find.case);
+            this._client.setOption(`profiles.find.word`, data.settings.profiles.find.word);
+            this._client.setOption(`profiles.find.reverse`, data.settings.profiles.find.reverse);
+            this._client.setOption(`profiles.find.regex`, data.settings.profiles.find.regex);
+            this._client.setOption(`profiles.find.selection`, data.settings.profiles.find.selection);
+            this._client.setOption(`profiles.find.show`, data.settings.profiles.find.show);
+            this._client.setOption(`profiles.find.value`, data.settings.profiles.find.value);
           }
-          this.client.clearCache();
-          this.client.loadOptions();
+          this._client.clearCache();
+          this._client.loadOptions();
         } else if (data.settings && (loadSelection & 16 /* Windows */) === 16 /* Windows */) {
           if (data.settings["windows"]) {
             keys = Object.keys(data.settings["windows"]);
             for (k = keys.length - 1; k >= 0; k--) {
-              this.client.setOption(`windows.${keys[k]}`, data.settings["windows"][keys[k]]);
+              this._client.setOption(`windows.${keys[k]}`, data.settings["windows"][keys[k]]);
             }
           }
           keys = Object.keys(data.settings);
           for (k = keys.length - 1; k >= 0; k--) {
             if (keys[k].startsWith("windows."))
-              this.client.setOption(keys[k], data.settings[keys[k]]);
+              this._client.setOption(keys[k], data.settings[keys[k]]);
           }
         }
       }
       client.raise("backup-loaded");
-      this.close();
+      this._close();
     }
     _showDialog(title) {
       if (this._dialogProgress)
         throw new Error("Client save/load is already in progress");
       this._dialogProgress = progress_box(title || "Saving data");
       this._dialogProgress.on("canceled", () => {
-        this.abort();
+        this._abort();
       });
       this._dialogProgress.on("closed", (reason) => {
         if (reason === "canceled")
-          this.abort();
+          this._abort();
       });
       this._dialogProgress.on("shown", () => {
       });
@@ -38665,9 +38681,9 @@ ${pre}`);
     }
     _getMapper() {
       if (this._mapper) return;
-      for (let p = 0, pl = this.client.plugins.length; p < pl; p++) {
-        if (this.client.plugins[p] instanceof Mapper) {
-          this._mapper = this.client.plugins[p];
+      for (let p = 0, pl = this._client.plugins.length; p < pl; p++) {
+        if (this._client.plugins[p] instanceof Mapper) {
+          this._mapper = this._client.plugins[p];
           break;
         }
       }
@@ -39265,7 +39281,7 @@ ${pre}`);
         };
         document.addEventListener("mousemove", this._move);
       });
-      window.addEventListener("resize", () => this.resize());
+      window.addEventListener("resize", () => this._resize());
       document.addEventListener("mouseup", (e) => {
         if (!this._dragging) return;
         let d2 = "width";
@@ -39463,7 +39479,7 @@ ${pre}`);
       this.client.setOption("panelBarSize", this._splitterDistance);
       this.emit("split-moved", this._splitterDistance);
     }
-    resize() {
+    _resize() {
       if (!this.client.getOption("showPanelBar") || this.client.getOption("panelBar.panels") === 0 /* none */) return;
       let d2 = "width";
       let b = "right";

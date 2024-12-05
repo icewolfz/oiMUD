@@ -339,7 +339,7 @@ export class ProfilesDialog extends Dialog {
                         }, 50);
                         this._client.error(err);
                     }
-                }).catch(this._client.error);
+                }).catch(err => this._client.error(err));
             }).catch(() => { });
         });
         this.footer.querySelector(`#${this.id}-refresh a`).addEventListener('click', () => {

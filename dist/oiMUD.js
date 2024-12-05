@@ -2451,14 +2451,12 @@
     if (!value || !value.length) return "";
     _edCache.textContent = nonBreaking ? value.replace(/ /g, "\xA0") : value;
     value = _edCache.innerHTML;
-    _edCache.textContent = "";
     return value;
   }
   function htmlDecode(value, nonBreaking) {
     if (!value || !value.length) return "";
     _edCache.innerHTML = value;
     value = nonBreaking ? _edCache.textContent.replace(/\u00A0/g, " ") : _edCache.textContent;
-    _edCache.innerHTML = "";
     return value;
   }
   function stripQuotes(str) {
@@ -13325,7 +13323,7 @@
                 items.forEach((line2) => {
                   this._client.sendBackground(p + line2 + i2, null, this._getOption("allowCommentsFromCommand"));
                 });
-              }).catch(this._client.error);
+              }).catch((err) => this._client.error(err));
             }).catch(() => {
             });
           })(args, raw);
@@ -13347,7 +13345,7 @@
                 items.forEach((line2) => {
                   this._client.sendRaw(p + line2 + i2);
                 });
-              }).catch(this._client.error);
+              }).catch((err) => this._client.error(err));
             }).catch(() => {
             });
           })(args, raw);
@@ -21303,13 +21301,15 @@
         this._timestampWidth = moment().format(this._timestampFormat).length;
       this.updateFont();
       this._bounds = this._view.getBoundingClientRect();
+      this._hWidth = getScrollbarWidth();
+      this._vWidth = getScrollbarWidth();
       this.splitHeight = -1;
     }
     get _horizontalScrollBarHeight() {
-      return this._view.scrollWidth > this._view.clientWidth ? getScrollbarWidth() : 0;
+      return this._view.scrollWidth > this._view.clientWidth ? this._hWidth : 0;
     }
     get _verticalScrollBarHeight() {
-      return getScrollbarWidth();
+      return this._vWidth;
     }
     //#endregion
     //#region Public properties
@@ -21615,7 +21615,13 @@
         this.emit("expire-links");
       });
       this._model.on("parse-done", () => {
-        this._view.insertAdjacentHTML("beforeend", this._lineCache.join(""));
+        if (this._lineCache.length >= this._maxLines) {
+          const amt = this.lines.length - this._maxLines;
+          this._lineCache.slice(this._lineCache.length - this._maxLines);
+          this._view.innerHTML = this._lineCache.join("");
+          this._model.removeLines(0, amt);
+        } else
+          this._view.insertAdjacentHTML("beforeend", this._lineCache.join(""));
         this._lineCache = [];
         this._doUpdate(2 /* display */ | 64 /* split */);
         this.emit("parse-done");
@@ -21821,13 +21827,15 @@
     trimLines() {
       if (this._maxLines === -1)
         return;
-      if (this.lines.length > this._maxLines) {
-        const amt = this.lines.length - this._maxLines;
-        let r = amt;
-        while (r-- > 0)
-          this._view.removeChild(this._view.firstChild);
-        this._model.removeLines(0, amt);
-      }
+      debounce(() => {
+        if (this.lines.length > this._maxLines) {
+          const amt = this.lines.length - this._maxLines;
+          let r = amt;
+          while (r-- > 0)
+            this._view.removeChild(this._view.firstChild);
+          this._model.removeLines(0, amt);
+        }
+      }, 100, this.id + "trimLines");
     }
     append(txt, remote, force, prependSplit) {
       this._model.append(txt, remote || false, force || false, prependSplit || false);
@@ -21888,6 +21896,8 @@
         this._maxView -= this._timestampWidth * this._charWidth;
       this._innerHeight = this._view.clientHeight;
       this._bounds = this._view.getBoundingClientRect();
+      this._hWidth = getScrollbarWidth();
+      this._vWidth = getScrollbarWidth();
     }
     updateFont(font, size) {
       if (!font || font.length === 0)
@@ -24127,7 +24137,7 @@
             this.client.setOption("enableCommands", n);
             this.client.print(`Time: ${p - i2}
 `, true);
-          }).catch(this.client.error);
+          }).catch((err) => this.client.error(err));
         }).catch(() => {
         });
       };
@@ -24150,7 +24160,7 @@
             this.client.setOption("enableCommands", n);
             this.client.print(`Time: ${p - i2}
 `, true);
-          }).catch(this.client.error);
+          }).catch((err) => this.client.error(err));
         }).catch(() => {
         });
       };
@@ -24187,7 +24197,7 @@
             items.push(`Min - ${min}`);
             items.push(`Max - ${max2}`);
             this.client.print(items.join("\n") + "\n", true);
-          }).catch(this.client.error);
+          }).catch((err) => this.client.error(err));
         }).catch(() => {
         });
       };
@@ -24224,7 +24234,7 @@
             items.push(`Min - ${min}`);
             items.push(`Max - ${max2}`);
             this.client.print(items.join("\n") + "\n", true);
-          }).catch(this.client.error);
+          }).catch((err) => this.client.error(err));
         }).catch(() => {
         });
       };
@@ -29719,7 +29729,7 @@ Devanagari
         for (let f = 0, fl = files.length; f < fl; f++)
           readFile(files[f]).then((contents) => {
             this.insert(contents);
-          }).catch(client.error);
+          }).catch((err) => client.error(err));
       }).catch(() => {
       });
     }
@@ -30250,7 +30260,7 @@ Devanagari
               }, 50);
               client.error(err);
             }
-          }).catch(client.error);
+          }).catch((err) => client.error(err));
         }).catch(() => {
         });
       });
@@ -31774,7 +31784,7 @@ Devanagari
               }, 50);
               this._client.error(err);
             }
-          }).catch(this._client.error);
+          }).catch((err) => this._client.error(err));
         }).catch(() => {
         });
       });
@@ -34287,7 +34297,7 @@ Devanagari
             openFileDialog("Append file", false).then((files) => {
               readFile(files[0]).then((contents) => {
                 editor.insert(contents);
-              }).catch(client.error);
+              }).catch((err) => client.error(err));
             }).catch(() => {
             });
           });
@@ -35404,7 +35414,7 @@ ${pre}`);
         openFileDialog("Import map and merge", false).then((files) => {
           readFile(files[0]).then((data) => {
             this.import(data, 0 /* Merge */);
-          }).catch(client.error);
+          }).catch((err) => client.error(err));
         }).catch(() => {
         });
         this._closeMenu();
@@ -35415,7 +35425,7 @@ ${pre}`);
             openFileDialog("Import map and replace", false).then((files) => {
               readFile(files[0]).then((data) => {
                 this.import(data, 1 /* Replace */);
-              }).catch(client.error);
+              }).catch((err) => client.error(err));
             }).catch(() => {
             });
         });
@@ -38994,7 +39004,7 @@ ${pre}`);
           openFileDialog("Append file", false).then((files) => {
             readFile(files[0]).then((contents) => {
               this._composer.insert(contents);
-            }).catch(this.client.error);
+            }).catch((err) => this.client.error(err));
           }).catch(() => {
           });
         });

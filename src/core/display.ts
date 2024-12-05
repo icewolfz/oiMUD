@@ -93,12 +93,15 @@ export class Display extends EventEmitter {
     private _highlightRange;
     private _highlight;
     private _bounds;
+    //cache scroll sizes as hardly changes once loaded
+    private _hWidth;
+    private _vWidth;
 
     private get _horizontalScrollBarHeight() {
-        return (this._view.scrollWidth > this._view.clientWidth ? getScrollbarWidth() : 0);
+        return (this._view.scrollWidth > this._view.clientWidth ? this._hWidth : 0);
     }
     private get _verticalScrollBarHeight() {
-        return getScrollbarWidth();
+        return this._vWidth;
     }
     //#endregion
     //#region Public properties
@@ -413,7 +416,16 @@ export class Display extends EventEmitter {
             this.emit('expire-links');
         });
         this._model.on('parse-done', () => {
-            this._view.insertAdjacentHTML('beforeend', this._lineCache.join(''));
+            //little speed op if more lines then can display lets just skip the trim for a boost
+            //this would be a rare edge case and mostly from large file sending
+            if (this._lineCache.length >= this._maxLines) {
+                const amt = this.lines.length - this._maxLines;
+                this._lineCache.slice(this._lineCache.length - this._maxLines);
+                this._view.innerHTML = this._lineCache.join('');
+                this._model.removeLines(0, amt);
+            }
+            else
+                this._view.insertAdjacentHTML('beforeend', this._lineCache.join(''));
             this._lineCache = [];
             this._doUpdate(UpdateType.display | UpdateType.split);
             this.emit('parse-done');
@@ -706,14 +718,14 @@ export class Display extends EventEmitter {
         this._view.addEventListener('mousemove', async e => {
             this._lastMouse = e;
             if (this._mouseDown) {
-                this._extendSelection(e);              
+                this._extendSelection(e);
                 //when near edge of view start auto scroll
                 this._createScrollTimer();
             }
         });
         this._view.addEventListener('mouseup', e => {
             this.emit('mouseup', e);
-            if(this._mouseDown === 2)
+            if (this._mouseDown === 2)
                 this._view.click();
             if (e.button === 0)
                 this._clearMouseDown();
@@ -826,6 +838,8 @@ export class Display extends EventEmitter {
             this._timestampWidth = moment().format(this._timestampFormat).length;
         this.updateFont();
         this._bounds = this._view.getBoundingClientRect();
+        this._hWidth = getScrollbarWidth();
+        this._vWidth = getScrollbarWidth();
         this.splitHeight = -1;
     }
 
@@ -873,13 +887,16 @@ export class Display extends EventEmitter {
     public trimLines() {
         if (this._maxLines === -1)
             return;
-        if (this.lines.length > this._maxLines) {
-            const amt = this.lines.length - this._maxLines;
-            let r = amt;
-            while (r-- > 0)
-                this._view.removeChild(this._view.firstChild);
-            this._model.removeLines(0, amt);
-        }
+        //debounce on top of delay in case called multiple times manually
+        debounce(() => {
+            if (this.lines.length > this._maxLines) {
+                const amt = this.lines.length - this._maxLines;
+                let r = amt;
+                while (r-- > 0)
+                    this._view.removeChild(this._view.firstChild);
+                this._model.removeLines(0, amt);
+            }
+        }, 100, this.id + 'trimLines');
     }
 
     public append(txt: string, remote?: boolean, force?: boolean, prependSplit?: boolean) {
@@ -951,6 +968,8 @@ export class Display extends EventEmitter {
             this._maxView -= this._timestampWidth * this._charWidth;
         this._innerHeight = this._view.clientHeight;
         this._bounds = this._view.getBoundingClientRect();
+        this._hWidth = getScrollbarWidth();
+        this._vWidth = getScrollbarWidth();
     }
 
     public updateFont(font?: string, size?: string) {
@@ -1743,7 +1762,7 @@ export class Display extends EventEmitter {
             this._highlight.add(this._highlightRange);
         }
         this._highlightRange.setStart(this._selection.start.node, this._selection.start.offset);
-        if(this._selection.end)
+        if (this._selection.end)
             this._highlightRange.setEnd(this._selection.end.node, this._selection.end.offset);
         else
             this._highlightRange.setEnd(this._selection.start.node, this._selection.start.offset);

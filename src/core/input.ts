@@ -4939,7 +4939,7 @@ export class Input extends EventEmitter {
                             items.forEach(line => {
                                 this._client.sendBackground(p + line + i, null, this._getOption('allowCommentsFromCommand'));
                             });
-                        }).catch(this._client.error);
+                        }).catch(err => this._client.error(err));
                     }).catch(() => { });
                 })(args, raw);
                 return null;
@@ -4961,7 +4961,7 @@ export class Input extends EventEmitter {
                             items.forEach(line => {
                                 this._client.sendRaw(p + line + i);
                             });
-                        }).catch(this._client.error);
+                        }).catch(err => this._client.error(err));
                     }).catch(() => { });
                 })(args, raw);
                 return null;

@@ -1184,7 +1184,7 @@ export class AdvEditor extends EventEmitter {
             for (let f = 0, fl = files.length; f < fl; f++)
                 readFile(files[f]).then((contents: any) => {
                     this.insert(contents);
-                }).catch(client.error);
+                }).catch(err => client.error(err));
         }).catch(() => { });
     }
 

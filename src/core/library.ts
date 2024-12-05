@@ -101,7 +101,7 @@ export function htmlEncode(value, nonBreaking?) {
     if (!value || !value.length) return '';
     _edCache.textContent = nonBreaking ? value.replace(/ /g, '\u00A0') : value;
     value = _edCache.innerHTML;
-    _edCache.textContent = ''
+    //_edCache.textContent = ''
     return value;
 }
 
@@ -109,7 +109,7 @@ export function htmlDecode(value, nonBreaking?) {
     if (!value || !value.length) return '';
     _edCache.innerHTML = value;
     value = nonBreaking ? _edCache.textContent.replace(/\u00A0/g, ' ') : _edCache.textContent;
-    _edCache.innerHTML = '';
+    //_edCache.innerHTML = '';
     return value;
 }
 

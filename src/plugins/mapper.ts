@@ -601,7 +601,7 @@ export class Mapper extends Plugin {
             openFileDialog('Import map and merge', false).then(files => {
                 readFile(files[0]).then((data: any) => {
                     this.import(data, ImportType.Merge);
-                }).catch(client.error);
+                }).catch(err => client.error(err));
             }).catch(() => { });
             this._closeMenu();
         });
@@ -611,7 +611,7 @@ export class Mapper extends Plugin {
                     openFileDialog('Import map and replace', false).then(files => {
                         readFile(files[0]).then((data: any) => {
                             this.import(data, ImportType.Replace);
-                        }).catch(client.error);
+                        }).catch(err => client.error(err));
                     }).catch(() => { });
             });
             this._closeMenu();

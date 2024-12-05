@@ -34,7 +34,7 @@ export class Test extends Plugin {
                     let p = new Date().getTime();
                     this.client.setOption('enableCommands', n);
                     this.client.print(`Time: ${p - i}\n`, true);
-                }).catch(this.client.error);
+                }).catch(err => this.client.error(err));
             }).catch(() => { });
         };
         this.functions['testfiler'] = data => {
@@ -55,7 +55,7 @@ export class Test extends Plugin {
                     let p = new Date().getTime();
                     this.client.setOption('enableCommands', n);
                     this.client.print(`Time: ${p - i}\n`, true);
-                }).catch(this.client.error);
+                }).catch(err => this.client.error(err));
             }).catch(() => { });
         };
         this.functions['testspeedfile'] = data => {
@@ -91,7 +91,7 @@ export class Test extends Plugin {
                     items.push(`Min - ${min}`);
                     items.push(`Max - ${max}`);
                     this.client.print(items.join('\n') + '\n', true);
-                }).catch(this.client.error);
+                }).catch(err => this.client.error(err));
             }).catch(() => { });
         };
         this.functions['testspeedfiler'] = data => {
@@ -127,7 +127,7 @@ export class Test extends Plugin {
                     items.push(`Min - ${min}`);
                     items.push(`Max - ${max}`);
                     this.client.print(items.join('\n') + '\n', true);
-                }).catch(this.client.error);
+                }).catch(err => this.client.error(err));
             }).catch(() => { });
         };
 

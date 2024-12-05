@@ -69,7 +69,7 @@ export class SettingsDialog extends Dialog {
                         }, 50);
                         client.error(err);
                     }
-                }).catch(client.error);
+                }).catch(err => client.error(err));
             }).catch(() => { });
         });
 

@@ -340,7 +340,7 @@ export class ShadowMUD extends Plugin {
                 openFileDialog('Append file', false).then(files => {
                     readFile(files[0]).then((contents: any) => {
                         this._composer.insert(contents);
-                    }).catch(this.client.error);
+                    }).catch(err => this.client.error(err));
                 }).catch(() => { });
             });
             document.getElementById('btn-composer-send').addEventListener('click', () => {

@@ -855,7 +855,7 @@ export function showDialog(name: string) {
                     openFileDialog('Append file', false).then(files => {
                         readFile(files[0]).then((contents: any) => {
                             editor.insert(contents);
-                        }).catch(client.error);
+                        }).catch(err => client.error(err));
                     }).catch(() => { });
                 });
                 document.getElementById('btn-adv-editor-send').addEventListener('click', () => {

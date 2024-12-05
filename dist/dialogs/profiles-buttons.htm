@@ -26,7 +26,8 @@
             <option value="2">Script</option>
         </select>
     </div>
-    <button id="btn-value-expand" class="btn-sm float-start btn btn-outline-secondary" style="right: 10px;top: 56px;" title="Expand to fill panel"><i class="bi bi-chevron-expand"></i></button>
+    <button id="btn-value-expand" class="btn-sm float-start btn btn-outline-secondary" style="right: 10px;top: 56px;"
+        title="Expand to fill panel"><i class="bi bi-chevron-expand"></i></button>
     <textarea class="form-control profile-editor" id="value" rows="6" wrap="soft"></textarea>
 </div>
 <div class="accordion" id="itemAccordion">
@@ -132,6 +133,7 @@
             body.querySelector('#value').style.resize = '';
             body.querySelector('#value').style.maxHeight = '';
             body.querySelector('#value').classList.remove('flex-grow-1');
+            body.querySelector('#itemAccordion').style.display = '';
         }
         else {
             body.querySelector('#btn-value-expand i').classList.remove('bi-chevron-expand');
@@ -142,6 +144,7 @@
             body.querySelector('#value').style.resize = 'none';
             body.querySelector('#value').style.maxHeight = 'unset';
             body.querySelector('#value').classList.add('flex-grow-1');
+            body.querySelector('#itemAccordion').style.display = 'none';
         }
     });
     let contentChanging = () => {

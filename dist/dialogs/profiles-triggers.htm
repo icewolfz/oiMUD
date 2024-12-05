@@ -565,6 +565,7 @@
             body.querySelector('#value').style.right = '';
             body.querySelector('#value').style.bottom = '';
             body.querySelector('#value').style.maxHeight = '';
+            body.querySelector('#value').style.resize = '';
         }
         else {
             body.querySelector('#btn-value-expand i').classList.remove('bi-chevron-expand');
@@ -575,13 +576,13 @@
             body.querySelector('.tab-content').style.resize = 'none';
             body.querySelector('.tab-content').style.maxHeight = 'unset';
             body.querySelector('.tab-content').classList.add('flex-grow-1');
-
             body.querySelector('#value').style.position = 'absolute';
             body.querySelector('#value').style.top = '50px';
             body.querySelector('#value').style.left = '0px';
             body.querySelector('#value').style.right = '0px';
             body.querySelector('#value').style.bottom = '0px';
             body.querySelector('#value').style.maxHeight = 'unset';
+            body.querySelector('#value').style.resize = 'none';
         }
     });    
 </script>

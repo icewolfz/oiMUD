@@ -16,7 +16,7 @@
     </label>
     <input class="form-control" id="icon">
 </div>
-<div class="mb-3">
+<div class="mb-3 profile-value">
     <div class="mb-2 d-flex align-items-center">
         <label class="form-label align-self-baseline me-2 flex-grow-1" for="value">Value</label>
         <label class="form-label align-self-baseline me-2" for="style">Style</label>
@@ -26,6 +26,7 @@
             <option value="2">Script</option>
         </select>
     </div>
+    <button id="btn-value-expand" class="btn-sm float-start btn btn-outline-secondary" style="right: 10px;top: 56px;" title="Expand to fill panel"><i class="bi bi-chevron-expand"></i></button>
     <textarea class="form-control profile-editor" id="value" rows="6" wrap="soft"></textarea>
 </div>
 <div class="accordion" id="itemAccordion">
@@ -117,3 +118,40 @@
         </div>
     </div>
 </div>
+<script type="text/javascript">
+    const valueEd = body.querySelector('.profile-value');
+    if (valueEd.dataset.expanded === 'true')
+        body.querySelector('#btn-value-expand').click();
+    body.querySelector('#btn-value-expand').addEventListener('click', () => {
+        if (valueEd.dataset.expanded === 'true') {
+            body.querySelector('#btn-value-expand i').classList.add('bi-chevron-expand');
+            body.querySelector('#btn-value-expand i').classList.remove('bi-chevron-contract');
+            valueEd.dataset.expanded = 'false';
+            valueEd.classList.remove('d-flex', 'flex-column', 'profile-value-expanded');
+            valueEd.classList.add('mb-3');
+            body.querySelector('#value').style.resize = '';
+            body.querySelector('#value').style.maxHeight = '';
+            body.querySelector('#value').classList.remove('flex-grow-1');
+        }
+        else {
+            body.querySelector('#btn-value-expand i').classList.remove('bi-chevron-expand');
+            body.querySelector('#btn-value-expand i').classList.add('bi-chevron-contract');
+            valueEd.dataset.expanded = 'true';
+            valueEd.classList.add('profile-value-expanded', 'd-flex', 'flex-column');
+            valueEd.classList.remove('mb-3');
+            body.querySelector('#value').style.resize = 'none';
+            body.querySelector('#value').style.maxHeight = 'unset';
+            body.querySelector('#value').classList.add('flex-grow-1');
+        }
+    });
+    let contentChanging = () => {
+        dialog.off('content-changing', contentChanging);
+        dialog.off('item-loaded', itemLoaded);
+    };
+    let itemLoaded = e => {
+        if (valueEd.dataset.expanded === 'true')
+            body.querySelector('#btn-value-expand').click();
+    };
+    dialog.on('content-changing', contentChanging);
+    dialog.on('item-loaded', itemLoaded);    
+</script>

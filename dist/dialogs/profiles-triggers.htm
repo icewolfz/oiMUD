@@ -20,35 +20,43 @@
                 class="bi bi-plus-lg"></i></button>
     </div>
 </div>
-<ul class="nav nav-tabs" role="tablist">
-    <li class="nav-item">
-        <a class="nav-link active" data-bs-toggle="tab" data-bs-target="#triggerValue" href="#triggerValue">Value</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#triggerTest" href="#triggerTest">Test</a>
-    </li>
-    <li class="flex-grow-1 text-end">
-        <label class="form-label" for="style">Style</label>
-        <select class="form-select" id="style" style="width: auto;display: inline-block;">
-            <option value="0">Text</option>
-            <option value="1">Parse</option>
-            <option value="2">Script</option>
-        </select>
-    </li>
-</ul>
-<div class="tab-content" style="padding-top:8px;">
-    <div role="tabpanel" class="tab-pane active" id="triggerValue">
-        <textarea class="form-control profile-editor" id="value" rows="6" wrap="soft"></textarea>
-    </div>
-    <div role="tabpanel" class="tab-pane fade in" id="triggerTest">
-        <div class="input-group mb-3">
-            <input id="testText" data-custom="true" type="text" class="form-control" placeholder="Text to test"
-                aria-label="text">
-            <button class="btn btn-outline-secondary" type="button" id="btn-test"><i class="bi bi-play"></i></button>
+<div class="profile-value">
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" data-bs-target="#triggerValue"
+                href="#triggerValue">Value</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#triggerTest" href="#triggerTest">Test</a>
+        </li>
+        <li class="flex-grow-1 text-end">
+            <label class="form-label" for="style">Style</label>
+            <select class="form-select" id="style" style="width: auto;display: inline-block;">
+                <option value="0">Text</option>
+                <option value="1">Parse</option>
+                <option value="2">Script</option>
+            </select>
+        </li>
+    </ul>
+    <div class="tab-content" style="padding-top:8px;">
+        <div role="tabpanel" class="tab-pane active" id="triggerValue" style="height: 100%;">
+            <button id="btn-value-expand" class="btn-sm float-start btn btn-outline-secondary"
+                style="right: 10px;top: 60px;" title="Expand to fill panel"><i
+                    class="bi bi-chevron-expand"></i></button>
+            <textarea class="form-control profile-editor" id="value" rows="6" wrap="soft"></textarea>
         </div>
-        <div class="mb-3">
-            <label class="form-label" for="test-results">Results</label>
-            <textarea data-custom="true" class="form-control profile-editor" id="test-results" wrap="soft"></textarea>
+        <div role="tabpanel" class="tab-pane fade in" id="triggerTest">
+            <div class="input-group mb-3">
+                <input id="testText" data-custom="true" type="text" class="form-control" placeholder="Text to test"
+                    aria-label="text">
+                <button class="btn btn-outline-secondary" type="button" id="btn-test"><i
+                        class="bi bi-play"></i></button>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="test-results">Results</label>
+                <textarea data-custom="true" class="form-control profile-editor" id="test-results"
+                    wrap="soft"></textarea>
+            </div>
         </div>
     </div>
 </div>
@@ -432,7 +440,6 @@
     })
 
     let contentChanging = () => {
-        console.log('contentChanging');
         dialog.off('content-changing', contentChanging);
         dialog.off('item-loaded', itemLoaded);
     };
@@ -451,6 +458,8 @@
             }, 100);
         }
         _activeIdx = current.itemSubIdx;
+        if (valueEd.dataset.expanded === 'true')
+            body.querySelector('#btn-value-expand').click();
     };
     dialog.on('content-changing', contentChanging);
     dialog.on('item-loaded', itemLoaded);
@@ -536,6 +545,45 @@
             */
         }
     }
+
+    const valueEd = body.querySelector('.profile-value');
+    if (valueEd.dataset.expanded === 'true')
+        body.querySelector('#btn-value-expand').click();
+    body.querySelector('#btn-value-expand').addEventListener('click', () => {
+        if (valueEd.dataset.expanded === 'true') {
+            body.querySelector('#btn-value-expand i').classList.add('bi-chevron-expand');
+            body.querySelector('#btn-value-expand i').classList.remove('bi-chevron-contract');
+            valueEd.dataset.expanded = 'false';
+            valueEd.classList.remove('d-flex', 'flex-column', 'profile-value-expanded');
+            valueEd.classList.add('mb-3');
+            body.querySelector('.tab-content').style.resize = '';
+            body.querySelector('.tab-content').style.maxHeight = '';
+            body.querySelector('.tab-content').classList.remove('flex-grow-1');
+            body.querySelector('#value').style.position = '';
+            body.querySelector('#value').style.top = '';
+            body.querySelector('#value').style.left = '';
+            body.querySelector('#value').style.right = '';
+            body.querySelector('#value').style.bottom = '';
+            body.querySelector('#value').style.maxHeight = '';
+        }
+        else {
+            body.querySelector('#btn-value-expand i').classList.remove('bi-chevron-expand');
+            body.querySelector('#btn-value-expand i').classList.add('bi-chevron-contract');
+            valueEd.dataset.expanded = 'true';
+            valueEd.classList.add('profile-value-expanded', 'd-flex', 'flex-column');
+            valueEd.classList.remove('mb-3');
+            body.querySelector('.tab-content').style.resize = 'none';
+            body.querySelector('.tab-content').style.maxHeight = 'unset';
+            body.querySelector('.tab-content').classList.add('flex-grow-1');
+
+            body.querySelector('#value').style.position = 'absolute';
+            body.querySelector('#value').style.top = '50px';
+            body.querySelector('#value').style.left = '0px';
+            body.querySelector('#value').style.right = '0px';
+            body.querySelector('#value').style.bottom = '0px';
+            body.querySelector('#value').style.maxHeight = 'unset';
+        }
+    });    
 </script>
 <style>
     #trigger-editor-dropdown {

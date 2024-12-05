@@ -156,7 +156,6 @@ export class ProfilesDialog extends Dialog {
         this._contents = this._splitter.panel2;
         this._contents.style.overflow = 'auto';
         this._contents.style.padding = '10px';
-        this._contents.style.paddingLeft = '14px';
         if (this._client.profiles) {
             this.profiles = this._client.profiles.clone();
             this.profiles.SortByPriority();
@@ -1317,7 +1316,6 @@ export class ProfilesDialog extends Dialog {
         }
         this.profiles.save().then(() => {
             this._client.loadProfiles().then(() => {
-
             });
         })
         this.changed = false;

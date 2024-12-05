@@ -2365,6 +2365,26 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   white-space: nowrap;
   overflow: auto;
 }
+.profile-value {
+  position: relative;
+}
+.profile-value:hover #btn-value-expand {
+  display: block;
+}
+.profile-value #btn-value-expand {
+  position: absolute;
+  display: none;
+  z-index: 50;
+}
+.profile-value-expanded {
+  position: absolute;
+  background-color: white;
+  z-index: 5;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+}
 
 /* src/css/splitter.css */
 .splitter {

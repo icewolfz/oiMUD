@@ -28,7 +28,7 @@
         <label class="form-check-label" for="modifiers-16">Meta</label>
     </div>
 </fieldset>
-<div class="mb-3">
+<div class="mb-3 profile-value">
     <div class="mb-2 d-flex align-items-center">
         <label class="form-label align-self-baseline me-2 flex-grow-1" for="value">Value</label>
         <label class="form-label align-self-baseline me-2" for="style">Style</label>
@@ -38,6 +38,8 @@
             <option value="2">Script</option>
         </select>
     </div>
+    <button id="btn-value-expand" class="btn-sm float-start btn btn-outline-secondary" style="right: 10px;top: 56px;"
+        title="Expand to fill panel"><i class="bi bi-chevron-expand"></i></button>
     <textarea class="form-control profile-editor" id="value" rows="6" wrap="soft"></textarea>
 </div>
 <div class="accordion" id="itemAccordion">
@@ -80,47 +82,83 @@
     const oldModifiers = item.modifiers;
     for (var key in keyCharToCode)
         $('#key').append('<option value=\'' + keyCharToCode[key] + '\'>' + key + '</option>');
-    dialog.contents.querySelector('#key').addEventListener('change', e => {          
-            setTimeout(()=>checkValue(), 100);
+    dialog.contents.querySelector('#key').addEventListener('change', e => {
+        setTimeout(() => checkValue(), 100);
     });
     const items = dialog.contents.querySelectorAll('[name="modifiers"]');
     for (let i = 0, il = items.length; i < il; i++)
         items[i].addEventListener('change', e => {
-            setTimeout(()=>checkValue(), 100);
+            setTimeout(() => checkValue(), 100);
         });
 
     function checkValue() {
         const value = parseInt(body.querySelector('#key').value, 10);
-            let modifiers = 0;
-            if (body.querySelector('#modifiers-4').checked)
-                modifiers |= 4;
-            if (body.querySelector('#modifiers-8').checked)
-                modifiers |= 8;
-            if (body.querySelector('#modifiers-2').checked)
-                modifiers |= 2;
-            if (body.querySelector('#modifiers-16').checked)
-                modifiers |= 16;
-            if (value !== oldKey || oldModifiers !== modifiers) {
-                let r = FilterArrayByKeyValue(profile.macros, 'key', item.key);
-                r = FilterArrayByKeyValue(r, 'modifiers', item.modifiers);
-                const idx = r.indexOf(item)
-                if (idx !== -1)
-                    r.splice(idx, 1);
-                if (r.length > 0) {
-                    dialog.errorField = body.querySelector('#key');
-                    dialog.errorField.classList.add('is-invalid');                    
-                    dialog.contents.querySelector('#key-feedback').textContent = 'Key combination already used';
-                }
-                else {
-                    body.querySelector('#key').classList.remove('is-invalid');
-                    if (dialog.errorField === body.querySelector('#key'))
-                        dialog.errorField = null;
-                }
+        let modifiers = 0;
+        if (body.querySelector('#modifiers-4').checked)
+            modifiers |= 4;
+        if (body.querySelector('#modifiers-8').checked)
+            modifiers |= 8;
+        if (body.querySelector('#modifiers-2').checked)
+            modifiers |= 2;
+        if (body.querySelector('#modifiers-16').checked)
+            modifiers |= 16;
+        if (value !== oldKey || oldModifiers !== modifiers) {
+            let r = FilterArrayByKeyValue(profile.macros, 'key', item.key);
+            r = FilterArrayByKeyValue(r, 'modifiers', item.modifiers);
+            const idx = r.indexOf(item)
+            if (idx !== -1)
+                r.splice(idx, 1);
+            if (r.length > 0) {
+                dialog.errorField = body.querySelector('#key');
+                dialog.errorField.classList.add('is-invalid');
+                dialog.contents.querySelector('#key-feedback').textContent = 'Key combination already used';
             }
             else {
                 body.querySelector('#key').classList.remove('is-invalid');
                 if (dialog.errorField === body.querySelector('#key'))
                     dialog.errorField = null;
             }
+        }
+        else {
+            body.querySelector('#key').classList.remove('is-invalid');
+            if (dialog.errorField === body.querySelector('#key'))
+                dialog.errorField = null;
+        }
     }
+
+    const valueEd = body.querySelector('.profile-value');
+    if (valueEd.dataset.expanded === 'true')
+        body.querySelector('#btn-value-expand').click();
+    body.querySelector('#btn-value-expand').addEventListener('click', () => {
+        if (valueEd.dataset.expanded === 'true') {
+            body.querySelector('#btn-value-expand i').classList.add('bi-chevron-expand');
+            body.querySelector('#btn-value-expand i').classList.remove('bi-chevron-contract');
+            valueEd.dataset.expanded = 'false';
+            valueEd.classList.remove('d-flex', 'flex-column', 'profile-value-expanded');
+            valueEd.classList.add('mb-3');
+            body.querySelector('#value').style.resize = '';
+            body.querySelector('#value').style.maxHeight = '';
+            body.querySelector('#value').classList.remove('flex-grow-1');
+        }
+        else {
+            body.querySelector('#btn-value-expand i').classList.remove('bi-chevron-expand');
+            body.querySelector('#btn-value-expand i').classList.add('bi-chevron-contract');
+            valueEd.dataset.expanded = 'true';
+            valueEd.classList.add('profile-value-expanded', 'd-flex', 'flex-column');
+            valueEd.classList.remove('mb-3');
+            body.querySelector('#value').style.resize = 'none';
+            body.querySelector('#value').style.maxHeight = 'unset';
+            body.querySelector('#value').classList.add('flex-grow-1');
+        }
+    });
+    let contentChanging = () => {
+        dialog.off('content-changing', contentChanging);
+        dialog.off('item-loaded', itemLoaded);
+    };
+    let itemLoaded = e => {
+        if (valueEd.dataset.expanded === 'true')
+            body.querySelector('#btn-value-expand').click();
+    };
+    dialog.on('content-changing', contentChanging);
+    dialog.on('item-loaded', itemLoaded);     
 </script>

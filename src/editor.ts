@@ -67,7 +67,7 @@ export class CodeEditor {
         this._editor.$blockScrolling = Infinity;
         if (!this._aceTooltip) {
             const Tooltip = ace.require('ace/tooltip').Tooltip;
-            this._aceTooltip = new Tooltip($('#content')[0]);
+            this._aceTooltip = new Tooltip(document.querySelector('#profile-splitter-panel2'));
         }
 
         this._editor.setTheme('ace/theme/visual_studio');
@@ -121,7 +121,7 @@ export class CodeEditor {
                 if (s.length > 10) {
                     t = s.slice(0, 10).join('\n').replace(/\s+$/g, '') + '\n...';
                 }
-                const h = $(window).height();
+                const h = document.querySelector('html').clientHeight;
                 const th = this._aceTooltip.getHeight();
                 const x = e.clientX + 32;
                 let y = e.clientY;

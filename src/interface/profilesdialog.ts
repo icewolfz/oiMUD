@@ -1075,14 +1075,14 @@ export class ProfilesDialog extends Dialog {
                 if (events) {
                     forms[f].addEventListener('change', e => {
                         const target = (e.currentTarget || e.target) as HTMLInputElement;
-                        if (target.style.display === 'none') return;
+                        if (target.style.display === 'none' && !target.required) return;
                         this.setValue(this._current.item, target.id, target.value);
                         this.changed = true;
                         this._updateItemMenu();
                     });
                     forms[f].addEventListener('input', e => {
                         const target = (e.currentTarget || e.target) as HTMLInputElement;
-                        if (target.style.display === 'none') return;
+                        if (target.style.display === 'none' && !target.required) return;
                         this.setValue(this._current.item, target.id, target.value);
                         this.changed = true;
                         this._updateItemMenu();

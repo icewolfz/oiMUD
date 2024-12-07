@@ -27824,7 +27824,8 @@ Devanagari
       }
       if (this.moveable) {
         this._dialog.addEventListener("mousedown", () => {
-          this.focus();
+          if (!this._dialog.contains(document.activeElement))
+            this.focus();
         });
         this._header.addEventListener("mousedown", this._dragMouseDown);
         this._header.addEventListener("touchstart", this._dragTouchStart, { passive: true });
@@ -32495,14 +32496,14 @@ Devanagari
           if (events) {
             forms[f].addEventListener("change", (e) => {
               const target = e.currentTarget || e.target;
-              if (target.style.display === "none") return;
+              if (target.style.display === "none" && !target.required) return;
               this.setValue(this._current.item, target.id, target.value);
               this.changed = true;
               this._updateItemMenu();
             });
             forms[f].addEventListener("input", (e) => {
               const target = e.currentTarget || e.target;
-              if (target.style.display === "none") return;
+              if (target.style.display === "none" && !target.required) return;
               this.setValue(this._current.item, target.id, target.value);
               this.changed = true;
               this._updateItemMenu();

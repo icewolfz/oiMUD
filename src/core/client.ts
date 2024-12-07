@@ -886,7 +886,7 @@ export class Client extends EventEmitter {
         });
         this.display.on('split-move-done', (h) => {
             this.setOption('display.splitHeight', h);
-        });        
+        });
         this.display.on('update-window', (width, height) => {
             this.telnet.updateWindow(width, height);
         });
@@ -1264,7 +1264,7 @@ export class Client extends EventEmitter {
         else if (typeof err === 'string' && err.length === 0)
             err = new Error('Unknown');
         if (err.stack && this.getOption('showErrorsExtended'))
-            msg = err.stack;
+            msg = err.name + ': ' + err.message + '\n' + err.stack;
         else if (err instanceof Error || err instanceof TypeError)
             msg = err.name + ': ' + err.message;
         else if (err.message)
@@ -1280,15 +1280,15 @@ export class Client extends EventEmitter {
         if (this.getOption('logErrors')) {
             if (!this.getOption('showErrorsExtended')) {
                 if (err.stack)
-                    msg = err.stack;
+                    msg += '\n' + err.stack;
                 else {
                     err = new Error(err || msg);
-                    msg = err.stack;
+                    msg += '\n' + err.stack;
                 }
             }
             else if (!err.stack) {
                 err = new Error(err || msg);
-                msg = err.stack;
+                msg += '\n' + err.stack;
             }
             window.console.log(new Date().toLocaleString());
             window.console.log(msg);

@@ -157,6 +157,7 @@ export class CodeEditor {
     public setParseSyntax() {
         this._editor.getSession().setMode('ace/mode/oimud', () => {
             var session = this._editor.getSession();
+            if (!session.$mode) return;
             var rules = session.$mode.$highlightRules.getRules();
             //console.log(rules);
             if (Object.prototype.hasOwnProperty.call(rules, 'start')) {

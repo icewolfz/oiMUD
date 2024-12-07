@@ -135,6 +135,7 @@
     setParseSyntax() {
       this._editor.getSession().setMode("ace/mode/oimud", () => {
         var session = this._editor.getSession();
+        if (!session.$mode) return;
         var rules = session.$mode.$highlightRules.getRules();
         if (Object.prototype.hasOwnProperty.call(rules, "start")) {
           var b = rules["start"].pop();

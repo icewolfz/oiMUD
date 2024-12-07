@@ -40745,7 +40745,7 @@ ${pre}`);
       else if (typeof err === "string" && err.length === 0)
         err = new Error("Unknown");
       if (err.stack && this.getOption("showErrorsExtended"))
-        msg = err.stack;
+        msg = err.name + ": " + err.message + "\n" + err.stack;
       else if (err instanceof Error || err instanceof TypeError)
         msg = err.name + ": " + err.message;
       else if (err.message)
@@ -40759,14 +40759,14 @@ ${pre}`);
       if (this.getOption("logErrors")) {
         if (!this.getOption("showErrorsExtended")) {
           if (err.stack)
-            msg = err.stack;
+            msg += "\n" + err.stack;
           else {
             err = new Error(err || msg);
-            msg = err.stack;
+            msg += "\n" + err.stack;
           }
         } else if (!err.stack) {
           err = new Error(err || msg);
-          msg = err.stack;
+          msg += "\n" + err.stack;
         }
         window.console.log((/* @__PURE__ */ new Date()).toLocaleString());
         window.console.log(msg);

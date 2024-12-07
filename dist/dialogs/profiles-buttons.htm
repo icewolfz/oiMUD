@@ -160,9 +160,8 @@
     let itemLoaded = e => {
         if (valueEd.dataset.expanded === 'true')
             body.querySelector('#btn-value-expand').click();
-        if (editor) {
-            editor.setContents(body.querySelector('#value').value || '');
-        }
+        if (editor)
+            editor.value = body.querySelector('#value').value || '';
     };
     dialog.on('content-changing', contentChanging);
     dialog.on('item-loaded', itemLoaded);

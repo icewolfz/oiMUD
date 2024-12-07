@@ -165,11 +165,11 @@
         if (editor) {
             editor.value = body.querySelector('#value').value || '';
             if (body.querySelector('#style').value === '2')
-                editor.setMode('javascript');
+                editor.setLanguage('javascript');
             else if (body.querySelector('#style').value === '1')
-                editor.setMode('oiMUD');
+                editor.setLanguage('oiMUD');
             else
-                editor.setMode();
+                editor.setLanguage();
         }
     };
     dialog.on('content-changing', contentChanging);
@@ -190,18 +190,18 @@
             });
             body.querySelector('#style').addEventListener('change', () => {
                 if (body.querySelector('#style').value === '2')
-                    editor.setMode('javascript');
+                    editor.setLanguage('javascript');
                 else if (body.querySelector('#style').value === '1')
-                    editor.setMode('oiMUD');
+                    editor.setLanguage('oiMUD');
                 else
-                    editor.setMode();
+                    editor.setLanguage();
             });
             if (body.querySelector('#style').value === '2')
-                editor.setMode('javascript');
+                editor.setLanguage('javascript');
             else if (body.querySelector('#style').value === '1')
-                editor.setMode('oiMUD');
+                editor.setLanguage('oiMUD');
             else
-                editor.setMode();
+                editor.setLanguage();
         }
     }
     createEditor();

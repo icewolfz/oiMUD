@@ -20,18 +20,14 @@ export class CodeEditor {
     private _languageConf = new Compartment();
     private _historyCompartment = new Compartment();
     private _container: HTMLDivElement;
+    private _editor;
 
-    public view;
     public get textarea() {
         return this._textarea;
     }
     public set textarea(textarea) {
-        if (this._textarea) {
-            this._textarea.style.display = '';
-            this._container.remove();
-            if (this.view)
-                this.destroy();
-        }
+        if (this._textarea && this._editor)
+            this.destroy();
         this._textarea = textarea;
         textarea.editor = this;
         let extensions = [
@@ -86,7 +82,7 @@ export class CodeEditor {
         this._container.classList.add('form-control', 'editor-container');
         this._container.id = textarea.id + '-editor';
         textarea.parentNode.appendChild(this._container);
-        this.view = new EditorView({
+        this._editor = new EditorView({
             doc: textarea.value,
             extensions,
             parent: this._container
@@ -99,15 +95,16 @@ export class CodeEditor {
     }
 
     public clearHistory() {
-        this.view.dispatch({ effects: this._historyCompartment.reconfigure([]) });
-        this.view.dispatch({ effects: this._historyCompartment.reconfigure([history()]) });
+        this._editor.dispatch({ effects: this._historyCompartment.reconfigure([]) });
+        this._editor.dispatch({ effects: this._historyCompartment.reconfigure([history()]) });
     }
 
-    public setContents(contents) {
-        this.view.dispatch({
+    public get value() { return this._editor.state.doc.toString(); }
+    public set value(contents) {
+        this._editor.dispatch({
             changes: {
                 from: 0,
-                to: this.view.state.doc.length,
+                to: this._editor.state.doc.length,
                 insert: contents || ''
             }
         });
@@ -116,15 +113,17 @@ export class CodeEditor {
 
     public setLanguage(lang?) {
         if (lang === 'js' || lang === 'javascript')
-            this.view.dispatch({ effects: this._languageConf.reconfigure(javascript()) })
+            this._editor.dispatch({ effects: this._languageConf.reconfigure(javascript()) })
         else if (lang === 'oiMUD')
-            this.view.dispatch({ effects: this._languageConf.reconfigure(oiMUD()) });
+            this._editor.dispatch({ effects: this._languageConf.reconfigure(oiMUD()) });
         else
-            this.view.dispatch({ effects: this._languageConf.reconfigure([]) });
+            this._editor.dispatch({ effects: this._languageConf.reconfigure([]) });
     }
 
     public destroy() {
-        this.view.destroy();
+        this._editor.destroy();
+        this._textarea.style.display = '';
+        this._container.remove();
     }
 }
 window.CodeEditor = CodeEditor;

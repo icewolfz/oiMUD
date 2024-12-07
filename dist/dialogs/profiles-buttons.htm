@@ -28,7 +28,7 @@
     </div>
     <button id="btn-value-expand" class="btn-sm float-start btn btn-outline-secondary" style="right: 10px;top: 56px;"
         title="Expand to fill panel"><i class="bi bi-chevron-expand"></i></button>
-    <textarea class="form-control profile-editor" id="value" rows="6" wrap="soft"></textarea>
+    <textarea class="form-control profile-editor" id="value" rows="6" wrap="soft" required></textarea>
 </div>
 <div class="accordion" id="itemAccordion">
     <div class="accordion-item">
@@ -134,6 +134,8 @@
             body.querySelector('#value').style.maxHeight = '';
             body.querySelector('#value').classList.remove('flex-grow-1');
             body.querySelector('#itemAccordion').style.display = '';
+            if (body.querySelector('#value-editor'))
+                body.querySelector('#value-editor').classList.remove('flex-grow-1');
         }
         else {
             body.querySelector('#btn-value-expand i').classList.remove('bi-chevron-expand');
@@ -145,16 +147,34 @@
             body.querySelector('#value').style.maxHeight = 'unset';
             body.querySelector('#value').classList.add('flex-grow-1');
             body.querySelector('#itemAccordion').style.display = 'none';
+            if (body.querySelector('#value-editor'))
+                body.querySelector('#value-editor').classList.add('flex-grow-1');
         }
     });
     let contentChanging = () => {
         dialog.off('content-changing', contentChanging);
         dialog.off('item-loaded', itemLoaded);
+        if (editor)
+            editor.destroy();
     };
     let itemLoaded = e => {
         if (valueEd.dataset.expanded === 'true')
             body.querySelector('#btn-value-expand').click();
+        if (editor) {
+            editor.setContents(body.querySelector('#value').value || '');
+        }
     };
     dialog.on('content-changing', contentChanging);
-    dialog.on('item-loaded', itemLoaded);    
+    dialog.on('item-loaded', itemLoaded);
+    if (CodeEditor && client.getOption('profiles.codeEditor')) {
+        editor = new CodeEditor(body.querySelector('#value'));
+        body.querySelector('#style').addEventListener('change', () => {
+            if (body.querySelector('#style').value === '2')
+                editor.setLanguage('javascript');
+            else if (body.querySelector('#style').value === '1')
+                editor.setLanguage('oiMUD');
+            else
+                editor.setLanguage();;
+        });
+    }    
 </script>

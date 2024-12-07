@@ -312,6 +312,7 @@ Controls what is captured into the chat window
 - `Profile to select on load` select which profile to pick when profile manager is first opened, falls back to Default if profile not found
 - `Expand selected profile on load` auto expand selected profile when profile manager is first opened
 - `Update profiles on change when manager open` Update profiles when items are changed outside of manager using #commands
+- `Enable profile manager code editor` disable or enable the code editor for the profile manager
 
 ## ShadowMUD
 

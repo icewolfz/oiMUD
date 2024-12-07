@@ -625,7 +625,8 @@ export class Dialog extends EventEmitter {
 
         if (this.moveable) {
             this._dialog.addEventListener('mousedown', () => {
-                this.focus();
+                if (!this._dialog.contains(document.activeElement))
+                    this.focus();
             })
             this._header.addEventListener('mousedown', this._dragMouseDown);
             this._header.addEventListener('touchstart', this._dragTouchStart, { passive: true });

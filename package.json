@@ -18,10 +18,10 @@
   "private": true,
   "scripts": {
     "tslint": "tsc -p . --listEmittedFiles  --noEmit",
-    "build": "node build.js --debug --release -p:all --bundled --tinymce",
+    "build": "node build.js --debug --release -p:all --bundled --tinymce --editor",
     "build:all": "node build.js -a -p:all",
-    "build:debug": "node build.js --debug -p:all --bundled --tinymce",
-    "build:release": "node build.js --release -p:all --bundled --tinymce"
+    "build:debug": "node build.js --debug -p:all --bundled --tinymce --editor",
+    "build:release": "node build.js --release -p:all --bundled --tinymce --editor"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.32",
@@ -32,9 +32,17 @@
     "terser": "^5.36.0"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.7.1",
+    "@codemirror/lang-javascript": "^6.2.2",
+    "@codemirror/search": "^6.5.8",
+    "@codemirror/view": "^6.35.0",
+    "@lezer/highlight": "^1.2.1",
+    "@lezer/lr": "^1.4.2",
     "@types/jstorage": "^0.3.33",
+    "codemirror": "^6.0.1",
     "jquery": "^3.7.1",
     "mathjs": "^13.2.3",
-    "moment": "^2.30.1"
+    "moment": "^2.30.1",
+    "unplugin-lezer": "^1.0.1"
   }
 }

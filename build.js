@@ -3,6 +3,7 @@ const fs = require('fs/promises');
 const { minify } = require('html-minifier-terser');
 const { resolve } = require('path');
 const terser = require('terser');
+const lezer = require('unplugin-lezer/esbuild')
 
 let args = {
     all: process.argv.indexOf('-a') !== -1 || process.argv.indexOf('--all') !== -1 || process.argv.indexOf('-all') !== -1,
@@ -13,7 +14,8 @@ let args = {
     core: process.argv.indexOf('--core') !== -1 || process.argv.indexOf('-core') !== -1,
     interface: process.argv.indexOf('-i') !== -1 || process.argv.indexOf('--interface') !== -1 || process.argv.indexOf('-interface') !== -1,
     tinymce: process.argv.indexOf('-te') !== -1 || process.argv.indexOf('--tinymce') !== -1 || process.argv.indexOf('-tinymce') !== -1,
-    plugins: { SHADOWMUD_PLUGIN: 'false', TEST_PLUGIN: 'false', MAPPER_PLUGIN: 'false', CHAT_PLUGIN: 'false', LOGGER_PLUGIN: 'false', MSP_PLUGIN: 'false', PANELBAR_PLUGIN: 'false', STATUS_PLUGIN: 'false' }
+    plugins: { SHADOWMUD_PLUGIN: 'false', TEST_PLUGIN: 'false', MAPPER_PLUGIN: 'false', CHAT_PLUGIN: 'false', LOGGER_PLUGIN: 'false', MSP_PLUGIN: 'false', PANELBAR_PLUGIN: 'false', STATUS_PLUGIN: 'false' },
+    editor: process.argv.indexOf('-e') !== -1 || process.argv.indexOf('--editor') !== -1 || process.argv.indexOf('-editor') !== -1,
 }
 
 process.argv.forEach(arg => {
@@ -121,8 +123,8 @@ let config = {
 }
 let release = Object.assign({}, config, { mangleProps: /^[_\$]/, minify: true, sourcemap: true, define: Object.assign({ MINIFY: '"min."', DEBUG: 'false', TINYMCE: args.all || args.tinymce ? 'true' : 'false' }, args.plugins) });
 let debug = Object.assign({}, config, { minify: false, sourcemap: false, define: Object.assign({ MINIFY: '""', DEBUG: 'true', TINYMCE: args.all || args.tinymce ? 'true' : 'false' }, args.plugins) });
-release.plugins = [HTMLMinifyPlugin, PluginInlineWorker()];
-debug.plugins = [HTMLMinifyPlugin, PluginInlineWorker({ minify: false })];
+release.plugins = [HTMLMinifyPlugin, PluginInlineWorker(), lezer.default()];
+debug.plugins = [HTMLMinifyPlugin, PluginInlineWorker({ minify: false }), lezer.default()];
 async function main() {
     console.time('Finish building');
     if (args.all || args.release) {
@@ -186,6 +188,22 @@ async function main() {
         })).then(console.timeEnd('Built tinymce.content css'));
     }
 
+    if (args.all || args.editor) {
+        if (args.debug) {
+            console.time('Built code mirror editor debug');
+            await esbuild.build(Object.assign(debug, {
+                entryPoints: ['src/editor.ts'],
+                outfile: 'dist/lib/editor.js'
+            })).then(console.timeEnd('Built code mirror editor debug'));
+        }
+        if (args.release) {
+            console.time('Built code mirror editor release');
+            await esbuild.build(Object.assign(release, {
+                entryPoints: ['src/editor.ts'],
+                outfile: 'dist/lib/editor.min.js'
+            })).then(console.timeEnd('Built code mirror editor release'));
+        }
+    }
     /*
     if (args.all || args.workers) {
         if (args.all || args.release) {
@@ -195,7 +213,7 @@ async function main() {
                 outfile: 'dist//oiMUD.logger.worker.min.js'
             })).then(console.timeEnd('Built logger release'))
         }
-
+    
         if (args.all || args.debug) {
             console.time('Built logger debug');
             await esbuild.build(Object.assign(debug, {

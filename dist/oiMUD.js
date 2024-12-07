@@ -31526,31 +31526,41 @@ Devanagari
         this._updateSmall(e.width);
         this._client.setOption("windows.profiles", e);
       });
+      this.on("closed", () => {
+        if (this.persistent) return;
+        this.emit("content-changing");
+        this._client.removeListenersFromCaller(this);
+      });
+      this.on("canceled", () => {
+        if (this.persistent) return;
+        this.emit("content-changing");
+        this._client.removeListenersFromCaller(this);
+      });
       this._client.on("profiles-loaded", () => {
         if (!this.profiles) {
           this.profiles = this._client.profiles.clone();
           this.profiles.SortByPriority();
           this._buildMenu();
         }
-      });
+      }, this);
       this._client.on("profiles-updated", () => {
-      });
+      }, this);
       this._client.on("options-loaded", () => {
         this.resetState(this._client.getWindowState("profiles") || { center: true });
-      });
+      }, this);
       this._client.on("initialized", () => {
         if (!this.profiles) {
           this.profiles = this._client.profiles.clone();
           this.profiles.SortByPriority();
           this._buildMenu();
         }
-      });
+      }, this);
       this._client.on("item-added", (type, profileName, index, item) => {
         if (!this._client.getOption("profiles.updateOnChange"))
           this._outsideChange = true;
         else if (this.profiles.contains(profileName))
           this._addItem(type + (type === "alias" ? "es" : "s"), item, this.profiles.items[profileName]);
-      });
+      }, this);
       this._client.on("item-removed", (type, profileName, index, item) => {
         if (!this._client.getOption("profiles.updateOnChange"))
           this._outsideChange = true;
@@ -31584,7 +31594,7 @@ Devanagari
           if (id === this._clipId)
             this._resetClip(true);
         }
-      });
+      }, this);
       this._client.on("item-updated", (type, profileName, index, item) => {
         if (!this._client.getOption("profiles.updateOnChange"))
           this._outsideChange = true;
@@ -31598,7 +31608,7 @@ Devanagari
           if (this._current.profileName === profileName && collection === this._current.collection && this._current.itemIdx === index)
             this.loadPage(this._page);
         }
-      });
+      }, this);
       this.body.style.padding = "10px";
       this._splitter = new Splitter({ id: "profile", parent: this.body, orientation: 1 /* vertical */, anchor: 1 /* panel1 */ });
       if (this._client.getOption("profiles.split") >= 200)

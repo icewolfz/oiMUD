@@ -54,7 +54,10 @@
     <input type="checkbox" class="form-check-input" id="profiles.updateOnChange">
     <label class="form-check-label" for="profiles.updateOnChange">Update profiles on change when manager open</label>
 </div>
-
+<div class="form-check form-switch">
+    <input type="checkbox" class="form-check-input" id="profiles.codeEditor">
+    <label class="form-check-label" for="profiles.codeEditor">Enable profile manager code editor</label>
+</div>
 <script>
     let options = '<option value="">None</option>';
     client.profiles.keys.forEach(profile => {

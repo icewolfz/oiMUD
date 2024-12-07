@@ -28,7 +28,7 @@
     </div>
     <button id="btn-value-expand" class="btn-sm float-start btn btn-outline-secondary" style="right: 10px;top: 56px;"
         title="Expand to fill panel"><i class="bi bi-chevron-expand"></i></button>
-    <textarea class="form-control profile-editor" id="value" rows="6" wrap="soft"></textarea>
+    <textarea class="form-control profile-editor" id="value" rows="6" wrap="soft" required></textarea>
 </div>
 <div class="accordion" id="itemAccordion">
     <div class="accordion-item">
@@ -123,6 +123,7 @@
     const valueEd = body.querySelector('.profile-value');
     if (valueEd.dataset.expanded === 'true')
         body.querySelector('#btn-value-expand').click();
+    let editor;
     body.querySelector('#btn-value-expand').addEventListener('click', () => {
         if (valueEd.dataset.expanded === 'true') {
             body.querySelector('#btn-value-expand i').classList.add('bi-chevron-expand');
@@ -133,6 +134,8 @@
             body.querySelector('#value').style.resize = '';
             body.querySelector('#value').style.maxHeight = '';
             body.querySelector('#value').classList.remove('flex-grow-1');
+            if (body.querySelector('#value-editor'))
+                body.querySelector('#value-editor').classList.remove('flex-grow-1');
             body.querySelector('#itemAccordion').style.display = '';
         }
         else {
@@ -144,17 +147,86 @@
             body.querySelector('#value').style.resize = 'none';
             body.querySelector('#value').style.maxHeight = 'unset';
             body.querySelector('#value').classList.add('flex-grow-1');
+            if (body.querySelector('#value-editor'))
+                body.querySelector('#value-editor').classList.add('flex-grow-1');
             body.querySelector('#itemAccordion').style.display = 'none';
         }
     });
     let contentChanging = () => {
+        client.off('options-loaded', optionsLoaded);
         dialog.off('content-changing', contentChanging);
         dialog.off('item-loaded', itemLoaded);
+        if (editor)
+            editor.destroy();
     };
     let itemLoaded = e => {
         if (valueEd.dataset.expanded === 'true')
             body.querySelector('#btn-value-expand').click();
+        if (editor) {
+            editor.value = body.querySelector('#value').value || '';
+            if (body.querySelector('#style').value === '2')
+                editor.setMode('javascript');
+            else if (body.querySelector('#style').value === '1')
+                editor.setMode('oiMUD');
+            else
+                editor.setMode();
+        }
     };
     dialog.on('content-changing', contentChanging);
-    dialog.on('item-loaded', itemLoaded);    
+    dialog.on('item-loaded', itemLoaded);
+    function createEditor() {
+        if (ace && client.getOption('profiles.codeEditor')) {
+            editor = new CodeEditor(body.querySelector('#value'), {
+                inline: client.getOption('enableInlineComments'),
+                block: client.getOption('enableBlockComments'),
+                inlineStr: client.getOption('inlineCommentString').split(''),
+                blockStr: client.getOption('blockCommentString').split(''),
+                parameter: client.getOption('parametersChar'),
+                nParameter: client.getOption('nParametersChar'),
+                command: client.getOption('commandChar'),
+                stacking: client.getOption('commandStackingChar'),
+                speed: client.getOption('speedpathsChar'),
+                verbatim: client.getOption('verbatimChar')
+            });
+            body.querySelector('#style').addEventListener('change', () => {
+                if (body.querySelector('#style').value === '2')
+                    editor.setMode('javascript');
+                else if (body.querySelector('#style').value === '1')
+                    editor.setMode('oiMUD');
+                else
+                    editor.setMode();
+            });
+            if (body.querySelector('#style').value === '2')
+                editor.setMode('javascript');
+            else if (body.querySelector('#style').value === '1')
+                editor.setMode('oiMUD');
+            else
+                editor.setMode();
+        }
+    }
+    createEditor();
+    let optionsLoaded = () => {
+        if (editor) {
+            if (!client.getOption('profiles.codeEditor')) {
+                editor.destroy();
+                editor = null;
+            }
+            else
+                editor.options = {
+                    inline: client.getOption('enableInlineComments'),
+                    block: client.getOption('enableBlockComments'),
+                    inlineStr: client.getOption('inlineCommentString').split(''),
+                    blockStr: client.getOption('blockCommentString').split(''),
+                    parameter: client.getOption('parametersChar'),
+                    nParameter: client.getOption('nParametersChar'),
+                    command: client.getOption('commandChar'),
+                    stacking: client.getOption('commandStackingChar'),
+                    speed: client.getOption('speedpathsChar'),
+                    verbatim: client.getOption('verbatimChar')
+                };
+        }
+        else
+            createEditor();
+    };
+    client.on('options-loaded', optionsLoaded);
 </script>

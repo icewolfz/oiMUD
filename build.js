@@ -13,7 +13,8 @@ let args = {
     core: process.argv.indexOf('--core') !== -1 || process.argv.indexOf('-core') !== -1,
     interface: process.argv.indexOf('-i') !== -1 || process.argv.indexOf('--interface') !== -1 || process.argv.indexOf('-interface') !== -1,
     tinymce: process.argv.indexOf('-te') !== -1 || process.argv.indexOf('--tinymce') !== -1 || process.argv.indexOf('-tinymce') !== -1,
-    plugins: { SHADOWMUD_PLUGIN: 'false', TEST_PLUGIN: 'false', MAPPER_PLUGIN: 'false', CHAT_PLUGIN: 'false', LOGGER_PLUGIN: 'false', MSP_PLUGIN: 'false', PANELBAR_PLUGIN: 'false', STATUS_PLUGIN: 'false' }
+    plugins: { SHADOWMUD_PLUGIN: 'false', TEST_PLUGIN: 'false', MAPPER_PLUGIN: 'false', CHAT_PLUGIN: 'false', LOGGER_PLUGIN: 'false', MSP_PLUGIN: 'false', PANELBAR_PLUGIN: 'false', STATUS_PLUGIN: 'false' },
+    editor: process.argv.indexOf('-e') !== -1 || process.argv.indexOf('--editor') !== -1 || process.argv.indexOf('-editor') !== -1,
 }
 
 process.argv.forEach(arg => {
@@ -184,6 +185,23 @@ async function main() {
             entryPoints: ['src/css/tinymce.content.css'],
             outfile: 'dist/css/tinymce.content.min.css'
         })).then(console.timeEnd('Built tinymce.content css'));
+    }
+
+    if (args.all || args.editor) {
+        if (args.debug) {
+            console.time('Built editor debug');
+            await esbuild.build(Object.assign(debug, {
+                entryPoints: ['src/editor.ts'],
+                outfile: 'dist/lib/editor.js'
+            })).then(console.timeEnd('Built editor debug'));
+        }
+        if (args.release) {
+            console.time('Built editor release');
+            await esbuild.build(Object.assign(release, {
+                entryPoints: ['src/editor.ts'],
+                outfile: 'dist/lib/editor.min.js'
+            })).then(console.timeEnd('Built editor release'));
+        }
     }
 
     /*

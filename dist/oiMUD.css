@@ -2385,6 +2385,17 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   right: 10px;
   bottom: 10px;
 }
+.editor {
+  padding: 0px;
+  min-height: 158px;
+  position: relative;
+  margin: 0;
+}
+.editor:focus-within {
+  border-color: #86b7fe;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
 
 /* src/css/splitter.css */
 .splitter {

@@ -43,7 +43,7 @@
             <button id="btn-value-expand" class="btn-sm float-start btn btn-outline-secondary"
                 style="right: 10px;top: 60px;" title="Expand to fill panel"><i
                     class="bi bi-chevron-expand"></i></button>
-            <textarea class="form-control profile-editor" id="value" rows="6" wrap="soft"></textarea>
+            <textarea class="form-control profile-editor" id="value" rows="6" wrap="soft" required></textarea>
         </div>
         <div role="tabpanel" class="tab-pane fade in" id="triggerTest">
             <div class="input-group mb-3">
@@ -440,8 +440,11 @@
     })
 
     let contentChanging = () => {
+        client.off('options-loaded', optionsLoaded);
         dialog.off('content-changing', contentChanging);
         dialog.off('item-loaded', itemLoaded);
+        if (editor)
+            editor.destroy();
     };
 
     let itemLoaded = e => {
@@ -460,6 +463,15 @@
         _activeIdx = current.itemSubIdx;
         if (valueEd.dataset.expanded === 'true')
             body.querySelector('#btn-value-expand').click();
+        if (editor) {
+            editor.value = body.querySelector('#value').value || '';
+            if (body.querySelector('#style').value === '2')
+                editor.setLanguage('javascript');
+            else if (body.querySelector('#style').value === '1')
+                editor.setLanguage('oiMUD');
+            else
+                editor.setLanguage();
+        }
     };
     dialog.on('content-changing', contentChanging);
     dialog.on('item-loaded', itemLoaded);
@@ -549,6 +561,7 @@
     const valueEd = body.querySelector('.profile-value');
     if (valueEd.dataset.expanded === 'true')
         body.querySelector('#btn-value-expand').click();
+    let editor;
     body.querySelector('#btn-value-expand').addEventListener('click', () => {
         if (valueEd.dataset.expanded === 'true') {
             body.querySelector('#btn-value-expand i').classList.add('bi-chevron-expand');
@@ -566,6 +579,13 @@
             body.querySelector('#value').style.bottom = '';
             body.querySelector('#value').style.maxHeight = '';
             body.querySelector('#value').style.resize = '';
+            if (body.querySelector('#value-editor')) {
+                body.querySelector('#value-editor').style.position = '';
+                body.querySelector('#value-editor').style.top = '';
+                body.querySelector('#value-editor').style.left = '';
+                body.querySelector('#value-editor').style.right = '';
+                body.querySelector('#value-editor').style.bottom = '';
+            }
         }
         else {
             body.querySelector('#btn-value-expand i').classList.remove('bi-chevron-expand');
@@ -583,8 +603,70 @@
             body.querySelector('#value').style.bottom = '0px';
             body.querySelector('#value').style.maxHeight = 'unset';
             body.querySelector('#value').style.resize = 'none';
+            if (body.querySelector('#value-editor')) {
+                body.querySelector('#value-editor').style.position = 'absolute';
+                body.querySelector('#value-editor').style.top = '50px';
+                body.querySelector('#value-editor').style.left = '0px';
+                body.querySelector('#value-editor').style.right = '0px';
+                body.querySelector('#value-editor').style.bottom = '0px';
+            }
         }
-    });    
+    });
+    function createEditor() {
+        if (ace && client.getOption('profiles.codeEditor')) {
+            editor = new CodeEditor(body.querySelector('#value'), {
+                inline: client.getOption('enableInlineComments'),
+                block: client.getOption('enableBlockComments'),
+                inlineStr: client.getOption('inlineCommentString').split(''),
+                blockStr: client.getOption('blockCommentString').split(''),
+                parameter: client.getOption('parametersChar'),
+                nParameter: client.getOption('nParametersChar'),
+                command: client.getOption('commandChar'),
+                stacking: client.getOption('commandStackingChar'),
+                speed: client.getOption('speedpathsChar'),
+                verbatim: client.getOption('verbatimChar')
+            });
+            body.querySelector('#style').addEventListener('change', () => {
+                if (body.querySelector('#style').value === '2')
+                    editor.setLanguage('javascript');
+                else if (body.querySelector('#style').value === '1')
+                    editor.setLanguage('oiMUD');
+                else
+                    editor.setLanguage();
+            });
+            if (body.querySelector('#style').value === '2')
+                editor.setLanguage('javascript');
+            else if (body.querySelector('#style').value === '1')
+                editor.setLanguage('oiMUD');
+            else
+                editor.setLanguage();
+        }
+    }
+    createEditor();
+    let optionsLoaded = () => {
+        if (editor) {
+            if (!client.getOption('profiles.codeEditor')) {
+                editor.destroy();
+                editor = null;
+            }
+            else
+                editor.options = {
+                    inline: client.getOption('enableInlineComments'),
+                    block: client.getOption('enableBlockComments'),
+                    inlineStr: client.getOption('inlineCommentString').split(''),
+                    blockStr: client.getOption('blockCommentString').split(''),
+                    parameter: client.getOption('parametersChar'),
+                    nParameter: client.getOption('nParametersChar'),
+                    command: client.getOption('commandChar'),
+                    stacking: client.getOption('commandStackingChar'),
+                    speed: client.getOption('speedpathsChar'),
+                    verbatim: client.getOption('verbatimChar')
+                };
+        }
+        else
+            createEditor();
+    };
+    client.on('options-loaded', optionsLoaded);
 </script>
 <style>
     #trigger-editor-dropdown {

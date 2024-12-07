@@ -658,7 +658,7 @@ export class Test extends Plugin {
                 'right hand': { 'name': 'knife', 'type': 'knife', 'subtype': 'dagger', 'material': 'iron', 'quality': 'poor', 'dominant': 1 },
                 'left hand': { 'name': 'club', 'type': 'blunt', 'subtype': 'club', 'material': 'wood', 'quality': 'ordinary', 'dominant': 0 }
             });
-            if (data && data.args && data.args.length && data.args[0] === 'night')
+            if (data && data.args && data.args.indexOf('night') !== -1)
                 this.client.emit('received-GMCP', 'oMUD.Environment', { tod: 'night', moons: ['waning', 'full', 'waxing'] });
             else
                 this.client.emit('received-GMCP', 'oMUD.Environment', { 'tod': 'day' });

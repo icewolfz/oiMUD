@@ -151,6 +151,10 @@
                 body.querySelector('#value-editor').classList.add('flex-grow-1');
             body.querySelector('#itemAccordion').style.display = 'none';
         }
+        if (editor)
+            editor.focus();
+        else
+            body.querySelector('#value').focus();        
     });
     let contentChanging = () => {
         client.off('options-loaded', optionsLoaded);

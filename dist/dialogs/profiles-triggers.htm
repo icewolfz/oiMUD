@@ -611,6 +611,10 @@
                 body.querySelector('#value-editor').style.bottom = '0px';
             }
         }
+        if (editor)
+            editor.focus();
+        else
+            body.querySelector('#value').focus();
     });
     function createEditor() {
         if (ace && client.getOption('profiles.codeEditor')) {

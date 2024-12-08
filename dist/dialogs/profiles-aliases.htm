@@ -84,6 +84,10 @@
             if (body.querySelector('#value-editor'))
                 body.querySelector('#value-editor').classList.add('flex-grow-1');
         }
+        if (editor)
+            editor.focus();
+        else
+            body.querySelector('#value').focus();
     });
     let contentChanging = () => {
         client.off('options-loaded', optionsLoaded);

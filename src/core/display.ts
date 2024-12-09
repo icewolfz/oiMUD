@@ -96,6 +96,7 @@ export class Display extends EventEmitter {
     //cache scroll sizes as hardly changes once loaded
     private _hWidth;
     private _vWidth;
+    private _dragPrevent;
 
     private get _horizontalScrollBarHeight() {
         return (this._view.scrollWidth > this._view.clientWidth ? this._hWidth : 0);
@@ -650,6 +651,11 @@ export class Display extends EventEmitter {
         this._window = this._document.defaultView;
         this._container.tabIndex = -1;
         this._container.classList.add('display');
+        this._dragPrevent = e => {
+            if (this.customSelection)
+                e.preventDefault();
+        };
+        this._container.addEventListener('dragstart', this._dragPrevent.bind(this));
         (<any>this._container).display = this;
         this._styles = this._document.createElement('style');
         this._container.appendChild(this._styles);
@@ -960,6 +966,7 @@ export class Display extends EventEmitter {
         this._window.removeEventListener('mouseup', this._wUp);
         this._window.removeEventListener('mousemove', this._wMove);
         this._document.removeEventListener('selectionchange', this._selectionChange);
+        this._container.removeEventListener('dragstart', this._dragPrevent);
     }
 
     private _update() {

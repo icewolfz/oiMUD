@@ -21123,6 +21123,11 @@
       this._window = this._document.defaultView;
       this._container.tabIndex = -1;
       this._container.classList.add("display");
+      this._dragPrevent = (e) => {
+        if (this.customSelection)
+          e.preventDefault();
+      };
+      this._container.addEventListener("dragstart", this._dragPrevent.bind(this));
       this._container.display = this;
       this._styles = this._document.createElement("style");
       this._container.appendChild(this._styles);
@@ -21889,6 +21894,7 @@
       this._window.removeEventListener("mouseup", this._wUp);
       this._window.removeEventListener("mousemove", this._wMove);
       this._document.removeEventListener("selectionchange", this._selectionChange);
+      this._container.removeEventListener("dragstart", this._dragPrevent);
     }
     _update() {
       this._maxView = this._view.clientWidth - this._padding[1] - this._padding[3] - this._verticalScrollBarHeight - this._indentPadding;

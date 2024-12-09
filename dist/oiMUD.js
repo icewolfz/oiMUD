@@ -37629,9 +37629,10 @@ ${pre}`);
         }
         if (this._noCapture || this._noCaptureStore > 0) return;
         if (this.client.getOption("chat.CaptureOnlyOpen")) {
-          if (!(this._isWindowOpen || this._isDialogOpen)) {
+          let evt = { open: !(this._isWindowOpen || this._isDialogOpen) };
+          this.emit("chat-only-open", evt);
+          if (!evt.open)
             return;
-          }
         }
         if (this._capture > 0 && data.line.startsWith("    ")) {
           data.gagged |= this.client.getOption("chat.gag");
@@ -39455,6 +39456,10 @@ ${pre}`);
           else
             this._chatDisplay.model.appendLines([data]);
         }
+      }, this);
+      this._chat.on("chat-only-open", (e) => {
+        if (this._chatDisplay && (this.client.getOption("panelBar.panels") & 4 /* chat */) === 4 /* chat */)
+          e.open = true;
       }, this);
     }
     _initMapper() {

@@ -365,6 +365,11 @@ export class PanelBar extends Plugin {
                     this._chatDisplay.model.appendLines([data]);
             }
         }, this);
+        this._chat.on('chat-only-open', e => {
+            //if display created and the panel visible capture, if capture only if open setting enabled
+            if (this._chatDisplay && (this.client.getOption('panelBar.panels') & Panels.chat) === Panels.chat)
+                e.open = true;
+        }, this);
     }
 
     private _initMapper() {

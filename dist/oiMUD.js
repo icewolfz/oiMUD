@@ -37717,6 +37717,7 @@ ${pre}`);
         }
       });
       this.client.on("options-loaded", () => {
+        this._buildCaptures();
         this._loadOptions();
       });
       this.client.on("option-changed", (name2, value) => {

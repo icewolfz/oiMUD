@@ -240,6 +240,7 @@ export class Chat extends Plugin {
             }
         })
         this.client.on('options-loaded', () => {
+            this._buildCaptures();
             this._loadOptions();
         });
         this.client.on('option-changed', (name: string, value) => {

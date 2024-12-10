@@ -21516,7 +21516,7 @@
           if (this._mouseDown && e.toElement !== this._split._bar && e.target !== this._split._bar && (e.pageX >= this._split._bounds.right || e.pageY >= this._bounds.bottom - this._horizontalScrollBarHeight)) {
             this._lastMouse = e;
             if (this.customSelection) {
-              this._trackSelection.up = this._getMouseEventCaretRange(e);
+              this._trackSelection.up = this._getMouseEventCaretRange(e) || this._document.createRange();
               this._trackSelection.up.setStart(this._split._view.lastChild, this._split._view.lastChild.childNodes.length);
               this._trackSelection.up.setEnd(this._split._view.lastChild, this._split._view.lastChild.childNodes.length);
               this._setSelection();
@@ -22498,15 +22498,21 @@
         range = this._document.body.createTextRange();
         range.moveToPoint(x2, y2);
       } else if (typeof this._document.createRange != "undefined" && this._document.createRange !== null) {
-        if (this._document.body.caretPositionFromPoint) {
+        if (typeof evt.rangeParent != "undefined" && evt.rangeParent !== null) {
+          console.log("rp");
+          console.log(evt.rangeParent);
+          range = document.createRange();
+          range.setStart(evt.rangeParent, evt.rangeOffset);
+          range.collapse(true);
+        } else if (this._document.body.caretPositionFromPoint) {
           var pos = this._document.body.caretPositionFromPoint(x2, y2);
-          if (!this._container.contains(pos.offsetNode)) return null;
+          if (!pos || !this._container.contains(pos.offsetNode)) return null;
           range = pos.createRange();
           range.setStart(pos.offsetNode, pos.offset);
           range.collapse(true);
         } else if (this._document.caretPositionFromPoint) {
           var pos = this._document.caretPositionFromPoint(x2, y2);
-          if (!this._container.contains(pos.offsetNode)) return null;
+          if (!pos || !this._container.contains(pos.offsetNode)) return null;
           range = this._document.createRange();
           range.setStart(pos.offsetNode, pos.offset);
           range.collapse(true);

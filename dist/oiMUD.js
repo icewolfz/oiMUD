@@ -22575,8 +22575,6 @@
         range.moveToPoint(x2, y2);
       } else if (typeof this._document.createRange != "undefined" && this._document.createRange !== null) {
         if (typeof evt.rangeParent != "undefined" && evt.rangeParent !== null) {
-          console.log("rp");
-          console.log(evt.rangeParent);
           range = document.createRange();
           range.setStart(evt.rangeParent, evt.rangeOffset);
           range.collapse(true);

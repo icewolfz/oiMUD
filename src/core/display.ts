@@ -1763,8 +1763,6 @@ export class Display extends EventEmitter {
             // Try Mozilla's rangeOffset and rangeParent properties,
             // which are exactly what we want
             if (typeof evt.rangeParent != "undefined" && evt.rangeParent !== null) {
-                console.log('rp');
-                console.log(evt.rangeParent);
                 range = document.createRange();
                 range.setStart(evt.rangeParent, evt.rangeOffset);
                 range.collapse(true);

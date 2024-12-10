@@ -118,7 +118,7 @@ export class Display extends EventEmitter {
         if (value || this._split)
             this._container.style.userSelect = 'none';
         else
-            this._container.style.userSelect = '';
+            this._container.style.userSelect = 'auto';
         this._updateSelectionHighlight();
     }
 
@@ -368,7 +368,7 @@ export class Display extends EventEmitter {
         if (this.customSelection)
             this._container.style.userSelect = 'none';
         else
-            this._container.style.userSelect = '';
+            this._container.style.userSelect = 'auto';
     }
 
     get linkFunction(): string {

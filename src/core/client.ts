@@ -1190,6 +1190,7 @@ export class Client extends EventEmitter {
         this.display.splitHeight = this._options['display.splitHeight'];
         this.display.enableSplit = this._options['display.split'];
         this.display.splitLive = this._options['display.splitLive'];
+        this.display.customSelection = this._options['display.customSelection'];
 
         const colors = this.getOption('colors');
         if (colors && colors.length > 0) {

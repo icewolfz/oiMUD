@@ -719,6 +719,7 @@ export class Chat extends Plugin {
         display.enableSplit = client.getOption('chat.split');
         display.splitLive = client.getOption('chat.splitLive');
         display.splitHeight = client.getOption('chat.splitHeight');
+        display.customSelection = client.getOption('chat.customSelection');
         display.scrollDisplay();
     }
 

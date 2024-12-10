@@ -337,8 +337,8 @@ export let SettingList: any[] = [
     ['showChatWindow', 0, SettingType.Number, 0],
     ['chat.enableColors', 0, SettingType.Number, true],
     ['chat.enableBackgroundColors', 0, SettingType.Number, true],
-    ['display.customSelection', 0, SettingType.Boolean, true],
-    ['chat.customSelection', 0, SettingType.Boolean, true],
+    ['display.customSelection', 0, SettingType.Boolean, !isMobile()],
+    ['chat.customSelection', 0, SettingType.Boolean, !isMobile()],
     ['pasteSpecialDisable', 0, SettingType.Boolean, true]
 ];
 

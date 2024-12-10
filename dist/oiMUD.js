@@ -21198,6 +21198,12 @@
           this._view.click();
         if (e.button === 0)
           this._clearMouseDown(e);
+        if (e.detail === 2)
+          this._setSelectionRange(this.getWordRangeFromPosition(e.pageX, e.pageY));
+        else if (e.detail === 3)
+          this._setSelectionRange(this.getLineRangeFromPosition(e.pageX, e.pageY));
+        else if (e.detail === 4)
+          this.selectAll();
         this.emit("mouseup", e);
       });
       this._view.addEventListener("mouseenter", (e) => {
@@ -21536,6 +21542,12 @@
           this.emit("mouseup", e);
           if (e.button === 0)
             this._clearMouseDown(e);
+          if (e.detail === 2)
+            this._setSelectionRange(this.getWordRangeFromPosition(e.pageX, e.pageY));
+          else if (e.detail === 3)
+            this._setSelectionRange(this.getLineRangeFromPosition(e.pageX, e.pageY));
+          else if (e.detail === 4)
+            this.selectAll();
           if (!e.button)
             this._view.click();
         });
@@ -22348,6 +22360,12 @@
         this._window.getSelection().addRange(range);
       }
       if (this.customSelection) {
+        this._trackSelection.down = document.createRange();
+        this._trackSelection.down.setStart(this._view.firstChild, 0);
+        this._trackSelection.down.setEnd(this._view.firstChild, 0);
+        this._trackSelection.up = document.createRange();
+        this._trackSelection.up.setStart(this._view.lastChild, this._view.lastChild.childNodes.length);
+        this._trackSelection.up.setEnd(this._view.lastChild, this._view.lastChild.childNodes.length);
         this._selection = {
           start: {
             node: this._view.firstChild,
@@ -22373,6 +22391,7 @@
           selection.removeAllRanges();
         }
       }
+      this._trackSelection = { down: null, up: null };
       this._selection = { start: null, end: null, timer: null };
       this._updateSelectionHighlight();
       this.emit("selection-changed", this._window.getSelection());
@@ -22391,32 +22410,89 @@
         return { x: -1, y: -1, lineID: -1 };
       if (element.classList.contains("line"))
         return { x: 0, y: this.model.getLineFromID(+element.dataset.id), lineID: +element.dataset.id };
-      const line2 = element.closest(".line");
+      const line2 = this._getLineNode(element);
       if (line2)
         return { x: 0, y: this.model.getLineFromID(+line2.dataset.id), lineID: +line2.dataset.id };
       return { x: -1, y: -1, lineID: -1 };
     }
     getWordFromPosition(x2, y2) {
-      const elements = this._document.elementsFromPoint(x2, y2);
-      let element;
-      for (let e = 0, el = elements.length; e < el; e++) {
-        if (this._view === elements[e]) return "";
-        if (this._view.contains(elements[e])) {
-          element = elements[e];
-          break;
-        }
-      }
-      if (element && element.textContent) {
-        const text = element.textContent;
-        let start = text.lastIndexOf(" ", x2) + 1;
-        let end = text.indexOf(" ", x2);
-        if (end === -1) {
-          end = text.length;
-        }
-        const word = text.substring(start, end);
-        return word;
-      }
+      const range = this.getWordRangeFromPosition(x2, y2);
+      if (range) return range.toString();
       return "";
+    }
+    getWordRangeFromPosition(x2, y2) {
+      let line2 = document.elementFromPoint(x2, y2);
+      if (!line2 || line2 === this._view || this._split && this._split._view === line2 || line2.classList.contains("line")) return null;
+      const range = this._getMouseEventCaretRange({ clientX: x2, clientY: y2 });
+      if (!range) return null;
+      let n = this._rangeToNode(range);
+      if (!n || !n.node) return null;
+      line2 = this._getLineNode(n.node);
+      if (!line2) return null;
+      const textNodes = this._textNodesUnder(line2);
+      const offset2 = this._findIndexOfSymbol(line2, n.node, n.offset);
+      const lineIndex = this._model.getLineFromID(+line2.dataset.id);
+      if (lineIndex === -1) return null;
+      const text = this.getLineText(lineIndex);
+      const len = text.length;
+      let sPos = offset2;
+      let ePos = offset2;
+      while (text.substr(sPos, 1).match(/([^\s.,/#!$%^&*;:{}=`~()[\]@&|\\?><"'+])/gu) && sPos >= 0) {
+        sPos--;
+        if (sPos < 0)
+          break;
+      }
+      sPos++;
+      if (sPos > offset2)
+        sPos = offset2;
+      while (text.substr(ePos, 1).match(/([^\s.,/#!$%^&*;:{}=`~()[\]@&|\\?><"'+])/gu) && ePos < len) {
+        ePos++;
+      }
+      if (ePos <= sPos)
+        ePos = sPos + 1;
+      if (sPos >= 0 && ePos <= len) {
+        let tl = textNodes.length;
+        let l2 = 0;
+        let t = 0;
+        for (; t < tl; t++) {
+          if (sPos >= l2 && sPos < l2 + textNodes[t].length) {
+            range.setStart(textNodes[t], sPos - l2);
+            break;
+          }
+          l2 += textNodes[t].length;
+        }
+        for (; t < tl; t++) {
+          if (ePos >= l2 && ePos < l2 + textNodes[t].length) {
+            range.setEnd(textNodes[t], ePos - l2);
+            break;
+          }
+          l2 += textNodes[t].length;
+        }
+      }
+      return range;
+    }
+    getLineRangeFromPosition(x2, y2) {
+      const range = this._getMouseEventCaretRange({ clientX: x2, clientY: y2 });
+      if (!range) return null;
+      let n = this._rangeToNode(range);
+      const line2 = this._getLineNode(n.node);
+      if (line2.childNodes.length) {
+        range.setStart(line2.firstChild, 0);
+        if (line2.lastChild.nodeType === 3)
+          range.setEnd(line2.lastChild, line2.lastChild.length);
+        else
+          range.setEnd(line2.lastChild, line2.childNodes.length);
+      } else {
+        range.setStart(line2, 0);
+        range.setEnd(line2, 0);
+      }
+      return range;
+    }
+    _getLineNode(node) {
+      if (!node) return null;
+      if (node.nodeType === 3)
+        return node.parentNode.closest(".line");
+      return node.closest(".line");
     }
     _updateSplit() {
       if (!this._split || this._view.clientHeight >= this._view.scrollHeight) return;
@@ -22739,6 +22815,40 @@
       if (caret)
         this._trackSelection.up = caret;
       this._setSelection();
+    }
+    _setSelectionRange(range) {
+      if (!range) return;
+      this._trackSelection.down = document.createRange();
+      this._trackSelection.down.setStart(range.startContainer, range.startOffset);
+      this._trackSelection.down.setEnd(range.startContainer, range.startOffset);
+      this._trackSelection.up = document.createRange();
+      this._trackSelection.up.setStart(range.endContainer, range.endOffset);
+      this._trackSelection.up.setEnd(range.endContainer, range.endOffset);
+      this._setSelection();
+    }
+    /**
+     * Retrieves an array of all text nodes under a given element.
+     *
+     * @param { Node } el - The element under which to search for text nodes.
+     * @returns { Node[] } An array of text nodes found under the given element.
+     */
+    _textNodesUnder(el) {
+      const children = [];
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        children.push(walker.currentNode);
+      }
+      return children;
+    }
+    _findIndexOfSymbol(el, node, offset2) {
+      node = node.parentNode == el ? node : node.parentNode;
+      let nodes = [...el.childNodes];
+      let index = nodes.indexOf(node);
+      let num = 0;
+      for (let i2 = 0; i2 < index; i2++) {
+        num += nodes[i2].textContent.length;
+      }
+      return num + offset2;
     }
   };
   var DisplayModel = class extends EventEmitter {

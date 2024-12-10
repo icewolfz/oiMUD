@@ -348,6 +348,12 @@ export class Display extends EventEmitter {
                 this.emit('mouseup', e);
                 if (e.button === 0)
                     this._clearMouseDown(e);
+                if (e.detail === 2)
+                    this._setSelectionRange(this.getWordRangeFromPosition(e.pageX, e.pageY));
+                else if (e.detail === 3)
+                    this._setSelectionRange(this.getLineRangeFromPosition(e.pageX, e.pageY));
+                else if (e.detail === 4)
+                    this.selectAll();
                 if (!e.button)
                     this._view.click();
             });
@@ -753,6 +759,12 @@ export class Display extends EventEmitter {
                 this._view.click();
             if (e.button === 0)
                 this._clearMouseDown(e);
+            if (e.detail === 2)
+                this._setSelectionRange(this.getWordRangeFromPosition(e.pageX, e.pageY));
+            else if (e.detail === 3)
+                this._setSelectionRange(this.getLineRangeFromPosition(e.pageX, e.pageY));
+            else if (e.detail === 4)
+                this.selectAll();
             this.emit('mouseup', e);
         });
         this._view.addEventListener('mouseenter', e => {
@@ -1512,6 +1524,12 @@ export class Display extends EventEmitter {
             this._window.getSelection().addRange(range);
         }
         if (this.customSelection) {
+            this._trackSelection.down = document.createRange();
+            this._trackSelection.down.setStart(this._view.firstChild, 0);
+            this._trackSelection.down.setEnd(this._view.firstChild, 0);
+            this._trackSelection.up = document.createRange();
+            this._trackSelection.up.setStart(this._view.lastChild, this._view.lastChild.childNodes.length);
+            this._trackSelection.up.setEnd(this._view.lastChild, this._view.lastChild.childNodes.length);
             this._selection = {
                 start: {
                     node: this._view.firstChild,
@@ -1538,6 +1556,7 @@ export class Display extends EventEmitter {
                 selection.removeAllRanges();
             }
         }
+        this._trackSelection = { down: null, up: null };
         this._selection = { start: null, end: null, timer: null };
         this._updateSelectionHighlight();
         this.emit('selection-changed', this._window.getSelection());
@@ -1558,43 +1577,94 @@ export class Display extends EventEmitter {
             return { x: -1, y: -1, lineID: -1 };
         if (element.classList.contains('line'))
             return { x: 0, y: this.model.getLineFromID(+element.dataset.id), lineID: +element.dataset.id };
-        const line = element.closest('.line') as HTMLElement;
+        const line = this._getLineNode(element);
         if (line)
             return { x: 0, y: this.model.getLineFromID(+line.dataset.id), lineID: +line.dataset.id };
         return { x: -1, y: -1, lineID: -1 };
     }
 
     public getWordFromPosition(x, y): string {
-        // Get the element at the specified coordinates
-        const elements = this._document.elementsFromPoint(x, y);
-        let element;
-        for (let e = 0, el = elements.length; e < el; e++) {
-            if (this._view === elements[e]) return '';
-            if (this._view.contains(elements[e])) {
-                element = elements[e];
-                break;
-            }
-        }
-
-        // Check if the element exists and contains text
-        if (element && element.textContent) {
-            // Get the text content of the element
-            const text = element.textContent;
-
-            // Find the word boundaries around the specified position
-            let start = text.lastIndexOf(' ', x) + 1;
-            let end = text.indexOf(' ', x);
-            if (end === -1) {
-                end = text.length;
-            }
-
-            // Extract the word
-            const word = text.substring(start, end);
-
-            return word;
-        }
-
+        const range = this.getWordRangeFromPosition(x, y);
+        if (range) return range.toString();
         return '';
+    }
+
+    public getWordRangeFromPosition(x, y): Range {
+        let line = document.elementFromPoint(x, y) as HTMLElement;
+        if (!line || line === this._view || (this._split && this._split._view === line) || line.classList.contains('line')) return null;
+        const range = this._getMouseEventCaretRange({ clientX: x, clientY: y });
+        if (!range) return null;
+        let n = this._rangeToNode(range);
+        if (!n || !n.node) return null;
+        line = this._getLineNode(n.node);
+        if (!line) return null;
+        const textNodes = this._textNodesUnder(line);
+        const offset = this._findIndexOfSymbol(line, n.node, n.offset);
+        const lineIndex = this._model.getLineFromID(+line.dataset.id);
+        if (lineIndex === -1) return null;
+        const text = this.getLineText(lineIndex);
+        const len = text.length;
+        let sPos = offset;
+        let ePos = offset;
+        while (text.substr(sPos, 1).match(/([^\s.,/#!$%^&*;:{}=`~()[\]@&|\\?><"'+])/gu) && sPos >= 0) {
+            sPos--;
+            if (sPos < 0)
+                break;
+        }
+        sPos++;
+        if (sPos > offset)
+            sPos = offset;
+        while (text.substr(ePos, 1).match(/([^\s.,/#!$%^&*;:{}=`~()[\]@&|\\?><"'+])/gu) && ePos < len) {
+            ePos++;
+        }
+        if (ePos <= sPos)
+            ePos = sPos + 1;
+        if (sPos >= 0 && ePos <= len) {
+            let tl = textNodes.length;
+            let l = 0;
+            let t = 0;
+            for (; t < tl; t++) {
+                if (sPos >= l && sPos < l + textNodes[t].length) {
+                    range.setStart(textNodes[t], sPos - l);
+                    break;
+                }
+                l += textNodes[t].length;
+            }
+            for (; t < tl; t++) {
+                if (ePos >= l && ePos < l + textNodes[t].length) {
+                    range.setEnd(textNodes[t], ePos - l);
+                    break;
+                }
+                l += textNodes[t].length;
+            }
+        }
+        return range;
+    }
+
+    public getLineRangeFromPosition(x, y): Range {
+        const range = this._getMouseEventCaretRange({ clientX: x, clientY: y });
+        if (!range) return null;
+        let n = this._rangeToNode(range);
+        const line = this._getLineNode(n.node);
+        if (line.childNodes.length) {
+            range.setStart(line.firstChild, 0);
+            if (line.lastChild.nodeType === 3)
+                range.setEnd(line.lastChild, (line.lastChild as Text).length);
+            else
+                range.setEnd(line.lastChild, line.childNodes.length);
+        }
+        else {
+            range.setStart(line, 0);
+            range.setEnd(line, 0);
+        }
+        return range;
+    }
+
+    private _getLineNode(node): HTMLElement {
+        if (!node) return null;
+        if (node.nodeType === 3)
+            return node.parentNode.closest('.line') as HTMLElement;
+        return node.closest('.line') as HTMLElement;
     }
 
     private _updateSplit() {
@@ -2056,6 +2126,43 @@ export class Display extends EventEmitter {
         if (caret)
             this._trackSelection.up = caret;
         this._setSelection();
+    }
+
+    private _setSelectionRange(range) {
+        if (!range) return;
+        this._trackSelection.down = document.createRange();
+        this._trackSelection.down.setStart(range.startContainer, range.startOffset);
+        this._trackSelection.down.setEnd(range.startContainer, range.startOffset);
+        this._trackSelection.up = document.createRange();
+        this._trackSelection.up.setStart(range.endContainer, range.endOffset);
+        this._trackSelection.up.setEnd(range.endContainer, range.endOffset);
+        this._setSelection();
+    }
+
+    /**
+     * Retrieves an array of all text nodes under a given element.
+     *
+     * @param { Node } el - The element under which to search for text nodes.
+     * @returns { Node[] } An array of text nodes found under the given element.
+     */
+    private _textNodesUnder(el) {
+        const children = [] // Type: Node[]
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+        while (walker.nextNode()) {
+            children.push(walker.currentNode)
+        }
+        return children
+    }
+
+    private _findIndexOfSymbol(el, node, offset) {
+        node = node.parentNode == el ? node : node.parentNode;
+        let nodes = [...el.childNodes];
+        let index = nodes.indexOf(node);
+        let num = 0;
+        for (let i = 0; i < index; i++) {
+            num += nodes[i].textContent.length;
+        }
+        return num + offset;
     }
 }
 

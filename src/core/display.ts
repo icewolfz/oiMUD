@@ -115,6 +115,10 @@ export class Display extends EventEmitter {
             this._window.clearTimeout(this._selection.timer);
             this._selection.timer = null;
         }
+        if (value || this._split)
+            this._container.style.userSelect = 'none';
+        else
+            this._container.style.userSelect = '';
         this._updateSelectionHighlight();
     }
 
@@ -310,7 +314,7 @@ export class Display extends EventEmitter {
                         this.clearSelection();
                 }
             });
-            this._split._view.addEventListener('mousemove', async e => {
+            this._split._view.addEventListener('mousemove', e => {
                 if (this._mouseDown) {
                     this._lastMouse = e;
                     this._endSelection(e);
@@ -361,6 +365,10 @@ export class Display extends EventEmitter {
             this._container.removeChild(this._split._bar);
             this._split = null;
         }
+        if (this.customSelection)
+            this._container.style.userSelect = 'none';
+        else
+            this._container.style.userSelect = '';
     }
 
     get linkFunction(): string {
@@ -1987,6 +1995,7 @@ export class Display extends EventEmitter {
         }
         debounce(() => {
             let range;
+            if (this._document.activeElement !== this._container) return;
             //firefox hack, seems it likes to use current range
             if (this._window.getSelection().rangeCount === 0) {
                 range = this._document.createRange();

@@ -90,6 +90,5 @@ Basic questions answered about oiMUD
 - `All browsers` ensure you do not have clear cookies or site data on close enabled or you will lose profiles and map data unless backed up to the mud or locally as text files
 - `Text selection` 
   - Firefox
-    - Split scroll text selection hs some issues due to issues in firefox and mouse events
     - Custom selection highlight is not visible before version 135 due to not supporting the highlight api
   - All browsers, not matter custom or normal text selection may jump when mouse is moved outside of display control

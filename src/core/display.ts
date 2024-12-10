@@ -89,6 +89,7 @@ export class Display extends EventEmitter {
     private _window: Window;
     private _scrollLock: boolean = false;
     private _selection = { start: null, end: null, timer: null };
+    private _trackSelection = { down: null, up: null }
     private _customSelection: boolean = true;
     private _highlightRange;
     private _highlight;
@@ -254,7 +255,6 @@ export class Display extends EventEmitter {
                 };
                 this._container.addEventListener('mousemove', this._split.mouseMove);
                 this._container.addEventListener('mouseup', this._split.moveDone);
-                //this._container.addEventListener('mouseleave', this._split.moveDone);
             });
 
             this._split.moveDone = (e) => {
@@ -278,7 +278,6 @@ export class Display extends EventEmitter {
                 }
                 this._container.removeEventListener('mousemove', this._split.mouseMove);
                 this._container.removeEventListener('mouseup', this._split.moveDone);
-                //this._container.removeEventListener('mouseleave', this._split.moveDone);
                 this._split.mouseMove = null;
             };
             this._split._view.addEventListener('mousedown', (e) => {
@@ -286,36 +285,35 @@ export class Display extends EventEmitter {
                 this.emit('mousedown', e);
                 if (e.button === 0) {
                     e.preventDefault();
-                    let caret = this._getMouseEventCaretRange(e);
-                    this._window.getSelection().removeAllRanges();
-                    if (caret.startContainer) {
-                        if (e.shiftKey && this._selection.start) {
-                            let range = this._document.createRange();
-                            range.setStart(this._selection.start.node, this._selection.start.offset);
-                            range.setEnd(this._selection.end.node, this._selection.end.offset);
-                            this._window.getSelection().addRange(range);
-                            this._extendSelection(e);
-                        }
-                        else
-                            this._window.getSelection().addRange(caret);
-                    }
-                    else if (caret.offsetNode) {
-                        const range = document.createRange();
-                        if (e.shiftKey && this._selection.start)
-                            range.setStart(this._selection.start.node, this._selection.start.offset);
-                        else
-                            range.setStart(caret.offsetNode, caret.offset);
-                        range.setEnd(caret.offsetNode, caret.offset);
-                        this._window.getSelection().addRange(range);
-                    }
                     this._mouseDown = 2;
+                    if (e.shiftKey && this._trackSelection.down)
+                        this._endSelection(e);
+                    else
+                        this._startSelection(e);
                     this._split._bar.style.pointerEvents = 'none';
+                }
+                else if (e.button === 2 && this._trackSelection.down) {
+                    if (!this._selection.start) this._setSelection();
+                    let caret = this._getMouseEventCaretRange(e);
+                    let range = this._document.createRange();
+                    range.setStart(this._selection.start.node, this._selection.start.offset);
+                    range.setEnd(this._selection.end.node, this._selection.end.offset);
+                    if ((caret.offsetNode && range.intersectsNode(caret.offsetNode)) || (caret.startContainer && range.intersectsNode(caret.startContainer))) {
+                        if (e.shiftKey)
+                            this._endSelection(e);
+                        else
+                            this._setSelection();
+                    }
+                    else if (e.shiftKey)
+                        this._endSelection(e);
+                    else
+                        this.clearSelection();
                 }
             });
             this._split._view.addEventListener('mousemove', async e => {
                 if (this._mouseDown) {
                     this._lastMouse = e;
-                    this._extendSelection(e);
+                    this._endSelection(e);
                     //when near edge of view start auto scroll
                     this._createScrollTimer();
                 }
@@ -324,23 +322,28 @@ export class Display extends EventEmitter {
             this._split._view.addEventListener('mouseleave', e => {
                 if (this._mouseDown && e.toElement !== this._split._bar && e.target !== this._split._bar && (e.pageX >= this._split._bounds.right || e.pageY >= this._bounds.bottom - this._horizontalScrollBarHeight)) {
                     this._lastMouse = e;
-                    this._window.getSelection().extend(this._split._view.lastChild, this._split._view.lastChild.childNodes.length);
+                    if (this.customSelection) {
+                        this._trackSelection.up = this._getMouseEventCaretRange(e);
+                        this._trackSelection.up.setStart(this._split._view.lastChild, this._split._view.lastChild.childNodes.length);
+                        this._trackSelection.up.setEnd(this._split._view.lastChild, this._split._view.lastChild.childNodes.length);
+                        this._setSelection();
+                    }
                 }
             });
             this._split._view.addEventListener('mouseenter', e => {
                 if (this._mouseDown && (e.buttons & 1) !== 1) {
-                    this._clearMouseDown();
+                    this._clearMouseDown(e);
                 }
                 else if (this._mouseDown) {
                     this._lastMouse = e;
-                    this._extendSelection(e);
                     this._createScrollTimer();
+                    this._endSelection(e);
                 }
             });
             this._split._view.addEventListener('mouseup', (e) => {
                 this.emit('mouseup', e);
                 if (e.button === 0)
-                    this._clearMouseDown();
+                    this._clearMouseDown(e);
                 if (!e.button)
                     this._view.click();
             });
@@ -692,82 +695,47 @@ export class Display extends EventEmitter {
         });
         this._view.addEventListener('mousedown', e => {
             this._container.focus();
-            //only do custom selection if split view
-            if (this._split && this._split.visible) {
-                let caret = this._getMouseEventCaretRange(e);
-                if (caret) {
-                    this._window.getSelection().removeAllRanges();
-                    if (caret.startContainer) {
-                        if (e.shiftKey && this._selection.start) {
-                            let range = this._document.createRange();
-                            range.setStart(this._selection.start.node, this._selection.start.offset);
-                            range.setEnd(this._selection.end.node, this._selection.end.offset);
-                            this._window.getSelection().addRange(range);
-                            this._extendSelection(e);
-                        }
-                        else
-                            this._window.getSelection().addRange(caret);
-                    }
-                    else if (caret.offsetNode) {
-                        const range = document.createRange();
-                        if (e.shiftKey && this._selection.start)
-                            range.setStart(this._selection.start.node, this._selection.start.offset);
-                        else
-                            range.setStart(caret.offsetNode, caret.offset);
-                        range.setEnd(caret.offsetNode, caret.offset);
-                        this._window.getSelection().addRange(range);
-                    }
-                    e.preventDefault();
-                }
-                else if (e.shiftKey && this._selection.start) {
-                    this._window.getSelection().removeAllRanges();
-                    let range = this._document.createRange();
-                    range.setStart(this._selection.start.node, this._selection.start.offset);
-                    range.setEnd(this._selection.end.node, this._selection.end.offset);
-                    this._window.getSelection().addRange(range);
-                }
-            }
             this.emit('mousedown', e);
             const bounds = this._bounds;
             let w = bounds.width - this._view.clientWidth;
             let h = bounds.height - this._view.clientHeight;
             if (e.button === 0 && e.pageX < bounds.right - w && e.pageY < bounds.bottom - h) {
                 if (this.customSelection) {
-                    if (!e.shiftKey)
+                    if (!e.shiftKey) {
                         this.clearSelection();
-                    else if (this._selection.start && e.shiftKey && (!this._split || !this._split.visible)) {
-                        let range = this._document.createRange();
-                        range.setStart(this._selection.start.node, this._selection.start.offset);
-                        range.setEnd(this._selection.end.node, this._selection.end.offset);
-                        this._window.getSelection().removeAllRanges();
-                        this._window.getSelection().addRange(range);
-                        this._extendSelection(e);
+                        this._startSelection(e);
                     }
+                    else if (this._trackSelection.down && e.shiftKey)
+                        this._endSelection(e);
+                    else
+                        this._startSelection(e);
                 }
                 this._mouseDown = 1;
                 if (this._split)
                     this._split._bar.style.pointerEvents = 'none';
             }
-            else if (this.customSelection && e.button === 2 && this._selection.start) {
+            else if (this.customSelection && e.button === 2 && this._trackSelection.down) {
+                if (!this._selection.start) this._setSelection();
                 let caret = this._getMouseEventCaretRange(e);
                 let range = this._document.createRange();
                 range.setStart(this._selection.start.node, this._selection.start.offset);
                 range.setEnd(this._selection.end.node, this._selection.end.offset);
                 if ((caret.offsetNode && range.intersectsNode(caret.offsetNode)) || (caret.startContainer && range.intersectsNode(caret.startContainer))) {
-                    this._window.getSelection().removeAllRanges();
-                    this._window.getSelection().addRange(range);
                     if (e.shiftKey)
-                        this._extendSelection(e);
+                        this._endSelection(e);
+                    else
+                        this._setSelection();
                 }
-                else if (!e.shiftKey) {
+                else if (e.shiftKey)
+                    this._endSelection(e);
+                else
                     this.clearSelection();
-                }
             }
         });
-        this._view.addEventListener('mousemove', async e => {
+        this._view.addEventListener('mousemove', e => {
             this._lastMouse = e;
             if (this._mouseDown) {
-                this._extendSelection(e);
+                this._endSelection(e);
                 //when near edge of view start auto scroll
                 this._createScrollTimer();
             }
@@ -776,22 +744,24 @@ export class Display extends EventEmitter {
             if (this._mouseDown === 2)
                 this._view.click();
             if (e.button === 0)
-                this._clearMouseDown();
+                this._clearMouseDown(e);
             this.emit('mouseup', e);
         });
         this._view.addEventListener('mouseenter', e => {
             //mouse left and came back with button up so fake a mouseup
             if (this._mouseDown && (e.buttons & 1) !== 1)
-                this._clearMouseDown();
+                this._clearMouseDown(e);
             else
                 this._clearScrollTimer();
         });
         this._view.addEventListener('mouseleave', e => {
             if (this._mouseDown) {
                 this._lastMouse = e;
-                if (this._view.lastChild && e.pageY >= (this._bounds.bottom - this._horizontalScrollBarHeight)) {
-                    this._window.getSelection().extend(this._view.lastChild, this._view.lastChild.childNodes.length);
-                    this._updateSelectionHighlight();
+                if (this.customSelection && this._view.lastChild && e.pageY >= (this._bounds.bottom - this._horizontalScrollBarHeight)) {
+                    this._trackSelection.up = this._getMouseEventCaretRange(e);
+                    this._trackSelection.up.setStart(this._view.lastChild, this._view.lastChild.childNodes.length);
+                    this._trackSelection.up.setEnd(this._view.lastChild, this._view.lastChild.childNodes.length);
+                    this._setSelection();
                 }
                 this._createScrollTimer();
             }
@@ -817,33 +787,11 @@ export class Display extends EventEmitter {
             //some weird bug in chrome that with out this causes the end/start container to be the wrong nodes
             if (this._window.getSelection().rangeCount)
                 this._window.getSelection().getRangeAt(0);
-            if (this._mouseDown)
-                debounce(() => {
-                    let selection = this._window.getSelection();
-                    if (this.customSelection && selection.rangeCount > 0) {
-                        const range = selection.getRangeAt(0);
-                        if (!this._view.contains(range.commonAncestorContainer))
-                            return;
-                        let nOffset = null;
-                        nOffset = this._getNodeOffset(this._view, this._view.firstChild, range.startContainer, range.startOffset, range);
-                        if (nOffset === null && this._split && this._split.visible)
-                            nOffset = this._getNodeOffset(this._split._view, this._split._view.firstChild, range.startContainer, range.startOffset, range);
-                        this._selection.start = nOffset;
-                        nOffset = null;
-                        if (this._split && this._split.visible)
-                            nOffset = this._getNodeOffset(this._split._view, this._split._view.lastChild, range.endContainer, range.endOffset, range);
-                        if (nOffset === null)
-                            nOffset = this._getNodeOffset(this._view, this._view.lastChild, range.endContainer, range.endOffset, range);
-                        this._selection.end = nOffset;
-                        this._updateSelectionHighlight();
-                    }
-                    this.emit('selection-changed', selection);
-                }, 10, this.id + 'selection-changed');
         };
         this._wUp = e => {
             if (this._mouseDown && e.button === 0) {
                 this._lastMouse = e;
-                this._clearMouseDown();
+                this._clearMouseDown(e);
             }
         };
         this._wMove = e => {
@@ -1662,45 +1610,28 @@ export class Display extends EventEmitter {
     }
 
     private _adjustSplitSelection(target, source) {
-        const selection = this._window.getSelection();
-        let range
-        if (selection.isCollapsed || selection.rangeCount === 0) {
-            if (!this._selection.start)
-                return;
-            else {
-                range = this._document.createRange();
-                range.setStart(this._selection.start.node, this._selection.start.offset);
-                range.setEnd(this._selection.end.node, this._selection.end.offset);
+        let so;
+        let sElement;
+        let n;
+        if (this._trackSelection.down) {
+            n = this._rangeToNode(this._trackSelection.down);
+            so = n.offset;
+            sElement = this._getElement(target, source, n.node);
+            if (sElement && this._isElementVisible(sElement, target)) {
+                this._trackSelection.down.setStart(sElement, so);
+                this._trackSelection.down.setEnd(sElement, so);
             }
         }
-        else
-            range = selection.getRangeAt(0);
-
-        let so = range.startOffset;
-        let eo = range.endOffset;
-        let eElement = this._getElement(target, source, range.endContainer);
-        let sElement = this._getElement(target, source, range.startContainer);
-        //test if element is visible in split
-        if (eElement && this._isElementVisible(eElement, target)) {
-            range.setEnd(eElement, eo);
-            this._selection.end = { node: eElement, offset: eo };
+        if (this._trackSelection.up) {
+            n = this._rangeToNode(this._trackSelection.up);
+            so = n.offset;
+            sElement = this._getElement(target, source, n.node);
+            if (sElement && this._isElementVisible(sElement, target)) {
+                this._trackSelection.up.setStart(sElement, so);
+                this._trackSelection.up.setEnd(sElement, so);
+            }
         }
-        else if (!eElement && this._selection.start) {
-            eElement = this._getElement(target, source, this._selection.end.node);
-            eo = this._selection.end.offset;
-            if (eElement && this._isElementVisible(eElement, target))
-                this._selection.end = { node: eElement, offset: eo };
-        }
-        if (sElement && this._isElementVisible(sElement, target)) {
-            range.setStart(sElement, so);
-            this._selection.start = { node: sElement, offset: so };
-        }
-        else if (!sElement && this._selection.start) {
-            sElement = this._getElement(target, source, this._selection.start.node);
-            so = this._selection.start.offset;
-            if (eElement && this._isElementVisible(sElement, target))
-                this._selection.start = { node: sElement, offset: so };
-        }
+        this._setSelection();
         this._updateSelectionHighlight();
     }
 
@@ -1716,20 +1647,29 @@ export class Display extends EventEmitter {
         else if (typeof document.createRange != "undefined" && document.createRange !== null) {
             // Try Mozilla's rangeOffset and rangeParent properties,
             // which are exactly what we want
+            /*
             if (typeof evt.rangeParent != "undefined" && evt.rangeParent !== null) {
+                console.log('rp');
+                console.log(evt.rangeParent);
                 range = document.createRange();
                 range.setStart(evt.rangeParent, evt.rangeOffset);
                 range.collapse(true);
             }
 
             // Try the standards-based way next
-            else if ((<any>document.body).caretPositionFromPoint) {
+            else */if ((<any>document.body).caretPositionFromPoint) {
                 var pos = (<any>document.body).caretPositionFromPoint(x, y);
+                range = pos.createRange();
+                range.setStart(pos.offsetNode, pos.offset);
+                range.collapse(true);
+            }
+            // Try the standards-based way next
+            else if ((<any>document).caretPositionFromPoint) {
+                var pos = (<any>document).caretPositionFromPoint(x, y);
                 range = document.createRange();
                 range.setStart(pos.offsetNode, pos.offset);
                 range.collapse(true);
             }
-
             // Next, the WebKit way
             else if (document.caretRangeFromPoint) {
                 range = document.caretRangeFromPoint(x, y);
@@ -1783,14 +1723,6 @@ export class Display extends EventEmitter {
         return false;
     }
 
-    private _getNodeOffset(view, node, container, containerOffset, range) {
-        if (view.contains(container) || node === container)
-            return { node: container, offset: containerOffset };
-        else if (node && range.intersectsNode(node))
-            return { node: node, offset: 0 };
-        return null;
-    }
-
     private _updateSelectionHighlight() {
         if (!('Highlight' in window)) return;
         if (!this._selection.start || !this.customSelection) {
@@ -1821,34 +1753,11 @@ export class Display extends EventEmitter {
 
     }
 
-    private _extendSelection(e) {
-        let caret = this._getMouseEventCaretRange(e);
-        if (!caret) return;
-        if (caret.startContainer) {
-            if (this._window.getSelection().rangeCount === 0) {
-                let range = this._document.createRange();
-                range.setStart(caret.startContainer, caret.startOffset);
-                range.setEnd(caret.startContainer, caret.startOffset);
-                this._window.getSelection().addRange(range);
-            }
-            else
-                this._window.getSelection().extend(caret.endContainer, caret.endOffset);
-        }
-        else if (caret.offsetNode) {
-            if (this._window.getSelection().rangeCount === 0) {
-                let range = this._document.createRange();
-                range.setStart(caret.offsetNode, caret.offset);
-                range.setEnd(caret.offsetNode, caret.offset);
-                this._window.getSelection().addRange(range);
-            }
-            else
-                this._window.getSelection().extend(caret.offsetNode, caret.offset);
-        }
-    }
-
-    private _clearMouseDown() {
-        if (this._mouseDown)
+    private _clearMouseDown(e) {
+        if (this._mouseDown) {
+            this._endSelection(e);
             this.emit('selection-done');
+        }
         this._mouseDown = 0;
         if (this._split)
             this._split._bar.style.pointerEvents = '';
@@ -2028,6 +1937,66 @@ export class Display extends EventEmitter {
             this.doUpdate(UpdateType.selection);
         }, 20);
         */
+    }
+
+    private _isBefore(nodeA, nodeB) {
+        var position = nodeA.compareDocumentPosition(nodeB);
+        //after
+        if (position & 0x04) return false;
+        //before
+        //if (position & 0x02) return true;
+        return true;
+    }
+
+    private _rangeToNode(range) {
+        if (range.startContainer)
+            return { node: range.startContainer, offset: range.startOffset };
+        return { node: range.offsetNode, offset: range.offset };
+    }
+
+    private _startSelection(e) {
+        if (!this.customSelection) return;
+        this._trackSelection.down = this._getMouseEventCaretRange(e);
+        this._selection.start = this._rangeToNode(this._trackSelection.down);
+        this._selection.end = this._selection.start;
+        this._updateSelectionHighlight();
+    }
+
+    private _setSelection() {
+        if (!this.customSelection || !this._trackSelection.down) return;
+        let down = this._rangeToNode(this._trackSelection.down);
+        let up = this._rangeToNode(this._trackSelection.up);
+        if (down.node === up.node) {
+            if (down.offset < up.offset) {
+                this._selection.start = down;
+                this._selection.end = up;
+            }
+            else {
+                this._selection.start = up;
+                this._selection.end = down;
+            }
+        }
+        else if (!this._isBefore(down.node, up.node)) {
+            this._selection.start = down;
+            this._selection.end = up;
+        }
+        else {
+            this._selection.start = up;
+            this._selection.end = down;
+        }
+        this._window.getSelection().removeAllRanges();
+        let range = this._document.createRange();
+        range.setStart(this._selection.start.node, this._selection.start.offset);
+        range.setEnd(this._selection.end.node, this._selection.end.offset);
+        this._window.getSelection().addRange(range);
+        this.emit('selection-changed');
+        this._updateSelectionHighlight();
+    }
+
+    private _endSelection(e) {
+        if (!this.customSelection) return;
+        this._trackSelection.up = this._getMouseEventCaretRange(e);
+        this._setSelection();
     }
 }
 

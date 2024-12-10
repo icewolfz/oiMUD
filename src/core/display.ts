@@ -758,7 +758,7 @@ export class Display extends EventEmitter {
             if (this._mouseDown) {
                 this._lastMouse = e;
                 if (this.customSelection && this._view.lastChild && e.pageY >= (this._bounds.bottom - this._horizontalScrollBarHeight)) {
-                    this._trackSelection.up = this._getMouseEventCaretRange(e);
+                    this._trackSelection.up = this._getMouseEventCaretRange(e) || this._document.createRange();
                     this._trackSelection.up.setStart(this._view.lastChild, this._view.lastChild.childNodes.length);
                     this._trackSelection.up.setEnd(this._view.lastChild, this._view.lastChild.childNodes.length);
                     this._setSelection();
@@ -1637,14 +1637,13 @@ export class Display extends EventEmitter {
 
     private _getMouseEventCaretRange(evt) {
         var range, x = evt.clientX, y = evt.clientY;
-
         // Try the simple IE way first
-        if ((<any>document.body).createTextRange) {
-            range = (<any>document.body).createTextRange();
+        if ((<any>this._document.body).createTextRange) {
+            range = (<any>this._document.body).createTextRange();
             range.moveToPoint(x, y);
         }
 
-        else if (typeof document.createRange != "undefined" && document.createRange !== null) {
+        else if (typeof this._document.createRange != "undefined" && this._document.createRange !== null) {
             // Try Mozilla's rangeOffset and rangeParent properties,
             // which are exactly what we want
             /*
@@ -1657,22 +1656,24 @@ export class Display extends EventEmitter {
             }
 
             // Try the standards-based way next
-            else */if ((<any>document.body).caretPositionFromPoint) {
-                var pos = (<any>document.body).caretPositionFromPoint(x, y);
+            else */if ((<any>this._document.body).caretPositionFromPoint) {
+                var pos = (<any>this._document.body).caretPositionFromPoint(x, y);
+                if (!this._container.contains(pos.offsetNode)) return null;
                 range = pos.createRange();
                 range.setStart(pos.offsetNode, pos.offset);
                 range.collapse(true);
             }
             // Try the standards-based way next
-            else if ((<any>document).caretPositionFromPoint) {
-                var pos = (<any>document).caretPositionFromPoint(x, y);
-                range = document.createRange();
+            else if ((<any>this._document).caretPositionFromPoint) {
+                var pos = (<any>this._document).caretPositionFromPoint(x, y);
+                if (!this._container.contains(pos.offsetNode)) return null;
+                range = this._document.createRange();
                 range.setStart(pos.offsetNode, pos.offset);
                 range.collapse(true);
             }
             // Next, the WebKit way
-            else if (document.caretRangeFromPoint) {
-                range = document.caretRangeFromPoint(x, y);
+            else if (this._document.caretRangeFromPoint) {
+                range = this._document.caretRangeFromPoint(x, y);
             }
         }
 
@@ -1984,18 +1985,30 @@ export class Display extends EventEmitter {
             this._selection.start = up;
             this._selection.end = down;
         }
-        this._window.getSelection().removeAllRanges();
-        let range = this._document.createRange();
-        range.setStart(this._selection.start.node, this._selection.start.offset);
-        range.setEnd(this._selection.end.node, this._selection.end.offset);
-        this._window.getSelection().addRange(range);
+        debounce(() => {
+            let range;
+            //firefox hack, seems it likes to use current range
+            if (this._window.getSelection().rangeCount === 0) {
+                range = this._document.createRange();
+                range.setStart(this._selection.start.node, this._selection.start.offset);
+                range.setEnd(this._selection.end.node, this._selection.end.offset);
+                this._window.getSelection().addRange(range);
+            }
+            else {
+                range = this._window.getSelection().getRangeAt(0);
+                range.setStart(this._selection.start.node, this._selection.start.offset);
+                range.setEnd(this._selection.end.node, this._selection.end.offset);
+            }
+        }, 1, this.id + 'set-selection');
         this.emit('selection-changed');
         this._updateSelectionHighlight();
     }
 
     private _endSelection(e) {
         if (!this.customSelection) return;
-        this._trackSelection.up = this._getMouseEventCaretRange(e);
+        const caret = this._getMouseEventCaretRange(e);
+        if (caret)
+            this._trackSelection.up = caret;
         this._setSelection();
     }
 }

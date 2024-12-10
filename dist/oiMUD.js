@@ -21210,7 +21210,7 @@
         if (this._mouseDown) {
           this._lastMouse = e;
           if (this.customSelection && this._view.lastChild && e.pageY >= this._bounds.bottom - this._horizontalScrollBarHeight) {
-            this._trackSelection.up = this._getMouseEventCaretRange(e);
+            this._trackSelection.up = this._getMouseEventCaretRange(e) || this._document.createRange();
             this._trackSelection.up.setStart(this._view.lastChild, this._view.lastChild.childNodes.length);
             this._trackSelection.up.setEnd(this._view.lastChild, this._view.lastChild.childNodes.length);
             this._setSelection();
@@ -22486,22 +22486,24 @@
     }
     _getMouseEventCaretRange(evt) {
       var range, x2 = evt.clientX, y2 = evt.clientY;
-      if (document.body.createTextRange) {
-        range = document.body.createTextRange();
+      if (this._document.body.createTextRange) {
+        range = this._document.body.createTextRange();
         range.moveToPoint(x2, y2);
-      } else if (typeof document.createRange != "undefined" && document.createRange !== null) {
-        if (document.body.caretPositionFromPoint) {
-          var pos = document.body.caretPositionFromPoint(x2, y2);
+      } else if (typeof this._document.createRange != "undefined" && this._document.createRange !== null) {
+        if (this._document.body.caretPositionFromPoint) {
+          var pos = this._document.body.caretPositionFromPoint(x2, y2);
+          if (!this._container.contains(pos.offsetNode)) return null;
           range = pos.createRange();
           range.setStart(pos.offsetNode, pos.offset);
           range.collapse(true);
-        } else if (document.caretPositionFromPoint) {
-          var pos = document.caretPositionFromPoint(x2, y2);
-          range = document.createRange();
+        } else if (this._document.caretPositionFromPoint) {
+          var pos = this._document.caretPositionFromPoint(x2, y2);
+          if (!this._container.contains(pos.offsetNode)) return null;
+          range = this._document.createRange();
           range.setStart(pos.offsetNode, pos.offset);
           range.collapse(true);
-        } else if (document.caretRangeFromPoint) {
-          range = document.caretRangeFromPoint(x2, y2);
+        } else if (this._document.caretRangeFromPoint) {
+          range = this._document.caretRangeFromPoint(x2, y2);
         }
       }
       return range;
@@ -22700,17 +22702,27 @@
         this._selection.start = up;
         this._selection.end = down;
       }
-      this._window.getSelection().removeAllRanges();
-      let range = this._document.createRange();
-      range.setStart(this._selection.start.node, this._selection.start.offset);
-      range.setEnd(this._selection.end.node, this._selection.end.offset);
-      this._window.getSelection().addRange(range);
+      debounce(() => {
+        let range;
+        if (this._window.getSelection().rangeCount === 0) {
+          range = this._document.createRange();
+          range.setStart(this._selection.start.node, this._selection.start.offset);
+          range.setEnd(this._selection.end.node, this._selection.end.offset);
+          this._window.getSelection().addRange(range);
+        } else {
+          range = this._window.getSelection().getRangeAt(0);
+          range.setStart(this._selection.start.node, this._selection.start.offset);
+          range.setEnd(this._selection.end.node, this._selection.end.offset);
+        }
+      }, 1, this.id + "set-selection");
       this.emit("selection-changed");
       this._updateSelectionHighlight();
     }
     _endSelection(e) {
       if (!this.customSelection) return;
-      this._trackSelection.up = this._getMouseEventCaretRange(e);
+      const caret = this._getMouseEventCaretRange(e);
+      if (caret)
+        this._trackSelection.up = caret;
       this._setSelection();
     }
   };

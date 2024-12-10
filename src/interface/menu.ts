@@ -2,7 +2,7 @@ declare let client;
 declare let bootstrap;
 
 import { showDialog, toggleButtons, doPasteSpecial } from './interface';
-import { isPasteSupported, pasteText, insertValue } from '../core/library';
+import { isPasteSupported, pasteText } from '../core/library';
 
 export function closeMenu() {
     const instance = bootstrap.Offcanvas.getInstance(document.getElementById('clientMenu'));

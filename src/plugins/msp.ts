@@ -26,7 +26,7 @@ declare global {
 import * as buzz from './../lib/buzz.js'
 
 import { EventEmitter } from '../core/events.js';
-import { stripQuotes } from '../core/library.js';
+//import { stripQuotes } from '../core/library.js';
 import { TelnetOption } from '../core/telnet.js';
 import { Client } from '../core/client.js';
 import { Plugin } from '../core/plugin.js';

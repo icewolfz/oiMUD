@@ -21155,15 +21155,31 @@
           let caret = this._getMouseEventCaretRange(e);
           if (caret) {
             this._window.getSelection().removeAllRanges();
-            if (caret.startContainer)
-              this._window.getSelection().addRange(caret);
-            else if (caret.offsetNode) {
+            if (caret.startContainer) {
+              if (e.shiftKey && this._selection.start) {
+                let range = this._document.createRange();
+                range.setStart(this._selection.start.node, this._selection.start.offset);
+                range.setEnd(this._selection.end.node, this._selection.end.offset);
+                this._window.getSelection().addRange(range);
+                this._extendSelection(e);
+              } else
+                this._window.getSelection().addRange(caret);
+            } else if (caret.offsetNode) {
               const range = document.createRange();
-              range.setStart(caret.offsetNode, caret.offset);
+              if (e.shiftKey && this._selection.start)
+                range.setStart(this._selection.start.node, this._selection.start.offset);
+              else
+                range.setStart(caret.offsetNode, caret.offset);
               range.setEnd(caret.offsetNode, caret.offset);
               this._window.getSelection().addRange(range);
             }
             e.preventDefault();
+          } else if (e.shiftKey && this._selection.start) {
+            this._window.getSelection().removeAllRanges();
+            let range = this._document.createRange();
+            range.setStart(this._selection.start.node, this._selection.start.offset);
+            range.setEnd(this._selection.end.node, this._selection.end.offset);
+            this._window.getSelection().addRange(range);
           }
         }
         this.emit("mousedown", e);
@@ -21171,8 +21187,18 @@
         let w = bounds.width - this._view.clientWidth;
         let h = bounds.height - this._view.clientHeight;
         if (e.button === 0 && e.pageX < bounds.right - w && e.pageY < bounds.bottom - h) {
-          if (this.customSelection)
-            this.clearSelection();
+          if (this.customSelection) {
+            if (!e.shiftKey)
+              this.clearSelection();
+            else if (this._selection.start && e.shiftKey && (!this._split || !this._split.visible)) {
+              let range = this._document.createRange();
+              range.setStart(this._selection.start.node, this._selection.start.offset);
+              range.setEnd(this._selection.end.node, this._selection.end.offset);
+              this._window.getSelection().removeAllRanges();
+              this._window.getSelection().addRange(range);
+              this._extendSelection(e);
+            }
+          }
           this._mouseDown = 1;
           if (this._split)
             this._split._bar.style.pointerEvents = "none";
@@ -21184,7 +21210,9 @@
           if (caret.offsetNode && range.intersectsNode(caret.offsetNode) || caret.startContainer && range.intersectsNode(caret.startContainer)) {
             this._window.getSelection().removeAllRanges();
             this._window.getSelection().addRange(range);
-          } else {
+            if (e.shiftKey)
+              this._extendSelection(e);
+          } else if (!e.shiftKey) {
             this.clearSelection();
           }
         }
@@ -21197,11 +21225,11 @@
         }
       });
       this._view.addEventListener("mouseup", (e) => {
-        this.emit("mouseup", e);
         if (this._mouseDown === 2)
           this._view.click();
         if (e.button === 0)
           this._clearMouseDown();
+        this.emit("mouseup", e);
       });
       this._view.addEventListener("mouseenter", (e) => {
         if (this._mouseDown && (e.buttons & 1) !== 1)
@@ -21242,6 +21270,8 @@
             let selection = this._window.getSelection();
             if (this.customSelection && selection.rangeCount > 0) {
               const range = selection.getRangeAt(0);
+              if (!this._view.contains(range.commonAncestorContainer))
+                return;
               let nOffset = null;
               nOffset = this._getNodeOffset(this._view, this._view.firstChild, range.startContainer, range.startOffset, range);
               if (nOffset === null && this._split && this._split.visible)
@@ -21501,11 +21531,21 @@
             e.preventDefault();
             let caret = this._getMouseEventCaretRange(e);
             this._window.getSelection().removeAllRanges();
-            if (caret.startContainer)
-              this._window.getSelection().addRange(caret);
-            else if (caret.offsetNode) {
+            if (caret.startContainer) {
+              if (e.shiftKey && this._selection.start) {
+                let range = this._document.createRange();
+                range.setStart(this._selection.start.node, this._selection.start.offset);
+                range.setEnd(this._selection.end.node, this._selection.end.offset);
+                this._window.getSelection().addRange(range);
+                this._extendSelection(e);
+              } else
+                this._window.getSelection().addRange(caret);
+            } else if (caret.offsetNode) {
               const range = document.createRange();
-              range.setStart(caret.offsetNode, caret.offset);
+              if (e.shiftKey && this._selection.start)
+                range.setStart(this._selection.start.node, this._selection.start.offset);
+              else
+                range.setStart(caret.offsetNode, caret.offset);
               range.setEnd(caret.offsetNode, caret.offset);
               this._window.getSelection().addRange(range);
             }

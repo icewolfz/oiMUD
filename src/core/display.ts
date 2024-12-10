@@ -190,11 +190,11 @@ export class Display extends EventEmitter {
     set splitHeight(value: number) {
         if (this._splitHeight !== value) {
             this._splitHeight = value;
-            this._bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
+            let h = this._horizontalScrollBarHeight - this._padding[2];
             if (this._splitHeight <= this._bounds.top + 150)
                 this._splitHeight = 150;
-            else if (this._splitHeight > this._bounds.bottom - 150)
-                this._splitHeight = this._bounds.height - 150;
+            else if (this._splitHeight > this._bounds.bottom - 150 - h)
+                this._splitHeight = this._bounds.height - 150 - h;
             this._updateSplitLocation();
         }
     }
@@ -230,7 +230,7 @@ export class Display extends EventEmitter {
                 this._split.ghostBar.style.right = this._verticalScrollBarHeight + 'px';
                 this._container.appendChild(this._split.ghostBar);
                 const bounds = this._bounds;
-                bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
+                let hm = this._horizontalScrollBarHeight - this._padding[2];
 
                 this._split.mouseMove = (e) => {
                     e.preventDefault();
@@ -238,8 +238,8 @@ export class Display extends EventEmitter {
                     e.stopPropagation();
                     if (e.pageY < bounds.top + 150)
                         this._split.ghostBar.style.top = '150px';
-                    else if (e.pageY > bounds.bottom - 150)
-                        this._split.ghostBar.style.top = (bounds.height - 150) + 'px';
+                    else if (e.pageY > bounds.bottom - 150 - hm)
+                        this._split.ghostBar.style.top = (bounds.height - 150 - hm) + 'px';
                     else
                         this._split.ghostBar.style.top = (e.pageY - bounds.top) + 'px';
 
@@ -247,8 +247,8 @@ export class Display extends EventEmitter {
                         let h;
                         if (e.pageY < bounds.top + 150)
                             h = 150;
-                        else if (e.pageY > bounds.bottom - 150)
-                            h = bounds.height - 150;
+                        else if (e.pageY > bounds.bottom - 150 - hm)
+                            h = bounds.height - 150 - hm;
                         else
                             h = e.pageY - bounds.top;
                         this._split._view.style.top = h + 'px';
@@ -264,12 +264,12 @@ export class Display extends EventEmitter {
             this._split.moveDone = (e) => {
                 if (this._split.ghostBar) {
                     const bounds = this._bounds;
-                    bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
+                    let hm = this._horizontalScrollBarHeight - this._padding[2];
                     let h;
                     if (e.pageY < bounds.top + 150)
                         h = 150;
-                    else if (e.pageY > bounds.bottom - 150)
-                        h = bounds.height - 150;
+                    else if (e.pageY > bounds.bottom - 150 - hm)
+                        h = bounds.height - 150 - hm;
                     else
                         h = e.pageY - bounds.top;
                     this._split._view.style.top = h + 'px';
@@ -774,6 +774,44 @@ export class Display extends EventEmitter {
                 this._createScrollTimer();
             }
         });
+        /*
+        this._view.addEventListener('touchstart', e => {
+            this._container.focus();
+            this.emit('mousedown', e);
+            const bounds = this._bounds;
+            let w = bounds.width - this._view.clientWidth;
+            let h = bounds.height - this._view.clientHeight;
+            if (e.touches && e.touches.length && e.touches[0].pageX < bounds.right - w && e.touches[0].pageY < bounds.bottom - h) {
+                if (this.customSelection) {
+                    if (!e.shiftKey) {
+                        this.clearSelection();
+                        this._startSelection(e.touches[0]);
+                    }
+                    else if (this._trackSelection.down && e.shiftKey)
+                        this._endSelection(e.touches[0]);
+                    else
+                        this._startSelection(e.touches[0]);
+                }
+                this._mouseDown = 1;
+                if (this._split)
+                    this._split._bar.style.pointerEvents = 'none';
+            }
+        });
+        this._view.addEventListener('touchend', e => {
+            if (this._mouseDown === 2)
+                this._view.click();
+            if (e.touches && e.touches.length)
+                this._clearMouseDown(e.touches[0]);
+            this.emit('mouseup', e);
+        });
+        this._view.addEventListener('touchmove', e => {
+            if (this._mouseDown && e.touches && e.touches.length) {
+                this._endSelection(e.touches[0]);
+                //when near edge of view start auto scroll
+                this._createScrollTimer();
+            }
+        });
+        */
         this._container.appendChild(this._view);
 
         this._charHeight = parseFloat(this._window.getComputedStyle(this._character).height);

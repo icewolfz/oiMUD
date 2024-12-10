@@ -21385,11 +21385,11 @@
     set splitHeight(value) {
       if (this._splitHeight !== value) {
         this._splitHeight = value;
-        this._bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
+        let h = this._horizontalScrollBarHeight - this._padding[2];
         if (this._splitHeight <= this._bounds.top + 150)
           this._splitHeight = 150;
-        else if (this._splitHeight > this._bounds.bottom - 150)
-          this._splitHeight = this._bounds.height - 150;
+        else if (this._splitHeight > this._bounds.bottom - 150 - h)
+          this._splitHeight = this._bounds.height - 150 - h;
         this._updateSplitLocation();
       }
     }
@@ -21426,23 +21426,23 @@
           this._split.ghostBar.style.right = this._verticalScrollBarHeight + "px";
           this._container.appendChild(this._split.ghostBar);
           const bounds = this._bounds;
-          bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
+          let hm = this._horizontalScrollBarHeight - this._padding[2];
           this._split.mouseMove = (e2) => {
             e2.preventDefault();
             e2.cancelBubble = true;
             e2.stopPropagation();
             if (e2.pageY < bounds.top + 150)
               this._split.ghostBar.style.top = "150px";
-            else if (e2.pageY > bounds.bottom - 150)
-              this._split.ghostBar.style.top = bounds.height - 150 + "px";
+            else if (e2.pageY > bounds.bottom - 150 - hm)
+              this._split.ghostBar.style.top = bounds.height - 150 - hm + "px";
             else
               this._split.ghostBar.style.top = e2.pageY - bounds.top + "px";
             if (this.splitLive) {
               let h;
               if (e2.pageY < bounds.top + 150)
                 h = 150;
-              else if (e2.pageY > bounds.bottom - 150)
-                h = bounds.height - 150;
+              else if (e2.pageY > bounds.bottom - 150 - hm)
+                h = bounds.height - 150 - hm;
               else
                 h = e2.pageY - bounds.top;
               this._split._view.style.top = h + "px";
@@ -21457,12 +21457,12 @@
         this._split.moveDone = (e) => {
           if (this._split.ghostBar) {
             const bounds = this._bounds;
-            bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
+            let hm = this._horizontalScrollBarHeight - this._padding[2];
             let h;
             if (e.pageY < bounds.top + 150)
               h = 150;
-            else if (e.pageY > bounds.bottom - 150)
-              h = bounds.height - 150;
+            else if (e.pageY > bounds.bottom - 150 - hm)
+              h = bounds.height - 150 - hm;
             else
               h = e.pageY - bounds.top;
             this._split._view.style.top = h + "px";

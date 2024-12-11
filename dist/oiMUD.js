@@ -21791,6 +21791,12 @@
     get enableMXP() {
       return this._model.enableMXP;
     }
+    set defaultMXPState(value) {
+      this._model.defaultMXPState = value;
+    }
+    get defaultMXPState() {
+      return this._model.defaultMXPState;
+    }
     set showInvalidMXPTags(value) {
       this._model.showInvalidMXPTags = value;
     }
@@ -40895,6 +40901,7 @@ ${pre}`);
       this.display.enableSplit = this._options["display.split"];
       this.display.splitLive = this._options["display.splitLive"];
       this.display.customSelection = this._options["display.customSelection"];
+      this.display.defaultMXPState = this._options["display.defaultMXPState"];
       const colors = this.getOption("colors");
       if (colors && colors.length > 0) {
         let c;

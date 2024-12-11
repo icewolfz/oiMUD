@@ -570,6 +570,13 @@ export class Display extends EventEmitter {
         return this._model.enableMXP;
     }
 
+    set defaultMXPState(value: boolean) {
+        this._model.defaultMXPState = value;
+    }
+    get defaultMXPState(): boolean {
+        return this._model.defaultMXPState;
+    }
+
     set showInvalidMXPTags(value: boolean) {
         this._model.showInvalidMXPTags = value;
     }

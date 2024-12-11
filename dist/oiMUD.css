@@ -74,6 +74,9 @@ textarea {
   outline: none;
   min-height: 100%;
 }
+#commandInput:focus-visible {
+  outline: none;
+}
 #commandInput:focus {
   outline: none;
 }
@@ -96,28 +99,37 @@ textarea {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
+#btn-menu:focus,
+#btn-adv-editor:focus,
+#btn-command-history:focus,
+#btn-menu:focus-visible,
+#btn-adv-editor:focus-visible,
+#btn-command-history:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
 
 /* src/css/ansi.css */
 @-webkit-keyframes blinker {
   0% {
-    opacity: 1.0;
+    opacity: 1;
   }
   50% {
-    opacity: 0.0;
+    opacity: 0;
   }
   100% {
-    opacity: 1.0;
+    opacity: 1;
   }
 }
 @keyframes blinker {
   0% {
-    opacity: 1.0;
+    opacity: 1;
   }
   50% {
-    opacity: 0.0;
+    opacity: 0;
   }
   100% {
-    opacity: 1.0;
+    opacity: 1;
   }
 }
 .animate .ansi-blink {
@@ -156,6 +168,9 @@ textarea {
 }
 .line hr {
   border: 0px;
+  opacity: 1;
+  margin: 0;
+  height: 4px;
 }
 .line br {
   display: none;
@@ -226,6 +241,9 @@ a.MXPLink:hover span {
   padding: 2px;
   position: absolute;
   z-index: 0;
+}
+#display:focus-visible {
+  outline: none;
 }
 .display-split-view {
   position: absolute;

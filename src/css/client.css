@@ -90,6 +90,10 @@ textarea {
   min-height: 100%;
 }
 
+#commandInput:focus-visible {
+  outline: none;
+}
+
 #commandInput:focus {
   outline: none;
 }
@@ -114,4 +118,14 @@ textarea {
 #btn-command-history {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
+}
+
+#btn-menu:focus,
+#btn-adv-editor:focus,
+#btn-command-history:focus,
+#btn-menu:focus-visible,
+#btn-adv-editor:focus-visible,
+#btn-command-history:focus-visible {
+  outline: none;
+  box-shadow: none;
 }

@@ -1088,7 +1088,7 @@ export class Display extends EventEmitter {
         if ((this._wordWrap || this._wrapAt > 0) && this._indent > 0)
             styles += `#${this.id} .view {  text-indent: ${this._indent * this._charWidth}px hanging; }`;
         //styles += `.view { padding-left: ${this._indent * this._charWidth * 2}px;text-indent: -${this._indent * this._charWidth}px; }@-moz-document url-prefix() { .view {  padding-left: 0px !important; text-indent: ${this._indent * this._charWidth}px hanging; } }`;
-        styles += `#${this.id} .line > span { min-height: ${this._charHeight}}`;
+        styles += `#${this.id} .line > span { min-height: ${this._charHeight}px}`;
         if (this._timestamp !== TimeStampStyle.None)
             styles += '#' + this.id + ' .timestamp { display: inline-block; }';
         //else
@@ -1196,7 +1196,7 @@ export class Display extends EventEmitter {
                 else
                     fCls = '';
                 if (format.hr)
-                    parts.push('<span style="', style, 'min-width:100%;width:100%;"', fCls, '><div style="position:relative;top: 50%;transform: translateY(-50%);height:4px;width:100%; background-color:', (typeof format.color === 'number' ? this._model.GetColor(format.color) : format.color), '"></div></span>');
+                    parts.push('<span style="', style, 'min-width:100%;width:100%;position: relative;"', fCls, '><hr style="position:absolute;top: 50%;transform: translateY(-50%);height:4px;width:100%; background-color:', (typeof format.color === 'number' ? this._model.GetColor(format.color) : format.color), '"/><span>---</span></span>');
                 else if (end - offset !== 0)
                     parts.push('<span style="', style, '"', fCls, '>', htmlEncode(text.substring(offset, end)), '</span>');
             }
@@ -2103,7 +2103,7 @@ export class Display extends EventEmitter {
             this._selection.start = up;
             this._selection.end = down;
         }
-        debounce(() => {
+        //debounce(() => {
             let range;
             if (this._document.activeElement !== this._container) return;
             //firefox hack, seems it likes to use current range
@@ -2118,7 +2118,7 @@ export class Display extends EventEmitter {
                 range.setStart(this._selection.start.node, this._selection.start.offset);
                 range.setEnd(this._selection.end.node, this._selection.end.offset);
             }
-        }, 1, this.id + 'set-selection');
+        //}, 1, this.id + 'set-selection');
         this.emit('selection-changed');
         this._updateSelectionHighlight();
     }

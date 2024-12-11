@@ -533,7 +533,7 @@ function createLine(line) {
             else
                 fCls = '';
             if (format.hr)
-                parts.push('<span style="min-width:100%;width:100%;"', fCls, '><div style="position:relative;top: 50%;transform: translateY(-50%);height:4px;width:100%; background-color:', (typeof format.color === 'number' ? GetColor(format.color) : format.color), '"></div></span>');
+                parts.push('<span style="min-width:100%;width:100%;position: relative;"', fCls, '><hr style="position:absolute;top: 50%;transform: translateY(-50%);height:4px;width:100%; background-color:', (typeof format.color === 'number' ? GetColor(format.color) : format.color), '"/><span>---</span></span>');
             else if (end - offset !== 0)
                 parts.push('<span', ...fCls, '>', htmlEncode(text.substring(offset, end)), '</span>');
         }

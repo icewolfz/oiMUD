@@ -786,7 +786,6 @@ export class Display extends EventEmitter {
                 this._createScrollTimer();
             }
         });
-        /*
         this._view.addEventListener('touchstart', e => {
             this._container.focus();
             this.emit('mousedown', e);
@@ -823,7 +822,6 @@ export class Display extends EventEmitter {
                 this._createScrollTimer();
             }
         });
-        */
         this._container.appendChild(this._view);
 
         this._charHeight = parseFloat(this._window.getComputedStyle(this._character).height);

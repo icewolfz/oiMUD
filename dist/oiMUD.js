@@ -21224,6 +21224,40 @@
           this._createScrollTimer();
         }
       });
+      this._view.addEventListener("touchstart", (e) => {
+        this._container.focus();
+        this.emit("mousedown", e);
+        const bounds = this._bounds;
+        let w = bounds.width - this._view.clientWidth;
+        let h = bounds.height - this._view.clientHeight;
+        if (e.touches && e.touches.length && e.touches[0].pageX < bounds.right - w && e.touches[0].pageY < bounds.bottom - h) {
+          if (this.customSelection) {
+            if (!e.shiftKey) {
+              this.clearSelection();
+              this._startSelection(e.touches[0]);
+            } else if (this._trackSelection.down && e.shiftKey)
+              this._endSelection(e.touches[0]);
+            else
+              this._startSelection(e.touches[0]);
+          }
+          this._mouseDown = 1;
+          if (this._split)
+            this._split._bar.style.pointerEvents = "none";
+        }
+      });
+      this._view.addEventListener("touchend", (e) => {
+        if (this._mouseDown === 2)
+          this._view.click();
+        if (e.touches && e.touches.length)
+          this._clearMouseDown(e.touches[0]);
+        this.emit("mouseup", e);
+      });
+      this._view.addEventListener("touchmove", (e) => {
+        if (this._mouseDown && e.touches && e.touches.length) {
+          this._endSelection(e.touches[0]);
+          this._createScrollTimer();
+        }
+      });
       this._container.appendChild(this._view);
       this._charHeight = parseFloat(this._window.getComputedStyle(this._character).height);
       this._charWidth = parseFloat(this._window.getComputedStyle(this._character.firstElementChild).width);

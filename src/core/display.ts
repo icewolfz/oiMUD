@@ -191,10 +191,10 @@ export class Display extends EventEmitter {
         if (this._splitHeight !== value) {
             this._splitHeight = value;
             let h = this._horizontalScrollBarHeight - this._padding[2];
-            if (this._splitHeight <= this._bounds.top + 150)
-                this._splitHeight = 150;
-            else if (this._splitHeight > this._bounds.bottom - 150 - h)
+            if (this._splitHeight == -1 || this._splitHeight > this._bounds.bottom - 150 - h)
                 this._splitHeight = this._bounds.height - 150 - h;
+            else if (this._splitHeight <= this._bounds.top + 150)
+                this._splitHeight = 150;
             this._updateSplitLocation();
         }
     }
@@ -259,7 +259,13 @@ export class Display extends EventEmitter {
                 };
                 this._container.addEventListener('mousemove', this._split.mouseMove);
                 this._container.addEventListener('mouseup', this._split.moveDone);
+                this._container.addEventListener('mouseenter', this._split.moveEnter);
             });
+
+            this._split.moveEnter = e => {
+                if ((e.buttons & 1) !== 1)
+                    this._split.moveDone(e);
+            };
 
             this._split.moveDone = (e) => {
                 if (this._split.ghostBar) {
@@ -282,6 +288,7 @@ export class Display extends EventEmitter {
                 }
                 this._container.removeEventListener('mousemove', this._split.mouseMove);
                 this._container.removeEventListener('mouseup', this._split.moveDone);
+                this._container.removeEventListener('mouseenter', this._split.moveEnter);
                 this._split.mouseMove = null;
             };
             this._split._view.addEventListener('mousedown', (e) => {

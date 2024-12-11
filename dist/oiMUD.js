@@ -18976,8 +18976,7 @@
                 if (arg.indexOf(".") === -1) {
                   arg = arg.toUpperCase();
                   switch (arg) {
-                    //TODO re-enable once font size/face  are supported
-                    //case 'FONT':
+                    case "FONT":
                     case "IMAGE":
                     case "HR":
                     case "A":
@@ -19104,8 +19103,8 @@
                       if (arg[1] !== "*")
                         sArgs.push("+" + arg[0] + "." + arg[1]);
                       else {
-                        sArgs.push("-font.face");
-                        sArgs.push("-font.size");
+                        sArgs.push("+font.face");
+                        sArgs.push("+font.size");
                         sArgs.push("+font.color");
                         sArgs.push("+font.back");
                       }
@@ -19143,7 +19142,7 @@
                 }
               }
             } else
-              sArgs = ["+A", "+SEND", "+B", "+I", "+COLOR", "+C", "+EM", "+ITALIC", "+STRONG", "+BOLD", "+UNDERLINE", "+U", "+S", "+STRIKEOUT", "+H", "+HIGH", "-FONT", "+EXPIRE", "+VERSION", "+SUPPORT", "+NOBR", "+P", "+BR", "+SBR", "+VAR", "+SOUND", "+MUSIC", "+USER", "+PASSWORD", "+RESET", "+STRIKE", "+H1", "+H2", "+H3", "+H4", "+H5", "+H6", "+IMAGE", "+STAT", "+GAUGE"];
+              sArgs = ["+A", "+SEND", "+B", "+I", "+COLOR", "+C", "+EM", "+ITALIC", "+STRONG", "+BOLD", "+UNDERLINE", "+U", "+S", "+STRIKEOUT", "+H", "+HIGH", "-FONT", "+EXPIRE", "+VERSION", "+SUPPORT", "+NOBR", "+P", "+BR", "+SBR", "+VAR", "+SOUND", "+MUSIC", "+USER", "+PASSWORD", "+RESET", "+STRIKE", "+H1", "+H2", "+H3", "+H4", "+H5", "+H6", "+IMAGE", "+STAT", "+GAUGE", "+FONT"];
             this.emit("MXP-tag-reply", tag, sArgs);
             break;
           case "A":
@@ -41008,11 +41007,14 @@ ${pre}`);
       str = "" + str;
       if (str.endsWith("\n"))
         str = str.substr(0, str.length - 1);
+      let mxp = this._display.enableMXP;
+      this._display.enableMXP = false;
       if (this.telnet.prompt && forceLine) {
         this.print("\n\x1B[" + fore + ";" + back + "m" + str + codes, newline);
         this.telnet.prompt = false;
       } else
         this.print("\x1B[" + fore + ";" + back + "m" + str + codes, newline);
+      this._display.enableMXP = mxp;
     }
     print(txt, newline) {
       this._printInternal(txt, newline, false, true);

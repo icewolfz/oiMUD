@@ -1314,12 +1314,15 @@ export class Client extends EventEmitter {
         str = '' + str;
         if (str.endsWith('\n'))
             str = str.substr(0, str.length - 1);
+        let mxp = this._display.enableMXP;
+        this._display.enableMXP = false;
         if (this.telnet.prompt && forceLine) {
             this.print('\n\x1b[' + fore + ';' + back + 'm' + str + codes, newline);
             this.telnet.prompt = false;
         }
         else
             this.print('\x1b[' + fore + ';' + back + 'm' + str + codes, newline);
+        this._display.enableMXP = mxp;
     }
 
     public print(txt: string, newline?: boolean) {

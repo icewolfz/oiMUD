@@ -67,6 +67,7 @@ The navigation breadcrumb to allow easier jumping to other pages
 - `Split scroll live update` determines how the split screen updates as resize bar is adjusted, if on it will update as resize bar is moved, if slow resizing disable this as it should reduce cpu load during drag
 - `Split height` The height of the display when split view is visible
 - `Enable custom selection system` Enable custom selection system for display, will use custom highlighting and tracking, **Note** this is always on when using split scroll
+- `Default MXP on state` Set the default state for mxp line state, when on it works more like MUSHclient and Mudlet and requires all < and > to be encoded from the mud
 
 ## Colors
 

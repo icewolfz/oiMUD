@@ -1061,8 +1061,8 @@ function updateCommandInput() {
     measure.style.fontSize = client.commandInput.style.fontSize;
     measure.style.fontFamily = client.commandInput.style.fontFamily;
     measure.style.width = client.commandInput.offsetWidth + 'px';
-    const oldMeasure = measure.innerHTML;
-    measure.innerHTML = 'W';
+    const oldMeasure = measure.textContent;
+    measure.textContent = 'W';
     let minHeight = client.getOption('commandMinLines');
     const height = measure.offsetHeight;
     minHeight = height * (minHeight < 1 ? 1 : minHeight);
@@ -1072,7 +1072,7 @@ function updateCommandInput() {
     padding += parseFloat(cmdSize.paddingBottom) || 0;
     let inset = cmdSize.inset.split(' ');
     padding += (parseFloat(inset[0]) || 0) * 2;
-    measure.innerHTML = oldMeasure;
+    measure.textContent = oldMeasure;
     cmd.style.height = (height + padding) + 'px';
     /*
     TODO need to rethink this logic and in _resizeCommandInput, as the current interface has 3 layers the nav group, then input group, then the input itself
@@ -1095,7 +1095,7 @@ function updateCommandInput() {
 function _resizeCommandInput() {
     const measure = commandInputResize.measure;
     const cmd = commandInputResize.cmd;
-    measure.innerHTML = client.commandInput.value + '\n';
+    measure.textContent = client.commandInput.value + '\n';
     let height = measure.offsetHeight;
     if (height < commandInputResize.minHeight)
         height = commandInputResize.minHeight;

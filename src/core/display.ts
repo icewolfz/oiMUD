@@ -2104,20 +2104,20 @@ export class Display extends EventEmitter {
             this._selection.end = down;
         }
         //debounce(() => {
-            let range;
-            if (this._document.activeElement !== this._container) return;
-            //firefox hack, seems it likes to use current range
-            if (this._window.getSelection().rangeCount === 0) {
-                range = this._document.createRange();
-                range.setStart(this._selection.start.node, this._selection.start.offset);
-                range.setEnd(this._selection.end.node, this._selection.end.offset);
-                this._window.getSelection().addRange(range);
-            }
-            else {
-                range = this._window.getSelection().getRangeAt(0);
-                range.setStart(this._selection.start.node, this._selection.start.offset);
-                range.setEnd(this._selection.end.node, this._selection.end.offset);
-            }
+        let range;
+        if (this._document.activeElement !== this._container) return;
+        //firefox hack, seems it likes to use current range
+        if (this._window.getSelection().rangeCount === 0) {
+            range = this._document.createRange();
+            range.setStart(this._selection.start.node, this._selection.start.offset);
+            range.setEnd(this._selection.end.node, this._selection.end.offset);
+            this._window.getSelection().addRange(range);
+        }
+        else {
+            range = this._window.getSelection().getRangeAt(0);
+            range.setStart(this._selection.start.node, this._selection.start.offset);
+            range.setEnd(this._selection.end.node, this._selection.end.offset);
+        }
         //}, 1, this.id + 'set-selection');
         this.emit('selection-changed');
         this._updateSelectionHighlight();
@@ -2221,6 +2221,13 @@ export class DisplayModel extends EventEmitter {
     }
     get enableMXP(): boolean {
         return this._parser.enableMXP;
+    }
+
+    set defaultMXPState(value: boolean) {
+        this._parser.defaultMXPState = value;
+    }
+    get defaultMXPState(): boolean {
+        return this._parser.defaultMXPState;
     }
 
     set showInvalidMXPTags(value: boolean) {

@@ -98,6 +98,9 @@ class MXPState {
     public capture: number = 0;
     public captured = [];
     public gagged: boolean = false;
+    constructor(on?) {
+        this.on = on || false;
+    }
 }
 
 /**
@@ -284,6 +287,7 @@ export class Parser extends EventEmitter {
     private _mxpLines: Tag[] = [];
     /** @private */
     private _iMXPDefaultMode: (lineType | number) = lineType.Open;
+    private _DefaultMXPState: boolean = false;
 
     public displayControlCodes: boolean = false;
     public emulateControlCodes: boolean = true;
@@ -304,6 +308,12 @@ export class Parser extends EventEmitter {
     public enableBell: boolean = true;
     public display: Display = null;
     public tabWidth: number = 8;
+    public get defaultMXPState() { return this._DefaultMXPState; }
+    public set defaultMXPState(value) {
+        this._DefaultMXPState = value;
+        if (this._mxpState.lineType !== lineType.Locked)
+            this._mxpState.on = value;
+    }
 
     public busy = false;
 
@@ -336,6 +346,7 @@ export class Parser extends EventEmitter {
             if (options.enableLinks)
                 this.enableLinks = options.enableLinks;
         }
+        this._mxpState.on = this._DefaultMXPState;
     }
 
     private _getColors(mxp?: MXPStyle) {
@@ -2711,7 +2722,7 @@ export class Parser extends EventEmitter {
                                     const ct = text.charAt(idx + 1);
                                     if (ct !== '<') {
                                         this._mxpState.lineType = lineType.Open;
-                                        this._mxpState.on = false;
+                                        this._mxpState.on = this._DefaultMXPState;
                                     }
                                     this._mxpState.locked = false;
                                     this._ClearMXPOpen();
@@ -3518,7 +3529,7 @@ export class Parser extends EventEmitter {
                                 formatBuilder.push(...this._getMXPCloseFormatBlocks());
                                 if (this._mxpState.on)
                                     this._ClearMXPOpen();
-                                this._mxpState.on = false;
+                                this._mxpState.on = this._DefaultMXPState;
                                 if (this._mxpLines[this._mxpState.lineType] && this._mxpLines[this._mxpState.lineType].enabled && this._mxpLines[this._mxpState.lineType].gag)
                                     skip = true;
                                 this._mxpState.lineType = this._iMXPDefaultMode;
@@ -3548,7 +3559,7 @@ export class Parser extends EventEmitter {
                             if (!this.mxpState.locked) {
                                 if (this.mxpState.on)
                                     this.ClearMXPOpen();
-                                this.mxpState.on = false;
+                                this.mxpState.on = this._DefaultMXPState;
                                 this.mxpState.lineType = lineType.Open;
                             }
                             continue;
@@ -4100,7 +4111,7 @@ export class Parser extends EventEmitter {
         this._mxpEntities = {};
         this.ResetMXP();
         this._mxpElements = {};
-        this._mxpState = new MXPState();
+        this._mxpState = new MXPState(this._DefaultMXPState);
     }
 
     public ResetMXP() {

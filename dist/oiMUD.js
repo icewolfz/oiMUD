@@ -6480,9 +6480,10 @@
     ["chat.enableBackgroundColors", 0, 2 /* Number */, true],
     ["display.customSelection", 0, 1 /* Boolean */, !isMobile()],
     ["chat.customSelection", 0, 1 /* Boolean */, !isMobile()],
-    ["pasteSpecialDisable", 0, 1 /* Boolean */, true]
+    ["pasteSpecialDisable", 0, 1 /* Boolean */, true],
+    ["display.defaultMXPState", 0, 1 /* Boolean */, false]
   ];
-  var SettingProperties = ["bufferSize", "commandDelay", "commandDelayCount", "commandHistorySize", "fontSize", "cmdfontSize", "commandEcho", "flashing", "autoConnect", "enableAliases", "enableTriggers", "enableMacros", "showScriptErrors", "commandStacking", "commandStackingChar", "htmlLog", "keepLastCommand", "enableMCCP", "enableUTF8", "font", "cmdfont", "mapper.follow", "mapper.enabled", "mapper.split", "mapper.fill", "showMapper", "fullScreen", "enableMXP", "enableMSP", "parseCommands", "lagMeter", "enablePing", "enableEcho", "enableSpeedpaths", "speedpathsChar", "parseSpeedpaths", "profile", "parseSingleQuotes", "parseDoubleQuotes", "logEnabled", "logPrepend", "logOffline", "logUniqueOnConnect", "enableURLDetection", "notifyMSPPlay", "CommandonClick", "allowEval", "allowEscape", "AutoCopySelectedToClipboard", "enableDebug", "editorPersistent", "askonclose", "dev", "chat.captureLines", "chat.captureAllLines", "chat.captureReviews", "chat.captureTells", "chat.captureTalk", "chat.gag", "chat.CaptureOnlyOpen", "checkForUpdates", "autoCreateCharacter", "askonchildren", "mapper.legend", "mapper.room", "mapper.importType", "mapper.vscroll", "mapper.hscroll", "mapper.scale", "mapper.alwaysOnTop", "mapper.alwaysOnTopClient", "mapper.memory", "mapper.memorySavePeriod", "mapper.active.ID", "mapper.active.x", "mapper.active.y", "mapper.active.z", "mapper.active.area", "mapper.active.zone", "mapper.persistent", "profiles.split", "profiles.askoncancel", "profiles.triggersAdvanced", "profiles.aliasesAdvanced", "profiles.buttonsAdvanced", "profiles.macrosAdvanced", "profiles.contextsAdvanced", "profiles.codeEditor", "profiles.watchFiles", "chat.alwaysOnTop", "chat.alwaysOnTopClient", "chat.log", "chat.persistent", "chat.zoom", "chat.font", "chat.fontSize", "title", "logGagged", "logTimeFormat", "autoConnectDelay", "autoLogin", "onDisconnect", "enableKeepAlive", "keepAliveDelay", "newlineShortcut", "logWhat", "logErrors", "showErrorsExtended", "reportCrashes", "enableCommands", "commandChar", "escapeChar", "enableVerbatim", "verbatimChar", "soundPath", "logPath", "theme", "gamepads", "buttons.connect", "buttons.characters", "buttons.preferences", "buttons.log", "buttons.clear", "buttons.lock", "buttons.map", "buttons.user", "buttons.mail", "buttons.compose", "buttons.immortal", "buttons.codeEditor", "find.case", "find.word", "find.reverse", "find.regex", "find.selection", "find.show", "display.split", "display.splitHeight", "display.splitLive", "display.roundedOverlays", "backupLoad", "backupSave", "backupAllProfiles", "backupReplaceCharacters", "scrollLocked", "showStatus", "showCharacterManager", "showChat", "showEditor", "showArmor", "showStatusWeather", "showStatusLimbs", "showStatusHealth", "showStatusExperience", "showStatusPartyHealth", "showStatusCombatHealth", "showButtonBar", "allowNegativeNumberNeeded", "spellchecking", "hideOnMinimize", "showTrayIcon", "statusExperienceNeededProgressbar", "trayClick", "trayDblClick", "pasteSpecialPrefix", "pasteSpecialPostfix", "pasteSpecialReplace", "pasteSpecialPrefixEnabled", "pasteSpecialPostfixEnabled", "pasteSpecialReplaceEnabled", "display.showSplitButton", "chat.split", "chat.splitHeight", "chat.splitLive", "chat.roundedOverlays", "chat.showSplitButton", "chat.bufferSize", "chat.flashing", "display.hideTrailingEmptyLine", "display.enableColors", "display.enableBackgroundColors", "enableSound", "allowHalfOpen", "editorClearOnSend", "editorCloseOnSend", "askOnCloseAll", "askonloadCharacter", "mapper.roomWidth", "mapper.roomGroups", "mapper.showInTaskBar", "profiles.enabled", "profiles.sortOrder", "profiles.sortDirection", "profiles.showInTaskBar", "profiles.profileSelected", "profiles.profileExpandSelected", "chat.lines", "chat.showInTaskBar", "chat.showTimestamp", "chat.timestampFormat", "chat.tabWidth", "chat.displayControlCodes", "chat.emulateTerminal", "chat.emulateControlCodes", "chat.wordWrap", "chat.wrapAt", "chat.indent", "chat.scrollLocked", "chat.find.case", "chat.find.word", "chat.find.reverse", "chat.find.regex", "chat.find.selection", "chat.find.show", "chat.find.highlight", "chat.find.location", "codeEditor.showInTaskBar", "codeEditor.persistent", "codeEditor.alwaysOnTop", "codeEditor.alwaysOnTopClient", "autoTakeoverLogin", "fixHiddenWindows", "maxReconnectDelay", "enableBackgroundThrottling", "enableBackgroundThrottlingClients", "showInTaskBar", "showLagInTitle", "mspMaxRetriesOnError", "logTimestamp", "logTimestampFormat", "disableTriggerOnError", "prependTriggeredLine", "enableParameters", "parametersChar", "enableNParameters", "nParametersChar", "enableParsing", "externalWho", "externalHelp", "watchForProfilesChanges", "onProfileChange", "onProfileDeleted", "enableDoubleParameterEscaping", "ignoreEvalUndefined", "enableInlineComments", "enableBlockComments", "inlineCommentString", "blockCommentString", "allowCommentsFromCommand", "saveTriggerStateChanges", "groupProfileSaves", "groupProfileSaveDelay", "returnNewlineOnEmptyValue", "pathDelay", "pathDelayCount", "echoSpeedpaths", "alwaysShowTabs", "scriptEngineType", "initializeScriptEngineOnLoad", "find.highlight", "find.location", "display.showInvalidMXPTags", "display.showTimestamp", "display.timestampFormat", "display.displayControlCodes", "display.emulateTerminal", "display.emulateControlCodes", "display.wordWrap", "display.tabWidth", "display.wrapAt", "display.indent", "statusWidth", "showEditorInTaskBar", "trayMenu", "lockLayout", "loadLayout", "useSingleInstance", "statusWidth", "characterManagerDblClick", "warnAdvancedSettings", "showAdvancedSettings", "enableTabCompletion", "tabCompletionBufferLimit", "ignoreCaseTabCompletion", "enableNotifications", "commandAutoSize", "commandWordWrap", "commandScrollbars", "tabCompletionList", "tabCompletionLookupType", "tabCompletionReplaceCasing", "characterManagerAddButtonAction", "enableCrashReporting", "characterManagerPanelWidth", "ignoreInputLeadingWhitespace", "profiles.find.case", "profiles.find.word", "profiles.find.reverse", "profiles.find.regex", "profiles.find.selection", "profiles.find.show", "profiles.find.value", "skipMore", "skipMoreDelay", "commandMinLines", "simpleAlarms", "simpleEditor", "selectLastCommand", "statusMode", "logger.split", "showChatWindow", "chat.enableColors", "chat.enableBackgroundColors", "display.customSelection", "chat.customSelection", "pasteSpecialDisable"];
+  var SettingProperties = ["bufferSize", "commandDelay", "commandDelayCount", "commandHistorySize", "fontSize", "cmdfontSize", "commandEcho", "flashing", "autoConnect", "enableAliases", "enableTriggers", "enableMacros", "showScriptErrors", "commandStacking", "commandStackingChar", "htmlLog", "keepLastCommand", "enableMCCP", "enableUTF8", "font", "cmdfont", "mapper.follow", "mapper.enabled", "mapper.split", "mapper.fill", "showMapper", "fullScreen", "enableMXP", "enableMSP", "parseCommands", "lagMeter", "enablePing", "enableEcho", "enableSpeedpaths", "speedpathsChar", "parseSpeedpaths", "profile", "parseSingleQuotes", "parseDoubleQuotes", "logEnabled", "logPrepend", "logOffline", "logUniqueOnConnect", "enableURLDetection", "notifyMSPPlay", "CommandonClick", "allowEval", "allowEscape", "AutoCopySelectedToClipboard", "enableDebug", "editorPersistent", "askonclose", "dev", "chat.captureLines", "chat.captureAllLines", "chat.captureReviews", "chat.captureTells", "chat.captureTalk", "chat.gag", "chat.CaptureOnlyOpen", "checkForUpdates", "autoCreateCharacter", "askonchildren", "mapper.legend", "mapper.room", "mapper.importType", "mapper.vscroll", "mapper.hscroll", "mapper.scale", "mapper.alwaysOnTop", "mapper.alwaysOnTopClient", "mapper.memory", "mapper.memorySavePeriod", "mapper.active.ID", "mapper.active.x", "mapper.active.y", "mapper.active.z", "mapper.active.area", "mapper.active.zone", "mapper.persistent", "profiles.split", "profiles.askoncancel", "profiles.triggersAdvanced", "profiles.aliasesAdvanced", "profiles.buttonsAdvanced", "profiles.macrosAdvanced", "profiles.contextsAdvanced", "profiles.codeEditor", "profiles.watchFiles", "chat.alwaysOnTop", "chat.alwaysOnTopClient", "chat.log", "chat.persistent", "chat.zoom", "chat.font", "chat.fontSize", "title", "logGagged", "logTimeFormat", "autoConnectDelay", "autoLogin", "onDisconnect", "enableKeepAlive", "keepAliveDelay", "newlineShortcut", "logWhat", "logErrors", "showErrorsExtended", "reportCrashes", "enableCommands", "commandChar", "escapeChar", "enableVerbatim", "verbatimChar", "soundPath", "logPath", "theme", "gamepads", "buttons.connect", "buttons.characters", "buttons.preferences", "buttons.log", "buttons.clear", "buttons.lock", "buttons.map", "buttons.user", "buttons.mail", "buttons.compose", "buttons.immortal", "buttons.codeEditor", "find.case", "find.word", "find.reverse", "find.regex", "find.selection", "find.show", "display.split", "display.splitHeight", "display.splitLive", "display.roundedOverlays", "backupLoad", "backupSave", "backupAllProfiles", "backupReplaceCharacters", "scrollLocked", "showStatus", "showCharacterManager", "showChat", "showEditor", "showArmor", "showStatusWeather", "showStatusLimbs", "showStatusHealth", "showStatusExperience", "showStatusPartyHealth", "showStatusCombatHealth", "showButtonBar", "allowNegativeNumberNeeded", "spellchecking", "hideOnMinimize", "showTrayIcon", "statusExperienceNeededProgressbar", "trayClick", "trayDblClick", "pasteSpecialPrefix", "pasteSpecialPostfix", "pasteSpecialReplace", "pasteSpecialPrefixEnabled", "pasteSpecialPostfixEnabled", "pasteSpecialReplaceEnabled", "display.showSplitButton", "chat.split", "chat.splitHeight", "chat.splitLive", "chat.roundedOverlays", "chat.showSplitButton", "chat.bufferSize", "chat.flashing", "display.hideTrailingEmptyLine", "display.enableColors", "display.enableBackgroundColors", "enableSound", "allowHalfOpen", "editorClearOnSend", "editorCloseOnSend", "askOnCloseAll", "askonloadCharacter", "mapper.roomWidth", "mapper.roomGroups", "mapper.showInTaskBar", "profiles.enabled", "profiles.sortOrder", "profiles.sortDirection", "profiles.showInTaskBar", "profiles.profileSelected", "profiles.profileExpandSelected", "chat.lines", "chat.showInTaskBar", "chat.showTimestamp", "chat.timestampFormat", "chat.tabWidth", "chat.displayControlCodes", "chat.emulateTerminal", "chat.emulateControlCodes", "chat.wordWrap", "chat.wrapAt", "chat.indent", "chat.scrollLocked", "chat.find.case", "chat.find.word", "chat.find.reverse", "chat.find.regex", "chat.find.selection", "chat.find.show", "chat.find.highlight", "chat.find.location", "codeEditor.showInTaskBar", "codeEditor.persistent", "codeEditor.alwaysOnTop", "codeEditor.alwaysOnTopClient", "autoTakeoverLogin", "fixHiddenWindows", "maxReconnectDelay", "enableBackgroundThrottling", "enableBackgroundThrottlingClients", "showInTaskBar", "showLagInTitle", "mspMaxRetriesOnError", "logTimestamp", "logTimestampFormat", "disableTriggerOnError", "prependTriggeredLine", "enableParameters", "parametersChar", "enableNParameters", "nParametersChar", "enableParsing", "externalWho", "externalHelp", "watchForProfilesChanges", "onProfileChange", "onProfileDeleted", "enableDoubleParameterEscaping", "ignoreEvalUndefined", "enableInlineComments", "enableBlockComments", "inlineCommentString", "blockCommentString", "allowCommentsFromCommand", "saveTriggerStateChanges", "groupProfileSaves", "groupProfileSaveDelay", "returnNewlineOnEmptyValue", "pathDelay", "pathDelayCount", "echoSpeedpaths", "alwaysShowTabs", "scriptEngineType", "initializeScriptEngineOnLoad", "find.highlight", "find.location", "display.showInvalidMXPTags", "display.showTimestamp", "display.timestampFormat", "display.displayControlCodes", "display.emulateTerminal", "display.emulateControlCodes", "display.wordWrap", "display.tabWidth", "display.wrapAt", "display.indent", "statusWidth", "showEditorInTaskBar", "trayMenu", "lockLayout", "loadLayout", "useSingleInstance", "statusWidth", "characterManagerDblClick", "warnAdvancedSettings", "showAdvancedSettings", "enableTabCompletion", "tabCompletionBufferLimit", "ignoreCaseTabCompletion", "enableNotifications", "commandAutoSize", "commandWordWrap", "commandScrollbars", "tabCompletionList", "tabCompletionLookupType", "tabCompletionReplaceCasing", "characterManagerAddButtonAction", "enableCrashReporting", "characterManagerPanelWidth", "ignoreInputLeadingWhitespace", "profiles.find.case", "profiles.find.word", "profiles.find.reverse", "profiles.find.regex", "profiles.find.selection", "profiles.find.show", "profiles.find.value", "skipMore", "skipMoreDelay", "commandMinLines", "simpleAlarms", "simpleEditor", "selectLastCommand", "statusMode", "logger.split", "showChatWindow", "chat.enableColors", "chat.enableBackgroundColors", "display.customSelection", "chat.customSelection", "pasteSpecialDisable", "display.defaultMXPState"];
   var Settings = class _Settings {
     constructor() {
       for (let s = 0, sl = SettingList.length; s < sl; s++) {
@@ -6576,6 +6577,7 @@
           case "chat.split":
           case "display.customSelection":
           case "chat.customSelection":
+          case "display.defaultMXPState":
             if (tmp == 1)
               return true;
             return false;
@@ -6908,6 +6910,8 @@
           return true;
         case "display.showSplitButton":
           return true;
+        case "display.defaultMXPState":
+          return false;
         case "chat.showSplitButton":
           return true;
         case "chat.bufferSize":
@@ -17357,7 +17361,7 @@
     return MXPTag2;
   })(MXPTag || {});
   var MXPState = class {
-    constructor() {
+    constructor(on) {
       this.on = false;
       this.lineType = 0;
       this.locked = false;
@@ -17368,6 +17372,7 @@
       this.capture = 0;
       this.captured = [];
       this.gagged = false;
+      this.on = on || false;
     }
   };
   var Entity = class {
@@ -17465,6 +17470,7 @@
       this._mxpLines = [];
       /** @private */
       this._iMXPDefaultMode = 0 /* Open */;
+      this._DefaultMXPState = false;
       this.displayControlCodes = false;
       this.emulateControlCodes = true;
       this.StyleVersion = "";
@@ -17511,6 +17517,15 @@
         if (options.enableLinks)
           this.enableLinks = options.enableLinks;
       }
+      this._mxpState.on = this._DefaultMXPState;
+    }
+    get defaultMXPState() {
+      return this._DefaultMXPState;
+    }
+    set defaultMXPState(value) {
+      this._DefaultMXPState = value;
+      if (this._mxpState.lineType !== 2 /* Locked */)
+        this._mxpState.on = value;
     }
     _getColors(mxp) {
       if (typeof mxp === "undefined")
@@ -19776,7 +19791,7 @@
                     const ct = text.charAt(idx + 1);
                     if (ct !== "<") {
                       this._mxpState.lineType = 0 /* Open */;
-                      this._mxpState.on = false;
+                      this._mxpState.on = this._DefaultMXPState;
                     }
                     this._mxpState.locked = false;
                     this._ClearMXPOpen();
@@ -20505,7 +20520,7 @@
                   formatBuilder.push(...this._getMXPCloseFormatBlocks());
                   if (this._mxpState.on)
                     this._ClearMXPOpen();
-                  this._mxpState.on = false;
+                  this._mxpState.on = this._DefaultMXPState;
                   if (this._mxpLines[this._mxpState.lineType] && this._mxpLines[this._mxpState.lineType].enabled && this._mxpLines[this._mxpState.lineType].gag)
                     skip = true;
                   this._mxpState.lineType = this._iMXPDefaultMode;
@@ -21054,7 +21069,7 @@
       this._mxpEntities = {};
       this.ResetMXP();
       this._mxpElements = {};
-      this._mxpState = new MXPState();
+      this._mxpState = new MXPState(this._DefaultMXPState);
     }
     ResetMXP() {
       this._mxpStyles = [];
@@ -22990,6 +23005,12 @@
     }
     get enableMXP() {
       return this._parser.enableMXP;
+    }
+    set defaultMXPState(value) {
+      this._parser.defaultMXPState = value;
+    }
+    get defaultMXPState() {
+      return this._parser.defaultMXPState;
     }
     set showInvalidMXPTags(value) {
       this._parser.showInvalidMXPTags = value;
@@ -34686,8 +34707,8 @@ Devanagari
     measure.style.fontSize = client.commandInput.style.fontSize;
     measure.style.fontFamily = client.commandInput.style.fontFamily;
     measure.style.width = client.commandInput.offsetWidth + "px";
-    const oldMeasure = measure.innerHTML;
-    measure.innerHTML = "W";
+    const oldMeasure = measure.textContent;
+    measure.textContent = "W";
     let minHeight = client.getOption("commandMinLines");
     const height = measure.offsetHeight;
     minHeight = height * (minHeight < 1 ? 1 : minHeight);
@@ -34697,7 +34718,7 @@ Devanagari
     padding += parseFloat(cmdSize.paddingBottom) || 0;
     let inset = cmdSize.inset.split(" ");
     padding += (parseFloat(inset[0]) || 0) * 2;
-    measure.innerHTML = oldMeasure;
+    measure.textContent = oldMeasure;
     cmd.style.height = height + padding + "px";
     client.commandInput.parentElement.style.height = height + "px";
     client.commandInput.closest("nav").style.height = height + "px";
@@ -34714,7 +34735,7 @@ Devanagari
   function _resizeCommandInput() {
     const measure = commandInputResize.measure;
     const cmd = commandInputResize.cmd;
-    measure.innerHTML = client.commandInput.value + "\n";
+    measure.textContent = client.commandInput.value + "\n";
     let height = measure.offsetHeight;
     if (height < commandInputResize.minHeight)
       height = commandInputResize.minHeight;

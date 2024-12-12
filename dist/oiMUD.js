@@ -17364,6 +17364,7 @@
     constructor(on) {
       this.on = false;
       this.lineType = 0;
+      this.prevLineType = 0;
       this.locked = false;
       this.paragraph = false;
       this.noBreak = false;
@@ -19779,6 +19780,8 @@
                     this._ClearMXPOpen();
                     break;
                   case 3:
+                    this._mxpState.lineType = this._iMXPDefaultMode;
+                    this._ClearMXPOpen();
                     this.ResetMXP();
                     break;
                   case 4:
@@ -19789,7 +19792,7 @@
                     }
                     const ct = text.charAt(idx + 1);
                     if (ct !== "<") {
-                      this._mxpState.lineType = 0 /* Open */;
+                      this._mxpState.lineType = this._iMXPDefaultMode;
                       this._mxpState.on = this._DefaultMXPState;
                     }
                     this._mxpState.locked = false;
@@ -20056,6 +20059,8 @@
                 }
                 state = 0 /* None */;
                 this._SplitBuffer = "";
+                if (this._mxpState.lineType === 4 /* TempSecure */)
+                  this._mxpState.lineType = this._iMXPDefaultMode;
               } else if (c === "<") {
                 if (this.enableDebug)
                   this.emit("debug", "Malformed MXP Tag: " + _MXPTag);
@@ -20147,6 +20152,8 @@
                 }
                 state = 0 /* None */;
                 this._SplitBuffer = "";
+                if (this._mxpState.lineType === 4 /* TempSecure */)
+                  this._mxpState.lineType = this._iMXPDefaultMode;
               } else {
                 this._SplitBuffer += c;
                 _MXPArgs[_MXPArgs.length - 1] += c;
@@ -24635,7 +24642,7 @@
         sample += 'map          <send showmap><image connected.png URL="./images/" ismap w=48 h=48></send>\n';
         sample += "<STAT Hp version Test>";
         sample += "<GAUGE Hp version Test>";
-        sample += "\x1B[0z";
+        sample += "\x1B[3z";
         this.client.print(sample, true);
       };
       this.functions["testmxp2"] = () => {
@@ -34334,7 +34341,7 @@ Devanagari
     switch (name2) {
       case "about":
         if (!_dialogs.about) {
-          _dialogs.about = new Dialog({ title: '<i class="bi-info-circle"></i> About', width: 350, height: 400, noFooter: true, resizable: false, center: true, maximizable: false });
+          _dialogs.about = new Dialog({ title: '<i class="bi-info-circle"></i> About', width: 460, height: 400, noFooter: true, resizable: false, center: true, maximizable: false });
           _dialogs.about.on("closed", () => {
             _dialogs.about.removeAllListeners();
             delete _dialogs.about;

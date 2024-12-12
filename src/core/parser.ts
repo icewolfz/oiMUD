@@ -90,6 +90,7 @@ enum ParserState {
 class MXPState {
     public on: boolean = false;
     public lineType: (lineType | number) = 0;
+    public prevLineType: (lineType | number) = 0;
     public locked: boolean = false;
     public paragraph: boolean = false;
     public noBreak: boolean = false;
@@ -2708,6 +2709,8 @@ export class Parser extends EventEmitter {
                                     this._ClearMXPOpen();
                                     break;
                                 case 3:
+                                    this._mxpState.lineType = this._iMXPDefaultMode;
+                                    this._ClearMXPOpen();
                                     this.ResetMXP();
                                     break;
                                 case 4:
@@ -2718,7 +2721,7 @@ export class Parser extends EventEmitter {
                                     }
                                     const ct = text.charAt(idx + 1);
                                     if (ct !== '<') {
-                                        this._mxpState.lineType = lineType.Open;
+                                        this._mxpState.lineType = this._iMXPDefaultMode;
                                         this._mxpState.on = this._DefaultMXPState;
                                     }
                                     this._mxpState.locked = false;
@@ -3025,6 +3028,8 @@ export class Parser extends EventEmitter {
                             }
                             state = ParserState.None;
                             this._SplitBuffer = '';
+                            if(this._mxpState.lineType === lineType.TempSecure)
+                                this._mxpState.lineType = this._iMXPDefaultMode;
                         }
                         //Malformed broken so just display it
                         else if (c === '<') {
@@ -3128,6 +3133,8 @@ export class Parser extends EventEmitter {
                             }
                             state = ParserState.None;
                             this._SplitBuffer = '';
+                            if(this._mxpState.lineType === lineType.TempSecure)
+                                this._mxpState.lineType = this._iMXPDefaultMode;                            
                         }
                         else {
                             this._SplitBuffer += c;

@@ -325,7 +325,7 @@ export class Test extends Plugin {
             sample += 'map          <send showmap><image connected.png URL="./images/" ismap w=48 h=48></send>\n';
             sample += '<STAT Hp version Test>';
             sample += '<GAUGE Hp version Test>';
-            sample += '\x1B[0z';
+            sample += '\x1B[3z';
             this.client.print(sample, true);
         };
 

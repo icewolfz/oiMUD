@@ -669,7 +669,7 @@ export function showDialog(name: string) {
     switch (name) {
         case 'about':
             if (!_dialogs.about) {
-                _dialogs.about = new Dialog(({ title: '<i class="bi-info-circle"></i> About', width: 350, height: 400, noFooter: true, resizable: false, center: true, maximizable: false }));
+                _dialogs.about = new Dialog(({ title: '<i class="bi-info-circle"></i> About', width: 460, height: 400, noFooter: true, resizable: false, center: true, maximizable: false }));
                 _dialogs.about.on('closed', () => {
                     _dialogs.about.removeAllListeners();
                     delete _dialogs.about;

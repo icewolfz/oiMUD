@@ -21432,11 +21432,6 @@
     set splitHeight(value) {
       if (this._splitHeight !== value) {
         this._splitHeight = value;
-        let h = this._horizontalScrollBarHeight - this._padding[2];
-        if (this._splitHeight == -1 || this._splitHeight > this._bounds.bottom - 150 - h)
-          this._splitHeight = this._bounds.height - 150 - h;
-        else if (this._splitHeight <= this._bounds.top + 150)
-          this._splitHeight = 150;
         this._updateSplitLocation();
       }
     }
@@ -22563,6 +22558,11 @@
     }
     _updateSplitLocation() {
       if (!this._split) return;
+      let h = this._horizontalScrollBarHeight - this._padding[2];
+      if (this._splitHeight == -1 || this._splitHeight > this._bounds.bottom - 150 - h)
+        this._splitHeight = this._bounds.height - 150 - h;
+      else if (this._splitHeight <= this._bounds.top + 150)
+        this._splitHeight = 150;
       this._split._view.style.top = this._splitHeight + "px";
       if (this._view.scrollWidth > this._view.clientWidth)
         this._split._view.style.bottom = this._horizontalScrollBarHeight + "px";

@@ -3,7 +3,7 @@ import '../css/display.css';
 import { EventEmitter } from './events';
 import { Parser } from './parser';
 import { Size, DisplayOptions, ParserLine, FormatType, FontStyle, Point } from './types';
-import { htmlEncode, formatUnit, getScrollbarWidth, debounce } from './library';
+import { htmlEncode, formatUnit, debounce } from './library';
 
 declare let moment;
 
@@ -94,16 +94,13 @@ export class Display extends EventEmitter {
     private _highlightRange;
     private _highlight;
     private _bounds;
-    //cache scroll sizes as hardly changes once loaded
-    private _hWidth;
-    private _vWidth;
     private _dragPrevent;
 
     private get _horizontalScrollBarHeight() {
-        return (this._view.scrollWidth > this._view.clientWidth ? this._hWidth : 0);
+        return (this._view.scrollWidth > this._view.clientWidth ? this._view.offsetHeight - this._view.clientHeight : 0);
     }
     private get _verticalScrollBarHeight() {
-        return this._vWidth;
+        return this._view.offsetWidth - this._view.clientWidth;
     }
     //#endregion
     //#region Public properties
@@ -907,8 +904,6 @@ export class Display extends EventEmitter {
             this._timestampWidth = moment().format(this._timestampFormat).length;
         this.updateFont();
         this._bounds = this._view.getBoundingClientRect();
-        this._hWidth = getScrollbarWidth();
-        this._vWidth = getScrollbarWidth();
         this.splitHeight = -1;
     }
 
@@ -1038,8 +1033,6 @@ export class Display extends EventEmitter {
             this._maxView -= this._timestampWidth * this._charWidth;
         this._innerHeight = this._view.clientHeight;
         this._bounds = this._view.getBoundingClientRect();
-        this._hWidth = getScrollbarWidth();
-        this._vWidth = getScrollbarWidth();
     }
 
     public updateFont(font?: string, size?: string) {
@@ -2075,6 +2068,7 @@ export class Display extends EventEmitter {
     }
 
     private _rangeToNode(range) {
+        if (!range) return null;
         if (range.startContainer)
             return { node: range.startContainer, offset: range.startOffset };
         return { node: range.offsetNode, offset: range.offset };
@@ -2083,6 +2077,7 @@ export class Display extends EventEmitter {
     private _startSelection(e) {
         if (!this.customSelection) return;
         this._trackSelection.down = this._getMouseEventCaretRange(e);
+        if (!this._trackSelection.down) return;
         this._selection.start = this._rangeToNode(this._trackSelection.down);
         this._selection.end = this._selection.start;
         this._updateSelectionHighlight();

@@ -3867,18 +3867,6 @@
     }
     return ba.toString();
   }
-  function getScrollbarWidth() {
-    const outer = document.createElement("div");
-    outer.style.visibility = "hidden";
-    outer.style.overflow = "scroll";
-    outer.style.msOverflowStyle = "scrollbar";
-    document.body.appendChild(outer);
-    const inner = document.createElement("div");
-    outer.appendChild(inner);
-    const scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
-    outer.parentNode.removeChild(outer);
-    return scrollbarWidth;
-  }
   function openFileDialog(title, multiple, accept) {
     return new Promise((resolve, reject) => {
       let dialog = document.createElement("dialog");
@@ -21346,15 +21334,13 @@
         this._timestampWidth = moment().format(this._timestampFormat).length;
       this.updateFont();
       this._bounds = this._view.getBoundingClientRect();
-      this._hWidth = getScrollbarWidth();
-      this._vWidth = getScrollbarWidth();
       this.splitHeight = -1;
     }
     get _horizontalScrollBarHeight() {
-      return this._view.scrollWidth > this._view.clientWidth ? this._hWidth : 0;
+      return this._view.scrollWidth > this._view.clientWidth ? this._view.offsetHeight - this._view.clientHeight : 0;
     }
     get _verticalScrollBarHeight() {
-      return this._vWidth;
+      return this._view.offsetWidth - this._view.clientWidth;
     }
     //#endregion
     //#region Public properties
@@ -21982,8 +21968,6 @@
         this._maxView -= this._timestampWidth * this._charWidth;
       this._innerHeight = this._view.clientHeight;
       this._bounds = this._view.getBoundingClientRect();
-      this._hWidth = getScrollbarWidth();
-      this._vWidth = getScrollbarWidth();
     }
     updateFont(font, size) {
       if (!font || font.length === 0)
@@ -22827,6 +22811,7 @@
       return true;
     }
     _rangeToNode(range) {
+      if (!range) return null;
       if (range.startContainer)
         return { node: range.startContainer, offset: range.startOffset };
       return { node: range.offsetNode, offset: range.offset };
@@ -22834,6 +22819,7 @@
     _startSelection(e) {
       if (!this.customSelection) return;
       this._trackSelection.down = this._getMouseEventCaretRange(e);
+      if (!this._trackSelection.down) return;
       this._selection.start = this._rangeToNode(this._trackSelection.down);
       this._selection.end = this._selection.start;
       this._updateSelectionHighlight();

@@ -97,9 +97,9 @@ export class ScrollBar extends EventEmitter {
      * @type {number}
      * @memberof ScrollBar
      */
-    get position(): number { return Math.round(this._position - (this._type === ScrollType.horizontal ? this._padding[3] : this._padding[0])); }
+    get position(): number { return Math.round(this._position); }
 
-    get positionRaw(): number { return this._position - (this._type === ScrollType.horizontal ? this._padding[3] : this._padding[0]); }
+    get positionRaw(): number { return this._position; }
 
     /**
      * An offset amount to adjust the whole scroll bar by that effects total size
@@ -241,7 +241,7 @@ export class ScrollBar extends EventEmitter {
     private updateLocation() {
         if (this._type === ScrollType.horizontal) {
             this.track.style.top = '';
-            this.track.style.right = (this.offset + this.padding) + 'px';
+            this.track.style.right = (this.offset + this.$padding) + 'px';
             this.track.style.left = '0';
             this.track.style.bottom = '0';
             this.track.style.width = 'auto';
@@ -257,7 +257,7 @@ export class ScrollBar extends EventEmitter {
             this.track.style.top = '0';
             this.track.style.right = '0';
             this.track.style.left = '';
-            this.track.style.bottom = (this.offset + this.padding) + 'px';
+            this.track.style.bottom = (this.offset + this.$padding) + 'px';
             this.track.style.width = '';
             this.track.style.height = 'auto';
             if (this._autoHide)
@@ -451,12 +451,12 @@ export class ScrollBar extends EventEmitter {
 
     public pageUp(offset?) {
         offset = offset || 0;
-        this.scrollBy(-(this._parentSize - (this._type === ScrollType.horizontal ? this._padding[3] : this._padding[2]) - offset));
+        this.scrollBy(-(this._parentSize - offset));
     }
 
     public pageDown(offset?) {
         offset = offset || 0;
-        this.scrollBy(this._parentSize - (this._type === ScrollType.horizontal ? this._padding[3] : this._padding[2]) - offset);
+        this.scrollBy(this._parentSize - offset);
     }
 
     /**
@@ -470,7 +470,7 @@ export class ScrollBar extends EventEmitter {
             this._contentSize = contentSize || this._content.scrollWidth;
             this._parentSize = parentSize || this._content.clientWidth;
             if (bar || !this.trackSize) {
-                this.trackSize = this.track.clientWidth;
+                this.trackSize = this.track.clientWidth - this._padding[0] - this._padding[2];
                 this.trackOffset = this.track.clientHeight;
             }
             this.scrollSize = this._contentSize - this._parentSize;
@@ -479,7 +479,7 @@ export class ScrollBar extends EventEmitter {
             this._contentSize = contentSize || this._content.scrollHeight;
             this._parentSize = parentSize || this._content.clientHeight;
             if (bar) {
-                this.trackSize = this.track.clientHeight;
+                this.trackSize = this.track.clientHeight - this._padding[1] - this._padding[3];
                 this.trackOffset = this.track.clientWidth;
             }
             this.scrollSize = this._contentSize - this._parentSize;
@@ -499,15 +499,13 @@ export class ScrollBar extends EventEmitter {
     }
 
     public updateLayout() {
-        /*
-        const pc = window.getComputedStyle(this._content);
+        const pc = window.getComputedStyle(this.track);
         this._padding = [
             parseInt(pc.getPropertyValue('padding-top')) || 0,
             parseInt(pc.getPropertyValue('padding-right')) || 0,
             parseInt(pc.getPropertyValue('padding-bottom')) || 0,
             parseInt(pc.getPropertyValue('padding-left')) || 0
         ];
-        */
     }
 
     /**
@@ -539,7 +537,7 @@ export class ScrollBar extends EventEmitter {
         else if (p > this._maxDrag)
             p = this._maxDrag;
         const prv = this.position;
-        this.thumb.style[this._type === ScrollType.horizontal ? 'left' : 'top'] = p + 'px';
+        this.thumb.style[this._type === ScrollType.horizontal ? 'left' : 'top'] = (p + (this._type === ScrollType.horizontal ? this._padding[1] : this._padding[0])) + 'px';
         this.state.dragPosition = p;
         this._position = p * this._ratio;
         if (this._position < 0)

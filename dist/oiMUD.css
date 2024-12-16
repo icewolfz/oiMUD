@@ -396,6 +396,7 @@ a.MXPLink:hover span {
 .scroll-corner {
   background: var(--theme-bg-secondary-color);
   color: black;
+  padding: 1px;
 }
 .scroll-thumb {
   background: var(--theme-button-bg-color);
@@ -3724,7 +3725,7 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   color: var(--theme-color) !important;
   padding: 2px;
   z-index: 1;
-  overflow: auto;
+  overflow: hidden;
   border: 3px solid rgb(108, 117, 125);
   border-image: var(--theme-border-image) 3 repeat;
   text-align: center;

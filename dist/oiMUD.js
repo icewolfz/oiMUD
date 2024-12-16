@@ -21159,10 +21159,10 @@
      * @memberof ScrollBar
      */
     get position() {
-      return Math.round(this._position - (this._type === 1 /* horizontal */ ? this._padding[3] : this._padding[0]));
+      return Math.round(this._position);
     }
     get positionRaw() {
-      return this._position - (this._type === 1 /* horizontal */ ? this._padding[3] : this._padding[0]);
+      return this._position;
     }
     /**
      * An offset amount to adjust the whole scroll bar by that effects total size
@@ -21288,7 +21288,7 @@
     updateLocation() {
       if (this._type === 1 /* horizontal */) {
         this.track.style.top = "";
-        this.track.style.right = this.offset + this.padding + "px";
+        this.track.style.right = this.offset + this.$padding + "px";
         this.track.style.left = "0";
         this.track.style.bottom = "0";
         this.track.style.width = "auto";
@@ -21303,7 +21303,7 @@
         this.track.style.top = "0";
         this.track.style.right = "0";
         this.track.style.left = "";
-        this.track.style.bottom = this.offset + this.padding + "px";
+        this.track.style.bottom = this.offset + this.$padding + "px";
         this.track.style.width = "";
         this.track.style.height = "auto";
         if (this._autoHide)
@@ -21483,11 +21483,11 @@
     }
     pageUp(offset2) {
       offset2 = offset2 || 0;
-      this.scrollBy(-(this._parentSize - (this._type === 1 /* horizontal */ ? this._padding[3] : this._padding[2]) - offset2));
+      this.scrollBy(-(this._parentSize - offset2));
     }
     pageDown(offset2) {
       offset2 = offset2 || 0;
-      this.scrollBy(this._parentSize - (this._type === 1 /* horizontal */ ? this._padding[3] : this._padding[2]) - offset2);
+      this.scrollBy(this._parentSize - offset2);
     }
     /**
      * resize the scroll bar to the parent
@@ -21500,7 +21500,7 @@
         this._contentSize = contentSize || this._content.scrollWidth;
         this._parentSize = parentSize || this._content.clientWidth;
         if (bar || !this.trackSize) {
-          this.trackSize = this.track.clientWidth;
+          this.trackSize = this.track.clientWidth - this._padding[0] - this._padding[2];
           this.trackOffset = this.track.clientHeight;
         }
         this.scrollSize = this._contentSize - this._parentSize;
@@ -21508,7 +21508,7 @@
         this._contentSize = contentSize || this._content.scrollHeight;
         this._parentSize = parentSize || this._content.clientHeight;
         if (bar) {
-          this.trackSize = this.track.clientHeight;
+          this.trackSize = this.track.clientHeight - this._padding[1] - this._padding[3];
           this.trackOffset = this.track.clientWidth;
         }
         this.scrollSize = this._contentSize - this._parentSize;
@@ -21526,6 +21526,13 @@
         this.updatePosition(this._position * this._ratio2);
     }
     updateLayout() {
+      const pc = window.getComputedStyle(this.track);
+      this._padding = [
+        parseInt(pc.getPropertyValue("padding-top")) || 0,
+        parseInt(pc.getPropertyValue("padding-right")) || 0,
+        parseInt(pc.getPropertyValue("padding-bottom")) || 0,
+        parseInt(pc.getPropertyValue("padding-left")) || 0
+      ];
     }
     /**
      * current position of scroll bar
@@ -21555,7 +21562,7 @@
       else if (p > this._maxDrag)
         p = this._maxDrag;
       const prv = this.position;
-      this.thumb.style[this._type === 1 /* horizontal */ ? "left" : "top"] = p + "px";
+      this.thumb.style[this._type === 1 /* horizontal */ ? "left" : "top"] = p + (this._type === 1 /* horizontal */ ? this._padding[1] : this._padding[0]) + "px";
       this.state.dragPosition = p;
       this._position = p * this._ratio;
       if (this._position < 0)
@@ -22442,25 +22449,49 @@
         this._view.scrollTop = this._view.scrollHeight;
     }
     scrollTo(x2, y2) {
-      this._view.scrollTo(x2, y2);
+      if (this._customScrollbars) {
+        this._HScroll.scrollTo(x2);
+        this._VScroll.scrollTo(y2);
+      } else
+        this._view.scrollTo(x2, y2);
     }
     scrollToCharacter(x2, y2) {
-      this._view.scrollTo(x2 * this._charHeight, y2 * this._charWidth);
+      if (this._customScrollbars) {
+        this._HScroll.scrollTo(x2 * this._charWidth);
+        this._VScroll.scrollTo(y2 * this._charHeight);
+      } else
+        this._view.scrollTo(x2 * this._charWidth, y2 * this._charHeight);
     }
     scrollBy(x2, y2) {
-      this._view.scrollBy(x2, y2);
+      if (this._customScrollbars) {
+        this._HScroll.scrollBy(x2);
+        this._VScroll.scrollBy(y2);
+      } else
+        this._view.scrollBy(x2, y2);
     }
     scrollUp() {
-      this._view.scrollBy(0, -this._charHeight);
+      if (this._customScrollbars)
+        this._VScroll.scrollBy(-this._charHeight);
+      else
+        this._view.scrollBy(0, -this._charHeight);
     }
     scrollDown() {
-      this._view.scrollBy(0, this._charHeight);
+      if (this._customScrollbars)
+        this._VScroll.scrollBy(this._charHeight);
+      else
+        this._view.scrollBy(0, this._charHeight);
     }
     pageUp() {
-      this._view.scrollBy(0, -this._view.clientHeight);
+      if (this._customScrollbars)
+        this._VScroll.pageUp();
+      else
+        this._view.scrollBy(0, -this._view.clientHeight);
     }
     pageDown() {
-      this._view.scrollBy(0, this._view.clientHeight);
+      if (this._customScrollbars)
+        this._VScroll.pageDown();
+      else
+        this._view.scrollBy(0, this._view.clientHeight);
     }
     trimLines() {
       if (this._maxLines === -1)
@@ -22551,6 +22582,7 @@
         this._split._bar.style.right = this._verticalScrollBarHeight - (this._customScrollbars ? this._padding[1] : 0) + "px";
       }
       this._updateSplitLocation();
+      this._updateScrollbars();
     }
     _updateScrollbars() {
       if (!this._customScrollbars || this._model.busy)
@@ -22603,6 +22635,8 @@
         this._maxView -= this._timestampWidth * this._charWidth;
       this._innerHeight = this._view.clientHeight;
       this._bounds = this._view.getBoundingClientRect();
+      if (this._view.scrollTop > this._view.scrollHeight)
+        this._view.scrollTop = this._view.scrollHeight;
     }
     updateFont(font, size) {
       if (!font || font.length === 0)
@@ -23173,6 +23207,7 @@
       if (!range) return null;
       let n = this._rangeToNode(range);
       const line2 = this._getLineNode(n.node);
+      if (!line2) return null;
       if (line2.childNodes.length) {
         range.setStart(line2.firstChild, 0);
         if (line2.lastChild.nodeType === 3)

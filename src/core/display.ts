@@ -983,31 +983,58 @@ export class Display extends EventEmitter {
     };
 
     public scrollTo(x: number, y: number) {
-        this._view.scrollTo(x, y);
+        if (this._customScrollbars) {
+            this._HScroll.scrollTo(x);
+            this._VScroll.scrollTo(y);
+        }
+        else
+            this._view.scrollTo(x, y);
     }
 
     public scrollToCharacter(x: number, y: number) {
-        this._view.scrollTo(x * this._charHeight, y * this._charWidth);
+        if (this._customScrollbars) {
+            this._HScroll.scrollTo(x * this._charWidth);
+            this._VScroll.scrollTo(y * this._charHeight);
+        }
+        else
+            this._view.scrollTo(x * this._charWidth, y * this._charHeight);
     }
 
     public scrollBy(x: number, y: number) {
-        this._view.scrollBy(x, y);
+        if (this._customScrollbars) {
+            this._HScroll.scrollBy(x);
+            this._VScroll.scrollBy(y);
+        }
+        else
+            this._view.scrollBy(x, y);
     }
 
     public scrollUp() {
-        this._view.scrollBy(0, -this._charHeight);
+        if (this._customScrollbars)
+            this._VScroll.scrollBy(-this._charHeight);
+        else
+            this._view.scrollBy(0, -this._charHeight);
     }
 
     public scrollDown() {
-        this._view.scrollBy(0, this._charHeight);
+        if (this._customScrollbars)
+            this._VScroll.scrollBy(this._charHeight);
+        else
+            this._view.scrollBy(0, this._charHeight);
     }
 
     public pageUp() {
-        this._view.scrollBy(0, -this._view.clientHeight)
+        if (this._customScrollbars)
+            this._VScroll.pageUp();
+        else
+            this._view.scrollBy(0, -this._view.clientHeight)
     }
 
     public pageDown() {
-        this._view.scrollBy(0, this._view.clientHeight)
+        if (this._customScrollbars)
+            this._VScroll.pageDown();
+        else
+            this._view.scrollBy(0, this._view.clientHeight)
     }
 
     public trimLines() {
@@ -1112,6 +1139,7 @@ export class Display extends EventEmitter {
             this._split._bar.style.right = (this._verticalScrollBarHeight - (this._customScrollbars ? this._padding[1] : 0)) + 'px';
         }
         this._updateSplitLocation();
+        this._updateScrollbars();
     }
 
     private _updateScrollbars() {
@@ -1169,7 +1197,9 @@ export class Display extends EventEmitter {
             this._maxView -= this._timestampWidth * this._charWidth;
         this._innerHeight = this._view.clientHeight;
         this._bounds = this._view.getBoundingClientRect();
-    } f
+        if (this._view.scrollTop > this._view.scrollHeight)
+            this._view.scrollTop = this._view.scrollHeight;
+    }
 
     public updateFont(font?: string, size?: string) {
         if (!font || font.length === 0)
@@ -1798,6 +1828,7 @@ export class Display extends EventEmitter {
         if (!range) return null;
         let n = this._rangeToNode(range);
         const line = this._getLineNode(n.node);
+        if (!line) return null;
         if (line.childNodes.length) {
             range.setStart(line.firstChild, 0);
             if (line.lastChild.nodeType === 3)

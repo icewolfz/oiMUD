@@ -2,6 +2,7 @@
 .scroll-corner {
   background: var(--theme-bg-secondary-color);
   color: black;
+  padding: 1px;
 }
 
 .scroll-thumb {

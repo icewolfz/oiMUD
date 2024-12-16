@@ -1192,6 +1192,7 @@ export class Client extends EventEmitter {
         this.display.splitLive = this._options['display.splitLive'];
         this.display.customSelection = this._options['display.customSelection'];
         this.display.defaultMXPState = this._options['display.defaultMXPState'];
+        this.display.customScrollbars = this._options['customScrollbars'];
 
         const colors = this.getOption('colors');
         if (colors && colors.length > 0) {

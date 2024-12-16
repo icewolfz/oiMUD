@@ -296,6 +296,173 @@ a.MXPLink:hover span {
   color: black;
 }
 
+/* src/css/scrollbar.css */
+.scroll-track {
+  width: 12px;
+  height: 12px;
+  background-color: Scrollbar;
+  box-sizing: border-box;
+  z-index: 1001;
+  cursor: default;
+}
+.scroll-thumb {
+  background-color: ButtonFace;
+  box-sizing: border-box;
+  border-top: 1px solid ButtonHighlight;
+  border-left: 1px solid ButtonHighlight;
+  border-right: 1px solid ButtonShadow;
+  border-bottom: 1px solid ButtonShadow;
+  z-index: 2000;
+  cursor: default;
+  filter: brightness(95%);
+}
+.scroll-thumb:hover {
+  filter: brightness(85%);
+}
+.scroll-thumb:active {
+  filter: brightness(65%);
+}
+.scroll-corner {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  background-color: Scrollbar;
+  z-index: 1000;
+  cursor: default;
+  font-family: "Courier New", monospace;
+}
+.scroll-split-button {
+  font-size: 9px;
+  text-align: center;
+  background-color: ButtonFace !important;
+  color: ButtonText;
+  box-sizing: border-box;
+  border-top: 1px solid ButtonHighlight;
+  border-left: 1px solid ButtonHighlight;
+  border-right: 1px solid ButtonShadow;
+  border-bottom: 1px solid ButtonShadow;
+  z-index: 2000;
+  cursor: default;
+}
+.scroll-split-button.active:active {
+  font-size: 9px;
+  text-align: center;
+  background-color: ButtonFace !important;
+  color: ButtonText;
+  box-sizing: border-box;
+  border-top: 1px solid ButtonShadow;
+  border-left: 1px solid ButtonShadow;
+  border-right: 1px solid ButtonHighlight;
+  border-bottom: 1px solid ButtonHighlight;
+  z-index: 2000;
+  cursor: default;
+}
+.scroll-split-button.disabled {
+  color: GrayText;
+  cursor: default;
+}
+.scroll-split-button.active {
+  background-color: ThreeDShadow !important;
+  color: ButtonText;
+  border-top: 1px solid ButtonShadow;
+  border-left: 1px solid ButtonShadow;
+  border-right: 1px solid ButtonHighlight;
+  border-bottom: 1px solid ButtonHighlight;
+}
+.scroll-split-button i {
+  top: 1px;
+  position: relative;
+}
+.scroll-horizontal {
+  border-top: 1px solid ButtonHighlight;
+  cursor: default;
+}
+.scroll-vertical {
+  border-left: 1px solid ButtonHighlight;
+  cursor: default;
+}
+.scroll-disabled .scroll-thumb,
+.scroll-disabled .scroll-thumb:hover,
+.scroll-disabled .scroll-thumb:active {
+  display: none;
+  cursor: default;
+}
+
+/* src/css/scrollbar.theme.css */
+.scroll-track,
+.scroll-corner {
+  background: var(--theme-bg-secondary-color);
+  color: black;
+}
+.scroll-thumb {
+  background: var(--theme-button-bg-color);
+  border: 1px solid var(--theme-bg-secondary-border);
+  filter: none;
+  border-radius: 10px;
+}
+.scroll-thumb:hover {
+  background: var(--theme-hover-bg-color);
+  border: 1px solid var(--theme-hover-border-color);
+}
+.scroll-thumb:active {
+  background-color: var(--theme-active-bg-color);
+  border: 1px solid var(--theme-border-color);
+  outline: none;
+}
+.scroll-horizontal {
+  border-top: 1px solid var(--theme-border-color);
+}
+.scroll-vertical {
+  border-left: 1px solid var(--theme-border-color);
+}
+.scroll-horizontal .scroll-thumb {
+  top: 1px !important;
+  bottom: 1px !important;
+  height: auto !important;
+}
+.scroll-vertical .scroll-thumb {
+  left: 1px !important;
+  right: 1px !important;
+  width: auto !important;
+}
+.scroll-track.scroll-auto-hide {
+  background: transparent;
+  display: none;
+}
+.scroll-track.scroll-auto-hide:hover {
+  background: var(--theme-bg-secondary-color);
+}
+.scroll-horizontal.scroll-auto-hide .scroll-thumb {
+  top: 50% !important;
+}
+.scroll-horizontal.scroll-auto-hide {
+  border-top: 0;
+}
+.scroll-vertical.scroll-auto-hide {
+  border-left: 0;
+}
+.scroll-horizontal.scroll-auto-hide:hover {
+  border-top: 1px solid var(--theme-border-color);
+}
+.scroll-vertical.scroll-auto-hide:hover {
+  border-left: 1px solid var(--theme-border-color);
+}
+.scroll-vertical.scroll-auto-hide .scroll-thumb {
+  left: 50% !important;
+}
+.scroll-horizontal.scroll-auto-hide:hover .scroll-thumb {
+  top: 1px !important;
+}
+.scroll-vertical.scroll-auto-hide:hover .scroll-thumb {
+  left: 1px !important;
+}
+.display:hover .scroll-track.scroll-auto-hide {
+  display: block;
+}
+
 /* src/css/mapper.css */
 .map-canvas {
   cursor: default;
@@ -3576,6 +3743,10 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   right: 0px;
   padding: 2px;
   border-bottom-width: 0;
+}
+#panel-bar[data-location="0"] .splitter-panel-1,
+#panel-bar[data-location="1"] .splitter-panel-2 {
+  background-color: black;
 }
 @media (orientation: landscape) and (max-width: 641px), (orientation: landscape) and (max-height: 480px), (orientation: portrait) and (max-width: 480px), (orientation: portrait) and (max-height: 641px) {
   #panel-bar[data-location="0"] {

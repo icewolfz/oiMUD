@@ -6469,9 +6469,10 @@
     ["display.customSelection", 0, 1 /* Boolean */, !isMobile()],
     ["chat.customSelection", 0, 1 /* Boolean */, !isMobile()],
     ["pasteSpecialDisable", 0, 1 /* Boolean */, true],
-    ["display.defaultMXPState", 0, 1 /* Boolean */, false]
+    ["display.defaultMXPState", 0, 1 /* Boolean */, false],
+    ["customScrollbars", 0, 1 /* Boolean */, false]
   ];
-  var SettingProperties = ["bufferSize", "commandDelay", "commandDelayCount", "commandHistorySize", "fontSize", "cmdfontSize", "commandEcho", "flashing", "autoConnect", "enableAliases", "enableTriggers", "enableMacros", "showScriptErrors", "commandStacking", "commandStackingChar", "htmlLog", "keepLastCommand", "enableMCCP", "enableUTF8", "font", "cmdfont", "mapper.follow", "mapper.enabled", "mapper.split", "mapper.fill", "showMapper", "fullScreen", "enableMXP", "enableMSP", "parseCommands", "lagMeter", "enablePing", "enableEcho", "enableSpeedpaths", "speedpathsChar", "parseSpeedpaths", "profile", "parseSingleQuotes", "parseDoubleQuotes", "logEnabled", "logPrepend", "logOffline", "logUniqueOnConnect", "enableURLDetection", "notifyMSPPlay", "CommandonClick", "allowEval", "allowEscape", "AutoCopySelectedToClipboard", "enableDebug", "editorPersistent", "askonclose", "dev", "chat.captureLines", "chat.captureAllLines", "chat.captureReviews", "chat.captureTells", "chat.captureTalk", "chat.gag", "chat.CaptureOnlyOpen", "checkForUpdates", "autoCreateCharacter", "askonchildren", "mapper.legend", "mapper.room", "mapper.importType", "mapper.vscroll", "mapper.hscroll", "mapper.scale", "mapper.alwaysOnTop", "mapper.alwaysOnTopClient", "mapper.memory", "mapper.memorySavePeriod", "mapper.active.ID", "mapper.active.x", "mapper.active.y", "mapper.active.z", "mapper.active.area", "mapper.active.zone", "mapper.persistent", "profiles.split", "profiles.askoncancel", "profiles.triggersAdvanced", "profiles.aliasesAdvanced", "profiles.buttonsAdvanced", "profiles.macrosAdvanced", "profiles.contextsAdvanced", "profiles.codeEditor", "profiles.watchFiles", "chat.alwaysOnTop", "chat.alwaysOnTopClient", "chat.log", "chat.persistent", "chat.zoom", "chat.font", "chat.fontSize", "title", "logGagged", "logTimeFormat", "autoConnectDelay", "autoLogin", "onDisconnect", "enableKeepAlive", "keepAliveDelay", "newlineShortcut", "logWhat", "logErrors", "showErrorsExtended", "reportCrashes", "enableCommands", "commandChar", "escapeChar", "enableVerbatim", "verbatimChar", "soundPath", "logPath", "theme", "gamepads", "buttons.connect", "buttons.characters", "buttons.preferences", "buttons.log", "buttons.clear", "buttons.lock", "buttons.map", "buttons.user", "buttons.mail", "buttons.compose", "buttons.immortal", "buttons.codeEditor", "find.case", "find.word", "find.reverse", "find.regex", "find.selection", "find.show", "display.split", "display.splitHeight", "display.splitLive", "display.roundedOverlays", "backupLoad", "backupSave", "backupAllProfiles", "backupReplaceCharacters", "scrollLocked", "showStatus", "showCharacterManager", "showChat", "showEditor", "showArmor", "showStatusWeather", "showStatusLimbs", "showStatusHealth", "showStatusExperience", "showStatusPartyHealth", "showStatusCombatHealth", "showButtonBar", "allowNegativeNumberNeeded", "spellchecking", "hideOnMinimize", "showTrayIcon", "statusExperienceNeededProgressbar", "trayClick", "trayDblClick", "pasteSpecialPrefix", "pasteSpecialPostfix", "pasteSpecialReplace", "pasteSpecialPrefixEnabled", "pasteSpecialPostfixEnabled", "pasteSpecialReplaceEnabled", "display.showSplitButton", "chat.split", "chat.splitHeight", "chat.splitLive", "chat.roundedOverlays", "chat.showSplitButton", "chat.bufferSize", "chat.flashing", "display.hideTrailingEmptyLine", "display.enableColors", "display.enableBackgroundColors", "enableSound", "allowHalfOpen", "editorClearOnSend", "editorCloseOnSend", "askOnCloseAll", "askonloadCharacter", "mapper.roomWidth", "mapper.roomGroups", "mapper.showInTaskBar", "profiles.enabled", "profiles.sortOrder", "profiles.sortDirection", "profiles.showInTaskBar", "profiles.profileSelected", "profiles.profileExpandSelected", "chat.lines", "chat.showInTaskBar", "chat.showTimestamp", "chat.timestampFormat", "chat.tabWidth", "chat.displayControlCodes", "chat.emulateTerminal", "chat.emulateControlCodes", "chat.wordWrap", "chat.wrapAt", "chat.indent", "chat.scrollLocked", "chat.find.case", "chat.find.word", "chat.find.reverse", "chat.find.regex", "chat.find.selection", "chat.find.show", "chat.find.highlight", "chat.find.location", "codeEditor.showInTaskBar", "codeEditor.persistent", "codeEditor.alwaysOnTop", "codeEditor.alwaysOnTopClient", "autoTakeoverLogin", "fixHiddenWindows", "maxReconnectDelay", "enableBackgroundThrottling", "enableBackgroundThrottlingClients", "showInTaskBar", "showLagInTitle", "mspMaxRetriesOnError", "logTimestamp", "logTimestampFormat", "disableTriggerOnError", "prependTriggeredLine", "enableParameters", "parametersChar", "enableNParameters", "nParametersChar", "enableParsing", "externalWho", "externalHelp", "watchForProfilesChanges", "onProfileChange", "onProfileDeleted", "enableDoubleParameterEscaping", "ignoreEvalUndefined", "enableInlineComments", "enableBlockComments", "inlineCommentString", "blockCommentString", "allowCommentsFromCommand", "saveTriggerStateChanges", "groupProfileSaves", "groupProfileSaveDelay", "returnNewlineOnEmptyValue", "pathDelay", "pathDelayCount", "echoSpeedpaths", "alwaysShowTabs", "scriptEngineType", "initializeScriptEngineOnLoad", "find.highlight", "find.location", "display.showInvalidMXPTags", "display.showTimestamp", "display.timestampFormat", "display.displayControlCodes", "display.emulateTerminal", "display.emulateControlCodes", "display.wordWrap", "display.tabWidth", "display.wrapAt", "display.indent", "statusWidth", "showEditorInTaskBar", "trayMenu", "lockLayout", "loadLayout", "useSingleInstance", "statusWidth", "characterManagerDblClick", "warnAdvancedSettings", "showAdvancedSettings", "enableTabCompletion", "tabCompletionBufferLimit", "ignoreCaseTabCompletion", "enableNotifications", "commandAutoSize", "commandWordWrap", "commandScrollbars", "tabCompletionList", "tabCompletionLookupType", "tabCompletionReplaceCasing", "characterManagerAddButtonAction", "enableCrashReporting", "characterManagerPanelWidth", "ignoreInputLeadingWhitespace", "profiles.find.case", "profiles.find.word", "profiles.find.reverse", "profiles.find.regex", "profiles.find.selection", "profiles.find.show", "profiles.find.value", "skipMore", "skipMoreDelay", "commandMinLines", "simpleAlarms", "simpleEditor", "selectLastCommand", "statusMode", "logger.split", "showChatWindow", "chat.enableColors", "chat.enableBackgroundColors", "display.customSelection", "chat.customSelection", "pasteSpecialDisable", "display.defaultMXPState"];
+  var SettingProperties = ["bufferSize", "commandDelay", "commandDelayCount", "commandHistorySize", "fontSize", "cmdfontSize", "commandEcho", "flashing", "autoConnect", "enableAliases", "enableTriggers", "enableMacros", "showScriptErrors", "commandStacking", "commandStackingChar", "htmlLog", "keepLastCommand", "enableMCCP", "enableUTF8", "font", "cmdfont", "mapper.follow", "mapper.enabled", "mapper.split", "mapper.fill", "showMapper", "fullScreen", "enableMXP", "enableMSP", "parseCommands", "lagMeter", "enablePing", "enableEcho", "enableSpeedpaths", "speedpathsChar", "parseSpeedpaths", "profile", "parseSingleQuotes", "parseDoubleQuotes", "logEnabled", "logPrepend", "logOffline", "logUniqueOnConnect", "enableURLDetection", "notifyMSPPlay", "CommandonClick", "allowEval", "allowEscape", "AutoCopySelectedToClipboard", "enableDebug", "editorPersistent", "askonclose", "dev", "chat.captureLines", "chat.captureAllLines", "chat.captureReviews", "chat.captureTells", "chat.captureTalk", "chat.gag", "chat.CaptureOnlyOpen", "checkForUpdates", "autoCreateCharacter", "askonchildren", "mapper.legend", "mapper.room", "mapper.importType", "mapper.vscroll", "mapper.hscroll", "mapper.scale", "mapper.alwaysOnTop", "mapper.alwaysOnTopClient", "mapper.memory", "mapper.memorySavePeriod", "mapper.active.ID", "mapper.active.x", "mapper.active.y", "mapper.active.z", "mapper.active.area", "mapper.active.zone", "mapper.persistent", "profiles.split", "profiles.askoncancel", "profiles.triggersAdvanced", "profiles.aliasesAdvanced", "profiles.buttonsAdvanced", "profiles.macrosAdvanced", "profiles.contextsAdvanced", "profiles.codeEditor", "profiles.watchFiles", "chat.alwaysOnTop", "chat.alwaysOnTopClient", "chat.log", "chat.persistent", "chat.zoom", "chat.font", "chat.fontSize", "title", "logGagged", "logTimeFormat", "autoConnectDelay", "autoLogin", "onDisconnect", "enableKeepAlive", "keepAliveDelay", "newlineShortcut", "logWhat", "logErrors", "showErrorsExtended", "reportCrashes", "enableCommands", "commandChar", "escapeChar", "enableVerbatim", "verbatimChar", "soundPath", "logPath", "theme", "gamepads", "buttons.connect", "buttons.characters", "buttons.preferences", "buttons.log", "buttons.clear", "buttons.lock", "buttons.map", "buttons.user", "buttons.mail", "buttons.compose", "buttons.immortal", "buttons.codeEditor", "find.case", "find.word", "find.reverse", "find.regex", "find.selection", "find.show", "display.split", "display.splitHeight", "display.splitLive", "display.roundedOverlays", "backupLoad", "backupSave", "backupAllProfiles", "backupReplaceCharacters", "scrollLocked", "showStatus", "showCharacterManager", "showChat", "showEditor", "showArmor", "showStatusWeather", "showStatusLimbs", "showStatusHealth", "showStatusExperience", "showStatusPartyHealth", "showStatusCombatHealth", "showButtonBar", "allowNegativeNumberNeeded", "spellchecking", "hideOnMinimize", "showTrayIcon", "statusExperienceNeededProgressbar", "trayClick", "trayDblClick", "pasteSpecialPrefix", "pasteSpecialPostfix", "pasteSpecialReplace", "pasteSpecialPrefixEnabled", "pasteSpecialPostfixEnabled", "pasteSpecialReplaceEnabled", "display.showSplitButton", "chat.split", "chat.splitHeight", "chat.splitLive", "chat.roundedOverlays", "chat.showSplitButton", "chat.bufferSize", "chat.flashing", "display.hideTrailingEmptyLine", "display.enableColors", "display.enableBackgroundColors", "enableSound", "allowHalfOpen", "editorClearOnSend", "editorCloseOnSend", "askOnCloseAll", "askonloadCharacter", "mapper.roomWidth", "mapper.roomGroups", "mapper.showInTaskBar", "profiles.enabled", "profiles.sortOrder", "profiles.sortDirection", "profiles.showInTaskBar", "profiles.profileSelected", "profiles.profileExpandSelected", "chat.lines", "chat.showInTaskBar", "chat.showTimestamp", "chat.timestampFormat", "chat.tabWidth", "chat.displayControlCodes", "chat.emulateTerminal", "chat.emulateControlCodes", "chat.wordWrap", "chat.wrapAt", "chat.indent", "chat.scrollLocked", "chat.find.case", "chat.find.word", "chat.find.reverse", "chat.find.regex", "chat.find.selection", "chat.find.show", "chat.find.highlight", "chat.find.location", "codeEditor.showInTaskBar", "codeEditor.persistent", "codeEditor.alwaysOnTop", "codeEditor.alwaysOnTopClient", "autoTakeoverLogin", "fixHiddenWindows", "maxReconnectDelay", "enableBackgroundThrottling", "enableBackgroundThrottlingClients", "showInTaskBar", "showLagInTitle", "mspMaxRetriesOnError", "logTimestamp", "logTimestampFormat", "disableTriggerOnError", "prependTriggeredLine", "enableParameters", "parametersChar", "enableNParameters", "nParametersChar", "enableParsing", "externalWho", "externalHelp", "watchForProfilesChanges", "onProfileChange", "onProfileDeleted", "enableDoubleParameterEscaping", "ignoreEvalUndefined", "enableInlineComments", "enableBlockComments", "inlineCommentString", "blockCommentString", "allowCommentsFromCommand", "saveTriggerStateChanges", "groupProfileSaves", "groupProfileSaveDelay", "returnNewlineOnEmptyValue", "pathDelay", "pathDelayCount", "echoSpeedpaths", "alwaysShowTabs", "scriptEngineType", "initializeScriptEngineOnLoad", "find.highlight", "find.location", "display.showInvalidMXPTags", "display.showTimestamp", "display.timestampFormat", "display.displayControlCodes", "display.emulateTerminal", "display.emulateControlCodes", "display.wordWrap", "display.tabWidth", "display.wrapAt", "display.indent", "statusWidth", "showEditorInTaskBar", "trayMenu", "lockLayout", "loadLayout", "useSingleInstance", "statusWidth", "characterManagerDblClick", "warnAdvancedSettings", "showAdvancedSettings", "enableTabCompletion", "tabCompletionBufferLimit", "ignoreCaseTabCompletion", "enableNotifications", "commandAutoSize", "commandWordWrap", "commandScrollbars", "tabCompletionList", "tabCompletionLookupType", "tabCompletionReplaceCasing", "characterManagerAddButtonAction", "enableCrashReporting", "characterManagerPanelWidth", "ignoreInputLeadingWhitespace", "profiles.find.case", "profiles.find.word", "profiles.find.reverse", "profiles.find.regex", "profiles.find.selection", "profiles.find.show", "profiles.find.value", "skipMore", "skipMoreDelay", "commandMinLines", "simpleAlarms", "simpleEditor", "selectLastCommand", "statusMode", "logger.split", "showChatWindow", "chat.enableColors", "chat.enableBackgroundColors", "display.customSelection", "chat.customSelection", "pasteSpecialDisable", "display.defaultMXPState", "customScrollbars"];
   var Settings = class _Settings {
     constructor() {
       for (let s = 0, sl = SettingList.length; s < sl; s++) {
@@ -6566,6 +6567,7 @@
           case "display.customSelection":
           case "chat.customSelection":
           case "display.defaultMXPState":
+          case "customScrollbars":
             if (tmp == 1)
               return true;
             return false;
@@ -6899,6 +6901,8 @@
         case "display.showSplitButton":
           return true;
         case "display.defaultMXPState":
+          return false;
+        case "customScrollbars":
           return false;
         case "chat.showSplitButton":
           return true;
@@ -21081,6 +21085,514 @@
     }
   };
 
+  // src/core/scrollbar.ts
+  var ScrollBar = class extends EventEmitter {
+    /**
+     * Creates an instance of ScrollBar.
+     *
+     * @param {HTMLElement} [parent] element that will contain the scroll bar
+     * @param {HTMLElement} [content] element that will be scrolled, if left off will default to parent
+     * @param {ScrollType} [type=ScrollType.vertical] type of scroll bar
+     * @memberof ScrollBar
+     */
+    constructor(options) {
+      super();
+      this._visible = true;
+      this._offset = 0;
+      this.$padding = 0;
+      this._os = { left: 0, top: 0 };
+      this._padding = [0, 0, 0, 0];
+      this._position = 0;
+      this._thumbSize = 0;
+      this._ratio = 0;
+      this._ratio2 = 0;
+      this._maxDrag = 0;
+      this._type = 0 /* vertical */;
+      this._autoHide = false;
+      this.maxPosition = 0;
+      this.scrollSize = 0;
+      this.trackSize = 0;
+      this.trackOffset = 0;
+      this.trackOffsetSize = { width: 0, height: 0 };
+      this.autoScroll = true;
+      this.state = {
+        dragging: false,
+        dragPosition: 0,
+        position: 0
+      };
+      if (options) {
+        if (options.hasOwnProperty("autoScroll"))
+          this.autoScroll = options.autoScroll;
+        this._type = options.type || 0 /* vertical */;
+        this.setParent(options.parent, options.content);
+      } else
+        this.type = 0 /* vertical */;
+    }
+    /**
+     * set or return the content element
+     *
+     * @memberof ScrollBar
+     */
+    get content() {
+      return this._content;
+    }
+    set content(value) {
+      if (this._content === value) return;
+      this._content = value;
+      this.resize();
+    }
+    /**
+     * Current size of scroll bar
+     *
+     * @readonly
+     * @type {number}
+     * @memberof ScrollBar
+     */
+    get size() {
+      return this._visible ? this._type === 1 /* horizontal */ ? this.track.offsetHeight : this.track.offsetWidth : 0;
+    }
+    /**
+     * Current position of the scroll bar
+     *
+     * @readonly
+     * @type {number}
+     * @memberof ScrollBar
+     */
+    get position() {
+      return Math.round(this._position - (this._type === 1 /* horizontal */ ? this._padding[3] : this._padding[0]));
+    }
+    get positionRaw() {
+      return this._position - (this._type === 1 /* horizontal */ ? this._padding[3] : this._padding[0]);
+    }
+    /**
+     * An offset amount to adjust the whole scroll bar by that effects total size
+     *
+     * @type {number}
+     * @memberof ScrollBar
+     */
+    get offset() {
+      return this._offset;
+    }
+    set offset(value) {
+      if (value !== this._offset) {
+        this._offset = value;
+        this.updateLocation();
+        this.resize();
+      }
+    }
+    /**
+     * A padding amount to adjust the scroll bar by and effects track size
+     *
+     * @type {number}
+     * @memberof ScrollBar
+     */
+    get padding() {
+      return this.$padding;
+    }
+    set padding(value) {
+      if (value !== this.$padding) {
+        this.$padding = value;
+        this.updateLocation();
+        this.resize();
+      }
+    }
+    /**
+     * The type of scroll bar, either vertical or horizontal
+     *
+     * @type {ScrollType}
+     * @memberof ScrollBar
+     */
+    get type() {
+      return this._type;
+    }
+    set type(value) {
+      if (this._type !== value) {
+        this._type = value;
+        this.trackOffsetSize = { width: 0, height: 0 };
+        if (this._type === 1 /* horizontal */) {
+          this.track.classList.add("scroll-horizontal");
+          this.track.classList.remove("scroll-vertical");
+        } else {
+          this.track.classList.remove("scroll-horizontal");
+          this.track.classList.add("scroll-vertical");
+        }
+        this.updateLocation();
+        this.resize();
+      }
+    }
+    /**
+     * Is scroll var visible
+     *
+     * @type {boolean}
+     * @memberof ScrollBar
+     */
+    get visible() {
+      return this._visible;
+    }
+    set visible(value) {
+      if (!this._visible === value) {
+        this._visible = value;
+        this.track.style.display = value ? "block" : "none";
+        this.resize();
+      }
+    }
+    /**
+     * is scroll bar at the bottom
+     *
+     * @readonly
+     * @type {boolean}
+     * @memberof ScrollBar
+     */
+    get atBottom() {
+      return this.position >= this.scrollSize;
+    }
+    /**
+     * The type of scroll bar, either vertical or horizontal
+     *
+     * @type {ScrollType}
+     * @memberof ScrollBar
+     */
+    get autohide() {
+      return this._autoHide;
+    }
+    set autohide(value) {
+      if (this._autoHide !== value) {
+        this._autoHide = value;
+        if (value)
+          this.track.classList.add("scroll-auto-hide");
+        else
+          this.track.classList.remove("scroll-auto-hide");
+        this.thumb.style[this._type === 1 /* horizontal */ ? "height" : "width"] = value ? "50%" : "100%";
+      }
+    }
+    /**
+     * sets the parent element with optional content element
+     *
+     * @param {HTMLElement} parent element that will contain the scroll bar
+     * @param {HTMLElement} [content] element that will be scrolled, if left off will default to parent
+     * @memberof ScrollBar
+     */
+    setParent(parent, content) {
+      if (this.track)
+        this._parent.removeChild(this.track);
+      this._parent = parent;
+      this._content = content || parent;
+      this.createBar();
+    }
+    /**
+     * Updates the location of the scroll bar in the parent based on type
+     *
+     * @private
+     * @memberof ScrollBar
+     */
+    updateLocation() {
+      if (this._type === 1 /* horizontal */) {
+        this.track.style.top = "";
+        this.track.style.right = this.offset + this.padding + "px";
+        this.track.style.left = "0";
+        this.track.style.bottom = "0";
+        this.track.style.width = "auto";
+        this.track.style.height = "";
+        if (this._autoHide)
+          this.thumb.style.height = "50%";
+        else
+          this.thumb.style.height = "100%";
+        this.thumb.style.width = "";
+        this.thumb.style.bottom = "0";
+      } else {
+        this.track.style.top = "0";
+        this.track.style.right = "0";
+        this.track.style.left = "";
+        this.track.style.bottom = this.offset + this.padding + "px";
+        this.track.style.width = "";
+        this.track.style.height = "auto";
+        if (this._autoHide)
+          this.thumb.style.width = "50%";
+        else
+          this.thumb.style.width = "100%";
+        this.thumb.style.right = "0";
+      }
+    }
+    /**
+     * Creates scroll bar elements
+     *
+     * @private
+     * @memberof ScrollBar
+     */
+    createBar() {
+      this._position = this._type === 1 /* horizontal */ ? this._content.scrollLeft : this._content.scrollTop;
+      this.track = document.createElement("div");
+      this.track.className = "scroll-track scroll-" + (this._type === 1 /* horizontal */ ? "horizontal" : "vertical");
+      this.track.style.position = "absolute";
+      this.track.style.overflow = "hidden";
+      this.track.addEventListener("mousedown", (e) => {
+        if (e.button === 0 && e.buttons) {
+          this._lastMouse = e;
+          e.preventDefault();
+          e.cancelBubble = true;
+          this.state.dragging = true;
+          this.state.position = 0;
+          this.state.dragPosition = (this._type === 1 /* horizontal */ ? e.pageX - this._os.left : e.pageY - this._os.top) - this.state.position;
+          this.updatePosition(this.currentPosition());
+        }
+      });
+      this.track.addEventListener("wheel", (event2) => {
+        this.scrollBy(this._type === 1 /* horizontal */ ? event2.deltaX : event2.deltaY);
+      }, { passive: true });
+      this._parent.appendChild(this.track);
+      this.thumb = document.createElement("div");
+      this.thumb.className = "scroll-thumb";
+      this.thumb.style.position = "absolute";
+      this.track.appendChild(this.thumb);
+      this.updateLocation();
+      this.thumb.addEventListener("mousedown", (e) => {
+        this._lastMouse = e;
+        if (e.button === 0 && e.buttons) {
+          e.preventDefault();
+          e.cancelBubble = true;
+          this.state.dragging = true;
+          this.state.position = (this._type === 1 /* horizontal */ ? e.pageX : e.pageY) - this.state.dragPosition;
+          this.state.dragPosition = (this._type === 1 /* horizontal */ ? e.pageX - this._os.left : e.pageY - this._os.top) - this.state.position;
+        }
+      });
+      this._content.addEventListener("wheel", (event2) => {
+        this.scrollBy(this._type === 1 /* horizontal */ ? event2.deltaX : event2.deltaY);
+      }, { passive: true });
+      this._wMove = (e) => {
+        this._lastMouse = e;
+        if (this.state.dragging) {
+          this.updatePosition(this.currentPosition());
+        }
+      };
+      this._wUp = (e) => {
+        this._lastMouse = e;
+        if (this.state.dragging) {
+          this.state.dragging = false;
+          this.updatePosition(this.currentPosition());
+        }
+      };
+      this._wResize = (e) => {
+        this.resize(true);
+      };
+      window.addEventListener("mousemove", this._wMove.bind(this));
+      window.addEventListener("mouseup", this._wUp.bind(this));
+      window.addEventListener("resize", this._wResize.bind(this));
+      this.resize(true);
+      this.$resizeObserver = new ResizeObserver((entries, observer) => {
+        if (entries.length === 0) return;
+        if (!entries[0].contentRect || entries[0].contentRect.width === 0 || entries[0].contentRect.height === 0)
+          return;
+        if (!this.$resizeObserverCache || this.$resizeObserverCache.width !== entries[0].contentRect.width || this.$resizeObserverCache.height !== entries[0].contentRect.height) {
+          this.$resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
+          this.resize(true);
+        }
+      });
+      this.$resizeObserver.observe(this.track);
+      this.$observer = new MutationObserver((mutationsList) => {
+        let mutation;
+        for (mutation of mutationsList) {
+          if (mutation.type === "attributes" && mutation.attributeName === "style") {
+            this.updateLayout();
+          }
+        }
+      });
+      this.$observer.observe(this.track, { attributes: true, attributeOldValue: true, attributeFilter: ["style"] });
+      this.updateLayout();
+    }
+    /**
+     * resets the scroll bar to 0 position
+     *
+     * @memberof ScrollBar
+     */
+    reset() {
+      this.state = {
+        dragging: false,
+        dragPosition: 0,
+        position: 0
+      };
+      this.maxPosition = 0;
+      this.resize();
+      this.updatePosition(0, true);
+      this.update();
+    }
+    /**
+     * Updates the scroll bar thumb and drag sizes
+     *
+     * @memberof ScrollBar
+     */
+    update() {
+      if (this.scrollSize > 0)
+        this.track.classList.remove("scroll-disabled");
+      else
+        this.track.classList.add("scroll-disabled");
+      this._thumbSize = Math.ceil(1 / this._percentView * this.trackSize) || 0;
+      if (this._thumbSize > this.trackSize)
+        this._thumbSize = this.trackSize;
+      if (this._thumbSize < 15)
+        this._thumbSize = 15;
+      this.thumb.style[this._type === 1 /* horizontal */ ? "width" : "height"] = this._thumbSize + "px";
+      this._maxDrag = this.trackSize - this._thumbSize;
+      if (this._maxDrag <= 0) {
+        this._maxDrag = 0;
+        this._ratio = 1;
+        this._ratio2 = 1;
+      } else {
+        this._ratio = (this._contentSize - this._parentSize) / this._maxDrag;
+        this._ratio2 = this._maxDrag / (this._contentSize - this._parentSize);
+      }
+    }
+    /**
+     * Scroll by a certain amount
+     *
+     * @param {number} amount the amount to scroll from current position
+     * @returns
+     * @memberof ScrollBar
+     */
+    scrollBy(amount) {
+      if (amount === 0) return;
+      amount = this.positionRaw + (amount < 0 ? Math.floor(amount) : Math.ceil(amount));
+      amount = amount * this._ratio2;
+      this.updatePosition(amount);
+    }
+    /**
+     * scroll to an exact position
+     *
+     * @param {number} position the position to scroll to
+     * @memberof ScrollBar
+     */
+    scrollTo(position) {
+      position = position < 0 ? Math.floor(position) : Math.ceil(position);
+      position = position * this._ratio2;
+      this.updatePosition(position);
+    }
+    /**
+     * scroll to the end position of the scroll bar
+     *
+     * @memberof ScrollBar
+     */
+    scrollToEnd() {
+      this.updatePosition(this.maxPosition);
+    }
+    /**
+     * scroll to the start position
+     *
+     * @memberof ScrollBar
+     */
+    scrollToStart() {
+      this.updatePosition(0);
+    }
+    pageUp(offset2) {
+      offset2 = offset2 || 0;
+      this.scrollBy(-(this._parentSize - (this._type === 1 /* horizontal */ ? this._padding[3] : this._padding[2]) - offset2));
+    }
+    pageDown(offset2) {
+      offset2 = offset2 || 0;
+      this.scrollBy(this._parentSize - (this._type === 1 /* horizontal */ ? this._padding[3] : this._padding[2]) - offset2);
+    }
+    /**
+     * resize the scroll bar to the parent
+     *
+     * @memberof ScrollBar
+     */
+    resize(bar, contentSize, parentSize) {
+      const bottom = this.atBottom;
+      if (this._type === 1 /* horizontal */) {
+        this._contentSize = contentSize || this._content.scrollWidth;
+        this._parentSize = parentSize || this._content.clientWidth;
+        if (bar || !this.trackSize) {
+          this.trackSize = this.track.clientWidth;
+          this.trackOffset = this.track.clientHeight;
+        }
+        this.scrollSize = this._contentSize - this._parentSize;
+      } else {
+        this._contentSize = contentSize || this._content.scrollHeight;
+        this._parentSize = parentSize || this._content.clientHeight;
+        if (bar) {
+          this.trackSize = this.track.clientHeight;
+          this.trackOffset = this.track.clientWidth;
+        }
+        this.scrollSize = this._contentSize - this._parentSize;
+      }
+      if (bar || !this.trackOffsetSize.width)
+        this.trackOffsetSize = { height: this.track.offsetHeight, width: this.track.offsetWidth };
+      this._percentView = this._contentSize / this._parentSize;
+      this.maxPosition = this._parentSize;
+      if (this.maxPosition < 0)
+        this.maxPosition = 0;
+      this.update();
+      if (bottom && this.autoScroll)
+        this.updatePosition(this.maxPosition);
+      else
+        this.updatePosition(this._position * this._ratio2);
+    }
+    updateLayout() {
+    }
+    /**
+     * current position of scroll bar
+     *
+     * @returns
+     * @memberof ScrollBar
+     */
+    currentPosition() {
+      const p = this._type === 1 /* horizontal */ ? this._lastMouse.pageX - this.state.position - this._os.left : this._lastMouse.pageY - this.state.position - this._os.top;
+      if (p < 0)
+        return 0;
+      if (p > this.maxPosition)
+        return this.maxPosition;
+      return p;
+    }
+    /**
+     * update position of scroll bar
+     *
+     * @private
+     * @param {*} p
+     * @memberof ScrollBar
+     * @fires ScrollBar#scroll
+     */
+    updatePosition(p, force) {
+      if (p < 0 || this._maxDrag < 0)
+        p = 0;
+      else if (p > this._maxDrag)
+        p = this._maxDrag;
+      const prv = this.position;
+      this.thumb.style[this._type === 1 /* horizontal */ ? "left" : "top"] = p + "px";
+      this.state.dragPosition = p;
+      this._position = p * this._ratio;
+      if (this._position < 0)
+        this._position = 0;
+      this.update();
+      this.emit("scroll", this.position, prv !== this.position || force);
+    }
+    /**
+     * calculate the offset of an element
+     *
+     * @private
+     * @param {*} elt element to get offset for
+     * @returns {position} returns the top and left positions
+     * @memberof ScrollBar
+     */
+    elOffset(elt) {
+      const rect = elt.getBoundingClientRect();
+      const bodyElt = document.body;
+      return {
+        top: rect.top + bodyElt.scrollTop,
+        left: rect.left + bodyElt.scrollLeft
+      };
+    }
+    /**
+     * remove the scroll bar
+     *
+     * @memberof ScrollBar
+     */
+    dispose() {
+      if (this.track)
+        this.track.remove();
+      window.removeEventListener("mousemove", this._wMove);
+      window.removeEventListener("mouseup", this._wUp);
+      window.removeEventListener("resize", this._wResize);
+    }
+  };
+
   // src/core/display.ts
   var Display = class extends EventEmitter {
     //#endregion
@@ -21110,6 +21622,8 @@
       this._selection = { start: null, end: null, timer: null };
       this._trackSelection = { down: null, up: null };
       this._customSelection = true;
+      this._customScrollbars = false;
+      this._showSplitButton = false;
       if (!container)
         throw new Error("Container must be a selector, element, jquery object or display options");
       if (typeof container === "object" && "container" in container) {
@@ -21150,7 +21664,7 @@
       this._view = this._document.createElement("div");
       this._view.className = "view";
       this._view.addEventListener("scroll", () => {
-        this._scrollAtEnd = this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight;
+        this._scrollAtEnd = this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight || this._customScrollbars && this._VScroll.atBottom;
         this._doUpdate(128 /* toggleSplit */);
       });
       this._view.addEventListener("click", (e) => {
@@ -21276,7 +21790,7 @@
         options.display = this;
       this.model = new DisplayModel(options);
       this._wResize = (e) => {
-        if (this._scrollAtEnd)
+        if (this._scrollAtEnd || this._customScrollbars && this._VScroll.atBottom)
           this.scrollDisplay();
         debounce(() => {
           this._doUpdate(1 /* update */ | 16 /* updateWindow */ | 64 /* split */);
@@ -21306,7 +21820,7 @@
           return;
         debounce(() => {
           if (!this._resizeObserverCache || this._resizeObserverCache.width !== entries[0].contentRect.width || this._resizeObserverCache.height !== entries[0].contentRect.height) {
-            if (this._scrollAtEnd)
+            if (this._scrollAtEnd || this._customScrollbars && this._VScroll.atBottom)
               this.scrollDisplay();
             this._resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
             this._doUpdate(1 /* update */ | 16 /* updateWindow */ | 64 /* split */);
@@ -21320,7 +21834,7 @@
         let mutation;
         for (mutation of mutationsList) {
           if (mutation.type === "attributes" && mutation.attributeName === "style") {
-            if (this._scrollAtEnd)
+            if (this._scrollAtEnd || this._customScrollbars && this._VScroll.atBottom)
               this.scrollDisplay();
             this._doUpdate(1 /* update */ | 16 /* updateWindow */ | 64 /* split */);
             this.emit("resize");
@@ -21337,9 +21851,14 @@
       this.splitHeight = -1;
     }
     get _horizontalScrollBarHeight() {
+      if (this._customScrollbars)
+        return this._HScroll.visible ? this._HScroll.size : 0;
       return this._view.scrollWidth > this._view.clientWidth ? this._view.offsetHeight - this._view.clientHeight : 0;
     }
     get _verticalScrollBarHeight() {
+      if (this._customScrollbars) {
+        return this._VScroll.visible ? this._VScroll.size + this._padding[1] : 0;
+      }
       return this._view.offsetWidth - this._view.clientWidth;
     }
     //#endregion
@@ -21360,6 +21879,50 @@
         this._container.style.userSelect = "auto";
       this._updateSelectionHighlight();
     }
+    get customScrollbars() {
+      return this._customScrollbars;
+    }
+    set customScrollbars(value) {
+      if (value === this._customScrollbars) return;
+      this._customScrollbars = value;
+      if (!value) {
+        if (this._HScroll) this._HScroll.dispose();
+        if (this._VScroll) this._VScroll.dispose();
+        if (this._scrollCorner)
+          this._container.removeChild(this._scrollCorner);
+        this._scrollCorner = null;
+        this._HScroll = null;
+        this._VScroll = null;
+        this._view.style.overflowX = "";
+        this._view.style.overflowY = "";
+        this._view.style.overflow = "";
+      } else if (value) {
+        if (!this._VScroll) {
+          this._VScroll = new ScrollBar({ parent: this._container, content: this._view, autoScroll: true, type: 0 /* vertical */ });
+          this._VScroll.on("scroll", (pos, changed) => {
+            if (changed) {
+              this._view.scrollTop = pos;
+              if (this._split)
+                this._split._view.scrollTop = this._split._view.scrollHeight;
+            }
+          });
+        }
+        if (!this._HScroll) {
+          this._HScroll = new ScrollBar({ parent: this._container, content: this._view, type: 1 /* horizontal */, autoScroll: false });
+          this._HScroll.on("scroll", (pos, changed) => {
+            if (changed) {
+              this._view.scrollLeft = pos;
+              if (this._split)
+                this._split._view.scrollLeft = this._view.scrollLeft;
+            }
+          });
+        }
+        this._view.style.overflowX = "hidden";
+        this._view.style.overflowY = "hidden";
+        this._view.style.overflow = "hidden";
+      }
+      this._doUpdate(256 /* layout */ | 512 /* scrollbars */);
+    }
     get scrollLock() {
       return this._scrollLock;
     }
@@ -21370,6 +21933,8 @@
         this.scrollDisplay(true);
       } else if (this._scrollLock && this._split && !this._split.visible)
         this.scrollUp();
+      if (this._customScrollbars)
+        this._VScroll.autoScroll = !this._scrollLock;
     }
     get showTimestamp() {
       return this._timestamp;
@@ -21454,7 +22019,7 @@
         this._view.insertAdjacentElement("afterend", this._split._view);
         this._container.insertAdjacentElement("afterbegin", this._split._bar);
         this._updateSplitLocation();
-        this._split._bar.style.right = this._verticalScrollBarHeight + "px";
+        this._split._bar.style.right = this._verticalScrollBarHeight - (this._customScrollbars ? this._padding[1] : 0) + "px";
         this._split._bar.style.top = this._view.clientHeight - this._split._view.clientHeight - this._horizontalScrollBarHeight + "px";
         this._split._bar.addEventListener("mousedown", (e) => {
           if (e.buttons !== 1) return;
@@ -21595,16 +22160,20 @@
         });
         this._split._view.addEventListener("wheel", (e) => {
           const delta = e.deltaY || e.wheelDelta;
-          this._view.scrollTop += delta;
+          if (this._customScrollbars)
+            this._VScroll.scrollBy(delta);
+          else
+            this._view.scrollTop += delta;
         }, { passive: true });
         this._toggleSplit();
-        this._doUpdate(64 /* split */ | 128 /* toggleSplit */);
+        this._doUpdate(64 /* split */ | 128 /* toggleSplit */ | 256 /* layout */);
       } else if (this._split && !value) {
         this._container.removeEventListener("mouseup", this._split.moveDone);
         this._container.removeEventListener("mouseleave", this._split.moveDone);
         this._container.removeChild(this._split._view);
         this._container.removeChild(this._split._bar);
         this._split = null;
+        this._doUpdate(256 /* layout */);
       }
       if (this.customSelection)
         this._container.style.userSelect = "none";
@@ -21857,6 +22426,8 @@
       return this._model.raw;
     }
     get scrollAtBottom() {
+      if (this._customScrollbars)
+        return this._VScroll.atBottom;
       return this._scrollAtEnd;
     }
     debug(msg) {
@@ -21864,8 +22435,9 @@
     }
     scrollDisplay(force) {
       if (this._split) {
-        if (force || !this.scrollLock && !this._split.visible)
+        if (force || !this.scrollLock && !this._split.visible) {
           this._view.scrollTop = this._view.scrollHeight;
+        }
       } else if (!this.scrollLock)
         this._view.scrollTop = this._view.scrollHeight;
     }
@@ -21900,6 +22472,7 @@
           while (r-- > 0)
             this._view.removeChild(this._view.firstChild);
           this._model.removeLines(0, amt);
+          this._doUpdate(512 /* scrollbars */);
         }
       }, 100, this.id + "trimLines");
     }
@@ -21928,10 +22501,13 @@
     }
     _updateDisplay() {
       this._view.classList.remove("animate");
-      this._doUpdate(4 /* trim */);
       if (this._hideTrailingEmptyLine && this.lines.length && this.lines[this.lines.length - 1].text.length === 0)
         this._view.lastChild.style.display = "none";
-      this._doUpdate(8 /* scrollEnd */ | 16 /* updateWindow */ | 64 /* split */);
+      this._doUpdate(4 /* trim */ | 8 /* scrollEnd */ | 16 /* updateWindow */ | 64 /* split */ | 256 /* layout */);
+      if (this._customScrollbars) {
+        this._VScroll.resize();
+        this._HScroll.resize();
+      }
       this._view.classList.add("animate");
     }
     updateWindow(width, height) {
@@ -21945,6 +22521,11 @@
     clear() {
       this._model.clear();
       this._view.innerHTML = "";
+      if (this._customScrollbars) {
+        this._VScroll.reset();
+        this._HScroll.reset();
+        this._updateScrollbars();
+      }
     }
     dispose() {
       this._document.body.removeChild(this._character);
@@ -21957,7 +22538,66 @@
       this._document.removeEventListener("selectionchange", this._selectionChange);
       this._container.removeEventListener("dragstart", this._dragPrevent);
     }
+    _updateLayout() {
+      if (this._customScrollbars) {
+        this._view.style.right = this._verticalScrollBarHeight + "px";
+        this._view.style.bottom = this._horizontalScrollBarHeight + "px";
+      } else {
+        this._view.style.right = "";
+        this._view.style.bottom = "";
+      }
+      if (this._split) {
+        this._split._view.style.right = this._verticalScrollBarHeight + "px";
+        this._split._bar.style.right = this._verticalScrollBarHeight - (this._customScrollbars ? this._padding[1] : 0) + "px";
+      }
+      this._updateSplitLocation();
+    }
+    _updateScrollbars() {
+      if (!this._customScrollbars || this._model.busy)
+        return;
+      this._HScroll.offset = this._VScroll.trackOffset;
+      this._HScroll.resize();
+      this._HScroll.visible = this._HScroll.scrollSize > 0;
+      this._VScroll.offset = this._HScroll.visible ? this._HScroll.trackOffsetSize.height : 0;
+      this._VScroll.resize();
+      if (this._VScroll.offset === 0 && this._showSplitButton && this._split && !this._HScroll.visible)
+        this._VScroll.padding = this._HScroll.trackOffsetSize.height || this._VScroll.trackOffsetSize.width;
+      else
+        this._VScroll.padding = 0;
+      if (!this._HScroll.visible && this._scrollCorner && (!this._split || !this._showSplitButton)) {
+        this._container.removeChild(this._scrollCorner);
+        this._scrollCorner = null;
+      } else if ((this._split || this._HScroll.visible) && !this._scrollCorner) {
+        this._scrollCorner = document.createElement("div");
+        if (this._showSplitButton && this._split) {
+          this._scrollCorner.classList.add("scroll-corner", "scroll-split-button");
+          this._scrollCorner.title = "Toggle split view";
+          this._scrollCorner.innerHTML = '<i class="fa fa-minus"></i>';
+          this._scrollCorner.addEventListener("click", (e) => {
+            e.cancelBubble = true;
+            e.stopPropagation();
+            this.scrollLock = !this.scrollLock;
+            if (this._split.visible)
+              this.scrollDisplay(true);
+            else
+              this._VScroll.scrollBy(-this._charHeight);
+          });
+        } else
+          this._scrollCorner.className = "scroll-corner";
+        this._container.appendChild(this._scrollCorner);
+      }
+      if (this._split) {
+        if (this._scrollCorner)
+          if (this._VScroll.scrollSize >= 0)
+            this._scrollCorner.classList.remove("disabled");
+          else
+            this._scrollCorner.classList.add("disabled");
+      }
+      this._doUpdate(256 /* layout */);
+    }
     _update() {
+      if (this._customScrollbars)
+        this._HScroll.visible = this._customScrollbars && this._view.scrollWidth > this._view.clientWidth;
       this._maxView = this._view.clientWidth - this._padding[1] - this._padding[3] - this._verticalScrollBarHeight - this._indentPadding;
       if (this._timestamp !== 0 /* None */)
         this._maxView -= this._timestampWidth * this._charWidth;
@@ -22268,6 +22908,12 @@
       this._window.requestAnimationFrame(() => {
         if (this._updating === 0 /* none */)
           return;
+        if ((this._updating & 256 /* layout */) === 256 /* layout */) {
+          this._updateScrollbars();
+          this._updateLayout();
+          this._updating &= ~256 /* layout */;
+          this._updating &= ~512 /* scrollbars */;
+        }
         if ((this._updating & 32 /* rebuildLines */) === 32 /* rebuildLines */) {
           this._rebuildLines();
           this._updating &= ~32 /* rebuildLines */;
@@ -22275,6 +22921,7 @@
         if ((this._updating & 1 /* update */) === 1 /* update */) {
           this._update();
           this._updating &= ~1 /* update */;
+          this._updating |= 512 /* scrollbars */;
         }
         if ((this._updating & 2 /* display */) === 2 /* display */) {
           this._updateDisplay();
@@ -22299,6 +22946,10 @@
         if ((this._updating & 128 /* toggleSplit */) === 128 /* toggleSplit */) {
           this._toggleSplit();
           this._updating &= ~128 /* toggleSplit */;
+        }
+        if ((this._updating & 512 /* scrollbars */) === 512 /* scrollbars */) {
+          this._updateScrollbars();
+          this._updating &= ~512 /* scrollbars */;
         }
         this._doUpdate(this._updating);
       });
@@ -22572,7 +23223,7 @@
     }
     _toggleSplit() {
       if (!this._split) return;
-      if (this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight) {
+      if (this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight || this._customScrollbars && this._VScroll.atBottom) {
         if (this._split.visible) {
           this._split._view.style.visibility = "hidden";
           this._split._bar.style.display = "none";
@@ -38363,29 +39014,30 @@ ${pre}`);
       this._logger.postMessage(data);
     }
     _loadDisplayOptions(display) {
-      display.updateFont(client.getOption("chat.font"), client.getOption("chat.fontSize"));
-      display.maxLines = client.getOption("chat.bufferSize");
-      display.enableFlashing = client.getOption("chat.flashing");
-      display.showTimestamp = client.getOption("chat.showTimestamp");
-      display.timestampFormat = client.getOption("chat.timestampFormat");
-      display.enableMXP = client.getOption("enableMXP");
-      display.enableURLDetection = client.getOption("enableURLDetection");
-      display.showInvalidMXPTags = client.getOption("display.showInvalidMXPTags");
-      display.hideTrailingEmptyLine = client.getOption("display.hideTrailingEmptyLine");
-      display.enableColors = client.getOption("chat.enableColors");
-      display.enableBackgroundColors = client.getOption("chat.enableBackgroundColors");
-      display.tabWidth = client.getOption("chat.tabWidth");
-      display.displayControlCodes = client.getOption("chat.displayControlCodes");
-      display.emulateTerminal = client.getOption("chat.emulateTerminal");
-      display.emulateControlCodes = client.getOption("chat.emulateControlCodes");
-      display.wordWrap = client.getOption("chat.wordWrap");
-      display.wrapAt = client.getOption("chat.wordWrapAt");
-      display.indent = client.getOption("chat.indent");
-      display.scrollLock = client.getOption("chat.scrollLocked");
-      display.enableSplit = client.getOption("chat.split");
-      display.splitLive = client.getOption("chat.splitLive");
-      display.splitHeight = client.getOption("chat.splitHeight");
-      display.customSelection = client.getOption("chat.customSelection");
+      display.updateFont(this.client.getOption("chat.font"), this.client.getOption("chat.fontSize"));
+      display.maxLines = this.client.getOption("chat.bufferSize");
+      display.enableFlashing = this.client.getOption("chat.flashing");
+      display.showTimestamp = this.client.getOption("chat.showTimestamp");
+      display.timestampFormat = this.client.getOption("chat.timestampFormat");
+      display.enableMXP = this.client.getOption("enableMXP");
+      display.enableURLDetection = this.client.getOption("enableURLDetection");
+      display.showInvalidMXPTags = this.client.getOption("display.showInvalidMXPTags");
+      display.hideTrailingEmptyLine = this.client.getOption("display.hideTrailingEmptyLine");
+      display.enableColors = this.client.getOption("chat.enableColors");
+      display.enableBackgroundColors = this.client.getOption("chat.enableBackgroundColors");
+      display.tabWidth = this.client.getOption("chat.tabWidth");
+      display.displayControlCodes = this.client.getOption("chat.displayControlCodes");
+      display.emulateTerminal = this.client.getOption("chat.emulateTerminal");
+      display.emulateControlCodes = this.client.getOption("chat.emulateControlCodes");
+      display.wordWrap = this.client.getOption("chat.wordWrap");
+      display.wrapAt = this.client.getOption("chat.wordWrapAt");
+      display.indent = this.client.getOption("chat.indent");
+      display.scrollLock = this.client.getOption("chat.scrollLocked");
+      display.enableSplit = this.client.getOption("chat.split");
+      display.splitLive = this.client.getOption("chat.splitLive");
+      display.splitHeight = this.client.getOption("chat.splitHeight");
+      display.customSelection = this.client.getOption("chat.customSelection");
+      display.customScrollbars = this.client.getOption("customScrollbars");
       display.scrollDisplay();
     }
     _loadWindowOptions(target) {
@@ -39779,6 +40431,7 @@ ${pre}`);
       display.wrapAt = client.getOption("chat.wrapAt");
       display.indent = client.getOption("chat.indent");
       display.scrollLock = client.getOption("chat.scrollLocked");
+      display.customScrollbars = this.client.getOption("customScrollbars");
       display.scrollDisplay();
     }
     _loadOptions() {
@@ -40894,6 +41547,7 @@ ${pre}`);
       this.display.splitLive = this._options["display.splitLive"];
       this.display.customSelection = this._options["display.customSelection"];
       this.display.defaultMXPState = this._options["display.defaultMXPState"];
+      this.display.customScrollbars = this._options["customScrollbars"];
       const colors = this.getOption("colors");
       if (colors && colors.length > 0) {
         let c;

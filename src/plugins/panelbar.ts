@@ -494,6 +494,7 @@ export class PanelBar extends Plugin {
         display.wrapAt = client.getOption('chat.wrapAt');
         display.indent = client.getOption('chat.indent');
         display.scrollLock = client.getOption('chat.scrollLocked');
+        display.customScrollbars = this.client.getOption('customScrollbars');
 
         //display.enableSplit = client.getOption('chat.split');
         //display.splitLive = client.getOption('chat.splitLive');

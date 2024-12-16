@@ -4,6 +4,7 @@ import { EventEmitter } from './events';
 import { Parser } from './parser';
 import { Size, DisplayOptions, ParserLine, FormatType, FontStyle, Point } from './types';
 import { htmlEncode, formatUnit, debounce } from './library';
+import { ScrollBar, ScrollType } from './scrollbar';
 
 declare let moment;
 
@@ -27,7 +28,9 @@ export enum UpdateType {
     updateWindow = 1 << 4,
     rebuildLines = 1 << 5,
     split = 1 << 6,
-    toggleSplit = 1 << 7
+    toggleSplit = 1 << 7,
+    layout = 1 << 8,
+    scrollbars = 1 << 9
 }
 
 export enum TimeStampStyle {
@@ -95,11 +98,21 @@ export class Display extends EventEmitter {
     private _highlight;
     private _bounds;
     private _dragPrevent;
+    private _customScrollbars = false;
+    private _HScroll: ScrollBar;
+    private _VScroll: ScrollBar;
+    private _scrollCorner: HTMLElement;
+    private _showSplitButton: boolean = false;
 
     private get _horizontalScrollBarHeight() {
+        if (this._customScrollbars)
+            return this._HScroll.visible ? this._HScroll.size : 0;
         return (this._view.scrollWidth > this._view.clientWidth ? this._view.offsetHeight - this._view.clientHeight : 0);
     }
     private get _verticalScrollBarHeight() {
+        if (this._customScrollbars) {
+            return this._VScroll.visible ? this._VScroll.size + this._padding[1] : 0;
+        }
         return this._view.offsetWidth - this._view.clientWidth;
     }
     //#endregion
@@ -119,6 +132,51 @@ export class Display extends EventEmitter {
         this._updateSelectionHighlight();
     }
 
+    get customScrollbars() { return this._customScrollbars; }
+    set customScrollbars(value) {
+        if (value === this._customScrollbars) return;
+        this._customScrollbars = value;
+        if (!value) {
+            if (this._HScroll) this._HScroll.dispose();
+            if (this._VScroll) this._VScroll.dispose();
+            if (this._scrollCorner)
+                this._container.removeChild(this._scrollCorner);
+            this._scrollCorner = null;
+            this._HScroll = null;
+            this._VScroll = null;
+            this._view.style.overflowX = '';
+            this._view.style.overflowY = '';
+            this._view.style.overflow = '';
+        }
+        else if (value) {
+            if (!this._VScroll) {
+                this._VScroll = new ScrollBar({ parent: this._container, content: this._view, autoScroll: true, type: ScrollType.vertical });
+                this._VScroll.on('scroll', (pos, changed) => {
+                    if (changed) {
+                        this._view.scrollTop = pos;
+                        if (this._split)
+                            this._split._view.scrollTop = this._split._view.scrollHeight;
+                    }
+                });
+            }
+            if (!this._HScroll) {
+                this._HScroll = new ScrollBar({ parent: this._container, content: this._view, type: ScrollType.horizontal, autoScroll: false });
+                this._HScroll.on('scroll', (pos, changed) => {
+                    if (changed) {
+                        this._view.scrollLeft = pos;
+                        if (this._split)
+                            this._split._view.scrollLeft = this._view.scrollLeft;
+                    }
+
+                });
+            }
+            this._view.style.overflowX = 'hidden';
+            this._view.style.overflowY = 'hidden';
+            this._view.style.overflow = 'hidden';
+        }
+        this._doUpdate(UpdateType.layout | UpdateType.scrollbars);
+    }
+
     get scrollLock() { return this._scrollLock; }
     set scrollLock(value) {
         if (this._scrollLock === value) return;
@@ -128,6 +186,8 @@ export class Display extends EventEmitter {
         }
         else if (this._scrollLock && this._split && !this._split.visible)
             this.scrollUp();
+        if (this._customScrollbars)
+            this._VScroll.autoScroll = !this._scrollLock;
     }
 
     get showTimestamp() { return this._timestamp; }
@@ -208,7 +268,7 @@ export class Display extends EventEmitter {
             this._view.insertAdjacentElement('afterend', this._split._view);
             this._container.insertAdjacentElement('afterbegin', this._split._bar);
             this._updateSplitLocation();
-            this._split._bar.style.right = this._verticalScrollBarHeight + 'px';
+            this._split._bar.style.right = (this._verticalScrollBarHeight - (this._customScrollbars ? this._padding[1] : 0)) + 'px';
             this._split._bar.style.top = (this._view.clientHeight - this._split._view.clientHeight - this._horizontalScrollBarHeight) + 'px';
             this._split._bar.addEventListener('mousedown', (e) => {
                 if (e.buttons !== 1) return;
@@ -358,10 +418,13 @@ export class Display extends EventEmitter {
             });
             this._split._view.addEventListener('wheel', e => {
                 const delta = e.deltaY || e.wheelDelta;
-                this._view.scrollTop += delta;
+                if (this._customScrollbars)
+                    this._VScroll.scrollBy(delta);
+                else
+                    this._view.scrollTop += delta;
             }, { passive: true });
             this._toggleSplit();
-            this._doUpdate(UpdateType.split | UpdateType.toggleSplit);
+            this._doUpdate(UpdateType.split | UpdateType.toggleSplit | UpdateType.layout);
         }
         else if (this._split && !value) {
             this._container.removeEventListener('mouseup', this._split.moveDone);
@@ -369,6 +432,7 @@ export class Display extends EventEmitter {
             this._container.removeChild(this._split._view);
             this._container.removeChild(this._split._bar);
             this._split = null;
+            this._doUpdate(UpdateType.layout);
         }
         if (this.customSelection)
             this._container.style.userSelect = 'none';
@@ -656,6 +720,8 @@ export class Display extends EventEmitter {
     }
 
     get scrollAtBottom() {
+        if (this._customScrollbars)
+            return this._VScroll.atBottom;
         return this._scrollAtEnd;
     }
     //#endregion
@@ -704,7 +770,7 @@ export class Display extends EventEmitter {
         this._view = this._document.createElement('div');
         this._view.className = 'view';
         this._view.addEventListener('scroll', () => {
-            this._scrollAtEnd = this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight;
+            this._scrollAtEnd = this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight || (this._customScrollbars && this._VScroll.atBottom);
             this._doUpdate(UpdateType.toggleSplit);
         });
         this._view.addEventListener('click', e => {
@@ -839,7 +905,7 @@ export class Display extends EventEmitter {
         this.model = new DisplayModel(options);
 
         this._wResize = (e) => {
-            if (this._scrollAtEnd)
+            if (this._scrollAtEnd || (this._customScrollbars && this._VScroll.atBottom))
                 this.scrollDisplay();
             debounce(() => {
                 this._doUpdate(UpdateType.update | UpdateType.updateWindow | UpdateType.split);
@@ -871,7 +937,7 @@ export class Display extends EventEmitter {
                 return;
             debounce(() => {
                 if (!this._resizeObserverCache || this._resizeObserverCache.width !== entries[0].contentRect.width || this._resizeObserverCache.height !== entries[0].contentRect.height) {
-                    if (this._scrollAtEnd)
+                    if (this._scrollAtEnd || (this._customScrollbars && this._VScroll.atBottom))
                         this.scrollDisplay();
                     this._resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
                     this._doUpdate(UpdateType.update | UpdateType.updateWindow | UpdateType.split);
@@ -885,7 +951,7 @@ export class Display extends EventEmitter {
             let mutation;
             for (mutation of mutationsList) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                    if (this._scrollAtEnd)
+                    if (this._scrollAtEnd || (this._customScrollbars && this._VScroll.atBottom))
                         this.scrollDisplay();
                     this._doUpdate(UpdateType.update | UpdateType.updateWindow | UpdateType.split);
                     this.emit('resize');
@@ -908,8 +974,9 @@ export class Display extends EventEmitter {
 
     public scrollDisplay(force?): void {
         if (this._split) {
-            if (force || !this.scrollLock && !this._split.visible)
+            if (force || !this.scrollLock && !this._split.visible) {
                 this._view.scrollTop = this._view.scrollHeight;
+            }
         }
         else if (!this.scrollLock)
             this._view.scrollTop = this._view.scrollHeight;
@@ -954,6 +1021,7 @@ export class Display extends EventEmitter {
                 while (r-- > 0)
                     this._view.removeChild(this._view.firstChild);
                 this._model.removeLines(0, amt);
+                this._doUpdate(UpdateType.scrollbars);
             }
         }, 100, this.id + 'trimLines');
     }
@@ -988,10 +1056,13 @@ export class Display extends EventEmitter {
     private _updateDisplay() {
         //disable animation
         this._view.classList.remove('animate');
-        this._doUpdate(UpdateType.trim);
         if (this._hideTrailingEmptyLine && this.lines.length && this.lines[this.lines.length - 1].text.length === 0)
             (<HTMLElement>this._view.lastChild).style.display = 'none';
-        this._doUpdate(UpdateType.scrollEnd | UpdateType.updateWindow | UpdateType.split);
+        this._doUpdate(UpdateType.trim | UpdateType.scrollEnd | UpdateType.updateWindow | UpdateType.split | UpdateType.layout);
+        if (this._customScrollbars) {
+            this._VScroll.resize();
+            this._HScroll.resize();
+        }
         //re-enable animation so they are all synced
         this._view.classList.add('animate');
     }
@@ -1008,6 +1079,11 @@ export class Display extends EventEmitter {
     public clear() {
         this._model.clear();
         this._view.innerHTML = '';
+        if (this._customScrollbars) {
+            this._VScroll.reset();
+            this._HScroll.reset();
+            this._updateScrollbars();
+        }
     }
 
     public dispose() {
@@ -1022,13 +1098,78 @@ export class Display extends EventEmitter {
         this._container.removeEventListener('dragstart', this._dragPrevent);
     }
 
+    private _updateLayout() {
+        if (this._customScrollbars) {
+            this._view.style.right = this._verticalScrollBarHeight + 'px';
+            this._view.style.bottom = this._horizontalScrollBarHeight + 'px';
+        }
+        else {
+            this._view.style.right = '';
+            this._view.style.bottom = '';
+        }
+        if (this._split) {
+            this._split._view.style.right = this._verticalScrollBarHeight + 'px';
+            this._split._bar.style.right = (this._verticalScrollBarHeight - (this._customScrollbars ? this._padding[1] : 0)) + 'px';
+        }
+        this._updateSplitLocation();
+    }
+
+    private _updateScrollbars() {
+        if (!this._customScrollbars || this._model.busy)
+            return;
+        this._HScroll.offset = this._VScroll.trackOffset;
+        this._HScroll.resize();
+        this._HScroll.visible = this._HScroll.scrollSize > 0;
+        this._VScroll.offset = this._HScroll.visible ? this._HScroll.trackOffsetSize.height : 0;
+        this._VScroll.resize();
+        if (this._VScroll.offset === 0 && this._showSplitButton && this._split && !this._HScroll.visible)
+            this._VScroll.padding = this._HScroll.trackOffsetSize.height || this._VScroll.trackOffsetSize.width;
+        else
+            this._VScroll.padding = 0;
+
+        if (!this._HScroll.visible && this._scrollCorner && (!this._split || !this._showSplitButton)) {
+            this._container.removeChild(this._scrollCorner);
+            this._scrollCorner = null;
+        }
+        else if ((this._split || this._HScroll.visible) && !this._scrollCorner) {
+            this._scrollCorner = document.createElement('div');
+            if (this._showSplitButton && this._split) {
+                this._scrollCorner.classList.add('scroll-corner', 'scroll-split-button');
+                this._scrollCorner.title = 'Toggle split view';
+                this._scrollCorner.innerHTML = '<i class="fa fa-minus"></i>';
+                this._scrollCorner.addEventListener('click', e => {
+                    e.cancelBubble = true;
+                    e.stopPropagation();
+                    this.scrollLock = !this.scrollLock;
+                    if (this._split.visible)
+                        this.scrollDisplay(true);
+                    else
+                        this._VScroll.scrollBy(-this._charHeight);
+                });
+            }
+            else
+                this._scrollCorner.className = 'scroll-corner';
+            this._container.appendChild(this._scrollCorner);
+        }
+        if (this._split) {
+            if (this._scrollCorner)
+                if (this._VScroll.scrollSize >= 0)
+                    this._scrollCorner.classList.remove('disabled');
+                else
+                    this._scrollCorner.classList.add('disabled');
+        }
+        this._doUpdate(UpdateType.layout);
+    }
+
     private _update() {
+        if (this._customScrollbars)
+            this._HScroll.visible = this._customScrollbars && this._view.scrollWidth > this._view.clientWidth;
         this._maxView = this._view.clientWidth - this._padding[1] - this._padding[3] - this._verticalScrollBarHeight - this._indentPadding;
         if (this._timestamp !== TimeStampStyle.None)
             this._maxView -= this._timestampWidth * this._charWidth;
         this._innerHeight = this._view.clientHeight;
         this._bounds = this._view.getBoundingClientRect();
-    }
+    } f
 
     public updateFont(font?: string, size?: string) {
         if (!font || font.length === 0)
@@ -1369,6 +1510,12 @@ export class Display extends EventEmitter {
         this._window.requestAnimationFrame(() => {
             if (this._updating === UpdateType.none)
                 return;
+            if ((this._updating & UpdateType.layout) === UpdateType.layout) {
+                this._updateScrollbars();
+                this._updateLayout();
+                this._updating &= ~UpdateType.layout;
+                this._updating &= ~UpdateType.scrollbars;
+            }
             if ((this._updating & UpdateType.rebuildLines) === UpdateType.rebuildLines) {
                 this._rebuildLines();
                 this._updating &= ~UpdateType.rebuildLines;
@@ -1376,6 +1523,7 @@ export class Display extends EventEmitter {
             if ((this._updating & UpdateType.update) === UpdateType.update) {
                 this._update();
                 this._updating &= ~UpdateType.update;
+                this._updating |= UpdateType.scrollbars;
             }
             if ((this._updating & UpdateType.display) === UpdateType.display) {
                 this._updateDisplay();
@@ -1400,6 +1548,10 @@ export class Display extends EventEmitter {
             if ((this._updating & UpdateType.toggleSplit) === UpdateType.toggleSplit) {
                 this._toggleSplit();
                 this._updating &= ~UpdateType.toggleSplit;
+            }
+            if ((this._updating & UpdateType.scrollbars) === UpdateType.scrollbars) {
+                this._updateScrollbars();
+                this._updating &= ~UpdateType.scrollbars;
             }
             this._doUpdate(this._updating);
         });
@@ -1703,7 +1855,7 @@ export class Display extends EventEmitter {
 
     private _toggleSplit() {
         if (!this._split) return;
-        if (this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight) {
+        if (this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight || (this._customScrollbars && this._VScroll.atBottom)) {
             //only adjust if not already hidden
             if (this._split.visible) {
                 this._split._view.style.visibility = 'hidden';

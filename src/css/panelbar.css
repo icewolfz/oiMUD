@@ -29,6 +29,11 @@
   border-bottom-width: 0;
 }
 
+#panel-bar[data-location="0"] .splitter-panel-1,
+#panel-bar[data-location="1"] .splitter-panel-2 {
+  background-color: black;
+}
+
 @media (orientation: landscape) and (max-width: 641px),
   (orientation: landscape) and (max-height: 480px),
   (orientation: portrait) and (max-width: 480px),

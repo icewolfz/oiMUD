@@ -21,7 +21,9 @@
     "build": "node build.js --debug --release -p:all --bundled --tinymce --editor",
     "build:all": "node build.js -a -p:all",
     "build:debug": "node build.js --debug -p:all --bundled --tinymce --editor",
-    "build:release": "node build.js --release -p:all --bundled --tinymce --editor"
+    "build:release": "node build.js --release -p:all --bundled --tinymce --editor",
+    "build:analyze": "node build.js --debug --release -p:all --bundled --tinymce --editor --analyze",
+    "build:meta": "node build.js --debug --release -p:all --bundled --tinymce --editor --metafile"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.32",

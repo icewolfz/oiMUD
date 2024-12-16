@@ -15,6 +15,8 @@ let args = {
     tinymce: process.argv.indexOf('-te') !== -1 || process.argv.indexOf('--tinymce') !== -1 || process.argv.indexOf('-tinymce') !== -1,
     plugins: { SHADOWMUD_PLUGIN: 'false', TEST_PLUGIN: 'false', MAPPER_PLUGIN: 'false', CHAT_PLUGIN: 'false', LOGGER_PLUGIN: 'false', MSP_PLUGIN: 'false', PANELBAR_PLUGIN: 'false', STATUS_PLUGIN: 'false' },
     editor: process.argv.indexOf('-e') !== -1 || process.argv.indexOf('--editor') !== -1 || process.argv.indexOf('-editor') !== -1,
+    metafile: process.argv.indexOf('-mf') !== -1 || process.argv.indexOf('--metafile') !== -1 || process.argv.indexOf('-metafile') !== -1,
+    analyze: process.argv.indexOf('-az') !== -1 || process.argv.indexOf('--analyze') !== -1 || process.argv.indexOf('-analyze') !== -1,
 }
 
 process.argv.forEach(arg => {
@@ -118,7 +120,8 @@ let config = {
         ['.svg']: 'dataurl',
         ['.htm']: 'text'
     },
-    external: ['moment']
+    external: ['moment'],
+    metafile: args.metafile || args.analyze
 }
 let release = Object.assign({}, config, { mangleProps: /^[_\$]/, minify: true, sourcemap: true, define: Object.assign({ MINIFY: '"min."', DEBUG: 'false', TINYMCE: args.all || args.tinymce ? 'true' : 'false' }, args.plugins) });
 let debug = Object.assign({}, config, { minify: false, sourcemap: false, define: Object.assign({ MINIFY: '""', DEBUG: 'true', TINYMCE: args.all || args.tinymce ? 'true' : 'false' }, args.plugins) });
@@ -130,26 +133,29 @@ async function main() {
         //core
         if (args.all || args.core) {
             console.time('Built release core');
-            await esbuild.build(Object.assign(release, {
+            processMetaFile(await esbuild.build(Object.assign(release, {
                 entryPoints: ['src/core/client.ts'],
                 outfile: 'dist/oiMUD.core.min.js'
-            })).then(console.timeEnd('Built release core'));
+            })), 'out/core.min.meta.json', args);
+            console.timeEnd('Built release core');
         }
 
         if (args.all || args.interface) {
             console.time('Built release interface');
-            await esbuild.build(Object.assign(release, {
+            processMetaFile(await esbuild.build(Object.assign(release, {
                 entryPoints: ['src/interface/interface.ts'],
                 outfile: 'dist/oiMUD.interface.min.js'
-            })).then(console.timeEnd('Built release interface'));
+            })), 'out/interface.meta.json', args);
+            console.timeEnd('Built release interface');
         }
 
         if (args.all || args.bundled) {
             console.time('Built release bundled');
-            await esbuild.build(Object.assign(release, {
+            processMetaFile(await esbuild.build(Object.assign(release, {
                 entryPoints: ['src/all.ts'],
                 outfile: 'dist/oiMUD.min.js'
-            })).then(console.timeEnd('Built release bundled'))
+            })), 'out/min.meta.json', args);
+            console.timeEnd('Built release bundled');
         }
     }
 
@@ -157,50 +163,56 @@ async function main() {
         //core debug
         if (args.all || args.core) {
             console.time('Built debug core');
-            await esbuild.build(Object.assign(debug, {
+            processMetaFile(await esbuild.build(Object.assign(debug, {
                 entryPoints: ['src/core/client.ts'],
                 outfile: 'dist/oiMUD.core.js'
-            })).then(console.timeEnd('Built debug core'));
+            })), 'out/core.meta.json', args);
+            console.timeEnd('Built debug core');
         }
         //interface
         if (args.all || args.interface) {
             console.time('Built debug interface');
-            await esbuild.build(Object.assign(debug, {
+            processMetaFile(await esbuild.build(Object.assign(debug, {
                 entryPoints: ['src/interface/interface.ts'],
                 outfile: 'dist/oiMUD.interface.js'
-            })).then(console.timeEnd('Built debug interface'));
+            })), 'out/interface.meta.json', args);
+            console.timeEnd('Built debug interface');
         }
         if (args.all || args.bundled) {
             console.time('Built debug bundled');
-            await esbuild.build(Object.assign(debug, {
+            processMetaFile(await esbuild.build(Object.assign(debug, {
                 entryPoints: ['src/all.ts'],
                 outfile: 'dist/oiMUD.js'
-            })).then(console.timeEnd('Built debug bundled'));
+            })), 'out/meta.json', args);
+            console.timeEnd('Built debug bundled');
         }
     }
 
     if (args.all || args.tinymce) {
         console.time('Built tinymce.content css');
-        await esbuild.build(Object.assign(release, {
+        processMetaFile(await esbuild.build(Object.assign(release, {
             entryPoints: ['src/css/tinymce.content.css'],
             outfile: 'dist/css/tinymce.content.min.css'
-        })).then(console.timeEnd('Built tinymce.content css'));
+        })), 'out/tinymce.meta.json', args);
+        console.timeEnd('Built tinymce.content css');
     }
 
     if (args.all || args.editor) {
         if (args.debug) {
             console.time('Built editor debug');
-            await esbuild.build(Object.assign(debug, {
+            processMetaFile(await esbuild.build(Object.assign(debug, {
                 entryPoints: ['src/editor.ts'],
                 outfile: 'dist/lib/editor.js'
-            })).then(console.timeEnd('Built editor debug'));
+            })), 'out/editor.meta.json', args);
+            console.timeEnd('Built editor debug');
         }
         if (args.release) {
             console.time('Built editor release');
-            await esbuild.build(Object.assign(release, {
+            processMetaFile(await esbuild.build(Object.assign(release, {
                 entryPoints: ['src/editor.ts'],
                 outfile: 'dist/lib/editor.min.js'
-            })).then(console.timeEnd('Built editor release'));
+            })), 'out/editor.min.meta.json', args);
+            console.timeEnd('Built editor release');
         }
     }
 
@@ -208,7 +220,7 @@ async function main() {
     if (args.all || args.workers) {
         if (args.all || args.release) {
             console.time('Built logger release');
-            await esbuild.build(Object.assign(release, {
+            processMetaFile(await esbuild.build(Object.assign(release, {
                 entryPoints: ['src/plugins/logger.worker.ts'],
                 outfile: 'dist//oiMUD.logger.worker.min.js'
             })).then(console.timeEnd('Built logger release'))
@@ -216,7 +228,7 @@ async function main() {
 
         if (args.all || args.debug) {
             console.time('Built logger debug');
-            await esbuild.build(Object.assign(debug, {
+            processMetaFile(await esbuild.build(Object.assign(debug, {
                 entryPoints: ['src/plugins/logger.worker.ts'],
                 outfile: 'dist/oiMUD.logger.worker.js'
             })).then(console.timeEnd('Built logger debug'));
@@ -225,5 +237,13 @@ async function main() {
     */
 
     console.timeEnd('Finish building');
+}
+
+async function processMetaFile(result, file, args) {
+    if (args.metafile)
+        fs.writeFile(file, JSON.stringify(result.metafile))
+    if (args.analyze) {
+        console.log(await esbuild.analyzeMetafile(result.metafile));
+    }
 }
 main();

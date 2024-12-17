@@ -9640,7 +9640,7 @@
         if: (args, math2, scope) => {
           if (args.length < 3)
             throw new ArgumentMissingError("if");
-          if (args.length !== 3)
+          if (args.length > 3)
             throw new ArgumentTooManyError("if");
           if (args[0].compile().evaluate(scope))
             return args[1].compile().evaluate(scope);
@@ -10553,8 +10553,8 @@
           this._echoRaw(raw);
           if (args.length === 0 || args.length > 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unt\x1B[0;-11;-12mrigger {pattern|name} \x1B[3mprofile\x1B[0;-11;-12m");
-          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m");
-          this._removeItem(profile.results, profile.triggers, "trigger", ["name", "pattern"], profile.profile);
+          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m", true);
+          this._removeItem(profile.results, profile.profile ? profile.profiles.triggers : this._client.triggers, "trigger", ["name", "pattern"], profile.profile);
           profile = null;
           return null;
         case "suspend":
@@ -10926,8 +10926,8 @@
           this._echoRaw(raw);
           if (args.length === 0 || args.length > 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent name or \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent {name} \x1B[3mprofile\x1B[0;-11;-12m");
-          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent name or \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent {name} \x1B[3mprofile\x1B[0;-11;-12m");
-          this._removeItem(profile.results, SortItemArrayByPriority(profile.triggers.filter((t) => t.type === 2 /* Event */)), "event", ["pattern", "name"], profile.profile, false);
+          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent name or \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent {name} \x1B[3mprofile\x1B[0;-11;-12m", true);
+          this._removeItem(profile.results, SortItemArrayByPriority((profile.profile ? profile.profile.triggers : this._client.triggers).filter((t) => t.type === 2 /* Event */)), "event", ["pattern", "name"], profile.profile, false);
           profile = null;
           return null;
         case "button":
@@ -11131,8 +11131,8 @@
           this._echoRaw(raw);
           if (args.length === 0 || args.length > 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton name or \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton {name} \x1B[3mprofile\x1B[0;-11;-12m");
-          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton name or \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton {name} \x1B[3mprofile\x1B[0;-11;-12m");
-          this._removeItem(profile.results, SortItemArrayByPriority(profile.buttons), "button", ["name", "caption"], profile.profile);
+          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton name or \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton {name} \x1B[3mprofile\x1B[0;-11;-12m", true);
+          this._removeItem(profile.results, profile.profile ? SortItemArrayByPriority(profile.profile.buttons) : this._client.buttons, "button", ["name", "caption"], profile.profile);
           profile = null;
           return null;
         case "unkey":
@@ -11142,8 +11142,8 @@
           this._echoRaw(raw);
           if (args.length === 0 || args.length > 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unm\x1B[0;-11;-12macro name or \x1B[4m" + cmdChar + "unm\x1B[0;-11;-12macro {name} \x1B[3mprofile\x1B[0;-11;-12m");
-          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "unm\x1B[0;-11;-12macro name or \x1B[4m" + cmdChar + "unm\x1B[0;-11;-12macro {name} \x1B[3mprofile\x1B[0;-11;-12m");
-          this._removeItem(profile.results, profile.macros, "macro", (item2, value) => {
+          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "unm\x1B[0;-11;-12macro name or \x1B[4m" + cmdChar + "unm\x1B[0;-11;-12macro {name} \x1B[3mprofile\x1B[0;-11;-12m", true);
+          this._removeItem(profile.results, profile.profile ? profile.profile.macros : this._client.macros, "macro", (item2, value) => {
             if (item2.gamepad)
               return item2.key === parseInt(value, 10);
             let v = value.split("+");
@@ -11660,8 +11660,8 @@
           this._echoRaw(raw);
           if (args.length === 0 || args.length > 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m");
-          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m");
-          this._removeItem(profile.results, profile.aliases, "alias", ["pattern"], profile.profile);
+          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m", true);
+          this._removeItem(profile.results, profile.profile ? profile.profile.aliases : this._client.aliases, "alias", ["pattern"], profile.profile);
           profile = null;
           return null;
         case "setsetting":
@@ -15146,7 +15146,7 @@
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length < 3)
             throw new ArgumentMissingError("if");
-          if (args.length !== 3)
+          if (args.length > 3)
             throw new ArgumentTooManyError("if");
           if (this.evaluate(args[0]))
             return this.stripQuotes(args[1].trim());
@@ -17027,7 +17027,7 @@
     _echo(str, fore, back, newline, forceLine) {
       this._client.echo(str, fore, back, newline, forceLine);
     }
-    _processCommandItemArgs(args, syntax) {
+    _processCommandItemArgs(args, syntax, noActiveProfile) {
       let profile = null;
       let n;
       if (args[0].match(/^\{.*\}$/g) || args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g)) {
@@ -17039,7 +17039,7 @@
             profile = this._profiles.items[profile];
           else
             throw new ProfileNotFound(profile);
-        } else
+        } else if (!noActiveProfile)
           profile = this._client.activeProfile;
         if (args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g))
           n = this.parseInline(this.stripQuotes(args[0]));
@@ -17047,7 +17047,8 @@
           n = this.parseInline(args[0].substr(1, args[0].length - 2));
       } else {
         n = this.parseInline(args.join(" "));
-        profile = this._client.activeProfile;
+        if (!noActiveProfile)
+          profile = this._client.activeProfile;
       }
       return { profile, results: n };
     }
@@ -17071,6 +17072,16 @@
         if (selector < 0 || selector >= items.length)
           throw new Error(_ProperCase(type) + " index must be >= 0 and < " + items.length);
         item = items[selector];
+        profile = profile || item.profile;
+      } else if (!profile) {
+        const keys = this._profiles.keys;
+        for (let k = 0, kl = this._profiles.keys.length; k < kl; k++) {
+          item = this._profiles[keys[k]].findAny(type === "alias" ? "aliases" : type + "s", fields, selector);
+          if (item) {
+            profile = this._profiles[keys[k]];
+            break;
+          }
+        }
       } else
         item = profile.findAny(type === "alias" ? "aliases" : type + "s", fields, selector);
       if (!item)

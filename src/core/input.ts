@@ -705,7 +705,7 @@ export class Input extends EventEmitter {
             if: (args, math, scope) => {
                 if (args.length < 3)
                     throw new ArgumentMissingError('if');
-                if (args.length !== 3)
+                if (args.length > 3)
                     throw new ArgumentTooManyError('if');
 
                 if (args[0].compile().evaluate(scope))
@@ -1948,8 +1948,8 @@ export class Input extends EventEmitter {
                 this._echoRaw(raw);
                 if (args.length === 0 || args.length > 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'unt\x1b[0;-11;-12mrigger {pattern|name} \x1b[3mprofile\x1b[0;-11;-12m');
-                profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias name or \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias {name} \x1b[3mprofile\x1b[0;-11;-12m');
-                this._removeItem(profile.results, profile.triggers, 'trigger', ['name', 'pattern'], profile.profile);
+                profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias name or \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias {name} \x1b[3mprofile\x1b[0;-11;-12m', true);
+                this._removeItem(profile.results, profile.profile ? profile.profiles.triggers : this._client.triggers, 'trigger', ['name', 'pattern'], profile.profile);
                 profile = null;
                 return null;
             case 'suspend':
@@ -2353,8 +2353,8 @@ export class Input extends EventEmitter {
                 //#region unevent
                 if (args.length === 0 || args.length > 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'une\x1b[0;-11;-12mvent name or \x1b[4m' + cmdChar + 'une\x1b[0;-11;-12mvent {name} \x1b[3mprofile\x1b[0;-11;-12m');
-                profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'une\x1b[0;-11;-12mvent name or \x1b[4m' + cmdChar + 'une\x1b[0;-11;-12mvent {name} \x1b[3mprofile\x1b[0;-11;-12m');
-                this._removeItem(profile.results, SortItemArrayByPriority(profile.triggers.filter(t => t.type === TriggerType.Event)), 'event', ['pattern', 'name'], profile.profile, false);
+                profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'une\x1b[0;-11;-12mvent name or \x1b[4m' + cmdChar + 'une\x1b[0;-11;-12mvent {name} \x1b[3mprofile\x1b[0;-11;-12m', true);
+                this._removeItem(profile.results, SortItemArrayByPriority((profile.profile ? profile.profile.triggers : this._client.triggers).filter(t => t.type === TriggerType.Event)), 'event', ['pattern', 'name'], profile.profile, false);
                 profile = null;
                 //#endregion
                 return null;
@@ -2579,8 +2579,8 @@ export class Input extends EventEmitter {
                 //#region unbutton
                 if (args.length === 0 || args.length > 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'unb\x1b[0;-11;-12mtton name or \x1b[4m' + cmdChar + 'unb\x1b[0;-11;-12mtton {name} \x1b[3mprofile\x1b[0;-11;-12m');
-                profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'unb\x1b[0;-11;-12mtton name or \x1b[4m' + cmdChar + 'unb\x1b[0;-11;-12mtton {name} \x1b[3mprofile\x1b[0;-11;-12m');
-                this._removeItem(profile.results, SortItemArrayByPriority(profile.buttons), 'button', ['name', 'caption'], profile.profile);
+                profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'unb\x1b[0;-11;-12mtton name or \x1b[4m' + cmdChar + 'unb\x1b[0;-11;-12mtton {name} \x1b[3mprofile\x1b[0;-11;-12m', true);
+                this._removeItem(profile.results, profile.profile ? SortItemArrayByPriority(profile.profile.buttons) : this._client.buttons, 'button', ['name', 'caption'], profile.profile);
                 profile = null;
                 //#endregion
                 return null;
@@ -2592,8 +2592,8 @@ export class Input extends EventEmitter {
                 //#region unbutton
                 if (args.length === 0 || args.length > 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'unm\x1b[0;-11;-12macro name or \x1b[4m' + cmdChar + 'unm\x1b[0;-11;-12macro {name} \x1b[3mprofile\x1b[0;-11;-12m');
-                profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'unm\x1b[0;-11;-12macro name or \x1b[4m' + cmdChar + 'unm\x1b[0;-11;-12macro {name} \x1b[3mprofile\x1b[0;-11;-12m');
-                this._removeItem(profile.results, profile.macros, 'macro', (item, value) => {
+                profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'unm\x1b[0;-11;-12macro name or \x1b[4m' + cmdChar + 'unm\x1b[0;-11;-12macro {name} \x1b[3mprofile\x1b[0;-11;-12m', true);
+                this._removeItem(profile.results, profile.profile ? profile.profile.macros : this._client.macros, 'macro', (item, value) => {
                     if (item.gamepad)
                         return item.key === parseInt(value, 10);
                     let v = value.split('+');
@@ -3132,8 +3132,8 @@ export class Input extends EventEmitter {
                 this._echoRaw(raw);
                 if (args.length === 0 || args.length > 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias name or \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias {name} \x1b[3mprofile\x1b[0;-11;-12m');
-                profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias name or \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias {name} \x1b[3mprofile\x1b[0;-11;-12m');
-                this._removeItem(profile.results, profile.aliases, 'alias', ['pattern'], profile.profile);
+                profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias name or \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias {name} \x1b[3mprofile\x1b[0;-11;-12m', true);
+                this._removeItem(profile.results, profile.profile ? profile.profile.aliases : this._client.aliases, 'alias', ['pattern'], profile.profile);
                 profile = null;
                 return null;
             case 'setsetting':
@@ -6903,7 +6903,7 @@ export class Input extends EventEmitter {
                 args = this.splitByQuotes(this.parseInline(res[2]), ',');
                 if (args.length < 3)
                     throw new ArgumentMissingError('if');
-                if (args.length !== 3)
+                if (args.length > 3)
                     throw new ArgumentTooManyError('if');
                 if (this.evaluate(args[0]))
                     return this.stripQuotes(args[1].trim());
@@ -9033,7 +9033,7 @@ export class Input extends EventEmitter {
         this._client.echo(str, fore, back, newline, forceLine);
     }
 
-    private _processCommandItemArgs(args, syntax) {
+    private _processCommandItemArgs(args, syntax, noActiveProfile?) {
         let profile = null;
         let n;
         if (args[0].match(/^\{.*\}$/g) || args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g)) {
@@ -9046,7 +9046,7 @@ export class Input extends EventEmitter {
                 else
                     throw new ProfileNotFound(profile);
             }
-            else
+            else if (!noActiveProfile)
                 profile = this._client.activeProfile;
             if (args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g))
                 n = this.parseInline(this.stripQuotes(args[0]));
@@ -9055,7 +9055,8 @@ export class Input extends EventEmitter {
         }
         else {
             n = this.parseInline(args.join(' '));
-            profile = this._client.activeProfile;
+            if (!noActiveProfile)
+                profile = this._client.activeProfile;
         }
         return { profile: profile, results: n };
     }
@@ -9065,7 +9066,7 @@ export class Input extends EventEmitter {
             this._echo(raw, -3, -4, true, true);
     }
 
-    private _removeItem(selector, items, type, fields, profile: Profile, index?) {
+    private _removeItem(selector, items, type, fields, profile?: Profile, index?) {
         selector = this.stripQuotes(selector);
         if (selector.length === 0) {
             if (!Array.isArray(fields))
@@ -9081,6 +9082,17 @@ export class Input extends EventEmitter {
             if (selector < 0 || selector >= items.length)
                 throw new Error(_ProperCase(type) + ' index must be >= 0 and < ' + items.length);
             item = items[selector];
+            profile = profile || item.profile;
+        }
+        else if (!profile) {
+            const keys = this._profiles.keys;
+            for (let k = 0, kl = this._profiles.keys.length; k < kl; k++) {
+                item = this._profiles[keys[k]].findAny(type === 'alias' ? 'aliases' : (type + 's'), fields, selector);
+                if (item) {
+                    profile = this._profiles[keys[k]];
+                    break;
+                }
+            }
         }
         else
             item = profile.findAny(type === 'alias' ? 'aliases' : (type + 's'), fields, selector);

@@ -8157,6 +8157,41 @@
         return null;
       tmp = SortItemArrayByPriority(this[type]);
       const l2 = tmp.length;
+      let found = false;
+      if (Array.isArray(field)) {
+        for (let t = 0; t < l2; t++) {
+          for (let f = 0, fl = field.length; f < fl; f++) {
+            found = true;
+            if (tmp[t][field[f]] !== value) {
+              found = false;
+              break;
+            }
+          }
+          if (found) return tmp[t];
+        }
+        return null;
+      }
+      if (typeof field === "object") {
+        for (let t = 0; t < l2; t++) {
+          for (const v in field) {
+            if (!field.hasOwnProperty(v)) continue;
+            found = true;
+            if (tmp[t][v] !== field[v]) {
+              found = false;
+              break;
+            }
+          }
+          if (found) return tmp[t];
+        }
+        return null;
+      }
+      if (typeof field === "function") {
+        for (let t = 0; t < l2; t++) {
+          if (field(tmp[t], value))
+            return tmp[t];
+        }
+        return null;
+      }
       for (let t = 0; t < l2; t++) {
         if (tmp[t][field] === value)
           return tmp[t];
@@ -8169,6 +8204,15 @@
         return null;
       tmp = SortItemArrayByPriority(this[type]);
       const l2 = tmp.length;
+      if (Array.isArray(field)) {
+        for (let t = 0; t < l2; t++) {
+          for (let f = 0, fl = field.length; f < fl; f++) {
+            if (tmp[t][field[f]] === value)
+              return tmp[t];
+          }
+        }
+        return null;
+      }
       if (typeof field === "object") {
         for (let t = 0; t < l2; t++) {
           for (const v in field) {
@@ -8177,7 +8221,14 @@
               return tmp[t];
           }
         }
-        return -1;
+        return null;
+      }
+      if (typeof field === "function") {
+        for (let t = 0; t < l2; t++) {
+          if (field(tmp[t], value))
+            return tmp[t];
+        }
+        return null;
       }
       for (let t = 0; t < l2; t++) {
         if (tmp[t][field] === value)
@@ -8805,12 +8856,12 @@
   var mathjs;
   var _mathjs;
   var WindowVariables = ["$selectedword", "$selword", "$selectedurl", "$selurl", "$selectedline", "$selline", "$selected", "$character", "$copied", "$action", "$trigger", "$caption", "$characterid"];
-  function ProperCase(str) {
+  function _ProperCase(str) {
     return str.replace(/\w*\S*/g, (txt) => {
       return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     });
   }
-  function fudgeDice() {
+  function _fudgeDice() {
     switch (~~(Math.random() * 6) + 1) {
       case 1:
       case 4:
@@ -9461,7 +9512,7 @@
           let sum = 0;
           for (let i2 = 0; i2 < c; i2++) {
             if (sides === "F" || sides === "f")
-              sum += fudgeDice();
+              sum += _fudgeDice();
             else if (sides === "%")
               sum += ~~(Math.random() * 100) + 1;
             else
@@ -10500,57 +10551,11 @@
         case "untrigger":
         case "unt":
           this._echoRaw(raw);
-          profile = null;
-          name2 = null;
-          if (args.length < 1 || args.length > 2)
+          if (args.length === 0 || args.length > 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unt\x1B[0;-11;-12mrigger {pattern|name} \x1B[3mprofile\x1B[0;-11;-12m");
-          if (args[0].length === 0)
-            throw new Error("Invalid name or pattern");
-          if (args[0].match(/^\{.*\}$/g))
-            args[0] = this.parseInline(args[0].substr(1, args[0].length - 2));
-          else
-            args[0] = this.parseInline(this.stripQuotes(args[0]));
-          if (args.length === 2) {
-            profile = this.stripQuotes(args[2]);
-            profile = this.parseInline(profile);
-          }
-          if (!profile || profile.length === 0) {
-            const keys = this._profiles.keys;
-            let k = 0;
-            const kl = keys.length;
-            if (kl === 0)
-              return null;
-            if (kl === 1) {
-              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
-                throw Error("No enabled profiles found!");
-              item = this._profiles.items[keys[k]].findAny("triggers", { name: args[0], pattern: args[0] });
-            } else {
-              for (; k < kl; k++) {
-                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
-                  continue;
-                item = this._profiles.items[keys[k]].findAny("triggers", { name: args[0], pattern: args[0] });
-                if (item) {
-                  profile = this._profiles.items[keys[k]];
-                  break;
-                }
-              }
-            }
-            if (!item)
-              throw new Error("Trigger '" + args[0] + "' not found in '" + profile.name + "'!");
-            this._client.removeTrigger(item);
-            this._echo("Trigger '" + args[0] + "' removed from '" + profile.name + "'.", -7, -8, true, true);
-          } else {
-            profile = this.parseInline(profile);
-            if (this._profiles.contains(profile)) {
-              profile = this._profiles.items[profile.toLowerCase()];
-              item = profile.findAny("triggers", { name: args[0], pattern: args[0] });
-              if (!item)
-                throw new Error("Trigger '" + args[0] + "' not found in '" + profile.name + "'!");
-              this._client.removeTrigger(item);
-              this._echo("Trigger '" + args[0] + "' removed from '" + profile.name + "'.", -7, -8, true, true);
-            } else
-              throw new ProfileNotFound(profile);
-          }
+          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m");
+          this._removeItem(profile.results, profile.triggers, "trigger", ["name", "pattern"], profile.profile);
+          profile = null;
           return null;
         case "suspend":
         case "sus":
@@ -10919,25 +10924,11 @@
         case "unevent":
         case "une":
           this._echoRaw(raw);
-          if (args.length === 0)
+          if (args.length === 0 || args.length > 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent name or \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent {name} \x1B[3mprofile\x1B[0;-11;-12m");
-          else {
-            profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent name or \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent {name} \x1B[3mprofile\x1B[0;-11;-12m");
-            n = profile.results;
-            profile = profile.profile;
-            items = SortItemArrayByPriority(profile.triggers.filter((t) => t.type === 2 /* Event */));
-            n = this.stripQuotes(n);
-            tmp = n;
-            n = items.findIndex((i3) => i3.pattern === n || i3.name === n);
-            f = n !== -1;
-            if (!f)
-              this._echo("Event '" + tmp + "' not found.", -7, -8, true, true);
-            else {
-              this._echo("Event '" + (items[n].name || items[n].pattern) + "' removed.", -7, -8, true, true);
-              this._client.removeTrigger(items[n]);
-              profile = null;
-            }
-          }
+          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent name or \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent {name} \x1B[3mprofile\x1B[0;-11;-12m");
+          this._removeItem(profile.results, SortItemArrayByPriority(profile.triggers.filter((t) => t.type === 2 /* Event */)), "event", ["pattern", "name"], profile.profile, false);
+          profile = null;
           return null;
         case "button":
         case "bu":
@@ -11138,40 +11129,49 @@
         case "unbutton":
         case "unb":
           this._echoRaw(raw);
-          if (args.length === 0)
+          if (args.length === 0 || args.length > 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton name or \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton {name} \x1B[3mprofile\x1B[0;-11;-12m");
-          else {
-            profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton name or \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton {name} \x1B[3mprofile\x1B[0;-11;-12m");
-            n = profile.results;
-            profile = profile.profile;
-            items = SortItemArrayByPriority(profile.buttons);
-            tmp = n;
-            if (/^\s*?\d+\s*?$/.exec(n)) {
-              n = parseInt(n, 10);
-              if (n < 0 || n >= items.length)
-                throw new Error("Button index must be >= 0 and < " + items.length);
-              f = true;
-            } else {
-              n = this.stripQuotes(n);
-              n = items.findIndex((i3) => i3.name === n || i3.caption === n);
-              f = n !== -1;
-            }
-            if (!f)
-              this._echo("Button '" + tmp + "' not found.", -7, -8, true, true);
-            else {
-              if (items[n].name.length === 0 && items[n].caption.length === 0)
-                this._echo("Button '" + tmp + "' removed.", -7, -8, true, true);
-              else
-                this._echo("Button '" + (items[n].name || items[n].caption) + "' removed.", -7, -8, true, true);
-              trigger = items[n];
-              n = profile.buttons.indexOf(items[n]);
-              profile.buttons.splice(n, 1);
-              this._client.saveProfiles();
-              this._client.clearCache();
-              this.emit("item-removed", "button", profile.name, n, trigger);
-              profile = null;
-            }
-          }
+          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton name or \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton {name} \x1B[3mprofile\x1B[0;-11;-12m");
+          this._removeItem(profile.results, SortItemArrayByPriority(profile.buttons), "button", ["name", "caption"], profile.profile);
+          profile = null;
+          return null;
+        case "unkey":
+        case "unk":
+        case "unmacro":
+        case "unm":
+          this._echoRaw(raw);
+          if (args.length === 0 || args.length > 2)
+            throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unm\x1B[0;-11;-12macro name or \x1B[4m" + cmdChar + "unm\x1B[0;-11;-12macro {name} \x1B[3mprofile\x1B[0;-11;-12m");
+          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "unm\x1B[0;-11;-12macro name or \x1B[4m" + cmdChar + "unm\x1B[0;-11;-12macro {name} \x1B[3mprofile\x1B[0;-11;-12m");
+          this._removeItem(profile.results, profile.macros, "macro", (item2, value) => {
+            if (item2.gamepad)
+              return item2.key === parseInt(value, 10);
+            let v = value.split("+");
+            let key;
+            let m = 0 /* None */;
+            v.forEach((v2) => {
+              switch (v2.toLowerCase()) {
+                case "alt":
+                  m |= 2 /* Alt */;
+                  break;
+                case "cmd":
+                case "ctrl":
+                  m |= 4 /* Ctrl */;
+                  break;
+                case "shift":
+                  m |= 8 /* Shift */;
+                  break;
+                case "meta":
+                case "win":
+                  m |= 16 /* Meta */;
+                  break;
+                default:
+                  key = v2.toLowerCase();
+              }
+            });
+            return keyCodeToChar[item2.key].toLowerCase() === key && item2.modifiers === m;
+          }, profile.profile);
+          profile = null;
           return null;
         case "alarm":
         case "ala":
@@ -11658,39 +11658,11 @@
         case "unalias":
         case "una":
           this._echoRaw(raw);
-          if (args.length === 0)
+          if (args.length === 0 || args.length > 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m");
-          else {
-            profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m");
-            n = profile.results;
-            profile = profile.profile;
-            items = profile.aliases;
-            n = this.stripQuotes(n);
-            if (/^\s*?\d+\s*?$/.exec(n)) {
-              tmp = n;
-              n = parseInt(n, 10);
-              if (n < 0 || n >= items.length)
-                throw new Error("Alias index must be >= 0 and < " + items.length);
-              else
-                f = true;
-            } else {
-              tmp = n;
-              n = items.findIndex((i3) => i3.pattern === n);
-              f = n !== -1;
-            }
-            if (!f)
-              this._echo("Alias '" + tmp + "' not found.", -7, -8, true, true);
-            else {
-              this._echo("Alias '" + items[n].pattern + "' removed.", -7, -8, true, true);
-              trigger = items[n];
-              items.splice(n, 1);
-              profile.aliases = items;
-              this._client.saveProfiles();
-              this._client.clearCache();
-              this.emit("item-removed", "alias", profile.name, n, trigger);
-              profile = null;
-            }
-          }
+          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m");
+          this._removeItem(profile.results, profile.aliases, "alias", ["pattern"], profile.profile);
+          profile = null;
           return null;
         case "setsetting":
         case "sets":
@@ -14808,7 +14780,7 @@
         case "copied.upper":
           return window.$copied.toUpperCase();
         case "copied.proper":
-          return ProperCase(window.$copied);
+          return _ProperCase(window.$copied);
         case "i":
           return this.loops[0];
         case "repeatnum":
@@ -14820,7 +14792,7 @@
         case "character.upper":
           return window.$character.toUpperCase();
         case "character.proper":
-          return ProperCase(window.$character);
+          return _ProperCase(window.$character);
         case "selected":
         case "selectedurl":
         case "selectedline":
@@ -14854,7 +14826,7 @@
         case "selurl.proper":
         case "selline.proper":
         case "selword.proper":
-          return ProperCase(this.vStack["$" + text.substr(0, text.length - 7)] || window["$" + text.substr(0, text.length - 7)]);
+          return _ProperCase(this.vStack["$" + text.substr(0, text.length - 7)] || window["$" + text.substr(0, text.length - 7)]);
         case "random":
           return mathjs().randomInt(0, 100);
       }
@@ -14897,7 +14869,7 @@
         case "upper":
           return this.stripQuotes(this.parseInline(res[2]).toUpperCase());
         case "proper":
-          return ProperCase(this.stripQuotes(this.parseInline(res[2])));
+          return _ProperCase(this.stripQuotes(this.parseInline(res[2])));
         case "eval":
           args = this.evaluate(this.parseInline(res[2]));
           if (this._getOption("ignoreEvalUndefined") && typeof args === "undefined")
@@ -14927,7 +14899,7 @@
           let sum = 0;
           for (let i2 = 0; i2 < c; i2++) {
             if (sides === "F" || sides === "f")
-              sum += fudgeDice();
+              sum += _fudgeDice();
             else if (sides === "%")
               sum += ~~(Math.random() * 100) + 1;
             else
@@ -17082,6 +17054,42 @@
     _echoRaw(raw) {
       if ((this._getOption("echo") & 4) === 4)
         this._echo(raw, -3, -4, true, true);
+    }
+    _removeItem(selector, items, type, fields, profile, index) {
+      selector = this.stripQuotes(selector);
+      if (selector.length === 0) {
+        if (!Array.isArray(fields))
+          throw new Error("Invalid selector");
+        if (fields.length > 1)
+          throw new Error("Invalid " + fields.slice(0, -1).join(", ") + " or " + fields.pop());
+        throw new Error("Invalid " + fields[0]);
+      }
+      let tmp = selector;
+      let item;
+      if (index && /^\s*?\d+\s*?$/.exec(selector)) {
+        selector = parseInt(selector, 10);
+        if (selector < 0 || selector >= items.length)
+          throw new Error(_ProperCase(type) + " index must be >= 0 and < " + items.length);
+        item = items[selector];
+      } else
+        item = profile.findAny(type === "alias" ? "aliases" : type + "s", fields, selector);
+      if (!item)
+        this._echo(_ProperCase(type) + " '" + tmp + "' not found.", -7, -8, true, true);
+      else {
+        if (Array.isArray(fields))
+          fields.forEach((field) => tmp = items[selector][field] || tmp);
+        this._echo(_ProperCase(type) + " '" + tmp + "' removed.", -7, -8, true, true);
+        if (type === "trigger" || type === "event")
+          this._client.removeTrigger(items[selector]);
+        else {
+          let collection = type === "alias" ? "aliases" : type + "s";
+          selector = profile[collection].indexOf(item);
+          profile[collection].splice(selector, 1);
+          this._client.saveProfiles();
+          this._client.clearCache();
+          this.emit("item-removed", type, profile.name, selector, item);
+        }
+      }
     }
   };
 

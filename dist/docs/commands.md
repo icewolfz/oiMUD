@@ -148,8 +148,14 @@ Display text to the screen, and the display text will not fire triggers
 #PROFILELIST
 >display a list of all profiles and current state
 
-<u>#UNB</u>UTTON name|index|caption
+<u>#UNB</u>UTTON name|index|caption *profile*
 >remove a button, if index it is the position in order of buttons in profile manager
+
+[<u>#UNK</u>EY](commands/UNMACRO.md) key|index *profile*
+>remove a macro
+
+[<u>#UNM</u>ACRO](commands/UNMACRO.md) key|index *profile*
+>remove a macro
 
 <u>#VA</u>RIABLE *name value*
 >Set, get, or display all user set variables

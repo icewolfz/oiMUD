@@ -1136,6 +1136,41 @@ export class Profile {
             return null;
         tmp = SortItemArrayByPriority(this[type]);
         const l = tmp.length;
+        let found = false;
+        if (Array.isArray(field)) {
+            for (let t = 0; t < l; t++) {
+                for (let f = 0, fl = field.length; f < fl; f++) {
+                    found = true;
+                    if (tmp[t][field[f]] !== value) {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found) return tmp[t];
+            }
+            return null;
+        }
+        if (typeof field === 'object') {
+            for (let t = 0; t < l; t++) {
+                for (const v in field) {
+                    if (!field.hasOwnProperty(v)) continue;
+                    found = true;
+                    if (tmp[t][v] !== field[v]) {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found) return tmp[t];
+            }
+            return null;
+        }
+        if (typeof field === 'function') {
+            for (let t = 0; t < l; t++) {
+                if (field(tmp[t], value))
+                    return tmp[t];
+            }
+            return null;
+        }        
         for (let t = 0; t < l; t++) {
             if (tmp[t][field] === value)
                 return tmp[t];
@@ -1149,6 +1184,15 @@ export class Profile {
             return null;
         tmp = SortItemArrayByPriority(this[type]);
         const l = tmp.length;
+        if (Array.isArray(field)) {
+            for (let t = 0; t < l; t++) {
+                for (let f = 0, fl = field.length; f < fl; f++) {
+                    if (tmp[t][field[f]] === value)
+                        return tmp[t];
+                }
+            }
+            return null;
+        }
         if (typeof field === 'object') {
             for (let t = 0; t < l; t++) {
                 for (const v in field) {
@@ -1157,7 +1201,14 @@ export class Profile {
                         return tmp[t];
                 }
             }
-            return -1;
+            return null;
+        }
+        if (typeof field === 'function') {
+            for (let t = 0; t < l; t++) {
+                if (field(tmp[t], value))
+                    return tmp[t];
+            }
+            return null;
         }
         for (let t = 0; t < l; t++) {
             if (tmp[t][field] === value)

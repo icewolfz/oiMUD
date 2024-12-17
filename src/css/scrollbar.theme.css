@@ -86,3 +86,19 @@
 .display:hover .scroll-track.scroll-auto-hide {
     display: block;
 }
+
+.scroll-button {
+  background-color: var(--theme-button-bg-color);
+  
+  color: black;
+}
+
+.scroll-horizontal .scroll-button {
+  border-left: 1px solid var(--theme-bg-secondary-border);
+  border-right: 1px solid var(--theme-bg-secondary-border);
+}
+
+.scroll-vertical .scroll-button {
+  border-top: 1px solid var(--theme-bg-secondary-border);
+  border-bottom: 1px solid var(--theme-bg-secondary-border);
+}

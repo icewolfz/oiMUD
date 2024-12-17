@@ -390,6 +390,39 @@ a.MXPLink:hover span {
   display: none;
   cursor: default;
 }
+.scroll-button {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+  padding: 0;
+  font-size: 10px;
+  text-align: center;
+}
+.scroll-horizontal .scroll-up-button {
+  left: 0px;
+  bottom: 0;
+}
+.scroll-horizontal .scroll-down-button {
+  right: 12px;
+  bottom: 0;
+}
+.scroll-horizontal .scroll-bottom-button {
+  right: 0;
+  bottom: 0;
+}
+.scroll-vertical .scroll-up-button {
+  top: 0px;
+  left: 0;
+}
+.scroll-vertical .scroll-down-button {
+  bottom: 12px;
+  left: 0;
+}
+.scroll-vertical .scroll-bottom-button {
+  bottom: 0;
+  left: 0;
+}
 
 /* src/css/scrollbar.theme.css */
 .scroll-track,
@@ -462,6 +495,18 @@ a.MXPLink:hover span {
 }
 .display:hover .scroll-track.scroll-auto-hide {
   display: block;
+}
+.scroll-button {
+  background-color: var(--theme-button-bg-color);
+  color: black;
+}
+.scroll-horizontal .scroll-button {
+  border-left: 1px solid var(--theme-bg-secondary-border);
+  border-right: 1px solid var(--theme-bg-secondary-border);
+}
+.scroll-vertical .scroll-button {
+  border-top: 1px solid var(--theme-bg-secondary-border);
+  border-bottom: 1px solid var(--theme-bg-secondary-border);
 }
 
 /* src/css/mapper.css */

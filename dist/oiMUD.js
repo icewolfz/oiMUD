@@ -21100,12 +21100,12 @@
       this._visible = true;
       this._offset = 0;
       this.$padding = 0;
-      this._os = { left: 0, top: 0 };
       this._padding = [0, 0, 0, 0];
       this._position = 0;
       this._thumbSize = 0;
       this._ratio = 0;
       this._ratio2 = 0;
+      this._scrollButtons = 0;
       this._maxDrag = 0;
       this._type = 0 /* vertical */;
       this._autoHide = false;
@@ -21127,6 +21127,14 @@
         this.setParent(options.parent, options.content);
       } else
         this.type = 0 /* vertical */;
+    }
+    get scrollButtons() {
+      return this._scrollButtons;
+    }
+    set scrollButtons(value) {
+      if (value === this._scrollButtons) return;
+      this._scrollButtons = value;
+      this._createButtons();
     }
     /**
      * set or return the content element
@@ -21277,7 +21285,7 @@
         this._parent.removeChild(this.track);
       this._parent = parent;
       this._content = content || parent;
-      this.createBar();
+      this._createBar();
     }
     /**
      * Updates the location of the scroll bar in the parent based on type
@@ -21319,21 +21327,23 @@
      * @private
      * @memberof ScrollBar
      */
-    createBar() {
+    _createBar() {
       this._position = this._type === 1 /* horizontal */ ? this._content.scrollLeft : this._content.scrollTop;
       this.track = document.createElement("div");
       this.track.className = "scroll-track scroll-" + (this._type === 1 /* horizontal */ ? "horizontal" : "vertical");
       this.track.style.position = "absolute";
       this.track.style.overflow = "hidden";
       this.track.addEventListener("mousedown", (e) => {
+        if (this._scrollButtons && e.target && this._buttons.indexOf(e.target.parentElement) !== -1) return;
         if (e.button === 0 && e.buttons) {
           this._lastMouse = e;
           e.preventDefault();
           e.cancelBubble = true;
-          this.state.dragging = true;
+          this.state.dragging = false;
           this.state.position = 0;
-          this.state.dragPosition = (this._type === 1 /* horizontal */ ? e.pageX - this._os.left : e.pageY - this._os.top) - this.state.position;
-          this.updatePosition(this.currentPosition());
+          let _os = this._elOffset(this.track);
+          this.state.dragPosition = (this._type === 1 /* horizontal */ ? e.pageX - _os.left : e.pageY - _os.top) - this.state.position + (this._scrollButtons ? this.size : 0);
+          this._updatePosition(this.currentPosition(true));
         }
       });
       this.track.addEventListener("wheel", (event2) => {
@@ -21344,6 +21354,7 @@
       this.thumb.className = "scroll-thumb";
       this.thumb.style.position = "absolute";
       this.track.appendChild(this.thumb);
+      this._createButtons(true);
       this.updateLocation();
       this.thumb.addEventListener("mousedown", (e) => {
         this._lastMouse = e;
@@ -21352,7 +21363,7 @@
           e.cancelBubble = true;
           this.state.dragging = true;
           this.state.position = (this._type === 1 /* horizontal */ ? e.pageX : e.pageY) - this.state.dragPosition;
-          this.state.dragPosition = (this._type === 1 /* horizontal */ ? e.pageX - this._os.left : e.pageY - this._os.top) - this.state.position;
+          this.state.dragPosition = (this._type === 1 /* horizontal */ ? e.pageX : e.pageY) - this.state.position;
         }
       });
       this._content.addEventListener("wheel", (event2) => {
@@ -21361,14 +21372,14 @@
       this._wMove = (e) => {
         this._lastMouse = e;
         if (this.state.dragging) {
-          this.updatePosition(this.currentPosition());
+          this._updatePosition(this.currentPosition());
         }
       };
       this._wUp = (e) => {
         this._lastMouse = e;
         if (this.state.dragging) {
           this.state.dragging = false;
-          this.updatePosition(this.currentPosition());
+          this._updatePosition(this.currentPosition());
         }
       };
       this._wResize = (e) => {
@@ -21399,6 +21410,55 @@
       this.$observer.observe(this.track, { attributes: true, attributeOldValue: true, attributeFilter: ["style"] });
       this.updateLayout();
     }
+    _createButtons(noResize) {
+      if (this._buttons && this._buttons.length) {
+        this._buttons.forEach((button) => {
+          button.remove();
+        });
+        this._buttons = null;
+      }
+      if (this._scrollButtons) {
+        this._buttons = [];
+        if ((this._scrollButtons & 1 /* Up */) == 1 /* Up */) {
+          this._buttons.push(document.createElement("div"));
+          this._buttons[0].classList.add("scroll-up-button");
+          this._buttons[0].innerHTML = this._type === 1 /* horizontal */ ? '<i class="bi bi-caret-left-fill"></i>' : '<i class="bi bi-caret-up-fill"></i>';
+          this._buttons[0].addEventListener("click", (e) => {
+            e.cancelBubble = true;
+            e.stopPropagation();
+            this.scrollBy(-60);
+          });
+        }
+        if ((this._scrollButtons & 2 /* Down */) == 2 /* Down */) {
+          this._buttons.push(document.createElement("div"));
+          this._buttons[1].classList.add("scroll-down-button");
+          this._buttons[1].innerHTML = this._type === 1 /* horizontal */ ? '<i class="bi bi-caret-right-fill"></i>' : '<i class="bi bi-caret-down-fill"></i>';
+          this._buttons[1].addEventListener("click", (e) => {
+            e.cancelBubble = true;
+            e.stopPropagation();
+            this.scrollBy(60);
+          });
+        }
+        if ((this._scrollButtons & 4 /* Bottom */) == 4 /* Bottom */) {
+          this._buttons.push(document.createElement("div"));
+          this._buttons[2].classList.add("scroll-bottom-button");
+          this._buttons[2].innerHTML = this._type === 1 /* horizontal */ ? "|" : "-";
+          this._buttons[2].addEventListener("click", (e) => {
+            e.cancelBubble = true;
+            e.stopPropagation();
+            this.scrollToEnd();
+          });
+        }
+        this._buttons.forEach((button) => {
+          button.classList.add("btn", "scroll-button");
+          button.style.width = this.size + "px";
+          button.style.height = this.size + "px";
+        });
+        this.track.append(...this._buttons);
+      }
+      if (!noResize)
+        this.resize(true);
+    }
     /**
      * resets the scroll bar to 0 position
      *
@@ -21412,7 +21472,7 @@
       };
       this.maxPosition = 0;
       this.resize();
-      this.updatePosition(0, true);
+      this._updatePosition(0, true);
       this.update();
     }
     /**
@@ -21452,7 +21512,7 @@
       if (amount === 0) return;
       amount = this.positionRaw + (amount < 0 ? Math.floor(amount) : Math.ceil(amount));
       amount = amount * this._ratio2;
-      this.updatePosition(amount);
+      this._updatePosition(amount);
     }
     /**
      * scroll to an exact position
@@ -21463,7 +21523,7 @@
     scrollTo(position) {
       position = position < 0 ? Math.floor(position) : Math.ceil(position);
       position = position * this._ratio2;
-      this.updatePosition(position);
+      this._updatePosition(position);
     }
     /**
      * scroll to the end position of the scroll bar
@@ -21471,7 +21531,7 @@
      * @memberof ScrollBar
      */
     scrollToEnd() {
-      this.updatePosition(this.maxPosition);
+      this._updatePosition(this.maxPosition);
     }
     /**
      * scroll to the start position
@@ -21479,7 +21539,7 @@
      * @memberof ScrollBar
      */
     scrollToStart() {
-      this.updatePosition(0);
+      this._updatePosition(0);
     }
     pageUp(offset2) {
       offset2 = offset2 || 0;
@@ -21500,7 +21560,7 @@
         this._contentSize = contentSize || this._content.scrollWidth;
         this._parentSize = parentSize || this._content.clientWidth;
         if (bar || !this.trackSize) {
-          this.trackSize = this.track.clientWidth - this._padding[0] - this._padding[2];
+          this.trackSize = this.track.clientWidth - this._padding[0] - this._padding[2] - (this._scrollButtons ? this.size * this._buttons.length : 0);
           this.trackOffset = this.track.clientHeight;
         }
         this.scrollSize = this._contentSize - this._parentSize;
@@ -21508,7 +21568,7 @@
         this._contentSize = contentSize || this._content.scrollHeight;
         this._parentSize = parentSize || this._content.clientHeight;
         if (bar) {
-          this.trackSize = this.track.clientHeight - this._padding[1] - this._padding[3];
+          this.trackSize = this.track.clientHeight - this._padding[1] - this._padding[3] - (this._scrollButtons ? this.size * this._buttons.length : 0);
           this.trackOffset = this.track.clientWidth;
         }
         this.scrollSize = this._contentSize - this._parentSize;
@@ -21521,9 +21581,9 @@
         this.maxPosition = 0;
       this.update();
       if (bottom && this.autoScroll)
-        this.updatePosition(this.maxPosition);
+        this._updatePosition(this.maxPosition);
       else
-        this.updatePosition(this._position * this._ratio2);
+        this._updatePosition(this._position * this._ratio2);
     }
     updateLayout() {
       const pc = window.getComputedStyle(this.track);
@@ -21540,8 +21600,9 @@
      * @returns
      * @memberof ScrollBar
      */
-    currentPosition() {
-      const p = this._type === 1 /* horizontal */ ? this._lastMouse.pageX - this.state.position - this._os.left : this._lastMouse.pageY - this.state.position - this._os.top;
+    currentPosition(track) {
+      let _os = track ? this._elOffset(this.track) : { left: 0, top: 0 };
+      const p = this._type === 1 /* horizontal */ ? this._lastMouse.pageX - this.state.position - _os.left - (this._scrollButtons ? this.size : 0) : this._lastMouse.pageY - this.state.position - _os.top - (this._scrollButtons ? this.size : 0);
       if (p < 0)
         return 0;
       if (p > this.maxPosition)
@@ -21556,13 +21617,13 @@
      * @memberof ScrollBar
      * @fires ScrollBar#scroll
      */
-    updatePosition(p, force) {
+    _updatePosition(p, force) {
       if (p < 0 || this._maxDrag < 0)
         p = 0;
       else if (p > this._maxDrag)
         p = this._maxDrag;
       const prv = this.position;
-      this.thumb.style[this._type === 1 /* horizontal */ ? "left" : "top"] = p + (this._type === 1 /* horizontal */ ? this._padding[1] : this._padding[0]) + "px";
+      this.thumb.style[this._type === 1 /* horizontal */ ? "left" : "top"] = p + (this._type === 1 /* horizontal */ ? this._padding[1] : this._padding[0]) + (this._scrollButtons ? this.size : 0) + "px";
       this.state.dragPosition = p;
       this._position = p * this._ratio;
       if (this._position < 0)
@@ -21578,7 +21639,7 @@
      * @returns {position} returns the top and left positions
      * @memberof ScrollBar
      */
-    elOffset(elt) {
+    _elOffset(elt) {
       const rect = elt.getBoundingClientRect();
       const bodyElt = document.body;
       return {

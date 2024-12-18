@@ -235,7 +235,7 @@ Display text to the screen, and the display text will not fire triggers
 <u>#CHAR</u>ACTER
 >Send current character name to the mud, without echoing to the screen
 
-<u>#CL</u>OSE *name *
+<u>#CL</u>OSE *name*
 >Close named window
 >Supported names: about, prefs, mapper, editor, profiles, chat, help, history, log-viewer, skills
 

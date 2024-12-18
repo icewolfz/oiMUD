@@ -96,6 +96,13 @@ enum TriggerTypeFilter {
     All = 3
 }
 
+enum ParseTriggerType {
+    trigger = 0,
+    temporary = 1,
+    subTrigger = 2,
+    event = 3
+}
+
 class ArgumentInvalidError extends Error {
     constructor(name: string) {
         super(`Invalid arguments \'${name}\'`);
@@ -113,7 +120,6 @@ class ArgumentMissingError extends Error {
         super(`Missing arguments for ${name}`);
     }
 }
-
 
 class ArgumentTooManyError extends Error {
     constructor(name: string) {
@@ -154,6 +160,18 @@ class ProfileNotFound extends Error {
 class TriggerNotFound extends Error {
     constructor(trigger?, profile?) {
         super(`Trigger not found${trigger ? `: ${trigger}` : ''}${profile ? ` in profile: ${profile}` : ''}`)
+    }
+}
+
+class InvalidOption extends Error {
+    constructor(type, option?) {
+        super(`Invalid ${type ? (type + ' ') : ''}option${option ? (' ' + option.trim()) : ''}`);
+    }
+}
+
+class InvalidOptions extends Error {
+    constructor(type) {
+        super(`Invalid ${type ? (type + ' ') : ''}options`);
     }
 }
 
@@ -2049,115 +2067,16 @@ export class Input extends EventEmitter {
                             args[0] = args[0].substr(1, args[0].length - 2);
                         else
                             args[0] = this.stripQuotes(args[0]);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nocr':
-                                    case 'prompt':
-                                    case 'case':
-                                    case 'verbatim':
-                                    case 'disable':
-                                    case 'enable':
-                                    case 'cmd':
-                                    case 'temporary':
-                                    case 'temp':
-                                    case 'raw':
-                                    case 'pattern':
-                                    case 'regular':
-                                    case 'alarm':
-                                    case 'event':
-                                    case 'cmdpattern':
-                                    case 'loopexpression':
-                                        //case 'expression':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('param=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`param option '${o.trim()}'`);
-                                            item.options['params'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('type=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`type option '${o.trim()}'`);
-                                            if (!this._isTriggerType(tmp[1], TriggerTypeFilter.Main))
-                                                throw new InvalidTrigger('type');
-                                            item.options['type'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new InvalidTrigger('priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new InvalidTrigger(`option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseTriggerOptions(args[0]);
                         else
                             throw new InvalidTrigger('options');
                     }
                     else if (args.length === 2) {
                         if (args[0].match(/^\{[\s\S]*\}$/g))
                             args[0] = args[0].substr(1, args[0].length - 2);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nocr':
-                                    case 'prompt':
-                                    case 'case':
-                                    case 'verbatim':
-                                    case 'disable':
-                                    case 'enable':
-                                    case 'cmd':
-                                    case 'temporary':
-                                    case 'temp':
-                                    case 'raw':
-                                    case 'pattern':
-                                    case 'regular':
-                                    case 'alarm':
-                                    case 'event':
-                                    case 'cmdpattern':
-                                    case 'loopexpression':
-                                        //case 'expression':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('param=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`param option '${o.trim()}'`);
-                                            item.options['params'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('type=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`type option '${o.trim()}'`);
-                                            if (!this._isTriggerType(tmp[1], TriggerTypeFilter.Main))
-                                                throw new InvalidTrigger('type');
-
-                                            item.options['type'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new InvalidTrigger('priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new InvalidTrigger(`option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseTriggerOptions(args[0]);
                         else
                             throw new InvalidTrigger('options');
                         item.profile = this.stripQuotes(args[1]);
@@ -2199,68 +2118,18 @@ export class Input extends EventEmitter {
                     throw new Error('Missing commands');
                 if (args.length === 1) {
                     args[0] = args[0].substr(1, args[0].length - 2);
-                    if (args[0].length !== 0) {
-                        this.parseInline(args[0]).split(',').forEach(o => {
-                            switch (o.trim()) {
-                                case 'nocr':
-                                case 'prompt':
-                                case 'case':
-                                case 'verbatim':
-                                case 'disable':
-                                case 'temporary':
-                                case 'temp':
-                                    item.options[o.trim()] = true;
-                                    break;
-                                default:
-                                    if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                        tmp = o.trim().split('=');
-                                        if (tmp.length !== 2)
-                                            throw new Error(`Invalid event priority option '${o.trim()}'`);
-                                        i = parseInt(tmp[1], 10);
-                                        if (isNaN(i))
-                                            throw new Error('Invalid event priority value \'' + tmp[1] + '\' must be a number');
-                                        item.options['priority'] = i;
-                                    }
-                                    else
-                                        throw new Error(`Invalid event option '${o.trim()}'`);
-                            }
-                        });
-                    }
+                    if (args[0].length !== 0)
+                        item.options = this._parseTriggerOptions(args[0], ParseTriggerType.event);
                     else
-                        throw new Error('Invalid event options');
+                        throw new InvalidOptions('event');
                 }
                 else if (args.length === 2) {
                     if (args[0].match(/^\{[\s\S]*\}$/g))
                         args[0] = args[0].substr(1, args[0].length - 2);
-                    if (args[0].length !== 0) {
-                        this.parseInline(args[0]).split(',').forEach(o => {
-                            switch (o.trim()) {
-                                case 'nocr':
-                                case 'prompt':
-                                case 'case':
-                                case 'verbatim':
-                                case 'disable':
-                                case 'temporary':
-                                case 'temp':
-                                    item.options[o.trim()] = true;
-                                    break;
-                                default:
-                                    if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                        tmp = o.trim().split('=');
-                                        if (tmp.length !== 2)
-                                            throw new Error(`Invalid event priority option '${o.trim()}'`);
-                                        i = parseInt(tmp[1], 10);
-                                        if (isNaN(i))
-                                            throw new Error('Invalid event priority value \'' + tmp[1] + '\' must be a number');
-                                        item.options['priority'] = i;
-                                    }
-                                    else
-                                        throw new Error(`Invalid event option '${o.trim()}'`);
-                            }
-                        });
-                    }
+                    if (args[0].length !== 0)
+                        item.options = this._parseTriggerOptions(args[0], ParseTriggerType.event);
                     else
-                        throw new Error('Invalid event options');
+                        throw new InvalidOptions('event');
                     item.profile = this.stripQuotes(args[1]);
                     if (item.profile.length !== 0)
                         item.profile = this.parseInline(item.profile);
@@ -2424,66 +2293,18 @@ export class Input extends EventEmitter {
                             args[0] = args[0].substr(1, args[0].length - 2);
                         else
                             args[0] = this.stripQuotes(args[0]);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nosend':
-                                    case 'chain':
-                                    case 'append':
-                                    case 'stretch':
-                                    case 'disable':
-                                    case 'enable':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new Error(`Invalid button priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new Error('Invalid button priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new Error(`Invalid button option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseButtonOptions(args[0]);
                         else
-                            throw new Error('Invalid button options');
+                            throw new InvalidOptions('button');
                     }
                     else if (args.length === 2) {
                         if (args[0].match(/^\{[\s\S]*\}$/g))
                             args[0] = args[0].substr(1, args[0].length - 2);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nosend':
-                                    case 'chain':
-                                    case 'append':
-                                    case 'stretch':
-                                    case 'disable':
-                                    case 'enable':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new Error(`Invalid button priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new Error('Invalid button priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new Error(`Invalid button option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseButtonOptions(args[0]);
                         else
-                            throw new Error('Invalid button options');
+                            throw new InvalidOptions('button');
                         item.profile = this.stripQuotes(args[1]);
                         if (item.profile.length !== 0)
                             item.profile = this.parseInline(item.profile);
@@ -4687,133 +4508,16 @@ export class Input extends EventEmitter {
                             args[0] = args[0].substr(1, args[0].length - 2);
                         else
                             args[0] = this.stripQuotes(args[0]);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nocr':
-                                    case 'prompt':
-                                    case 'case':
-                                    case 'verbatim':
-                                    case 'disable':
-                                    case 'enable':
-                                    case 'cmd':
-                                    case 'temporary':
-                                    case 'temp':
-                                    case 'raw':
-                                    case 'pattern':
-                                    case 'regular':
-                                    case 'alarm':
-                                    case 'event':
-                                    case 'cmdpattern':
-                                    case 'loopexpression':
-                                    //case 'expression':
-                                    case 'reparse':
-                                    case 'reparsepattern':
-                                    case 'manual':
-                                    case 'skip':
-                                    case 'looplines':
-                                    case 'looppattern':
-                                    case 'wait':
-                                    case 'duration':
-                                    case 'withinlines':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('param=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`param option '${o.trim()}'`);
-                                            item.options['params'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('type=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`type option '${o.trim()}'`);
-                                            if (!this._isTriggerType(tmp[1]))
-                                                throw new InvalidTrigger('type');
-                                            item.options['type'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new InvalidTrigger('priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new InvalidTrigger(`option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseTriggerOptions(args[0], ParseTriggerType.subTrigger);
                         else
                             throw new InvalidTrigger('options');
                     }
                     else if (args.length === 2) {
                         if (args[0].match(/^\{[\s\S]*\}$/g))
                             args[0] = args[0].substr(1, args[0].length - 2);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nocr':
-                                    case 'prompt':
-                                    case 'case':
-                                    case 'verbatim':
-                                    case 'disable':
-                                    case 'enable':
-                                    case 'cmd':
-                                    case 'temporary':
-                                    case 'temp':
-                                    case 'raw':
-                                    case 'pattern':
-                                    case 'regular':
-                                    case 'alarm':
-                                    case 'event':
-                                    case 'cmdpattern':
-                                    case 'loopexpression':
-                                    //case 'expression':
-                                    case 'reparse':
-                                    case 'reparsepattern':
-                                    case 'manual':
-                                    case 'skip':
-                                    case 'looplines':
-                                    case 'looppattern':
-                                    case 'wait':
-                                    case 'duration':
-                                    case 'withinlines':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('param=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`param option '${o.trim()}'`);
-                                            item.options['params'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('type=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`type option '${o.trim()}'`);
-                                            if (!this._isTriggerType(tmp[1]))
-                                                throw new InvalidTrigger('type');
-
-                                            item.options['type'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new InvalidTrigger('priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new InvalidTrigger(`option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseTriggerOptions(args[0], ParseTriggerType.subTrigger);
                         else
                             throw new InvalidTrigger('options');
                         item.profile = this.stripQuotes(args[1]);
@@ -4985,111 +4689,16 @@ export class Input extends EventEmitter {
                             args[0] = args[0].substr(1, args[0].length - 2);
                         else
                             args[0] = this.stripQuotes(args[0]);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nocr':
-                                    case 'prompt':
-                                    case 'case':
-                                    case 'verbatim':
-                                    case 'disable':
-                                    case 'enable':
-                                    case 'cmd':
-                                    case 'raw':
-                                    case 'pattern':
-                                    case 'regular':
-                                    case 'alarm':
-                                    case 'event':
-                                    case 'cmdpattern':
-                                    case 'loopexpression':
-                                        //case 'expression':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('param=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTemporaryTrigger(`param option '${o.trim()}'`);
-                                            item.options['params'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('type=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTemporaryTrigger(`type option '${o.trim()}'`);
-                                            if (!this._isTriggerType(tmp[1], TriggerTypeFilter.Main))
-                                                throw new InvalidTemporaryTrigger('type');
-                                            item.options['type'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTemporaryTrigger(`priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new InvalidTemporaryTrigger('priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new InvalidTemporaryTrigger(`option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseTriggerOptions(args[0], ParseTriggerType.temporary);
                         else
                             throw new InvalidTemporaryTrigger('options');
                     }
                     else if (args.length === 2) {
                         if (args[0].match(/^\{[\s\S]*\}$/g))
                             args[0] = args[0].substr(1, args[0].length - 2);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nocr':
-                                    case 'prompt':
-                                    case 'case':
-                                    case 'verbatim':
-                                    case 'disable':
-                                    case 'enable':
-                                    case 'cmd':
-                                    case 'raw':
-                                    case 'pattern':
-                                    case 'regular':
-                                    case 'alarm':
-                                    case 'event':
-                                    case 'cmdpattern':
-                                    case 'loopexpression':
-                                        //case 'expression':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('param=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTemporaryTrigger(`param option '${o.trim()}'`);
-                                            item.options['params'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('type=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTemporaryTrigger(`type option '${o.trim()}'`);
-                                            if (!this._isTriggerType(tmp[1], TriggerTypeFilter.Main))
-                                                throw new InvalidTemporaryTrigger('type');
-
-                                            item.options['type'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTemporaryTrigger(`priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new InvalidTemporaryTrigger('priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new InvalidTemporaryTrigger(`option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseTriggerOptions(args[0], ParseTriggerType.temporary);
                         else
                             throw new InvalidTemporaryTrigger('options');
                         item.profile = this.stripQuotes(args[1]);
@@ -7098,9 +6707,9 @@ export class Input extends EventEmitter {
                     return parseInt(args[0], 10);
                 else if (args[0].match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
                     return parseFloat(args[0]);
-                else if (args[0] === "true")
+                else if (args[0] === 'true')
                     return 1;
-                else if (args[0] === "false")
+                else if (args[0] === 'false')
                     return 0;
                 return 0;
             case 'isfloat'://isfloat(value)
@@ -7385,7 +6994,6 @@ export class Input extends EventEmitter {
                     if (kl === 0)
                         return null;
                     if (kl === 1) {
-
                         if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
                             throw Error('No enabled profiles found!');
                         sides = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
@@ -8909,6 +8517,85 @@ export class Input extends EventEmitter {
         profile = null;
     }
 
+    private _parseTriggerOptions(data, type?: ParseTriggerType) {
+        let options = { priority: 0 };
+        this.parseInline(data).split(',').forEach(o => {
+            switch (o.trim()) {
+                case 'nocr':
+                case 'prompt':
+                case 'case':
+                case 'verbatim':
+                case 'disable':
+                case 'enable':
+                case 'temporary':
+                case 'temp':
+                    options[o.trim()] = true;
+                    break;
+                case 'cmd':
+                case 'raw':
+                case 'pattern':
+                case 'regular':
+                case 'alarm':
+                case 'event':
+                case 'cmdpattern':
+                case 'loopexpression':
+                    if (type === ParseTriggerType.event)
+                        throw new InvalidOption('event', o);
+                    //case 'expression':
+                    options[o.trim()] = true;
+                    break;
+                case 'reparse':
+                case 'reparsepattern':
+                case 'manual':
+                case 'skip':
+                case 'looplines':
+                case 'looppattern':
+                case 'wait':
+                case 'duration':
+                case 'withinlines':
+                    if (type === ParseTriggerType.temporary)
+                        throw new InvalidTemporaryTrigger(`option '${o.trim()}'`);
+                    else if (type === ParseTriggerType.event)
+                        throw new InvalidOption('event', o);
+                    else if (type !== ParseTriggerType.subTrigger)
+                        throw new InvalidTrigger(`option '${o.trim()}'`);
+                    options[o.trim()] = true;
+                    break;
+                default:
+                    if (type !== ParseTriggerType.event && o.trim().startsWith('param=')) {
+                        let tmp = o.trim().split('=');
+                        if (tmp.length !== 2)
+                            throw new InvalidTrigger(`param option '${o.trim()}'`);
+                        options['params'] = tmp[1];
+                    }
+                    else if (type !== ParseTriggerType.event && o.trim().startsWith('type=')) {
+                        let tmp = o.trim().split('=');
+                        if (tmp.length !== 2)
+                            throw new InvalidTrigger(`type option '${o.trim()}'`);
+                        if (!this._isTriggerType(tmp[1]))
+                            throw new InvalidTrigger('type');
+                        options['type'] = tmp[1];
+                    }
+                    else if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
+                        let tmp = o.trim().split('=');
+                        if (tmp.length !== 2)
+                            throw new InvalidTrigger(`priority option '${o.trim()}'`);
+                        let i = parseInt(tmp[1], 10);
+                        if (isNaN(i))
+                            throw new InvalidTrigger('priority value \'' + tmp[1] + '\' must be a number');
+                        options['priority'] = i;
+                    }
+                    else if (type === ParseTriggerType.temporary)
+                        throw new InvalidTemporaryTrigger(`option '${o.trim()}'`);
+                    else if (type === ParseTriggerType.event)
+                        throw new InvalidOption('event', o);
+                    else
+                        throw new InvalidTrigger(`option '${o.trim()}'`);
+            }
+        });
+        return options;
+    }
+
     private _isTriggerType(type, filter?: TriggerTypeFilter) {
         if (!filter) filter = TriggerTypeFilter.All;
         switch (type.replace(/ /g, '').toUpperCase()) {
@@ -9019,6 +8706,35 @@ export class Input extends EventEmitter {
                 line++;
             }
         }
+    }
+
+    private _parseButtonOptions(data) {
+        let options = { priority: 0 };
+        this.parseInline(data).split(',').forEach(o => {
+            switch (o.trim()) {
+                case 'nosend':
+                case 'chain':
+                case 'append':
+                case 'stretch':
+                case 'disable':
+                case 'enable':
+                    options[o.trim()] = true;
+                    break;
+                default:
+                    if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
+                        let tmp = o.trim().split('=');
+                        if (tmp.length !== 2)
+                            throw new InvalidOption('button', o + ' value');
+                        let i = parseInt(tmp[1], 10);
+                        if (isNaN(i))
+                            throw new Error('Invalid button priority value \'' + tmp[1] + '\' must be a number');
+                        options['priority'] = i;
+                    }
+                    else
+                        throw new InvalidOption('button', o);
+            }
+        });
+        return options;
     }
 
     private _getOption(option) {

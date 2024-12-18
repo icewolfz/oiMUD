@@ -440,6 +440,8 @@ export class Display extends EventEmitter {
             this._container.style.userSelect = 'auto';
     }
 
+    get splitVisible(): boolean { return this._split && this._split.visible; }
+
     get linkFunction(): string {
         return this._linkFunction || 'doLink';
     }

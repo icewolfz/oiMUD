@@ -12740,12 +12740,12 @@
               if (this._display.scrollAtBottom)
                 this._display.scrollUp();
             } else
-              this._display.scrollDisplay();
+              this._display.scrollDisplay(this._display.splitVisible);
           } else if (args.length === 1) {
             if (args[0] === "0" || args[0] === "false") {
               if (this.scrollLock) {
                 this.scrollLock = false;
-                this._display.scrollDisplay();
+                this._display.scrollDisplay(this._display.splitVisible);
               }
             } else if (!this.scrollLock) {
               this.scrollLock = true;
@@ -22266,6 +22266,9 @@
         this._container.style.userSelect = "none";
       else
         this._container.style.userSelect = "auto";
+    }
+    get splitVisible() {
+      return this._split && this._split.visible;
     }
     get linkFunction() {
       return this._linkFunction || "doLink";

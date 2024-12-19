@@ -10110,7 +10110,7 @@
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+              if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
               trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
               trigger = trigger.find((t) => {
@@ -10118,7 +10118,7 @@
               });
             } else {
               for (; k < kl; k++) {
-                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
                 trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                 trigger = trigger.find((t) => {
@@ -10728,7 +10728,7 @@
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+              if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
               profile = this._profiles.items[keys[0]];
               tmp = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers.filter((t) => t.type === 2 /* Event */));
@@ -10737,7 +10737,7 @@
               });
             } else {
               for (; k < kl; k++) {
-                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
                 tmp = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers.filter((t) => t.type === 2 /* Event */));
                 trigger = tmp.find((t) => {
@@ -10886,7 +10886,7 @@
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+              if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
               profile = this._profiles.items[keys[0]];
               if (item.name !== null)
@@ -10895,7 +10895,7 @@
                 trigger = this._profiles.items[keys[k]].find("buttons", "caption", item.caption);
             } else {
               for (; k < kl; k++) {
-                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
                 if (item.name !== null)
                   trigger = this._profiles.items[keys[k]].find("buttons", "name", item.name);
@@ -11075,7 +11075,7 @@
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+              if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
               profile = this._profiles.items[keys[0]];
               trigger = profile.find("triggers", "name", name2);
@@ -11091,7 +11091,7 @@
                 this._echo("Alarm '" + trigger.name + "' updated.", -7, -8, true, true);
             } else {
               for (; k < kl; k++) {
-                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
                 trigger = this._profiles.items[keys[k]].find("triggers", "name", name2);
                 if (trigger) {
@@ -11648,7 +11648,7 @@
           const files = this._profiles.keys;
           al = files.length;
           for (i2 = 0; i2 < al; i2++) {
-            if (this._profiles.items[files[i2]] && this._profiles.items[files[i2]].enabled)
+            if (this._isProfileEnabled(files[i2]))
               this._echo("   " + this._profiles.keys[i2] + " is enabled", -7, -8, true, true);
             else
               this._echo("   " + files[i2] + " is disabled", -7, -8, true, true);
@@ -11668,7 +11668,7 @@
               throw new Error(args[0] + " can not be disabled as it is the only one enabled");
             if (!this._profiles.contains(args[0].toLowerCase()))
               args = "Profile not found";
-            else if (this._profiles.items[args[0].toLowerCase()].enabled)
+            else if (this._isProfileEnabled(args[0].toLowerCase()))
               args = args[0] + " is enabled";
             else
               args = args[0] + " is disabled";
@@ -11683,11 +11683,11 @@
               case "enable":
               case "on":
               case "yes":
-                if (this._profiles.items[args[0].toLowerCase()].enabled)
+                if (this._isProfileEnabled(args[0].toLowerCase()))
                   args = args[0] + " is already enabled";
                 else {
                   this._client.toggleProfile(args[0]);
-                  if (this._profiles.items[args[0].toLowerCase()].enabled !== -1)
+                  if (this._isProfileEnabled(args[0].toLowerCase()))
                     args = args[0] + " is enabled";
                   else
                     args = args[0] + " remains disabled";
@@ -11696,7 +11696,7 @@
               case "disable":
               case "off":
               case "no":
-                if (!this._profiles.items[args[0].toLowerCase()].enabled)
+                if (!this._isProfileEnabled(args[0].toLowerCase()))
                   args = args[0] + " is already disabled";
                 else {
                   if (this._profiles.length === 1)
@@ -12638,7 +12638,7 @@
                 if (kl === 0)
                   return null;
                 if (kl === 1) {
-                  if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                  if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                     throw Error("No enabled profiles found!");
                   trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   trigger = trigger.find((t) => {
@@ -12646,7 +12646,7 @@
                   });
                 } else {
                   for (; k < kl; k++) {
-                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                    if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                       continue;
                     trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                     trigger = trigger.find((t) => {
@@ -12672,7 +12672,7 @@
                 if (kl === 0)
                   return null;
                 if (kl === 1) {
-                  if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                  if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                     throw Error("No enabled profiles found!");
                   trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   trigger = trigger.find((t) => {
@@ -12680,7 +12680,7 @@
                   });
                 } else {
                   for (; k < kl; k++) {
-                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                    if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                       continue;
                     trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                     trigger = trigger.find((t) => {
@@ -12798,7 +12798,7 @@
                 if (kl === 0)
                   return null;
                 if (kl === 1) {
-                  if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                  if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                     throw Error("No enabled profiles found!");
                   trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   trigger = trigger.find((t) => {
@@ -12806,7 +12806,7 @@
                   });
                 } else {
                   for (; k < kl; k++) {
-                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                    if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                       continue;
                     trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                     trigger = trigger.find((t) => {
@@ -12860,7 +12860,7 @@
                 if (kl === 0)
                   return null;
                 if (kl === 1) {
-                  if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                  if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                     throw Error("No enabled profiles found!");
                   trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   trigger = trigger.find((t) => {
@@ -12868,7 +12868,7 @@
                   });
                 } else {
                   for (; k < kl; k++) {
-                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                    if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                       continue;
                     trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                     trigger = trigger.find((t) => {
@@ -15251,7 +15251,7 @@
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+              if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
               sides = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
               sides = sides.find((t) => {
@@ -15259,7 +15259,7 @@
               });
             } else {
               for (; k < kl; k++) {
-                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
                 sides = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                 sides = sides.find((t) => {
@@ -16359,7 +16359,7 @@
         if (kl === 0)
           return;
         if (kl === 1) {
-          if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+          if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
             throw Error("No enabled profiles found!");
           profile = this._profiles.items[keys[0]];
           if (subTrigger) {
@@ -16375,7 +16375,7 @@
             trigger = this._profiles.items[keys[k]].find("triggers", "pattern", pattern);
         } else {
           for (; k < kl; k++) {
-            if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+            if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
               continue;
             if (subTrigger) {
               if (!name2) {
@@ -16864,6 +16864,10 @@
           this.emit("item-removed", type, profile.name, selector, item);
         }
       }
+    }
+    _isProfileEnabled(profile) {
+      if (!this._profiles || !this._profiles.items[profile]) return false;
+      return this._profiles.items[profile].enabled;
     }
   };
 

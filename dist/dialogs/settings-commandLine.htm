@@ -2,12 +2,12 @@
     <label for="cmdfont" class="form-label">Font</label>
     <div class="input-group">
         <input id="cmdfont" type="text" class="form-control" aria-label="Text input with dropdown button">
-        <button type="button" class="btn dropdown-toggle dropdown-toggle-split"
+        <button id="btn-font" type="button" class="btn dropdown-toggle dropdown-toggle-split"
             style="border: var(--bs-border-width) solid var(--bs-border-color);" data-bs-toggle="dropdown"
             aria-expanded="false">
             <span class="visually-hidden">Toggle Dropdown</span>
         </button>
-        <ul class="dropdown-menu dropdown-menu-end" style="height: 200px;overflow: auto;">
+        <ul id="font-list" class="dropdown-menu dropdown-menu-end" style="height: 200px;overflow: auto;max-width: 100%;">
             <li><a class="dropdown-item" href="javascript:void(0)">Inconsolata, 'Courier New', Courier, monospace</a>
             </li>
             <li><a class="dropdown-item" href="javascript:void(0)">'Fira Code', 'Courier New', Courier, monospace</a>
@@ -171,5 +171,5 @@
     });
 
     body.querySelector('.font-sample').style.fontFamily = dialog.settings['cmdfont'] || '';
-    body.querySelector('.font-sample').style.fontSize = dialog.settings['cmdfontSize'] || '16px';
+    body.querySelector('.font-sample').style.fontSize = dialog.settings['cmdfontSize'] || '16px';   
 </script>

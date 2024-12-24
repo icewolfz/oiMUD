@@ -2469,7 +2469,6 @@ export class Input extends EventEmitter {
                         profile = this.stripQuotes(args[2]);
                         profile = this.parseInline(profile);
                     }
-
                     if (!profile || profile.length === 0)
                         profile = this._client.activeProfile;
                     else {
@@ -2590,9 +2589,9 @@ export class Input extends EventEmitter {
                     this.emit('item-added', 'trigger', profile.name, profile.triggers.length - 1, trigger);
                 else
                     this.emit('item-updated', 'trigger', profile.name, profile.triggers.indexOf(trigger), trigger);
-                profile = null;
                 this._lastSuspend = -1;
                 this._client.updateAlarms();
+                profile = null;
                 //#endregion
                 return null;
             case 'ungag':

@@ -11140,9 +11140,9 @@
             this.emit("item-added", "trigger", profile.name, profile.triggers.length - 1, trigger);
           else
             this.emit("item-updated", "trigger", profile.name, profile.triggers.indexOf(trigger), trigger);
-          profile = null;
           this._lastSuspend = -1;
           this._client.updateAlarms();
+          profile = null;
           return null;
         case "ungag":
         case "ung":

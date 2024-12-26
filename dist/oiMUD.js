@@ -38094,7 +38094,7 @@ ${pre}`);
           if (!pages[1].endsWith(".txt") && !pages[1].endsWith(".raw"))
             this._setContents(log_header_default + (value || "").replace(/\n/g, ""));
           else
-            this._setContents("<style>body {font-family: 'Courier New', Courier, monospace;text-align: left;font-size: 1em;white-space: pre;background-color: white;}</style>" + (value || ""));
+            this._setContents("<style>body {font-family: 'Courier New', Courier, monospace;text-align: left;font-size: 1em;white-space: pre;background-color: white;}</style>" + htmlEncode(value || ""));
         });
         this.footer.querySelector(`#${this.id}-back`).style.display = "";
         this._splitter.panel2Collapsed = false;
@@ -38109,14 +38109,17 @@ ${pre}`);
         });
       }
     }
-    _setContents(contents) {
+    _setContents(contents, text) {
       if (!this._contents.contentWindow || !this._contents.contentWindow.document || !this._contents.contentWindow.document.body) {
         setTimeout(() => {
-          this._setContents(contents);
+          this._setContents(contents, text);
         }, 10);
         return;
       }
-      this._contents.contentWindow.document.body.innerHTML = contents;
+      if (text)
+        this._contents.contentWindow.document.body.textContent = contents;
+      else
+        this._contents.contentWindow.document.body.innerHTML = contents;
       this._contents.contentWindow.scroll(0, 0);
       this.emit("content-changed");
     }

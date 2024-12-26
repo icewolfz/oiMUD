@@ -22346,16 +22346,14 @@
     trimLines() {
       if (this._maxLines === -1)
         return;
-      debounce(() => {
-        if (this.lines.length > this._maxLines) {
-          const amt = this.lines.length - this._maxLines;
-          let r = amt;
-          while (r-- > 0)
-            this._view.removeChild(this._view.firstChild);
-          this._model.removeLines(0, amt);
-          this._doUpdate(512 /* scrollbars */);
-        }
-      }, 100, this.id + "trimLines");
+      if (this.lines.length > this._maxLines || this._view.childNodes.length > this._maxLines) {
+        const amt = this.lines.length - this._maxLines;
+        let r = this._view.childNodes.length - this._maxLines;
+        while (r-- > 0)
+          this._view.removeChild(this._view.firstChild);
+        this._model.removeLines(0, amt);
+        this._doUpdate(512 /* scrollbars */);
+      }
     }
     append(txt, remote, force, prependSplit) {
       this._model.append(txt, remote || false, force || false, prependSplit || false);

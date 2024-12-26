@@ -1043,16 +1043,17 @@ export class Display extends EventEmitter {
         if (this._maxLines === -1)
             return;
         //debounce on top of delay in case called multiple times manually
-        debounce(() => {
-            if (this.lines.length > this._maxLines) {
+        //debounce(() => {
+            if (this.lines.length > this._maxLines || this._view.childNodes.length > this._maxLines) {
                 const amt = this.lines.length - this._maxLines;
-                let r = amt;
+                let r = this._view.childNodes.length - this._maxLines;
                 while (r-- > 0)
                     this._view.removeChild(this._view.firstChild);
                 this._model.removeLines(0, amt);
+                
                 this._doUpdate(UpdateType.scrollbars);
             }
-        }, 100, this.id + 'trimLines');
+       // }, 100, this.id + 'trimLines');
     }
 
     public append(txt: string, remote?: boolean, force?: boolean, prependSplit?: boolean) {

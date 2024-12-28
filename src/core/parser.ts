@@ -60,7 +60,7 @@ enum ParserState {
     None = 0,
     Ansi = 1,
     AnsiParams = 2,
-    XTermTitle = 3,
+    OSC = 3,
     MXPTag = 4,
     MXPTagQuoted = 5,
     MXPTagDblQuoted = 6,
@@ -90,7 +90,6 @@ enum ParserState {
 class MXPState {
     public on: boolean = false;
     public lineType: (lineType | number) = 0;
-    public prevLineType: (lineType | number) = 0;
     public locked: boolean = false;
     public paragraph: boolean = false;
     public noBreak: boolean = false;
@@ -2821,23 +2820,38 @@ export class Parser extends EventEmitter {
                             _AnsiParams += c;
                         }
                         break;
-                    case ParserState.XTermTitle:
+                    case ParserState.OSC:
                         if (i === 7) {
                             this._SplitBuffer = '';
-                            this.emit('set-title', _TermTitle, _TermTitleType == null ? 0 : _TermTitleType);
+                            _AnsiParams = _TermTitle.split(';');
+                            if (_AnsiParams.length) {
+                                _TermTitleType = +_AnsiParams.shift();
+                                if (_TermTitleType >= 0 || _TermTitleType <= 2)
+                                    this.emit('set-title', _AnsiParams.join(';'), _TermTitleType);
+                                else if (_TermTitleType === 9)
+                                    this.emit('OSC', _AnsiParams);
+                            }
                             _TermTitle = '';
                             _TermTitleType = null;
                             state = ParserState.None;
                         }
-                        else if (c === ';' && _TermTitleType == null) {
-                            _TermTitleType = +_TermTitle;
-                            if (isNaN(_TermTitleType))
-                                _TermTitleType = 0;
-                            _TermTitle = '';
-                            this._SplitBuffer += c;
-                        }
                         else if (c === '\x1b') {
-                            if (this._SplitBuffer.charAt(this._SplitBuffer.length - 1) === '\n')
+                            if (idx + 1 < tl && text.charAt(idx + 1) === '\\') {
+                                this._SplitBuffer = '';
+                                _AnsiParams = _TermTitle.split(';');
+                                if (_AnsiParams.length) {
+                                    _TermTitleType = +_AnsiParams.shift();
+                                    if (_TermTitleType >= 0 || _TermTitleType <= 2)
+                                        this.emit('set-title', _AnsiParams.join(';'), _TermTitleType);
+                                    else if (_TermTitleType === 9)
+                                        this.emit('OSC', _AnsiParams);
+                                }
+                                _TermTitle = '';
+                                _TermTitleType = null;
+                                state = ParserState.None;
+                                idx++;
+                            }
+                            else if (this._SplitBuffer.charAt(this._SplitBuffer.length - 1) === '\n')
                                 this._SplitBuffer = '';
                         }
                         else {
@@ -2861,7 +2875,7 @@ export class Parser extends EventEmitter {
                         else if (c === ']') {
                             this._SplitBuffer += c;  //store in split buffer incase split command
                             _TermTitle = '';
-                            state = ParserState.XTermTitle;
+                            state = ParserState.OSC;
                         }
                         //Unsupported VT100 so skip them
                         else if (
@@ -3028,7 +3042,7 @@ export class Parser extends EventEmitter {
                             }
                             state = ParserState.None;
                             this._SplitBuffer = '';
-                            if(this._mxpState.lineType === lineType.TempSecure)
+                            if (this._mxpState.lineType === lineType.TempSecure)
                                 this._mxpState.lineType = this._iMXPDefaultMode;
                         }
                         //Malformed broken so just display it
@@ -3133,8 +3147,8 @@ export class Parser extends EventEmitter {
                             }
                             state = ParserState.None;
                             this._SplitBuffer = '';
-                            if(this._mxpState.lineType === lineType.TempSecure)
-                                this._mxpState.lineType = this._iMXPDefaultMode;                            
+                            if (this._mxpState.lineType === lineType.TempSecure)
+                                this._mxpState.lineType = this._iMXPDefaultMode;
                         }
                         else {
                             this._SplitBuffer += c;

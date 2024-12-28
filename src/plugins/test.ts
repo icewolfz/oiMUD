@@ -210,17 +210,17 @@ export class Test extends Plugin {
             this.client.print(sample, true);
         };
 
-        this.functions['testxterm'] = title => {
+        this.functions['testxterm'] = data => {
             let r;
             let g;
             let b;
             let c;
             let sample = '';
-            if (typeof title !== 'undefined' && title.length > 0) {
+            if (data && data.args && data.args.length) {
                 sample += 'Set Title: ';
-                sample += title;
+                sample += data.args.join(' ');
                 sample += '\x1B]0;';
-                sample += title;
+                sample += data.args.join(' ');
                 sample += '\u0007\n';
             }
             sample += 'System colors:\n';

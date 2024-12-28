@@ -17142,7 +17142,6 @@
     constructor(on) {
       this.on = false;
       this.lineType = 0;
-      this.prevLineType = 0;
       this.locked = false;
       this.paragraph = false;
       this.noBreak = false;
@@ -19659,21 +19658,36 @@
                 _AnsiParams += c;
               }
               break;
-            case 3 /* XTermTitle */:
+            case 3 /* OSC */:
               if (i2 === 7) {
                 this._SplitBuffer = "";
-                this.emit("set-title", _TermTitle, _TermTitleType == null ? 0 : _TermTitleType);
+                _AnsiParams = _TermTitle.split(";");
+                if (_AnsiParams.length) {
+                  _TermTitleType = +_AnsiParams.shift();
+                  if (_TermTitleType >= 0 || _TermTitleType <= 2)
+                    this.emit("set-title", _AnsiParams.join(";"), _TermTitleType);
+                  else if (_TermTitleType === 9)
+                    this.emit("OSC", _AnsiParams);
+                }
                 _TermTitle = "";
                 _TermTitleType = null;
                 state = 0 /* None */;
-              } else if (c === ";" && _TermTitleType == null) {
-                _TermTitleType = +_TermTitle;
-                if (isNaN(_TermTitleType))
-                  _TermTitleType = 0;
-                _TermTitle = "";
-                this._SplitBuffer += c;
               } else if (c === "\x1B") {
-                if (this._SplitBuffer.charAt(this._SplitBuffer.length - 1) === "\n")
+                if (idx + 1 < tl && text.charAt(idx + 1) === "\\") {
+                  this._SplitBuffer = "";
+                  _AnsiParams = _TermTitle.split(";");
+                  if (_AnsiParams.length) {
+                    _TermTitleType = +_AnsiParams.shift();
+                    if (_TermTitleType >= 0 || _TermTitleType <= 2)
+                      this.emit("set-title", _AnsiParams.join(";"), _TermTitleType);
+                    else if (_TermTitleType === 9)
+                      this.emit("OSC", _AnsiParams);
+                  }
+                  _TermTitle = "";
+                  _TermTitleType = null;
+                  state = 0 /* None */;
+                  idx++;
+                } else if (this._SplitBuffer.charAt(this._SplitBuffer.length - 1) === "\n")
                   this._SplitBuffer = "";
               } else {
                 this._SplitBuffer += c;
@@ -19688,7 +19702,7 @@
               } else if (c === "]") {
                 this._SplitBuffer += c;
                 _TermTitle = "";
-                state = 3 /* XTermTitle */;
+                state = 3 /* OSC */;
               } else if (c === "D" || //Index ( down one line, scroll if at bottom )
               c === "E" || //Next line ( move to column 1 of next line, scroll up if at bottom )
               c === "M" || //Reverse index	( up one line, scroll down if at top )
@@ -25050,17 +25064,17 @@
         }
         this.client.print(sample, true);
       };
-      this.functions["testxterm"] = (title) => {
+      this.functions["testxterm"] = (data) => {
         let r;
         let g;
         let b;
         let c;
         let sample = "";
-        if (typeof title !== "undefined" && title.length > 0) {
+        if (data && data.args && data.args.length) {
           sample += "Set Title: ";
-          sample += title;
+          sample += data.args.join(" ");
           sample += "\x1B]0;";
-          sample += title;
+          sample += data.args.join(" ");
           sample += "\x07\n";
         }
         sample += "System colors:\n";

@@ -28,15 +28,15 @@
   "devDependencies": {
     "@types/jquery": "^3.5.32",
     "esbuild": "0.24.0",
-    "eslint": "^9.16.0",
+    "eslint": "^9.19.0",
     "eslint-plugin-html": "^8.1.2",
     "html-minifier-terser": "^7.2.0",
-    "terser": "^5.37.0"
+    "terser": "^5.38.0"
   },
   "dependencies": {
     "@types/jstorage": "^0.3.33",
     "jquery": "^3.7.1",
-    "mathjs": "^14.0.1",
+    "mathjs": "^14.2.1",
     "moment": "^2.30.1"
   }
 }

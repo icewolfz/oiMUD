@@ -459,6 +459,7 @@ export class Status extends Plugin {
             this._status.style.display = 'none';
             document.getElementById('status-drag-bar').style.display = 'none';
             this.emit('updated-interface');
+            client.emit('updated-interface', 'status', this);
             document.getElementById('status-simple').style.display = 'none';
             document.getElementById('status-simple-lagMeter').style.visibility = this.client.getOption('lagMeter') ? 'visible' : '';
             return;
@@ -471,6 +472,7 @@ export class Status extends Plugin {
             document.getElementById('status-simple').style.display = '';
             document.getElementById('status-simple-lagMeter').style.visibility = this.client.getOption('lagMeter') ? 'visible' : '';
             this.emit('updated-interface');
+            client.emit('updated-interface', 'status', this);
             return;
         }
         document.getElementById('status-simple').style.display = 'none';
@@ -546,6 +548,7 @@ export class Status extends Plugin {
         if (!noSplitter)
             this._updateSplitter();
         this.emit('updated-interface');
+        client.emit('updated-interface', 'status', this);
     }
 
     private _setTitle(title: string, lag?: string) {

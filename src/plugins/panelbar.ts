@@ -452,6 +452,7 @@ export class PanelBar extends Plugin {
             this._panel.style.display = 'none';
             document.getElementById('panel-bar-drag-bar').style.display = 'none';
             this.emit('updated-interface');
+            client.emit('updated-interface', 'panel-bar', this);
             return;
         }
         if (this._panelLocation === PanelBarLocation.top) {
@@ -471,6 +472,7 @@ export class PanelBar extends Plugin {
         this._panel.style.display = '';
         document.getElementById('panel-bar-drag-bar').style.display = '';
         this.emit('updated-interface');
+        client.emit('updated-interface', 'panel-bar', this);
     }
 
     private _loadDisplayOptions(display) {

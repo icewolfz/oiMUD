@@ -600,6 +600,13 @@ export function initializeInterface() {
         catch (err) { }
         //console.log(await confirm_box('test'));
     });
+    client.on('updated-interface', (name, sender) => {
+        if (name === 'status') {
+            updateCommandInput();
+            if (client.getOption('commandAutoSize') || client.getOption('commandScrollbars'))
+                resizeCommandInput();
+        }
+    });
 }
 
 export function removeHash(string) {
@@ -1528,10 +1535,10 @@ export async function doPasteSpecial(txt, showDisable?) {
         if (client.commandInput.dataset.selectionStart && client.commandInput.dataset.selectionStart.length) {
             client.commandInput.selectionStart = +client.commandInput.dataset.selectionStart;
             client.commandInput.selectionEnd = +client.commandInput.dataset.selectionEnd;
-        }        
+        }
         insertValue(client.commandInput, txt);
         client.commandInput.dataset.selectionStart = '';
-        client.commandInput.dataset.selectionEnd = '';        
+        client.commandInput.dataset.selectionEnd = '';
         if (results.options.disable)
             document.querySelector('#menu-paste').classList.remove('active');
     }

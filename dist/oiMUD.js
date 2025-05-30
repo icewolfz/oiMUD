@@ -34814,6 +34814,13 @@ Devanagari
       } catch (err) {
       }
     });
+    client.on("updated-interface", (name2, sender) => {
+      if (name2 === "status") {
+        updateCommandInput();
+        if (client.getOption("commandAutoSize") || client.getOption("commandScrollbars"))
+          resizeCommandInput();
+      }
+    });
   }
   function removeHash(string) {
     if (!string || string.length === 0) return;
@@ -36473,20 +36480,10 @@ ${pre}`);
             this._dialogProgress.progress = progress;
         }, this._dialog);
         this._map.on("import-complete", () => {
-          client.sendGMCP("Room.Info");
-          if (this._dialogProgress)
-            this._dialogProgress.close();
-          this._dialogProgress = null;
           this._dialogMap.refresh();
-          this._map.save();
         }, this._dialog);
         this._map.on("import-canceled", () => {
-          client.sendGMCP("Room.Info");
-          if (this._dialogProgress)
-            this._dialogProgress.close();
-          this._dialogProgress = null;
           this._dialogMap.refresh();
-          this._map.save();
         }, this._dialog);
         this.client.sendGMCP("Room.Info");
       };
@@ -36513,6 +36510,24 @@ ${pre}`);
       if (typeof data === "string")
         data = JSON.parse(data);
       this._dialogProgress = progress_box("Importing map");
+      this.map.on("import-complete", () => {
+        this.map.removeListenersFromCaller("import-complete", this._dialogProgress);
+        this.map.removeListenersFromCaller("import-canceled", this._dialogProgress);
+        client.sendGMCP("Room.Info");
+        if (this._dialogProgress)
+          this._dialogProgress.close();
+        this._dialogProgress = null;
+        this._map.save();
+      }, this._dialogProgress);
+      this.map.on("import-canceled", () => {
+        this.map.removeListenersFromCaller("import-complete", this._dialogProgress);
+        this.map.removeListenersFromCaller("import-canceled", this._dialogProgress);
+        client.sendGMCP("Room.Info");
+        if (this._dialogProgress)
+          this._dialogProgress.close();
+        this._dialogProgress = null;
+        this._map.save();
+      }, this._dialogProgress);
       this._dialogProgress.on("canceled", () => {
         this.map.cancelImport();
       });
@@ -36947,6 +36962,7 @@ ${pre}`);
         this._status.style.display = "none";
         document.getElementById("status-drag-bar").style.display = "none";
         this.emit("updated-interface");
+        client.emit("updated-interface", "status", this);
         document.getElementById("status-simple").style.display = "none";
         document.getElementById("status-simple-lagMeter").style.visibility = this.client.getOption("lagMeter") ? "visible" : "";
         return;
@@ -36959,6 +36975,7 @@ ${pre}`);
         document.getElementById("status-simple").style.display = "";
         document.getElementById("status-simple-lagMeter").style.visibility = this.client.getOption("lagMeter") ? "visible" : "";
         this.emit("updated-interface");
+        client.emit("updated-interface", "status", this);
         return;
       }
       document.getElementById("status-simple").style.display = "none";
@@ -37021,6 +37038,7 @@ ${pre}`);
       if (!noSplitter)
         this._updateSplitter();
       this.emit("updated-interface");
+      client.emit("updated-interface", "status", this);
     }
     _setTitle(title, lag) {
       if (!title || title.length === 0)
@@ -40291,6 +40309,7 @@ ${pre}`);
         this._panel.style.display = "none";
         document.getElementById("panel-bar-drag-bar").style.display = "none";
         this.emit("updated-interface");
+        client.emit("updated-interface", "panel-bar", this);
         return;
       }
       if (this._panelLocation === 1 /* top */) {
@@ -40309,6 +40328,7 @@ ${pre}`);
       this._panel.style.display = "";
       document.getElementById("panel-bar-drag-bar").style.display = "";
       this.emit("updated-interface");
+      client.emit("updated-interface", "panel-bar", this);
     }
     _loadDisplayOptions(display) {
       if (!display) return;

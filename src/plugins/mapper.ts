@@ -929,20 +929,10 @@ export class Mapper extends Plugin {
                     this._dialogProgress.progress = progress;
             }, this._dialog);
             this._map.on('import-complete', () => {
-                client.sendGMCP('Room.Info');
-                if (this._dialogProgress)
-                    this._dialogProgress.close();
-                this._dialogProgress = null;
                 this._dialogMap.refresh();
-                this._map.save();
             }, this._dialog);
             this._map.on('import-canceled', () => {
-                client.sendGMCP('Room.Info');
-                if (this._dialogProgress)
-                    this._dialogProgress.close();
-                this._dialogProgress = null;
                 this._dialogMap.refresh();
-                this._map.save();
             }, this._dialog);
             //onload query the mud for current room info
             this.client.sendGMCP('Room.Info');
@@ -974,6 +964,24 @@ export class Mapper extends Plugin {
         if (typeof data === 'string')
             data = JSON.parse(data);
         this._dialogProgress = progress_box('Importing map');
+        this.map.on('import-complete', () => {
+            this.map.removeListenersFromCaller('import-complete', this._dialogProgress);
+            this.map.removeListenersFromCaller('import-canceled', this._dialogProgress);
+            client.sendGMCP('Room.Info');
+            if (this._dialogProgress)
+                this._dialogProgress.close();
+            this._dialogProgress = null;
+            this._map.save();
+        }, this._dialogProgress);
+        this.map.on('import-canceled', () => {
+            this.map.removeListenersFromCaller('import-complete', this._dialogProgress);
+            this.map.removeListenersFromCaller('import-canceled', this._dialogProgress);
+            client.sendGMCP('Room.Info');
+            if (this._dialogProgress)
+                this._dialogProgress.close();
+            this._dialogProgress = null;
+            this._map.save();
+        }, this._dialogProgress);
         this._dialogProgress.on('canceled', () => {
             this.map.cancelImport();
         });

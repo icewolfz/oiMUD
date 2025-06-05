@@ -5512,7 +5512,7 @@
     * @returns {object} returns null
     */
     _fireReceiveOption(option, verb, val) {
-      const data = { telnet: this, option, verb: 250, value: val, handled: false };
+      const data = { telnet: this, option, verb, value: val, handled: false };
       this.emit("received-option", data);
       return data.handled;
     }
@@ -40605,7 +40605,7 @@ ${pre}`);
       this.telnet.on("debug", (msg) => {
         this.debug(msg);
       });
-      this.telnet.on("receive-option", (data) => {
+      this.telnet.on("received-option", (data) => {
         this.emit("received-option", data);
       });
       this.telnet.on("close", () => {

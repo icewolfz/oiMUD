@@ -21817,7 +21817,7 @@
       else
         this._timestampWidth = moment().format(this._timestampFormat).length;
       this._buildStyleSheet();
-      this._doUpdate(2 /* display */ | 1 /* update */ | 32 /* rebuildLines */ | 64 /* split */);
+      this._doUpdate(2 /* display */ | 1 /* update */ | 16 /* updateWindow */ | 32 /* rebuildLines */ | 64 /* split */);
     }
     get timestampFormat() {
       return this._timestampFormat;
@@ -22396,7 +22396,7 @@
       this._view.classList.remove("animate");
       if (this._hideTrailingEmptyLine && this.lines.length && this.lines[this.lines.length - 1].text.length === 0)
         this._view.lastChild.style.display = "none";
-      this._doUpdate(4 /* trim */ | 8 /* scrollEnd */ | 16 /* updateWindow */ | 64 /* split */ | 256 /* layout */);
+      this._doUpdate(4 /* trim */ | 8 /* scrollEnd */ | 64 /* split */ | 256 /* layout */);
       if (this._customScrollbars) {
         this._VScroll.resize();
         this._HScroll.resize();
@@ -40484,9 +40484,6 @@ ${pre}`);
       });
       this.display.on("split-move-done", (h) => {
         this.setOption("display.splitHeight", h);
-      });
-      this.display.on("update-window", (width, height) => {
-        this.telnet.updateWindow(width, height);
       });
       this.display.on("update-window", (width, height) => {
         this.telnet.updateWindow(width, height);

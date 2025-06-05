@@ -201,7 +201,7 @@ export class Display extends EventEmitter {
         else
             this._timestampWidth = moment().format(this._timestampFormat).length;
         this._buildStyleSheet();
-        this._doUpdate(UpdateType.display | UpdateType.update | UpdateType.rebuildLines | UpdateType.split);
+        this._doUpdate(UpdateType.display | UpdateType.update | UpdateType.updateWindow | UpdateType.rebuildLines | UpdateType.split);
     }
 
     get timestampFormat() { return this._timestampFormat; }
@@ -1088,7 +1088,7 @@ export class Display extends EventEmitter {
         this._view.classList.remove('animate');
         if (this._hideTrailingEmptyLine && this.lines.length && this.lines[this.lines.length - 1].text.length === 0)
             (<HTMLElement>this._view.lastChild).style.display = 'none';
-        this._doUpdate(UpdateType.trim | UpdateType.scrollEnd | UpdateType.updateWindow | UpdateType.split | UpdateType.layout);
+        this._doUpdate(UpdateType.trim | UpdateType.scrollEnd | UpdateType.split | UpdateType.layout);// | UpdateType.updateWindow
         if (this._customScrollbars) {
             this._VScroll.resize();
             this._HScroll.resize();

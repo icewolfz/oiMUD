@@ -891,10 +891,6 @@ export class Client extends EventEmitter {
             this.telnet.updateWindow(width, height);
         });
 
-        this.display.on('update-window', (width, height) => {
-            this.telnet.updateWindow(width, height);
-        });
-
         this.display.on('debug', (msg) => { this.debug(msg); });
         this.display.on('add-line', data => {
             this.emit('add-line', data);

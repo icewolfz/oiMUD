@@ -167,7 +167,7 @@ class SoundState extends EventEmitter {
     public async open() {
         this.close();
         return new Promise((resolve, reject) => {
-            this.sound = (new buzz.sound as any)(this.url + this._file);
+            this.sound = new buzz.sound(this.url + this._file);
             this.sound.bind('loadeddata', (e) => {
                 this.emit('playing', { file: this._file, sound: this.sound, state: this, duration: buzz.toTimer(this.sound.getDuration()) });
                 resolve(1);

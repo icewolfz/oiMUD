@@ -1783,7 +1783,7 @@ export class Telnet extends EventEmitter {
             _socket.binaryType = 'arraybuffer';
             //the socket was closed for some reason, any code but 1000 means some type of error so send it to the error system, call close for cleanup and then trigger teh onClose event
             _socket.onclose = (evt) => {
-                if (evt.code === 1006 && evt.type === 'close' && !this._closed)
+                if ((evt.code === 1006 || evt.code === 1000) && evt.type === 'close' && !this._closed)
                     this.close();
                 else if (evt.code !== 1000 && !this._closed) {
                     this.emit('error', { message: 'Closed due to transmission error', err: evt });

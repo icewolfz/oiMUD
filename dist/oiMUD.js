@@ -5441,7 +5441,7 @@
           _socket = new WebSocket((this.scheme || "ws://") + host, this.protocol || "binary");
         _socket.binaryType = "arraybuffer";
         _socket.onclose = (evt) => {
-          if (evt.code === 1006 && evt.type === "close" && !this._closed)
+          if ((evt.code === 1006 || evt.code === 1e3) && evt.type === "close" && !this._closed)
             this.close();
           else if (evt.code !== 1e3 && !this._closed) {
             this.emit("error", { message: "Closed due to transmission error", err: evt });

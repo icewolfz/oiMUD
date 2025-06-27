@@ -4761,7 +4761,7 @@ export class Input extends EventEmitter {
                 }
                 return null;
             case 'fullscreen':
-            case 'fu':
+            case 'full':
                 this._echoRaw(raw);
                 //#region fullscreen
                 if (args.length === 0) {

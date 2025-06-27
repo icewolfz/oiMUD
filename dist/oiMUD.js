@@ -13211,7 +13211,7 @@
           }
           return null;
         case "fullscreen":
-        case "fu":
+        case "full":
           this._echoRaw(raw);
           if (args.length === 0) {
             if (document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || document.mozFullScreenElement || document.msFullscreenElement) {

@@ -13210,6 +13210,58 @@
               this._client.variables[i2] = args;
           }
           return null;
+        case "fullscreen":
+        case "fu":
+          this._echoRaw(raw);
+          if (args.length === 0) {
+            if (document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+              if (document.exitFullscreen) {
+                document.exitFullscreen();
+              } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+              } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+              } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+              }
+            } else {
+              if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+              } else if (document.documentElement.mozRequestFullScreen) {
+                document.documentElement.mozRequestFullScreen();
+              } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+              } else if (document.documentElement.msRequestFullscreen) {
+                document.documentElement.msRequestFullscreen();
+              }
+            }
+          } else if (args.length === 1) {
+            if (args[0] === "0" || args[0] === "false") {
+              if (document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+                if (document.exitFullscreen) {
+                  document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                  document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                  document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                  document.webkitExitFullscreen();
+                }
+              }
+            } else if (!(document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || document.mozFullScreenElement || document.msFullscreenElement)) {
+              if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+              } else if (document.documentElement.mozRequestFullScreen) {
+                document.documentElement.mozRequestFullScreen();
+              } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+              } else if (document.documentElement.msRequestFullscreen) {
+                document.documentElement.msRequestFullscreen();
+              }
+            }
+          } else if (args.length > 1)
+            throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "fr\x1B[0;-11;-12meeze \x1B[3mnumber\x1B[0;-11;-12m");
+          return null;
       }
       if (fun.match(/^[-|+]?\d+$/)) {
         this._echoRaw(raw);

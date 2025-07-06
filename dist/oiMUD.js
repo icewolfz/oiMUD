@@ -41649,12 +41649,15 @@ ${pre}`);
       this._parseInternal(txt, remote, false, prependSplit);
     }
     send(data, echo) {
+      let p = this.telnet.prompt;
       this.telnet.sendData(data);
       this.lastSendTime = Date.now();
       if (echo && this.telnet.echo && this.getOption("commandEcho"))
         this.echo(data);
       else if (echo)
         this.echo("\n");
+      else
+        this.telnet.prompt = p;
     }
     sendRaw(data) {
       this.telnet.sendData(data, true);

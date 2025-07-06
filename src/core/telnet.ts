@@ -1731,13 +1731,17 @@ export class Telnet extends EventEmitter {
             dl = data.byteLength;
             ba = new StringBuffer();
             for (; idx < dl; idx++) {
-                ba.appendCode(data[idx]);
-                if (data[idx] === 255)
+                if (data[idx] === 255) {
                     ba.appendCode(255);
+                    ba.appendCode(255);
+                }
                 else if (data[idx] === 13 && dl === 1)
-                    ba.append('\r\n');
-                else if (data[idx] === 10 && dl === 1)
                     ba.append('\r\0');
+                else if (data[idx] === 10 && dl === 1)
+                    ba.append('\r\n');
+                else
+                    ba.appendCode(data[idx]);
+
             }
             return ba.toString();
         }
@@ -1746,13 +1750,17 @@ export class Telnet extends EventEmitter {
         for (; idx < dl; idx++) {
             c = data.charAt(idx);
             i = data.charCodeAt(idx);
-            ba.append(c);
-            if (i === 255)
+            if (i === 255) {
                 ba.append(c);
+                ba.append(c);
+            }
             else if (i === 13 && dl === 1)
-                ba.append('\r\n');
-            else if (i === 10 && dl === 1)
                 ba.append('\r\0');
+            else if (i === 10 && dl === 1)
+                ba.append('\r\n');
+            else
+                ba.append(c);
+
         }
         return ba.toString();
     }

@@ -21,7 +21,7 @@ export function initMenu() {
     });
 
     document.getElementById('btn-menu').addEventListener('click', showMenu);
-    client.on('connected', () => {
+    client.on('connecting', () => {
         let el = document.getElementById('menu-connect');
         let text = document.querySelector('#menu-connect a span');
         let icon = document.querySelector('#menu-connect svg') || document.querySelector('#menu-connect i');
@@ -43,7 +43,7 @@ export function initMenu() {
     })
     client.on('scroll-lock', updateScrollLock);
     document.querySelector('#menu-connect a').addEventListener('click', e => {
-        if (client.connected)
+        if (client.connected || client.connecting)
             client.close();
         else {
             client.connect();

@@ -315,6 +315,7 @@ Controls what is captured into the chat window
 - `Update profiles on change when manager open` Update profiles when items are changed outside of manager using #commands
 - `Enable profile manager code editor` disable or enable the code editor for the profile manager
 - `Custom scrollbars for display controls` Enable custom scrollbars for main display and all chat displays
+- `Save dynamically loaded profiles` Save profile list when set using profiles url argument
 
 ## ShadowMUD
 

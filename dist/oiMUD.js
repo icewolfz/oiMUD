@@ -1128,7 +1128,7 @@
         } else "undefined" != typeof window ? window.PF = e() : global.PF = e();
       })(function() {
         var define2, ses2, bootstrap2, module2, exports2;
-        return function(e, t, n) {
+        return (function(e, t, n) {
           function i2(n2, s2) {
             if (!t[n2]) {
               if (!e[n2]) {
@@ -1148,7 +1148,7 @@
           var r = typeof __require == "function" && __require;
           for (var s = 0; s < n.length; s++) i2(n[s]);
           return i2;
-        }({
+        })({
           1: [function(require2, module3, exports3) {
             module3.exports = require2("./lib/heap");
           }, { "./lib/heap": 2 }],
@@ -1237,13 +1237,13 @@
                 if (cmp == null) {
                   cmp = defaultCmp;
                 }
-                _ref1 = function() {
+                _ref1 = (function() {
                   _results1 = [];
                   for (var _j2 = 0, _ref2 = floor(array.length / 2); 0 <= _ref2 ? _j2 < _ref2 : _j2 > _ref2; 0 <= _ref2 ? _j2++ : _j2--) {
                     _results1.push(_j2);
                   }
                   return _results1;
-                }.apply(this).reverse();
+                }).apply(this).reverse();
                 _results = [];
                 for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
                   i2 = _ref1[_i];
@@ -1348,7 +1348,7 @@
                 array[pos] = newitem;
                 return _siftdown(array, startpos, pos, cmp);
               };
-              Heap = function() {
+              Heap = (function() {
                 Heap2.push = heappush;
                 Heap2.pop = heappop;
                 Heap2.replace = heapreplace;
@@ -1409,7 +1409,7 @@
                 Heap2.prototype.has = Heap2.prototype.contains;
                 Heap2.prototype.copy = Heap2.prototype.clone;
                 return Heap2;
-              }();
+              })();
               if (typeof module3 !== "undefined" && module3 !== null ? module3.exports : void 0) {
                 module3.exports = Heap;
               } else {
@@ -3701,7 +3701,7 @@
   function fSaveAs() {
     let DownloadAttributeSupport = "download" in document.createElement("a");
     let BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder;
-    let URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+    let URL2 = window.URL || window.webkitURL || window.mozURL || window.msURL;
     navigator.saveBlob = navigator.saveBlob || navigator.msSaveBlob || navigator.mozSaveBlob || navigator.webkitSaveBlob;
     window.saveAs = window.saveAs || window.webkitSaveAs || window.mozSaveAs || window.msSaveAs;
     let BrowserSupportedMimeTypes = {
@@ -3737,14 +3737,14 @@
           navigator.saveBlob(blob, name2);
         }
       };
-    } else if (BlobBuilder && URL) {
+    } else if (BlobBuilder && URL2) {
       this.show = function(data, name2, mimetype) {
         let blob, url, builder = new BlobBuilder();
         builder.append(data);
         if (!mimetype) mimetype = "application/octet-stream";
         if (DownloadAttributeSupport) {
           blob = builder.getBlob(mimetype);
-          url = URL.createObjectURL(blob);
+          url = URL2.createObjectURL(blob);
           let link = document.createElement("a");
           link.setAttribute("href", url);
           link.setAttribute("download", name2 || "Download.bin");
@@ -3756,20 +3756,20 @@
             mimetype = "application/octet-stream";
           }
           blob = builder.getBlob(mimetype);
-          url = URL.createObjectURL(blob);
+          url = URL2.createObjectURL(blob);
           window.open(url, "_blank", "");
         }
         setTimeout(function() {
-          URL.revokeObjectURL(url);
+          URL2.revokeObjectURL(url);
         }, 250);
       };
-    } else if (Blob && URL) {
+    } else if (Blob && URL2) {
       this.show = function(data, name2, mimetype) {
         let blob, url;
         if (!mimetype) mimetype = "application/octet-stream";
         blob = new Blob([data], { type: mimetype });
         if (DownloadAttributeSupport) {
-          url = URL.createObjectURL(blob);
+          url = URL2.createObjectURL(blob);
           let link = document.createElement("a");
           link.setAttribute("href", url);
           link.setAttribute("download", name2 || "Download.bin");
@@ -3780,11 +3780,11 @@
           if (BrowserSupportedMimeTypes[mimetype.split(";")[0]] === true) {
             mimetype = "application/octet-stream";
           }
-          url = URL.createObjectURL(blob);
+          url = URL2.createObjectURL(blob);
           window.open(url, "_blank", "");
         }
         setTimeout(function() {
-          URL.revokeObjectURL(url);
+          URL2.revokeObjectURL(url);
         }, 250);
       };
     } else if (!/\bMSIE\b/.test(navigator.userAgent)) {
@@ -6474,9 +6474,10 @@
     ["chat.customSelection", 0, 1 /* Boolean */, !isMobile()],
     ["pasteSpecialDisable", 0, 1 /* Boolean */, true],
     ["display.defaultMXPState", 0, 1 /* Boolean */, false],
-    ["customScrollbars", 0, 1 /* Boolean */, false]
+    ["customScrollbars", 0, 1 /* Boolean */, false],
+    ["saveDynamicProfiles", 0, 1 /* Boolean */, false]
   ];
-  var SettingProperties = ["bufferSize", "commandDelay", "commandDelayCount", "commandHistorySize", "fontSize", "cmdfontSize", "commandEcho", "flashing", "autoConnect", "enableAliases", "enableTriggers", "enableMacros", "showScriptErrors", "commandStacking", "commandStackingChar", "htmlLog", "keepLastCommand", "enableMCCP", "enableUTF8", "font", "cmdfont", "mapper.follow", "mapper.enabled", "mapper.split", "mapper.fill", "showMapper", "fullScreen", "enableMXP", "enableMSP", "parseCommands", "lagMeter", "enablePing", "enableEcho", "enableSpeedpaths", "speedpathsChar", "parseSpeedpaths", "profile", "parseSingleQuotes", "parseDoubleQuotes", "logEnabled", "logPrepend", "logOffline", "logUniqueOnConnect", "enableURLDetection", "notifyMSPPlay", "CommandonClick", "allowEval", "allowEscape", "AutoCopySelectedToClipboard", "enableDebug", "editorPersistent", "askonclose", "dev", "chat.captureLines", "chat.captureAllLines", "chat.captureReviews", "chat.captureTells", "chat.captureTalk", "chat.gag", "chat.CaptureOnlyOpen", "checkForUpdates", "autoCreateCharacter", "askonchildren", "mapper.legend", "mapper.room", "mapper.importType", "mapper.vscroll", "mapper.hscroll", "mapper.scale", "mapper.alwaysOnTop", "mapper.alwaysOnTopClient", "mapper.memory", "mapper.memorySavePeriod", "mapper.active.ID", "mapper.active.x", "mapper.active.y", "mapper.active.z", "mapper.active.area", "mapper.active.zone", "mapper.persistent", "profiles.split", "profiles.askoncancel", "profiles.triggersAdvanced", "profiles.aliasesAdvanced", "profiles.buttonsAdvanced", "profiles.macrosAdvanced", "profiles.contextsAdvanced", "profiles.codeEditor", "profiles.watchFiles", "chat.alwaysOnTop", "chat.alwaysOnTopClient", "chat.log", "chat.persistent", "chat.zoom", "chat.font", "chat.fontSize", "title", "logGagged", "logTimeFormat", "autoConnectDelay", "autoLogin", "onDisconnect", "enableKeepAlive", "keepAliveDelay", "newlineShortcut", "logWhat", "logErrors", "showErrorsExtended", "reportCrashes", "enableCommands", "commandChar", "escapeChar", "enableVerbatim", "verbatimChar", "soundPath", "logPath", "theme", "gamepads", "buttons.connect", "buttons.characters", "buttons.preferences", "buttons.log", "buttons.clear", "buttons.lock", "buttons.map", "buttons.user", "buttons.mail", "buttons.compose", "buttons.immortal", "buttons.codeEditor", "find.case", "find.word", "find.reverse", "find.regex", "find.selection", "find.show", "display.split", "display.splitHeight", "display.splitLive", "display.roundedOverlays", "backupLoad", "backupSave", "backupAllProfiles", "backupReplaceCharacters", "scrollLocked", "showStatus", "showCharacterManager", "showChat", "showEditor", "showArmor", "showStatusWeather", "showStatusLimbs", "showStatusHealth", "showStatusExperience", "showStatusPartyHealth", "showStatusCombatHealth", "showButtonBar", "allowNegativeNumberNeeded", "spellchecking", "hideOnMinimize", "showTrayIcon", "statusExperienceNeededProgressbar", "trayClick", "trayDblClick", "pasteSpecialPrefix", "pasteSpecialPostfix", "pasteSpecialReplace", "pasteSpecialPrefixEnabled", "pasteSpecialPostfixEnabled", "pasteSpecialReplaceEnabled", "display.showSplitButton", "chat.split", "chat.splitHeight", "chat.splitLive", "chat.roundedOverlays", "chat.showSplitButton", "chat.bufferSize", "chat.flashing", "display.hideTrailingEmptyLine", "display.enableColors", "display.enableBackgroundColors", "enableSound", "allowHalfOpen", "editorClearOnSend", "editorCloseOnSend", "askOnCloseAll", "askonloadCharacter", "mapper.roomWidth", "mapper.roomGroups", "mapper.showInTaskBar", "profiles.enabled", "profiles.sortOrder", "profiles.sortDirection", "profiles.showInTaskBar", "profiles.profileSelected", "profiles.profileExpandSelected", "chat.lines", "chat.showInTaskBar", "chat.showTimestamp", "chat.timestampFormat", "chat.tabWidth", "chat.displayControlCodes", "chat.emulateTerminal", "chat.emulateControlCodes", "chat.wordWrap", "chat.wrapAt", "chat.indent", "chat.scrollLocked", "chat.find.case", "chat.find.word", "chat.find.reverse", "chat.find.regex", "chat.find.selection", "chat.find.show", "chat.find.highlight", "chat.find.location", "codeEditor.showInTaskBar", "codeEditor.persistent", "codeEditor.alwaysOnTop", "codeEditor.alwaysOnTopClient", "autoTakeoverLogin", "fixHiddenWindows", "maxReconnectDelay", "enableBackgroundThrottling", "enableBackgroundThrottlingClients", "showInTaskBar", "showLagInTitle", "mspMaxRetriesOnError", "logTimestamp", "logTimestampFormat", "disableTriggerOnError", "prependTriggeredLine", "enableParameters", "parametersChar", "enableNParameters", "nParametersChar", "enableParsing", "externalWho", "externalHelp", "watchForProfilesChanges", "onProfileChange", "onProfileDeleted", "enableDoubleParameterEscaping", "ignoreEvalUndefined", "enableInlineComments", "enableBlockComments", "inlineCommentString", "blockCommentString", "allowCommentsFromCommand", "saveTriggerStateChanges", "groupProfileSaves", "groupProfileSaveDelay", "returnNewlineOnEmptyValue", "pathDelay", "pathDelayCount", "echoSpeedpaths", "alwaysShowTabs", "scriptEngineType", "initializeScriptEngineOnLoad", "find.highlight", "find.location", "display.showInvalidMXPTags", "display.showTimestamp", "display.timestampFormat", "display.displayControlCodes", "display.emulateTerminal", "display.emulateControlCodes", "display.wordWrap", "display.tabWidth", "display.wrapAt", "display.indent", "statusWidth", "showEditorInTaskBar", "trayMenu", "lockLayout", "loadLayout", "useSingleInstance", "statusWidth", "characterManagerDblClick", "warnAdvancedSettings", "showAdvancedSettings", "enableTabCompletion", "tabCompletionBufferLimit", "ignoreCaseTabCompletion", "enableNotifications", "commandAutoSize", "commandWordWrap", "commandScrollbars", "tabCompletionList", "tabCompletionLookupType", "tabCompletionReplaceCasing", "characterManagerAddButtonAction", "enableCrashReporting", "characterManagerPanelWidth", "ignoreInputLeadingWhitespace", "profiles.find.case", "profiles.find.word", "profiles.find.reverse", "profiles.find.regex", "profiles.find.selection", "profiles.find.show", "profiles.find.value", "skipMore", "skipMoreDelay", "commandMinLines", "simpleAlarms", "simpleEditor", "selectLastCommand", "statusMode", "logger.split", "showChatWindow", "chat.enableColors", "chat.enableBackgroundColors", "display.customSelection", "chat.customSelection", "pasteSpecialDisable", "display.defaultMXPState", "customScrollbars"];
+  var SettingProperties = ["bufferSize", "commandDelay", "commandDelayCount", "commandHistorySize", "fontSize", "cmdfontSize", "commandEcho", "flashing", "autoConnect", "enableAliases", "enableTriggers", "enableMacros", "showScriptErrors", "commandStacking", "commandStackingChar", "htmlLog", "keepLastCommand", "enableMCCP", "enableUTF8", "font", "cmdfont", "mapper.follow", "mapper.enabled", "mapper.split", "mapper.fill", "showMapper", "fullScreen", "enableMXP", "enableMSP", "parseCommands", "lagMeter", "enablePing", "enableEcho", "enableSpeedpaths", "speedpathsChar", "parseSpeedpaths", "profile", "parseSingleQuotes", "parseDoubleQuotes", "logEnabled", "logPrepend", "logOffline", "logUniqueOnConnect", "enableURLDetection", "notifyMSPPlay", "CommandonClick", "allowEval", "allowEscape", "AutoCopySelectedToClipboard", "enableDebug", "editorPersistent", "askonclose", "dev", "chat.captureLines", "chat.captureAllLines", "chat.captureReviews", "chat.captureTells", "chat.captureTalk", "chat.gag", "chat.CaptureOnlyOpen", "checkForUpdates", "autoCreateCharacter", "askonchildren", "mapper.legend", "mapper.room", "mapper.importType", "mapper.vscroll", "mapper.hscroll", "mapper.scale", "mapper.alwaysOnTop", "mapper.alwaysOnTopClient", "mapper.memory", "mapper.memorySavePeriod", "mapper.active.ID", "mapper.active.x", "mapper.active.y", "mapper.active.z", "mapper.active.area", "mapper.active.zone", "mapper.persistent", "profiles.split", "profiles.askoncancel", "profiles.triggersAdvanced", "profiles.aliasesAdvanced", "profiles.buttonsAdvanced", "profiles.macrosAdvanced", "profiles.contextsAdvanced", "profiles.codeEditor", "profiles.watchFiles", "chat.alwaysOnTop", "chat.alwaysOnTopClient", "chat.log", "chat.persistent", "chat.zoom", "chat.font", "chat.fontSize", "title", "logGagged", "logTimeFormat", "autoConnectDelay", "autoLogin", "onDisconnect", "enableKeepAlive", "keepAliveDelay", "newlineShortcut", "logWhat", "logErrors", "showErrorsExtended", "reportCrashes", "enableCommands", "commandChar", "escapeChar", "enableVerbatim", "verbatimChar", "soundPath", "logPath", "theme", "gamepads", "buttons.connect", "buttons.characters", "buttons.preferences", "buttons.log", "buttons.clear", "buttons.lock", "buttons.map", "buttons.user", "buttons.mail", "buttons.compose", "buttons.immortal", "buttons.codeEditor", "find.case", "find.word", "find.reverse", "find.regex", "find.selection", "find.show", "display.split", "display.splitHeight", "display.splitLive", "display.roundedOverlays", "backupLoad", "backupSave", "backupAllProfiles", "backupReplaceCharacters", "scrollLocked", "showStatus", "showCharacterManager", "showChat", "showEditor", "showArmor", "showStatusWeather", "showStatusLimbs", "showStatusHealth", "showStatusExperience", "showStatusPartyHealth", "showStatusCombatHealth", "showButtonBar", "allowNegativeNumberNeeded", "spellchecking", "hideOnMinimize", "showTrayIcon", "statusExperienceNeededProgressbar", "trayClick", "trayDblClick", "pasteSpecialPrefix", "pasteSpecialPostfix", "pasteSpecialReplace", "pasteSpecialPrefixEnabled", "pasteSpecialPostfixEnabled", "pasteSpecialReplaceEnabled", "display.showSplitButton", "chat.split", "chat.splitHeight", "chat.splitLive", "chat.roundedOverlays", "chat.showSplitButton", "chat.bufferSize", "chat.flashing", "display.hideTrailingEmptyLine", "display.enableColors", "display.enableBackgroundColors", "enableSound", "allowHalfOpen", "editorClearOnSend", "editorCloseOnSend", "askOnCloseAll", "askonloadCharacter", "mapper.roomWidth", "mapper.roomGroups", "mapper.showInTaskBar", "profiles.enabled", "profiles.sortOrder", "profiles.sortDirection", "profiles.showInTaskBar", "profiles.profileSelected", "profiles.profileExpandSelected", "chat.lines", "chat.showInTaskBar", "chat.showTimestamp", "chat.timestampFormat", "chat.tabWidth", "chat.displayControlCodes", "chat.emulateTerminal", "chat.emulateControlCodes", "chat.wordWrap", "chat.wrapAt", "chat.indent", "chat.scrollLocked", "chat.find.case", "chat.find.word", "chat.find.reverse", "chat.find.regex", "chat.find.selection", "chat.find.show", "chat.find.highlight", "chat.find.location", "codeEditor.showInTaskBar", "codeEditor.persistent", "codeEditor.alwaysOnTop", "codeEditor.alwaysOnTopClient", "autoTakeoverLogin", "fixHiddenWindows", "maxReconnectDelay", "enableBackgroundThrottling", "enableBackgroundThrottlingClients", "showInTaskBar", "showLagInTitle", "mspMaxRetriesOnError", "logTimestamp", "logTimestampFormat", "disableTriggerOnError", "prependTriggeredLine", "enableParameters", "parametersChar", "enableNParameters", "nParametersChar", "enableParsing", "externalWho", "externalHelp", "watchForProfilesChanges", "onProfileChange", "onProfileDeleted", "enableDoubleParameterEscaping", "ignoreEvalUndefined", "enableInlineComments", "enableBlockComments", "inlineCommentString", "blockCommentString", "allowCommentsFromCommand", "saveTriggerStateChanges", "groupProfileSaves", "groupProfileSaveDelay", "returnNewlineOnEmptyValue", "pathDelay", "pathDelayCount", "echoSpeedpaths", "alwaysShowTabs", "scriptEngineType", "initializeScriptEngineOnLoad", "find.highlight", "find.location", "display.showInvalidMXPTags", "display.showTimestamp", "display.timestampFormat", "display.displayControlCodes", "display.emulateTerminal", "display.emulateControlCodes", "display.wordWrap", "display.tabWidth", "display.wrapAt", "display.indent", "statusWidth", "showEditorInTaskBar", "trayMenu", "lockLayout", "loadLayout", "useSingleInstance", "statusWidth", "characterManagerDblClick", "warnAdvancedSettings", "showAdvancedSettings", "enableTabCompletion", "tabCompletionBufferLimit", "ignoreCaseTabCompletion", "enableNotifications", "commandAutoSize", "commandWordWrap", "commandScrollbars", "tabCompletionList", "tabCompletionLookupType", "tabCompletionReplaceCasing", "characterManagerAddButtonAction", "enableCrashReporting", "characterManagerPanelWidth", "ignoreInputLeadingWhitespace", "profiles.find.case", "profiles.find.word", "profiles.find.reverse", "profiles.find.regex", "profiles.find.selection", "profiles.find.show", "profiles.find.value", "skipMore", "skipMoreDelay", "commandMinLines", "simpleAlarms", "simpleEditor", "selectLastCommand", "statusMode", "logger.split", "showChatWindow", "chat.enableColors", "chat.enableBackgroundColors", "display.customSelection", "chat.customSelection", "pasteSpecialDisable", "display.defaultMXPState", "customScrollbars", "saveDynamicProfiles"];
   var Settings = class _Settings {
     constructor() {
       for (let s = 0, sl = SettingList.length; s < sl; s++) {
@@ -6902,6 +6903,8 @@
           return true;
         case "pasteSpecialDisable":
           return true;
+        case "saveDynamicProfiles":
+          return false;
         case "display.showSplitButton":
           return true;
         case "display.defaultMXPState":
@@ -30996,7 +30999,7 @@ Devanagari
     let last = pages.length - 1;
     options = Object.assign({
       sep: "-",
-      formatter: (item) => capitalize(item.match(/([A-Z]|^[a-z]|[0-9])[a-z0-9]*/g).join(" ")),
+      formatter: ((item) => capitalize(item.match(/([A-Z]|^[a-z]|[0-9])[a-z0-9]*/g).join(" "))),
       icon: '<i class="bi bi-question-circle"></i>'
     }, options || {});
     if (pages.length === 1)
@@ -32453,6 +32456,9 @@ Devanagari
       footer += `<li id="${this.id}-export"><a class="dropdown-item">Export profiles</a></li>`;
       footer += `<li id="${this.id}-import"><a class="dropdown-item">Import profiles</a></li>`;
       footer += '<li><hr class="dropdown-divider"></li>';
+      footer += `<li id="${this.id}-copy-url"><a class="dropdown-item">Copy profile url</a></li>`;
+      footer += `<li id="${this.id}-open-url"><a class="dropdown-item">Open profile url in new window</a></li>`;
+      footer += '<li><hr class="dropdown-divider"></li>';
       footer += `<li id="${this.id}-refresh"><a class="dropdown-item">Refresh</a></li>`;
       footer += `<li id="${this.id}-reload"><a class="dropdown-item">Reload</a></li>`;
       footer += "</ul>";
@@ -32608,6 +32614,34 @@ Devanagari
       this.footer.querySelector(`#${this.id}-refresh a`).addEventListener("click", () => {
         this._buildMenu();
         this.setBody(this._page);
+      });
+      this.footer.querySelector(`#${this.id}-copy-url a`).addEventListener("click", () => {
+        const urlObject = new URL(window.location.href);
+        const keys = this.profiles.keys;
+        let k = 0;
+        const kl = keys.length;
+        let enabled = [];
+        for (; k < kl; k++) {
+          if (this.profiles.items[keys[k]].enabled)
+            enabled.push(keys[k]);
+        }
+        urlObject.searchParams.set("profiles", enabled.join(","));
+        urlObject.hash = "";
+        copyText(urlObject.toString());
+      });
+      this.footer.querySelector(`#${this.id}-open-url a`).addEventListener("click", () => {
+        const urlObject = new URL(window.location.href);
+        const keys = this.profiles.keys;
+        let k = 0;
+        const kl = keys.length;
+        let enabled = [];
+        for (; k < kl; k++) {
+          if (this.profiles.items[keys[k]].enabled)
+            enabled.push(keys[k]);
+        }
+        urlObject.searchParams.set("profiles", enabled.join(","));
+        urlObject.hash = "";
+        window.open(urlObject.toString());
       });
       this.footer.querySelector(`#${this.id}-reload a`).addEventListener("click", () => {
         if (this.changed) {
@@ -41136,6 +41170,33 @@ ${pre}`);
       return new Promise((resolve) => {
         ProfileCollection.load().then((profiles) => {
           this._profiles = profiles;
+          let enabled = getParameterByName("profiles");
+          if (enabled && enabled.length !== 0) {
+            enabled = enabled.split(",");
+            if (enabled.length) {
+              const keys = this.profiles.keys;
+              let k = 0;
+              const kl = keys.length;
+              let old = [];
+              for (; k < kl; k++) {
+                if (this.profiles.items[keys[k]].enabled)
+                  old.push(keys[k]);
+                this.profiles.items[keys[k]].enabled = false;
+              }
+              k = 0;
+              for (let e = 0, el = enabled.length; e < el; e++) {
+                if (this.profiles.contains(enabled[e])) {
+                  this.profiles.items[enabled[e]].enabled = true;
+                  k++;
+                }
+              }
+              if (k === 0) {
+                for (let e = 0, el = old.length; e < el; e++)
+                  this.profiles.items[old[e]].enabled = true;
+              } else if (this.getOption("saveDynamicProfiles"))
+                this.saveProfiles();
+            }
+          }
           if (!this.profiles.contains("default")) {
             this.profiles.add(Profile.Default);
             this.saveProfiles();

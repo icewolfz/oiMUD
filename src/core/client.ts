@@ -447,6 +447,35 @@ export class Client extends EventEmitter {
         return new Promise((resolve) => {
             ProfileCollection.load().then((profiles: ProfileCollection) => {
                 this._profiles = profiles;
+                let enabled: string | string[] = getParameterByName('profiles');
+                if (enabled && enabled.length !== 0) {
+                    enabled = enabled.split(',');
+                    if (enabled.length) {
+                        const keys = this.profiles.keys;
+                        let k = 0;
+                        const kl = keys.length;
+                        let old = [];
+                        //disable old profiles
+                        for (; k < kl; k++) {
+                            if (this.profiles.items[keys[k]].enabled)
+                                old.push(keys[k]);
+                            this.profiles.items[keys[k]].enabled = false;
+                        }
+                        k = 0;
+                        for (let e = 0, el = enabled.length; e < el; e++) {
+                            if (this.profiles.contains(enabled[e])) {
+                                this.profiles.items[enabled[e]].enabled = true;
+                                k++;
+                            }
+                        }
+                        if (k === 0) {
+                            for (let e = 0, el = old.length; e < el; e++)
+                                this.profiles.items[old[e]].enabled = true;
+                        }
+                        else if (this.getOption('saveDynamicProfiles'))
+                            this.saveProfiles();
+                    }
+                }
                 //ensure default exist and is loaded
                 if (!this.profiles.contains('default')) {
                     this.profiles.add(Profile.Default);

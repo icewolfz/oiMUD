@@ -2,7 +2,7 @@ import '../css/nav.css';
 import '../css/profiles.css';
 import { Dialog, DialogButtons, DialogIcon } from './dialog';
 import { Splitter, Orientation, PanelAnchor } from './splitter';
-import { capitalize, openFileDialog, readFile, keyCodeToChar, keyCharToCode, scrollChildIntoView, debounce, FilterArrayByKeyValue, htmlEncode } from '../core/library';
+import { copyText, getParameterByName, capitalize, openFileDialog, readFile, keyCodeToChar, keyCharToCode, scrollChildIntoView, debounce, FilterArrayByKeyValue, htmlEncode } from '../core/library';
 import { removeHash, updateHash } from './interface';
 import { ProfileCollection, MacroDisplay, Profile, Alias, Trigger, Button, Macro, Context } from '../core/profile';
 import { buildBreadcrumb } from './breadcrumb';
@@ -190,6 +190,9 @@ export class ProfilesDialog extends Dialog {
         footer += `<li id="${this.id}-export"><a class="dropdown-item">Export profiles</a></li>`;
         footer += `<li id="${this.id}-import"><a class="dropdown-item">Import profiles</a></li>`;
         footer += '<li><hr class="dropdown-divider"></li>';
+        footer += `<li id="${this.id}-copy-url"><a class="dropdown-item">Copy profile url</a></li>`;
+        footer += `<li id="${this.id}-open-url"><a class="dropdown-item">Open profile url</a></li>`;
+        footer += '<li><hr class="dropdown-divider"></li>';
         footer += `<li id="${this.id}-refresh"><a class="dropdown-item">Refresh</a></li>`;
         footer += `<li id="${this.id}-reload"><a class="dropdown-item">Reload</a></li>`;
         footer += '</ul>';
@@ -354,6 +357,37 @@ export class ProfilesDialog extends Dialog {
         this.footer.querySelector(`#${this.id}-refresh a`).addEventListener('click', () => {
             this._buildMenu();
             this.setBody(this._page);
+        });
+
+        this.footer.querySelector(`#${this.id}-copy-url a`).addEventListener('click', () => {
+            const urlObject = new URL(window.location.href);
+            const keys = this.profiles.keys;
+            let k = 0;
+            const kl = keys.length;
+            let enabled = [];
+            //disable old profiles
+            for (; k < kl; k++) {
+                if (this.profiles.items[keys[k]].enabled)
+                    enabled.push(keys[k]);
+            }
+            urlObject.searchParams.set('profiles', enabled.join(','));
+            urlObject.hash = '';
+            copyText(urlObject.toString());
+        });
+        this.footer.querySelector(`#${this.id}-open-url a`).addEventListener('click', () => {
+            const urlObject = new URL(window.location.href);
+            const keys = this.profiles.keys;
+            let k = 0;
+            const kl = keys.length;
+            let enabled = [];
+            //disable old profiles
+            for (; k < kl; k++) {
+                if (this.profiles.items[keys[k]].enabled)
+                    enabled.push(keys[k]);
+            }
+            urlObject.searchParams.set('profiles', enabled.join(','));
+            urlObject.hash = '';
+            window.open(urlObject.toString());
         });
 
         this.footer.querySelector(`#${this.id}-reload a`).addEventListener('click', () => {

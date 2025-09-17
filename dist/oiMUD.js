@@ -21526,6 +21526,7 @@
     constructor(container, options) {
       super();
       this._updating = 0 /* none */;
+      this._updateTimeout = 0;
       this._enableDebug = false;
       this._maxView = 0;
       this._padding = [0, 0, 0, 0];
@@ -22858,9 +22859,10 @@
     _doUpdate(type) {
       if (!type) return;
       this._updating |= type;
-      if (this._updating === 0 /* none */)
+      if (this._updating === 0 /* none */ || this._updateTimeout)
         return;
-      this._window.requestAnimationFrame(() => {
+      this._updateTimeout = this._window.requestAnimationFrame(() => {
+        this._updateTimeout = 0;
         if (this._updating === 0 /* none */)
           return;
         if ((this._updating & 256 /* layout */) === 256 /* layout */) {
@@ -32457,7 +32459,7 @@ Devanagari
       footer += `<li id="${this.id}-import"><a class="dropdown-item">Import profiles</a></li>`;
       footer += '<li><hr class="dropdown-divider"></li>';
       footer += `<li id="${this.id}-copy-url"><a class="dropdown-item">Copy profile url</a></li>`;
-      footer += `<li id="${this.id}-open-url"><a class="dropdown-item">Open profile url in new window</a></li>`;
+      footer += `<li id="${this.id}-open-url"><a class="dropdown-item">Open profile url</a></li>`;
       footer += '<li><hr class="dropdown-divider"></li>';
       footer += `<li id="${this.id}-refresh"><a class="dropdown-item">Refresh</a></li>`;
       footer += `<li id="${this.id}-reload"><a class="dropdown-item">Reload</a></li>`;

@@ -45,6 +45,7 @@ export class Display extends EventEmitter {
     private _container: HTMLElement;
     private _view: HTMLElement;
     private _updating: UpdateType = UpdateType.none;
+    private _updateTimeout = 0;
     private _enableDebug: boolean = false;
     private _lastMouse: MouseEvent;
     private _character: HTMLElement;
@@ -1538,9 +1539,11 @@ export class Display extends EventEmitter {
     private _doUpdate(type?: UpdateType) {
         if (!type) return;
         this._updating |= type;
-        if (this._updating === UpdateType.none)
+        //no update or update already in progress
+        if (this._updating === UpdateType.none || this._updateTimeout)
             return;
-        this._window.requestAnimationFrame(() => {
+        this._updateTimeout = this._window.requestAnimationFrame(() => {
+            this._updateTimeout = 0;
             if (this._updating === UpdateType.none)
                 return;
             if ((this._updating & UpdateType.layout) === UpdateType.layout) {

@@ -426,6 +426,9 @@ export class Display extends EventEmitter {
             }, { passive: true });
             this._toggleSplit();
             this._doUpdate(UpdateType.split | UpdateType.toggleSplit | UpdateType.layout);
+            this._split._view.addEventListener('contextmenu', e => {
+                this.emit('contextmenu', e);
+            });
         }
         else if (this._split && !value) {
             this._container.removeEventListener('mouseup', this._split.moveDone);
@@ -1045,16 +1048,16 @@ export class Display extends EventEmitter {
             return;
         //debounce on top of delay in case called multiple times manually
         //debounce(() => {
-            if (this.lines.length > this._maxLines || this._view.childNodes.length > this._maxLines) {
-                const amt = this.lines.length - this._maxLines;
-                let r = this._view.childNodes.length - this._maxLines;
-                while (r-- > 0)
-                    this._view.removeChild(this._view.firstChild);
-                this._model.removeLines(0, amt);
-                
-                this._doUpdate(UpdateType.scrollbars);
-            }
-       // }, 100, this.id + 'trimLines');
+        if (this.lines.length > this._maxLines || this._view.childNodes.length > this._maxLines) {
+            const amt = this.lines.length - this._maxLines;
+            let r = this._view.childNodes.length - this._maxLines;
+            while (r-- > 0)
+                this._view.removeChild(this._view.firstChild);
+            this._model.removeLines(0, amt);
+
+            this._doUpdate(UpdateType.scrollbars);
+        }
+        // }, 100, this.id + 'trimLines');
     }
 
     public append(txt: string, remote?: boolean, force?: boolean, prependSplit?: boolean) {

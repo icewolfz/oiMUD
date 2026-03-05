@@ -22100,6 +22100,9 @@
         }, { passive: true });
         this._toggleSplit();
         this._doUpdate(64 /* split */ | 128 /* toggleSplit */ | 256 /* layout */);
+        this._split._view.addEventListener("contextmenu", (e) => {
+          this.emit("contextmenu", e);
+        });
       } else if (this._split && !value) {
         this._container.removeEventListener("mouseup", this._split.moveDone);
         this._container.removeEventListener("mouseleave", this._split.moveDone);

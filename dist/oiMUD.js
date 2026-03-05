@@ -28731,6 +28731,14 @@ Devanagari
       else
         this._dialog.querySelector(`#${this._id}-header-close`).style.display = "none";
     }
+    get alwaysOnTop() {
+      return this._dialog.dataset.alwaysOnTop === "true";
+    }
+    set alwaysOnTop(value) {
+      if (value === (this._dialog.dataset.alwaysOnTop === "true" ? true : false)) return;
+      this._dialog.dataset.alwaysOnTop = value ? "true" : "false";
+      this._getMaxZIndex(true);
+    }
     set maximized(value) {
       if (this._state.maximized === value) return;
       this._state.maximized = value;
@@ -28959,16 +28967,16 @@ Devanagari
         let z2 = parseInt(dialogs[d2].style.zIndex, 10);
         if (z2 > i2)
           i2 = z2;
-        order.push({ z: z2, idx: d2, show: parseInt(dialogs[d2].dataset.show || "", 10) || 0 });
+        order.push({ top: dialogs[d2].dataset.alwaysOnTop == "true", z: z2, idx: d2, show: parseInt(dialogs[d2].dataset.show || "", 10) || 0 });
       }
       this._state.zIndex = i2;
       if (forceReset || this._state.zIndex > 1e3) {
         this._state.zIndex = 100;
         d2 = 0;
-        order.sort((a, b) => a.show > b.show ? 1 : a.z < b.z ? -1 : a.z > b.z ? 1 : 0);
+        order.sort((a, b) => a.top && !b.top ? 1 : a.show > b.show ? 1 : a.z < b.z ? -1 : a.z > b.z ? 1 : 0);
         for (; d2 < dl; d2++) {
-          if (dialogs[order[d2]].backdrop_)
-            dialogs[order[d2]].backdrop_.style.zIndex = "" + this._state.zIndex++;
+          if (dialogs[order[d2].idx].backdrop_)
+            dialogs[order[d2].idx].backdrop_.style.zIndex = "" + this._state.zIndex++;
           dialogs[order[d2].idx].style.zIndex = "" + this._state.zIndex++;
         }
       }
@@ -34268,8 +34276,7 @@ Devanagari
         for (let i2 = 0, il = items.length; i2 < il; i2++) {
           this._menuItemEvents(items[i2]);
           items[i2].addEventListener("click", (e) => {
-            if (!this._history.length || this._history[this._current] !== e.currentTarget.dataset.id)
-              this._updateHistory(e.currentTarget.dataset.id);
+            this.gotoPage(e.currentTarget.dataset.id);
           });
         }
         let ops = ['<option value="">Table of contents</option>'];
@@ -34326,6 +34333,14 @@ Devanagari
         const item = this.header.querySelector(".breadcrumb");
         item.classList.remove("breadcrumb-sm");
         this._small = false;
+      }
+    }
+    gotoPage(page) {
+      if (!page.startsWith("help/"))
+        page = "help/" + page;
+      if (!this._history.length || this._history[this._current] !== page) {
+        this._updateHistory(page);
+        updateHash(page, this._page);
       }
     }
   };

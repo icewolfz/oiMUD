@@ -315,6 +315,13 @@ export class Dialog extends EventEmitter {
             this._dialog.querySelector(`#${this._id}-header-close`).style.display = 'none';
     }
 
+    public get alwaysOnTop() { return this._dialog.dataset.alwaysOnTop === 'true'; }
+    public set alwaysOnTop(value) {
+        if (value === (this._dialog.dataset.alwaysOnTop === 'true' ? true : false)) return;
+        this._dialog.dataset.alwaysOnTop = value ? 'true' : 'false';
+        this._getMaxZIndex(true);
+    }
+
     public set maximized(value: boolean) {
         if (this._state.maximized === value) return;
         this._state.maximized = value;
@@ -928,17 +935,17 @@ export class Dialog extends EventEmitter {
             let z = parseInt(dialogs[d].style.zIndex, 10);
             if (z > i)
                 i = z;
-            order.push({ z: z, idx: d, show: parseInt(dialogs[d].dataset.show || '', 10) || 0 });
+            order.push({ top: dialogs[d].dataset.alwaysOnTop == 'true', z: z, idx: d, show: parseInt(dialogs[d].dataset.show || '', 10) || 0 });
         }
         this._state.zIndex = i;
         if (forceReset || this._state.zIndex > 1000) {
             this._state.zIndex = 100;
             d = 0;
             //show by show type then old z-index, we do this to ensure modal style dialogs are on top
-            order.sort((a, b) => ((a.show > b.show) ? 1 : (a.z < b.z) ? -1 : (a.z > b.z ? 1 : 0)))
+            order.sort((a, b) => ((a.top && !b.top) ? 1 : ((a.show > b.show) ? 1 : (a.z < b.z) ? -1 : (a.z > b.z ? 1 : 0))))
             for (; d < dl; d++) {
-                if ((<any>dialogs[order[d]]).backdrop_)
-                    (<any>dialogs[order[d]]).backdrop_.style.zIndex = '' + (this._state.zIndex++);
+                if ((<any>dialogs[order[d].idx]).backdrop_)
+                    (<any>dialogs[order[d].idx]).backdrop_.style.zIndex = '' + (this._state.zIndex++);
                 dialogs[order[d].idx].style.zIndex = '' + (this._state.zIndex++);
             }
         }

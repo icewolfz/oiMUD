@@ -3098,6 +3098,7 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   cursor: ew-resize;
   position: absolute;
   z-index: 10;
+  border: 1px solid transparent;
 }
 #status-drag-bar:hover {
   background-color: var(--theme-hover-bg-color);
@@ -3844,6 +3845,7 @@ li.submenu.dropstart > a.dropdown-toggle::after {
   background-color: transparent;
   position: absolute;
   z-index: 10;
+  border: 1px solid transparent;
 }
 #panel-bar-drag-bar[data-location="0"] {
   left: 184px;

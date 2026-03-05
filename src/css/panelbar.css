@@ -98,6 +98,7 @@
   background-color: transparent;
   position: absolute;
   z-index: 10;
+  border: 1px solid transparent;
 }
 
 #panel-bar-drag-bar[data-location="0"] {

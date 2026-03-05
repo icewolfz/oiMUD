@@ -366,6 +366,25 @@ export function initializeInterface() {
             client.display.clearSelection();
         }
     });
+    client.display.on('contextmenu', e => {
+        if (client.display.customSelection && client.display.hasSelection) {
+            let items = [{
+                name: 'Copy <span style="float: right">Ctrl+C</span>',
+                action: item => {
+                    if (client.display.hasSelection)
+                        copyText(client.display.selection, client.display.selectionAsHTML);
+                }
+            },
+            {
+                name: 'Select all',
+                action: item => {
+                    client.display.selectAll();
+                }
+            }];
+            e.preventDefault();
+            Contextmenu.popup(items, e.clientX, e.clientY);
+        }
+    })
     client.on('profiles-loaded', () => {
         buildButtons();
     });

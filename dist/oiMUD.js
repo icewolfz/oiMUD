@@ -3573,12 +3573,17 @@
     textarea.select();
     return textarea;
   }
-  function copyText(text) {
+  function copyText(text, html) {
     return new Promise(function(resolve, reject) {
       try {
         if (typeof navigator !== "undefined" && typeof navigator.clipboard !== "undefined" && typeof navigator.permissions !== "undefined") {
           let blob = new Blob([text], { type: "text/plain" });
-          let data = [new ClipboardItem({ "text/plain": blob })];
+          let data;
+          if (html) {
+            let blob2 = new Blob([html], { type: "text/html" });
+            data = [new ClipboardItem({ "text/text": blob, "text/html": blob2 })];
+          } else
+            data = [new ClipboardItem({ "text/plain": blob })];
           navigator.permissions.query({ name: "clipboard-write" }).then(function(permission) {
             if (permission.state === "granted" || permission.state === "prompt") {
               navigator.clipboard.write(data).then(resolve, reject).catch(reject);
@@ -24198,7 +24203,7 @@
   };
 
   // package.json
-  var version = "1.0.0-beta";
+  var version = "1.0.0-beta.2";
 
   // src/plugins/msp.ts
   var buzz = __toESM(require_buzz());
@@ -34688,6 +34693,27 @@ Devanagari
       if (client.getOption("AutoCopySelectedToClipboard") && client.display.hasSelection) {
         copyText(client.display.selection);
         client.display.clearSelection();
+      }
+    });
+    client.display.on("contextmenu", (e) => {
+      if (client.display.customSelection && client.display.hasSelection) {
+        let items = [
+          {
+            name: 'Copy <span style="float: right">Ctrl+C</span>',
+            action: (item) => {
+              if (client.display.hasSelection)
+                copyText(client.display.selection, client.display.selectionAsHTML);
+            }
+          },
+          {
+            name: "Select all",
+            action: (item) => {
+              client.display.selectAll();
+            }
+          }
+        ];
+        e.preventDefault();
+        Contextmenu.popup(items, e.clientX, e.clientY);
       }
     });
     client.on("profiles-loaded", () => {

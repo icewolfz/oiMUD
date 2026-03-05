@@ -2130,12 +2130,18 @@ function _createTextarea(text?) {
 }
 
 //attempt to copy text to clipboard, may or may not always work depending on permissions and browser
-export function copyText(text: string) {
+export function copyText(text: string, html?: string) {
     return new Promise(function (resolve, reject) {
         try {
             if (typeof navigator !== 'undefined' && typeof navigator.clipboard !== 'undefined' && typeof navigator.permissions !== 'undefined') {
                 let blob = new Blob([text], { type: 'text/plain' });
-                let data = [new ClipboardItem({ 'text/plain': blob })];
+                let data;
+                if (html) {
+                    let blob2 = new Blob([html], { type: 'text/html' });
+                    data = [new ClipboardItem({ 'text/text': blob, 'text/html': blob2 })];
+                }
+                else
+                    data = [new ClipboardItem({ 'text/plain': blob })];
                 navigator.permissions.query({ name: 'clipboard-write' as PermissionName }).then(function (permission) {
                     if (permission.state === 'granted' || permission.state === 'prompt') {
                         navigator.clipboard.write(data).then(resolve, reject).catch(reject);

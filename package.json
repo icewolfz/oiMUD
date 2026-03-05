@@ -5,7 +5,7 @@
   "website": "https://github.com/icewolfz/oiMUD",
   "homepage": "https://github.com/icewolfz/oiMUD",
   "url": "https://github.com/icewolfz/oiMUD/issues",
-  "version": "1.0.0-beta",
+  "version": "1.0.0-beta.2",
   "main": "dist/index.htm",
   "description": "A MUD websocket client.",
   "author": "Icewolfz",
@@ -26,17 +26,17 @@
     "build:meta": "node build.js --debug --release -p:all --bundled --tinymce --editor --metafile"
   },
   "devDependencies": {
-    "@types/jquery": "^3.5.33",
-    "esbuild": "^0.27.0",
-    "eslint": "^9.39.1",
-    "eslint-plugin-html": "^8.1.3",
+    "@types/jquery": "^3.5.34",
+    "esbuild": "^0.27.3",
+    "eslint": "^9.39.3",
+    "eslint-plugin-html": "^8.1.4",
     "html-minifier-terser": "^7.2.0",
-    "terser": "^5.44.1"
+    "terser": "^5.46.0"
   },
   "dependencies": {
     "@types/jstorage": "^0.3.33",
     "jquery": "^3.7.1",
-    "mathjs": "^15.1.0",
+    "mathjs": "^15.1.1",
     "moment": "^2.30.1"
   }
 }

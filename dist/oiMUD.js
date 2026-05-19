@@ -1128,7 +1128,7 @@
         } else "undefined" != typeof window ? window.PF = e() : global.PF = e();
       })(function() {
         var define2, ses2, bootstrap2, module2, exports2;
-        return function(e, t, n) {
+        return (function(e, t, n) {
           function i2(n2, s2) {
             if (!t[n2]) {
               if (!e[n2]) {
@@ -1148,7 +1148,7 @@
           var r = typeof __require == "function" && __require;
           for (var s = 0; s < n.length; s++) i2(n[s]);
           return i2;
-        }({
+        })({
           1: [function(require2, module3, exports3) {
             module3.exports = require2("./lib/heap");
           }, { "./lib/heap": 2 }],
@@ -1237,13 +1237,13 @@
                 if (cmp == null) {
                   cmp = defaultCmp;
                 }
-                _ref1 = function() {
+                _ref1 = (function() {
                   _results1 = [];
                   for (var _j2 = 0, _ref2 = floor(array.length / 2); 0 <= _ref2 ? _j2 < _ref2 : _j2 > _ref2; 0 <= _ref2 ? _j2++ : _j2--) {
                     _results1.push(_j2);
                   }
                   return _results1;
-                }.apply(this).reverse();
+                }).apply(this).reverse();
                 _results = [];
                 for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
                   i2 = _ref1[_i];
@@ -1348,7 +1348,7 @@
                 array[pos] = newitem;
                 return _siftdown(array, startpos, pos, cmp);
               };
-              Heap = function() {
+              Heap = (function() {
                 Heap2.push = heappush;
                 Heap2.pop = heappop;
                 Heap2.replace = heapreplace;
@@ -1409,7 +1409,7 @@
                 Heap2.prototype.has = Heap2.prototype.contains;
                 Heap2.prototype.copy = Heap2.prototype.clone;
                 return Heap2;
-              }();
+              })();
               if (typeof module3 !== "undefined" && module3 !== null ? module3.exports : void 0) {
                 module3.exports = Heap;
               } else {
@@ -22631,8 +22631,8 @@
     _createScrollTimer() {
       if (!this.customSelection) return;
       var bounds = this._bounds;
-      var viewportX = this._lastMouse.clientX;
-      var viewportY = this._lastMouse.clientY;
+      var viewportX = this._lastMouse ? this._lastMouse.clientX : 0;
+      var viewportY = this._lastMouse ? this._lastMouse.clientY : 0;
       var viewportWidth = this._view.clientWidth;
       var viewportHeight = this._view.clientHeight;
       var edgeSize = 20;
@@ -30189,7 +30189,7 @@ Devanagari
     let last = pages.length - 1;
     options = Object.assign({
       sep: "-",
-      formatter: (item) => capitalize(item.match(/([A-Z]|^[a-z]|[0-9])[a-z0-9]*/g).join(" ")),
+      formatter: ((item) => capitalize(item.match(/([A-Z]|^[a-z]|[0-9])[a-z0-9]*/g).join(" "))),
       icon: '<i class="bi bi-question-circle"></i>'
     }, options || {});
     if (pages.length === 1)

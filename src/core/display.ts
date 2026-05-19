@@ -1813,8 +1813,8 @@ export class Display extends EventEmitter {
     private _createScrollTimer() {
         if (!this.customSelection) return;
         var bounds = this._bounds;
-        var viewportX = this._lastMouse.clientX;
-        var viewportY = this._lastMouse.clientY;
+        var viewportX = this._lastMouse ? this._lastMouse.clientX : 0;
+        var viewportY = this._lastMouse ? this._lastMouse.clientY : 0;
         var viewportWidth = this._view.clientWidth;
         var viewportHeight = this._view.clientHeight;
         var edgeSize = 20

@@ -34602,6 +34602,9 @@ Devanagari
     } else if (caption.substring(0, 3) === "bi-") {
       caption = '<i class="bi ' + caption + '"></i>';
       bh = 26;
+    } else if (caption.substring(0, 3) === "ra-") {
+      caption = '<i class="ra ' + caption + ' ra-fw"></i>';
+      bh = 26;
     } else if (caption.substring(0, 7) === "http://" || caption.substring(0, 7) === "https://")
       caption = '<img src="' + caption + '" style="max-width: ' + button.width + "px;max-height:" + button.height + 'px"/>';
     else {
@@ -34655,6 +34658,10 @@ Devanagari
         bh = 26;
       } else if (icon.substring(0, 3) === "bi-") {
         icon = '<i class="bi ' + icon[0] + '"></i>';
+        bh = 26;
+      } else if (icon.substring(0, 3) === "ra-") {
+        icon = icon.split(",");
+        icon = '<i class="ra ' + icon[0] + ' ra-fw"></i>';
         bh = 26;
       } else if (button.icon.length) {
         icon = '<img src="' + icon + '" style="max-width: ' + button.width + "px;max-height:" + button.height + 'px"/>';

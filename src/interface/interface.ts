@@ -1188,6 +1188,10 @@ function createButton(button, index) {
         caption = '<i class="bi ' + caption + '"></i>';
         bh = 26;
     }
+    else if (caption.substring(0, 3) === 'ra-') {
+        caption = '<i class="ra ' + caption + ' ra-fw"></i>';
+        bh = 26;
+    }
     else if (caption.substring(0, 7) === 'http://' || caption.substring(0, 7) === 'https://')
         caption = '<img src="' + caption + '" style="max-width: ' + button.width + 'px;max-height:' + button.height + 'px"/>';
     else {
@@ -1247,6 +1251,11 @@ function createButton(button, index) {
         }
         else if (icon.substring(0, 3) === 'bi-') {
             icon = '<i class="bi ' + icon[0] + '"></i>';
+            bh = 26;
+        }
+        else if (icon.substring(0, 3) === 'ra-') {
+            icon = icon.split(',');
+            icon = '<i class="ra ' + icon[0] + ' ra-fw"></i>';
             bh = 26;
         }
         else if (button.icon.length) {
@@ -1528,10 +1537,10 @@ export async function doPasteSpecial(txt, showDisable?) {
         if (client.commandInput.dataset.selectionStart && client.commandInput.dataset.selectionStart.length) {
             client.commandInput.selectionStart = +client.commandInput.dataset.selectionStart;
             client.commandInput.selectionEnd = +client.commandInput.dataset.selectionEnd;
-        }        
+        }
         insertValue(client.commandInput, txt);
         client.commandInput.dataset.selectionStart = '';
-        client.commandInput.dataset.selectionEnd = '';        
+        client.commandInput.dataset.selectionEnd = '';
         if (results.options.disable)
             document.querySelector('#menu-paste').classList.remove('active');
     }

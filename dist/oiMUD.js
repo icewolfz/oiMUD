@@ -5524,7 +5524,7 @@
     * @returns {object} returns null
     */
     _fireReceiveOption(option, verb, val) {
-      const data = { telnet: this, option, verb: 250, value: val, handled: false };
+      const data = { telnet: this, option, verb, value: val, handled: false };
       this.emit("received-option", data);
       return data.handled;
     }

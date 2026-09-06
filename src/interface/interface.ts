@@ -297,6 +297,13 @@ export function initializeInterface() {
         if (client.getOption('commandAutoSize') || client.getOption('commandScrollbars'))
             resizeCommandInput();
     });
+    client.on('received-option', data => {
+        if (data.option == 1) {
+            if (data.telnet.echo)
+                client.commandInput.style.webkitTextSecurity = "none";
+            else client.commandInput.style.webkitTextSecurity = "disc";
+        }
+    });
     client.on('options-loaded', () => {
         client.commandInput.removeEventListener('input', resizeCommandInput);
         client.commandInput.removeEventListener('change', resizeCommandInput);
@@ -1214,6 +1221,10 @@ function createButton(button, index) {
         caption = '<i class="bi ' + caption + '"></i>';
         bh = 26;
     }
+    else if (caption.substring(0, 3) === 'ra-') {
+        caption = '<i class="ra ' + caption + ' ra-fw"></i>';
+        bh = 26;
+    }
     else if (caption.substring(0, 7) === 'http://' || caption.substring(0, 7) === 'https://')
         caption = '<img src="' + caption + '" style="max-width: ' + button.width + 'px;max-height:' + button.height + 'px"/>';
     else {
@@ -1273,6 +1284,11 @@ function createButton(button, index) {
         }
         else if (icon.substring(0, 3) === 'bi-') {
             icon = '<i class="bi ' + icon[0] + '"></i>';
+            bh = 26;
+        }
+        else if (icon.substring(0, 3) === 'ra-') {
+            icon = icon.split(',');
+            icon = '<i class="ra ' + icon[0] + ' ra-fw"></i>';
             bh = 26;
         }
         else if (button.icon.length) {

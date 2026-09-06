@@ -21,6 +21,10 @@ interface Event {
 	gamepad: any;
 }
 
+interface CSSStyleDeclaration {
+  webkitTextSecurity?: 'none' | 'disc' | 'circle' | 'square';
+}
+
 declare let DEBUG: boolean;
 declare let TEST_PLUGIN: boolean;
 declare let TINYMCE: boolean;

@@ -12,7 +12,11 @@
     throw Error('Dynamic require of "' + x2 + '" is not supported');
   });
   var __commonJS = (cb, mod) => function __require2() {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    try {
+      return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    } catch (e) {
+      throw mod = 0, e;
+    }
   };
   var __copyProps = (to, from, except, desc) => {
     if (from && typeof from === "object" || typeof from === "function") {
@@ -4408,8 +4412,8 @@
                 if (verb === 253) {
                   if (this.options.ECHO) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WILL><ECHO>");
-                    this.replyToOption(i2, 251, verb);
                     this.echo = false;
+                    this.replyToOption(i2, 251, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><ECHO>");
                     this.echo = true;
@@ -4417,13 +4421,13 @@
                   }
                 } else if (verb === 254) {
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><ECHO>");
-                  this.replyToOption(i2, 252, verb);
                   this.echo = true;
+                  this.replyToOption(i2, 252, verb);
                 } else if (verb === 251) {
                   if (this.options.ECHO) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DO><ECHO>");
-                    this.replyToOption(i2, 253, verb);
                     this.echo = false;
+                    this.replyToOption(i2, 253, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><ECHO>");
                     this.echo = true;
@@ -23351,8 +23355,8 @@
     _createScrollTimer() {
       if (!this.customSelection) return;
       var bounds = this._bounds;
-      var viewportX = this._lastMouse.clientX;
-      var viewportY = this._lastMouse.clientY;
+      var viewportX = this._lastMouse ? this._lastMouse.clientX : 0;
+      var viewportY = this._lastMouse ? this._lastMouse.clientY : 0;
       var viewportWidth = this._view.clientWidth;
       var viewportHeight = this._view.clientHeight;
       var edgeSize = 20;
@@ -34646,6 +34650,13 @@ Devanagari
       if (client.getOption("commandAutoSize") || client.getOption("commandScrollbars"))
         resizeCommandInput();
     });
+    client.on("received-option", (data) => {
+      if (data.option == 1) {
+        if (data.telnet.echo)
+          client.commandInput.style.webkitTextSecurity = "none";
+        else client.commandInput.style.webkitTextSecurity = "disc";
+      }
+    });
     client.on("options-loaded", () => {
       client.commandInput.removeEventListener("input", resizeCommandInput);
       client.commandInput.removeEventListener("change", resizeCommandInput);
@@ -35506,6 +35517,9 @@ Devanagari
     } else if (caption.substring(0, 3) === "bi-") {
       caption = '<i class="bi ' + caption + '"></i>';
       bh = 26;
+    } else if (caption.substring(0, 3) === "ra-") {
+      caption = '<i class="ra ' + caption + ' ra-fw"></i>';
+      bh = 26;
     } else if (caption.substring(0, 7) === "http://" || caption.substring(0, 7) === "https://")
       caption = '<img src="' + caption + '" style="max-width: ' + button.width + "px;max-height:" + button.height + 'px"/>';
     else {
@@ -35559,6 +35573,10 @@ Devanagari
         bh = 26;
       } else if (icon.substring(0, 3) === "bi-") {
         icon = '<i class="bi ' + icon[0] + '"></i>';
+        bh = 26;
+      } else if (icon.substring(0, 3) === "ra-") {
+        icon = icon.split(",");
+        icon = '<i class="ra ' + icon[0] + ' ra-fw"></i>';
         bh = 26;
       } else if (button.icon.length) {
         icon = '<img src="' + icon + '" style="max-width: ' + button.width + "px;max-height:" + button.height + 'px"/>';

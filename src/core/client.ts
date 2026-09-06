@@ -1016,7 +1016,7 @@ export class Client extends EventEmitter {
         this.telnet.on('debug', msg => {
             this.debug(msg);
         });
-        this.telnet.on('receive-option', data => {
+        this.telnet.on('received-option', data => {
             this.emit('received-option', data);
         });
         this.telnet.on('close', () => {

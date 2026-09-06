@@ -12,7 +12,11 @@
     throw Error('Dynamic require of "' + x2 + '" is not supported');
   });
   var __commonJS = (cb, mod) => function __require2() {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    try {
+      return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    } catch (e) {
+      throw mod = 0, e;
+    }
   };
   var __copyProps = (to, from, except, desc) => {
     if (from && typeof from === "object" || typeof from === "function") {
@@ -4415,8 +4419,8 @@
                 if (verb === 253) {
                   if (this.options.ECHO) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WILL><ECHO>");
-                    this.replyToOption(i2, 251, verb);
                     this.echo = false;
+                    this.replyToOption(i2, 251, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><ECHO>");
                     this.echo = true;
@@ -4424,13 +4428,13 @@
                   }
                 } else if (verb === 254) {
                   if (this.enableDebug) this.emit("debug", "REPLY: <IAC><WONT><ECHO>");
-                  this.replyToOption(i2, 252, verb);
                   this.echo = true;
+                  this.replyToOption(i2, 252, verb);
                 } else if (verb === 251) {
                   if (this.options.ECHO) {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DO><ECHO>");
-                    this.replyToOption(i2, 253, verb);
                     this.echo = false;
+                    this.replyToOption(i2, 253, verb);
                   } else {
                     if (this.enableDebug) this.emit("debug", "REPLY: <IAC><DONT><ECHO>");
                     this.echo = true;
@@ -33770,6 +33774,13 @@ Devanagari
       if (client.getOption("commandAutoSize") || client.getOption("commandScrollbars"))
         resizeCommandInput();
     });
+    client.on("received-option", (data) => {
+      if (data.option == 1) {
+        if (data.telnet.echo)
+          client.commandInput.style.webkitTextSecurity = "none";
+        else client.commandInput.style.webkitTextSecurity = "disc";
+      }
+    });
     client.on("options-loaded", () => {
       client.commandInput.removeEventListener("input", resizeCommandInput);
       client.commandInput.removeEventListener("change", resizeCommandInput);
@@ -39822,7 +39833,7 @@ ${pre}`);
       this.telnet.on("debug", (msg) => {
         this.debug(msg);
       });
-      this.telnet.on("receive-option", (data) => {
+      this.telnet.on("received-option", (data) => {
         this.emit("received-option", data);
       });
       this.telnet.on("close", () => {

@@ -297,6 +297,13 @@ export function initializeInterface() {
         if (client.getOption('commandAutoSize') || client.getOption('commandScrollbars'))
             resizeCommandInput();
     });
+    client.on('received-option', data => {
+        if (data.option == 1) {
+            if (data.telnet.echo)
+                client.commandInput.style.webkitTextSecurity = "none";
+            else client.commandInput.style.webkitTextSecurity = "disc";
+        }
+    });
     client.on('options-loaded', () => {
         client.commandInput.removeEventListener('input', resizeCommandInput);
         client.commandInput.removeEventListener('change', resizeCommandInput);

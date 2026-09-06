@@ -2,7 +2,7 @@ import '../css/nav.css';
 import '../css/profiles.css';
 import { Dialog, DialogButtons, DialogIcon } from './dialog';
 import { Splitter, Orientation, PanelAnchor } from './splitter';
-import { capitalize, openFileDialog, readFile, keyCodeToChar, keyCharToCode, scrollChildIntoView, debounce, FilterArrayByKeyValue, htmlEncode } from '../core/library';
+import { copyText, getParameterByName, capitalize, openFileDialog, readFile, keyCodeToChar, keyCharToCode, scrollChildIntoView, debounce, FilterArrayByKeyValue, htmlEncode } from '../core/library';
 import { removeHash, updateHash } from './interface';
 import { ProfileCollection, MacroDisplay, Profile, Alias, Trigger, Button, Macro, Context } from '../core/profile';
 import { buildBreadcrumb } from './breadcrumb';
@@ -66,34 +66,44 @@ export class ProfilesDialog extends Dialog {
         this.on('resized', e => {
             this._updateSmall(e.width);
             this._client.setOption('windows.profiles', e);
-        })
+        });
+        this.on('closed', () => {
+            if (this.persistent) return;
+            this.emit('content-changing');
+            this._client.removeListenersFromCaller(this);
+        });
+        this.on('canceled', () => {
+            if (this.persistent) return;
+            this.emit('content-changing');
+            this._client.removeListenersFromCaller(this);
+        });
         this._client.on('profiles-loaded', () => {
             if (!this.profiles) {
                 this.profiles = this._client.profiles.clone();
                 this.profiles.SortByPriority();
                 this._buildMenu();
             }
-        });
+        }, this);
         this._client.on('profiles-updated', () => {
 
-        });
+        }, this);
         this._client.on('options-loaded', () => {
             this.resetState(this._client.getWindowState('profiles') || { center: true });
-        })
+        }, this)
         this._client.on('initialized', () => {
             if (!this.profiles) {
                 this.profiles = this._client.profiles.clone();
                 this.profiles.SortByPriority();
                 this._buildMenu();
             }
-        });
+        }, this);
         this._client.on('item-added', (type, profileName, index, item) => {
             if (!this._client.getOption('profiles.updateOnChange'))
                 this._outsideChange = true;
             else if (this.profiles.contains(profileName))
                 this._addItem(type + (type === 'alias' ? 'es' : 's'), item, this.profiles.items[profileName]);
 
-        });
+        }, this);
         this._client.on('item-removed', (type, profileName, index, item) => {
             if (!this._client.getOption('profiles.updateOnChange'))
                 this._outsideChange = true;
@@ -128,7 +138,7 @@ export class ProfilesDialog extends Dialog {
                 if (id === this._clipId)
                     this._resetClip(true);
             }
-        });
+        }, this);
         this._client.on('item-updated', (type, profileName, index, item) => {
             if (!this._client.getOption('profiles.updateOnChange'))
                 this._outsideChange = true;
@@ -142,7 +152,7 @@ export class ProfilesDialog extends Dialog {
                 if (this._current.profileName === profileName && collection === this._current.collection && this._current.itemIdx === index)
                     this.loadPage(this._page);
             }
-        });
+        }, this);
         this.body.style.padding = '10px';
         this._splitter = new Splitter({ id: 'profile', parent: this.body, orientation: Orientation.vertical, anchor: PanelAnchor.panel1 });
         if (this._client.getOption('profiles.split') >= 200)
@@ -179,6 +189,9 @@ export class ProfilesDialog extends Dialog {
         footer += `<li id="${this.id}-export-current"><a class="dropdown-item">Export current profile</a></li>`;
         footer += `<li id="${this.id}-export"><a class="dropdown-item">Export profiles</a></li>`;
         footer += `<li id="${this.id}-import"><a class="dropdown-item">Import profiles</a></li>`;
+        footer += '<li><hr class="dropdown-divider"></li>';
+        footer += `<li id="${this.id}-copy-url"><a class="dropdown-item">Copy profile url</a></li>`;
+        footer += `<li id="${this.id}-open-url"><a class="dropdown-item">Open profile url</a></li>`;
         footer += '<li><hr class="dropdown-divider"></li>';
         footer += `<li id="${this.id}-refresh"><a class="dropdown-item">Refresh</a></li>`;
         footer += `<li id="${this.id}-reload"><a class="dropdown-item">Reload</a></li>`;
@@ -344,6 +357,37 @@ export class ProfilesDialog extends Dialog {
         this.footer.querySelector(`#${this.id}-refresh a`).addEventListener('click', () => {
             this._buildMenu();
             this.setBody(this._page);
+        });
+
+        this.footer.querySelector(`#${this.id}-copy-url a`).addEventListener('click', () => {
+            const urlObject = new URL(window.location.href);
+            const keys = this.profiles.keys;
+            let k = 0;
+            const kl = keys.length;
+            let enabled = [];
+            //disable old profiles
+            for (; k < kl; k++) {
+                if (this.profiles.items[keys[k]].enabled)
+                    enabled.push(keys[k]);
+            }
+            urlObject.searchParams.set('profiles', enabled.join(','));
+            urlObject.hash = '';
+            copyText(urlObject.toString());
+        });
+        this.footer.querySelector(`#${this.id}-open-url a`).addEventListener('click', () => {
+            const urlObject = new URL(window.location.href);
+            const keys = this.profiles.keys;
+            let k = 0;
+            const kl = keys.length;
+            let enabled = [];
+            //disable old profiles
+            for (; k < kl; k++) {
+                if (this.profiles.items[keys[k]].enabled)
+                    enabled.push(keys[k]);
+            }
+            urlObject.searchParams.set('profiles', enabled.join(','));
+            urlObject.hash = '';
+            window.open(urlObject.toString());
         });
 
         this.footer.querySelector(`#${this.id}-reload a`).addEventListener('click', () => {

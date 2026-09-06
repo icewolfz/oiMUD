@@ -3,7 +3,8 @@ import '../css/display.css';
 import { EventEmitter } from './events';
 import { Parser } from './parser';
 import { Size, DisplayOptions, ParserLine, FormatType, FontStyle, Point } from './types';
-import { htmlEncode, formatUnit, getScrollbarWidth, debounce } from './library';
+import { htmlEncode, formatUnit, debounce } from './library';
+import { ScrollBar, ScrollType } from './scrollbar';
 
 declare let moment;
 
@@ -27,7 +28,9 @@ export enum UpdateType {
     updateWindow = 1 << 4,
     rebuildLines = 1 << 5,
     split = 1 << 6,
-    toggleSplit = 1 << 7
+    toggleSplit = 1 << 7,
+    layout = 1 << 8,
+    scrollbars = 1 << 9
 }
 
 export enum TimeStampStyle {
@@ -42,6 +45,7 @@ export class Display extends EventEmitter {
     private _container: HTMLElement;
     private _view: HTMLElement;
     private _updating: UpdateType = UpdateType.none;
+    private _updateTimeout = 0;
     private _enableDebug: boolean = false;
     private _lastMouse: MouseEvent;
     private _character: HTMLElement;
@@ -89,19 +93,28 @@ export class Display extends EventEmitter {
     private _window: Window;
     private _scrollLock: boolean = false;
     private _selection = { start: null, end: null, timer: null };
+    private _trackSelection = { down: null, up: null }
     private _customSelection: boolean = true;
     private _highlightRange;
     private _highlight;
     private _bounds;
-    //cache scroll sizes as hardly changes once loaded
-    private _hWidth;
-    private _vWidth;
+    private _dragPrevent;
+    private _customScrollbars = false;
+    private _HScroll: ScrollBar;
+    private _VScroll: ScrollBar;
+    private _scrollCorner: HTMLElement;
+    private _showSplitButton: boolean = false;
 
     private get _horizontalScrollBarHeight() {
-        return (this._view.scrollWidth > this._view.clientWidth ? this._hWidth : 0);
+        if (this._customScrollbars)
+            return this._HScroll.visible ? this._HScroll.size : 0;
+        return (this._view.scrollWidth > this._view.clientWidth ? this._view.offsetHeight - this._view.clientHeight : 0);
     }
     private get _verticalScrollBarHeight() {
-        return this._vWidth;
+        if (this._customScrollbars) {
+            return this._VScroll.visible ? this._VScroll.size + this._padding[1] : 0;
+        }
+        return this._view.offsetWidth - this._view.clientWidth;
     }
     //#endregion
     //#region Public properties
@@ -113,7 +126,56 @@ export class Display extends EventEmitter {
             this._window.clearTimeout(this._selection.timer);
             this._selection.timer = null;
         }
+        if (value || this._split)
+            this._container.style.userSelect = 'none';
+        else
+            this._container.style.userSelect = 'auto';
         this._updateSelectionHighlight();
+    }
+
+    get customScrollbars() { return this._customScrollbars; }
+    set customScrollbars(value) {
+        if (value === this._customScrollbars) return;
+        this._customScrollbars = value;
+        if (!value) {
+            if (this._HScroll) this._HScroll.dispose();
+            if (this._VScroll) this._VScroll.dispose();
+            if (this._scrollCorner)
+                this._container.removeChild(this._scrollCorner);
+            this._scrollCorner = null;
+            this._HScroll = null;
+            this._VScroll = null;
+            this._view.style.overflowX = '';
+            this._view.style.overflowY = '';
+            this._view.style.overflow = '';
+        }
+        else if (value) {
+            if (!this._VScroll) {
+                this._VScroll = new ScrollBar({ parent: this._container, content: this._view, autoScroll: true, type: ScrollType.vertical });
+                this._VScroll.on('scroll', (pos, changed) => {
+                    if (changed) {
+                        this._view.scrollTop = pos;
+                        if (this._split)
+                            this._split._view.scrollTop = this._split._view.scrollHeight;
+                    }
+                });
+            }
+            if (!this._HScroll) {
+                this._HScroll = new ScrollBar({ parent: this._container, content: this._view, type: ScrollType.horizontal, autoScroll: false });
+                this._HScroll.on('scroll', (pos, changed) => {
+                    if (changed) {
+                        this._view.scrollLeft = pos;
+                        if (this._split)
+                            this._split._view.scrollLeft = this._view.scrollLeft;
+                    }
+
+                });
+            }
+            this._view.style.overflowX = 'hidden';
+            this._view.style.overflowY = 'hidden';
+            this._view.style.overflow = 'hidden';
+        }
+        this._doUpdate(UpdateType.layout | UpdateType.scrollbars);
     }
 
     get scrollLock() { return this._scrollLock; }
@@ -125,6 +187,8 @@ export class Display extends EventEmitter {
         }
         else if (this._scrollLock && this._split && !this._split.visible)
             this.scrollUp();
+        if (this._customScrollbars)
+            this._VScroll.autoScroll = !this._scrollLock;
     }
 
     get showTimestamp() { return this._timestamp; }
@@ -138,7 +202,7 @@ export class Display extends EventEmitter {
         else
             this._timestampWidth = moment().format(this._timestampFormat).length;
         this._buildStyleSheet();
-        this._doUpdate(UpdateType.display | UpdateType.update | UpdateType.rebuildLines | UpdateType.split);
+        this._doUpdate(UpdateType.display | UpdateType.update | UpdateType.updateWindow | UpdateType.rebuildLines | UpdateType.split);
     }
 
     get timestampFormat() { return this._timestampFormat; }
@@ -184,11 +248,6 @@ export class Display extends EventEmitter {
     set splitHeight(value: number) {
         if (this._splitHeight !== value) {
             this._splitHeight = value;
-            this._bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
-            if (this._splitHeight <= this._bounds.top + 150)
-                this._splitHeight = 150;
-            else if (this._splitHeight > this._bounds.bottom - 150)
-                this._splitHeight = this._bounds.height - 150;
             this._updateSplitLocation();
         }
     }
@@ -210,7 +269,7 @@ export class Display extends EventEmitter {
             this._view.insertAdjacentElement('afterend', this._split._view);
             this._container.insertAdjacentElement('afterbegin', this._split._bar);
             this._updateSplitLocation();
-            this._split._bar.style.right = this._verticalScrollBarHeight + 'px';
+            this._split._bar.style.right = (this._verticalScrollBarHeight - (this._customScrollbars ? this._padding[1] : 0)) + 'px';
             this._split._bar.style.top = (this._view.clientHeight - this._split._view.clientHeight - this._horizontalScrollBarHeight) + 'px';
             this._split._bar.addEventListener('mousedown', (e) => {
                 if (e.buttons !== 1) return;
@@ -224,7 +283,7 @@ export class Display extends EventEmitter {
                 this._split.ghostBar.style.right = this._verticalScrollBarHeight + 'px';
                 this._container.appendChild(this._split.ghostBar);
                 const bounds = this._bounds;
-                bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
+                let hm = this._horizontalScrollBarHeight - this._padding[2];
 
                 this._split.mouseMove = (e) => {
                     e.preventDefault();
@@ -232,8 +291,8 @@ export class Display extends EventEmitter {
                     e.stopPropagation();
                     if (e.pageY < bounds.top + 150)
                         this._split.ghostBar.style.top = '150px';
-                    else if (e.pageY > bounds.bottom - 150)
-                        this._split.ghostBar.style.top = (bounds.height - 150) + 'px';
+                    else if (e.pageY > bounds.bottom - 150 - hm)
+                        this._split.ghostBar.style.top = (bounds.height - 150 - hm) + 'px';
                     else
                         this._split.ghostBar.style.top = (e.pageY - bounds.top) + 'px';
 
@@ -241,8 +300,8 @@ export class Display extends EventEmitter {
                         let h;
                         if (e.pageY < bounds.top + 150)
                             h = 150;
-                        else if (e.pageY > bounds.bottom - 150)
-                            h = bounds.height - 150;
+                        else if (e.pageY > bounds.bottom - 150 - hm)
+                            h = bounds.height - 150 - hm;
                         else
                             h = e.pageY - bounds.top;
                         this._split._view.style.top = h + 'px';
@@ -253,18 +312,23 @@ export class Display extends EventEmitter {
                 };
                 this._container.addEventListener('mousemove', this._split.mouseMove);
                 this._container.addEventListener('mouseup', this._split.moveDone);
-                //this._container.addEventListener('mouseleave', this._split.moveDone);
+                this._container.addEventListener('mouseenter', this._split.moveEnter);
             });
+
+            this._split.moveEnter = e => {
+                if ((e.buttons & 1) !== 1)
+                    this._split.moveDone(e);
+            };
 
             this._split.moveDone = (e) => {
                 if (this._split.ghostBar) {
                     const bounds = this._bounds;
-                    bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
+                    let hm = this._horizontalScrollBarHeight - this._padding[2];
                     let h;
                     if (e.pageY < bounds.top + 150)
                         h = 150;
-                    else if (e.pageY > bounds.bottom - 150)
-                        h = bounds.height - 150;
+                    else if (e.pageY > bounds.bottom - 150 - hm)
+                        h = bounds.height - 150 - hm;
                     else
                         h = e.pageY - bounds.top;
                     this._split._view.style.top = h + 'px';
@@ -277,7 +341,7 @@ export class Display extends EventEmitter {
                 }
                 this._container.removeEventListener('mousemove', this._split.mouseMove);
                 this._container.removeEventListener('mouseup', this._split.moveDone);
-                //this._container.removeEventListener('mouseleave', this._split.moveDone);
+                this._container.removeEventListener('mouseenter', this._split.moveEnter);
                 this._split.mouseMove = null;
             };
             this._split._view.addEventListener('mousedown', (e) => {
@@ -285,24 +349,35 @@ export class Display extends EventEmitter {
                 this.emit('mousedown', e);
                 if (e.button === 0) {
                     e.preventDefault();
-                    let caret = this._getMouseEventCaretRange(e);
-                    this._window.getSelection().removeAllRanges();
-                    if (caret.startContainer)
-                        this._window.getSelection().addRange(caret);
-                    else if (caret.offsetNode) {
-                        const range = document.createRange();
-                        range.setStart(caret.offsetNode, caret.offset);
-                        range.setEnd(caret.offsetNode, caret.offset);
-                        this._window.getSelection().addRange(range);
-                    }
                     this._mouseDown = 2;
+                    if (e.shiftKey && this._trackSelection.down)
+                        this._endSelection(e);
+                    else
+                        this._startSelection(e);
                     this._split._bar.style.pointerEvents = 'none';
                 }
+                else if (e.button === 2 && this._trackSelection.down) {
+                    if (!this._selection.start) this._setSelection();
+                    let caret = this._getMouseEventCaretRange(e);
+                    let range = this._document.createRange();
+                    range.setStart(this._selection.start.node, this._selection.start.offset);
+                    range.setEnd(this._selection.end.node, this._selection.end.offset);
+                    if ((caret.offsetNode && range.intersectsNode(caret.offsetNode)) || (caret.startContainer && range.intersectsNode(caret.startContainer))) {
+                        if (e.shiftKey)
+                            this._endSelection(e);
+                        else
+                            this._setSelection();
+                    }
+                    else if (e.shiftKey)
+                        this._endSelection(e);
+                    else
+                        this.clearSelection();
+                }
             });
-            this._split._view.addEventListener('mousemove', async e => {
+            this._split._view.addEventListener('mousemove', e => {
                 if (this._mouseDown) {
                     this._lastMouse = e;
-                    this._extendSelection(e);
+                    this._endSelection(e);
                     //when near edge of view start auto scroll
                     this._createScrollTimer();
                 }
@@ -311,32 +386,49 @@ export class Display extends EventEmitter {
             this._split._view.addEventListener('mouseleave', e => {
                 if (this._mouseDown && e.toElement !== this._split._bar && e.target !== this._split._bar && (e.pageX >= this._split._bounds.right || e.pageY >= this._bounds.bottom - this._horizontalScrollBarHeight)) {
                     this._lastMouse = e;
-                    this._window.getSelection().extend(this._split._view.lastChild, this._split._view.lastChild.childNodes.length);
+                    if (this.customSelection) {
+                        this._trackSelection.up = this._getMouseEventCaretRange(e) || this._document.createRange();
+                        this._trackSelection.up.setStart(this._split._view.lastChild, this._split._view.lastChild.childNodes.length);
+                        this._trackSelection.up.setEnd(this._split._view.lastChild, this._split._view.lastChild.childNodes.length);
+                        this._setSelection();
+                    }
                 }
             });
             this._split._view.addEventListener('mouseenter', e => {
                 if (this._mouseDown && (e.buttons & 1) !== 1) {
-                    this._clearMouseDown();
+                    this._clearMouseDown(e);
                 }
                 else if (this._mouseDown) {
                     this._lastMouse = e;
-                    this._extendSelection(e);
                     this._createScrollTimer();
+                    this._endSelection(e);
                 }
             });
             this._split._view.addEventListener('mouseup', (e) => {
                 this.emit('mouseup', e);
                 if (e.button === 0)
-                    this._clearMouseDown();
+                    this._clearMouseDown(e);
+                if (e.detail === 2)
+                    this._setSelectionRange(this.getWordRangeFromPosition(e.pageX, e.pageY));
+                else if (e.detail === 3)
+                    this._setSelectionRange(this.getLineRangeFromPosition(e.pageX, e.pageY));
+                else if (e.detail === 4)
+                    this.selectAll();
                 if (!e.button)
                     this._view.click();
             });
             this._split._view.addEventListener('wheel', e => {
                 const delta = e.deltaY || e.wheelDelta;
-                this._view.scrollTop += delta;
+                if (this._customScrollbars)
+                    this._VScroll.scrollBy(delta);
+                else
+                    this._view.scrollTop += delta;
             }, { passive: true });
             this._toggleSplit();
-            this._doUpdate(UpdateType.split | UpdateType.toggleSplit);
+            this._doUpdate(UpdateType.split | UpdateType.toggleSplit | UpdateType.layout);
+            this._split._view.addEventListener('contextmenu', e => {
+                this.emit('contextmenu', e);
+            });
         }
         else if (this._split && !value) {
             this._container.removeEventListener('mouseup', this._split.moveDone);
@@ -344,8 +436,15 @@ export class Display extends EventEmitter {
             this._container.removeChild(this._split._view);
             this._container.removeChild(this._split._bar);
             this._split = null;
+            this._doUpdate(UpdateType.layout);
         }
+        if (this.customSelection)
+            this._container.style.userSelect = 'none';
+        else
+            this._container.style.userSelect = 'auto';
     }
+
+    get splitVisible(): boolean { return this._split && this._split.visible; }
 
     get linkFunction(): string {
         return this._linkFunction || 'doLink';
@@ -533,6 +632,13 @@ export class Display extends EventEmitter {
         return this._model.enableMXP;
     }
 
+    set defaultMXPState(value: boolean) {
+        this._model.defaultMXPState = value;
+    }
+    get defaultMXPState(): boolean {
+        return this._model.defaultMXPState;
+    }
+
     set showInvalidMXPTags(value: boolean) {
         this._model.showInvalidMXPTags = value;
     }
@@ -620,6 +726,8 @@ export class Display extends EventEmitter {
     }
 
     get scrollAtBottom() {
+        if (this._customScrollbars)
+            return this._VScroll.atBottom;
         return this._scrollAtEnd;
     }
     //#endregion
@@ -650,6 +758,11 @@ export class Display extends EventEmitter {
         this._window = this._document.defaultView;
         this._container.tabIndex = -1;
         this._container.classList.add('display');
+        this._dragPrevent = e => {
+            if (this.customSelection)
+                e.preventDefault();
+        };
+        this._container.addEventListener('dragstart', this._dragPrevent.bind(this));
         (<any>this._container).display = this;
         this._styles = this._document.createElement('style');
         this._container.appendChild(this._styles);
@@ -663,7 +776,7 @@ export class Display extends EventEmitter {
         this._view = this._document.createElement('div');
         this._view.className = 'view';
         this._view.addEventListener('scroll', () => {
-            this._scrollAtEnd = this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight;
+            this._scrollAtEnd = this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight || (this._customScrollbars && this._VScroll.atBottom);
             this._doUpdate(UpdateType.toggleSplit);
         });
         this._view.addEventListener('click', e => {
@@ -674,76 +787,116 @@ export class Display extends EventEmitter {
         });
         this._view.addEventListener('mousedown', e => {
             this._container.focus();
-            //only do custom selection if split view
-            if (this._split && this._split.visible) {
-                let caret = this._getMouseEventCaretRange(e);
-                if (caret) {
-                    this._window.getSelection().removeAllRanges();
-                    if (caret.startContainer)
-                        this._window.getSelection().addRange(caret);
-                    else if (caret.offsetNode) {
-                        const range = document.createRange();
-                        range.setStart(caret.offsetNode, caret.offset);
-                        range.setEnd(caret.offsetNode, caret.offset);
-                        this._window.getSelection().addRange(range);
-                    }
-                    e.preventDefault();
-                }
-            }
             this.emit('mousedown', e);
             const bounds = this._bounds;
             let w = bounds.width - this._view.clientWidth;
             let h = bounds.height - this._view.clientHeight;
             if (e.button === 0 && e.pageX < bounds.right - w && e.pageY < bounds.bottom - h) {
-                if (this.customSelection)
-                    this.clearSelection();
+                if (this.customSelection) {
+                    if (!e.shiftKey) {
+                        this.clearSelection();
+                        this._startSelection(e);
+                    }
+                    else if (this._trackSelection.down && e.shiftKey)
+                        this._endSelection(e);
+                    else
+                        this._startSelection(e);
+                }
                 this._mouseDown = 1;
                 if (this._split)
                     this._split._bar.style.pointerEvents = 'none';
             }
-            else if (this.customSelection && e.button === 2 && this._selection.start) {
+            else if (this.customSelection && e.button === 2 && this._trackSelection.down) {
+                if (!this._selection.start) this._setSelection();
                 let caret = this._getMouseEventCaretRange(e);
                 let range = this._document.createRange();
                 range.setStart(this._selection.start.node, this._selection.start.offset);
                 range.setEnd(this._selection.end.node, this._selection.end.offset);
                 if ((caret.offsetNode && range.intersectsNode(caret.offsetNode)) || (caret.startContainer && range.intersectsNode(caret.startContainer))) {
-                    this._window.getSelection().removeAllRanges();
-                    this._window.getSelection().addRange(range);
+                    if (e.shiftKey)
+                        this._endSelection(e);
+                    else
+                        this._setSelection();
                 }
-                else {
+                else if (e.shiftKey)
+                    this._endSelection(e);
+                else
                     this.clearSelection();
-                }
             }
         });
-        this._view.addEventListener('mousemove', async e => {
+        this._view.addEventListener('mousemove', e => {
             this._lastMouse = e;
             if (this._mouseDown) {
-                this._extendSelection(e);
+                this._endSelection(e);
                 //when near edge of view start auto scroll
                 this._createScrollTimer();
             }
         });
         this._view.addEventListener('mouseup', e => {
-            this.emit('mouseup', e);
             if (this._mouseDown === 2)
                 this._view.click();
             if (e.button === 0)
-                this._clearMouseDown();
+                this._clearMouseDown(e);
+            if (e.detail === 2)
+                this._setSelectionRange(this.getWordRangeFromPosition(e.pageX, e.pageY));
+            else if (e.detail === 3)
+                this._setSelectionRange(this.getLineRangeFromPosition(e.pageX, e.pageY));
+            else if (e.detail === 4)
+                this.selectAll();
+            this.emit('mouseup', e);
         });
         this._view.addEventListener('mouseenter', e => {
             //mouse left and came back with button up so fake a mouseup
             if (this._mouseDown && (e.buttons & 1) !== 1)
-                this._clearMouseDown();
+                this._clearMouseDown(e);
             else
                 this._clearScrollTimer();
         });
         this._view.addEventListener('mouseleave', e => {
             if (this._mouseDown) {
                 this._lastMouse = e;
-                if (this._view.lastChild && e.pageY >= (this._bounds.bottom - this._horizontalScrollBarHeight)) {
-                    this._window.getSelection().extend(this._view.lastChild, this._view.lastChild.childNodes.length);
-                    this._updateSelectionHighlight();
+                if (this.customSelection && this._view.lastChild && e.pageY >= (this._bounds.bottom - this._horizontalScrollBarHeight)) {
+                    this._trackSelection.up = this._getMouseEventCaretRange(e) || this._document.createRange();
+                    this._trackSelection.up.setStart(this._view.lastChild, this._view.lastChild.childNodes.length);
+                    this._trackSelection.up.setEnd(this._view.lastChild, this._view.lastChild.childNodes.length);
+                    this._setSelection();
                 }
+                this._createScrollTimer();
+            }
+        });
+        this._view.addEventListener('touchstart', e => {
+            this._container.focus();
+            this.emit('mousedown', e);
+            const bounds = this._bounds;
+            let w = bounds.width - this._view.clientWidth;
+            let h = bounds.height - this._view.clientHeight;
+            if (e.touches && e.touches.length && e.touches[0].pageX < bounds.right - w && e.touches[0].pageY < bounds.bottom - h) {
+                if (this.customSelection) {
+                    if (!e.shiftKey) {
+                        this.clearSelection();
+                        this._startSelection(e.touches[0]);
+                    }
+                    else if (this._trackSelection.down && e.shiftKey)
+                        this._endSelection(e.touches[0]);
+                    else
+                        this._startSelection(e.touches[0]);
+                }
+                this._mouseDown = 1;
+                if (this._split)
+                    this._split._bar.style.pointerEvents = 'none';
+            }
+        });
+        this._view.addEventListener('touchend', e => {
+            if (this._mouseDown === 2)
+                this._view.click();
+            if (e.touches && e.touches.length)
+                this._clearMouseDown(e.touches[0]);
+            this.emit('mouseup', e);
+        });
+        this._view.addEventListener('touchmove', e => {
+            if (this._mouseDown && e.touches && e.touches.length) {
+                this._endSelection(e.touches[0]);
+                //when near edge of view start auto scroll
                 this._createScrollTimer();
             }
         });
@@ -758,7 +911,7 @@ export class Display extends EventEmitter {
         this.model = new DisplayModel(options);
 
         this._wResize = (e) => {
-            if (this._scrollAtEnd)
+            if (this._scrollAtEnd || (this._customScrollbars && this._VScroll.atBottom))
                 this.scrollDisplay();
             debounce(() => {
                 this._doUpdate(UpdateType.update | UpdateType.updateWindow | UpdateType.split);
@@ -768,31 +921,11 @@ export class Display extends EventEmitter {
             //some weird bug in chrome that with out this causes the end/start container to be the wrong nodes
             if (this._window.getSelection().rangeCount)
                 this._window.getSelection().getRangeAt(0);
-            if (this._mouseDown)
-                debounce(() => {
-                    let selection = this._window.getSelection();
-                    if (this.customSelection && selection.rangeCount > 0) {
-                        const range = selection.getRangeAt(0);
-                        let nOffset = null;
-                        nOffset = this._getNodeOffset(this._view, this._view.firstChild, range.startContainer, range.startOffset, range);
-                        if (nOffset === null && this._split && this._split.visible)
-                            nOffset = this._getNodeOffset(this._split._view, this._split._view.firstChild, range.startContainer, range.startOffset, range);
-                        this._selection.start = nOffset;
-                        nOffset = null;
-                        if (this._split && this._split.visible)
-                            nOffset = this._getNodeOffset(this._split._view, this._split._view.lastChild, range.endContainer, range.endOffset, range);
-                        if (nOffset === null)
-                            nOffset = this._getNodeOffset(this._view, this._view.lastChild, range.endContainer, range.endOffset, range);
-                        this._selection.end = nOffset;
-                        this._updateSelectionHighlight();
-                    }
-                    this.emit('selection-changed', selection);
-                }, 10, this.id + 'selection-changed');
         };
         this._wUp = e => {
             if (this._mouseDown && e.button === 0) {
                 this._lastMouse = e;
-                this._clearMouseDown();
+                this._clearMouseDown(e);
             }
         };
         this._wMove = e => {
@@ -810,7 +943,7 @@ export class Display extends EventEmitter {
                 return;
             debounce(() => {
                 if (!this._resizeObserverCache || this._resizeObserverCache.width !== entries[0].contentRect.width || this._resizeObserverCache.height !== entries[0].contentRect.height) {
-                    if (this._scrollAtEnd)
+                    if (this._scrollAtEnd || (this._customScrollbars && this._VScroll.atBottom))
                         this.scrollDisplay();
                     this._resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
                     this._doUpdate(UpdateType.update | UpdateType.updateWindow | UpdateType.split);
@@ -824,7 +957,7 @@ export class Display extends EventEmitter {
             let mutation;
             for (mutation of mutationsList) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                    if (this._scrollAtEnd)
+                    if (this._scrollAtEnd || (this._customScrollbars && this._VScroll.atBottom))
                         this.scrollDisplay();
                     this._doUpdate(UpdateType.update | UpdateType.updateWindow | UpdateType.split);
                     this.emit('resize');
@@ -838,8 +971,6 @@ export class Display extends EventEmitter {
             this._timestampWidth = moment().format(this._timestampFormat).length;
         this.updateFont();
         this._bounds = this._view.getBoundingClientRect();
-        this._hWidth = getScrollbarWidth();
-        this._vWidth = getScrollbarWidth();
         this.splitHeight = -1;
     }
 
@@ -849,54 +980,84 @@ export class Display extends EventEmitter {
 
     public scrollDisplay(force?): void {
         if (this._split) {
-            if (force || !this.scrollLock && !this._split.visible)
+            if (force || !this.scrollLock && !this._split.visible) {
                 this._view.scrollTop = this._view.scrollHeight;
+            }
         }
         else if (!this.scrollLock)
             this._view.scrollTop = this._view.scrollHeight;
     };
 
     public scrollTo(x: number, y: number) {
-        this._view.scrollTo(x, y);
+        if (this._customScrollbars) {
+            this._HScroll.scrollTo(x);
+            this._VScroll.scrollTo(y);
+        }
+        else
+            this._view.scrollTo(x, y);
     }
 
     public scrollToCharacter(x: number, y: number) {
-        this._view.scrollTo(x * this._charHeight, y * this._charWidth);
+        if (this._customScrollbars) {
+            this._HScroll.scrollTo(x * this._charWidth);
+            this._VScroll.scrollTo(y * this._charHeight);
+        }
+        else
+            this._view.scrollTo(x * this._charWidth, y * this._charHeight);
     }
 
     public scrollBy(x: number, y: number) {
-        this._view.scrollBy(x, y);
+        if (this._customScrollbars) {
+            this._HScroll.scrollBy(x);
+            this._VScroll.scrollBy(y);
+        }
+        else
+            this._view.scrollBy(x, y);
     }
 
     public scrollUp() {
-        this._view.scrollBy(0, -this._charHeight);
+        if (this._customScrollbars)
+            this._VScroll.scrollBy(-this._charHeight);
+        else
+            this._view.scrollBy(0, -this._charHeight);
     }
 
     public scrollDown() {
-        this._view.scrollBy(0, this._charHeight);
+        if (this._customScrollbars)
+            this._VScroll.scrollBy(this._charHeight);
+        else
+            this._view.scrollBy(0, this._charHeight);
     }
 
     public pageUp() {
-        this._view.scrollBy(0, -this._view.clientHeight)
+        if (this._customScrollbars)
+            this._VScroll.pageUp();
+        else
+            this._view.scrollBy(0, -this._view.clientHeight)
     }
 
     public pageDown() {
-        this._view.scrollBy(0, this._view.clientHeight)
+        if (this._customScrollbars)
+            this._VScroll.pageDown();
+        else
+            this._view.scrollBy(0, this._view.clientHeight)
     }
 
     public trimLines() {
         if (this._maxLines === -1)
             return;
         //debounce on top of delay in case called multiple times manually
-        debounce(() => {
-            if (this.lines.length > this._maxLines) {
-                const amt = this.lines.length - this._maxLines;
-                let r = amt;
-                while (r-- > 0)
-                    this._view.removeChild(this._view.firstChild);
-                this._model.removeLines(0, amt);
-            }
-        }, 100, this.id + 'trimLines');
+        //debounce(() => {
+        if (this.lines.length > this._maxLines || this._view.childNodes.length > this._maxLines) {
+            const amt = this.lines.length - this._maxLines;
+            let r = this._view.childNodes.length - this._maxLines;
+            while (r-- > 0)
+                this._view.removeChild(this._view.firstChild);
+            this._model.removeLines(0, amt);
+
+            this._doUpdate(UpdateType.scrollbars);
+        }
+        // }, 100, this.id + 'trimLines');
     }
 
     public append(txt: string, remote?: boolean, force?: boolean, prependSplit?: boolean) {
@@ -929,10 +1090,13 @@ export class Display extends EventEmitter {
     private _updateDisplay() {
         //disable animation
         this._view.classList.remove('animate');
-        this._doUpdate(UpdateType.trim);
         if (this._hideTrailingEmptyLine && this.lines.length && this.lines[this.lines.length - 1].text.length === 0)
             (<HTMLElement>this._view.lastChild).style.display = 'none';
-        this._doUpdate(UpdateType.scrollEnd | UpdateType.updateWindow | UpdateType.split);
+        this._doUpdate(UpdateType.trim | UpdateType.scrollEnd | UpdateType.split | UpdateType.layout);// | UpdateType.updateWindow
+        if (this._customScrollbars) {
+            this._VScroll.resize();
+            this._HScroll.resize();
+        }
         //re-enable animation so they are all synced
         this._view.classList.add('animate');
     }
@@ -949,6 +1113,11 @@ export class Display extends EventEmitter {
     public clear() {
         this._model.clear();
         this._view.innerHTML = '';
+        if (this._customScrollbars) {
+            this._VScroll.reset();
+            this._HScroll.reset();
+            this._updateScrollbars();
+        }
     }
 
     public dispose() {
@@ -960,16 +1129,83 @@ export class Display extends EventEmitter {
         this._window.removeEventListener('mouseup', this._wUp);
         this._window.removeEventListener('mousemove', this._wMove);
         this._document.removeEventListener('selectionchange', this._selectionChange);
+        this._container.removeEventListener('dragstart', this._dragPrevent);
+    }
+
+    private _updateLayout() {
+        if (this._customScrollbars) {
+            this._view.style.right = this._verticalScrollBarHeight + 'px';
+            this._view.style.bottom = this._horizontalScrollBarHeight + 'px';
+        }
+        else {
+            this._view.style.right = '';
+            this._view.style.bottom = '';
+        }
+        if (this._split) {
+            this._split._view.style.right = this._verticalScrollBarHeight + 'px';
+            this._split._bar.style.right = (this._verticalScrollBarHeight - (this._customScrollbars ? this._padding[1] : 0)) + 'px';
+        }
+        this._updateSplitLocation();
+        this._updateScrollbars();
+    }
+
+    private _updateScrollbars() {
+        if (!this._customScrollbars || this._model.busy)
+            return;
+        this._HScroll.offset = this._VScroll.trackOffset;
+        this._HScroll.resize();
+        this._HScroll.visible = this._HScroll.scrollSize > 0;
+        this._VScroll.offset = this._HScroll.visible ? this._HScroll.trackOffsetSize.height : 0;
+        this._VScroll.resize();
+        if (this._VScroll.offset === 0 && this._showSplitButton && this._split && !this._HScroll.visible)
+            this._VScroll.padding = this._HScroll.trackOffsetSize.height || this._VScroll.trackOffsetSize.width;
+        else
+            this._VScroll.padding = 0;
+
+        if (!this._HScroll.visible && this._scrollCorner && (!this._split || !this._showSplitButton)) {
+            this._container.removeChild(this._scrollCorner);
+            this._scrollCorner = null;
+        }
+        else if ((this._split || this._HScroll.visible) && !this._scrollCorner) {
+            this._scrollCorner = document.createElement('div');
+            if (this._showSplitButton && this._split) {
+                this._scrollCorner.classList.add('scroll-corner', 'scroll-split-button');
+                this._scrollCorner.title = 'Toggle split view';
+                this._scrollCorner.innerHTML = '<i class="fa fa-minus"></i>';
+                this._scrollCorner.addEventListener('click', e => {
+                    e.cancelBubble = true;
+                    e.stopPropagation();
+                    this.scrollLock = !this.scrollLock;
+                    if (this._split.visible)
+                        this.scrollDisplay(true);
+                    else
+                        this._VScroll.scrollBy(-this._charHeight);
+                });
+            }
+            else
+                this._scrollCorner.className = 'scroll-corner';
+            this._container.appendChild(this._scrollCorner);
+        }
+        if (this._split) {
+            if (this._scrollCorner)
+                if (this._VScroll.scrollSize >= 0)
+                    this._scrollCorner.classList.remove('disabled');
+                else
+                    this._scrollCorner.classList.add('disabled');
+        }
+        this._doUpdate(UpdateType.layout);
     }
 
     private _update() {
+        if (this._customScrollbars)
+            this._HScroll.visible = this._customScrollbars && this._view.scrollWidth > this._view.clientWidth;
         this._maxView = this._view.clientWidth - this._padding[1] - this._padding[3] - this._verticalScrollBarHeight - this._indentPadding;
         if (this._timestamp !== TimeStampStyle.None)
             this._maxView -= this._timestampWidth * this._charWidth;
         this._innerHeight = this._view.clientHeight;
         this._bounds = this._view.getBoundingClientRect();
-        this._hWidth = getScrollbarWidth();
-        this._vWidth = getScrollbarWidth();
+        if (this._view.scrollTop > this._view.scrollHeight)
+            this._view.scrollTop = this._view.scrollHeight;
     }
 
     public updateFont(font?: string, size?: string) {
@@ -1025,7 +1261,7 @@ export class Display extends EventEmitter {
         if ((this._wordWrap || this._wrapAt > 0) && this._indent > 0)
             styles += `#${this.id} .view {  text-indent: ${this._indent * this._charWidth}px hanging; }`;
         //styles += `.view { padding-left: ${this._indent * this._charWidth * 2}px;text-indent: -${this._indent * this._charWidth}px; }@-moz-document url-prefix() { .view {  padding-left: 0px !important; text-indent: ${this._indent * this._charWidth}px hanging; } }`;
-        styles += `#${this.id} .line > span { min-height: ${this._charHeight}}`;
+        styles += `#${this.id} .line > span { min-height: ${this._charHeight}px}`;
         if (this._timestamp !== TimeStampStyle.None)
             styles += '#' + this.id + ' .timestamp { display: inline-block; }';
         //else
@@ -1133,7 +1369,7 @@ export class Display extends EventEmitter {
                 else
                     fCls = '';
                 if (format.hr)
-                    parts.push('<span style="', style, 'min-width:100%;width:100%;"', fCls, '><div style="position:relative;top: 50%;transform: translateY(-50%);height:4px;width:100%; background-color:', (typeof format.color === 'number' ? this._model.GetColor(format.color) : format.color), '"></div></span>');
+                    parts.push('<span style="', style, 'min-width:100%;width:100%;position: relative;"', fCls, '><hr style="position:absolute;top: 50%;transform: translateY(-50%);height:4px;width:100%; background-color:', (typeof format.color === 'number' ? this._model.GetColor(format.color) : format.color), '"/><span>---</span></span>');
                 else if (end - offset !== 0)
                     parts.push('<span style="', style, '"', fCls, '>', htmlEncode(text.substring(offset, end)), '</span>');
             }
@@ -1306,11 +1542,19 @@ export class Display extends EventEmitter {
     private _doUpdate(type?: UpdateType) {
         if (!type) return;
         this._updating |= type;
-        if (this._updating === UpdateType.none)
+        //no update or update already in progress
+        if (this._updating === UpdateType.none || this._updateTimeout)
             return;
-        this._window.requestAnimationFrame(() => {
+        this._updateTimeout = this._window.requestAnimationFrame(() => {
+            this._updateTimeout = 0;
             if (this._updating === UpdateType.none)
                 return;
+            if ((this._updating & UpdateType.layout) === UpdateType.layout) {
+                this._updateScrollbars();
+                this._updateLayout();
+                this._updating &= ~UpdateType.layout;
+                this._updating &= ~UpdateType.scrollbars;
+            }
             if ((this._updating & UpdateType.rebuildLines) === UpdateType.rebuildLines) {
                 this._rebuildLines();
                 this._updating &= ~UpdateType.rebuildLines;
@@ -1318,6 +1562,7 @@ export class Display extends EventEmitter {
             if ((this._updating & UpdateType.update) === UpdateType.update) {
                 this._update();
                 this._updating &= ~UpdateType.update;
+                this._updating |= UpdateType.scrollbars;
             }
             if ((this._updating & UpdateType.display) === UpdateType.display) {
                 this._updateDisplay();
@@ -1342,6 +1587,10 @@ export class Display extends EventEmitter {
             if ((this._updating & UpdateType.toggleSplit) === UpdateType.toggleSplit) {
                 this._toggleSplit();
                 this._updating &= ~UpdateType.toggleSplit;
+            }
+            if ((this._updating & UpdateType.scrollbars) === UpdateType.scrollbars) {
+                this._updateScrollbars();
+                this._updating &= ~UpdateType.scrollbars;
             }
             this._doUpdate(this._updating);
         });
@@ -1466,6 +1715,12 @@ export class Display extends EventEmitter {
             this._window.getSelection().addRange(range);
         }
         if (this.customSelection) {
+            this._trackSelection.down = document.createRange();
+            this._trackSelection.down.setStart(this._view.firstChild, 0);
+            this._trackSelection.down.setEnd(this._view.firstChild, 0);
+            this._trackSelection.up = document.createRange();
+            this._trackSelection.up.setStart(this._view.lastChild, this._view.lastChild.childNodes.length);
+            this._trackSelection.up.setEnd(this._view.lastChild, this._view.lastChild.childNodes.length);
             this._selection = {
                 start: {
                     node: this._view.firstChild,
@@ -1492,6 +1747,7 @@ export class Display extends EventEmitter {
                 selection.removeAllRanges();
             }
         }
+        this._trackSelection = { down: null, up: null };
         this._selection = { start: null, end: null, timer: null };
         this._updateSelectionHighlight();
         this.emit('selection-changed', this._window.getSelection());
@@ -1512,43 +1768,95 @@ export class Display extends EventEmitter {
             return { x: -1, y: -1, lineID: -1 };
         if (element.classList.contains('line'))
             return { x: 0, y: this.model.getLineFromID(+element.dataset.id), lineID: +element.dataset.id };
-        const line = element.closest('.line') as HTMLElement;
+        const line = this._getLineNode(element);
         if (line)
             return { x: 0, y: this.model.getLineFromID(+line.dataset.id), lineID: +line.dataset.id };
         return { x: -1, y: -1, lineID: -1 };
     }
 
     public getWordFromPosition(x, y): string {
-        // Get the element at the specified coordinates
-        const elements = this._document.elementsFromPoint(x, y);
-        let element;
-        for (let e = 0, el = elements.length; e < el; e++) {
-            if (this._view === elements[e]) return '';
-            if (this._view.contains(elements[e])) {
-                element = elements[e];
-                break;
-            }
-        }
-
-        // Check if the element exists and contains text
-        if (element && element.textContent) {
-            // Get the text content of the element
-            const text = element.textContent;
-
-            // Find the word boundaries around the specified position
-            let start = text.lastIndexOf(' ', x) + 1;
-            let end = text.indexOf(' ', x);
-            if (end === -1) {
-                end = text.length;
-            }
-
-            // Extract the word
-            const word = text.substring(start, end);
-
-            return word;
-        }
-
+        const range = this.getWordRangeFromPosition(x, y);
+        if (range) return range.toString();
         return '';
+    }
+
+    public getWordRangeFromPosition(x, y): Range {
+        let line = document.elementFromPoint(x, y) as HTMLElement;
+        if (!line || line === this._view || (this._split && this._split._view === line) || line.classList.contains('line')) return null;
+        const range = this._getMouseEventCaretRange({ clientX: x, clientY: y });
+        if (!range) return null;
+        let n = this._rangeToNode(range);
+        if (!n || !n.node) return null;
+        line = this._getLineNode(n.node);
+        if (!line) return null;
+        const textNodes = this._textNodesUnder(line);
+        const offset = this._findIndexOfSymbol(line, n.node, n.offset);
+        const lineIndex = this._model.getLineFromID(+line.dataset.id);
+        if (lineIndex === -1) return null;
+        const text = this.getLineText(lineIndex);
+        const len = text.length;
+        let sPos = offset;
+        let ePos = offset;
+        while (text.substr(sPos, 1).match(/([^\s.,/#!$%^&*;:{}=`~()[\]@&|\\?><"'+])/gu) && sPos >= 0) {
+            sPos--;
+            if (sPos < 0)
+                break;
+        }
+        sPos++;
+        if (sPos > offset)
+            sPos = offset;
+        while (text.substr(ePos, 1).match(/([^\s.,/#!$%^&*;:{}=`~()[\]@&|\\?><"'+])/gu) && ePos < len) {
+            ePos++;
+        }
+        if (ePos <= sPos)
+            ePos = sPos + 1;
+        if (sPos >= 0 && ePos <= len) {
+            let tl = textNodes.length;
+            let l = 0;
+            let t = 0;
+            for (; t < tl; t++) {
+                if (sPos >= l && sPos < l + textNodes[t].length) {
+                    range.setStart(textNodes[t], sPos - l);
+                    break;
+                }
+                l += textNodes[t].length;
+            }
+            for (; t < tl; t++) {
+                if (ePos >= l && ePos < l + textNodes[t].length) {
+                    range.setEnd(textNodes[t], ePos - l);
+                    break;
+                }
+                l += textNodes[t].length;
+            }
+        }
+        return range;
+    }
+
+    public getLineRangeFromPosition(x, y): Range {
+        const range = this._getMouseEventCaretRange({ clientX: x, clientY: y });
+        if (!range) return null;
+        let n = this._rangeToNode(range);
+        const line = this._getLineNode(n.node);
+        if (!line) return null;
+        if (line.childNodes.length) {
+            range.setStart(line.firstChild, 0);
+            if (line.lastChild.nodeType === 3)
+                range.setEnd(line.lastChild, (line.lastChild as Text).length);
+            else
+                range.setEnd(line.lastChild, line.childNodes.length);
+        }
+        else {
+            range.setStart(line, 0);
+            range.setEnd(line, 0);
+        }
+        return range;
+    }
+
+    private _getLineNode(node): HTMLElement {
+        if (!node) return null;
+        if (node.nodeType === 3)
+            return node.parentNode.closest('.line') as HTMLElement;
+        return node.closest('.line') as HTMLElement;
     }
 
     private _updateSplit() {
@@ -1572,6 +1880,11 @@ export class Display extends EventEmitter {
 
     private _updateSplitLocation() {
         if (!this._split) return;
+        let h = this._horizontalScrollBarHeight - this._padding[2];
+        if (this._splitHeight == -1 || this._splitHeight > this._bounds.bottom - 150 - h)
+            this._splitHeight = this._bounds.height - 150 - h;
+        else if (this._splitHeight <= this._bounds.top + 150)
+            this._splitHeight = 150;
         this._split._view.style.top = this._splitHeight + 'px';
         if (this._view.scrollWidth > this._view.clientWidth)
             this._split._view.style.bottom = this._horizontalScrollBarHeight + 'px';
@@ -1582,7 +1895,7 @@ export class Display extends EventEmitter {
 
     private _toggleSplit() {
         if (!this._split) return;
-        if (this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight) {
+        if (this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight || (this._customScrollbars && this._VScroll.atBottom)) {
             //only adjust if not already hidden
             if (this._split.visible) {
                 this._split._view.style.visibility = 'hidden';
@@ -1610,58 +1923,40 @@ export class Display extends EventEmitter {
     }
 
     private _adjustSplitSelection(target, source) {
-        const selection = this._window.getSelection();
-        let range
-        if (selection.isCollapsed || selection.rangeCount === 0) {
-            if (!this._selection.start)
-                return;
-            else {
-                range = this._document.createRange();
-                range.setStart(this._selection.start.node, this._selection.start.offset);
-                range.setEnd(this._selection.end.node, this._selection.end.offset);
+        let so;
+        let sElement;
+        let n;
+        if (this._trackSelection.down) {
+            n = this._rangeToNode(this._trackSelection.down);
+            so = n.offset;
+            sElement = this._getElement(target, source, n.node);
+            if (sElement && this._isElementVisible(sElement, target)) {
+                this._trackSelection.down.setStart(sElement, so);
+                this._trackSelection.down.setEnd(sElement, so);
             }
         }
-        else
-            range = selection.getRangeAt(0);
-
-        let so = range.startOffset;
-        let eo = range.endOffset;
-        let eElement = this._getElement(target, source, range.endContainer);
-        let sElement = this._getElement(target, source, range.startContainer);
-        //test if element is visible in split
-        if (eElement && this._isElementVisible(eElement, target)) {
-            range.setEnd(eElement, eo);
-            this._selection.end = { node: eElement, offset: eo };
+        if (this._trackSelection.up) {
+            n = this._rangeToNode(this._trackSelection.up);
+            so = n.offset;
+            sElement = this._getElement(target, source, n.node);
+            if (sElement && this._isElementVisible(sElement, target)) {
+                this._trackSelection.up.setStart(sElement, so);
+                this._trackSelection.up.setEnd(sElement, so);
+            }
         }
-        else if (!eElement && this._selection.start) {
-            eElement = this._getElement(target, source, this._selection.end.node);
-            eo = this._selection.end.offset;
-            if (eElement && this._isElementVisible(eElement, target))
-                this._selection.end = { node: eElement, offset: eo };
-        }
-        if (sElement && this._isElementVisible(sElement, target)) {
-            range.setStart(sElement, so);
-            this._selection.start = { node: sElement, offset: so };
-        }
-        else if (!sElement && this._selection.start) {
-            sElement = this._getElement(target, source, this._selection.start.node);
-            so = this._selection.start.offset;
-            if (eElement && this._isElementVisible(sElement, target))
-                this._selection.start = { node: sElement, offset: so };
-        }
+        this._setSelection();
         this._updateSelectionHighlight();
     }
 
     private _getMouseEventCaretRange(evt) {
         var range, x = evt.clientX, y = evt.clientY;
-
         // Try the simple IE way first
-        if ((<any>document.body).createTextRange) {
-            range = (<any>document.body).createTextRange();
+        if ((<any>this._document.body).createTextRange) {
+            range = (<any>this._document.body).createTextRange();
             range.moveToPoint(x, y);
         }
 
-        else if (typeof document.createRange != "undefined" && document.createRange !== null) {
+        else if (typeof this._document.createRange != "undefined" && this._document.createRange !== null) {
             // Try Mozilla's rangeOffset and rangeParent properties,
             // which are exactly what we want
             if (typeof evt.rangeParent != "undefined" && evt.rangeParent !== null) {
@@ -1671,16 +1966,24 @@ export class Display extends EventEmitter {
             }
 
             // Try the standards-based way next
-            else if ((<any>document.body).caretPositionFromPoint) {
-                var pos = (<any>document.body).caretPositionFromPoint(x, y);
-                range = document.createRange();
+            else if ((<any>this._document.body).caretPositionFromPoint) {
+                var pos = (<any>this._document.body).caretPositionFromPoint(x, y);
+                if (!pos || !this._container.contains(pos.offsetNode)) return null;
+                range = pos.createRange();
                 range.setStart(pos.offsetNode, pos.offset);
                 range.collapse(true);
             }
-
+            // Try the standards-based way next
+            else if ((<any>this._document).caretPositionFromPoint) {
+                var pos = (<any>this._document).caretPositionFromPoint(x, y);
+                if (!pos || !this._container.contains(pos.offsetNode)) return null;
+                range = this._document.createRange();
+                range.setStart(pos.offsetNode, pos.offset);
+                range.collapse(true);
+            }
             // Next, the WebKit way
-            else if (document.caretRangeFromPoint) {
-                range = document.caretRangeFromPoint(x, y);
+            else if (this._document.caretRangeFromPoint) {
+                range = this._document.caretRangeFromPoint(x, y);
             }
         }
 
@@ -1731,14 +2034,6 @@ export class Display extends EventEmitter {
         return false;
     }
 
-    private _getNodeOffset(view, node, container, containerOffset, range) {
-        if (view.contains(container) || node === container)
-            return { node: container, offset: containerOffset };
-        else if (node && range.intersectsNode(node))
-            return { node: node, offset: 0 };
-        return null;
-    }
-
     private _updateSelectionHighlight() {
         if (!('Highlight' in window)) return;
         if (!this._selection.start || !this.customSelection) {
@@ -1769,34 +2064,11 @@ export class Display extends EventEmitter {
 
     }
 
-    private _extendSelection(e) {
-        let caret = this._getMouseEventCaretRange(e);
-        if (!caret) return;
-        if (caret.startContainer) {
-            if (this._window.getSelection().rangeCount === 0) {
-                let range = this._document.createRange();
-                range.setStart(caret.startContainer, caret.startOffset);
-                range.setEnd(caret.startContainer, caret.startOffset);
-                this._window.getSelection().addRange(range);
-            }
-            else
-                this._window.getSelection().extend(caret.endContainer, caret.endOffset);
-        }
-        else if (caret.offsetNode) {
-            if (this._window.getSelection().rangeCount === 0) {
-                let range = this._document.createRange();
-                range.setStart(caret.offsetNode, caret.offset);
-                range.setEnd(caret.offsetNode, caret.offset);
-                this._window.getSelection().addRange(range);
-            }
-            else
-                this._window.getSelection().extend(caret.offsetNode, caret.offset);
-        }
-    }
-
-    private _clearMouseDown() {
-        if (this._mouseDown)
+    private _clearMouseDown(e) {
+        if (this._mouseDown) {
+            this._endSelection(e);
             this.emit('selection-done');
+        }
         this._mouseDown = 0;
         if (this._split)
             this._split._bar.style.pointerEvents = '';
@@ -1977,6 +2249,118 @@ export class Display extends EventEmitter {
         }, 20);
         */
     }
+
+    private _isBefore(nodeA, nodeB) {
+        var position = nodeA.compareDocumentPosition(nodeB);
+        //after
+        if (position & 0x04) return false;
+        //before
+        //if (position & 0x02) return true;
+        return true;
+    }
+
+    private _rangeToNode(range) {
+        if (!range) return null;
+        if (range.startContainer)
+            return { node: range.startContainer, offset: range.startOffset };
+        return { node: range.offsetNode, offset: range.offset };
+    }
+
+    private _startSelection(e) {
+        if (!this.customSelection) return;
+        this._trackSelection.down = this._getMouseEventCaretRange(e);
+        if (!this._trackSelection.down) return;
+        this._selection.start = this._rangeToNode(this._trackSelection.down);
+        this._selection.end = this._selection.start;
+        this._updateSelectionHighlight();
+    }
+
+    private _setSelection() {
+        if (!this.customSelection || !this._trackSelection.down) return;
+        let down = this._rangeToNode(this._trackSelection.down);
+        let up = this._rangeToNode(this._trackSelection.up);
+        if (down.node === up.node) {
+            if (down.offset < up.offset) {
+                this._selection.start = down;
+                this._selection.end = up;
+            }
+            else {
+                this._selection.start = up;
+                this._selection.end = down;
+            }
+        }
+        else if (!this._isBefore(down.node, up.node)) {
+            this._selection.start = down;
+            this._selection.end = up;
+        }
+        else {
+            this._selection.start = up;
+            this._selection.end = down;
+        }
+        //debounce(() => {
+        let range;
+        if (this._document.activeElement !== this._container) return;
+        //firefox hack, seems it likes to use current range
+        if (this._window.getSelection().rangeCount === 0) {
+            range = this._document.createRange();
+            range.setStart(this._selection.start.node, this._selection.start.offset);
+            range.setEnd(this._selection.end.node, this._selection.end.offset);
+            this._window.getSelection().addRange(range);
+        }
+        else {
+            range = this._window.getSelection().getRangeAt(0);
+            range.setStart(this._selection.start.node, this._selection.start.offset);
+            range.setEnd(this._selection.end.node, this._selection.end.offset);
+        }
+        //}, 1, this.id + 'set-selection');
+        this.emit('selection-changed');
+        this._updateSelectionHighlight();
+    }
+
+    private _endSelection(e) {
+        if (!this.customSelection) return;
+        const caret = this._getMouseEventCaretRange(e);
+        if (caret)
+            this._trackSelection.up = caret;
+        this._setSelection();
+    }
+
+    private _setSelectionRange(range) {
+        if (!range) return;
+        this._trackSelection.down = document.createRange();
+        this._trackSelection.down.setStart(range.startContainer, range.startOffset);
+        this._trackSelection.down.setEnd(range.startContainer, range.startOffset);
+        this._trackSelection.up = document.createRange();
+        this._trackSelection.up.setStart(range.endContainer, range.endOffset);
+        this._trackSelection.up.setEnd(range.endContainer, range.endOffset);
+        this._setSelection();
+    }
+
+    /**
+     * Retrieves an array of all text nodes under a given element.
+     *
+     * @param { Node } el - The element under which to search for text nodes.
+     * @returns { Node[] } An array of text nodes found under the given element.
+     */
+    private _textNodesUnder(el) {
+        const children = [] // Type: Node[]
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+        while (walker.nextNode()) {
+            children.push(walker.currentNode)
+        }
+        return children
+    }
+
+    private _findIndexOfSymbol(el, node, offset) {
+        node = node.parentNode == el ? node : node.parentNode;
+        let nodes = [...el.childNodes];
+        let index = nodes.indexOf(node);
+        let num = 0;
+        for (let i = 0; i < index; i++) {
+            num += nodes[i].textContent.length;
+        }
+        return num + offset;
+    }
 }
 
 export class DisplayModel extends EventEmitter {
@@ -2031,6 +2415,13 @@ export class DisplayModel extends EventEmitter {
     }
     get enableMXP(): boolean {
         return this._parser.enableMXP;
+    }
+
+    set defaultMXPState(value: boolean) {
+        this._parser.defaultMXPState = value;
+    }
+    get defaultMXPState(): boolean {
+        return this._parser.defaultMXPState;
     }
 
     set showInvalidMXPTags(value: boolean) {

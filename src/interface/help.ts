@@ -338,8 +338,7 @@ export class HelpDialog extends Dialog {
             for (let i = 0, il = items.length; i < il; i++) {
                 this._menuItemEvents(items[i]);
                 items[i].addEventListener('click', e => {
-                    if (!this._history.length || this._history[this._current] !== e.currentTarget.dataset.id)
-                        this._updateHistory(e.currentTarget.dataset.id);
+                    this.gotoPage(e.currentTarget.dataset.id);
                 });
             }
             let ops = ['<option value="">Table of contents</option>'];
@@ -401,6 +400,15 @@ export class HelpDialog extends Dialog {
             const item = this.header.querySelector('.breadcrumb');
             item.classList.remove('breadcrumb-sm');
             this._small = false;
+        }
+    }
+
+    public gotoPage(page) {
+        if (!page.startsWith('help/'))
+            page = 'help/' + page;
+        if (!this._history.length || this._history[this._current] !== page) {
+            this._updateHistory(page);
+            updateHash(page, this._page);
         }
     }
 }

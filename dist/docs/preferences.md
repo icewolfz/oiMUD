@@ -67,6 +67,7 @@ The navigation breadcrumb to allow easier jumping to other pages
 - `Split scroll live update` determines how the split screen updates as resize bar is adjusted, if on it will update as resize bar is moved, if slow resizing disable this as it should reduce cpu load during drag
 - `Split height` The height of the display when split view is visible
 - `Enable custom selection system` Enable custom selection system for display, will use custom highlighting and tracking, **Note** this is always on when using split scroll
+- `Set Default MXP on state to true` Set the default state for mxp line state, when true it works more like MUSHclient and Mudlet and requires all < and > to be encoded from the mud
 
 ## Colors
 
@@ -313,6 +314,8 @@ Controls what is captured into the chat window
 - `Expand selected profile on load` auto expand selected profile when profile manager is first opened
 - `Update profiles on change when manager open` Update profiles when items are changed outside of manager using #commands
 - `Enable profile manager code editor` disable or enable the code editor for the profile manager
+- `Custom scrollbars for display controls` Enable custom scrollbars for main display and all chat displays
+- `Save dynamically loaded profiles` Save profile list when set using profiles url argument
 
 ## ShadowMUD
 

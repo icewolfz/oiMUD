@@ -123,6 +123,7 @@
     const valueEd = body.querySelector('.profile-value');
     if (valueEd.dataset.expanded === 'true')
         body.querySelector('#btn-value-expand').click();
+    let editor;
     body.querySelector('#btn-value-expand').addEventListener('click', () => {
         if (valueEd.dataset.expanded === 'true') {
             body.querySelector('#btn-value-expand i').classList.add('bi-chevron-expand');
@@ -133,6 +134,8 @@
             body.querySelector('#value').style.resize = '';
             body.querySelector('#value').style.maxHeight = '';
             body.querySelector('#value').classList.remove('flex-grow-1');
+            if (body.querySelector('#value-editor'))
+                body.querySelector('#value-editor').classList.remove('flex-grow-1');
             body.querySelector('#itemAccordion').style.display = '';
             if (body.querySelector('#value-editor'))
                 body.querySelector('#value-editor').classList.remove('flex-grow-1');
@@ -146,12 +149,19 @@
             body.querySelector('#value').style.resize = 'none';
             body.querySelector('#value').style.maxHeight = 'unset';
             body.querySelector('#value').classList.add('flex-grow-1');
+            if (body.querySelector('#value-editor'))
+                body.querySelector('#value-editor').classList.add('flex-grow-1');
             body.querySelector('#itemAccordion').style.display = 'none';
             if (body.querySelector('#value-editor'))
                 body.querySelector('#value-editor').classList.add('flex-grow-1');
         }
+        if (editor)
+            editor.focus();
+        else
+            body.querySelector('#value').focus();        
     });
     let contentChanging = () => {
+        client.off('options-loaded', optionsLoaded);
         dialog.off('content-changing', contentChanging);
         dialog.off('item-loaded', itemLoaded);
         if (editor)

@@ -365,6 +365,11 @@ export class PanelBar extends Plugin {
                     this._chatDisplay.model.appendLines([data]);
             }
         }, this);
+        this._chat.on('chat-only-open', e => {
+            //if display created and the panel visible capture, if capture only if open setting enabled
+            if (this._chatDisplay && (this.client.getOption('panelBar.panels') & Panels.chat) === Panels.chat)
+                e.open = true;
+        }, this);
     }
 
     private _initMapper() {
@@ -447,6 +452,7 @@ export class PanelBar extends Plugin {
             this._panel.style.display = 'none';
             document.getElementById('panel-bar-drag-bar').style.display = 'none';
             this.emit('updated-interface');
+            client.emit('updated-interface', 'panel-bar', this);
             return;
         }
         if (this._panelLocation === PanelBarLocation.top) {
@@ -466,6 +472,7 @@ export class PanelBar extends Plugin {
         this._panel.style.display = '';
         document.getElementById('panel-bar-drag-bar').style.display = '';
         this.emit('updated-interface');
+        client.emit('updated-interface', 'panel-bar', this);
     }
 
     private _loadDisplayOptions(display) {
@@ -489,6 +496,7 @@ export class PanelBar extends Plugin {
         display.wrapAt = client.getOption('chat.wrapAt');
         display.indent = client.getOption('chat.indent');
         display.scrollLock = client.getOption('chat.scrollLocked');
+        display.customScrollbars = this.client.getOption('customScrollbars');
 
         //display.enableSplit = client.getOption('chat.split');
         //display.splitLive = client.getOption('chat.splitLive');

@@ -1,78 +1,80 @@
 /* --- Start CSS for ansi display --- */
 @-webkit-keyframes blinker {
-    0% {
-        opacity: 1.0;
-    }
+  0% {
+    opacity: 1;
+  }
 
-    50% {
-        opacity: 0.0;
-    }
+  50% {
+    opacity: 0;
+  }
 
-    100% {
-        opacity: 1.0;
-    }
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes blinker {
-    0% {
-        opacity: 1.0;
-    }
+  0% {
+    opacity: 1;
+  }
 
-    50% {
-        opacity: 0.0;
-    }
+  50% {
+    opacity: 0;
+  }
 
-    100% {
-        opacity: 1.0;
-    }
+  100% {
+    opacity: 1;
+  }
 }
 
 .animate .ansi-blink {
-    text-decoration: blink;
-    animation-name: blinker;
-    animation-iteration-count: infinite;
-    animation-timing-function: cubic-bezier(1, 0, 0, 1);
-    animation-duration: 1s;
-    -webkit-animation-name: blinker;
-    -webkit-animation-iteration-count: infinite;
-    -webkit-animation-timing-function: cubic-bezier(1, 0, 0, 1);
-    -webkit-animation-duration: 1s;
+  text-decoration: blink;
+  animation-name: blinker;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(1, 0, 0, 1);
+  animation-duration: 1s;
+  -webkit-animation-name: blinker;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: cubic-bezier(1, 0, 0, 1);
+  -webkit-animation-duration: 1s;
 }
 
-.line> span
-{
-    padding: 0px;
-    margin: 0px;
-    display: inline-block;
-    cursor: text;    
-    padding-bottom: 1px;
+.line > span {
+  padding: 0px;
+  margin: 0px;
+  display: inline-block;
+  cursor: text;
+  padding-bottom: 1px;
 }
 
 .ansi {
-    padding: 0px;
-    margin: 0px;
-    display: inline-block;
-    padding-bottom: 1px;
-    cursor: text;    
-    line-height: normal;
+  padding: 0px;
+  margin: 0px;
+  display: inline-block;
+  padding-bottom: 1px;
+  cursor: text;
+  line-height: normal;
 }
 
 .line {
-    word-wrap: break-word;
-    word-break: break-all;
-    min-width: 100%;
-    display: block;
-    /*padding-bottom: 1px;*/
-    clear: both;
-    line-height: normal;
+  word-wrap: break-word;
+  word-break: break-all;
+  min-width: 100%;
+  display: block;
+  /*padding-bottom: 1px;*/
+  clear: both;
+  line-height: normal;
 }
 
 .line hr {
-    border: 0px;
+  border: 0px;
+  opacity: 1;
+  margin: 0;
+  height: 4px;
 }
 
 .line br {
-    display: none;
+  display: none;
 }
 
 /* --- End CSS for ansi display --- */
@@ -80,14 +82,14 @@
 .line a,
 .line a:link,
 .line a:link span {
-    color: inherit;
-    font-weight: inherit;
-    text-decoration: underline;
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: underline;
 }
 
 .URLLink,
 .URLLink:link,
 .URLLink:link span {
-    text-decoration: underline;
-    cursor: pointer;
+  text-decoration: underline;
+  cursor: pointer;
 }

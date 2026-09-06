@@ -373,6 +373,25 @@ export function initializeInterface() {
             client.display.clearSelection();
         }
     });
+    client.display.on('contextmenu', e => {
+        if (client.display.customSelection && client.display.hasSelection) {
+            let items = [{
+                name: 'Copy <span style="float: right">Ctrl+C</span>',
+                action: item => {
+                    if (client.display.hasSelection)
+                        copyText(client.display.selection, client.display.selectionAsHTML);
+                }
+            },
+            {
+                name: 'Select all',
+                action: item => {
+                    client.display.selectAll();
+                }
+            }];
+            e.preventDefault();
+            Contextmenu.popup(items, e.clientX, e.clientY);
+        }
+    })
     client.on('profiles-loaded', () => {
         buildButtons();
     });
@@ -607,6 +626,13 @@ export function initializeInterface() {
         catch (err) { }
         //console.log(await confirm_box('test'));
     });
+    client.on('updated-interface', (name, sender) => {
+        if (name === 'status') {
+            updateCommandInput();
+            if (client.getOption('commandAutoSize') || client.getOption('commandScrollbars'))
+                resizeCommandInput();
+        }
+    });
 }
 
 export function removeHash(string) {
@@ -676,7 +702,7 @@ export function showDialog(name: string) {
     switch (name) {
         case 'about':
             if (!_dialogs.about) {
-                _dialogs.about = new Dialog(({ title: '<i class="bi-info-circle"></i> About', width: 350, height: 400, noFooter: true, resizable: false, center: true, maximizable: false }));
+                _dialogs.about = new Dialog(({ title: '<i class="bi-info-circle"></i> About', width: 460, height: 400, noFooter: true, resizable: false, center: true, maximizable: false }));
                 _dialogs.about.on('closed', () => {
                     _dialogs.about.removeAllListeners();
                     delete _dialogs.about;
@@ -1068,8 +1094,8 @@ function updateCommandInput() {
     measure.style.fontSize = client.commandInput.style.fontSize;
     measure.style.fontFamily = client.commandInput.style.fontFamily;
     measure.style.width = client.commandInput.offsetWidth + 'px';
-    const oldMeasure = measure.innerHTML;
-    measure.innerHTML = 'W';
+    const oldMeasure = measure.textContent;
+    measure.textContent = 'W';
     let minHeight = client.getOption('commandMinLines');
     const height = measure.offsetHeight;
     minHeight = height * (minHeight < 1 ? 1 : minHeight);
@@ -1079,7 +1105,7 @@ function updateCommandInput() {
     padding += parseFloat(cmdSize.paddingBottom) || 0;
     let inset = cmdSize.inset.split(' ');
     padding += (parseFloat(inset[0]) || 0) * 2;
-    measure.innerHTML = oldMeasure;
+    measure.textContent = oldMeasure;
     cmd.style.height = (height + padding) + 'px';
     /*
     TODO need to rethink this logic and in _resizeCommandInput, as the current interface has 3 layers the nav group, then input group, then the input itself
@@ -1102,7 +1128,7 @@ function updateCommandInput() {
 function _resizeCommandInput() {
     const measure = commandInputResize.measure;
     const cmd = commandInputResize.cmd;
-    measure.innerHTML = client.commandInput.value + '\n';
+    measure.textContent = client.commandInput.value + '\n';
     let height = measure.offsetHeight;
     if (height < commandInputResize.minHeight)
         height = commandInputResize.minHeight;

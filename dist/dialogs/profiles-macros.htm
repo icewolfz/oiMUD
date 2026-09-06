@@ -129,6 +129,7 @@
     const valueEd = body.querySelector('.profile-value');
     if (valueEd.dataset.expanded === 'true')
         body.querySelector('#btn-value-expand').click();
+    let editor;
     body.querySelector('#btn-value-expand').addEventListener('click', () => {
         if (valueEd.dataset.expanded === 'true') {
             body.querySelector('#btn-value-expand i').classList.add('bi-chevron-expand');
@@ -154,8 +155,13 @@
             if (body.querySelector('#value-editor'))
                 body.querySelector('#value-editor').classList.add('flex-grow-1');
         }
+        if (editor)
+            editor.focus();
+        else
+            body.querySelector('#value').focus();
     });
     let contentChanging = () => {
+        client.off('options-loaded', optionsLoaded);
         dialog.off('content-changing', contentChanging);
         dialog.off('item-loaded', itemLoaded);
         if (editor)

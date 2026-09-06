@@ -6,7 +6,7 @@
   color: var(--theme-color) !important;
   padding: 2px;
   z-index: 1;
-  overflow: auto;
+  overflow: hidden;
   border: 3px solid rgb(108, 117, 125);
   border-image: var(--theme-border-image) 3 repeat;
   text-align: center;
@@ -27,6 +27,11 @@
   right: 0px;
   padding: 2px;
   border-bottom-width: 0;
+}
+
+#panel-bar[data-location="0"] .splitter-panel-1,
+#panel-bar[data-location="1"] .splitter-panel-2 {
+  background-color: black;
 }
 
 @media (orientation: landscape) and (max-width: 641px),
@@ -93,6 +98,7 @@
   background-color: transparent;
   position: absolute;
   z-index: 10;
+  border: 1px solid transparent;
 }
 
 #panel-bar-drag-bar[data-location="0"] {

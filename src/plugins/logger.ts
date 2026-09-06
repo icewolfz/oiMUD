@@ -4,7 +4,7 @@ import { MenuItem, } from '../core/types';
 import { Dialog, DialogButtons } from '../interface/dialog';
 import { Splitter, Orientation, PanelAnchor } from '../interface/splitter';
 import { removeHash, updateHash, closeDropdowns } from '../interface/interface';
-import { capitalize, scrollChildIntoView } from '../core/library';
+import { capitalize, scrollChildIntoView, htmlEncode } from '../core/library';
 import { buildBreadcrumb } from '../interface/breadcrumb';
 
 declare let localforage;
@@ -440,7 +440,7 @@ class LogManager extends Dialog {
                 if (!pages[1].endsWith('.txt') && !pages[1].endsWith('.raw'))
                     this._setContents(logHeader + (value || '').replace(/\n/g, ''));
                 else
-                    this._setContents('<style>body {font-family: \'Courier New\', Courier, monospace;text-align: left;font-size: 1em;white-space: pre;background-color: white;}</style>' + (value || ''));
+                    this._setContents('<style>body {font-family: \'Courier New\', Courier, monospace;text-align: left;font-size: 1em;white-space: pre;background-color: white;}</style>' + htmlEncode(value || ''));
             });
             this.footer.querySelector(`#${this.id}-back`).style.display = '';
             this._splitter.panel2Collapsed = false;
@@ -457,14 +457,17 @@ class LogManager extends Dialog {
 
     }
 
-    private _setContents(contents) {
+    private _setContents(contents, text?) {
         if (!this._contents.contentWindow || !this._contents.contentWindow.document || !this._contents.contentWindow.document.body) {
             setTimeout(() => {
-                this._setContents(contents);
+                this._setContents(contents, text);
             }, 10);
             return;
         }
-        this._contents.contentWindow.document.body.innerHTML = contents;
+        if(text)
+            this._contents.contentWindow.document.body.textContent = contents;
+        else
+            this._contents.contentWindow.document.body.innerHTML = contents;
         this._contents.contentWindow.scroll(0, 0);
         this.emit('content-changed');
     }

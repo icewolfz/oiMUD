@@ -210,17 +210,17 @@ export class Test extends Plugin {
             this.client.print(sample, true);
         };
 
-        this.functions['testxterm'] = title => {
+        this.functions['testxterm'] = data => {
             let r;
             let g;
             let b;
             let c;
             let sample = '';
-            if (typeof title !== 'undefined' && title.length > 0) {
+            if (data && data.args && data.args.length) {
                 sample += 'Set Title: ';
-                sample += title;
+                sample += data.args.join(' ');
                 sample += '\x1B]0;';
-                sample += title;
+                sample += data.args.join(' ');
                 sample += '\u0007\n';
             }
             sample += 'System colors:\n';
@@ -316,16 +316,16 @@ export class Test extends Plugin {
             sample += '\t&lt;V Hp&gt;<V Hp>100</V>&lt;/V&gt; &amp;Hp; = &Hp; &amp;hp; = &hp;\n';
             sample += '\t&lt;VAR Sp&gt;<VAR Sp>200</VAR>&lt;/VAR&gt; &amp;Sp; = &Sp; &amp;sp; = &sp;\n';
             sample += 'Image\n';
-            sample += 'default      <image connected.png URL="./images/" w=48 h=48>\n';
-            sample += 'align left <image connected.png URL="./images/" align=left w=48 h=48> align left\n';
-            sample += 'align right  <image connected.png URL="./images/" align=right w=48 h=48> align right\n';
-            sample += 'align top    <image connected.png URL="./images/" align=top w=48 h=48> align top \n';
-            sample += 'align middle <image connected.png URL="./images/" align=middle w=48 h=48> align middle\n';
-            sample += 'align bottom <image connected.png URL="./images/" align=bottom w=48 h=48> align bottom\n';
-            sample += 'map          <send showmap><image connected.png URL="./images/" ismap w=48 h=48></send>\n';
+            sample += 'default      <image oiMUD.128x128.png URL="./images/" w=48 h=48>\n';
+            sample += 'align left <image oiMUD.128x128.png URL="./images/" align=left w=48 h=48> align left\n';
+            sample += 'align right  <image oiMUD.128x128.png URL="./images/" align=right w=48 h=48> align right\n';
+            sample += 'align top    <image oiMUD.128x128.png URL="./images/" align=top w=48 h=48> align top \n';
+            sample += 'align middle <image oiMUD.128x128.png URL="./images/" align=middle w=48 h=48> align middle\n';
+            sample += 'align bottom <image oiMUD.128x128.png URL="./images/" align=bottom w=48 h=48> align bottom\n';
+            sample += 'map          <send showmap><image oiMUD.128x128.png URL="./images/" ismap w=48 h=48></send>\n';
             sample += '<STAT Hp version Test>';
             sample += '<GAUGE Hp version Test>';
-            sample += '\x1B[0z';
+            sample += '\x1B[3z';
             this.client.print(sample, true);
         };
 
@@ -658,7 +658,7 @@ export class Test extends Plugin {
                 'right hand': { 'name': 'knife', 'type': 'knife', 'subtype': 'dagger', 'material': 'iron', 'quality': 'poor', 'dominant': 1 },
                 'left hand': { 'name': 'club', 'type': 'blunt', 'subtype': 'club', 'material': 'wood', 'quality': 'ordinary', 'dominant': 0 }
             });
-            if (data && data.args && data.args.length && data.args[0] === 'night')
+            if (data && data.args && data.args.indexOf('night') !== -1)
                 this.client.emit('received-GMCP', 'oMUD.Environment', { tod: 'night', moons: ['waning', 'full', 'waxing'] });
             else
                 this.client.emit('received-GMCP', 'oMUD.Environment', { 'tod': 'day' });

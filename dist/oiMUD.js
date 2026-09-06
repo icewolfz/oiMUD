@@ -3577,12 +3577,17 @@
     textarea.select();
     return textarea;
   }
-  function copyText(text) {
+  function copyText(text, html) {
     return new Promise(function(resolve, reject) {
       try {
         if (typeof navigator !== "undefined" && typeof navigator.clipboard !== "undefined" && typeof navigator.permissions !== "undefined") {
           let blob = new Blob([text], { type: "text/plain" });
-          let data = [new ClipboardItem({ "text/plain": blob })];
+          let data;
+          if (html) {
+            let blob2 = new Blob([html], { type: "text/html" });
+            data = [new ClipboardItem({ "text/text": blob, "text/html": blob2 })];
+          } else
+            data = [new ClipboardItem({ "text/plain": blob })];
           navigator.permissions.query({ name: "clipboard-write" }).then(function(permission) {
             if (permission.state === "granted" || permission.state === "prompt") {
               navigator.clipboard.write(data).then(resolve, reject).catch(reject);
@@ -3705,7 +3710,7 @@
   function fSaveAs() {
     let DownloadAttributeSupport = "download" in document.createElement("a");
     let BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder;
-    let URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+    let URL2 = window.URL || window.webkitURL || window.mozURL || window.msURL;
     navigator.saveBlob = navigator.saveBlob || navigator.msSaveBlob || navigator.mozSaveBlob || navigator.webkitSaveBlob;
     window.saveAs = window.saveAs || window.webkitSaveAs || window.mozSaveAs || window.msSaveAs;
     let BrowserSupportedMimeTypes = {
@@ -3741,14 +3746,14 @@
           navigator.saveBlob(blob, name2);
         }
       };
-    } else if (BlobBuilder && URL) {
+    } else if (BlobBuilder && URL2) {
       this.show = function(data, name2, mimetype) {
         let blob, url, builder = new BlobBuilder();
         builder.append(data);
         if (!mimetype) mimetype = "application/octet-stream";
         if (DownloadAttributeSupport) {
           blob = builder.getBlob(mimetype);
-          url = URL.createObjectURL(blob);
+          url = URL2.createObjectURL(blob);
           let link = document.createElement("a");
           link.setAttribute("href", url);
           link.setAttribute("download", name2 || "Download.bin");
@@ -3760,20 +3765,20 @@
             mimetype = "application/octet-stream";
           }
           blob = builder.getBlob(mimetype);
-          url = URL.createObjectURL(blob);
+          url = URL2.createObjectURL(blob);
           window.open(url, "_blank", "");
         }
         setTimeout(function() {
-          URL.revokeObjectURL(url);
+          URL2.revokeObjectURL(url);
         }, 250);
       };
-    } else if (Blob && URL) {
+    } else if (Blob && URL2) {
       this.show = function(data, name2, mimetype) {
         let blob, url;
         if (!mimetype) mimetype = "application/octet-stream";
         blob = new Blob([data], { type: mimetype });
         if (DownloadAttributeSupport) {
-          url = URL.createObjectURL(blob);
+          url = URL2.createObjectURL(blob);
           let link = document.createElement("a");
           link.setAttribute("href", url);
           link.setAttribute("download", name2 || "Download.bin");
@@ -3784,11 +3789,11 @@
           if (BrowserSupportedMimeTypes[mimetype.split(";")[0]] === true) {
             mimetype = "application/octet-stream";
           }
-          url = URL.createObjectURL(blob);
+          url = URL2.createObjectURL(blob);
           window.open(url, "_blank", "");
         }
         setTimeout(function() {
-          URL.revokeObjectURL(url);
+          URL2.revokeObjectURL(url);
         }, 250);
       };
     } else if (!/\bMSIE\b/.test(navigator.userAgent)) {
@@ -3870,18 +3875,6 @@
         ba.append(String.fromCharCode(data[idx]));
     }
     return ba.toString();
-  }
-  function getScrollbarWidth() {
-    const outer = document.createElement("div");
-    outer.style.visibility = "hidden";
-    outer.style.overflow = "scroll";
-    outer.style.msOverflowStyle = "scrollbar";
-    document.body.appendChild(outer);
-    const inner = document.createElement("div");
-    outer.appendChild(inner);
-    const scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
-    outer.parentNode.removeChild(outer);
-    return scrollbarWidth;
   }
   function openFileDialog(title, multiple, accept) {
     return new Promise((resolve, reject) => {
@@ -5412,13 +5405,15 @@
         dl = data.byteLength;
         ba = new StringBuffer();
         for (; idx < dl; idx++) {
-          ba.appendCode(data[idx]);
-          if (data[idx] === 255)
+          if (data[idx] === 255) {
             ba.appendCode(255);
-          else if (data[idx] === 13 && dl === 1)
-            ba.append("\r\n");
-          else if (data[idx] === 10 && dl === 1)
+            ba.appendCode(255);
+          } else if (data[idx] === 13 && dl === 1)
             ba.append("\r\0");
+          else if (data[idx] === 10 && dl === 1)
+            ba.append("\r\n");
+          else
+            ba.appendCode(data[idx]);
         }
         return ba.toString();
       }
@@ -5427,13 +5422,15 @@
       for (; idx < dl; idx++) {
         c = data.charAt(idx);
         i2 = data.charCodeAt(idx);
-        ba.append(c);
-        if (i2 === 255)
+        if (i2 === 255) {
           ba.append(c);
-        else if (i2 === 13 && dl === 1)
-          ba.append("\r\n");
-        else if (i2 === 10 && dl === 1)
+          ba.append(c);
+        } else if (i2 === 13 && dl === 1)
           ba.append("\r\0");
+        else if (i2 === 10 && dl === 1)
+          ba.append("\r\n");
+        else
+          ba.append(c);
       }
       return ba.toString();
     }
@@ -5457,7 +5454,7 @@
           _socket = new WebSocket((this.scheme || "ws://") + host, this.protocol || "binary");
         _socket.binaryType = "arraybuffer";
         _socket.onclose = (evt) => {
-          if (evt.code === 1006 && evt.type === "close" && !this._closed)
+          if ((evt.code === 1006 || evt.code === 1e3) && evt.type === "close" && !this._closed)
             this.close();
           else if (evt.code !== 1e3 && !this._closed) {
             this.emit("error", { message: "Closed due to transmission error", err: evt });
@@ -6482,11 +6479,14 @@
     ["showChatWindow", 0, 2 /* Number */, 0],
     ["chat.enableColors", 0, 2 /* Number */, true],
     ["chat.enableBackgroundColors", 0, 2 /* Number */, true],
-    ["display.customSelection", 0, 1 /* Boolean */, true],
-    ["chat.customSelection", 0, 1 /* Boolean */, true],
-    ["pasteSpecialDisable", 0, 1 /* Boolean */, true]
+    ["display.customSelection", 0, 1 /* Boolean */, !isMobile()],
+    ["chat.customSelection", 0, 1 /* Boolean */, !isMobile()],
+    ["pasteSpecialDisable", 0, 1 /* Boolean */, true],
+    ["display.defaultMXPState", 0, 1 /* Boolean */, false],
+    ["customScrollbars", 0, 1 /* Boolean */, false],
+    ["saveDynamicProfiles", 0, 1 /* Boolean */, false]
   ];
-  var SettingProperties = ["bufferSize", "commandDelay", "commandDelayCount", "commandHistorySize", "fontSize", "cmdfontSize", "commandEcho", "flashing", "autoConnect", "enableAliases", "enableTriggers", "enableMacros", "showScriptErrors", "commandStacking", "commandStackingChar", "htmlLog", "keepLastCommand", "enableMCCP", "enableUTF8", "font", "cmdfont", "mapper.follow", "mapper.enabled", "mapper.split", "mapper.fill", "showMapper", "fullScreen", "enableMXP", "enableMSP", "parseCommands", "lagMeter", "enablePing", "enableEcho", "enableSpeedpaths", "speedpathsChar", "parseSpeedpaths", "profile", "parseSingleQuotes", "parseDoubleQuotes", "logEnabled", "logPrepend", "logOffline", "logUniqueOnConnect", "enableURLDetection", "notifyMSPPlay", "CommandonClick", "allowEval", "allowEscape", "AutoCopySelectedToClipboard", "enableDebug", "editorPersistent", "askonclose", "dev", "chat.captureLines", "chat.captureAllLines", "chat.captureReviews", "chat.captureTells", "chat.captureTalk", "chat.gag", "chat.CaptureOnlyOpen", "checkForUpdates", "autoCreateCharacter", "askonchildren", "mapper.legend", "mapper.room", "mapper.importType", "mapper.vscroll", "mapper.hscroll", "mapper.scale", "mapper.alwaysOnTop", "mapper.alwaysOnTopClient", "mapper.memory", "mapper.memorySavePeriod", "mapper.active.ID", "mapper.active.x", "mapper.active.y", "mapper.active.z", "mapper.active.area", "mapper.active.zone", "mapper.persistent", "profiles.split", "profiles.askoncancel", "profiles.triggersAdvanced", "profiles.aliasesAdvanced", "profiles.buttonsAdvanced", "profiles.macrosAdvanced", "profiles.contextsAdvanced", "profiles.codeEditor", "profiles.watchFiles", "chat.alwaysOnTop", "chat.alwaysOnTopClient", "chat.log", "chat.persistent", "chat.zoom", "chat.font", "chat.fontSize", "title", "logGagged", "logTimeFormat", "autoConnectDelay", "autoLogin", "onDisconnect", "enableKeepAlive", "keepAliveDelay", "newlineShortcut", "logWhat", "logErrors", "showErrorsExtended", "reportCrashes", "enableCommands", "commandChar", "escapeChar", "enableVerbatim", "verbatimChar", "soundPath", "logPath", "theme", "gamepads", "buttons.connect", "buttons.characters", "buttons.preferences", "buttons.log", "buttons.clear", "buttons.lock", "buttons.map", "buttons.user", "buttons.mail", "buttons.compose", "buttons.immortal", "buttons.codeEditor", "find.case", "find.word", "find.reverse", "find.regex", "find.selection", "find.show", "display.split", "display.splitHeight", "display.splitLive", "display.roundedOverlays", "backupLoad", "backupSave", "backupAllProfiles", "backupReplaceCharacters", "scrollLocked", "showStatus", "showCharacterManager", "showChat", "showEditor", "showArmor", "showStatusWeather", "showStatusLimbs", "showStatusHealth", "showStatusExperience", "showStatusPartyHealth", "showStatusCombatHealth", "showButtonBar", "allowNegativeNumberNeeded", "spellchecking", "hideOnMinimize", "showTrayIcon", "statusExperienceNeededProgressbar", "trayClick", "trayDblClick", "pasteSpecialPrefix", "pasteSpecialPostfix", "pasteSpecialReplace", "pasteSpecialPrefixEnabled", "pasteSpecialPostfixEnabled", "pasteSpecialReplaceEnabled", "display.showSplitButton", "chat.split", "chat.splitHeight", "chat.splitLive", "chat.roundedOverlays", "chat.showSplitButton", "chat.bufferSize", "chat.flashing", "display.hideTrailingEmptyLine", "display.enableColors", "display.enableBackgroundColors", "enableSound", "allowHalfOpen", "editorClearOnSend", "editorCloseOnSend", "askOnCloseAll", "askonloadCharacter", "mapper.roomWidth", "mapper.roomGroups", "mapper.showInTaskBar", "profiles.enabled", "profiles.sortOrder", "profiles.sortDirection", "profiles.showInTaskBar", "profiles.profileSelected", "profiles.profileExpandSelected", "chat.lines", "chat.showInTaskBar", "chat.showTimestamp", "chat.timestampFormat", "chat.tabWidth", "chat.displayControlCodes", "chat.emulateTerminal", "chat.emulateControlCodes", "chat.wordWrap", "chat.wrapAt", "chat.indent", "chat.scrollLocked", "chat.find.case", "chat.find.word", "chat.find.reverse", "chat.find.regex", "chat.find.selection", "chat.find.show", "chat.find.highlight", "chat.find.location", "codeEditor.showInTaskBar", "codeEditor.persistent", "codeEditor.alwaysOnTop", "codeEditor.alwaysOnTopClient", "autoTakeoverLogin", "fixHiddenWindows", "maxReconnectDelay", "enableBackgroundThrottling", "enableBackgroundThrottlingClients", "showInTaskBar", "showLagInTitle", "mspMaxRetriesOnError", "logTimestamp", "logTimestampFormat", "disableTriggerOnError", "prependTriggeredLine", "enableParameters", "parametersChar", "enableNParameters", "nParametersChar", "enableParsing", "externalWho", "externalHelp", "watchForProfilesChanges", "onProfileChange", "onProfileDeleted", "enableDoubleParameterEscaping", "ignoreEvalUndefined", "enableInlineComments", "enableBlockComments", "inlineCommentString", "blockCommentString", "allowCommentsFromCommand", "saveTriggerStateChanges", "groupProfileSaves", "groupProfileSaveDelay", "returnNewlineOnEmptyValue", "pathDelay", "pathDelayCount", "echoSpeedpaths", "alwaysShowTabs", "scriptEngineType", "initializeScriptEngineOnLoad", "find.highlight", "find.location", "display.showInvalidMXPTags", "display.showTimestamp", "display.timestampFormat", "display.displayControlCodes", "display.emulateTerminal", "display.emulateControlCodes", "display.wordWrap", "display.tabWidth", "display.wrapAt", "display.indent", "statusWidth", "showEditorInTaskBar", "trayMenu", "lockLayout", "loadLayout", "useSingleInstance", "statusWidth", "characterManagerDblClick", "warnAdvancedSettings", "showAdvancedSettings", "enableTabCompletion", "tabCompletionBufferLimit", "ignoreCaseTabCompletion", "enableNotifications", "commandAutoSize", "commandWordWrap", "commandScrollbars", "tabCompletionList", "tabCompletionLookupType", "tabCompletionReplaceCasing", "characterManagerAddButtonAction", "enableCrashReporting", "characterManagerPanelWidth", "ignoreInputLeadingWhitespace", "profiles.find.case", "profiles.find.word", "profiles.find.reverse", "profiles.find.regex", "profiles.find.selection", "profiles.find.show", "profiles.find.value", "skipMore", "skipMoreDelay", "commandMinLines", "simpleAlarms", "simpleEditor", "selectLastCommand", "statusMode", "logger.split", "showChatWindow", "chat.enableColors", "chat.enableBackgroundColors", "display.customSelection", "chat.customSelection", "pasteSpecialDisable"];
+  var SettingProperties = ["bufferSize", "commandDelay", "commandDelayCount", "commandHistorySize", "fontSize", "cmdfontSize", "commandEcho", "flashing", "autoConnect", "enableAliases", "enableTriggers", "enableMacros", "showScriptErrors", "commandStacking", "commandStackingChar", "htmlLog", "keepLastCommand", "enableMCCP", "enableUTF8", "font", "cmdfont", "mapper.follow", "mapper.enabled", "mapper.split", "mapper.fill", "showMapper", "fullScreen", "enableMXP", "enableMSP", "parseCommands", "lagMeter", "enablePing", "enableEcho", "enableSpeedpaths", "speedpathsChar", "parseSpeedpaths", "profile", "parseSingleQuotes", "parseDoubleQuotes", "logEnabled", "logPrepend", "logOffline", "logUniqueOnConnect", "enableURLDetection", "notifyMSPPlay", "CommandonClick", "allowEval", "allowEscape", "AutoCopySelectedToClipboard", "enableDebug", "editorPersistent", "askonclose", "dev", "chat.captureLines", "chat.captureAllLines", "chat.captureReviews", "chat.captureTells", "chat.captureTalk", "chat.gag", "chat.CaptureOnlyOpen", "checkForUpdates", "autoCreateCharacter", "askonchildren", "mapper.legend", "mapper.room", "mapper.importType", "mapper.vscroll", "mapper.hscroll", "mapper.scale", "mapper.alwaysOnTop", "mapper.alwaysOnTopClient", "mapper.memory", "mapper.memorySavePeriod", "mapper.active.ID", "mapper.active.x", "mapper.active.y", "mapper.active.z", "mapper.active.area", "mapper.active.zone", "mapper.persistent", "profiles.split", "profiles.askoncancel", "profiles.triggersAdvanced", "profiles.aliasesAdvanced", "profiles.buttonsAdvanced", "profiles.macrosAdvanced", "profiles.contextsAdvanced", "profiles.codeEditor", "profiles.watchFiles", "chat.alwaysOnTop", "chat.alwaysOnTopClient", "chat.log", "chat.persistent", "chat.zoom", "chat.font", "chat.fontSize", "title", "logGagged", "logTimeFormat", "autoConnectDelay", "autoLogin", "onDisconnect", "enableKeepAlive", "keepAliveDelay", "newlineShortcut", "logWhat", "logErrors", "showErrorsExtended", "reportCrashes", "enableCommands", "commandChar", "escapeChar", "enableVerbatim", "verbatimChar", "soundPath", "logPath", "theme", "gamepads", "buttons.connect", "buttons.characters", "buttons.preferences", "buttons.log", "buttons.clear", "buttons.lock", "buttons.map", "buttons.user", "buttons.mail", "buttons.compose", "buttons.immortal", "buttons.codeEditor", "find.case", "find.word", "find.reverse", "find.regex", "find.selection", "find.show", "display.split", "display.splitHeight", "display.splitLive", "display.roundedOverlays", "backupLoad", "backupSave", "backupAllProfiles", "backupReplaceCharacters", "scrollLocked", "showStatus", "showCharacterManager", "showChat", "showEditor", "showArmor", "showStatusWeather", "showStatusLimbs", "showStatusHealth", "showStatusExperience", "showStatusPartyHealth", "showStatusCombatHealth", "showButtonBar", "allowNegativeNumberNeeded", "spellchecking", "hideOnMinimize", "showTrayIcon", "statusExperienceNeededProgressbar", "trayClick", "trayDblClick", "pasteSpecialPrefix", "pasteSpecialPostfix", "pasteSpecialReplace", "pasteSpecialPrefixEnabled", "pasteSpecialPostfixEnabled", "pasteSpecialReplaceEnabled", "display.showSplitButton", "chat.split", "chat.splitHeight", "chat.splitLive", "chat.roundedOverlays", "chat.showSplitButton", "chat.bufferSize", "chat.flashing", "display.hideTrailingEmptyLine", "display.enableColors", "display.enableBackgroundColors", "enableSound", "allowHalfOpen", "editorClearOnSend", "editorCloseOnSend", "askOnCloseAll", "askonloadCharacter", "mapper.roomWidth", "mapper.roomGroups", "mapper.showInTaskBar", "profiles.enabled", "profiles.sortOrder", "profiles.sortDirection", "profiles.showInTaskBar", "profiles.profileSelected", "profiles.profileExpandSelected", "chat.lines", "chat.showInTaskBar", "chat.showTimestamp", "chat.timestampFormat", "chat.tabWidth", "chat.displayControlCodes", "chat.emulateTerminal", "chat.emulateControlCodes", "chat.wordWrap", "chat.wrapAt", "chat.indent", "chat.scrollLocked", "chat.find.case", "chat.find.word", "chat.find.reverse", "chat.find.regex", "chat.find.selection", "chat.find.show", "chat.find.highlight", "chat.find.location", "codeEditor.showInTaskBar", "codeEditor.persistent", "codeEditor.alwaysOnTop", "codeEditor.alwaysOnTopClient", "autoTakeoverLogin", "fixHiddenWindows", "maxReconnectDelay", "enableBackgroundThrottling", "enableBackgroundThrottlingClients", "showInTaskBar", "showLagInTitle", "mspMaxRetriesOnError", "logTimestamp", "logTimestampFormat", "disableTriggerOnError", "prependTriggeredLine", "enableParameters", "parametersChar", "enableNParameters", "nParametersChar", "enableParsing", "externalWho", "externalHelp", "watchForProfilesChanges", "onProfileChange", "onProfileDeleted", "enableDoubleParameterEscaping", "ignoreEvalUndefined", "enableInlineComments", "enableBlockComments", "inlineCommentString", "blockCommentString", "allowCommentsFromCommand", "saveTriggerStateChanges", "groupProfileSaves", "groupProfileSaveDelay", "returnNewlineOnEmptyValue", "pathDelay", "pathDelayCount", "echoSpeedpaths", "alwaysShowTabs", "scriptEngineType", "initializeScriptEngineOnLoad", "find.highlight", "find.location", "display.showInvalidMXPTags", "display.showTimestamp", "display.timestampFormat", "display.displayControlCodes", "display.emulateTerminal", "display.emulateControlCodes", "display.wordWrap", "display.tabWidth", "display.wrapAt", "display.indent", "statusWidth", "showEditorInTaskBar", "trayMenu", "lockLayout", "loadLayout", "useSingleInstance", "statusWidth", "characterManagerDblClick", "warnAdvancedSettings", "showAdvancedSettings", "enableTabCompletion", "tabCompletionBufferLimit", "ignoreCaseTabCompletion", "enableNotifications", "commandAutoSize", "commandWordWrap", "commandScrollbars", "tabCompletionList", "tabCompletionLookupType", "tabCompletionReplaceCasing", "characterManagerAddButtonAction", "enableCrashReporting", "characterManagerPanelWidth", "ignoreInputLeadingWhitespace", "profiles.find.case", "profiles.find.word", "profiles.find.reverse", "profiles.find.regex", "profiles.find.selection", "profiles.find.show", "profiles.find.value", "skipMore", "skipMoreDelay", "commandMinLines", "simpleAlarms", "simpleEditor", "selectLastCommand", "statusMode", "logger.split", "showChatWindow", "chat.enableColors", "chat.enableBackgroundColors", "display.customSelection", "chat.customSelection", "pasteSpecialDisable", "display.defaultMXPState", "customScrollbars", "saveDynamicProfiles"];
   var Settings = class _Settings {
     constructor() {
       for (let s = 0, sl = SettingList.length; s < sl; s++) {
@@ -6580,6 +6580,8 @@
           case "chat.split":
           case "display.customSelection":
           case "chat.customSelection":
+          case "display.defaultMXPState":
+          case "customScrollbars":
             if (tmp == 1)
               return true;
             return false;
@@ -6910,8 +6912,14 @@
           return true;
         case "pasteSpecialDisable":
           return true;
+        case "saveDynamicProfiles":
+          return false;
         case "display.showSplitButton":
           return true;
+        case "display.defaultMXPState":
+          return false;
+        case "customScrollbars":
+          return false;
         case "chat.showSplitButton":
           return true;
         case "chat.bufferSize":
@@ -8165,6 +8173,41 @@
         return null;
       tmp = SortItemArrayByPriority(this[type]);
       const l2 = tmp.length;
+      let found = false;
+      if (Array.isArray(field)) {
+        for (let t = 0; t < l2; t++) {
+          for (let f = 0, fl = field.length; f < fl; f++) {
+            found = true;
+            if (tmp[t][field[f]] !== value) {
+              found = false;
+              break;
+            }
+          }
+          if (found) return tmp[t];
+        }
+        return null;
+      }
+      if (typeof field === "object") {
+        for (let t = 0; t < l2; t++) {
+          for (const v in field) {
+            if (!field.hasOwnProperty(v)) continue;
+            found = true;
+            if (tmp[t][v] !== field[v]) {
+              found = false;
+              break;
+            }
+          }
+          if (found) return tmp[t];
+        }
+        return null;
+      }
+      if (typeof field === "function") {
+        for (let t = 0; t < l2; t++) {
+          if (field(tmp[t], value))
+            return tmp[t];
+        }
+        return null;
+      }
       for (let t = 0; t < l2; t++) {
         if (tmp[t][field] === value)
           return tmp[t];
@@ -8177,6 +8220,15 @@
         return null;
       tmp = SortItemArrayByPriority(this[type]);
       const l2 = tmp.length;
+      if (Array.isArray(field)) {
+        for (let t = 0; t < l2; t++) {
+          for (let f = 0, fl = field.length; f < fl; f++) {
+            if (tmp[t][field[f]] === value)
+              return tmp[t];
+          }
+        }
+        return null;
+      }
       if (typeof field === "object") {
         for (let t = 0; t < l2; t++) {
           for (const v in field) {
@@ -8185,7 +8237,14 @@
               return tmp[t];
           }
         }
-        return -1;
+        return null;
+      }
+      if (typeof field === "function") {
+        for (let t = 0; t < l2; t++) {
+          if (field(tmp[t], value))
+            return tmp[t];
+        }
+        return null;
       }
       for (let t = 0; t < l2; t++) {
         if (tmp[t][field] === value)
@@ -8813,12 +8872,12 @@
   var mathjs;
   var _mathjs;
   var WindowVariables = ["$selectedword", "$selword", "$selectedurl", "$selurl", "$selectedline", "$selline", "$selected", "$character", "$copied", "$action", "$trigger", "$caption", "$characterid"];
-  function ProperCase(str) {
+  function _ProperCase(str) {
     return str.replace(/\w*\S*/g, (txt) => {
       return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     });
   }
-  function fudgeDice() {
+  function _fudgeDice() {
     switch (~~(Math.random() * 6) + 1) {
       case 1:
       case 4:
@@ -8877,6 +8936,16 @@
   var TriggerNotFound = class extends Error {
     constructor(trigger, profile) {
       super(`Trigger not found${trigger ? `: ${trigger}` : ""}${profile ? ` in profile: ${profile}` : ""}`);
+    }
+  };
+  var InvalidOption = class extends Error {
+    constructor(type, option) {
+      super(`Invalid ${type ? type + " " : ""}option${option ? " " + option.trim() : ""}`);
+    }
+  };
+  var InvalidOptions = class extends Error {
+    constructor(type) {
+      super(`Invalid ${type ? type + " " : ""}options`);
     }
   };
   var Input = class extends EventEmitter {
@@ -9469,7 +9538,7 @@
           let sum = 0;
           for (let i2 = 0; i2 < c; i2++) {
             if (sides === "F" || sides === "f")
-              sum += fudgeDice();
+              sum += _fudgeDice();
             else if (sides === "%")
               sum += ~~(Math.random() * 100) + 1;
             else
@@ -9597,7 +9666,7 @@
         if: (args, math2, scope) => {
           if (args.length < 3)
             throw new ArgumentMissingError("if");
-          if (args.length !== 3)
+          if (args.length > 3)
             throw new ArgumentTooManyError("if");
           if (args[0].compile().evaluate(scope))
             return args[1].compile().evaluate(scope);
@@ -10057,7 +10126,7 @@
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+              if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
               trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
               trigger = trigger.find((t) => {
@@ -10065,7 +10134,7 @@
               });
             } else {
               for (; k < kl; k++) {
-                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
                 trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                 trigger = trigger.find((t) => {
@@ -10508,57 +10577,11 @@
         case "untrigger":
         case "unt":
           this._echoRaw(raw);
-          profile = null;
-          name2 = null;
-          if (args.length < 1 || args.length > 2)
+          if (args.length === 0 || args.length > 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unt\x1B[0;-11;-12mrigger {pattern|name} \x1B[3mprofile\x1B[0;-11;-12m");
-          if (args[0].length === 0)
-            throw new Error("Invalid name or pattern");
-          if (args[0].match(/^\{.*\}$/g))
-            args[0] = this.parseInline(args[0].substr(1, args[0].length - 2));
-          else
-            args[0] = this.parseInline(this.stripQuotes(args[0]));
-          if (args.length === 2) {
-            profile = this.stripQuotes(args[2]);
-            profile = this.parseInline(profile);
-          }
-          if (!profile || profile.length === 0) {
-            const keys = this._profiles.keys;
-            let k = 0;
-            const kl = keys.length;
-            if (kl === 0)
-              return null;
-            if (kl === 1) {
-              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
-                throw Error("No enabled profiles found!");
-              item = this._profiles.items[keys[k]].findAny("triggers", { name: args[0], pattern: args[0] });
-            } else {
-              for (; k < kl; k++) {
-                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
-                  continue;
-                item = this._profiles.items[keys[k]].findAny("triggers", { name: args[0], pattern: args[0] });
-                if (item) {
-                  profile = this._profiles.items[keys[k]];
-                  break;
-                }
-              }
-            }
-            if (!item)
-              throw new Error("Trigger '" + args[0] + "' not found in '" + profile.name + "'!");
-            this._client.removeTrigger(item);
-            this._echo("Trigger '" + args[0] + "' removed from '" + profile.name + "'.", -7, -8, true, true);
-          } else {
-            profile = this.parseInline(profile);
-            if (this._profiles.contains(profile)) {
-              profile = this._profiles.items[profile.toLowerCase()];
-              item = profile.findAny("triggers", { name: args[0], pattern: args[0] });
-              if (!item)
-                throw new Error("Trigger '" + args[0] + "' not found in '" + profile.name + "'!");
-              this._client.removeTrigger(item);
-              this._echo("Trigger '" + args[0] + "' removed from '" + profile.name + "'.", -7, -8, true, true);
-            } else
-              throw new ProfileNotFound(profile);
-          }
+          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m", true);
+          this._removeItem(profile.results, profile.profile ? profile.profiles.triggers : this._client.triggers, "trigger", ["name", "pattern"], profile.profile);
+          profile = null;
           return null;
         case "suspend":
         case "sus":
@@ -10654,104 +10677,16 @@
                 args[0] = args[0].substr(1, args[0].length - 2);
               else
                 args[0] = this.stripQuotes(args[0]);
-              if (args[0].length !== 0) {
-                this.parseInline(args[0]).split(",").forEach((o) => {
-                  switch (o.trim()) {
-                    case "nocr":
-                    case "prompt":
-                    case "case":
-                    case "verbatim":
-                    case "disable":
-                    case "enable":
-                    case "cmd":
-                    case "temporary":
-                    case "temp":
-                    case "raw":
-                    case "pattern":
-                    case "regular":
-                    case "alarm":
-                    case "event":
-                    case "cmdpattern":
-                    case "loopexpression":
-                      item.options[o.trim()] = true;
-                      break;
-                    default:
-                      if (o.trim().startsWith("param=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTrigger(`param option '${o.trim()}'`);
-                        item.options["params"] = tmp[1];
-                      } else if (o.trim().startsWith("type=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTrigger(`type option '${o.trim()}'`);
-                        if (!this._isTriggerType(tmp[1], 1 /* Main */))
-                          throw new InvalidTrigger("type");
-                        item.options["type"] = tmp[1];
-                      } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTrigger(`priority option '${o.trim()}'`);
-                        i2 = parseInt(tmp[1], 10);
-                        if (isNaN(i2))
-                          throw new InvalidTrigger("priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i2;
-                      } else
-                        throw new InvalidTrigger(`option '${o.trim()}'`);
-                  }
-                });
-              } else
+              if (args[0].length !== 0)
+                item.options = this._parseTriggerOptions(args[0]);
+              else
                 throw new InvalidTrigger("options");
             } else if (args.length === 2) {
               if (args[0].match(/^\{[\s\S]*\}$/g))
                 args[0] = args[0].substr(1, args[0].length - 2);
-              if (args[0].length !== 0) {
-                this.parseInline(args[0]).split(",").forEach((o) => {
-                  switch (o.trim()) {
-                    case "nocr":
-                    case "prompt":
-                    case "case":
-                    case "verbatim":
-                    case "disable":
-                    case "enable":
-                    case "cmd":
-                    case "temporary":
-                    case "temp":
-                    case "raw":
-                    case "pattern":
-                    case "regular":
-                    case "alarm":
-                    case "event":
-                    case "cmdpattern":
-                    case "loopexpression":
-                      item.options[o.trim()] = true;
-                      break;
-                    default:
-                      if (o.trim().startsWith("param=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTrigger(`param option '${o.trim()}'`);
-                        item.options["params"] = tmp[1];
-                      } else if (o.trim().startsWith("type=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTrigger(`type option '${o.trim()}'`);
-                        if (!this._isTriggerType(tmp[1], 1 /* Main */))
-                          throw new InvalidTrigger("type");
-                        item.options["type"] = tmp[1];
-                      } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTrigger(`priority option '${o.trim()}'`);
-                        i2 = parseInt(tmp[1], 10);
-                        if (isNaN(i2))
-                          throw new InvalidTrigger("priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i2;
-                      } else
-                        throw new InvalidTrigger(`option '${o.trim()}'`);
-                  }
-                });
-              } else
+              if (args[0].length !== 0)
+                item.options = this._parseTriggerOptions(args[0]);
+              else
                 throw new InvalidTrigger("options");
               item.profile = this.stripQuotes(args[1]);
               if (item.profile.length !== 0)
@@ -10787,63 +10722,17 @@
             throw new Error("Missing commands");
           if (args.length === 1) {
             args[0] = args[0].substr(1, args[0].length - 2);
-            if (args[0].length !== 0) {
-              this.parseInline(args[0]).split(",").forEach((o) => {
-                switch (o.trim()) {
-                  case "nocr":
-                  case "prompt":
-                  case "case":
-                  case "verbatim":
-                  case "disable":
-                  case "temporary":
-                  case "temp":
-                    item.options[o.trim()] = true;
-                    break;
-                  default:
-                    if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
-                      tmp = o.trim().split("=");
-                      if (tmp.length !== 2)
-                        throw new Error(`Invalid event priority option '${o.trim()}'`);
-                      i2 = parseInt(tmp[1], 10);
-                      if (isNaN(i2))
-                        throw new Error("Invalid event priority value '" + tmp[1] + "' must be a number");
-                      item.options["priority"] = i2;
-                    } else
-                      throw new Error(`Invalid event option '${o.trim()}'`);
-                }
-              });
-            } else
-              throw new Error("Invalid event options");
+            if (args[0].length !== 0)
+              item.options = this._parseTriggerOptions(args[0], 3 /* event */);
+            else
+              throw new InvalidOptions("event");
           } else if (args.length === 2) {
             if (args[0].match(/^\{[\s\S]*\}$/g))
               args[0] = args[0].substr(1, args[0].length - 2);
-            if (args[0].length !== 0) {
-              this.parseInline(args[0]).split(",").forEach((o) => {
-                switch (o.trim()) {
-                  case "nocr":
-                  case "prompt":
-                  case "case":
-                  case "verbatim":
-                  case "disable":
-                  case "temporary":
-                  case "temp":
-                    item.options[o.trim()] = true;
-                    break;
-                  default:
-                    if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
-                      tmp = o.trim().split("=");
-                      if (tmp.length !== 2)
-                        throw new Error(`Invalid event priority option '${o.trim()}'`);
-                      i2 = parseInt(tmp[1], 10);
-                      if (isNaN(i2))
-                        throw new Error("Invalid event priority value '" + tmp[1] + "' must be a number");
-                      item.options["priority"] = i2;
-                    } else
-                      throw new Error(`Invalid event option '${o.trim()}'`);
-                }
-              });
-            } else
-              throw new Error("Invalid event options");
+            if (args[0].length !== 0)
+              item.options = this._parseTriggerOptions(args[0], 3 /* event */);
+            else
+              throw new InvalidOptions("event");
             item.profile = this.stripQuotes(args[1]);
             if (item.profile.length !== 0)
               item.profile = this.parseInline(item.profile);
@@ -10855,7 +10744,7 @@
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+              if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
               profile = this._profiles.items[keys[0]];
               tmp = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers.filter((t) => t.type === 2 /* Event */));
@@ -10864,7 +10753,7 @@
               });
             } else {
               for (; k < kl; k++) {
-                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
                 tmp = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers.filter((t) => t.type === 2 /* Event */));
                 trigger = tmp.find((t) => {
@@ -10899,22 +10788,22 @@
           if (item.commands !== null)
             trigger.value = item.commands;
           trigger.type = 2 /* Event */;
-          if (item.options.prompt)
-            trigger.triggerPrompt = true;
-          if (item.options.nocr)
-            trigger.triggerNewline = false;
-          if (item.options.case)
-            trigger.caseSensitive = true;
-          if (item.options.raw)
-            trigger.raw = true;
-          if (item.options.verbatim)
-            trigger.verbatim = true;
-          if (item.options.disable)
-            trigger.enabled = false;
-          else if (item.options.enable)
-            trigger.enabled = true;
-          if (item.options.temporary || item.options.temp)
-            trigger.temp = true;
+          if (item.options.hasOwnProperty("prompt"))
+            trigger.triggerPrompt = item.options.prompt;
+          if (item.options.hasOwnProperty("nocr"))
+            trigger.triggerNewline = !item.options.nocr;
+          if (item.options.hasOwnProperty("case"))
+            trigger.caseSensitive = item.options.case;
+          if (item.options.hasOwnProperty("raw"))
+            trigger.raw = item.options.raw;
+          if (item.options.hasOwnProperty("verbatim"))
+            trigger.verbatim = item.options.verbatim;
+          if (item.options.hasOwnProperty("disable"))
+            trigger.enabled = !item.options.disable;
+          else if (item.options.hasOwnProperty("enable"))
+            trigger.enabled = item.options.enable;
+          if (item.options.hasOwnProperty("temporary") || item.options.hasOwnProperty("temp"))
+            trigger.temp = item.options.temporary || item.options.temp;
           trigger.priority = item.options.priority;
           this._client.saveProfiles();
           this._client.clearCache();
@@ -10927,25 +10816,11 @@
         case "unevent":
         case "une":
           this._echoRaw(raw);
-          if (args.length === 0)
+          if (args.length === 0 || args.length > 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent name or \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent {name} \x1B[3mprofile\x1B[0;-11;-12m");
-          else {
-            profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent name or \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent {name} \x1B[3mprofile\x1B[0;-11;-12m");
-            n = profile.results;
-            profile = profile.profile;
-            items = SortItemArrayByPriority(profile.triggers.filter((t) => t.type === 2 /* Event */));
-            n = this.stripQuotes(n);
-            tmp = n;
-            n = items.findIndex((i3) => i3.pattern === n || i3.name === n);
-            f = n !== -1;
-            if (!f)
-              this._echo("Event '" + tmp + "' not found.", -7, -8, true, true);
-            else {
-              this._echo("Event '" + (items[n].name || items[n].pattern) + "' removed.", -7, -8, true, true);
-              this._client.removeTrigger(items[n]);
-              profile = null;
-            }
-          }
+          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent name or \x1B[4m" + cmdChar + "une\x1B[0;-11;-12mvent {name} \x1B[3mprofile\x1B[0;-11;-12m", true);
+          this._removeItem(profile.results, SortItemArrayByPriority((profile.profile ? profile.profile.triggers : this._client.triggers).filter((t) => t.type === 2 /* Event */)), "event", ["pattern", "name"], profile.profile, false);
+          profile = null;
           return null;
         case "button":
         case "bu":
@@ -11004,61 +10879,17 @@
                 args[0] = args[0].substr(1, args[0].length - 2);
               else
                 args[0] = this.stripQuotes(args[0]);
-              if (args[0].length !== 0) {
-                this.parseInline(args[0]).split(",").forEach((o) => {
-                  switch (o.trim()) {
-                    case "nosend":
-                    case "chain":
-                    case "append":
-                    case "stretch":
-                    case "disable":
-                    case "enable":
-                      item.options[o.trim()] = true;
-                      break;
-                    default:
-                      if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new Error(`Invalid button priority option '${o.trim()}'`);
-                        i2 = parseInt(tmp[1], 10);
-                        if (isNaN(i2))
-                          throw new Error("Invalid button priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i2;
-                      } else
-                        throw new Error(`Invalid button option '${o.trim()}'`);
-                  }
-                });
-              } else
-                throw new Error("Invalid button options");
+              if (args[0].length !== 0)
+                item.options = this._parseButtonOptions(args[0]);
+              else
+                throw new InvalidOptions("button");
             } else if (args.length === 2) {
               if (args[0].match(/^\{[\s\S]*\}$/g))
                 args[0] = args[0].substr(1, args[0].length - 2);
-              if (args[0].length !== 0) {
-                this.parseInline(args[0]).split(",").forEach((o) => {
-                  switch (o.trim()) {
-                    case "nosend":
-                    case "chain":
-                    case "append":
-                    case "stretch":
-                    case "disable":
-                    case "enable":
-                      item.options[o.trim()] = true;
-                      break;
-                    default:
-                      if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new Error(`Invalid button priority option '${o.trim()}'`);
-                        i2 = parseInt(tmp[1], 10);
-                        if (isNaN(i2))
-                          throw new Error("Invalid button priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i2;
-                      } else
-                        throw new Error(`Invalid button option '${o.trim()}'`);
-                  }
-                });
-              } else
-                throw new Error("Invalid button options");
+              if (args[0].length !== 0)
+                item.options = this._parseButtonOptions(args[0]);
+              else
+                throw new InvalidOptions("button");
               item.profile = this.stripQuotes(args[1]);
               if (item.profile.length !== 0)
                 item.profile = this.parseInline(item.profile);
@@ -11071,7 +10902,7 @@
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+              if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
               profile = this._profiles.items[keys[0]];
               if (item.name !== null)
@@ -11080,7 +10911,7 @@
                 trigger = this._profiles.items[keys[k]].find("buttons", "caption", item.caption);
             } else {
               for (; k < kl; k++) {
-                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
                 if (item.name !== null)
                   trigger = this._profiles.items[keys[k]].find("buttons", "name", item.name);
@@ -11120,20 +10951,20 @@
             trigger.caption = item.caption;
           if (item.commands !== null)
             trigger.value = item.commands;
-          if (item.options.icon)
+          if (item.options.hasOwnProperty("icon"))
             trigger.icon = item.options.icon;
-          if (item.options.nosend)
-            trigger.send = false;
-          if (item.options.chain)
-            trigger.chain = true;
-          if (item.options.append)
-            trigger.append = true;
-          if (item.options.stretch)
-            trigger.stretch = true;
-          if (item.options.disable)
-            trigger.enabled = false;
-          else if (item.options.enable)
-            trigger.enabled = true;
+          if (item.options.hasOwnProperty("nosend"))
+            trigger.send = !item.options.nosend;
+          if (item.options.hasOwnProperty("chain"))
+            trigger.chain = item.options.chain;
+          if (item.options.hasOwnProperty("append"))
+            trigger.append = item.options.append;
+          if (item.options.hasOwnProperty("stretch"))
+            trigger.stretch = item.options.stretch;
+          if (item.options.hasOwnProperty("disable"))
+            trigger.enabled = !item.options.disable;
+          else if (item.options.hasOwnProperty("enable"))
+            trigger.enabled = item.options.enable;
           trigger.priority = item.options.priority;
           this._client.saveProfiles();
           this._client.clearCache();
@@ -11146,40 +10977,49 @@
         case "unbutton":
         case "unb":
           this._echoRaw(raw);
-          if (args.length === 0)
+          if (args.length === 0 || args.length > 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton name or \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton {name} \x1B[3mprofile\x1B[0;-11;-12m");
-          else {
-            profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton name or \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton {name} \x1B[3mprofile\x1B[0;-11;-12m");
-            n = profile.results;
-            profile = profile.profile;
-            items = SortItemArrayByPriority(profile.buttons);
-            tmp = n;
-            if (/^\s*?\d+\s*?$/.exec(n)) {
-              n = parseInt(n, 10);
-              if (n < 0 || n >= items.length)
-                throw new Error("Button index must be >= 0 and < " + items.length);
-              f = true;
-            } else {
-              n = this.stripQuotes(n);
-              n = items.findIndex((i3) => i3.name === n || i3.caption === n);
-              f = n !== -1;
-            }
-            if (!f)
-              this._echo("Button '" + tmp + "' not found.", -7, -8, true, true);
-            else {
-              if (items[n].name.length === 0 && items[n].caption.length === 0)
-                this._echo("Button '" + tmp + "' removed.", -7, -8, true, true);
-              else
-                this._echo("Button '" + (items[n].name || items[n].caption) + "' removed.", -7, -8, true, true);
-              trigger = items[n];
-              n = profile.buttons.indexOf(items[n]);
-              profile.buttons.splice(n, 1);
-              this._client.saveProfiles();
-              this._client.clearCache();
-              this.emit("item-removed", "button", profile.name, n, trigger);
-              profile = null;
-            }
-          }
+          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton name or \x1B[4m" + cmdChar + "unb\x1B[0;-11;-12mtton {name} \x1B[3mprofile\x1B[0;-11;-12m", true);
+          this._removeItem(profile.results, profile.profile ? SortItemArrayByPriority(profile.profile.buttons) : this._client.buttons, "button", ["name", "caption"], profile.profile);
+          profile = null;
+          return null;
+        case "unkey":
+        case "unk":
+        case "unmacro":
+        case "unm":
+          this._echoRaw(raw);
+          if (args.length === 0 || args.length > 2)
+            throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "unm\x1B[0;-11;-12macro name or \x1B[4m" + cmdChar + "unm\x1B[0;-11;-12macro {name} \x1B[3mprofile\x1B[0;-11;-12m");
+          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "unm\x1B[0;-11;-12macro name or \x1B[4m" + cmdChar + "unm\x1B[0;-11;-12macro {name} \x1B[3mprofile\x1B[0;-11;-12m", true);
+          this._removeItem(profile.results, profile.profile ? profile.profile.macros : this._client.macros, "macro", (item2, value) => {
+            if (item2.gamepad)
+              return item2.key === parseInt(value, 10);
+            let v = value.split("+");
+            let key;
+            let m = 0 /* None */;
+            v.forEach((v2) => {
+              switch (v2.toLowerCase()) {
+                case "alt":
+                  m |= 2 /* Alt */;
+                  break;
+                case "cmd":
+                case "ctrl":
+                  m |= 4 /* Ctrl */;
+                  break;
+                case "shift":
+                  m |= 8 /* Shift */;
+                  break;
+                case "meta":
+                case "win":
+                  m |= 16 /* Meta */;
+                  break;
+                default:
+                  key = v2.toLowerCase();
+              }
+            });
+            return keyCodeToChar[item2.key].toLowerCase() === key && item2.modifiers === m;
+          }, profile.profile);
+          profile = null;
           return null;
         case "alarm":
         case "ala":
@@ -11251,7 +11091,7 @@
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+              if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
               profile = this._profiles.items[keys[0]];
               trigger = profile.find("triggers", "name", name2);
@@ -11267,7 +11107,7 @@
                 this._echo("Alarm '" + trigger.name + "' updated.", -7, -8, true, true);
             } else {
               for (; k < kl; k++) {
-                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
                 trigger = this._profiles.items[keys[k]].find("triggers", "name", name2);
                 if (trigger) {
@@ -11316,9 +11156,9 @@
             this.emit("item-added", "trigger", profile.name, profile.triggers.length - 1, trigger);
           else
             this.emit("item-updated", "trigger", profile.name, profile.triggers.indexOf(trigger), trigger);
-          profile = null;
           this._lastSuspend = -1;
           this._client.updateAlarms();
+          profile = null;
           return null;
         case "ungag":
         case "ung":
@@ -11666,39 +11506,11 @@
         case "unalias":
         case "una":
           this._echoRaw(raw);
-          if (args.length === 0)
+          if (args.length === 0 || args.length > 2)
             throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m");
-          else {
-            profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m");
-            n = profile.results;
-            profile = profile.profile;
-            items = profile.aliases;
-            n = this.stripQuotes(n);
-            if (/^\s*?\d+\s*?$/.exec(n)) {
-              tmp = n;
-              n = parseInt(n, 10);
-              if (n < 0 || n >= items.length)
-                throw new Error("Alias index must be >= 0 and < " + items.length);
-              else
-                f = true;
-            } else {
-              tmp = n;
-              n = items.findIndex((i3) => i3.pattern === n);
-              f = n !== -1;
-            }
-            if (!f)
-              this._echo("Alias '" + tmp + "' not found.", -7, -8, true, true);
-            else {
-              this._echo("Alias '" + items[n].pattern + "' removed.", -7, -8, true, true);
-              trigger = items[n];
-              items.splice(n, 1);
-              profile.aliases = items;
-              this._client.saveProfiles();
-              this._client.clearCache();
-              this.emit("item-removed", "alias", profile.name, n, trigger);
-              profile = null;
-            }
-          }
+          profile = this._processCommandItemArgs(args, "Invalid syntax use \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias name or \x1B[4m" + cmdChar + "una\x1B[0;-11;-12mlias {name} \x1B[3mprofile\x1B[0;-11;-12m", true);
+          this._removeItem(profile.results, profile.profile ? profile.profile.aliases : this._client.aliases, "alias", ["pattern"], profile.profile);
+          profile = null;
           return null;
         case "setsetting":
         case "sets":
@@ -11852,7 +11664,7 @@
           const files = this._profiles.keys;
           al = files.length;
           for (i2 = 0; i2 < al; i2++) {
-            if (this._profiles.items[files[i2]] && this._profiles.items[files[i2]].enabled)
+            if (this._isProfileEnabled(files[i2]))
               this._echo("   " + this._profiles.keys[i2] + " is enabled", -7, -8, true, true);
             else
               this._echo("   " + files[i2] + " is disabled", -7, -8, true, true);
@@ -11872,7 +11684,7 @@
               throw new Error(args[0] + " can not be disabled as it is the only one enabled");
             if (!this._profiles.contains(args[0].toLowerCase()))
               args = "Profile not found";
-            else if (this._profiles.items[args[0].toLowerCase()].enabled)
+            else if (this._isProfileEnabled(args[0].toLowerCase()))
               args = args[0] + " is enabled";
             else
               args = args[0] + " is disabled";
@@ -11887,11 +11699,11 @@
               case "enable":
               case "on":
               case "yes":
-                if (this._profiles.items[args[0].toLowerCase()].enabled)
+                if (this._isProfileEnabled(args[0].toLowerCase()))
                   args = args[0] + " is already enabled";
                 else {
                   this._client.toggleProfile(args[0]);
-                  if (this._profiles.items[args[0].toLowerCase()].enabled !== -1)
+                  if (this._isProfileEnabled(args[0].toLowerCase()))
                     args = args[0] + " is enabled";
                   else
                     args = args[0] + " remains disabled";
@@ -11900,7 +11712,7 @@
               case "disable":
               case "off":
               case "no":
-                if (!this._profiles.items[args[0].toLowerCase()].enabled)
+                if (!this._isProfileEnabled(args[0].toLowerCase()))
                   args = args[0] + " is already disabled";
                 else {
                   if (this._profiles.length === 1)
@@ -12776,12 +12588,12 @@
               if (this._display.scrollAtBottom)
                 this._display.scrollUp();
             } else
-              this._display.scrollDisplay();
+              this._display.scrollDisplay(this._display.splitVisible);
           } else if (args.length === 1) {
             if (args[0] === "0" || args[0] === "false") {
               if (this.scrollLock) {
                 this.scrollLock = false;
-                this._display.scrollDisplay();
+                this._display.scrollDisplay(this._display.splitVisible);
               }
             } else if (!this.scrollLock) {
               this.scrollLock = true;
@@ -12842,7 +12654,7 @@
                 if (kl === 0)
                   return null;
                 if (kl === 1) {
-                  if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                  if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                     throw Error("No enabled profiles found!");
                   trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   trigger = trigger.find((t) => {
@@ -12850,7 +12662,7 @@
                   });
                 } else {
                   for (; k < kl; k++) {
-                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                    if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                       continue;
                     trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                     trigger = trigger.find((t) => {
@@ -12876,7 +12688,7 @@
                 if (kl === 0)
                   return null;
                 if (kl === 1) {
-                  if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                  if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                     throw Error("No enabled profiles found!");
                   trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   trigger = trigger.find((t) => {
@@ -12884,7 +12696,7 @@
                   });
                 } else {
                   for (; k < kl; k++) {
-                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                    if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                       continue;
                     trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                     trigger = trigger.find((t) => {
@@ -13002,7 +12814,7 @@
                 if (kl === 0)
                   return null;
                 if (kl === 1) {
-                  if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                  if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                     throw Error("No enabled profiles found!");
                   trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   trigger = trigger.find((t) => {
@@ -13010,7 +12822,7 @@
                   });
                 } else {
                   for (; k < kl; k++) {
-                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                    if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                       continue;
                     trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                     trigger = trigger.find((t) => {
@@ -13064,7 +12876,7 @@
                 if (kl === 0)
                   return null;
                 if (kl === 1) {
-                  if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                  if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                     throw Error("No enabled profiles found!");
                   trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                   trigger = trigger.find((t) => {
@@ -13072,7 +12884,7 @@
                   });
                 } else {
                   for (; k < kl; k++) {
-                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                    if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                       continue;
                     trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                     trigger = trigger.find((t) => {
@@ -13170,124 +12982,16 @@
                 args[0] = args[0].substr(1, args[0].length - 2);
               else
                 args[0] = this.stripQuotes(args[0]);
-              if (args[0].length !== 0) {
-                this.parseInline(args[0]).split(",").forEach((o) => {
-                  switch (o.trim()) {
-                    case "nocr":
-                    case "prompt":
-                    case "case":
-                    case "verbatim":
-                    case "disable":
-                    case "enable":
-                    case "cmd":
-                    case "temporary":
-                    case "temp":
-                    case "raw":
-                    case "pattern":
-                    case "regular":
-                    case "alarm":
-                    case "event":
-                    case "cmdpattern":
-                    case "loopexpression":
-                    //case 'expression':
-                    case "reparse":
-                    case "reparsepattern":
-                    case "manual":
-                    case "skip":
-                    case "looplines":
-                    case "looppattern":
-                    case "wait":
-                    case "duration":
-                    case "withinlines":
-                      item.options[o.trim()] = true;
-                      break;
-                    default:
-                      if (o.trim().startsWith("param=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTrigger(`param option '${o.trim()}'`);
-                        item.options["params"] = tmp[1];
-                      } else if (o.trim().startsWith("type=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTrigger(`type option '${o.trim()}'`);
-                        if (!this._isTriggerType(tmp[1]))
-                          throw new InvalidTrigger("type");
-                        item.options["type"] = tmp[1];
-                      } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTrigger(`priority option '${o.trim()}'`);
-                        i2 = parseInt(tmp[1], 10);
-                        if (isNaN(i2))
-                          throw new InvalidTrigger("priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i2;
-                      } else
-                        throw new InvalidTrigger(`option '${o.trim()}'`);
-                  }
-                });
-              } else
+              if (args[0].length !== 0)
+                item.options = this._parseTriggerOptions(args[0], 2 /* subTrigger */);
+              else
                 throw new InvalidTrigger("options");
             } else if (args.length === 2) {
               if (args[0].match(/^\{[\s\S]*\}$/g))
                 args[0] = args[0].substr(1, args[0].length - 2);
-              if (args[0].length !== 0) {
-                this.parseInline(args[0]).split(",").forEach((o) => {
-                  switch (o.trim()) {
-                    case "nocr":
-                    case "prompt":
-                    case "case":
-                    case "verbatim":
-                    case "disable":
-                    case "enable":
-                    case "cmd":
-                    case "temporary":
-                    case "temp":
-                    case "raw":
-                    case "pattern":
-                    case "regular":
-                    case "alarm":
-                    case "event":
-                    case "cmdpattern":
-                    case "loopexpression":
-                    //case 'expression':
-                    case "reparse":
-                    case "reparsepattern":
-                    case "manual":
-                    case "skip":
-                    case "looplines":
-                    case "looppattern":
-                    case "wait":
-                    case "duration":
-                    case "withinlines":
-                      item.options[o.trim()] = true;
-                      break;
-                    default:
-                      if (o.trim().startsWith("param=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTrigger(`param option '${o.trim()}'`);
-                        item.options["params"] = tmp[1];
-                      } else if (o.trim().startsWith("type=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTrigger(`type option '${o.trim()}'`);
-                        if (!this._isTriggerType(tmp[1]))
-                          throw new InvalidTrigger("type");
-                        item.options["type"] = tmp[1];
-                      } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTrigger(`priority option '${o.trim()}'`);
-                        i2 = parseInt(tmp[1], 10);
-                        if (isNaN(i2))
-                          throw new InvalidTrigger("priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i2;
-                      } else
-                        throw new InvalidTrigger(`option '${o.trim()}'`);
-                  }
-                });
-              } else
+              if (args[0].length !== 0)
+                item.options = this._parseTriggerOptions(args[0], 2 /* subTrigger */);
+              else
                 throw new InvalidTrigger("options");
               item.profile = this.stripQuotes(args[1]);
               if (item.profile.length !== 0)
@@ -13454,100 +13158,16 @@
                 args[0] = args[0].substr(1, args[0].length - 2);
               else
                 args[0] = this.stripQuotes(args[0]);
-              if (args[0].length !== 0) {
-                this.parseInline(args[0]).split(",").forEach((o) => {
-                  switch (o.trim()) {
-                    case "nocr":
-                    case "prompt":
-                    case "case":
-                    case "verbatim":
-                    case "disable":
-                    case "enable":
-                    case "cmd":
-                    case "raw":
-                    case "pattern":
-                    case "regular":
-                    case "alarm":
-                    case "event":
-                    case "cmdpattern":
-                    case "loopexpression":
-                      item.options[o.trim()] = true;
-                      break;
-                    default:
-                      if (o.trim().startsWith("param=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTemporaryTrigger(`param option '${o.trim()}'`);
-                        item.options["params"] = tmp[1];
-                      } else if (o.trim().startsWith("type=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTemporaryTrigger(`type option '${o.trim()}'`);
-                        if (!this._isTriggerType(tmp[1], 1 /* Main */))
-                          throw new InvalidTemporaryTrigger("type");
-                        item.options["type"] = tmp[1];
-                      } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTemporaryTrigger(`priority option '${o.trim()}'`);
-                        i2 = parseInt(tmp[1], 10);
-                        if (isNaN(i2))
-                          throw new InvalidTemporaryTrigger("priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i2;
-                      } else
-                        throw new InvalidTemporaryTrigger(`option '${o.trim()}'`);
-                  }
-                });
-              } else
+              if (args[0].length !== 0)
+                item.options = this._parseTriggerOptions(args[0], 1 /* temporary */);
+              else
                 throw new InvalidTemporaryTrigger("options");
             } else if (args.length === 2) {
               if (args[0].match(/^\{[\s\S]*\}$/g))
                 args[0] = args[0].substr(1, args[0].length - 2);
-              if (args[0].length !== 0) {
-                this.parseInline(args[0]).split(",").forEach((o) => {
-                  switch (o.trim()) {
-                    case "nocr":
-                    case "prompt":
-                    case "case":
-                    case "verbatim":
-                    case "disable":
-                    case "enable":
-                    case "cmd":
-                    case "raw":
-                    case "pattern":
-                    case "regular":
-                    case "alarm":
-                    case "event":
-                    case "cmdpattern":
-                    case "loopexpression":
-                      item.options[o.trim()] = true;
-                      break;
-                    default:
-                      if (o.trim().startsWith("param=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTemporaryTrigger(`param option '${o.trim()}'`);
-                        item.options["params"] = tmp[1];
-                      } else if (o.trim().startsWith("type=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTemporaryTrigger(`type option '${o.trim()}'`);
-                        if (!this._isTriggerType(tmp[1], 1 /* Main */))
-                          throw new InvalidTemporaryTrigger("type");
-                        item.options["type"] = tmp[1];
-                      } else if (o.trim().startsWith("pri=") || o.trim().startsWith("priority=")) {
-                        tmp = o.trim().split("=");
-                        if (tmp.length !== 2)
-                          throw new InvalidTemporaryTrigger(`priority option '${o.trim()}'`);
-                        i2 = parseInt(tmp[1], 10);
-                        if (isNaN(i2))
-                          throw new InvalidTemporaryTrigger("priority value '" + tmp[1] + "' must be a number");
-                        item.options["priority"] = i2;
-                      } else
-                        throw new InvalidTemporaryTrigger(`option '${o.trim()}'`);
-                  }
-                });
-              } else
+              if (args[0].length !== 0)
+                item.options = this._parseTriggerOptions(args[0], 1 /* temporary */);
+              else
                 throw new InvalidTemporaryTrigger("options");
               item.profile = this.stripQuotes(args[1]);
               if (item.profile.length !== 0)
@@ -13605,6 +13225,58 @@
             else
               this._client.variables[i2] = args;
           }
+          return null;
+        case "fullscreen":
+        case "full":
+          this._echoRaw(raw);
+          if (args.length === 0) {
+            if (document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+              if (document.exitFullscreen) {
+                document.exitFullscreen();
+              } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+              } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+              } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+              }
+            } else {
+              if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+              } else if (document.documentElement.mozRequestFullScreen) {
+                document.documentElement.mozRequestFullScreen();
+              } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+              } else if (document.documentElement.msRequestFullscreen) {
+                document.documentElement.msRequestFullscreen();
+              }
+            }
+          } else if (args.length === 1) {
+            if (args[0] === "0" || args[0] === "false") {
+              if (document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+                if (document.exitFullscreen) {
+                  document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                  document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                  document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                  document.webkitExitFullscreen();
+                }
+              }
+            } else if (!(document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || document.mozFullScreenElement || document.msFullscreenElement)) {
+              if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+              } else if (document.documentElement.mozRequestFullScreen) {
+                document.documentElement.mozRequestFullScreen();
+              } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+              } else if (document.documentElement.msRequestFullscreen) {
+                document.documentElement.msRequestFullscreen();
+              }
+            }
+          } else if (args.length > 1)
+            throw new Error("Invalid syntax use \x1B[4m" + cmdChar + "fr\x1B[0;-11;-12meeze \x1B[3mnumber\x1B[0;-11;-12m");
           return null;
       }
       if (fun.match(/^[-|+]?\d+$/)) {
@@ -14816,7 +14488,7 @@
         case "copied.upper":
           return window.$copied.toUpperCase();
         case "copied.proper":
-          return ProperCase(window.$copied);
+          return _ProperCase(window.$copied);
         case "i":
           return this.loops[0];
         case "repeatnum":
@@ -14828,7 +14500,7 @@
         case "character.upper":
           return window.$character.toUpperCase();
         case "character.proper":
-          return ProperCase(window.$character);
+          return _ProperCase(window.$character);
         case "selected":
         case "selectedurl":
         case "selectedline":
@@ -14862,7 +14534,7 @@
         case "selurl.proper":
         case "selline.proper":
         case "selword.proper":
-          return ProperCase(this.vStack["$" + text.substr(0, text.length - 7)] || window["$" + text.substr(0, text.length - 7)]);
+          return _ProperCase(this.vStack["$" + text.substr(0, text.length - 7)] || window["$" + text.substr(0, text.length - 7)]);
         case "random":
           return mathjs().randomInt(0, 100);
       }
@@ -14905,7 +14577,7 @@
         case "upper":
           return this.stripQuotes(this.parseInline(res[2]).toUpperCase());
         case "proper":
-          return ProperCase(this.stripQuotes(this.parseInline(res[2])));
+          return _ProperCase(this.stripQuotes(this.parseInline(res[2])));
         case "eval":
           args = this.evaluate(this.parseInline(res[2]));
           if (this._getOption("ignoreEvalUndefined") && typeof args === "undefined")
@@ -14935,7 +14607,7 @@
           let sum = 0;
           for (let i2 = 0; i2 < c; i2++) {
             if (sides === "F" || sides === "f")
-              sum += fudgeDice();
+              sum += _fudgeDice();
             else if (sides === "%")
               sum += ~~(Math.random() * 100) + 1;
             else
@@ -15182,7 +14854,7 @@
           args = this.splitByQuotes(this.parseInline(res[2]), ",");
           if (args.length < 3)
             throw new ArgumentMissingError("if");
-          if (args.length !== 3)
+          if (args.length > 3)
             throw new ArgumentTooManyError("if");
           if (this.evaluate(args[0]))
             return this.stripQuotes(args[1].trim());
@@ -15647,7 +15319,7 @@
             if (kl === 0)
               return null;
             if (kl === 1) {
-              if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+              if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                 throw Error("No enabled profiles found!");
               sides = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
               sides = sides.find((t) => {
@@ -15655,7 +15327,7 @@
               });
             } else {
               for (; k < kl; k++) {
-                if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                   continue;
                 sides = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                 sides = sides.find((t) => {
@@ -16755,7 +16427,7 @@
         if (kl === 0)
           return;
         if (kl === 1) {
-          if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+          if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
             throw Error("No enabled profiles found!");
           profile = this._profiles.items[keys[0]];
           if (subTrigger) {
@@ -16771,7 +16443,7 @@
             trigger = this._profiles.items[keys[k]].find("triggers", "pattern", pattern);
         } else {
           for (; k < kl; k++) {
-            if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+            if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
               continue;
             if (subTrigger) {
               if (!name2) {
@@ -16853,23 +16525,23 @@
             sTrigger.type = 16384 /* Duration */;
           if (options.withinlines)
             sTrigger.type = 32768 /* WithinLines */;
-          if (options.prompt)
-            sTrigger.triggerPrompt = true;
-          if (options.nocr)
-            sTrigger.triggerNewline = false;
-          if (options.case)
-            sTrigger.caseSensitive = true;
-          if (options.raw)
-            sTrigger.raw = true;
-          if (options.verbatim)
-            sTrigger.verbatim = true;
-          if (options.disable)
-            sTrigger.enabled = false;
-          else if (options.enable)
-            sTrigger.enabled = true;
-          if (options.temporary || options.temp)
-            sTrigger.temp = true;
-          if (options.params)
+          if (options.hasOwnProperty("prompt"))
+            sTrigger.triggerPrompt = options.prompt;
+          if (options.hasOwnProperty("nocr"))
+            sTrigger.triggerNewline = !options.nocr;
+          if (options.hasOwnProperty("case"))
+            sTrigger.caseSensitive = options.case;
+          if (options.hasOwnProperty("raw"))
+            sTrigger.raw = options.raw;
+          if (options.hasOwnProperty("verbatim"))
+            sTrigger.verbatim = options.verbatim;
+          if (options.hasOwnProperty("disable"))
+            sTrigger.enabled = !options.disable;
+          else if (options.hasOwnProperty("enable"))
+            sTrigger.enabled = options.enable;
+          if (options.hasOwnProperty("temporary") || options.hasOwnProperty("temp"))
+            sTrigger.temp = options.temporary || options.temp;
+          if (options.hasOwnProperty("params"))
             sTrigger.params = options.params;
           if (options.type) {
             if (this._isTriggerType(options.type))
@@ -16911,23 +16583,23 @@
             trigger.type = 16 /* CommandInputPattern */;
           if (options.loopexpression)
             trigger.type = 128 /* LoopExpression */;
-          if (options.prompt)
-            trigger.triggerPrompt = true;
-          if (options.nocr)
-            trigger.triggerNewline = false;
-          if (options.case)
-            trigger.caseSensitive = true;
-          if (options.raw)
-            trigger.raw = true;
-          if (options.verbatim)
-            trigger.verbatim = true;
-          if (options.disable)
-            trigger.enabled = false;
-          else if (options.enable)
-            trigger.enabled = true;
-          if (options.temporary || options.temp)
-            trigger.temp = true;
-          if (options.params)
+          if (options.hasOwnProperty("prompt"))
+            trigger.triggerPrompt = options.prompt;
+          if (options.hasOwnProperty("nocr"))
+            trigger.triggerNewline = !options.nocr;
+          if (options.hasOwnProperty("case"))
+            trigger.caseSensitive = options.case;
+          if (options.hasOwnProperty("raw"))
+            trigger.raw = options.raw;
+          if (options.hasOwnProperty("verbatim"))
+            trigger.verbatim = options.verbatim;
+          if (options.hasOwnProperty("disable"))
+            trigger.enabled = !options.disable;
+          else if (options.hasOwnProperty("enable"))
+            trigger.enabled = options.enable;
+          if (options.hasOwnProperty("temporary") || options.hasOwnProperty("temp"))
+            trigger.temp = options.temporary || options.temp;
+          if (options.hasOwnProperty("params"))
             trigger.params = options.params;
           if (options.type) {
             if (this._isTriggerType(options.type, 1 /* Main */))
@@ -16947,6 +16619,97 @@
       else
         this.emit("item-updated", "trigger", profile.name, profile.triggers.indexOf(trigger), trigger);
       profile = null;
+    }
+    _parseTriggerOptions(data, type) {
+      let options = { priority: 0 };
+      this.parseInline(data).split(",").forEach((o) => {
+        let field = o.toLowerCase().split("=").map((m) => m.trim());
+        if (field.length > 2) {
+          if (type === 1 /* temporary */)
+            throw new Error(`Invalid temporary trgger option '${field[0]}' format, must be in KEY=VALUE format`);
+          if (type === 3 /* event */)
+            throw new Error(`Invalid event option '${field[0]}' format, must be in KEY=VALUE format`);
+          throw new Error(`Invalid trgger option '${field[0]}' format, must be in KEY=VALUE format`);
+        }
+        if (!field[0].length) {
+          if (type === 1 /* temporary */)
+            throw new InvalidTemporaryTrigger(`option'`);
+          else if (type === 3 /* event */)
+            throw new InvalidOption("event");
+          throw new InvalidTrigger(`option`);
+        }
+        switch (field[0]) {
+          case "nocr":
+          case "prompt":
+          case "case":
+          case "verbatim":
+          case "disable":
+          case "enable":
+          case "temporary":
+          case "temp":
+            options[field[0]] = field.length === 2 ? field[1] === "true" || field[1] === "on" || field[1] === "yes" : true;
+            break;
+          case "cmd":
+          case "raw":
+          case "pattern":
+          case "regular":
+          case "alarm":
+          case "event":
+          case "cmdpattern":
+          case "loopexpression":
+            if (type === 3 /* event */)
+              throw new InvalidOption("event", o);
+            options[field[0]] = field.length === 2 ? field[1] === "true" || field[1] === "on" || field[1] === "yes" : true;
+            break;
+          case "reparse":
+          case "reparsepattern":
+          case "manual":
+          case "skip":
+          case "looplines":
+          case "looppattern":
+          case "wait":
+          case "duration":
+          case "withinlines":
+            if (type === 1 /* temporary */)
+              throw new InvalidTemporaryTrigger(`option '${field[0]}'`);
+            else if (type === 3 /* event */)
+              throw new InvalidOption("event", o);
+            else if (type !== 2 /* subTrigger */)
+              throw new InvalidTrigger(`option '${field[0]}'`);
+            options[field[0]] = field.length === 2 ? field[1] === "true" || field[1] === "on" || field[1] === "yes" : true;
+            break;
+          case "pri":
+          case "priority":
+            if (field.length !== 2)
+              throw new InvalidTrigger(`priority option '${field[0]}'`);
+            let i2 = parseInt(field[1], 10);
+            if (isNaN(i2))
+              throw new InvalidTrigger(`priority value '${field[1]}' must be a number`);
+            options["priority"] = i2;
+            break;
+          case "param":
+          case "params":
+            if (field.length !== 2)
+              throw new InvalidTrigger(`param option '${field[0]}'`);
+            options["params"] = field[1];
+            break;
+          case "type":
+            if (field.length !== 2)
+              throw new InvalidTrigger(`type option '${field[0]}'`);
+            if (!this._isTriggerType(field[1]))
+              throw new InvalidTrigger("type");
+            options["type"] = field[1];
+            break;
+          default:
+            if (type === 1 /* temporary */)
+              throw new InvalidTemporaryTrigger(`option '${field[0]}'`);
+            else if (type === 3 /* event */)
+              throw new InvalidOption("event", o);
+            else
+              throw new InvalidTrigger(`option '${field[0]}'`);
+        }
+      });
+      return options;
     }
     _isTriggerType(type, filter) {
       if (!filter) filter = 3 /* All */;
@@ -17054,6 +16817,38 @@
         }
       }
     }
+    _parseButtonOptions(data) {
+      let options = { priority: 0 };
+      this.parseInline(data).split(",").forEach((o) => {
+        let field = o.toLowerCase().split("=").map((m) => m.trim());
+        if (field.length > 2)
+          throw new Error(`Invalid button option '${field[0]}' format, must be in KEY=VALUE format`);
+        if (!field[0].length)
+          throw new Error(`Missing button option`);
+        switch (field[0]) {
+          case "nosend":
+          case "chain":
+          case "append":
+          case "stretch":
+          case "disable":
+          case "enable":
+            options[field[0]] = field.length === 2 ? field[1] === "true" || field[1] === "on" || field[1] === "yes" : true;
+            break;
+          case "pri":
+          case "priority":
+            if (field.length !== 2)
+              throw new InvalidOption("button", o + " value");
+            let i2 = parseInt(field[1], 10);
+            if (isNaN(i2))
+              throw new Error("Invalid button priority value '" + field[1] + "' must be a number");
+            options["priority"] = i2;
+            break;
+          default:
+            throw new InvalidOption("button", o);
+        }
+      });
+      return options;
+    }
     _getOption(option) {
       return this._client.getOption(option);
     }
@@ -17063,7 +16858,7 @@
     _echo(str, fore, back, newline, forceLine) {
       this._client.echo(str, fore, back, newline, forceLine);
     }
-    _processCommandItemArgs(args, syntax) {
+    _processCommandItemArgs(args, syntax, noActiveProfile) {
       let profile = null;
       let n;
       if (args[0].match(/^\{.*\}$/g) || args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g)) {
@@ -17075,7 +16870,7 @@
             profile = this._profiles.items[profile];
           else
             throw new ProfileNotFound(profile);
-        } else
+        } else if (!noActiveProfile)
           profile = this._client.activeProfile;
         if (args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g))
           n = this.parseInline(this.stripQuotes(args[0]));
@@ -17083,13 +16878,64 @@
           n = this.parseInline(args[0].substr(1, args[0].length - 2));
       } else {
         n = this.parseInline(args.join(" "));
-        profile = this._client.activeProfile;
+        if (!noActiveProfile)
+          profile = this._client.activeProfile;
       }
       return { profile, results: n };
     }
     _echoRaw(raw) {
       if ((this._getOption("echo") & 4) === 4)
         this._echo(raw, -3, -4, true, true);
+    }
+    _removeItem(selector, items, type, fields, profile, index) {
+      selector = this.stripQuotes(selector);
+      if (selector.length === 0) {
+        if (!Array.isArray(fields))
+          throw new Error("Invalid selector");
+        if (fields.length > 1)
+          throw new Error("Invalid " + fields.slice(0, -1).join(", ") + " or " + fields.pop());
+        throw new Error("Invalid " + fields[0]);
+      }
+      let tmp = selector;
+      let item;
+      if (index && /^\s*?\d+\s*?$/.exec(selector)) {
+        selector = parseInt(selector, 10);
+        if (selector < 0 || selector >= items.length)
+          throw new Error(_ProperCase(type) + " index must be >= 0 and < " + items.length);
+        item = items[selector];
+        profile = profile || item.profile;
+      } else if (!profile) {
+        const keys = this._profiles.keys;
+        for (let k = 0, kl = this._profiles.keys.length; k < kl; k++) {
+          item = this._profiles[keys[k]].findAny(type === "alias" ? "aliases" : type + "s", fields, selector);
+          if (item) {
+            profile = this._profiles[keys[k]];
+            break;
+          }
+        }
+      } else
+        item = profile.findAny(type === "alias" ? "aliases" : type + "s", fields, selector);
+      if (!item)
+        this._echo(_ProperCase(type) + " '" + tmp + "' not found.", -7, -8, true, true);
+      else {
+        if (Array.isArray(fields))
+          fields.forEach((field) => tmp = items[selector][field] || tmp);
+        this._echo(_ProperCase(type) + " '" + tmp + "' removed.", -7, -8, true, true);
+        if (type === "trigger" || type === "event")
+          this._client.removeTrigger(items[selector]);
+        else {
+          let collection = type === "alias" ? "aliases" : type + "s";
+          selector = profile[collection].indexOf(item);
+          profile[collection].splice(selector, 1);
+          this._client.saveProfiles();
+          this._client.clearCache();
+          this.emit("item-removed", type, profile.name, selector, item);
+        }
+      }
+    }
+    _isProfileEnabled(profile) {
+      if (!this._profiles || !this._profiles.items[profile]) return false;
+      return this._profiles.items[profile].enabled;
     }
   };
 
@@ -17361,7 +17207,7 @@
     return MXPTag2;
   })(MXPTag || {});
   var MXPState = class {
-    constructor() {
+    constructor(on) {
       this.on = false;
       this.lineType = 0;
       this.locked = false;
@@ -17372,6 +17218,7 @@
       this.capture = 0;
       this.captured = [];
       this.gagged = false;
+      this.on = on || false;
     }
   };
   var Entity = class {
@@ -17469,6 +17316,7 @@
       this._mxpLines = [];
       /** @private */
       this._iMXPDefaultMode = 0 /* Open */;
+      this._DefaultMXPState = false;
       this.displayControlCodes = false;
       this.emulateControlCodes = true;
       this.StyleVersion = "";
@@ -17515,6 +17363,15 @@
         if (options.enableLinks)
           this.enableLinks = options.enableLinks;
       }
+      this._mxpState.on = this._DefaultMXPState;
+    }
+    get defaultMXPState() {
+      return this._DefaultMXPState;
+    }
+    set defaultMXPState(value) {
+      this._DefaultMXPState = value;
+      if (this._mxpState.lineType !== 2 /* Locked */)
+        this._mxpState.on = value;
     }
     _getColors(mxp) {
       if (typeof mxp === "undefined")
@@ -18965,8 +18822,7 @@
                 if (arg.indexOf(".") === -1) {
                   arg = arg.toUpperCase();
                   switch (arg) {
-                    //TODO re-enable once font size/face  are supported
-                    //case 'FONT':
+                    case "FONT":
                     case "IMAGE":
                     case "HR":
                     case "A":
@@ -19093,8 +18949,8 @@
                       if (arg[1] !== "*")
                         sArgs.push("+" + arg[0] + "." + arg[1]);
                       else {
-                        sArgs.push("-font.face");
-                        sArgs.push("-font.size");
+                        sArgs.push("+font.face");
+                        sArgs.push("+font.size");
                         sArgs.push("+font.color");
                         sArgs.push("+font.back");
                       }
@@ -19132,7 +18988,7 @@
                 }
               }
             } else
-              sArgs = ["+A", "+SEND", "+B", "+I", "+COLOR", "+C", "+EM", "+ITALIC", "+STRONG", "+BOLD", "+UNDERLINE", "+U", "+S", "+STRIKEOUT", "+H", "+HIGH", "-FONT", "+EXPIRE", "+VERSION", "+SUPPORT", "+NOBR", "+P", "+BR", "+SBR", "+VAR", "+SOUND", "+MUSIC", "+USER", "+PASSWORD", "+RESET", "+STRIKE", "+H1", "+H2", "+H3", "+H4", "+H5", "+H6", "+IMAGE", "+STAT", "+GAUGE"];
+              sArgs = ["+A", "+SEND", "+B", "+I", "+COLOR", "+C", "+EM", "+ITALIC", "+STRONG", "+BOLD", "+UNDERLINE", "+U", "+S", "+STRIKEOUT", "+H", "+HIGH", "-FONT", "+EXPIRE", "+VERSION", "+SUPPORT", "+NOBR", "+P", "+BR", "+SBR", "+VAR", "+SOUND", "+MUSIC", "+USER", "+PASSWORD", "+RESET", "+STRIKE", "+H1", "+H2", "+H3", "+H4", "+H5", "+H6", "+IMAGE", "+STAT", "+GAUGE", "+FONT"];
             this.emit("MXP-tag-reply", tag, sArgs);
             break;
           case "A":
@@ -19769,6 +19625,8 @@
                     this._ClearMXPOpen();
                     break;
                   case 3:
+                    this._mxpState.lineType = this._iMXPDefaultMode;
+                    this._ClearMXPOpen();
                     this.ResetMXP();
                     break;
                   case 4:
@@ -19779,8 +19637,8 @@
                     }
                     const ct = text.charAt(idx + 1);
                     if (ct !== "<") {
-                      this._mxpState.lineType = 0 /* Open */;
-                      this._mxpState.on = false;
+                      this._mxpState.lineType = this._iMXPDefaultMode;
+                      this._mxpState.on = this._DefaultMXPState;
                     }
                     this._mxpState.locked = false;
                     this._ClearMXPOpen();
@@ -19868,21 +19726,36 @@
                 _AnsiParams += c;
               }
               break;
-            case 3 /* XTermTitle */:
+            case 3 /* OSC */:
               if (i2 === 7) {
                 this._SplitBuffer = "";
-                this.emit("set-title", _TermTitle, _TermTitleType == null ? 0 : _TermTitleType);
+                _AnsiParams = _TermTitle.split(";");
+                if (_AnsiParams.length) {
+                  _TermTitleType = +_AnsiParams.shift();
+                  if (_TermTitleType >= 0 || _TermTitleType <= 2)
+                    this.emit("set-title", _AnsiParams.join(";"), _TermTitleType);
+                  else if (_TermTitleType === 9)
+                    this.emit("OSC", _AnsiParams);
+                }
                 _TermTitle = "";
                 _TermTitleType = null;
                 state = 0 /* None */;
-              } else if (c === ";" && _TermTitleType == null) {
-                _TermTitleType = +_TermTitle;
-                if (isNaN(_TermTitleType))
-                  _TermTitleType = 0;
-                _TermTitle = "";
-                this._SplitBuffer += c;
               } else if (c === "\x1B") {
-                if (this._SplitBuffer.charAt(this._SplitBuffer.length - 1) === "\n")
+                if (idx + 1 < tl && text.charAt(idx + 1) === "\\") {
+                  this._SplitBuffer = "";
+                  _AnsiParams = _TermTitle.split(";");
+                  if (_AnsiParams.length) {
+                    _TermTitleType = +_AnsiParams.shift();
+                    if (_TermTitleType >= 0 || _TermTitleType <= 2)
+                      this.emit("set-title", _AnsiParams.join(";"), _TermTitleType);
+                    else if (_TermTitleType === 9)
+                      this.emit("OSC", _AnsiParams);
+                  }
+                  _TermTitle = "";
+                  _TermTitleType = null;
+                  state = 0 /* None */;
+                  idx++;
+                } else if (this._SplitBuffer.charAt(this._SplitBuffer.length - 1) === "\n")
                   this._SplitBuffer = "";
               } else {
                 this._SplitBuffer += c;
@@ -19897,7 +19770,7 @@
               } else if (c === "]") {
                 this._SplitBuffer += c;
                 _TermTitle = "";
-                state = 3 /* XTermTitle */;
+                state = 3 /* OSC */;
               } else if (c === "D" || //Index ( down one line, scroll if at bottom )
               c === "E" || //Next line ( move to column 1 of next line, scroll up if at bottom )
               c === "M" || //Reverse index	( up one line, scroll down if at top )
@@ -20046,6 +19919,8 @@
                 }
                 state = 0 /* None */;
                 this._SplitBuffer = "";
+                if (this._mxpState.lineType === 4 /* TempSecure */)
+                  this._mxpState.lineType = this._iMXPDefaultMode;
               } else if (c === "<") {
                 if (this.enableDebug)
                   this.emit("debug", "Malformed MXP Tag: " + _MXPTag);
@@ -20137,6 +20012,8 @@
                 }
                 state = 0 /* None */;
                 this._SplitBuffer = "";
+                if (this._mxpState.lineType === 4 /* TempSecure */)
+                  this._mxpState.lineType = this._iMXPDefaultMode;
               } else {
                 this._SplitBuffer += c;
                 _MXPArgs[_MXPArgs.length - 1] += c;
@@ -20509,7 +20386,7 @@
                   formatBuilder.push(...this._getMXPCloseFormatBlocks());
                   if (this._mxpState.on)
                     this._ClearMXPOpen();
-                  this._mxpState.on = false;
+                  this._mxpState.on = this._DefaultMXPState;
                   if (this._mxpLines[this._mxpState.lineType] && this._mxpLines[this._mxpState.lineType].enabled && this._mxpLines[this._mxpState.lineType].gag)
                     skip = true;
                   this._mxpState.lineType = this._iMXPDefaultMode;
@@ -21058,7 +20935,7 @@
       this._mxpEntities = {};
       this.ResetMXP();
       this._mxpElements = {};
-      this._mxpState = new MXPState();
+      this._mxpState = new MXPState(this._DefaultMXPState);
     }
     ResetMXP() {
       this._mxpStyles = [];
@@ -21076,12 +20953,589 @@
     }
   };
 
+  // src/core/scrollbar.ts
+  var ScrollBar = class extends EventEmitter {
+    /**
+     * Creates an instance of ScrollBar.
+     *
+     * @param {HTMLElement} [parent] element that will contain the scroll bar
+     * @param {HTMLElement} [content] element that will be scrolled, if left off will default to parent
+     * @param {ScrollType} [type=ScrollType.vertical] type of scroll bar
+     * @memberof ScrollBar
+     */
+    constructor(options) {
+      super();
+      this._visible = true;
+      this._offset = 0;
+      this.$padding = 0;
+      this._padding = [0, 0, 0, 0];
+      this._position = 0;
+      this._thumbSize = 0;
+      this._ratio = 0;
+      this._ratio2 = 0;
+      this._scrollButtons = 0;
+      this._maxDrag = 0;
+      this._type = 0 /* vertical */;
+      this._autoHide = false;
+      this.maxPosition = 0;
+      this.scrollSize = 0;
+      this.trackSize = 0;
+      this.trackOffset = 0;
+      this.trackOffsetSize = { width: 0, height: 0 };
+      this.autoScroll = true;
+      this.state = {
+        dragging: false,
+        dragPosition: 0,
+        position: 0
+      };
+      if (options) {
+        if (options.hasOwnProperty("autoScroll"))
+          this.autoScroll = options.autoScroll;
+        this._type = options.type || 0 /* vertical */;
+        this.setParent(options.parent, options.content);
+      } else
+        this.type = 0 /* vertical */;
+    }
+    get scrollButtons() {
+      return this._scrollButtons;
+    }
+    set scrollButtons(value) {
+      if (value === this._scrollButtons) return;
+      this._scrollButtons = value;
+      this._createButtons();
+    }
+    /**
+     * set or return the content element
+     *
+     * @memberof ScrollBar
+     */
+    get content() {
+      return this._content;
+    }
+    set content(value) {
+      if (this._content === value) return;
+      this._content = value;
+      this.resize();
+    }
+    /**
+     * Current size of scroll bar
+     *
+     * @readonly
+     * @type {number}
+     * @memberof ScrollBar
+     */
+    get size() {
+      return this._visible ? this._type === 1 /* horizontal */ ? this.track.offsetHeight : this.track.offsetWidth : 0;
+    }
+    /**
+     * Current position of the scroll bar
+     *
+     * @readonly
+     * @type {number}
+     * @memberof ScrollBar
+     */
+    get position() {
+      return Math.round(this._position);
+    }
+    get positionRaw() {
+      return this._position;
+    }
+    /**
+     * An offset amount to adjust the whole scroll bar by that effects total size
+     *
+     * @type {number}
+     * @memberof ScrollBar
+     */
+    get offset() {
+      return this._offset;
+    }
+    set offset(value) {
+      if (value !== this._offset) {
+        this._offset = value;
+        this.updateLocation();
+        this.resize();
+      }
+    }
+    /**
+     * A padding amount to adjust the scroll bar by and effects track size
+     *
+     * @type {number}
+     * @memberof ScrollBar
+     */
+    get padding() {
+      return this.$padding;
+    }
+    set padding(value) {
+      if (value !== this.$padding) {
+        this.$padding = value;
+        this.updateLocation();
+        this.resize();
+      }
+    }
+    /**
+     * The type of scroll bar, either vertical or horizontal
+     *
+     * @type {ScrollType}
+     * @memberof ScrollBar
+     */
+    get type() {
+      return this._type;
+    }
+    set type(value) {
+      if (this._type !== value) {
+        this._type = value;
+        this.trackOffsetSize = { width: 0, height: 0 };
+        if (this._type === 1 /* horizontal */) {
+          this.track.classList.add("scroll-horizontal");
+          this.track.classList.remove("scroll-vertical");
+        } else {
+          this.track.classList.remove("scroll-horizontal");
+          this.track.classList.add("scroll-vertical");
+        }
+        this.updateLocation();
+        this.resize();
+      }
+    }
+    /**
+     * Is scroll var visible
+     *
+     * @type {boolean}
+     * @memberof ScrollBar
+     */
+    get visible() {
+      return this._visible;
+    }
+    set visible(value) {
+      if (!this._visible === value) {
+        this._visible = value;
+        this.track.style.display = value ? "block" : "none";
+        this.resize();
+      }
+    }
+    /**
+     * is scroll bar at the bottom
+     *
+     * @readonly
+     * @type {boolean}
+     * @memberof ScrollBar
+     */
+    get atBottom() {
+      return this.position >= this.scrollSize;
+    }
+    /**
+     * The type of scroll bar, either vertical or horizontal
+     *
+     * @type {ScrollType}
+     * @memberof ScrollBar
+     */
+    get autohide() {
+      return this._autoHide;
+    }
+    set autohide(value) {
+      if (this._autoHide !== value) {
+        this._autoHide = value;
+        if (value)
+          this.track.classList.add("scroll-auto-hide");
+        else
+          this.track.classList.remove("scroll-auto-hide");
+        this.thumb.style[this._type === 1 /* horizontal */ ? "height" : "width"] = value ? "50%" : "100%";
+      }
+    }
+    /**
+     * sets the parent element with optional content element
+     *
+     * @param {HTMLElement} parent element that will contain the scroll bar
+     * @param {HTMLElement} [content] element that will be scrolled, if left off will default to parent
+     * @memberof ScrollBar
+     */
+    setParent(parent, content) {
+      if (this.track)
+        this._parent.removeChild(this.track);
+      this._parent = parent;
+      this._content = content || parent;
+      this._createBar();
+    }
+    /**
+     * Updates the location of the scroll bar in the parent based on type
+     *
+     * @private
+     * @memberof ScrollBar
+     */
+    updateLocation() {
+      if (this._type === 1 /* horizontal */) {
+        this.track.style.top = "";
+        this.track.style.right = this.offset + this.$padding + "px";
+        this.track.style.left = "0";
+        this.track.style.bottom = "0";
+        this.track.style.width = "auto";
+        this.track.style.height = "";
+        if (this._autoHide)
+          this.thumb.style.height = "50%";
+        else
+          this.thumb.style.height = "100%";
+        this.thumb.style.width = "";
+        this.thumb.style.bottom = "0";
+      } else {
+        this.track.style.top = "0";
+        this.track.style.right = "0";
+        this.track.style.left = "";
+        this.track.style.bottom = this.offset + this.$padding + "px";
+        this.track.style.width = "";
+        this.track.style.height = "auto";
+        if (this._autoHide)
+          this.thumb.style.width = "50%";
+        else
+          this.thumb.style.width = "100%";
+        this.thumb.style.right = "0";
+      }
+    }
+    /**
+     * Creates scroll bar elements
+     *
+     * @private
+     * @memberof ScrollBar
+     */
+    _createBar() {
+      this._position = this._type === 1 /* horizontal */ ? this._content.scrollLeft : this._content.scrollTop;
+      this.track = document.createElement("div");
+      this.track.className = "scroll-track scroll-" + (this._type === 1 /* horizontal */ ? "horizontal" : "vertical");
+      this.track.style.position = "absolute";
+      this.track.style.overflow = "hidden";
+      this.track.addEventListener("mousedown", (e) => {
+        if (this._scrollButtons && e.target && this._buttons.indexOf(e.target.parentElement) !== -1) return;
+        if (e.button === 0 && e.buttons) {
+          this._lastMouse = e;
+          e.preventDefault();
+          e.cancelBubble = true;
+          this.state.dragging = false;
+          this.state.position = 0;
+          let _os = this._elOffset(this.track);
+          this.state.dragPosition = (this._type === 1 /* horizontal */ ? e.pageX - _os.left : e.pageY - _os.top) - this.state.position + (this._scrollButtons ? this.size : 0);
+          this._updatePosition(this.currentPosition(true));
+        }
+      });
+      this.track.addEventListener("wheel", (event2) => {
+        this.scrollBy(this._type === 1 /* horizontal */ ? event2.deltaX : event2.deltaY);
+      }, { passive: true });
+      this._parent.appendChild(this.track);
+      this.thumb = document.createElement("div");
+      this.thumb.className = "scroll-thumb";
+      this.thumb.style.position = "absolute";
+      this.track.appendChild(this.thumb);
+      this._createButtons(true);
+      this.updateLocation();
+      this.thumb.addEventListener("mousedown", (e) => {
+        this._lastMouse = e;
+        if (e.button === 0 && e.buttons) {
+          e.preventDefault();
+          e.cancelBubble = true;
+          this.state.dragging = true;
+          this.state.position = (this._type === 1 /* horizontal */ ? e.pageX : e.pageY) - this.state.dragPosition;
+          this.state.dragPosition = (this._type === 1 /* horizontal */ ? e.pageX : e.pageY) - this.state.position;
+        }
+      });
+      this._content.addEventListener("wheel", (event2) => {
+        this.scrollBy(this._type === 1 /* horizontal */ ? event2.deltaX : event2.deltaY);
+      }, { passive: true });
+      this._wMove = (e) => {
+        this._lastMouse = e;
+        if (this.state.dragging) {
+          this._updatePosition(this.currentPosition());
+        }
+      };
+      this._wUp = (e) => {
+        this._lastMouse = e;
+        if (this.state.dragging) {
+          this.state.dragging = false;
+          this._updatePosition(this.currentPosition());
+        }
+      };
+      this._wResize = (e) => {
+        this.resize(true);
+      };
+      window.addEventListener("mousemove", this._wMove.bind(this));
+      window.addEventListener("mouseup", this._wUp.bind(this));
+      window.addEventListener("resize", this._wResize.bind(this));
+      this.resize(true);
+      this.$resizeObserver = new ResizeObserver((entries, observer) => {
+        if (entries.length === 0) return;
+        if (!entries[0].contentRect || entries[0].contentRect.width === 0 || entries[0].contentRect.height === 0)
+          return;
+        if (!this.$resizeObserverCache || this.$resizeObserverCache.width !== entries[0].contentRect.width || this.$resizeObserverCache.height !== entries[0].contentRect.height) {
+          this.$resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
+          this.resize(true);
+        }
+      });
+      this.$resizeObserver.observe(this.track);
+      this.$observer = new MutationObserver((mutationsList) => {
+        let mutation;
+        for (mutation of mutationsList) {
+          if (mutation.type === "attributes" && mutation.attributeName === "style") {
+            this.updateLayout();
+          }
+        }
+      });
+      this.$observer.observe(this.track, { attributes: true, attributeOldValue: true, attributeFilter: ["style"] });
+      this.updateLayout();
+    }
+    _createButtons(noResize) {
+      if (this._buttons && this._buttons.length) {
+        this._buttons.forEach((button) => {
+          button.remove();
+        });
+        this._buttons = null;
+      }
+      if (this._scrollButtons) {
+        this._buttons = [];
+        if ((this._scrollButtons & 1 /* Up */) == 1 /* Up */) {
+          this._buttons.push(document.createElement("div"));
+          this._buttons[0].classList.add("scroll-up-button");
+          this._buttons[0].innerHTML = this._type === 1 /* horizontal */ ? '<i class="bi bi-caret-left-fill"></i>' : '<i class="bi bi-caret-up-fill"></i>';
+          this._buttons[0].addEventListener("click", (e) => {
+            e.cancelBubble = true;
+            e.stopPropagation();
+            this.scrollBy(-60);
+          });
+        }
+        if ((this._scrollButtons & 2 /* Down */) == 2 /* Down */) {
+          this._buttons.push(document.createElement("div"));
+          this._buttons[1].classList.add("scroll-down-button");
+          this._buttons[1].innerHTML = this._type === 1 /* horizontal */ ? '<i class="bi bi-caret-right-fill"></i>' : '<i class="bi bi-caret-down-fill"></i>';
+          this._buttons[1].addEventListener("click", (e) => {
+            e.cancelBubble = true;
+            e.stopPropagation();
+            this.scrollBy(60);
+          });
+        }
+        if ((this._scrollButtons & 4 /* Bottom */) == 4 /* Bottom */) {
+          this._buttons.push(document.createElement("div"));
+          this._buttons[2].classList.add("scroll-bottom-button");
+          this._buttons[2].innerHTML = this._type === 1 /* horizontal */ ? "|" : "-";
+          this._buttons[2].addEventListener("click", (e) => {
+            e.cancelBubble = true;
+            e.stopPropagation();
+            this.scrollToEnd();
+          });
+        }
+        this._buttons.forEach((button) => {
+          button.classList.add("btn", "scroll-button");
+          button.style.width = this.size + "px";
+          button.style.height = this.size + "px";
+        });
+        this.track.append(...this._buttons);
+      }
+      if (!noResize)
+        this.resize(true);
+    }
+    /**
+     * resets the scroll bar to 0 position
+     *
+     * @memberof ScrollBar
+     */
+    reset() {
+      this.state = {
+        dragging: false,
+        dragPosition: 0,
+        position: 0
+      };
+      this.maxPosition = 0;
+      this.resize();
+      this._updatePosition(0, true);
+      this.update();
+    }
+    /**
+     * Updates the scroll bar thumb and drag sizes
+     *
+     * @memberof ScrollBar
+     */
+    update() {
+      if (this.scrollSize > 0)
+        this.track.classList.remove("scroll-disabled");
+      else
+        this.track.classList.add("scroll-disabled");
+      this._thumbSize = Math.ceil(1 / this._percentView * this.trackSize) || 0;
+      if (this._thumbSize > this.trackSize)
+        this._thumbSize = this.trackSize;
+      if (this._thumbSize < 15)
+        this._thumbSize = 15;
+      this.thumb.style[this._type === 1 /* horizontal */ ? "width" : "height"] = this._thumbSize + "px";
+      this._maxDrag = this.trackSize - this._thumbSize;
+      if (this._maxDrag <= 0) {
+        this._maxDrag = 0;
+        this._ratio = 1;
+        this._ratio2 = 1;
+      } else {
+        this._ratio = (this._contentSize - this._parentSize) / this._maxDrag;
+        this._ratio2 = this._maxDrag / (this._contentSize - this._parentSize);
+      }
+    }
+    /**
+     * Scroll by a certain amount
+     *
+     * @param {number} amount the amount to scroll from current position
+     * @returns
+     * @memberof ScrollBar
+     */
+    scrollBy(amount) {
+      if (amount === 0) return;
+      amount = this.positionRaw + (amount < 0 ? Math.floor(amount) : Math.ceil(amount));
+      amount = amount * this._ratio2;
+      this._updatePosition(amount);
+    }
+    /**
+     * scroll to an exact position
+     *
+     * @param {number} position the position to scroll to
+     * @memberof ScrollBar
+     */
+    scrollTo(position) {
+      position = position < 0 ? Math.floor(position) : Math.ceil(position);
+      position = position * this._ratio2;
+      this._updatePosition(position);
+    }
+    /**
+     * scroll to the end position of the scroll bar
+     *
+     * @memberof ScrollBar
+     */
+    scrollToEnd() {
+      this._updatePosition(this.maxPosition);
+    }
+    /**
+     * scroll to the start position
+     *
+     * @memberof ScrollBar
+     */
+    scrollToStart() {
+      this._updatePosition(0);
+    }
+    pageUp(offset2) {
+      offset2 = offset2 || 0;
+      this.scrollBy(-(this._parentSize - offset2));
+    }
+    pageDown(offset2) {
+      offset2 = offset2 || 0;
+      this.scrollBy(this._parentSize - offset2);
+    }
+    /**
+     * resize the scroll bar to the parent
+     *
+     * @memberof ScrollBar
+     */
+    resize(bar, contentSize, parentSize) {
+      const bottom = this.atBottom;
+      if (this._type === 1 /* horizontal */) {
+        this._contentSize = contentSize || this._content.scrollWidth;
+        this._parentSize = parentSize || this._content.clientWidth;
+        if (bar || !this.trackSize) {
+          this.trackSize = this.track.clientWidth - this._padding[0] - this._padding[2] - (this._scrollButtons ? this.size * this._buttons.length : 0);
+          this.trackOffset = this.track.clientHeight;
+        }
+        this.scrollSize = this._contentSize - this._parentSize;
+      } else {
+        this._contentSize = contentSize || this._content.scrollHeight;
+        this._parentSize = parentSize || this._content.clientHeight;
+        if (bar) {
+          this.trackSize = this.track.clientHeight - this._padding[1] - this._padding[3] - (this._scrollButtons ? this.size * this._buttons.length : 0);
+          this.trackOffset = this.track.clientWidth;
+        }
+        this.scrollSize = this._contentSize - this._parentSize;
+      }
+      if (bar || !this.trackOffsetSize.width)
+        this.trackOffsetSize = { height: this.track.offsetHeight, width: this.track.offsetWidth };
+      this._percentView = this._contentSize / this._parentSize;
+      this.maxPosition = this._parentSize;
+      if (this.maxPosition < 0)
+        this.maxPosition = 0;
+      this.update();
+      if (bottom && this.autoScroll)
+        this._updatePosition(this.maxPosition);
+      else
+        this._updatePosition(this._position * this._ratio2);
+    }
+    updateLayout() {
+      const pc = window.getComputedStyle(this.track);
+      this._padding = [
+        parseInt(pc.getPropertyValue("padding-top")) || 0,
+        parseInt(pc.getPropertyValue("padding-right")) || 0,
+        parseInt(pc.getPropertyValue("padding-bottom")) || 0,
+        parseInt(pc.getPropertyValue("padding-left")) || 0
+      ];
+    }
+    /**
+     * current position of scroll bar
+     *
+     * @returns
+     * @memberof ScrollBar
+     */
+    currentPosition(track) {
+      let _os = track ? this._elOffset(this.track) : { left: 0, top: 0 };
+      const p = this._type === 1 /* horizontal */ ? this._lastMouse.pageX - this.state.position - _os.left - (this._scrollButtons ? this.size : 0) : this._lastMouse.pageY - this.state.position - _os.top - (this._scrollButtons ? this.size : 0);
+      if (p < 0)
+        return 0;
+      if (p > this.maxPosition)
+        return this.maxPosition;
+      return p;
+    }
+    /**
+     * update position of scroll bar
+     *
+     * @private
+     * @param {*} p
+     * @memberof ScrollBar
+     * @fires ScrollBar#scroll
+     */
+    _updatePosition(p, force) {
+      if (p < 0 || this._maxDrag < 0)
+        p = 0;
+      else if (p > this._maxDrag)
+        p = this._maxDrag;
+      const prv = this.position;
+      this.thumb.style[this._type === 1 /* horizontal */ ? "left" : "top"] = p + (this._type === 1 /* horizontal */ ? this._padding[1] : this._padding[0]) + (this._scrollButtons ? this.size : 0) + "px";
+      this.state.dragPosition = p;
+      this._position = p * this._ratio;
+      if (this._position < 0)
+        this._position = 0;
+      this.update();
+      this.emit("scroll", this.position, prv !== this.position || force);
+    }
+    /**
+     * calculate the offset of an element
+     *
+     * @private
+     * @param {*} elt element to get offset for
+     * @returns {position} returns the top and left positions
+     * @memberof ScrollBar
+     */
+    _elOffset(elt) {
+      const rect = elt.getBoundingClientRect();
+      const bodyElt = document.body;
+      return {
+        top: rect.top + bodyElt.scrollTop,
+        left: rect.left + bodyElt.scrollLeft
+      };
+    }
+    /**
+     * remove the scroll bar
+     *
+     * @memberof ScrollBar
+     */
+    dispose() {
+      if (this.track)
+        this.track.remove();
+      window.removeEventListener("mousemove", this._wMove);
+      window.removeEventListener("mouseup", this._wUp);
+      window.removeEventListener("resize", this._wResize);
+    }
+  };
+
   // src/core/display.ts
   var Display = class extends EventEmitter {
     //#endregion
     constructor(container, options) {
       super();
       this._updating = 0 /* none */;
+      this._updateTimeout = 0;
       this._enableDebug = false;
       this._maxView = 0;
       this._padding = [0, 0, 0, 0];
@@ -21103,7 +21557,10 @@
       this._mouseDown = 0;
       this._scrollLock = false;
       this._selection = { start: null, end: null, timer: null };
+      this._trackSelection = { down: null, up: null };
       this._customSelection = true;
+      this._customScrollbars = false;
+      this._showSplitButton = false;
       if (!container)
         throw new Error("Container must be a selector, element, jquery object or display options");
       if (typeof container === "object" && "container" in container) {
@@ -21127,6 +21584,11 @@
       this._window = this._document.defaultView;
       this._container.tabIndex = -1;
       this._container.classList.add("display");
+      this._dragPrevent = (e) => {
+        if (this.customSelection)
+          e.preventDefault();
+      };
+      this._container.addEventListener("dragstart", this._dragPrevent.bind(this));
       this._container.display = this;
       this._styles = this._document.createElement("style");
       this._container.appendChild(this._styles);
@@ -21139,7 +21601,7 @@
       this._view = this._document.createElement("div");
       this._view.className = "view";
       this._view.addEventListener("scroll", () => {
-        this._scrollAtEnd = this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight;
+        this._scrollAtEnd = this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight || this._customScrollbars && this._VScroll.atBottom;
         this._doUpdate(128 /* toggleSplit */);
       });
       this._view.addEventListener("click", (e) => {
@@ -21150,71 +21612,109 @@
       });
       this._view.addEventListener("mousedown", (e) => {
         this._container.focus();
-        if (this._split && this._split.visible) {
-          let caret = this._getMouseEventCaretRange(e);
-          if (caret) {
-            this._window.getSelection().removeAllRanges();
-            if (caret.startContainer)
-              this._window.getSelection().addRange(caret);
-            else if (caret.offsetNode) {
-              const range = document.createRange();
-              range.setStart(caret.offsetNode, caret.offset);
-              range.setEnd(caret.offsetNode, caret.offset);
-              this._window.getSelection().addRange(range);
-            }
-            e.preventDefault();
-          }
-        }
         this.emit("mousedown", e);
         const bounds = this._bounds;
         let w = bounds.width - this._view.clientWidth;
         let h = bounds.height - this._view.clientHeight;
         if (e.button === 0 && e.pageX < bounds.right - w && e.pageY < bounds.bottom - h) {
-          if (this.customSelection)
-            this.clearSelection();
+          if (this.customSelection) {
+            if (!e.shiftKey) {
+              this.clearSelection();
+              this._startSelection(e);
+            } else if (this._trackSelection.down && e.shiftKey)
+              this._endSelection(e);
+            else
+              this._startSelection(e);
+          }
           this._mouseDown = 1;
           if (this._split)
             this._split._bar.style.pointerEvents = "none";
-        } else if (this.customSelection && e.button === 2 && this._selection.start) {
+        } else if (this.customSelection && e.button === 2 && this._trackSelection.down) {
+          if (!this._selection.start) this._setSelection();
           let caret = this._getMouseEventCaretRange(e);
           let range = this._document.createRange();
           range.setStart(this._selection.start.node, this._selection.start.offset);
           range.setEnd(this._selection.end.node, this._selection.end.offset);
           if (caret.offsetNode && range.intersectsNode(caret.offsetNode) || caret.startContainer && range.intersectsNode(caret.startContainer)) {
-            this._window.getSelection().removeAllRanges();
-            this._window.getSelection().addRange(range);
-          } else {
+            if (e.shiftKey)
+              this._endSelection(e);
+            else
+              this._setSelection();
+          } else if (e.shiftKey)
+            this._endSelection(e);
+          else
             this.clearSelection();
-          }
         }
       });
-      this._view.addEventListener("mousemove", async (e) => {
+      this._view.addEventListener("mousemove", (e) => {
         this._lastMouse = e;
         if (this._mouseDown) {
-          this._extendSelection(e);
+          this._endSelection(e);
           this._createScrollTimer();
         }
       });
       this._view.addEventListener("mouseup", (e) => {
-        this.emit("mouseup", e);
         if (this._mouseDown === 2)
           this._view.click();
         if (e.button === 0)
-          this._clearMouseDown();
+          this._clearMouseDown(e);
+        if (e.detail === 2)
+          this._setSelectionRange(this.getWordRangeFromPosition(e.pageX, e.pageY));
+        else if (e.detail === 3)
+          this._setSelectionRange(this.getLineRangeFromPosition(e.pageX, e.pageY));
+        else if (e.detail === 4)
+          this.selectAll();
+        this.emit("mouseup", e);
       });
       this._view.addEventListener("mouseenter", (e) => {
         if (this._mouseDown && (e.buttons & 1) !== 1)
-          this._clearMouseDown();
+          this._clearMouseDown(e);
         else
           this._clearScrollTimer();
       });
       this._view.addEventListener("mouseleave", (e) => {
         if (this._mouseDown) {
           this._lastMouse = e;
-          if (this._view.lastChild && e.pageY >= this._bounds.bottom - this._horizontalScrollBarHeight) {
-            this._window.getSelection().extend(this._view.lastChild, this._view.lastChild.childNodes.length);
-            this._updateSelectionHighlight();
+          if (this.customSelection && this._view.lastChild && e.pageY >= this._bounds.bottom - this._horizontalScrollBarHeight) {
+            this._trackSelection.up = this._getMouseEventCaretRange(e) || this._document.createRange();
+            this._trackSelection.up.setStart(this._view.lastChild, this._view.lastChild.childNodes.length);
+            this._trackSelection.up.setEnd(this._view.lastChild, this._view.lastChild.childNodes.length);
+            this._setSelection();
           }
+          this._createScrollTimer();
+        }
+      });
+      this._view.addEventListener("touchstart", (e) => {
+        this._container.focus();
+        this.emit("mousedown", e);
+        const bounds = this._bounds;
+        let w = bounds.width - this._view.clientWidth;
+        let h = bounds.height - this._view.clientHeight;
+        if (e.touches && e.touches.length && e.touches[0].pageX < bounds.right - w && e.touches[0].pageY < bounds.bottom - h) {
+          if (this.customSelection) {
+            if (!e.shiftKey) {
+              this.clearSelection();
+              this._startSelection(e.touches[0]);
+            } else if (this._trackSelection.down && e.shiftKey)
+              this._endSelection(e.touches[0]);
+            else
+              this._startSelection(e.touches[0]);
+          }
+          this._mouseDown = 1;
+          if (this._split)
+            this._split._bar.style.pointerEvents = "none";
+        }
+      });
+      this._view.addEventListener("touchend", (e) => {
+        if (this._mouseDown === 2)
+          this._view.click();
+        if (e.touches && e.touches.length)
+          this._clearMouseDown(e.touches[0]);
+        this.emit("mouseup", e);
+      });
+      this._view.addEventListener("touchmove", (e) => {
+        if (this._mouseDown && e.touches && e.touches.length) {
+          this._endSelection(e.touches[0]);
           this._createScrollTimer();
         }
       });
@@ -21227,7 +21727,7 @@
         options.display = this;
       this.model = new DisplayModel(options);
       this._wResize = (e) => {
-        if (this._scrollAtEnd)
+        if (this._scrollAtEnd || this._customScrollbars && this._VScroll.atBottom)
           this.scrollDisplay();
         debounce(() => {
           this._doUpdate(1 /* update */ | 16 /* updateWindow */ | 64 /* split */);
@@ -21236,31 +21736,11 @@
       this._selectionChange = (e) => {
         if (this._window.getSelection().rangeCount)
           this._window.getSelection().getRangeAt(0);
-        if (this._mouseDown)
-          debounce(() => {
-            let selection = this._window.getSelection();
-            if (this.customSelection && selection.rangeCount > 0) {
-              const range = selection.getRangeAt(0);
-              let nOffset = null;
-              nOffset = this._getNodeOffset(this._view, this._view.firstChild, range.startContainer, range.startOffset, range);
-              if (nOffset === null && this._split && this._split.visible)
-                nOffset = this._getNodeOffset(this._split._view, this._split._view.firstChild, range.startContainer, range.startOffset, range);
-              this._selection.start = nOffset;
-              nOffset = null;
-              if (this._split && this._split.visible)
-                nOffset = this._getNodeOffset(this._split._view, this._split._view.lastChild, range.endContainer, range.endOffset, range);
-              if (nOffset === null)
-                nOffset = this._getNodeOffset(this._view, this._view.lastChild, range.endContainer, range.endOffset, range);
-              this._selection.end = nOffset;
-              this._updateSelectionHighlight();
-            }
-            this.emit("selection-changed", selection);
-          }, 10, this.id + "selection-changed");
       };
       this._wUp = (e) => {
         if (this._mouseDown && e.button === 0) {
           this._lastMouse = e;
-          this._clearMouseDown();
+          this._clearMouseDown(e);
         }
       };
       this._wMove = (e) => {
@@ -21277,7 +21757,7 @@
           return;
         debounce(() => {
           if (!this._resizeObserverCache || this._resizeObserverCache.width !== entries[0].contentRect.width || this._resizeObserverCache.height !== entries[0].contentRect.height) {
-            if (this._scrollAtEnd)
+            if (this._scrollAtEnd || this._customScrollbars && this._VScroll.atBottom)
               this.scrollDisplay();
             this._resizeObserverCache = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
             this._doUpdate(1 /* update */ | 16 /* updateWindow */ | 64 /* split */);
@@ -21291,7 +21771,7 @@
         let mutation;
         for (mutation of mutationsList) {
           if (mutation.type === "attributes" && mutation.attributeName === "style") {
-            if (this._scrollAtEnd)
+            if (this._scrollAtEnd || this._customScrollbars && this._VScroll.atBottom)
               this.scrollDisplay();
             this._doUpdate(1 /* update */ | 16 /* updateWindow */ | 64 /* split */);
             this.emit("resize");
@@ -21305,15 +21785,18 @@
         this._timestampWidth = moment().format(this._timestampFormat).length;
       this.updateFont();
       this._bounds = this._view.getBoundingClientRect();
-      this._hWidth = getScrollbarWidth();
-      this._vWidth = getScrollbarWidth();
       this.splitHeight = -1;
     }
     get _horizontalScrollBarHeight() {
-      return this._view.scrollWidth > this._view.clientWidth ? this._hWidth : 0;
+      if (this._customScrollbars)
+        return this._HScroll.visible ? this._HScroll.size : 0;
+      return this._view.scrollWidth > this._view.clientWidth ? this._view.offsetHeight - this._view.clientHeight : 0;
     }
     get _verticalScrollBarHeight() {
-      return this._vWidth;
+      if (this._customScrollbars) {
+        return this._VScroll.visible ? this._VScroll.size + this._padding[1] : 0;
+      }
+      return this._view.offsetWidth - this._view.clientWidth;
     }
     //#endregion
     //#region Public properties
@@ -21327,7 +21810,55 @@
         this._window.clearTimeout(this._selection.timer);
         this._selection.timer = null;
       }
+      if (value || this._split)
+        this._container.style.userSelect = "none";
+      else
+        this._container.style.userSelect = "auto";
       this._updateSelectionHighlight();
+    }
+    get customScrollbars() {
+      return this._customScrollbars;
+    }
+    set customScrollbars(value) {
+      if (value === this._customScrollbars) return;
+      this._customScrollbars = value;
+      if (!value) {
+        if (this._HScroll) this._HScroll.dispose();
+        if (this._VScroll) this._VScroll.dispose();
+        if (this._scrollCorner)
+          this._container.removeChild(this._scrollCorner);
+        this._scrollCorner = null;
+        this._HScroll = null;
+        this._VScroll = null;
+        this._view.style.overflowX = "";
+        this._view.style.overflowY = "";
+        this._view.style.overflow = "";
+      } else if (value) {
+        if (!this._VScroll) {
+          this._VScroll = new ScrollBar({ parent: this._container, content: this._view, autoScroll: true, type: 0 /* vertical */ });
+          this._VScroll.on("scroll", (pos, changed) => {
+            if (changed) {
+              this._view.scrollTop = pos;
+              if (this._split)
+                this._split._view.scrollTop = this._split._view.scrollHeight;
+            }
+          });
+        }
+        if (!this._HScroll) {
+          this._HScroll = new ScrollBar({ parent: this._container, content: this._view, type: 1 /* horizontal */, autoScroll: false });
+          this._HScroll.on("scroll", (pos, changed) => {
+            if (changed) {
+              this._view.scrollLeft = pos;
+              if (this._split)
+                this._split._view.scrollLeft = this._view.scrollLeft;
+            }
+          });
+        }
+        this._view.style.overflowX = "hidden";
+        this._view.style.overflowY = "hidden";
+        this._view.style.overflow = "hidden";
+      }
+      this._doUpdate(256 /* layout */ | 512 /* scrollbars */);
     }
     get scrollLock() {
       return this._scrollLock;
@@ -21339,6 +21870,8 @@
         this.scrollDisplay(true);
       } else if (this._scrollLock && this._split && !this._split.visible)
         this.scrollUp();
+      if (this._customScrollbars)
+        this._VScroll.autoScroll = !this._scrollLock;
     }
     get showTimestamp() {
       return this._timestamp;
@@ -21353,7 +21886,7 @@
       else
         this._timestampWidth = moment().format(this._timestampFormat).length;
       this._buildStyleSheet();
-      this._doUpdate(2 /* display */ | 1 /* update */ | 32 /* rebuildLines */ | 64 /* split */);
+      this._doUpdate(2 /* display */ | 1 /* update */ | 16 /* updateWindow */ | 32 /* rebuildLines */ | 64 /* split */);
     }
     get timestampFormat() {
       return this._timestampFormat;
@@ -21401,11 +21934,6 @@
     set splitHeight(value) {
       if (this._splitHeight !== value) {
         this._splitHeight = value;
-        this._bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
-        if (this._splitHeight <= this._bounds.top + 150)
-          this._splitHeight = 150;
-        else if (this._splitHeight > this._bounds.bottom - 150)
-          this._splitHeight = this._bounds.height - 150;
         this._updateSplitLocation();
       }
     }
@@ -21428,7 +21956,7 @@
         this._view.insertAdjacentElement("afterend", this._split._view);
         this._container.insertAdjacentElement("afterbegin", this._split._bar);
         this._updateSplitLocation();
-        this._split._bar.style.right = this._verticalScrollBarHeight + "px";
+        this._split._bar.style.right = this._verticalScrollBarHeight - (this._customScrollbars ? this._padding[1] : 0) + "px";
         this._split._bar.style.top = this._view.clientHeight - this._split._view.clientHeight - this._horizontalScrollBarHeight + "px";
         this._split._bar.addEventListener("mousedown", (e) => {
           if (e.buttons !== 1) return;
@@ -21442,23 +21970,23 @@
           this._split.ghostBar.style.right = this._verticalScrollBarHeight + "px";
           this._container.appendChild(this._split.ghostBar);
           const bounds = this._bounds;
-          bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
+          let hm = this._horizontalScrollBarHeight - this._padding[2];
           this._split.mouseMove = (e2) => {
             e2.preventDefault();
             e2.cancelBubble = true;
             e2.stopPropagation();
             if (e2.pageY < bounds.top + 150)
               this._split.ghostBar.style.top = "150px";
-            else if (e2.pageY > bounds.bottom - 150)
-              this._split.ghostBar.style.top = bounds.height - 150 + "px";
+            else if (e2.pageY > bounds.bottom - 150 - hm)
+              this._split.ghostBar.style.top = bounds.height - 150 - hm + "px";
             else
               this._split.ghostBar.style.top = e2.pageY - bounds.top + "px";
             if (this.splitLive) {
               let h;
               if (e2.pageY < bounds.top + 150)
                 h = 150;
-              else if (e2.pageY > bounds.bottom - 150)
-                h = bounds.height - 150;
+              else if (e2.pageY > bounds.bottom - 150 - hm)
+                h = bounds.height - 150 - hm;
               else
                 h = e2.pageY - bounds.top;
               this._split._view.style.top = h + "px";
@@ -21469,16 +21997,21 @@
           };
           this._container.addEventListener("mousemove", this._split.mouseMove);
           this._container.addEventListener("mouseup", this._split.moveDone);
+          this._container.addEventListener("mouseenter", this._split.moveEnter);
         });
+        this._split.moveEnter = (e) => {
+          if ((e.buttons & 1) !== 1)
+            this._split.moveDone(e);
+        };
         this._split.moveDone = (e) => {
           if (this._split.ghostBar) {
             const bounds = this._bounds;
-            bounds.height -= this._horizontalScrollBarHeight - this._padding[2];
+            let hm = this._horizontalScrollBarHeight - this._padding[2];
             let h;
             if (e.pageY < bounds.top + 150)
               h = 150;
-            else if (e.pageY > bounds.bottom - 150)
-              h = bounds.height - 150;
+            else if (e.pageY > bounds.bottom - 150 - hm)
+              h = bounds.height - 150 - hm;
             else
               h = e.pageY - bounds.top;
             this._split._view.style.top = h + "px";
@@ -21491,6 +22024,7 @@
           }
           this._container.removeEventListener("mousemove", this._split.mouseMove);
           this._container.removeEventListener("mouseup", this._split.moveDone);
+          this._container.removeEventListener("mouseenter", this._split.moveEnter);
           this._split.mouseMove = null;
         };
         this._split._view.addEventListener("mousedown", (e) => {
@@ -21498,62 +22032,96 @@
           this.emit("mousedown", e);
           if (e.button === 0) {
             e.preventDefault();
-            let caret = this._getMouseEventCaretRange(e);
-            this._window.getSelection().removeAllRanges();
-            if (caret.startContainer)
-              this._window.getSelection().addRange(caret);
-            else if (caret.offsetNode) {
-              const range = document.createRange();
-              range.setStart(caret.offsetNode, caret.offset);
-              range.setEnd(caret.offsetNode, caret.offset);
-              this._window.getSelection().addRange(range);
-            }
             this._mouseDown = 2;
+            if (e.shiftKey && this._trackSelection.down)
+              this._endSelection(e);
+            else
+              this._startSelection(e);
             this._split._bar.style.pointerEvents = "none";
+          } else if (e.button === 2 && this._trackSelection.down) {
+            if (!this._selection.start) this._setSelection();
+            let caret = this._getMouseEventCaretRange(e);
+            let range = this._document.createRange();
+            range.setStart(this._selection.start.node, this._selection.start.offset);
+            range.setEnd(this._selection.end.node, this._selection.end.offset);
+            if (caret.offsetNode && range.intersectsNode(caret.offsetNode) || caret.startContainer && range.intersectsNode(caret.startContainer)) {
+              if (e.shiftKey)
+                this._endSelection(e);
+              else
+                this._setSelection();
+            } else if (e.shiftKey)
+              this._endSelection(e);
+            else
+              this.clearSelection();
           }
         });
-        this._split._view.addEventListener("mousemove", async (e) => {
+        this._split._view.addEventListener("mousemove", (e) => {
           if (this._mouseDown) {
             this._lastMouse = e;
-            this._extendSelection(e);
+            this._endSelection(e);
             this._createScrollTimer();
           }
         });
         this._split._view.addEventListener("mouseleave", (e) => {
           if (this._mouseDown && e.toElement !== this._split._bar && e.target !== this._split._bar && (e.pageX >= this._split._bounds.right || e.pageY >= this._bounds.bottom - this._horizontalScrollBarHeight)) {
             this._lastMouse = e;
-            this._window.getSelection().extend(this._split._view.lastChild, this._split._view.lastChild.childNodes.length);
+            if (this.customSelection) {
+              this._trackSelection.up = this._getMouseEventCaretRange(e) || this._document.createRange();
+              this._trackSelection.up.setStart(this._split._view.lastChild, this._split._view.lastChild.childNodes.length);
+              this._trackSelection.up.setEnd(this._split._view.lastChild, this._split._view.lastChild.childNodes.length);
+              this._setSelection();
+            }
           }
         });
         this._split._view.addEventListener("mouseenter", (e) => {
           if (this._mouseDown && (e.buttons & 1) !== 1) {
-            this._clearMouseDown();
+            this._clearMouseDown(e);
           } else if (this._mouseDown) {
             this._lastMouse = e;
-            this._extendSelection(e);
             this._createScrollTimer();
+            this._endSelection(e);
           }
         });
         this._split._view.addEventListener("mouseup", (e) => {
           this.emit("mouseup", e);
           if (e.button === 0)
-            this._clearMouseDown();
+            this._clearMouseDown(e);
+          if (e.detail === 2)
+            this._setSelectionRange(this.getWordRangeFromPosition(e.pageX, e.pageY));
+          else if (e.detail === 3)
+            this._setSelectionRange(this.getLineRangeFromPosition(e.pageX, e.pageY));
+          else if (e.detail === 4)
+            this.selectAll();
           if (!e.button)
             this._view.click();
         });
         this._split._view.addEventListener("wheel", (e) => {
           const delta = e.deltaY || e.wheelDelta;
-          this._view.scrollTop += delta;
+          if (this._customScrollbars)
+            this._VScroll.scrollBy(delta);
+          else
+            this._view.scrollTop += delta;
         }, { passive: true });
         this._toggleSplit();
-        this._doUpdate(64 /* split */ | 128 /* toggleSplit */);
+        this._doUpdate(64 /* split */ | 128 /* toggleSplit */ | 256 /* layout */);
+        this._split._view.addEventListener("contextmenu", (e) => {
+          this.emit("contextmenu", e);
+        });
       } else if (this._split && !value) {
         this._container.removeEventListener("mouseup", this._split.moveDone);
         this._container.removeEventListener("mouseleave", this._split.moveDone);
         this._container.removeChild(this._split._view);
         this._container.removeChild(this._split._bar);
         this._split = null;
+        this._doUpdate(256 /* layout */);
       }
+      if (this.customSelection)
+        this._container.style.userSelect = "none";
+      else
+        this._container.style.userSelect = "auto";
+    }
+    get splitVisible() {
+      return this._split && this._split.visible;
     }
     get linkFunction() {
       return this._linkFunction || "doLink";
@@ -21722,6 +22290,12 @@
     get enableMXP() {
       return this._model.enableMXP;
     }
+    set defaultMXPState(value) {
+      this._model.defaultMXPState = value;
+    }
+    get defaultMXPState() {
+      return this._model.defaultMXPState;
+    }
     set showInvalidMXPTags(value) {
       this._model.showInvalidMXPTags = value;
     }
@@ -21795,6 +22369,8 @@
       return this._model.raw;
     }
     get scrollAtBottom() {
+      if (this._customScrollbars)
+        return this._VScroll.atBottom;
       return this._scrollAtEnd;
     }
     debug(msg) {
@@ -21802,44 +22378,68 @@
     }
     scrollDisplay(force) {
       if (this._split) {
-        if (force || !this.scrollLock && !this._split.visible)
+        if (force || !this.scrollLock && !this._split.visible) {
           this._view.scrollTop = this._view.scrollHeight;
+        }
       } else if (!this.scrollLock)
         this._view.scrollTop = this._view.scrollHeight;
     }
     scrollTo(x2, y2) {
-      this._view.scrollTo(x2, y2);
+      if (this._customScrollbars) {
+        this._HScroll.scrollTo(x2);
+        this._VScroll.scrollTo(y2);
+      } else
+        this._view.scrollTo(x2, y2);
     }
     scrollToCharacter(x2, y2) {
-      this._view.scrollTo(x2 * this._charHeight, y2 * this._charWidth);
+      if (this._customScrollbars) {
+        this._HScroll.scrollTo(x2 * this._charWidth);
+        this._VScroll.scrollTo(y2 * this._charHeight);
+      } else
+        this._view.scrollTo(x2 * this._charWidth, y2 * this._charHeight);
     }
     scrollBy(x2, y2) {
-      this._view.scrollBy(x2, y2);
+      if (this._customScrollbars) {
+        this._HScroll.scrollBy(x2);
+        this._VScroll.scrollBy(y2);
+      } else
+        this._view.scrollBy(x2, y2);
     }
     scrollUp() {
-      this._view.scrollBy(0, -this._charHeight);
+      if (this._customScrollbars)
+        this._VScroll.scrollBy(-this._charHeight);
+      else
+        this._view.scrollBy(0, -this._charHeight);
     }
     scrollDown() {
-      this._view.scrollBy(0, this._charHeight);
+      if (this._customScrollbars)
+        this._VScroll.scrollBy(this._charHeight);
+      else
+        this._view.scrollBy(0, this._charHeight);
     }
     pageUp() {
-      this._view.scrollBy(0, -this._view.clientHeight);
+      if (this._customScrollbars)
+        this._VScroll.pageUp();
+      else
+        this._view.scrollBy(0, -this._view.clientHeight);
     }
     pageDown() {
-      this._view.scrollBy(0, this._view.clientHeight);
+      if (this._customScrollbars)
+        this._VScroll.pageDown();
+      else
+        this._view.scrollBy(0, this._view.clientHeight);
     }
     trimLines() {
       if (this._maxLines === -1)
         return;
-      debounce(() => {
-        if (this.lines.length > this._maxLines) {
-          const amt = this.lines.length - this._maxLines;
-          let r = amt;
-          while (r-- > 0)
-            this._view.removeChild(this._view.firstChild);
-          this._model.removeLines(0, amt);
-        }
-      }, 100, this.id + "trimLines");
+      if (this.lines.length > this._maxLines || this._view.childNodes.length > this._maxLines) {
+        const amt = this.lines.length - this._maxLines;
+        let r = this._view.childNodes.length - this._maxLines;
+        while (r-- > 0)
+          this._view.removeChild(this._view.firstChild);
+        this._model.removeLines(0, amt);
+        this._doUpdate(512 /* scrollbars */);
+      }
     }
     append(txt, remote, force, prependSplit) {
       this._model.append(txt, remote || false, force || false, prependSplit || false);
@@ -21866,10 +22466,13 @@
     }
     _updateDisplay() {
       this._view.classList.remove("animate");
-      this._doUpdate(4 /* trim */);
       if (this._hideTrailingEmptyLine && this.lines.length && this.lines[this.lines.length - 1].text.length === 0)
         this._view.lastChild.style.display = "none";
-      this._doUpdate(8 /* scrollEnd */ | 16 /* updateWindow */ | 64 /* split */);
+      this._doUpdate(4 /* trim */ | 8 /* scrollEnd */ | 64 /* split */ | 256 /* layout */);
+      if (this._customScrollbars) {
+        this._VScroll.resize();
+        this._HScroll.resize();
+      }
       this._view.classList.add("animate");
     }
     updateWindow(width, height) {
@@ -21883,6 +22486,11 @@
     clear() {
       this._model.clear();
       this._view.innerHTML = "";
+      if (this._customScrollbars) {
+        this._VScroll.reset();
+        this._HScroll.reset();
+        this._updateScrollbars();
+      }
     }
     dispose() {
       this._document.body.removeChild(this._character);
@@ -21893,15 +22501,76 @@
       this._window.removeEventListener("mouseup", this._wUp);
       this._window.removeEventListener("mousemove", this._wMove);
       this._document.removeEventListener("selectionchange", this._selectionChange);
+      this._container.removeEventListener("dragstart", this._dragPrevent);
+    }
+    _updateLayout() {
+      if (this._customScrollbars) {
+        this._view.style.right = this._verticalScrollBarHeight + "px";
+        this._view.style.bottom = this._horizontalScrollBarHeight + "px";
+      } else {
+        this._view.style.right = "";
+        this._view.style.bottom = "";
+      }
+      if (this._split) {
+        this._split._view.style.right = this._verticalScrollBarHeight + "px";
+        this._split._bar.style.right = this._verticalScrollBarHeight - (this._customScrollbars ? this._padding[1] : 0) + "px";
+      }
+      this._updateSplitLocation();
+      this._updateScrollbars();
+    }
+    _updateScrollbars() {
+      if (!this._customScrollbars || this._model.busy)
+        return;
+      this._HScroll.offset = this._VScroll.trackOffset;
+      this._HScroll.resize();
+      this._HScroll.visible = this._HScroll.scrollSize > 0;
+      this._VScroll.offset = this._HScroll.visible ? this._HScroll.trackOffsetSize.height : 0;
+      this._VScroll.resize();
+      if (this._VScroll.offset === 0 && this._showSplitButton && this._split && !this._HScroll.visible)
+        this._VScroll.padding = this._HScroll.trackOffsetSize.height || this._VScroll.trackOffsetSize.width;
+      else
+        this._VScroll.padding = 0;
+      if (!this._HScroll.visible && this._scrollCorner && (!this._split || !this._showSplitButton)) {
+        this._container.removeChild(this._scrollCorner);
+        this._scrollCorner = null;
+      } else if ((this._split || this._HScroll.visible) && !this._scrollCorner) {
+        this._scrollCorner = document.createElement("div");
+        if (this._showSplitButton && this._split) {
+          this._scrollCorner.classList.add("scroll-corner", "scroll-split-button");
+          this._scrollCorner.title = "Toggle split view";
+          this._scrollCorner.innerHTML = '<i class="fa fa-minus"></i>';
+          this._scrollCorner.addEventListener("click", (e) => {
+            e.cancelBubble = true;
+            e.stopPropagation();
+            this.scrollLock = !this.scrollLock;
+            if (this._split.visible)
+              this.scrollDisplay(true);
+            else
+              this._VScroll.scrollBy(-this._charHeight);
+          });
+        } else
+          this._scrollCorner.className = "scroll-corner";
+        this._container.appendChild(this._scrollCorner);
+      }
+      if (this._split) {
+        if (this._scrollCorner)
+          if (this._VScroll.scrollSize >= 0)
+            this._scrollCorner.classList.remove("disabled");
+          else
+            this._scrollCorner.classList.add("disabled");
+      }
+      this._doUpdate(256 /* layout */);
     }
     _update() {
+      if (this._customScrollbars)
+        this._HScroll.visible = this._customScrollbars && this._view.scrollWidth > this._view.clientWidth;
       this._maxView = this._view.clientWidth - this._padding[1] - this._padding[3] - this._verticalScrollBarHeight - this._indentPadding;
       if (this._timestamp !== 0 /* None */)
         this._maxView -= this._timestampWidth * this._charWidth;
       this._innerHeight = this._view.clientHeight;
       this._bounds = this._view.getBoundingClientRect();
-      this._hWidth = getScrollbarWidth();
-      this._vWidth = getScrollbarWidth();
+      if (this._view.scrollTop > this._view.scrollHeight)
+        this._view.scrollTop = this._view.scrollHeight;
     }
     updateFont(font, size) {
       if (!font || font.length === 0)
@@ -21948,7 +22617,7 @@
         styles += `#${this.id} .view {white-space: break-spaces; } .line {width: ${this._wrapAt * this._charWidth}px !important;max-width:  ${this._wrapAt * this._charWidth}px;min-width:  ${this._wrapAt * this._charWidth}px;display: block;}`;
       if ((this._wordWrap || this._wrapAt > 0) && this._indent > 0)
         styles += `#${this.id} .view {  text-indent: ${this._indent * this._charWidth}px hanging; }`;
-      styles += `#${this.id} .line > span { min-height: ${this._charHeight}}`;
+      styles += `#${this.id} .line > span { min-height: ${this._charHeight}px}`;
       if (this._timestamp !== 0 /* None */)
         styles += "#" + this.id + " .timestamp { display: inline-block; }";
       this._styles.innerHTML = styles;
@@ -22044,7 +22713,7 @@
           else
             fCls = "";
           if (format.hr)
-            parts.push('<span style="', style, 'min-width:100%;width:100%;"', fCls, '><div style="position:relative;top: 50%;transform: translateY(-50%);height:4px;width:100%; background-color:', typeof format.color === "number" ? this._model.GetColor(format.color) : format.color, '"></div></span>');
+            parts.push('<span style="', style, 'min-width:100%;width:100%;position: relative;"', fCls, '><hr style="position:absolute;top: 50%;transform: translateY(-50%);height:4px;width:100%; background-color:', typeof format.color === "number" ? this._model.GetColor(format.color) : format.color, '"/><span>---</span></span>');
           else if (end - offset2 !== 0)
             parts.push('<span style="', style, '"', fCls, ">", htmlEncode(text.substring(offset2, end)), "</span>");
         } else if (format.formatType === 1 /* Link */) {
@@ -22202,11 +22871,18 @@
     _doUpdate(type) {
       if (!type) return;
       this._updating |= type;
-      if (this._updating === 0 /* none */)
+      if (this._updating === 0 /* none */ || this._updateTimeout)
         return;
-      this._window.requestAnimationFrame(() => {
+      this._updateTimeout = this._window.requestAnimationFrame(() => {
+        this._updateTimeout = 0;
         if (this._updating === 0 /* none */)
           return;
+        if ((this._updating & 256 /* layout */) === 256 /* layout */) {
+          this._updateScrollbars();
+          this._updateLayout();
+          this._updating &= ~256 /* layout */;
+          this._updating &= ~512 /* scrollbars */;
+        }
         if ((this._updating & 32 /* rebuildLines */) === 32 /* rebuildLines */) {
           this._rebuildLines();
           this._updating &= ~32 /* rebuildLines */;
@@ -22214,6 +22890,7 @@
         if ((this._updating & 1 /* update */) === 1 /* update */) {
           this._update();
           this._updating &= ~1 /* update */;
+          this._updating |= 512 /* scrollbars */;
         }
         if ((this._updating & 2 /* display */) === 2 /* display */) {
           this._updateDisplay();
@@ -22238,6 +22915,10 @@
         if ((this._updating & 128 /* toggleSplit */) === 128 /* toggleSplit */) {
           this._toggleSplit();
           this._updating &= ~128 /* toggleSplit */;
+        }
+        if ((this._updating & 512 /* scrollbars */) === 512 /* scrollbars */) {
+          this._updateScrollbars();
+          this._updating &= ~512 /* scrollbars */;
         }
         this._doUpdate(this._updating);
       });
@@ -22345,6 +23026,12 @@
         this._window.getSelection().addRange(range);
       }
       if (this.customSelection) {
+        this._trackSelection.down = document.createRange();
+        this._trackSelection.down.setStart(this._view.firstChild, 0);
+        this._trackSelection.down.setEnd(this._view.firstChild, 0);
+        this._trackSelection.up = document.createRange();
+        this._trackSelection.up.setStart(this._view.lastChild, this._view.lastChild.childNodes.length);
+        this._trackSelection.up.setEnd(this._view.lastChild, this._view.lastChild.childNodes.length);
         this._selection = {
           start: {
             node: this._view.firstChild,
@@ -22370,6 +23057,7 @@
           selection.removeAllRanges();
         }
       }
+      this._trackSelection = { down: null, up: null };
       this._selection = { start: null, end: null, timer: null };
       this._updateSelectionHighlight();
       this.emit("selection-changed", this._window.getSelection());
@@ -22388,32 +23076,90 @@
         return { x: -1, y: -1, lineID: -1 };
       if (element.classList.contains("line"))
         return { x: 0, y: this.model.getLineFromID(+element.dataset.id), lineID: +element.dataset.id };
-      const line2 = element.closest(".line");
+      const line2 = this._getLineNode(element);
       if (line2)
         return { x: 0, y: this.model.getLineFromID(+line2.dataset.id), lineID: +line2.dataset.id };
       return { x: -1, y: -1, lineID: -1 };
     }
     getWordFromPosition(x2, y2) {
-      const elements = this._document.elementsFromPoint(x2, y2);
-      let element;
-      for (let e = 0, el = elements.length; e < el; e++) {
-        if (this._view === elements[e]) return "";
-        if (this._view.contains(elements[e])) {
-          element = elements[e];
-          break;
-        }
-      }
-      if (element && element.textContent) {
-        const text = element.textContent;
-        let start = text.lastIndexOf(" ", x2) + 1;
-        let end = text.indexOf(" ", x2);
-        if (end === -1) {
-          end = text.length;
-        }
-        const word = text.substring(start, end);
-        return word;
-      }
+      const range = this.getWordRangeFromPosition(x2, y2);
+      if (range) return range.toString();
       return "";
+    }
+    getWordRangeFromPosition(x2, y2) {
+      let line2 = document.elementFromPoint(x2, y2);
+      if (!line2 || line2 === this._view || this._split && this._split._view === line2 || line2.classList.contains("line")) return null;
+      const range = this._getMouseEventCaretRange({ clientX: x2, clientY: y2 });
+      if (!range) return null;
+      let n = this._rangeToNode(range);
+      if (!n || !n.node) return null;
+      line2 = this._getLineNode(n.node);
+      if (!line2) return null;
+      const textNodes = this._textNodesUnder(line2);
+      const offset2 = this._findIndexOfSymbol(line2, n.node, n.offset);
+      const lineIndex = this._model.getLineFromID(+line2.dataset.id);
+      if (lineIndex === -1) return null;
+      const text = this.getLineText(lineIndex);
+      const len = text.length;
+      let sPos = offset2;
+      let ePos = offset2;
+      while (text.substr(sPos, 1).match(/([^\s.,/#!$%^&*;:{}=`~()[\]@&|\\?><"'+])/gu) && sPos >= 0) {
+        sPos--;
+        if (sPos < 0)
+          break;
+      }
+      sPos++;
+      if (sPos > offset2)
+        sPos = offset2;
+      while (text.substr(ePos, 1).match(/([^\s.,/#!$%^&*;:{}=`~()[\]@&|\\?><"'+])/gu) && ePos < len) {
+        ePos++;
+      }
+      if (ePos <= sPos)
+        ePos = sPos + 1;
+      if (sPos >= 0 && ePos <= len) {
+        let tl = textNodes.length;
+        let l2 = 0;
+        let t = 0;
+        for (; t < tl; t++) {
+          if (sPos >= l2 && sPos < l2 + textNodes[t].length) {
+            range.setStart(textNodes[t], sPos - l2);
+            break;
+          }
+          l2 += textNodes[t].length;
+        }
+        for (; t < tl; t++) {
+          if (ePos >= l2 && ePos < l2 + textNodes[t].length) {
+            range.setEnd(textNodes[t], ePos - l2);
+            break;
+          }
+          l2 += textNodes[t].length;
+        }
+      }
+      return range;
+    }
+    getLineRangeFromPosition(x2, y2) {
+      const range = this._getMouseEventCaretRange({ clientX: x2, clientY: y2 });
+      if (!range) return null;
+      let n = this._rangeToNode(range);
+      const line2 = this._getLineNode(n.node);
+      if (!line2) return null;
+      if (line2.childNodes.length) {
+        range.setStart(line2.firstChild, 0);
+        if (line2.lastChild.nodeType === 3)
+          range.setEnd(line2.lastChild, line2.lastChild.length);
+        else
+          range.setEnd(line2.lastChild, line2.childNodes.length);
+      } else {
+        range.setStart(line2, 0);
+        range.setEnd(line2, 0);
+      }
+      return range;
+    }
+    _getLineNode(node) {
+      if (!node) return null;
+      if (node.nodeType === 3)
+        return node.parentNode.closest(".line");
+      return node.closest(".line");
     }
     _updateSplit() {
       if (!this._split || this._view.clientHeight >= this._view.scrollHeight) return;
@@ -22433,6 +23179,11 @@
     }
     _updateSplitLocation() {
       if (!this._split) return;
+      let h = this._horizontalScrollBarHeight - this._padding[2];
+      if (this._splitHeight == -1 || this._splitHeight > this._bounds.bottom - 150 - h)
+        this._splitHeight = this._bounds.height - 150 - h;
+      else if (this._splitHeight <= this._bounds.top + 150)
+        this._splitHeight = 150;
       this._split._view.style.top = this._splitHeight + "px";
       if (this._view.scrollWidth > this._view.clientWidth)
         this._split._view.style.bottom = this._horizontalScrollBarHeight + "px";
@@ -22442,7 +23193,7 @@
     }
     _toggleSplit() {
       if (!this._split) return;
-      if (this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight) {
+      if (this._view.clientHeight + this._view.scrollTop >= this._view.scrollHeight || this._customScrollbars && this._VScroll.atBottom) {
         if (this._split.visible) {
           this._split._view.style.visibility = "hidden";
           this._split._bar.style.display = "none";
@@ -22465,59 +23216,54 @@
       }
     }
     _adjustSplitSelection(target, source) {
-      const selection = this._window.getSelection();
-      let range;
-      if (selection.isCollapsed || selection.rangeCount === 0) {
-        if (!this._selection.start)
-          return;
-        else {
-          range = this._document.createRange();
-          range.setStart(this._selection.start.node, this._selection.start.offset);
-          range.setEnd(this._selection.end.node, this._selection.end.offset);
+      let so;
+      let sElement;
+      let n;
+      if (this._trackSelection.down) {
+        n = this._rangeToNode(this._trackSelection.down);
+        so = n.offset;
+        sElement = this._getElement(target, source, n.node);
+        if (sElement && this._isElementVisible(sElement, target)) {
+          this._trackSelection.down.setStart(sElement, so);
+          this._trackSelection.down.setEnd(sElement, so);
         }
-      } else
-        range = selection.getRangeAt(0);
-      let so = range.startOffset;
-      let eo = range.endOffset;
-      let eElement = this._getElement(target, source, range.endContainer);
-      let sElement = this._getElement(target, source, range.startContainer);
-      if (eElement && this._isElementVisible(eElement, target)) {
-        range.setEnd(eElement, eo);
-        this._selection.end = { node: eElement, offset: eo };
-      } else if (!eElement && this._selection.start) {
-        eElement = this._getElement(target, source, this._selection.end.node);
-        eo = this._selection.end.offset;
-        if (eElement && this._isElementVisible(eElement, target))
-          this._selection.end = { node: eElement, offset: eo };
       }
-      if (sElement && this._isElementVisible(sElement, target)) {
-        range.setStart(sElement, so);
-        this._selection.start = { node: sElement, offset: so };
-      } else if (!sElement && this._selection.start) {
-        sElement = this._getElement(target, source, this._selection.start.node);
-        so = this._selection.start.offset;
-        if (eElement && this._isElementVisible(sElement, target))
-          this._selection.start = { node: sElement, offset: so };
+      if (this._trackSelection.up) {
+        n = this._rangeToNode(this._trackSelection.up);
+        so = n.offset;
+        sElement = this._getElement(target, source, n.node);
+        if (sElement && this._isElementVisible(sElement, target)) {
+          this._trackSelection.up.setStart(sElement, so);
+          this._trackSelection.up.setEnd(sElement, so);
+        }
       }
+      this._setSelection();
       this._updateSelectionHighlight();
     }
     _getMouseEventCaretRange(evt) {
       var range, x2 = evt.clientX, y2 = evt.clientY;
-      if (document.body.createTextRange) {
-        range = document.body.createTextRange();
+      if (this._document.body.createTextRange) {
+        range = this._document.body.createTextRange();
         range.moveToPoint(x2, y2);
-      } else if (typeof document.createRange != "undefined" && document.createRange !== null) {
+      } else if (typeof this._document.createRange != "undefined" && this._document.createRange !== null) {
         if (typeof evt.rangeParent != "undefined" && evt.rangeParent !== null) {
           range = document.createRange();
           range.setStart(evt.rangeParent, evt.rangeOffset);
           range.collapse(true);
-        } else if (document.body.caretPositionFromPoint) {
-          var pos = document.body.caretPositionFromPoint(x2, y2);
-          range = document.createRange();
+        } else if (this._document.body.caretPositionFromPoint) {
+          var pos = this._document.body.caretPositionFromPoint(x2, y2);
+          if (!pos || !this._container.contains(pos.offsetNode)) return null;
+          range = pos.createRange();
           range.setStart(pos.offsetNode, pos.offset);
           range.collapse(true);
-        } else if (document.caretRangeFromPoint) {
-          range = document.caretRangeFromPoint(x2, y2);
+        } else if (this._document.caretPositionFromPoint) {
+          var pos = this._document.caretPositionFromPoint(x2, y2);
+          if (!pos || !this._container.contains(pos.offsetNode)) return null;
+          range = this._document.createRange();
+          range.setStart(pos.offsetNode, pos.offset);
+          range.collapse(true);
+        } else if (this._document.caretRangeFromPoint) {
+          range = this._document.caretRangeFromPoint(x2, y2);
         }
       }
       return range;
@@ -22562,13 +23308,6 @@
         return true;
       return false;
     }
-    _getNodeOffset(view, node, container, containerOffset, range) {
-      if (view.contains(container) || node === container)
-        return { node: container, offset: containerOffset };
-      else if (node && range.intersectsNode(node))
-        return { node, offset: 0 };
-      return null;
-    }
     _updateSelectionHighlight() {
       if (!("Highlight" in window)) return;
       if (!this._selection.start || !this.customSelection) {
@@ -22597,30 +23336,11 @@
       else
         this._highlightRange.setEnd(this._selection.start.node, this._selection.start.offset);
     }
-    _extendSelection(e) {
-      let caret = this._getMouseEventCaretRange(e);
-      if (!caret) return;
-      if (caret.startContainer) {
-        if (this._window.getSelection().rangeCount === 0) {
-          let range = this._document.createRange();
-          range.setStart(caret.startContainer, caret.startOffset);
-          range.setEnd(caret.startContainer, caret.startOffset);
-          this._window.getSelection().addRange(range);
-        } else
-          this._window.getSelection().extend(caret.endContainer, caret.endOffset);
-      } else if (caret.offsetNode) {
-        if (this._window.getSelection().rangeCount === 0) {
-          let range = this._document.createRange();
-          range.setStart(caret.offsetNode, caret.offset);
-          range.setEnd(caret.offsetNode, caret.offset);
-          this._window.getSelection().addRange(range);
-        } else
-          this._window.getSelection().extend(caret.offsetNode, caret.offset);
-      }
-    }
-    _clearMouseDown() {
-      if (this._mouseDown)
+    _clearMouseDown(e) {
+      if (this._mouseDown) {
+        this._endSelection(e);
         this.emit("selection-done");
+      }
       this._mouseDown = 0;
       if (this._split)
         this._split._bar.style.pointerEvents = "";
@@ -22705,6 +23425,100 @@
         }
         return false;
       }
+    }
+    _isBefore(nodeA, nodeB) {
+      var position = nodeA.compareDocumentPosition(nodeB);
+      if (position & 4) return false;
+      return true;
+    }
+    _rangeToNode(range) {
+      if (!range) return null;
+      if (range.startContainer)
+        return { node: range.startContainer, offset: range.startOffset };
+      return { node: range.offsetNode, offset: range.offset };
+    }
+    _startSelection(e) {
+      if (!this.customSelection) return;
+      this._trackSelection.down = this._getMouseEventCaretRange(e);
+      if (!this._trackSelection.down) return;
+      this._selection.start = this._rangeToNode(this._trackSelection.down);
+      this._selection.end = this._selection.start;
+      this._updateSelectionHighlight();
+    }
+    _setSelection() {
+      if (!this.customSelection || !this._trackSelection.down) return;
+      let down = this._rangeToNode(this._trackSelection.down);
+      let up = this._rangeToNode(this._trackSelection.up);
+      if (down.node === up.node) {
+        if (down.offset < up.offset) {
+          this._selection.start = down;
+          this._selection.end = up;
+        } else {
+          this._selection.start = up;
+          this._selection.end = down;
+        }
+      } else if (!this._isBefore(down.node, up.node)) {
+        this._selection.start = down;
+        this._selection.end = up;
+      } else {
+        this._selection.start = up;
+        this._selection.end = down;
+      }
+      let range;
+      if (this._document.activeElement !== this._container) return;
+      if (this._window.getSelection().rangeCount === 0) {
+        range = this._document.createRange();
+        range.setStart(this._selection.start.node, this._selection.start.offset);
+        range.setEnd(this._selection.end.node, this._selection.end.offset);
+        this._window.getSelection().addRange(range);
+      } else {
+        range = this._window.getSelection().getRangeAt(0);
+        range.setStart(this._selection.start.node, this._selection.start.offset);
+        range.setEnd(this._selection.end.node, this._selection.end.offset);
+      }
+      this.emit("selection-changed");
+      this._updateSelectionHighlight();
+    }
+    _endSelection(e) {
+      if (!this.customSelection) return;
+      const caret = this._getMouseEventCaretRange(e);
+      if (caret)
+        this._trackSelection.up = caret;
+      this._setSelection();
+    }
+    _setSelectionRange(range) {
+      if (!range) return;
+      this._trackSelection.down = document.createRange();
+      this._trackSelection.down.setStart(range.startContainer, range.startOffset);
+      this._trackSelection.down.setEnd(range.startContainer, range.startOffset);
+      this._trackSelection.up = document.createRange();
+      this._trackSelection.up.setStart(range.endContainer, range.endOffset);
+      this._trackSelection.up.setEnd(range.endContainer, range.endOffset);
+      this._setSelection();
+    }
+    /**
+     * Retrieves an array of all text nodes under a given element.
+     *
+     * @param { Node } el - The element under which to search for text nodes.
+     * @returns { Node[] } An array of text nodes found under the given element.
+     */
+    _textNodesUnder(el) {
+      const children = [];
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        children.push(walker.currentNode);
+      }
+      return children;
+    }
+    _findIndexOfSymbol(el, node, offset2) {
+      node = node.parentNode == el ? node : node.parentNode;
+      let nodes = [...el.childNodes];
+      let index = nodes.indexOf(node);
+      let num = 0;
+      for (let i2 = 0; i2 < index; i2++) {
+        num += nodes[i2].textContent.length;
+      }
+      return num + offset2;
     }
   };
   var DisplayModel = class extends EventEmitter {
@@ -22810,6 +23624,12 @@
     }
     get enableMXP() {
       return this._parser.enableMXP;
+    }
+    set defaultMXPState(value) {
+      this._parser.defaultMXPState = value;
+    }
+    get defaultMXPState() {
+      return this._parser.defaultMXPState;
     }
     set showInvalidMXPTags(value) {
       this._parser.showInvalidMXPTags = value;
@@ -23390,7 +24210,7 @@
   };
 
   // package.json
-  var version = "1.0.0-beta";
+  var version = "1.0.0-beta.2";
 
   // src/plugins/msp.ts
   var buzz = __toESM(require_buzz());
@@ -23512,7 +24332,7 @@
     async open() {
       this.close();
       return new Promise((resolve, reject) => {
-        this.sound = new buzz.sound()(this.url + this._file);
+        this.sound = new buzz.sound(this.url + this._file);
         this.sound.bind("loadeddata", (e) => {
           this.emit("playing", { file: this._file, sound: this.sound, state: this, duration: buzz.toTimer(this.sound.getDuration()) });
           resolve(1);
@@ -24317,17 +25137,17 @@
         }
         this.client.print(sample, true);
       };
-      this.functions["testxterm"] = (title) => {
+      this.functions["testxterm"] = (data) => {
         let r;
         let g;
         let b;
         let c;
         let sample = "";
-        if (typeof title !== "undefined" && title.length > 0) {
+        if (data && data.args && data.args.length) {
           sample += "Set Title: ";
-          sample += title;
+          sample += data.args.join(" ");
           sample += "\x1B]0;";
-          sample += title;
+          sample += data.args.join(" ");
           sample += "\x07\n";
         }
         sample += "System colors:\n";
@@ -24420,16 +25240,16 @@
         sample += "	&lt;V Hp&gt;<V Hp>100</V>&lt;/V&gt; &amp;Hp; = &Hp; &amp;hp; = &hp;\n";
         sample += "	&lt;VAR Sp&gt;<VAR Sp>200</VAR>&lt;/VAR&gt; &amp;Sp; = &Sp; &amp;sp; = &sp;\n";
         sample += "Image\n";
-        sample += 'default      <image connected.png URL="./images/" w=48 h=48>\n';
-        sample += 'align left <image connected.png URL="./images/" align=left w=48 h=48> align left\n';
-        sample += 'align right  <image connected.png URL="./images/" align=right w=48 h=48> align right\n';
-        sample += 'align top    <image connected.png URL="./images/" align=top w=48 h=48> align top \n';
-        sample += 'align middle <image connected.png URL="./images/" align=middle w=48 h=48> align middle\n';
-        sample += 'align bottom <image connected.png URL="./images/" align=bottom w=48 h=48> align bottom\n';
-        sample += 'map          <send showmap><image connected.png URL="./images/" ismap w=48 h=48></send>\n';
+        sample += 'default      <image oiMUD.128x128.png URL="./images/" w=48 h=48>\n';
+        sample += 'align left <image oiMUD.128x128.png URL="./images/" align=left w=48 h=48> align left\n';
+        sample += 'align right  <image oiMUD.128x128.png URL="./images/" align=right w=48 h=48> align right\n';
+        sample += 'align top    <image oiMUD.128x128.png URL="./images/" align=top w=48 h=48> align top \n';
+        sample += 'align middle <image oiMUD.128x128.png URL="./images/" align=middle w=48 h=48> align middle\n';
+        sample += 'align bottom <image oiMUD.128x128.png URL="./images/" align=bottom w=48 h=48> align bottom\n';
+        sample += 'map          <send showmap><image oiMUD.128x128.png URL="./images/" ismap w=48 h=48></send>\n';
         sample += "<STAT Hp version Test>";
         sample += "<GAUGE Hp version Test>";
-        sample += "\x1B[0z";
+        sample += "\x1B[3z";
         this.client.print(sample, true);
       };
       this.functions["testmxp2"] = () => {
@@ -24877,7 +25697,7 @@
           "right hand": { "name": "knife", "type": "knife", "subtype": "dagger", "material": "iron", "quality": "poor", "dominant": 1 },
           "left hand": { "name": "club", "type": "blunt", "subtype": "club", "material": "wood", "quality": "ordinary", "dominant": 0 }
         });
-        if (data && data.args && data.args.length && data.args[0] === "night")
+        if (data && data.args && data.args.indexOf("night") !== -1)
           this.client.emit("received-GMCP", "oMUD.Environment", { tod: "night", moons: ["waning", "full", "waxing"] });
         else
           this.client.emit("received-GMCP", "oMUD.Environment", { "tod": "day" });
@@ -27915,6 +28735,14 @@ Devanagari
       else
         this._dialog.querySelector(`#${this._id}-header-close`).style.display = "none";
     }
+    get alwaysOnTop() {
+      return this._dialog.dataset.alwaysOnTop === "true";
+    }
+    set alwaysOnTop(value) {
+      if (value === (this._dialog.dataset.alwaysOnTop === "true" ? true : false)) return;
+      this._dialog.dataset.alwaysOnTop = value ? "true" : "false";
+      this._getMaxZIndex(true);
+    }
     set maximized(value) {
       if (this._state.maximized === value) return;
       this._state.maximized = value;
@@ -28143,16 +28971,16 @@ Devanagari
         let z2 = parseInt(dialogs[d2].style.zIndex, 10);
         if (z2 > i2)
           i2 = z2;
-        order.push({ z: z2, idx: d2, show: parseInt(dialogs[d2].dataset.show || "", 10) || 0 });
+        order.push({ top: dialogs[d2].dataset.alwaysOnTop == "true", z: z2, idx: d2, show: parseInt(dialogs[d2].dataset.show || "", 10) || 0 });
       }
       this._state.zIndex = i2;
       if (forceReset || this._state.zIndex > 1e3) {
         this._state.zIndex = 100;
         d2 = 0;
-        order.sort((a, b) => a.show > b.show ? 1 : a.z < b.z ? -1 : a.z > b.z ? 1 : 0);
+        order.sort((a, b) => a.top && !b.top ? 1 : a.show > b.show ? 1 : a.z < b.z ? -1 : a.z > b.z ? 1 : 0);
         for (; d2 < dl; d2++) {
-          if (dialogs[order[d2]].backdrop_)
-            dialogs[order[d2]].backdrop_.style.zIndex = "" + this._state.zIndex++;
+          if (dialogs[order[d2].idx].backdrop_)
+            dialogs[order[d2].idx].backdrop_.style.zIndex = "" + this._state.zIndex++;
           dialogs[order[d2].idx].style.zIndex = "" + this._state.zIndex++;
         }
       }
@@ -28455,7 +29283,7 @@ Devanagari
       client.commandInput.focus();
     });
     document.getElementById("btn-menu").addEventListener("click", showMenu);
-    client.on("connected", () => {
+    client.on("connecting", () => {
       let el = document.getElementById("menu-connect");
       let text = document.querySelector("#menu-connect a span");
       let icon = document.querySelector("#menu-connect svg") || document.querySelector("#menu-connect i");
@@ -28477,7 +29305,7 @@ Devanagari
     });
     client.on("scroll-lock", updateScrollLock);
     document.querySelector("#menu-connect a").addEventListener("click", (e) => {
-      if (client.connected)
+      if (client.connected || client.connecting)
         client.close();
       else {
         client.connect();
@@ -31530,31 +32358,41 @@ Devanagari
         this._updateSmall(e.width);
         this._client.setOption("windows.profiles", e);
       });
+      this.on("closed", () => {
+        if (this.persistent) return;
+        this.emit("content-changing");
+        this._client.removeListenersFromCaller(this);
+      });
+      this.on("canceled", () => {
+        if (this.persistent) return;
+        this.emit("content-changing");
+        this._client.removeListenersFromCaller(this);
+      });
       this._client.on("profiles-loaded", () => {
         if (!this.profiles) {
           this.profiles = this._client.profiles.clone();
           this.profiles.SortByPriority();
           this._buildMenu();
         }
-      });
+      }, this);
       this._client.on("profiles-updated", () => {
-      });
+      }, this);
       this._client.on("options-loaded", () => {
         this.resetState(this._client.getWindowState("profiles") || { center: true });
-      });
+      }, this);
       this._client.on("initialized", () => {
         if (!this.profiles) {
           this.profiles = this._client.profiles.clone();
           this.profiles.SortByPriority();
           this._buildMenu();
         }
-      });
+      }, this);
       this._client.on("item-added", (type, profileName, index, item) => {
         if (!this._client.getOption("profiles.updateOnChange"))
           this._outsideChange = true;
         else if (this.profiles.contains(profileName))
           this._addItem(type + (type === "alias" ? "es" : "s"), item, this.profiles.items[profileName]);
-      });
+      }, this);
       this._client.on("item-removed", (type, profileName, index, item) => {
         if (!this._client.getOption("profiles.updateOnChange"))
           this._outsideChange = true;
@@ -31588,7 +32426,7 @@ Devanagari
           if (id === this._clipId)
             this._resetClip(true);
         }
-      });
+      }, this);
       this._client.on("item-updated", (type, profileName, index, item) => {
         if (!this._client.getOption("profiles.updateOnChange"))
           this._outsideChange = true;
@@ -31602,7 +32440,7 @@ Devanagari
           if (this._current.profileName === profileName && collection === this._current.collection && this._current.itemIdx === index)
             this.loadPage(this._page);
         }
-      });
+      }, this);
       this.body.style.padding = "10px";
       this._splitter = new Splitter({ id: "profile", parent: this.body, orientation: 1 /* vertical */, anchor: 1 /* panel1 */ });
       if (this._client.getOption("profiles.split") >= 200)
@@ -31639,6 +32477,9 @@ Devanagari
       footer += `<li id="${this.id}-export-current"><a class="dropdown-item">Export current profile</a></li>`;
       footer += `<li id="${this.id}-export"><a class="dropdown-item">Export profiles</a></li>`;
       footer += `<li id="${this.id}-import"><a class="dropdown-item">Import profiles</a></li>`;
+      footer += '<li><hr class="dropdown-divider"></li>';
+      footer += `<li id="${this.id}-copy-url"><a class="dropdown-item">Copy profile url</a></li>`;
+      footer += `<li id="${this.id}-open-url"><a class="dropdown-item">Open profile url</a></li>`;
       footer += '<li><hr class="dropdown-divider"></li>';
       footer += `<li id="${this.id}-refresh"><a class="dropdown-item">Refresh</a></li>`;
       footer += `<li id="${this.id}-reload"><a class="dropdown-item">Reload</a></li>`;
@@ -31795,6 +32636,34 @@ Devanagari
       this.footer.querySelector(`#${this.id}-refresh a`).addEventListener("click", () => {
         this._buildMenu();
         this.setBody(this._page);
+      });
+      this.footer.querySelector(`#${this.id}-copy-url a`).addEventListener("click", () => {
+        const urlObject = new URL(window.location.href);
+        const keys = this.profiles.keys;
+        let k = 0;
+        const kl = keys.length;
+        let enabled = [];
+        for (; k < kl; k++) {
+          if (this.profiles.items[keys[k]].enabled)
+            enabled.push(keys[k]);
+        }
+        urlObject.searchParams.set("profiles", enabled.join(","));
+        urlObject.hash = "";
+        copyText(urlObject.toString());
+      });
+      this.footer.querySelector(`#${this.id}-open-url a`).addEventListener("click", () => {
+        const urlObject = new URL(window.location.href);
+        const keys = this.profiles.keys;
+        let k = 0;
+        const kl = keys.length;
+        let enabled = [];
+        for (; k < kl; k++) {
+          if (this.profiles.items[keys[k]].enabled)
+            enabled.push(keys[k]);
+        }
+        urlObject.searchParams.set("profiles", enabled.join(","));
+        urlObject.hash = "";
+        window.open(urlObject.toString());
       });
       this.footer.querySelector(`#${this.id}-reload a`).addEventListener("click", () => {
         if (this.changed) {
@@ -33411,8 +34280,7 @@ Devanagari
         for (let i2 = 0, il = items.length; i2 < il; i2++) {
           this._menuItemEvents(items[i2]);
           items[i2].addEventListener("click", (e) => {
-            if (!this._history.length || this._history[this._current] !== e.currentTarget.dataset.id)
-              this._updateHistory(e.currentTarget.dataset.id);
+            this.gotoPage(e.currentTarget.dataset.id);
           });
         }
         let ops = ['<option value="">Table of contents</option>'];
@@ -33469,6 +34337,14 @@ Devanagari
         const item = this.header.querySelector(".breadcrumb");
         item.classList.remove("breadcrumb-sm");
         this._small = false;
+      }
+    }
+    gotoPage(page) {
+      if (!page.startsWith("help/"))
+        page = "help/" + page;
+      if (!this._history.length || this._history[this._current] !== page) {
+        this._updateHistory(page);
+        updateHash(page, this._page);
       }
     }
   };
@@ -33848,6 +34724,27 @@ Devanagari
         client.display.clearSelection();
       }
     });
+    client.display.on("contextmenu", (e) => {
+      if (client.display.customSelection && client.display.hasSelection) {
+        let items = [
+          {
+            name: 'Copy <span style="float: right">Ctrl+C</span>',
+            action: (item) => {
+              if (client.display.hasSelection)
+                copyText(client.display.selection, client.display.selectionAsHTML);
+            }
+          },
+          {
+            name: "Select all",
+            action: (item) => {
+              client.display.selectAll();
+            }
+          }
+        ];
+        e.preventDefault();
+        Contextmenu.popup(items, e.clientX, e.clientY);
+      }
+    });
     client.on("profiles-loaded", () => {
       buildButtons();
     });
@@ -34064,6 +34961,13 @@ Devanagari
       } catch (err) {
       }
     });
+    client.on("updated-interface", (name2, sender) => {
+      if (name2 === "status") {
+        updateCommandInput();
+        if (client.getOption("commandAutoSize") || client.getOption("commandScrollbars"))
+          resizeCommandInput();
+      }
+    });
   }
   function removeHash(string) {
     if (!string || string.length === 0) return;
@@ -34125,7 +35029,7 @@ Devanagari
     switch (name2) {
       case "about":
         if (!_dialogs.about) {
-          _dialogs.about = new Dialog({ title: '<i class="bi-info-circle"></i> About', width: 350, height: 400, noFooter: true, resizable: false, center: true, maximizable: false });
+          _dialogs.about = new Dialog({ title: '<i class="bi-info-circle"></i> About', width: 460, height: 400, noFooter: true, resizable: false, center: true, maximizable: false });
           _dialogs.about.on("closed", () => {
             _dialogs.about.removeAllListeners();
             delete _dialogs.about;
@@ -34503,8 +35407,8 @@ Devanagari
     measure.style.fontSize = client.commandInput.style.fontSize;
     measure.style.fontFamily = client.commandInput.style.fontFamily;
     measure.style.width = client.commandInput.offsetWidth + "px";
-    const oldMeasure = measure.innerHTML;
-    measure.innerHTML = "W";
+    const oldMeasure = measure.textContent;
+    measure.textContent = "W";
     let minHeight = client.getOption("commandMinLines");
     const height = measure.offsetHeight;
     minHeight = height * (minHeight < 1 ? 1 : minHeight);
@@ -34514,7 +35418,7 @@ Devanagari
     padding += parseFloat(cmdSize.paddingBottom) || 0;
     let inset = cmdSize.inset.split(" ");
     padding += (parseFloat(inset[0]) || 0) * 2;
-    measure.innerHTML = oldMeasure;
+    measure.textContent = oldMeasure;
     cmd.style.height = height + padding + "px";
     client.commandInput.parentElement.style.height = height + "px";
     client.commandInput.closest("nav").style.height = height + "px";
@@ -34531,7 +35435,7 @@ Devanagari
   function _resizeCommandInput() {
     const measure = commandInputResize.measure;
     const cmd = commandInputResize.cmd;
-    measure.innerHTML = client.commandInput.value + "\n";
+    measure.textContent = client.commandInput.value + "\n";
     let height = measure.offsetHeight;
     if (height < commandInputResize.minHeight)
       height = commandInputResize.minHeight;
@@ -35730,20 +36634,10 @@ ${pre}`);
             this._dialogProgress.progress = progress;
         }, this._dialog);
         this._map.on("import-complete", () => {
-          client.sendGMCP("Room.Info");
-          if (this._dialogProgress)
-            this._dialogProgress.close();
-          this._dialogProgress = null;
           this._dialogMap.refresh();
-          this._map.save();
         }, this._dialog);
         this._map.on("import-canceled", () => {
-          client.sendGMCP("Room.Info");
-          if (this._dialogProgress)
-            this._dialogProgress.close();
-          this._dialogProgress = null;
           this._dialogMap.refresh();
-          this._map.save();
         }, this._dialog);
         this.client.sendGMCP("Room.Info");
       };
@@ -35770,6 +36664,24 @@ ${pre}`);
       if (typeof data === "string")
         data = JSON.parse(data);
       this._dialogProgress = progress_box("Importing map");
+      this.map.on("import-complete", () => {
+        this.map.removeListenersFromCaller("import-complete", this._dialogProgress);
+        this.map.removeListenersFromCaller("import-canceled", this._dialogProgress);
+        client.sendGMCP("Room.Info");
+        if (this._dialogProgress)
+          this._dialogProgress.close();
+        this._dialogProgress = null;
+        this._map.save();
+      }, this._dialogProgress);
+      this.map.on("import-canceled", () => {
+        this.map.removeListenersFromCaller("import-complete", this._dialogProgress);
+        this.map.removeListenersFromCaller("import-canceled", this._dialogProgress);
+        client.sendGMCP("Room.Info");
+        if (this._dialogProgress)
+          this._dialogProgress.close();
+        this._dialogProgress = null;
+        this._map.save();
+      }, this._dialogProgress);
       this._dialogProgress.on("canceled", () => {
         this.map.cancelImport();
       });
@@ -36204,6 +37116,7 @@ ${pre}`);
         this._status.style.display = "none";
         document.getElementById("status-drag-bar").style.display = "none";
         this.emit("updated-interface");
+        client.emit("updated-interface", "status", this);
         document.getElementById("status-simple").style.display = "none";
         document.getElementById("status-simple-lagMeter").style.visibility = this.client.getOption("lagMeter") ? "visible" : "";
         return;
@@ -36216,6 +37129,7 @@ ${pre}`);
         document.getElementById("status-simple").style.display = "";
         document.getElementById("status-simple-lagMeter").style.visibility = this.client.getOption("lagMeter") ? "visible" : "";
         this.emit("updated-interface");
+        client.emit("updated-interface", "status", this);
         return;
       }
       document.getElementById("status-simple").style.display = "none";
@@ -36278,6 +37192,7 @@ ${pre}`);
       if (!noSplitter)
         this._updateSplitter();
       this.emit("updated-interface");
+      client.emit("updated-interface", "status", this);
     }
     _setTitle(title, lag) {
       if (!title || title.length === 0)
@@ -36920,10 +37835,10 @@ ${pre}`);
   };
 
   // inline-worker:D:\Development\oiMUD\src\plugins\logger.worker.ts
-  var logger_worker_default = "data:application/javascript;base64,KCgpID0+IHsKICAvLyBzcmMvbGliL3JnYmNvbG9yLmpzCiAgZnVuY3Rpb24gUkdCQ29sb3IoY29sb3Jfc3RyaW5nKSB7CiAgICB0aGlzLm9rID0gZmFsc2U7CiAgICBpZiAoY29sb3Jfc3RyaW5nLmNoYXJBdCgwKSA9PSAiIyIpIHsKICAgICAgY29sb3Jfc3RyaW5nID0gY29sb3Jfc3RyaW5nLnN1YnN0cigxLCA2KTsKICAgIH0KICAgIGNvbG9yX3N0cmluZyA9IGNvbG9yX3N0cmluZy5yZXBsYWNlKC8gL2csICIiKTsKICAgIGNvbG9yX3N0cmluZyA9IGNvbG9yX3N0cmluZy50b0xvd2VyQ2FzZSgpOwogICAgdmFyIHNpbXBsZV9jb2xvcnMgPSB7CiAgICAgIGFsaWNlYmx1ZTogImYwZjhmZiIsCiAgICAgIGFudGlxdWV3aGl0ZTogImZhZWJkNyIsCiAgICAgIGFxdWE6ICIwMGZmZmYiLAogICAgICBhcXVhbWFyaW5lOiAiN2ZmZmQ0IiwKICAgICAgYXp1cmU6ICJmMGZmZmYiLAogICAgICBiZWlnZTogImY1ZjVkYyIsCiAgICAgIGJpc3F1ZTogImZmZTRjNCIsCiAgICAgIGJsYWNrOiAiMDAwMDAwIiwKICAgICAgYmxhbmNoZWRhbG1vbmQ6ICJmZmViY2QiLAogICAgICBibHVlOiAiMDAwMGZmIiwKICAgICAgYmx1ZXZpb2xldDogIjhhMmJlMiIsCiAgICAgIGJyb3duOiAiYTUyYTJhIiwKICAgICAgYnVybHl3b29kOiAiZGViODg3IiwKICAgICAgY2FkZXRibHVlOiAiNWY5ZWEwIiwKICAgICAgY2hhcnRyZXVzZTogIjdmZmYwMCIsCiAgICAgIGNob2NvbGF0ZTogImQyNjkxZSIsCiAgICAgIGNvcmFsOiAiZmY3ZjUwIiwKICAgICAgY29ybmZsb3dlcmJsdWU6ICI2NDk1ZWQiLAogICAgICBjb3Juc2lsazogImZmZjhkYyIsCiAgICAgIGNyaW1zb246ICJkYzE0M2MiLAogICAgICBjeWFuOiAiMDBmZmZmIiwKICAgICAgZGFya2JsdWU6ICIwMDAwOGIiLAogICAgICBkYXJrY3lhbjogIjAwOGI4YiIsCiAgICAgIGRhcmtnb2xkZW5yb2Q6ICJiODg2MGIiLAogICAgICBkYXJrZ3JheTogImE5YTlhOSIsCiAgICAgIGRhcmtncmVlbjogIjAwNjQwMCIsCiAgICAgIGRhcmtraGFraTogImJkYjc2YiIsCiAgICAgIGRhcmttYWdlbnRhOiAiOGIwMDhiIiwKICAgICAgZGFya29saXZlZ3JlZW46ICI1NTZiMmYiLAogICAgICBkYXJrb3JhbmdlOiAiZmY4YzAwIiwKICAgICAgZGFya29yY2hpZDogIjk5MzJjYyIsCiAgICAgIGRhcmtyZWQ6ICI4YjAwMDAiLAogICAgICBkYXJrc2FsbW9uOiAiZTk5NjdhIiwKICAgICAgZGFya3NlYWdyZWVuOiAiOGZiYzhmIiwKICAgICAgZGFya3NsYXRlYmx1ZTogIjQ4M2Q4YiIsCiAgICAgIGRhcmtzbGF0ZWdyYXk6ICIyZjRmNGYiLAogICAgICBkYXJrdHVycXVvaXNlOiAiMDBjZWQxIiwKICAgICAgZGFya3Zpb2xldDogIjk0MDBkMyIsCiAgICAgIGRlZXBwaW5rOiAiZmYxNDkzIiwKICAgICAgZGVlcHNreWJsdWU6ICIwMGJmZmYiLAogICAgICBkaW1ncmF5OiAiNjk2OTY5IiwKICAgICAgZG9kZ2VyYmx1ZTogIjFlOTBmZiIsCiAgICAgIGZlbGRzcGFyOiAiZDE5Mjc1IiwKICAgICAgZmlyZWJyaWNrOiAiYjIyMjIyIiwKICAgICAgZmxvcmFsd2hpdGU6ICJmZmZhZjAiLAogICAgICBmb3Jlc3RncmVlbjogIjIyOGIyMiIsCiAgICAgIGZ1Y2hzaWE6ICJmZjAwZmYiLAogICAgICBnYWluc2Jvcm86ICJkY2RjZGMiLAogICAgICBnaG9zdHdoaXRlOiAiZjhmOGZmIiwKICAgICAgZ29sZDogImZmZDcwMCIsCiAgICAgIGdvbGRlbnJvZDogImRhYTUyMCIsCiAgICAgIGdyYXk6ICI4MDgwODAiLAogICAgICBncmVlbjogIjAwODAwMCIsCiAgICAgIGdyZWVueWVsbG93OiAiYWRmZjJmIiwKICAgICAgaG9uZXlkZXc6ICJmMGZmZjAiLAogICAgICBob3RwaW5rOiAiZmY2OWI0IiwKICAgICAgaW5kaWFucmVkOiAiY2Q1YzVjIiwKICAgICAgaW5kaWdvOiAiNGIwMDgyIiwKICAgICAgaXZvcnk6ICJmZmZmZjAiLAogICAgICBraGFraTogImYwZTY4YyIsCiAgICAgIGxhdmVuZGVyOiAiZTZlNmZhIiwKICAgICAgbGF2ZW5kZXJibHVzaDogImZmZjBmNSIsCiAgICAgIGxhd25ncmVlbjogIjdjZmMwMCIsCiAgICAgIGxlbW9uY2hpZmZvbjogImZmZmFjZCIsCiAgICAgIGxpZ2h0Ymx1ZTogImFkZDhlNiIsCiAgICAgIGxpZ2h0Y29yYWw6ICJmMDgwODAiLAogICAgICBsaWdodGN5YW46ICJlMGZmZmYiLAogICAgICBsaWdodGdvbGRlbnJvZHllbGxvdzogImZhZmFkMiIsCiAgICAgIGxpZ2h0Z3JleTogImQzZDNkMyIsCiAgICAgIGxpZ2h0Z3JlZW46ICI5MGVlOTAiLAogICAgICBsaWdodHBpbms6ICJmZmI2YzEiLAogICAgICBsaWdodHNhbG1vbjogImZmYTA3YSIsCiAgICAgIGxpZ2h0c2VhZ3JlZW46ICIyMGIyYWEiLAogICAgICBsaWdodHNreWJsdWU6ICI4N2NlZmEiLAogICAgICBsaWdodHNsYXRlYmx1ZTogIjg0NzBmZiIsCiAgICAgIGxpZ2h0c2xhdGVncmF5OiAiNzc4ODk5IiwKICAgICAgbGlnaHRzdGVlbGJsdWU6ICJiMGM0ZGUiLAogICAgICBsaWdodHllbGxvdzogImZmZmZlMCIsCiAgICAgIGxpbWU6ICIwMGZmMDAiLAogICAgICBsaW1lZ3JlZW46ICIzMmNkMzIiLAogICAgICBsaW5lbjogImZhZjBlNiIsCiAgICAgIG1hZ2VudGE6ICJmZjAwZmYiLAogICAgICBtYXJvb246ICI4MDAwMDAiLAogICAgICBtZWRpdW1hcXVhbWFyaW5lOiAiNjZjZGFhIiwKICAgICAgbWVkaXVtYmx1ZTogIjAwMDBjZCIsCiAgICAgIG1lZGl1bW9yY2hpZDogImJhNTVkMyIsCiAgICAgIG1lZGl1bXB1cnBsZTogIjkzNzBkOCIsCiAgICAgIG1lZGl1bXNlYWdyZWVuOiAiM2NiMzcxIiwKICAgICAgbWVkaXVtc2xhdGVibHVlOiAiN2I2OGVlIiwKICAgICAgbWVkaXVtc3ByaW5nZ3JlZW46ICIwMGZhOWEiLAogICAgICBtZWRpdW10dXJxdW9pc2U6ICI0OGQxY2MiLAogICAgICBtZWRpdW12aW9sZXRyZWQ6ICJjNzE1ODUiLAogICAgICBtaWRuaWdodGJsdWU6ICIxOTE5NzAiLAogICAgICBtaW50Y3JlYW06ICJmNWZmZmEiLAogICAgICBtaXN0eXJvc2U6ICJmZmU0ZTEiLAogICAgICBtb2NjYXNpbjogImZmZTRiNSIsCiAgICAgIG5hdmFqb3doaXRlOiAiZmZkZWFkIiwKICAgICAgbmF2eTogIjAwMDA4MCIsCiAgICAgIG9sZGxhY2U6ICJmZGY1ZTYiLAogICAgICBvbGl2ZTogIjgwODAwMCIsCiAgICAgIG9saXZlZHJhYjogIjZiOGUyMyIsCiAgICAgIG9yYW5nZTogImZmYTUwMCIsCiAgICAgIG9yYW5nZXJlZDogImZmNDUwMCIsCiAgICAgIG9yY2hpZDogImRhNzBkNiIsCiAgICAgIHBhbGVnb2xkZW5yb2Q6ICJlZWU4YWEiLAogICAgICBwYWxlZ3JlZW46ICI5OGZiOTgiLAogICAgICBwYWxldHVycXVvaXNlOiAiYWZlZWVlIiwKICAgICAgcGFsZXZpb2xldHJlZDogImQ4NzA5MyIsCiAgICAgIHBhcGF5YXdoaXA6ICJmZmVmZDUiLAogICAgICBwZWFjaHB1ZmY6ICJmZmRhYjkiLAogICAgICBwZXJ1OiAiY2Q4NTNmIiwKICAgICAgcGluazogImZmYzBjYiIsCiAgICAgIHBsdW06ICJkZGEwZGQiLAogICAgICBwb3dkZXJibHVlOiAiYjBlMGU2IiwKICAgICAgcHVycGxlOiAiODAwMDgwIiwKICAgICAgcmVkOiAiZmYwMDAwIiwKICAgICAgcm9zeWJyb3duOiAiYmM4ZjhmIiwKICAgICAgcm95YWxibHVlOiAiNDE2OWUxIiwKICAgICAgc2FkZGxlYnJvd246ICI4YjQ1MTMiLAogICAgICBzYWxtb246ICJmYTgwNzIiLAogICAgICBzYW5keWJyb3duOiAiZjRhNDYwIiwKICAgICAgc2VhZ3JlZW46ICIyZThiNTciLAogICAgICBzZWFzaGVsbDogImZmZjVlZSIsCiAgICAgIHNpZW5uYTogImEwNTIyZCIsCiAgICAgIHNpbHZlcjogImMwYzBjMCIsCiAgICAgIHNreWJsdWU6ICI4N2NlZWIiLAogICAgICBzbGF0ZWJsdWU6ICI2YTVhY2QiLAogICAgICBzbGF0ZWdyYXk6ICI3MDgwOTAiLAogICAgICBzbm93OiAiZmZmYWZhIiwKICAgICAgc3ByaW5nZ3JlZW46ICIwMGZmN2YiLAogICAgICBzdGVlbGJsdWU6ICI0NjgyYjQiLAogICAgICB0YW46ICJkMmI0OGMiLAogICAgICB0ZWFsOiAiMDA4MDgwIiwKICAgICAgdGhpc3RsZTogImQ4YmZkOCIsCiAgICAgIHRvbWF0bzogImZmNjM0NyIsCiAgICAgIHR1cnF1b2lzZTogIjQwZTBkMCIsCiAgICAgIHZpb2xldDogImVlODJlZSIsCiAgICAgIHZpb2xldHJlZDogImQwMjA5MCIsCiAgICAgIHdoZWF0OiAiZjVkZWIzIiwKICAgICAgd2hpdGU6ICJmZmZmZmYiLAogICAgICB3aGl0ZXNtb2tlOiAiZjVmNWY1IiwKICAgICAgeWVsbG93OiAiZmZmZjAwIiwKICAgICAgeWVsbG93Z3JlZW46ICI5YWNkMzIiCiAgICB9OwogICAgZm9yICh2YXIga2V5IGluIHNpbXBsZV9jb2xvcnMpIHsKICAgICAgaWYgKGNvbG9yX3N0cmluZyA9PSBrZXkpIHsKICAgICAgICBjb2xvcl9zdHJpbmcgPSBzaW1wbGVfY29sb3JzW2tleV07CiAgICAgIH0KICAgIH0KICAgIHZhciBjb2xvcl9kZWZzID0gWwogICAgICB7CiAgICAgICAgcmU6IC9ecmdiXCgoXGR7MSwzfSksXHMqKFxkezEsM30pLFxzKihcZHsxLDN9KVwpJC8sCiAgICAgICAgZXhhbXBsZTogWyJyZ2IoMTIzLCAyMzQsIDQ1KSIsICJyZ2IoMjU1LDIzNCwyNDUpIl0sCiAgICAgICAgcHJvY2VzczogZnVuY3Rpb24oYml0czIpIHsKICAgICAgICAgIHJldHVybiBbCiAgICAgICAgICAgIHBhcnNlSW50KGJpdHMyWzFdLCAxMCksCiAgICAgICAgICAgIHBhcnNlSW50KGJpdHMyWzJdLCAxMCksCiAgICAgICAgICAgIHBhcnNlSW50KGJpdHMyWzNdLCAxMCkKICAgICAgICAgIF07CiAgICAgICAgfQogICAgICB9LAogICAgICB7CiAgICAgICAgcmU6IC9eKFx3ezJ9KShcd3syfSkoXHd7Mn0pJC8sCiAgICAgICAgZXhhbXBsZTogWyIjMDBmZjAwIiwgIjMzNjY5OSJdLAogICAgICAgIHByb2Nlc3M6IGZ1bmN0aW9uKGJpdHMyKSB7CiAgICAgICAgICByZXR1cm4gWwogICAgICAgICAgICBwYXJzZUludChiaXRzMlsxXSwgMTYpLAogICAgICAgICAgICBwYXJzZUludChiaXRzMlsyXSwgMTYpLAogICAgICAgICAgICBwYXJzZUludChiaXRzMlszXSwgMTYpCiAgICAgICAgICBdOwogICAgICAgIH0KICAgICAgfSwKICAgICAgewogICAgICAgIHJlOiAvXihcd3sxfSkoXHd7MX0pKFx3ezF9KSQvLAogICAgICAgIGV4YW1wbGU6IFsiI2ZiMCIsICJmMGYiXSwKICAgICAgICBwcm9jZXNzOiBmdW5jdGlvbihiaXRzMikgewogICAgICAgICAgcmV0dXJuIFsKICAgICAgICAgICAgcGFyc2VJbnQoYml0czJbMV0gKyBiaXRzMlsxXSwgMTYpLAogICAgICAgICAgICBwYXJzZUludChiaXRzMlsyXSArIGJpdHMyWzJdLCAxNiksCiAgICAgICAgICAgIHBhcnNlSW50KGJpdHMyWzNdICsgYml0czJbM10sIDE2KQogICAgICAgICAgXTsKICAgICAgICB9CiAgICAgIH0KICAgIF07CiAgICBmb3IgKHZhciBpID0gMCwgY2wgPSBjb2xvcl9kZWZzLmxlbmd0aDsgaSA8IGNsOyBpKyspIHsKICAgICAgdmFyIHJlID0gY29sb3JfZGVmc1tpXS5yZTsKICAgICAgdmFyIHByb2Nlc3NvciA9IGNvbG9yX2RlZnNbaV0ucHJvY2VzczsKICAgICAgdmFyIGJpdHMgPSByZS5leGVjKGNvbG9yX3N0cmluZyk7CiAgICAgIGlmIChiaXRzKSB7CiAgICAgICAgdmFyIGNoYW5uZWxzID0gcHJvY2Vzc29yKGJpdHMpOwogICAgICAgIHRoaXMuciA9IGNoYW5uZWxzWzBdOwogICAgICAgIHRoaXMuZyA9IGNoYW5uZWxzWzFdOwogICAgICAgIHRoaXMuYiA9IGNoYW5uZWxzWzJdOwogICAgICAgIHRoaXMub2sgPSB0cnVlOwogICAgICB9CiAgICB9CiAgICB0aGlzLnIgPSB0aGlzLnIgPCAwIHx8IGlzTmFOKHRoaXMucikgPyAwIDogdGhpcy5yID4gMjU1ID8gMjU1IDogdGhpcy5yOwogICAgdGhpcy5nID0gdGhpcy5nIDwgMCB8fCBpc05hTih0aGlzLmcpID8gMCA6IHRoaXMuZyA+IDI1NSA/IDI1NSA6IHRoaXMuZzsKICAgIHRoaXMuYiA9IHRoaXMuYiA8IDAgfHwgaXNOYU4odGhpcy5iKSA/IDAgOiB0aGlzLmIgPiAyNTUgPyAyNTUgOiB0aGlzLmI7CiAgICB0aGlzLnRvUkdCID0gZnVuY3Rpb24oKSB7CiAgICAgIHJldHVybiAicmdiKCIgKyB0aGlzLnIgKyAiLCAiICsgdGhpcy5nICsgIiwgIiArIHRoaXMuYiArICIpIjsKICAgIH07CiAgICB0aGlzLnRvSGV4ID0gZnVuY3Rpb24oKSB7CiAgICAgIHZhciByID0gdGhpcy5yLnRvU3RyaW5nKDE2KTsKICAgICAgdmFyIGcgPSB0aGlzLmcudG9TdHJpbmcoMTYpOwogICAgICB2YXIgYiA9IHRoaXMuYi50b1N0cmluZygxNik7CiAgICAgIGlmIChyLmxlbmd0aCA9PSAxKSByID0gIjAiICsgcjsKICAgICAgaWYgKGcubGVuZ3RoID09IDEpIGcgPSAiMCIgKyBnOwogICAgICBpZiAoYi5sZW5ndGggPT0gMSkgYiA9ICIwIiArIGI7CiAgICAgIHJldHVybiAiIyIgKyByICsgZyArIGI7CiAgICB9OwogIH0KCiAgLy8gc3JjL3BsdWdpbnMvbG9nZ2VyLndvcmtlci50cwogIGltcG9ydFNjcmlwdHMoImh0dHBzOi8vY2RuLmpzZGVsaXZyLm5ldC9ucG0vbW9tZW50QDIuMzAuMS9tb21lbnQubWluLmpzIik7CiAgdmFyIG9wdGlvbnMgPSB7CiAgICBvZmZsaW5lOiBmYWxzZSwKICAgIGdhZ2dlZDogZmFsc2UsCiAgICBlbmFibGVkOiBmYWxzZSwKICAgIHVuaXF1ZTogdHJ1ZSwKICAgIHByZXBlbmQ6IGZhbHNlLAogICAgbmFtZTogIiIsCiAgICB3aGF0OiAxIC8qIEh0bWwgKi8sCiAgICBkZWJ1ZzogZmFsc2UsCiAgICB0aW1lc3RhbXA6IDAgLyogTm9uZSAqLywKICAgIHRpbWVzdGFtcEZvcm1hdDogIltbXU1NLUREIEhIOm1tOnNzLlNTU1tdXSAiCiAgfTsKICB2YXIgY29ubmVjdGVkID0gZmFsc2U7CiAgdmFyIHRpbWVTdGFtcDsKICB2YXIgZlRpbWVTdGFtcCA9ICIiOwogIHZhciBsb2dnaW5nID0gZmFsc2U7CiAgdmFyIGN1cnJlbnRGaWxlID0gIiI7CiAgdmFyIGNvbG9ycyA9IHt9OwogIHZhciBjb2xvcnNDbnQgPSAwOwogIHZhciBiYWNrZ3JvdW5kcyA9IHt9OwogIHZhciBiYWNrZ3JvdW5kc0NudCA9IDA7CiAgdmFyIGJ1ZmZlciA9IHt9OwogIHZhciBmbHVzaEJ1ZmZlcjsKICB2YXIgX2NvbG9yVGFibGUgPSBudWxsOwogIHNlbGYuYWRkRXZlbnRMaXN0ZW5lcigibWVzc2FnZSIsIChlKSA9PiB7CiAgICBsZXQgYzsKICAgIGlmICghZS5kYXRhKSByZXR1cm47CiAgICBzd2l0Y2ggKGUuZGF0YS5hY3Rpb24pIHsKICAgICAgY2FzZSAib3B0aW9ucyI6CiAgICAgICAgbGV0IG9wdGlvbjsKICAgICAgICBsZXQgb2xkRW5hYmxlZCA9IG9wdGlvbnMuZW5hYmxlZDsKICAgICAgICBmb3IgKG9wdGlvbiBpbiBlLmRhdGEuYXJncykgewogICAgICAgICAgaWYgKCFlLmRhdGEuYXJncy5oYXNPd25Qcm9wZXJ0eShvcHRpb24pKQogICAgICAgICAgICBjb250aW51ZTsKICAgICAgICAgIGlmIChvcHRpb24gPT09ICJjb2xvcnMiKSB7CiAgICAgICAgICAgIGNvbnN0IF9jb2xvcnMgPSBlLmRhdGEuYXJnc1tvcHRpb25dOwogICAgICAgICAgICBpZiAoX2NvbG9ycyAmJiBfY29sb3JzLmxlbmd0aCA+IDApIHsKICAgICAgICAgICAgICBsZXQgY2xyOwogICAgICAgICAgICAgIGNvbnN0IGNsID0gX2NvbG9ycy5sZW5ndGg7CiAgICAgICAgICAgICAgZm9yIChjbHIgPSAwOyBjbHIgPCBjbDsgY2xyKyspIHsKICAgICAgICAgICAgICAgIGlmICghX2NvbG9yc1tjbHJdIHx8IF9jb2xvcnNbY2xyXS5sZW5ndGggPT09IDApIGNvbnRpbnVlOwogICAgICAgICAgICAgICAgU2V0Q29sb3IoY2xyLCBfY29sb3JzW2Nscl0pOwogICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQogICAgICAgICAgICBjb250aW51ZTsKICAgICAgICAgIH0gZWxzZSBpZiAoZmx1c2hCdWZmZXIgJiYgb3B0aW9uID09PSAid2hhdCIgJiYgb3B0aW9uc1tvcHRpb25dICE9PSBlLmRhdGEuYXJnc1tvcHRpb25dKSB7CiAgICAgICAgICAgIGMgPSAwIC8qIE5vbmUgKi87CiAgICAgICAgICAgIGlmICgob3B0aW9uc1tvcHRpb25dICYgMSAvKiBIdG1sICovKSA9PT0gMSAvKiBIdG1sICovICYmIChlLmRhdGEuYXJnc1tvcHRpb25dICYgMSAvKiBIdG1sICovKSAhPT0gMSAvKiBIdG1sICovKQogICAgICAgICAgICAgIGMgfD0gMSAvKiBIdG1sICovOwogICAgICAgICAgICBpZiAoKG9wdGlvbnNbb3B0aW9uXSAmIDIgLyogVGV4dCAqLykgPT09IDIgLyogVGV4dCAqLyAmJiAoZS5kYXRhLmFyZ3Nbb3B0aW9uXSAmIDIgLyogVGV4dCAqLykgIT09IDIgLyogVGV4dCAqLykKICAgICAgICAgICAgICBjIHw9IDIgLyogVGV4dCAqLzsKICAgICAgICAgICAgaWYgKChvcHRpb25zW29wdGlvbl0gJiA0IC8qIFJhdyAqLykgPT09IDQgLyogUmF3ICovICYmIChlLmRhdGEuYXJnc1tvcHRpb25dICYgNCAvKiBSYXcgKi8pICE9PSA0IC8qIFJhdyAqLykKICAgICAgICAgICAgICBjIHw9IDQgLyogUmF3ICovOwogICAgICAgICAgICBpZiAoYyAhPT0gMCAvKiBOb25lICovKSB7CiAgICAgICAgICAgICAgY29uc3QgZk9sZCA9IGZsdXNoQnVmZmVyOwogICAgICAgICAgICAgIGZsdXNoQnVmZmVyLndoYXQgPSBjOwogICAgICAgICAgICAgIGZsdXNoKHRydWUpOwogICAgICAgICAgICAgIGZPbGQud2hhdCA9IG9wdGlvbnNbb3B0aW9uXTsKICAgICAgICAgICAgICBmbHVzaEJ1ZmZlciA9IGZPbGQ7CiAgICAgICAgICAgIH0KICAgICAgICAgICAgb3B0aW9uc1tvcHRpb25dID0gZS5kYXRhLmFyZ3Nbb3B0aW9uXTsKICAgICAgICAgIH0gZWxzZQogICAgICAgICAgICBvcHRpb25zW29wdGlvbl0gPSBlLmRhdGEuYXJnc1tvcHRpb25dOwogICAgICAgIH0KICAgICAgICBpZiAodHlwZW9mIG9wdGlvbnMudGltZXN0YW1wID09PSAiYm9vbGVhbiIpCiAgICAgICAgICBvcHRpb25zLnRpbWVzdGFtcCA9IG9wdGlvbnMudGltZXN0YW1wID8gMiAvKiBGb3JtYXQgKi8gOiAwIC8qIE5vbmUgKi87CiAgICAgICAgaWYgKHRpbWVTdGFtcCAhPT0gMCkgewogICAgICAgICAgZlRpbWVTdGFtcCA9IG5ldyBtb21lbnQodGltZVN0YW1wKS5mb3JtYXQob3B0aW9ucy5mb3JtYXQgfHwgIllZWVlNTURELUhIbW1zcyIpOwogICAgICAgICAgYnVpbGRGaWxlbmFtZSgpOwogICAgICAgICAgZmx1c2godHJ1ZSk7CiAgICAgICAgfQogICAgICAgIGlmIChvbGRFbmFibGVkICE9IG9wdGlvbnMuZW5hYmxlZCkgewogICAgICAgICAgaWYgKCFvbGRFbmFibGVkICYmICFsb2dnaW5nKQogICAgICAgICAgICBwb3N0TWVzc2FnZSh7IGV2ZW50OiAic3RhcnQiIH0pOwogICAgICAgICAgZWxzZSBpZiAob2xkRW5hYmxlZCAmJiBsb2dnaW5nKQogICAgICAgICAgICBzdG9wKCk7CiAgICAgICAgICBlbHNlIGlmIChvcHRpb25zLm9mZmxpbmUpCiAgICAgICAgICAgIHBvc3RNZXNzYWdlKHsgZXZlbnQ6ICJzdGFydCIgfSk7CiAgICAgICAgfSBlbHNlIGlmIChvcHRpb25zLm9mZmxpbmUpCiAgICAgICAgICBwb3N0TWVzc2FnZSh7IGV2ZW50OiAic3RhcnQiIH0pOwogICAgICAgIGJyZWFrOwogICAgICBjYXNlICJuYW1lIjoKICAgICAgICBvcHRpb25zLm5hbWUgPSBlLmRhdGEuYXJnczsKICAgICAgICBpZiAobG9nZ2luZykKICAgICAgICAgIGZpbGVDaGFuZ2VkKCk7CiAgICAgICAgYnJlYWs7CiAgICAgIGNhc2UgImNvbm5lY3RlZCI6CiAgICAgICAgY29ubmVjdGVkID0gZS5kYXRhLmFyZ3M7CiAgICAgICAgYnVpbGRGaWxlbmFtZSgpOwogICAgICAgIGJyZWFrOwogICAgICBjYXNlICJsb2dnaW5nIjoKICAgICAgICBwb3N0TWVzc2FnZSh7IGV2ZW50OiAibG9nZ2luZyIsIGFyZ3M6IGxvZ2dpbmcgfSk7CiAgICAgICAgYnJlYWs7CiAgICAgIGNhc2UgInRvZ2dsZSI6CiAgICAgICAgdG9nZ2xlKCk7CiAgICAgICAgYnJlYWs7CiAgICAgIGNhc2UgInN0b3AiOgogICAgICAgIHN0b3AoKTsKICAgICAgICBicmVhazsKICAgICAgY2FzZSAic3RhcnRJbnRlcm5hbCI6CiAgICAgICAgYyA9IG9wdGlvbnMudW5pcXVlOwogICAgICAgIG9wdGlvbnMudW5pcXVlID0gZmFsc2U7CiAgICAgICAgaWYgKCFlLmRhdGEuYXJncykKICAgICAgICAgIHN0YXJ0KFtdLCBmYWxzZSk7CiAgICAgICAgZWxzZQogICAgICAgICAgc3RhcnQoZS5kYXRhLmFyZ3MubGluZXMsIGUuZGF0YS5hcmdzLmZyYWdtZW50KTsKICAgICAgICBvcHRpb25zLnVuaXF1ZSA9IGM7CiAgICAgICAgYnJlYWs7CiAgICAgIGNhc2UgInN0YXJ0IjoKICAgICAgICBpZiAoIWUuZGF0YS5hcmdzKQogICAgICAgICAgc3RhcnQoW10sIGZhbHNlKTsKICAgICAgICBlbHNlCiAgICAgICAgICBzdGFydChlLmRhdGEuYXJncy5saW5lcywgZS5kYXRhLmFyZ3MuZnJhZ21lbnQpOwogICAgICAgIGJyZWFrOwogICAgICBjYXNlICJmbHVzaCI6CiAgICAgICAgZmx1c2goZS5kYXRhLmFyZ3MpOwogICAgICAgIGJyZWFrOwogICAgICBjYXNlICJhZGQtbGluZSI6CiAgICAgICAgY29uc3QgZGF0YSA9IGUuZGF0YS5hcmdzOwogICAgICAgIGlmIChkYXRhLmZyYWdtZW50KSB7CiAgICAgICAgICBmbHVzaEJ1ZmZlciA9IGRhdGE7CiAgICAgICAgICBmbHVzaEJ1ZmZlci5sb2dnaW5nID0gbG9nZ2luZzsKICAgICAgICAgIGZsdXNoQnVmZmVyLmZpbGUgPSBjdXJyZW50RmlsZTsKICAgICAgICAgIGZsdXNoQnVmZmVyLmNvbm5lY3RlZCA9IGNvbm5lY3RlZDsKICAgICAgICAgIGZsdXNoQnVmZmVyLm9mZmxpbmUgPSBvcHRpb25zLm9mZmxpbmU7CiAgICAgICAgICBmbHVzaEJ1ZmZlci53aGF0ID0gb3B0aW9ucy53aGF0OwogICAgICAgICAgZmx1c2hCdWZmZXIuZ2FnZ2VkID0gZGF0YS5nYWdnZWQgfHwgb3B0aW9ucy5nYWdnZWQgJiYgZGF0YS5nYWdnZWQ7CiAgICAgICAgICByZXR1cm47CiAgICAgICAgfQogICAgICAgIGZsdXNoQnVmZmVyID0gbnVsbDsKICAgICAgICBpZiAoIWxvZ2dpbmcgfHwgIW9wdGlvbnMub2ZmbGluZSAmJiAhY29ubmVjdGVkKSByZXR1cm47CiAgICAgICAgaWYgKGRhdGEuZ2FnZ2VkICYmICFvcHRpb25zLmdhZ2dlZCkgcmV0dXJuOwogICAgICAgIGlmICgob3B0aW9ucy53aGF0ICYgMSAvKiBIdG1sICovKSA9PT0gMSAvKiBIdG1sICovKQogICAgICAgICAgd3JpdGVIdG1sKGNyZWF0ZUxpbmUoeyB0ZXh0OiBkYXRhLmxpbmUsIGZvcm1hdHM6IGRhdGEuZm9ybWF0cywgdGltZXN0YW1wOiBkYXRhLnRpbWVzdGFtcCB8fCBEYXRlLm5vdygpIH0pKTsKICAgICAgICBpZiAoKG9wdGlvbnMud2hhdCAmIDIgLyogVGV4dCAqLykgPT09IDIgLyogVGV4dCAqLyB8fCBvcHRpb25zLndoYXQgPT09IDAgLyogTm9uZSAqLykgewogICAgICAgICAgaWYgKG9wdGlvbnMudGltZXN0YW1wID09PSAyIC8qIEZvcm1hdCAqLykKICAgICAgICAgICAgd3JpdGVUZXh0KG1vbWVudChkYXRhLnRpbWVzdGFtcCkuZm9ybWF0KG9wdGlvbnMudGltZXN0YW1wRm9ybWF0KSk7CiAgICAgICAgICBlbHNlIGlmIChvcHRpb25zLnRpbWVzdGFtcCAhPT0gMCAvKiBOb25lICovKQogICAgICAgICAgICB3cml0ZVRleHQobmV3IERhdGUoZGF0YS50aW1lc3RhbXApLnRvSVNPU3RyaW5nKCkpOwogICAgICAgICAgd3JpdGVUZXh0KGRhdGEubGluZSArICJcbiIpOwogICAgICAgIH0KICAgICAgICBpZiAoKG9wdGlvbnMud2hhdCAmIDQgLyogUmF3ICovKSA9PT0gNCAvKiBSYXcgKi8pIHsKICAgICAgICAgIGlmIChvcHRpb25zLnRpbWVzdGFtcCA9PT0gMiAvKiBGb3JtYXQgKi8pCiAgICAgICAgICAgIHdyaXRlVGV4dCgiXHgxQlstNzstOG0iICsgbW9tZW50KGRhdGEudGltZXN0YW1wKS5mb3JtYXQob3B0aW9ucy50aW1lc3RhbXBGb3JtYXQpICsgIlx4MUJbMG0iKTsKICAgICAgICAgIGVsc2UgaWYgKG9wdGlvbnMudGltZXN0YW1wICE9PSAwIC8qIE5vbmUgKi8pCiAgICAgICAgICAgIHdyaXRlVGV4dCgiXHgxQlstNzstOG0iICsgbmV3IERhdGUoZGF0YS50aW1lc3RhbXApLnRvSVNPU3RyaW5nKCkgKyAiXHgxQlswbSIpOwogICAgICAgICAgd3JpdGVSYXcoZGF0YS5yYXcpOwogICAgICAgIH0KICAgICAgICBicmVhazsKICAgICAgY2FzZSAid3JpdGUtZG9uZSI6CiAgICAgICAgaWYgKCFidWZmZXJbZS5kYXRhLmZpbGVdKSByZXR1cm47CiAgICAgICAgYnVmZmVyW2UuZGF0YS5maWxlXS5zaGlmdCgpOwogICAgICAgIGlmIChidWZmZXJbZS5kYXRhLmZpbGVdLmxlbmd0aCkgewogICAgICAgICAgY29uc3QgdG1wID0gYnVmZmVyW2UuZGF0YS5maWxlXS5zaGlmdCgpOwogICAgICAgICAgYXBwZW5kRmlsZSh0bXAuZmlsZSwgdG1wLmRhdGEsIHRydWUpOwogICAgICAgIH0gZWxzZQogICAgICAgICAgZGVsZXRlIGJ1ZmZlcltlLmRhdGEuZmlsZV07CiAgICAgICAgYnJlYWs7CiAgICB9CiAgfSwgZmFsc2UpOwogIGZ1bmN0aW9uIGZpbGVDaGFuZ2VkKCkgewogICAgY29uc3QgcEZpbGUgPSBjdXJyZW50RmlsZTsKICAgIGJ1aWxkRmlsZW5hbWUoKTsKICAgIGlmIChwRmlsZSA9PT0gY3VycmVudEZpbGUpIHJldHVybjsKICAgIHBvc3RNZXNzYWdlKHsgZXZlbnQ6ICJkZWJ1ZyIsIGFyZ3M6ICdGaWxlIGNoYW5nZWQ6ICInICsgcEZpbGUgKyAnIiB0byAiJyArIGN1cnJlbnRGaWxlICsgJyInIH0pOwogICAgaWYgKGZsdXNoQnVmZmVyICYmIGZsdXNoQnVmZmVyLmN1cnJlbnRGaWxlICE9PSBwRmlsZSkKICAgICAgZmx1c2godHJ1ZSk7CiAgICBlbHNlIGlmIChmbHVzaEJ1ZmZlcikKICAgICAgZmx1c2hCdWZmZXIuY3VycmVudEZpbGUgPSBjdXJyZW50RmlsZTsKICB9CiAgZnVuY3Rpb24gYnVpbGRGaWxlbmFtZSgpIHsKICAgIGNvbnN0IG8gPSBjdXJyZW50RmlsZTsKICAgIGlmIChvcHRpb25zLnByZWZpeCkKICAgICAgY3VycmVudEZpbGUgPSBvcHRpb25zLnByZWZpeCArIGZUaW1lU3RhbXA7CiAgICBlbHNlCiAgICAgIGN1cnJlbnRGaWxlID0gZlRpbWVTdGFtcDsKICAgIGlmIChvcHRpb25zLm5hbWUgJiYgb3B0aW9ucy5uYW1lLmxlbmd0aCA+IDApCiAgICAgIGN1cnJlbnRGaWxlICs9ICIuIiArIG9wdGlvbnMubmFtZTsKICAgIGlmIChvcHRpb25zLnBvc3RmaXgpCiAgICAgIGN1cnJlbnRGaWxlICs9IG9wdGlvbnMucG9zdGZpeDsKICAgIGlmIChvcHRpb25zLmRlYnVnICYmIG8gIT09IGN1cnJlbnRGaWxlKQogICAgICBwb3N0TWVzc2FnZSh7IGV2ZW50OiAiZGVidWciLCBhcmdzOiAnTG9nIGZpbGU6ICInICsgY3VycmVudEZpbGUgKyAnIicgfSk7CiAgfQogIGZ1bmN0aW9uIGFwcGVuZEZpbGUoZmlsZSwgZGF0YSwgZm9yY2UpIHsKICAgIHRyeSB7CiAgICAgIGlmICghYnVmZmVyW2ZpbGVdKSBidWZmZXJbZmlsZV0gPSBbXTsKICAgICAgaWYgKGJ1ZmZlcltmaWxlXS5sZW5ndGggJiYgIWZvcmNlKSB7CiAgICAgICAgYnVmZmVyW2ZpbGVdLnB1c2goeyBmaWxlLCBkYXRhIH0pOwogICAgICAgIHJldHVybjsKICAgICAgfQogICAgICBidWZmZXJbZmlsZV0udW5zaGlmdCh7IGZpbGUsIGRhdGEgfSk7CiAgICAgIHBvc3RNZXNzYWdlKHsgZXZlbnQ6ICJ3cml0ZSIsIGZpbGUsIGRhdGEsIGNoYXJhY3Rlcjogb3B0aW9ucy5uYW1lIHx8ICIiLCB0aW1lU3RhbXAsIHBvc3RmaXg6IG9wdGlvbnMucG9zdGZpeCwgcHJlZml4OiBvcHRpb25zLnByZWZpeCB9KTsKICAgIH0gY2F0Y2ggKGVycikgewogICAgICBwb3N0TWVzc2FnZSh7IGV2ZW50OiAiZXJyb3IiLCBhcmdzOiBlcnIgfSk7CiAgICB9CiAgfQogIGZ1bmN0aW9uIHdyaXRlVGV4dChkYXRhKSB7CiAgICBpZiAoIWxvZ2dpbmcgfHwgIW9wdGlvbnMub2ZmbGluZSAmJiAhY29ubmVjdGVkKSByZXR1cm47CiAgICBpZiAoIWN1cnJlbnRGaWxlIHx8IGN1cnJlbnRGaWxlLmxlbmd0aCA9PT0gMCkKICAgICAgYnVpbGRGaWxlbmFtZSgpOwogICAgYXBwZW5kRmlsZShjdXJyZW50RmlsZSArICIudHh0IiwgZGF0YSk7CiAgfQogIGZ1bmN0aW9uIHdyaXRlSHRtbChkYXRhKSB7CiAgICBpZiAoIWxvZ2dpbmcgfHwgIW9wdGlvbnMub2ZmbGluZSAmJiAhY29ubmVjdGVkKSByZXR1cm47CiAgICBpZiAoIWN1cnJlbnRGaWxlIHx8IGN1cnJlbnRGaWxlLmxlbmd0aCA9PT0gMCkKICAgICAgYnVpbGRGaWxlbmFtZSgpOwogICAgYXBwZW5kRmlsZShjdXJyZW50RmlsZSArICIuaHRtIiwgZGF0YSk7CiAgfQogIGZ1bmN0aW9uIHdyaXRlUmF3KGRhdGEpIHsKICAgIGlmICghbG9nZ2luZyB8fCAhb3B0aW9ucy5vZmZsaW5lICYmICFjb25uZWN0ZWQpIHJldHVybjsKICAgIGlmICghY3VycmVudEZpbGUgfHwgY3VycmVudEZpbGUubGVuZ3RoID09PSAwKQogICAgICBidWlsZEZpbGVuYW1lKCk7CiAgICBhcHBlbmRGaWxlKGN1cnJlbnRGaWxlICsgIi5yYXciLCBkYXRhKTsKICB9CiAgZnVuY3Rpb24gZmx1c2gobmV3bGluZSkgewogICAgaWYgKCFmbHVzaEJ1ZmZlciB8fCAhZmx1c2hCdWZmZXIubG9nZ2luZyB8fCAhZmx1c2hCdWZmZXIub2ZmbGluZSAmJiAhZmx1c2hCdWZmZXIuY29ubmVjdGVkKSByZXR1cm47CiAgICBjb25zdCBjID0gY29ubmVjdGVkOwogICAgY29uc3QgZiA9IGN1cnJlbnRGaWxlOwogICAgY29uc3QgbCA9IGxvZ2dpbmc7CiAgICBsb2dnaW5nID0gZmx1c2hCdWZmZXIubG9nZ2luZzsKICAgIGNvbm5lY3RlZCA9IGZsdXNoQnVmZmVyLmNvbm5lY3RlZDsKICAgIGN1cnJlbnRGaWxlID0gZmx1c2hCdWZmZXIuY3VycmVudEZpbGU7CiAgICBpZiAoIWZsdXNoQnVmZmVyLmdhZ2dlZCkgewogICAgICBsZXQgbmwgPSAiIjsKICAgICAgaWYgKG5ld2xpbmUpCiAgICAgICAgbmwgPSAiXG4iOwogICAgICBpZiAoKGZsdXNoQnVmZmVyLndoYXQgJiAxIC8qIEh0bWwgKi8pID09PSAxIC8qIEh0bWwgKi8pCiAgICAgICAgd3JpdGVIdG1sKGNyZWF0ZUxpbmUoeyB0ZXh0OiBmbHVzaEJ1ZmZlci5saW5lLCBmb3JtYXRzOiBmbHVzaEJ1ZmZlci5mb3JtYXRzLCB0aW1lc3RhbXA6IGZsdXNoQnVmZmVyLnRpbWVzdGFtcCB8fCBEYXRlLm5vdygpIH0pKTsKICAgICAgaWYgKChmbHVzaEJ1ZmZlci53aGF0ICYgMiAvKiBUZXh0ICovKSA9PT0gMiAvKiBUZXh0ICovIHx8IGZsdXNoQnVmZmVyLndoYXQgPT09IDAgLyogTm9uZSAqLykgewogICAgICAgIGlmIChvcHRpb25zLnRpbWVzdGFtcCA9PT0gMiAvKiBGb3JtYXQgKi8pCiAgICAgICAgICB3cml0ZVRleHQobW9tZW50KGZsdXNoQnVmZmVyLnRpbWVzdGFtcCkuZm9ybWF0KG9wdGlvbnMudGltZXN0YW1wRm9ybWF0KSk7CiAgICAgICAgZWxzZSBpZiAob3B0aW9ucy50aW1lc3RhbXAgIT09IDAgLyogTm9uZSAqLykKICAgICAgICAgIHdyaXRlVGV4dChuZXcgRGF0ZShmbHVzaEJ1ZmZlci50aW1lc3RhbXApLnRvSVNPU3RyaW5nKCkpOwogICAgICAgIHdyaXRlVGV4dChmbHVzaEJ1ZmZlci5saW5lICsgbmwpOwogICAgICB9CiAgICAgIGlmICgoZmx1c2hCdWZmZXIud2hhdCAmIDQgLyogUmF3ICovKSA9PT0gNCAvKiBSYXcgKi8pIHsKICAgICAgICBpZiAobW9tZW50ICYmIG9wdGlvbnMudGltZXN0YW1wID09PSAyIC8qIEZvcm1hdCAqLykKICAgICAgICAgIHdyaXRlVGV4dCgiXHgxQlstNzstOG0iICsgbW9tZW50KGZsdXNoQnVmZmVyLnRpbWVzdGFtcCkuZm9ybWF0KG9wdGlvbnMudGltZXN0YW1wRm9ybWF0KSArICJceDFCWzBtIik7CiAgICAgICAgZWxzZSBpZiAob3B0aW9ucy50aW1lc3RhbXAgIT09IDAgLyogTm9uZSAqLykKICAgICAgICAgIHdyaXRlVGV4dCgiXHgxQlstNzstOG0iICsgbmV3IERhdGUoZmx1c2hCdWZmZXIudGltZXN0YW1wKS50b0lTT1N0cmluZygpICsgIlx4MUJbMG0iKTsKICAgICAgICB3cml0ZVJhdyhmbHVzaEJ1ZmZlci5yYXcgKyBubCk7CiAgICAgIH0KICAgIH0KICAgIGxvZ2dpbmcgPSBsOwogICAgY29ubmVjdGVkID0gYzsKICAgIGN1cnJlbnRGaWxlID0gZjsKICAgIGZsdXNoQnVmZmVyID0gbnVsbDsKICB9CiAgZnVuY3Rpb24gc3RhcnQobGluZXMsIGZyYWdtZW50KSB7CiAgICBpZiAoIW9wdGlvbnMuZW5hYmxlZCkgewogICAgICBpZiAobG9nZ2luZykKICAgICAgICBzdG9wKCk7CiAgICAgIHJldHVybjsKICAgIH0KICAgIGxvZ2dpbmcgPSB0cnVlOwogICAgaWYgKG9wdGlvbnMudW5pcXVlIHx8IHRpbWVTdGFtcCA9PT0gMCkgewogICAgICB0aW1lU3RhbXAgPSAoLyogQF9fUFVSRV9fICovIG5ldyBEYXRlKCkpLmdldFRpbWUoKTsKICAgICAgZlRpbWVTdGFtcCA9IG5ldyBtb21lbnQodGltZVN0YW1wKS5mb3JtYXQob3B0aW9ucy5mb3JtYXQgfHwgIllZWVlNTURELUhIbW1zcyIpOwogICAgICBmbHVzaCh0cnVlKTsKICAgIH0KICAgIGJ1aWxkRmlsZW5hbWUoKTsKICAgIGlmIChvcHRpb25zLnByZXBlbmQgJiYgbGluZXMgJiYgbGluZXMubGVuZ3RoID4gMCkgewogICAgICBpZiAoKG9wdGlvbnMud2hhdCAmIDEgLyogSHRtbCAqLykgPT09IDEgLyogSHRtbCAqLykKICAgICAgICB3cml0ZUh0bWwoY3JlYXRlTGluZXMobGluZXMgfHwgW10pKTsKICAgICAgaWYgKChvcHRpb25zLndoYXQgJiAyIC8qIFRleHQgKi8pID09PSAyIC8qIFRleHQgKi8gfHwgb3B0aW9ucy53aGF0ID09PSAwIC8qIE5vbmUgKi8pIHsKICAgICAgICBpZiAob3B0aW9ucy50aW1lc3RhbXAgPT09IDIgLyogRm9ybWF0ICovKQogICAgICAgICAgd3JpdGVUZXh0KGxpbmVzLm1hcCgobCkgPT4gbW9tZW50KGwudGltZXN0YW1wKS5mb3JtYXQob3B0aW9ucy50aW1lc3RhbXBGb3JtYXQpICsgbC50ZXh0KS5qb2luKCJcbiIpICsgKGZyYWdtZW50IHx8IGxpbmVzLmxlbmd0aCA9PT0gMCA/ICIiIDogIlxuIikpOwogICAgICAgIGVsc2UgaWYgKG9wdGlvbnMudGltZXN0YW1wICE9PSAwIC8qIE5vbmUgKi8pCiAgICAgICAgICB3cml0ZVRleHQobGluZXMubWFwKChsKSA9PiBuZXcgRGF0ZShsLnRpbWVzdGFtcCkudG9JU09TdHJpbmcoKSArIGwudGV4dCkuam9pbigiXG4iKSArIChmcmFnbWVudCB8fCBsaW5lcy5sZW5ndGggPT09IDAgPyAiIiA6ICJcbiIpKTsKICAgICAgICBlbHNlCiAgICAgICAgICB3cml0ZVRleHQobGluZXMubWFwKChsKSA9PiBsLnRleHQpLmpvaW4oIlxuIikgKyAoZnJhZ21lbnQgfHwgbGluZXMubGVuZ3RoID09PSAwID8gIiIgOiAiXG4iKSk7CiAgICAgIH0KICAgICAgaWYgKChvcHRpb25zLndoYXQgJiA0IC8qIFJhdyAqLykgPT09IDQgLyogUmF3ICovKSB7CiAgICAgICAgaWYgKG9wdGlvbnMudGltZXN0YW1wID09PSAyIC8qIEZvcm1hdCAqLykKICAgICAgICAgIHdyaXRlVGV4dChsaW5lcy5tYXAoKGwpID0+ICJceDFCWy03Oy04bSIgKyBtb21lbnQobC50aW1lc3RhbXApLmZvcm1hdChvcHRpb25zLnRpbWVzdGFtcEZvcm1hdCkgKyAiXHgxQlswbSIgKyBsLnJhdykuam9pbigiIikpOwogICAgICAgIGVsc2UgaWYgKG9wdGlvbnMudGltZXN0YW1wICE9PSAwIC8qIE5vbmUgKi8pCiAgICAgICAgICB3cml0ZVRleHQobGluZXMubWFwKChsKSA9PiAiXHgxQlstNzstOG0iICsgbmV3IERhdGUobC50aW1lc3RhbXApLnRvSVNPU3RyaW5nKCkgKyAiXHgxQlswbSIgKyBsLnJhdykuam9pbigiIikpOwogICAgICAgIGVsc2UKICAgICAgICAgIHdyaXRlUmF3KGxpbmVzLm1hcCgobCkgPT4gbC5yYXcpLmpvaW4oIiIpKTsKICAgICAgfQogICAgfQogICAgcG9zdE1lc3NhZ2UoeyBldmVudDogInN0YXJ0ZWQiLCBhcmdzOiBsb2dnaW5nIH0pOwogIH0KICBmdW5jdGlvbiBzdG9wKCkgewogICAgbG9nZ2luZyA9IGZhbHNlOwogICAgcG9zdE1lc3NhZ2UoeyBldmVudDogInN0b3BwZWQiLCBhcmdzOiBsb2dnaW5nIH0pOwogIH0KICBmdW5jdGlvbiB0b2dnbGUoKSB7CiAgICBvcHRpb25zLmVuYWJsZWQgPSAhb3B0aW9ucy5lbmFibGVkOwogICAgcG9zdE1lc3NhZ2UoeyBldmVudDogInRvZ2dsZWQiLCBhcmdzOiBvcHRpb25zLmVuYWJsZWQgfSk7CiAgICBjb25zdCBjID0gb3B0aW9ucy51bmlxdWU7CiAgICBvcHRpb25zLnVuaXF1ZSA9IGZhbHNlOwogICAgaWYgKG9wdGlvbnMuZW5hYmxlZCAmJiAhbG9nZ2luZykKICAgICAgcG9zdE1lc3NhZ2UoeyBldmVudDogInN0YXJ0SW50ZXJuYWwiIH0pOwogICAgZWxzZSBpZiAoIW9wdGlvbnMuZW5hYmxlZCAmJiBsb2dnaW5nKQogICAgICBzdG9wKCk7CiAgICBvcHRpb25zLnVuaXF1ZSA9IGM7CiAgfQogIGZ1bmN0aW9uIGNyZWF0ZUxpbmVzKGxpbmVzKSB7CiAgICBjb25zdCB0ZXh0ID0gW107CiAgICBjb25zdCBsbCA9IGxpbmVzLmxlbmd0aDsKICAgIGZvciAobGV0IGwgPSAwOyBsIDwgbGw7IGwrKykKICAgICAgdGV4dC5wdXNoKGNyZWF0ZUxpbmUobGluZXNbbF0pKTsKICAgIHJldHVybiB0ZXh0LmpvaW4oIiIpOwogIH0KICBmdW5jdGlvbiBnZXRDbGFzc05hbWUoc3RyKSB7CiAgICBpZiAoIXN0ciB8fCBzdHIubGVuZ3RoID09PSAwKSByZXR1cm4gbnVsbDsKICAgIHJldHVybiBzdHIucmVwbGFjZSgvWyxdL2csICItIikucmVwbGFjZSgvW1woXClccztdL2csICIiKTsKICB9CiAgZnVuY3Rpb24gY3JlYXRlTGluZShsaW5lKSB7CiAgICBjb25zdCBwYXJ0cyA9IFtdOwogICAgbGV0IG9mZnNldCA9IDA7CiAgICBsZXQgZkNsczsKICAgIGNvbnN0IHRleHQgPSBsaW5lLnRleHQ7CiAgICBjb25zdCBmb3JtYXRzID0gbGluZS5mb3JtYXRzOwogICAgY29uc3QgZkxlbiA9IGZvcm1hdHMubGVuZ3RoOwogICAgbGV0IHJpZ2h0ID0gZmFsc2U7CiAgICBjb25zdCBzdHlsZXMgPSBbXTsKICAgIGlmIChvcHRpb25zLnRpbWVzdGFtcCAhPT0gMCAvKiBOb25lICovKSB7CiAgICAgIGZDbHMgPSBbXTsKICAgICAgbGV0IGNvbG9yID0gR2V0Q29sb3IoLTgpOwogICAgICBpZiAoYmFja2dyb3VuZHNbZ2V0Q2xhc3NOYW1lKGNvbG9yKV0pCiAgICAgICAgZkNscy5wdXNoKCIgYiIsIGJhY2tncm91bmRzW2dldENsYXNzTmFtZShjb2xvcildKTsKICAgICAgZWxzZSB7CiAgICAgICAgYmFja2dyb3VuZHNbZ2V0Q2xhc3NOYW1lKGNvbG9yKV0gPSBiYWNrZ3JvdW5kc0NudDsKICAgICAgICBmQ2xzLnB1c2goIiBiIiwgYmFja2dyb3VuZHNDbnQpOwogICAgICAgIHN0eWxlcy5wdXNoKGAuYiR7YmFja2dyb3VuZHNDbnR9IHsgYmFja2dyb3VuZC1jb2xvcjogJHtjb2xvcn07IH1gKTsKICAgICAgICBiYWNrZ3JvdW5kc0NudCsrOwogICAgICB9CiAgICAgIGNvbG9yID0gR2V0Q29sb3IoLTcpOwogICAgICBpZiAoY29sb3JzW2dldENsYXNzTmFtZShjb2xvcildKQogICAgICAgIGZDbHMucHVzaCgiIGMiLCBjb2xvcnNbZ2V0Q2xhc3NOYW1lKGNvbG9yKV0pOwogICAgICBlbHNlIHsKICAgICAgICBjb2xvcnNbZ2V0Q2xhc3NOYW1lKGNvbG9yKV0gPSBjb2xvcnNDbnQ7CiAgICAgICAgZkNscy5wdXNoKCIgYyIsIGNvbG9yc0NudCk7CiAgICAgICAgc3R5bGVzLnB1c2goYC5jJHtjb2xvcnNDbnR9IHsgY29sb3I6ICR7Y29sb3J9OyB9YCk7CiAgICAgICAgY29sb3JzQ250Kys7CiAgICAgIH0KICAgIH0KICAgIGlmIChvcHRpb25zLnRpbWVzdGFtcCA9PT0gMiAvKiBGb3JtYXQgKi8gJiYgbW9tZW50KQogICAgICBwYXJ0cy5wdXNoKCc8c3BhbiBjbGFzcz0idGltZXN0YW1wJywgLi4uZkNscywgJyInLCAuLi5mQ2xzLCAiPiIsIG1vbWVudChsaW5lLnRpbWVzdGFtcCkuZm9ybWF0KG9wdGlvbnMudGltZXN0YW1wRm9ybWF0KSwgIjwvc3Bhbj4iKTsKICAgIGVsc2UgaWYgKG9wdGlvbnMudGltZXN0YW1wICE9PSAwIC8qIE5vbmUgKi8pIHsKICAgICAgcGFydHMucHVzaCgnPHNwYW4gY2xhc3M9InRpbWVzdGFtcCcsIC4uLmZDbHMsICciJywgLi4uZkNscywgIj4iLCBuZXcgRGF0ZShsaW5lLnRpbWVzdGFtcCkudG9JU09TdHJpbmcoKSwgIiA8L3NwYW4+Iik7CiAgICB9CiAgICBmQ2xzID0gbnVsbDsKICAgIGZvciAobGV0IGYgPSAwOyBmIDwgZkxlbjsgZisrKSB7CiAgICAgIGNvbnN0IGZvcm1hdCA9IGZvcm1hdHNbZl07CiAgICAgIGxldCBuRm9ybWF0OwogICAgICBsZXQgZW5kOwogICAgICBsZXQgY29sb3I7CiAgICAgIGlmIChmIDwgZkxlbiAtIDEpIHsKICAgICAgICBuRm9ybWF0ID0gZm9ybWF0c1tmICsgMV07CiAgICAgICAgaWYgKGZvcm1hdC5vZmZzZXQgPT09IG5Gb3JtYXQub2Zmc2V0ICYmIG5Gb3JtYXQuZm9ybWF0VHlwZSA9PT0gZm9ybWF0LmZvcm1hdFR5cGUpCiAgICAgICAgICBjb250aW51ZTsKICAgICAgICBlbmQgPSBuRm9ybWF0Lm9mZnNldDsKICAgICAgfSBlbHNlCiAgICAgICAgZW5kID0gdGV4dC5sZW5ndGg7CiAgICAgIG9mZnNldCA9IGZvcm1hdC5vZmZzZXQ7CiAgICAgIGlmIChmb3JtYXQuZm9ybWF0VHlwZSA9PT0gMCAvKiBOb3JtYWwgKi8pIHsKICAgICAgICBmQ2xzID0gW107CiAgICAgICAgY29sb3IgPSBmb3JtYXQuYmFja2dyb3VuZDsKICAgICAgICBpZiAodHlwZW9mIGNvbG9yID09PSAibnVtYmVyIikKICAgICAgICAgIGNvbG9yID0gR2V0Q29sb3IoY29sb3IpOwogICAgICAgIGlmIChiYWNrZ3JvdW5kc1tnZXRDbGFzc05hbWUoY29sb3IpXSkKICAgICAgICAgIGZDbHMucHVzaCgiIGIiLCBiYWNrZ3JvdW5kc1tnZXRDbGFzc05hbWUoY29sb3IpXSk7CiAgICAgICAgZWxzZSBpZiAoY29sb3IpIHsKICAgICAgICAgIGJhY2tncm91bmRzW2dldENsYXNzTmFtZShjb2xvcildID0gYmFja2dyb3VuZHNDbnQ7CiAgICAgICAgICBmQ2xzLnB1c2goIiBiIiwgYmFja2dyb3VuZHNDbnQpOwogICAgICAgICAgc3R5bGVzLnB1c2goYC5iJHtiYWNrZ3JvdW5kc0NudH0geyBiYWNrZ3JvdW5kLWNvbG9yOiAke2NvbG9yfTsgfWApOwogICAgICAgICAgYmFja2dyb3VuZHNDbnQrKzsKICAgICAgICB9CiAgICAgICAgY29sb3IgPSBmb3JtYXQuY29sb3I7CiAgICAgICAgaWYgKHR5cGVvZiBjb2xvciA9PT0gIm51bWJlciIpCiAgICAgICAgICBjb2xvciA9IEdldENvbG9yKGNvbG9yKTsKICAgICAgICBpZiAoY29sb3JzW2dldENsYXNzTmFtZShjb2xvcildKQogICAgICAgICAgZkNscy5wdXNoKCIgYyIsIGNvbG9yc1tnZXRDbGFzc05hbWUoY29sb3IpXSk7CiAgICAgICAgZWxzZSBpZiAoY29sb3IpIHsKICAgICAgICAgIGNvbG9yc1tnZXRDbGFzc05hbWUoY29sb3IpXSA9IGNvbG9yc0NudDsKICAgICAgICAgIGZDbHMucHVzaCgiIGMiLCBjb2xvcnNDbnQpOwogICAgICAgICAgc3R5bGVzLnB1c2goYC5jJHtjb2xvcnNDbnR9IHsgY29sb3I6ICR7Y29sb3J9OyB9YCk7CiAgICAgICAgICBjb2xvcnNDbnQrKzsKICAgICAgICB9CiAgICAgICAgaWYgKGNvbG9yc1tnZXRDbGFzc05hbWUoZm9ybWF0LmZvbnQpXSkKICAgICAgICAgIGZDbHMucHVzaCgiIGYiLCBjb2xvcnNbZ2V0Q2xhc3NOYW1lKGZvcm1hdC5mb250KV0pOwogICAgICAgIGVsc2UgaWYgKGZvcm1hdC5mb250KSB7CiAgICAgICAgICBjb2xvcnNbZ2V0Q2xhc3NOYW1lKGZvcm1hdC5mb250KV0gPSBjb2xvcnNDbnQ7CiAgICAgICAgICBmQ2xzLnB1c2goIiBmIiwgY29sb3JzQ250KTsKICAgICAgICAgIHN0eWxlcy5wdXNoKGAuZiR7Y29sb3JzQ250fSB7IGZvbnQtZmFtaWx5OiAke2Zvcm1hdC5mb250fTsgfWApOwogICAgICAgICAgY29sb3JzQ250Kys7CiAgICAgICAgfQogICAgICAgIGlmIChjb2xvcnNbZ2V0Q2xhc3NOYW1lKGZvcm1hdC5zaXplKV0pCiAgICAgICAgICBmQ2xzLnB1c2goIiBmIiwgY29sb3JzW2dldENsYXNzTmFtZShmb3JtYXQuc2l6ZSldKTsKICAgICAgICBlbHNlIGlmIChmb3JtYXQuc2l6ZSkgewogICAgICAgICAgY29sb3JzW2dldENsYXNzTmFtZShmb3JtYXQuc2l6ZSldID0gY29sb3JzQ250OwogICAgICAgICAgZkNscy5wdXNoKCIgZiIsIGNvbG9yc0NudCk7CiAgICAgICAgICBzdHlsZXMucHVzaChgLmYke2NvbG9yc0NudH0geyBmb250LXNpemU6ICR7Zm9ybWF0LnNpemV9OyB9YCk7CiAgICAgICAgICBjb2xvcnNDbnQrKzsKICAgICAgICB9CiAgICAgICAgaWYgKGZvcm1hdC5zdHlsZSAhPT0gMCAvKiBOb25lICovKSB7CiAgICAgICAgICBpZiAoKGZvcm1hdC5zdHlsZSAmIDEgLyogQm9sZCAqLykgPT09IDEgLyogQm9sZCAqLykKICAgICAgICAgICAgZkNscy5wdXNoKCIgYiIpOwogICAgICAgICAgaWYgKChmb3JtYXQuc3R5bGUgJiA0IC8qIEl0YWxpYyAqLykgPT09IDQgLyogSXRhbGljICovKQogICAgICAgICAgICBmQ2xzLnB1c2goIiBpIik7CiAgICAgICAgICBpZiAoKGZvcm1hdC5zdHlsZSAmIDEwMjQgLyogT3ZlcmxpbmUgKi8pID09PSAxMDI0IC8qIE92ZXJsaW5lICovKQogICAgICAgICAgICBmQ2xzLnB1c2goIiBvIik7CiAgICAgICAgICBpZiAoKGZvcm1hdC5zdHlsZSAmIDUxMiAvKiBEb3VibGVVbmRlcmxpbmUgKi8pID09PSA1MTIgLyogRG91YmxlVW5kZXJsaW5lICovIHx8IChmb3JtYXQuc3R5bGUgJiA4IC8qIFVuZGVybGluZSAqLykgPT09IDggLyogVW5kZXJsaW5lICovKQogICAgICAgICAgICBmQ2xzLnB1c2goIiB1Iik7CiAgICAgICAgICBpZiAoKGZvcm1hdC5zdHlsZSAmIDUxMiAvKiBEb3VibGVVbmRlcmxpbmUgKi8pID09PSA1MTIgLyogRG91YmxlVW5kZXJsaW5lICovKQogICAgICAgICAgICBjb2xvciA9IGZvcm1hdC5jb2xvcjsKICAgICAgICAgIGVsc2UKICAgICAgICAgICAgY29sb3IgPSBmb3JtYXQuYmFja2dyb3VuZDsKICAgICAgICAgIGlmICh0eXBlb2YgY29sb3IgPT09ICJudW1iZXIiKQogICAgICAgICAgICBjb2xvciA9IEdldENvbG9yKGNvbG9yKTsKICAgICAgICAgIGlmIChjb2xvcnNbImJiIiArIGdldENsYXNzTmFtZShjb2xvcildKQogICAgICAgICAgICBmQ2xzLnB1c2goIiBiYiIsIGNvbG9yc1siYmIiICsgZ2V0Q2xhc3NOYW1lKGNvbG9yKV0pOwogICAgICAgICAgZWxzZSBpZiAoY29sb3IpIHsKICAgICAgICAgICAgY29sb3JzWyJiYiIgKyBnZXRDbGFzc05hbWUoY29sb3IpXSA9IGNvbG9yc0NudDsKICAgICAgICAgICAgZkNscy5wdXNoKCIgYmIiLCBjb2xvcnNDbnQpOwogICAgICAgICAgICBzdHlsZXMucHVzaChgLmJiJHtjb2xvcnNDbnR9IHsgYm9yZGVyLWJvdHRvbTogMXB4IHNvbGlkICR7Y29sb3J9OyB9YCk7CiAgICAgICAgICAgIGNvbG9yc0NudCsrOwogICAgICAgICAgfQogICAgICAgICAgaWYgKChmb3JtYXQuc3R5bGUgJiAzMiAvKiBSYXBpZCAqLykgPT09IDMyIC8qIFJhcGlkICovIHx8IChmb3JtYXQuc3R5bGUgJiAxNiAvKiBTbG93ICovKSA9PT0gMTYgLyogU2xvdyAqLykgewogICAgICAgICAgICBpZiAodGhpcy5lbmFibGVGbGFzaGluZykKICAgICAgICAgICAgICBmQ2xzLnB1c2goIiBhbnNpLWJsaW5rIik7CiAgICAgICAgICAgIGVsc2UgaWYgKChmb3JtYXQuc3R5bGUgJiA1MTIgLyogRG91YmxlVW5kZXJsaW5lICovKSAhPT0gNTEyIC8qIERvdWJsZVVuZGVybGluZSAqLyAmJiAoZm9ybWF0LnN0eWxlICYgOCAvKiBVbmRlcmxpbmUgKi8pICE9PSA4IC8qIFVuZGVybGluZSAqLykKICAgICAgICAgICAgICBmQ2xzLnB1c2goIiB1Iik7CiAgICAgICAgICB9CiAgICAgICAgICBpZiAoKGZvcm1hdC5zdHlsZSAmIDI1NiAvKiBTdHJpa2VvdXQgKi8pID09PSAyNTYgLyogU3RyaWtlb3V0ICovKQogICAgICAgICAgICBmQ2xzLnB1c2goIiBzIik7CiAgICAgICAgfSBlbHNlIHsKICAgICAgICAgIGNvbG9yID0gZm9ybWF0LmJhY2tncm91bmQ7CiAgICAgICAgICBpZiAodHlwZW9mIGNvbG9yID09PSAibnVtYmVyIikKICAgICAgICAgICAgY29sb3IgPSBHZXRDb2xvcihjb2xvcik7CiAgICAgICAgICBpZiAoY29sb3JzWyJiYiIgKyBnZXRDbGFzc05hbWUoY29sb3IpXSkKICAgICAgICAgICAgZkNscy5wdXNoKCIgYmIiLCBjb2xvcnNbImJiIiArIGdldENsYXNzTmFtZShjb2xvcildKTsKICAgICAgICAgIGVsc2UgaWYgKGNvbG9yKSB7CiAgICAgICAgICAgIGNvbG9yc1siYmIiICsgZ2V0Q2xhc3NOYW1lKGNvbG9yKV0gPSBjb2xvcnNDbnQ7CiAgICAgICAgICAgIGZDbHMucHVzaCgiIGJiIiwgY29sb3JzQ250KTsKICAgICAgICAgICAgc3R5bGVzLnB1c2goYC5iYiR7Y29sb3JzQ250fSB7IGJvcmRlci1ib3R0b206IDFweCBzb2xpZCAke2NvbG9yfTsgfWApOwogICAgICAgICAgICBjb2xvcnNDbnQrKzsKICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgaWYgKGZDbHMubGVuZ3RoICE9PSAwKQogICAgICAgICAgZkNscyA9ICcgY2xhc3M9IicgKyBmQ2xzLmpvaW4oIiIpLnRyaW0oKSArICciJzsKICAgICAgICBlbHNlCiAgICAgICAgICBmQ2xzID0gIiI7CiAgICAgICAgaWYgKGZvcm1hdC5ocikKICAgICAgICAgIHBhcnRzLnB1c2goJzxzcGFuIHN0eWxlPSJtaW4td2lkdGg6MTAwJTt3aWR0aDoxMDAlOyInLCBmQ2xzLCAnPjxkaXYgc3R5bGU9InBvc2l0aW9uOnJlbGF0aXZlO3RvcDogNTAlO3RyYW5zZm9ybTogdHJhbnNsYXRlWSgtNTAlKTtoZWlnaHQ6NHB4O3dpZHRoOjEwMCU7IGJhY2tncm91bmQtY29sb3I6JywgdHlwZW9mIGZvcm1hdC5jb2xvciA9PT0gIm51bWJlciIgPyBHZXRDb2xvcihmb3JtYXQuY29sb3IpIDogZm9ybWF0LmNvbG9yLCAnIj48L2Rpdj48L3NwYW4+Jyk7CiAgICAgICAgZWxzZSBpZiAoZW5kIC0gb2Zmc2V0ICE9PSAwKQogICAgICAgICAgcGFydHMucHVzaCgiPHNwYW4iLCAuLi5mQ2xzLCAiPiIsIGh0bWxFbmNvZGUodGV4dC5zdWJzdHJpbmcob2Zmc2V0LCBlbmQpKSwgIjwvc3Bhbj4iKTsKICAgICAgfSBlbHNlIGlmIChmb3JtYXQuZm9ybWF0VHlwZSA9PT0gMSAvKiBMaW5rICovKSB7CiAgICAgICAgcGFydHMucHVzaCgnPGEgZHJhZ2dhYmxlPSJmYWxzZSIgY2xhc3M9IlVSTExpbmsiIGhyZWY9ImphdmFzY3JpcHQ6dm9pZCgwKTsiIHRpdGxlPSInKTsKICAgICAgICBwYXJ0cy5wdXNoKGZvcm1hdC5ocmVmLnJlcGxhY2UoLyIvZywgIiZxdW90OyIpKTsKICAgICAgICBwYXJ0cy5wdXNoKCciIG9uY2xpY2s9IicsIHRoaXMubGlua0Z1bmN0aW9uLCAiKCciLCBmb3JtYXQuaHJlZi5yZXBsYWNlKC9cXC9nLCAiXFxcXCIpLnJlcGxhY2UoLyIvZywgIiZxdW90OyIpLCBgJyk7cmV0dXJuIGZhbHNlOyI+YCk7CiAgICAgICAgaWYgKGVuZCAtIG9mZnNldCA9PT0gMCkgY29udGludWU7CiAgICAgICAgcGFydHMucHVzaCgiPHNwYW4iLCAuLi5mQ2xzLCAiPiIpOwogICAgICAgIHBhcnRzLnB1c2goaHRtbEVuY29kZSh0ZXh0LnN1YnN0cmluZyhvZmZzZXQsIGVuZCkpKTsKICAgICAgICBwYXJ0cy5wdXNoKCI8L3NwYW4+Iik7CiAgICAgIH0gZWxzZSBpZiAoZm9ybWF0LmZvcm1hdFR5cGUgPT09IDIgLyogTGlua0VuZCAqLyB8fCBmb3JtYXQuZm9ybWF0VHlwZSA9PT0gNCAvKiBNWFBMaW5rRW5kICovIHx8IGZvcm1hdC5mb3JtYXRUeXBlID09PSA4IC8qIE1YUFNlbmRFbmQgKi8pIHsKICAgICAgICBwYXJ0cy5wdXNoKCI8L2E+Iik7CiAgICAgIH0gZWxzZSBpZiAoZm9ybWF0LmZvcm1hdFR5cGUgPT09IDMgLyogTVhQTGluayAqLykgewogICAgICAgIHBhcnRzLnB1c2goJzxhIGRyYWdnYWJsZT0iZmFsc2UiIGNsYXNzPSJNWFBMaW5rIiBocmVmPSJqYXZhc2NyaXB0OnZvaWQoMCk7IiB0aXRsZT0iJyk7CiAgICAgICAgcGFydHMucHVzaChmb3JtYXQuaHJlZi5yZXBsYWNlKC8iL2csICImcXVvdDsiKSk7CiAgICAgICAgcGFydHMucHVzaCgnIicpOwogICAgICAgIGlmIChmb3JtYXQuZXhwaXJlICYmIGZvcm1hdC5leHBpcmUubGVuZ3RoKQogICAgICAgICAgcGFydHMucHVzaChgIGRhdGEtZXhwaXJlPSIke2Zvcm1hdC5leHBpcmV9ImApOwogICAgICAgIHBhcnRzLnB1c2goJyBvbmNsaWNrPSInLCB0aGlzLm14cExpbmtGdW5jdGlvbiwgIih0aGlzLCAnIiwgZm9ybWF0LmhyZWYucmVwbGFjZSgvXFwvZywgIlxcXFwiKS5yZXBsYWNlKC8iL2csICImcXVvdDsiKSwgYCcpO3JldHVybiBmYWxzZTsiPmApOwogICAgICAgIGlmIChlbmQgLSBvZmZzZXQgPT09IDApIGNvbnRpbnVlOwogICAgICAgIHBhcnRzLnB1c2goIjxzcGFuIiwgLi4uZkNscywgIj4iKTsKICAgICAgICBwYXJ0cy5wdXNoKGh0bWxFbmNvZGUodGV4dC5zdWJzdHJpbmcob2Zmc2V0LCBlbmQpKSk7CiAgICAgICAgcGFydHMucHVzaCgiPC9zcGFuPiIpOwogICAgICB9IGVsc2UgaWYgKGZvcm1hdC5mb3JtYXRUeXBlID09PSA3IC8qIE1YUFNlbmQgKi8pIHsKICAgICAgICBwYXJ0cy5wdXNoKCc8YSBkcmFnZ2FibGU9ImZhbHNlIiBjbGFzcz0iTVhQTGluayIgaHJlZj0iamF2YXNjcmlwdDp2b2lkKDApOyIgdGl0bGU9IicpOwogICAgICAgIHBhcnRzLnB1c2goZm9ybWF0LmhpbnQucmVwbGFjZSgvIi9nLCAiJnF1b3Q7IikpOwogICAgICAgIHBhcnRzLnB1c2goJyInKTsKICAgICAgICBpZiAoZm9ybWF0LmV4cGlyZSAmJiBmb3JtYXQuZXhwaXJlLmxlbmd0aCkKICAgICAgICAgIHBhcnRzLnB1c2goYCBkYXRhLWV4cGlyZT0iJHtmb3JtYXQuZXhwaXJlfSJgKTsKICAgICAgICBwYXJ0cy5wdXNoKCcgb25tb3VzZW92ZXI9IicsIHRoaXMubXhwVG9vbHRpcEZ1bmN0aW9uLCAnKHRoaXMpOyInKTsKICAgICAgICBwYXJ0cy5wdXNoKCcgb25jbGljaz0iJywgdGhpcy5teHBTZW5kRnVuY3Rpb24sICIoZXZlbnR8fHdpbmRvdy5ldmVudCwgdGhpcywgIiwgZm9ybWF0LmhyZWYucmVwbGFjZSgvXFwvZywgIlxcXFwiKS5yZXBsYWNlKC8iL2csICImcXVvdDsiKSwgIiwgIiwgZm9ybWF0LnByb21wdCA/ICIxIiA6ICIwIiwgIiwgIiwgZm9ybWF0LnR0LnJlcGxhY2UoL1xcL2csICJcXFxcIikucmVwbGFjZSgvIi9nLCAiJnF1b3Q7IiksICcpO3JldHVybiBmYWxzZTsiPicpOwogICAgICAgIGlmIChlbmQgLSBvZmZzZXQgPT09IDApIGNvbnRpbnVlOwogICAgICAgIHBhcnRzLnB1c2goIjxzcGFuIiwgLi4uZkNscywgIj4iKTsKICAgICAgICBwYXJ0cy5wdXNoKGh0bWxFbmNvZGUodGV4dC5zdWJzdHJpbmcob2Zmc2V0LCBlbmQpKSk7CiAgICAgICAgcGFydHMucHVzaCgiPC9zcGFuPiIpOwogICAgICB9IGVsc2UgaWYgKGZvcm1hdC5mb3JtYXRUeXBlID09PSA5IC8qIE1YUEV4cGlyZWQgKi8gJiYgZW5kIC0gb2Zmc2V0ICE9PSAwKSB7CiAgICAgICAgcGFydHMucHVzaCgiPHNwYW4iLCAuLi5mQ2xzLCAiPiIpOwogICAgICAgIHBhcnRzLnB1c2goaHRtbEVuY29kZSh0ZXh0LnN1YnN0cmluZyhvZmZzZXQsIGVuZCkpKTsKICAgICAgICBwYXJ0cy5wdXNoKCI8L3NwYW4+Iik7CiAgICAgIH0gZWxzZSBpZiAoZm9ybWF0LmZvcm1hdFR5cGUgPT09IDUgLyogSW1hZ2UgKi8pIHsKICAgICAgICBsZXQgdG1wID0gIiI7CiAgICAgICAgcGFydHMucHVzaCgnPGltZyBzcmM9IicpOwogICAgICAgIGlmIChmb3JtYXQudXJsLmxlbmd0aCA+IDApIHsKICAgICAgICAgIHBhcnRzLnB1c2goZm9ybWF0LnVybCk7CiAgICAgICAgICB0bXAgKz0gZm9ybWF0LnVybDsKICAgICAgICAgIGlmICghZm9ybWF0LnVybC5lbmRzV2l0aCgiLyIpKSB7CiAgICAgICAgICAgIHBhcnRzLnB1c2goIi8iKTsKICAgICAgICAgICAgdG1wICs9ICIvIjsKICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgaWYgKGZvcm1hdC50Lmxlbmd0aCA+IDApIHsKICAgICAgICAgIHBhcnRzLnB1c2goZm9ybWF0LnQpOwogICAgICAgICAgdG1wICs9IGZvcm1hdC50OwogICAgICAgICAgaWYgKCFmb3JtYXQudC5lbmRzV2l0aCgiLyIpKSB7CiAgICAgICAgICAgIHBhcnRzLnB1c2goIi8iKTsKICAgICAgICAgICAgdG1wICs9ICIvIjsKICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgdG1wICs9IGZvcm1hdC5uYW1lOwogICAgICAgIHBhcnRzLnB1c2goZm9ybWF0Lm5hbWUsICciICBzdHlsZT0iJyk7CiAgICAgICAgaWYgKGZvcm1hdC53Lmxlbmd0aCA+IDApCiAgICAgICAgICBwYXJ0cy5wdXNoKCJ3aWR0aDoiLCBmb3JtYXRVbml0KGZvcm1hdC53KSwgIjsiKTsKICAgICAgICBpZiAoZm9ybWF0LmgubGVuZ3RoID4gMCkKICAgICAgICAgIHBhcnRzLnB1c2goImhlaWdodDoiLCBmb3JtYXRVbml0KGZvcm1hdC5oKSwgIjsiKTsKICAgICAgICBzd2l0Y2ggKGZvcm1hdC5hbGlnbi50b0xvd2VyQ2FzZSgpKSB7CiAgICAgICAgICBjYXNlICJsZWZ0IjoKICAgICAgICAgICAgcGFydHMucHVzaCgiZmxvYXQ6bGVmdDsiKTsKICAgICAgICAgICAgYnJlYWs7CiAgICAgICAgICBjYXNlICJyaWdodCI6CiAgICAgICAgICAgIHBhcnRzLnB1c2goImZsb2F0OnJpZ2h0OyIpOwogICAgICAgICAgICByaWdodCA9IHRydWU7CiAgICAgICAgICAgIGJyZWFrOwogICAgICAgICAgY2FzZSAidG9wIjoKICAgICAgICAgIGNhc2UgIm1pZGRsZSI6CiAgICAgICAgICBjYXNlICJib3R0b20iOgogICAgICAgICAgICBwYXJ0cy5wdXNoKCJ2ZXJ0aWNhbC1hbGlnbjoiLCBmb3JtYXQuYWxpZ24sICI7Iik7CiAgICAgICAgICAgIGJyZWFrOwogICAgICAgIH0KICAgICAgICBpZiAoZm9ybWF0LmhzcGFjZS5sZW5ndGggPiAwICYmIGZvcm1hdC52c3BhY2UubGVuZ3RoID4gMCkgewogICAgICAgICAgcGFydHMucHVzaCgibWFyZ2luOiIpOwogICAgICAgICAgcGFydHMucHVzaChmb3JtYXRVbml0KGZvcm1hdC52c3BhY2UpLCAiICIpOwogICAgICAgICAgcGFydHMucHVzaChmb3JtYXRVbml0KGZvcm1hdC5oc3BhY2UpLCAiOyIpOwogICAgICAgIH0gZWxzZSBpZiAoZm9ybWF0LmhzcGFjZS5sZW5ndGggPiAwKSB7CiAgICAgICAgICBwYXJ0cy5wdXNoKCJtYXJnaW46Iik7CiAgICAgICAgICBwYXJ0cy5wdXNoKCIwcHggIiwgZm9ybWF0VW5pdChmb3JtYXQuaHNwYWNlKSwgIjsiKTsKICAgICAgICB9IGVsc2UgaWYgKGZvcm1hdC52c3BhY2UubGVuZ3RoID4gMCkgewogICAgICAgICAgcGFydHMucHVzaCgibWFyZ2luOiIpOwogICAgICAgICAgcGFydHMucHVzaChmb3JtYXRVbml0KGZvcm1hdC52c3BhY2UpLCAiIDBweDsiKTsKICAgICAgICB9CiAgICAgICAgcGFydHMucHVzaCgnIicpOwogICAgICAgIGlmIChmb3JtYXQuaXNtYXApIHBhcnRzLnB1c2goJyBpc21hcCBvbmNsaWNrPSJyZXR1cm4gZmFsc2U7IicpOwogICAgICAgIHBhcnRzLnB1c2goYHNyYz0iJHt0bXB9Ii8+YCk7CiAgICAgIH0KICAgIH0KICAgIGlmIChzdHlsZXMubGVuZ3RoKQogICAgICBwYXJ0cy5wdXNoKCI8c3R5bGU+IiwgLi4uc3R5bGVzLCAiPC9zdHlsZT4iKTsKICAgIGlmIChyaWdodCkKICAgICAgcmV0dXJuIGA8c3BhbiBjbGFzcz0ibGluZSIgc3R5bGU9Im1pbi13aWR0aDoxMDAlIj4ke3BhcnRzLmpvaW4oIiIpfTxicj48L3NwYW4+YDsKICAgIHJldHVybiBgPHNwYW4gY2xhc3M9ImxpbmUiPiR7cGFydHMuam9pbigiIil9PGJyPjwvc3Bhbj5gOwogIH0KICBmdW5jdGlvbiBodG1sRW5jb2RlKHRleHQpIHsKICAgIGlmICghdGV4dCB8fCB0ZXh0Lmxlbmd0aCA9PT0gMCkKICAgICAgcmV0dXJuOwogICAgcmV0dXJuIHRleHQucmVwbGFjZSgvJi9nLCAiJmFtcDsiKS5yZXBsYWNlKC8iL2csICImcXVvdDsiKS5yZXBsYWNlKC8nL2csICImIzM5OyIpLnJlcGxhY2UoLzwvZywgIiZsdDsiKS5yZXBsYWNlKC8+L2csICImZ3Q7Iik7CiAgfQogIGZ1bmN0aW9uIGZvcm1hdFVuaXQoc3RyKSB7CiAgICBpZiAoIXN0cikgcmV0dXJuIHN0cjsKICAgIGlmICgvXlxkK2MkLy50ZXN0KHN0cikpCiAgICAgIHJldHVybiBzdHIgKyAiaCI7CiAgICBpZiAoL15cZCskLy50ZXN0KHN0cikpCiAgICAgIHJldHVybiBwYXJzZUludChzdHIsIDEwKSArICJweCI7CiAgICByZXR1cm4gc3RyOwogIH0KICBmdW5jdGlvbiBidWlsZENvbG9yVGFibGUoKSB7CiAgICBjb25zdCBfQ29sb3JUYWJsZSA9IFtdOwogICAgbGV0IHI7CiAgICBsZXQgZzsKICAgIGxldCBiOwogICAgbGV0IGlkeDsKICAgIGZvciAociA9IDA7IHIgPCA2OyByKyspIHsKICAgICAgZm9yIChnID0gMDsgZyA8IDY7IGcrKykgewogICAgICAgIGZvciAoYiA9IDA7IGIgPCA2OyBiKyspIHsKICAgICAgICAgIGlkeCA9IDE2ICsgciAqIDM2ICsgZyAqIDYgKyBiOwogICAgICAgICAgX0NvbG9yVGFibGVbaWR4XSA9ICJyZ2IoIjsKICAgICAgICAgIGlmIChyID4gMCkKICAgICAgICAgICAgX0NvbG9yVGFibGVbaWR4XSArPSByICogNDAgKyA1NTsKICAgICAgICAgIGVsc2UKICAgICAgICAgICAgX0NvbG9yVGFibGVbaWR4XSArPSAiMCI7CiAgICAgICAgICBfQ29sb3JUYWJsZVtpZHhdICs9ICIsIjsKICAgICAgICAgIGlmIChnID4gMCkKICAgICAgICAgICAgX0NvbG9yVGFibGVbaWR4XSArPSBnICogNDAgKyA1NTsKICAgICAgICAgIGVsc2UKICAgICAgICAgICAgX0NvbG9yVGFibGVbaWR4XSArPSAiMCI7CiAgICAgICAgICBfQ29sb3JUYWJsZVtpZHhdICs9ICIsIjsKICAgICAgICAgIGlmIChiID4gMCkKICAgICAgICAgICAgX0NvbG9yVGFibGVbaWR4XSArPSBiICogNDAgKyA1NTsKICAgICAgICAgIGVsc2UKICAgICAgICAgICAgX0NvbG9yVGFibGVbaWR4XSArPSAiMCI7CiAgICAgICAgICBfQ29sb3JUYWJsZVtpZHhdICs9ICIpIjsKICAgICAgICB9CiAgICAgIH0KICAgIH0KICAgIGZvciAociA9IDIzMjsgciA8PSAyNTU7IHIrKykgewogICAgICBnID0gKHIgLSAyMzIpICogMTAgKyA4OwogICAgICBfQ29sb3JUYWJsZVtyXSA9IFsicmdiKCIsIGcsICIsIiwgZywgIiwiLCBnLCAiKSJdLmpvaW4oIiIpOwogICAgfQogICAgX0NvbG9yVGFibGVbMF0gPSAicmdiKDAsMCwwKSI7CiAgICBfQ29sb3JUYWJsZVsxXSA9ICJyZ2IoMTI4LCAwLCAwKSI7CiAgICBfQ29sb3JUYWJsZVsyXSA9ICJyZ2IoMCwgMTI4LCAwKSI7CiAgICBfQ29sb3JUYWJsZVszXSA9ICJyZ2IoMTI4LCAxMjgsIDApIjsKICAgIF9Db2xvclRhYmxlWzRdID0gInJnYigwLCAwLCAyMzgpIjsKICAgIF9Db2xvclRhYmxlWzVdID0gInJnYigxMjgsIDAsIDEyOCkiOwogICAgX0NvbG9yVGFibGVbNl0gPSAicmdiKDAsIDEyOCwgMTI4KSI7CiAgICBfQ29sb3JUYWJsZVs3XSA9ICJyZ2IoMTg3LCAxODcsIDE4NykiOwogICAgX0NvbG9yVGFibGVbOF0gPSAicmdiKDEyOCwgMTI4LCAxMjgpIjsKICAgIF9Db2xvclRhYmxlWzldID0gInJnYigyNTUsIDAsIDApIjsKICAgIF9Db2xvclRhYmxlWzEwXSA9ICJyZ2IoMCwgMjU1LCAwKSI7CiAgICBfQ29sb3JUYWJsZVsxMV0gPSAicmdiKDI1NSwgMjU1LCAwKSI7CiAgICBfQ29sb3JUYWJsZVsxMl0gPSAicmdiKDkyLCA5MiwgMjU1KSI7CiAgICBfQ29sb3JUYWJsZVsxM10gPSAicmdiKDI1NSwgMCwgMjU1KSI7CiAgICBfQ29sb3JUYWJsZVsxNF0gPSAicmdiKDAsIDI1NSwgMjU1KSI7CiAgICBfQ29sb3JUYWJsZVsxNV0gPSAicmdiKDI1NSwgMjU1LCAyNTUpIjsKICAgIF9Db2xvclRhYmxlWzI1Nl0gPSAicmdiKDAsIDAsIDApIjsKICAgIF9Db2xvclRhYmxlWzI1N10gPSAicmdiKDExOCwgMCwgMCkiOwogICAgX0NvbG9yVGFibGVbMjU4XSA9ICJyZ2IoMCwgMTA4LCAwKSI7CiAgICBfQ29sb3JUYWJsZVsyNTldID0gInJnYigxNDUsIDEzNiwgMCkiOwogICAgX0NvbG9yVGFibGVbMjYwXSA9ICJyZ2IoMCwgMCwgMTY3KSI7CiAgICBfQ29sb3JUYWJsZVsyNjFdID0gInJnYigxMDgsIDAsIDEwOCkiOwogICAgX0NvbG9yVGFibGVbMjYyXSA9ICJyZ2IoMCwgMTA4LCAxMDgpIjsKICAgIF9Db2xvclRhYmxlWzI2M10gPSAicmdiKDE2MSwgMTYxLCAxNjEpIjsKICAgIF9Db2xvclRhYmxlWzI2NF0gPSAicmdiKDAsIDAsIDApIjsKICAgIF9Db2xvclRhYmxlWzI2NV0gPSAicmdiKDEyOCwgMCwgMCkiOwogICAgX0NvbG9yVGFibGVbMjY2XSA9ICJyZ2IoMCwgMTI4LCAwKSI7CiAgICBfQ29sb3JUYWJsZVsyNjddID0gInJnYigxMjgsIDEyOCwgMCkiOwogICAgX0NvbG9yVGFibGVbMjY4XSA9ICJyZ2IoMCwgMCwgMjM4KSI7CiAgICBfQ29sb3JUYWJsZVsyNjldID0gInJnYigxMjgsIDAsIDEyOCkiOwogICAgX0NvbG9yVGFibGVbMjcwXSA9ICJyZ2IoMCwgMTI4LCAxMjgpIjsKICAgIF9Db2xvclRhYmxlWzI3MV0gPSAicmdiKDE4NywgMTg3LCAxODcpIjsKICAgIF9Db2xvclRhYmxlWzI3Ml0gPSAicmdiKDAsMCwwKSI7CiAgICBfQ29sb3JUYWJsZVsyNzNdID0gInJnYigwLCAyNTUsIDI1NSkiOwogICAgX0NvbG9yVGFibGVbMjc0XSA9ICJyZ2IoMCwwLDApIjsKICAgIF9Db2xvclRhYmxlWzI3NV0gPSAicmdiKDI1NSwgMjU1LCAwKSI7CiAgICBfQ29sb3JUYWJsZVsyNzZdID0gInJnYigwLCAwLCAwKSI7CiAgICBfQ29sb3JUYWJsZVsyNzddID0gInJnYigyMjksIDIyOSwgMjI5KSI7CiAgICBfQ29sb3JUYWJsZVsyNzhdID0gInJnYigyMDUsIDAsIDApIjsKICAgIF9Db2xvclRhYmxlWzI3OV0gPSAicmdiKDIyOSwgMjI5LCAyMjkpIjsKICAgIF9Db2xvclRhYmxlWzI4MF0gPSAicmdiKDI1NSwyNTUsMjU1KSI7CiAgICBfY29sb3JUYWJsZSA9IF9Db2xvclRhYmxlOwogIH0KICBmdW5jdGlvbiBHZXRDb2xvcihjb2RlKSB7CiAgICBpZiAoX2NvbG9yVGFibGUgPT0gbnVsbCkKICAgICAgYnVpbGRDb2xvclRhYmxlKCk7CiAgICBzd2l0Y2ggKGNvZGUpIHsKICAgICAgY2FzZSAtMTI6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzI3OV07CiAgICAgIC8vRXJyb3JCYWNrCiAgICAgIGNhc2UgLTExOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNzhdOwogICAgICAvL0Vycm9yRm9yZQogICAgICBjYXNlIC0xMDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjgwXTsKICAgICAgLy9EZWZhdWx0QnJpZ2h0Rm9yZQogICAgICBjYXNlIC04OgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNzJdOwogICAgICAvL0luZm9CYWNrZ3JvdW5kCiAgICAgIGNhc2UgLTc6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzI3M107CiAgICAgIC8vSW5mb1RleHQKICAgICAgY2FzZSAtNDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjc0XTsKICAgICAgLy9Mb2NhbEVjaG9CYWNrZ3JvdW5kCiAgICAgIGNhc2UgLTM6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzI3NV07CiAgICAgIC8vTG9jYWxFY2hvVGV4dAogICAgICBjYXNlIDQ5OgogICAgICBjYXNlIC0yOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNzZdOwogICAgICAvL0RlZmF1bHRCYWNrCiAgICAgIGNhc2UgMzk6CiAgICAgIGNhc2UgLTE6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzI3N107CiAgICAgIC8vRGVmYXVsdEJhY2sKICAgICAgY2FzZSAwOgogICAgICBjYXNlIDMwOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVswXTsKICAgICAgY2FzZSAxOgogICAgICBjYXNlIDMxOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsxXTsKICAgICAgY2FzZSAyOgogICAgICBjYXNlIDMyOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyXTsKICAgICAgY2FzZSAzOgogICAgICBjYXNlIDMzOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVszXTsKICAgICAgY2FzZSA0OgogICAgICBjYXNlIDM0OgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVs0XTsKICAgICAgY2FzZSA1OgogICAgICBjYXNlIDM1OgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVs1XTsKICAgICAgY2FzZSA2OgogICAgICBjYXNlIDM2OgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVs2XTsKICAgICAgY2FzZSA3OgogICAgICBjYXNlIDM3OgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVs3XTsKICAgICAgY2FzZSA0MDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjY0XTsKICAgICAgY2FzZSA0MToKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjY1XTsKICAgICAgY2FzZSA0MjoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjY2XTsKICAgICAgY2FzZSA0MzoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjY3XTsKICAgICAgY2FzZSA0NDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjY4XTsKICAgICAgY2FzZSA0NToKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjY5XTsKICAgICAgY2FzZSA0NjoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjcwXTsKICAgICAgY2FzZSA0NzoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjcxXTsKICAgICAgY2FzZSA4OgogICAgICBjYXNlIDkwOgogICAgICBjYXNlIDEwMDoKICAgICAgY2FzZSAzMDA6CiAgICAgIC8vc2V0IGZvcmVncm91bmQgY29sb3IgdG8gYmxhY2sKICAgICAgY2FzZSA0MDA6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzhdOwogICAgICBjYXNlIDk6CiAgICAgIGNhc2UgOTE6CiAgICAgIGNhc2UgMTAxOgogICAgICBjYXNlIDMxMDoKICAgICAgLy9zZXQgZm9yZWdyb3VuZCBjb2xvciB0byByZWQKICAgICAgY2FzZSA0MTA6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzldOwogICAgICBjYXNlIDEwOgogICAgICBjYXNlIDkyOgogICAgICBjYXNlIDEwMjoKICAgICAgY2FzZSAzMjA6CiAgICAgIC8vc2V0IGZvcmVncm91bmQgY29sb3IgdG8gZ3JlZW4KICAgICAgY2FzZSA0MjA6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzEwXTsKICAgICAgY2FzZSAxMToKICAgICAgY2FzZSA5MzoKICAgICAgY2FzZSAxMDM6CiAgICAgIGNhc2UgMzMwOgogICAgICAvL3NldCBmb3JlZ3JvdW5kIGNvbG9yIHRvIHllbGxvdwogICAgICBjYXNlIDQzMDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMTFdOwogICAgICBjYXNlIDEyOgogICAgICBjYXNlIDk0OgogICAgICBjYXNlIDEwNDoKICAgICAgY2FzZSAzNDA6CiAgICAgIC8vc2V0IGZvcmVncm91bmQgY29sb3IgdG8gYmx1ZQogICAgICBjYXNlIDQ0MDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMTJdOwogICAgICBjYXNlIDEzOgogICAgICBjYXNlIDk1OgogICAgICBjYXNlIDEwNToKICAgICAgY2FzZSAzNTA6CiAgICAgIC8vc2V0IGZvcmVncm91bmQgY29sb3IgdG8gbWFnZW50YSAocHVycGxlKQogICAgICBjYXNlIDQ1MDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMTNdOwogICAgICBjYXNlIDE0OgogICAgICBjYXNlIDk2OgogICAgICBjYXNlIDEwNjoKICAgICAgY2FzZSAzNjA6CiAgICAgIC8vc2V0IGZvcmVncm91bmQgY29sb3IgdG8gY3lhbgogICAgICBjYXNlIDQ2MDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMTRdOwogICAgICBjYXNlIDE1OgogICAgICBjYXNlIDk3OgogICAgICBjYXNlIDEwNzoKICAgICAgY2FzZSAzNzA6CiAgICAgIC8vc2V0IGZvcmVncm91bmQgY29sb3IgdG8gd2hpdGUKICAgICAgY2FzZSA0NzA6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzE1XTsKICAgICAgY2FzZSA0ZTM6CiAgICAgIGNhc2UgM2UzOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNTZdOwogICAgICBjYXNlIDQxMDA6CiAgICAgIGNhc2UgMzEwMDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjU3XTsKICAgICAgY2FzZSA0MjAwOgogICAgICBjYXNlIDMyMDA6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzI1OF07CiAgICAgIGNhc2UgNDMwMDoKICAgICAgY2FzZSAzMzAwOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNTldOwogICAgICBjYXNlIDQ0MDA6CiAgICAgIGNhc2UgMzQwMDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjYwXTsKICAgICAgY2FzZSA0NTAwOgogICAgICBjYXNlIDM1MDA6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzI2MV07CiAgICAgIGNhc2UgNDYwMDoKICAgICAgY2FzZSAzNjAwOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNjJdOwogICAgICBjYXNlIDQ3MDA6CiAgICAgIGNhc2UgMzcwMDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjYzXTsKICAgICAgZGVmYXVsdDoKICAgICAgICBpZiAoY29kZSA8PSAtMTYpIHsKICAgICAgICAgIGNvZGUgKz0gMTY7CiAgICAgICAgICBjb2RlICo9IC0xOwogICAgICAgIH0KICAgICAgICBpZiAoY29kZSA+PSAwICYmIGNvZGUgPCAyODEpCiAgICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbY29kZV07CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzI3N107CiAgICB9CiAgfQogIGZ1bmN0aW9uIFNldENvbG9yKGNvZGUsIGNvbG9yKSB7CiAgICBpZiAoX2NvbG9yVGFibGUgPT0gbnVsbCkKICAgICAgYnVpbGRDb2xvclRhYmxlKCk7CiAgICBpZiAoY29kZSA8IDAgfHwgY29kZSA+PSBfY29sb3JUYWJsZS5sZW5ndGgpCiAgICAgIHJldHVybjsKICAgIGNvbG9yID0gbmV3IFJHQkNvbG9yKGNvbG9yKTsKICAgIGlmICghY29sb3Iub2spIHJldHVybjsKICAgIF9jb2xvclRhYmxlW2NvZGVdID0gY29sb3IudG9SR0IoKTsKICB9Cn0pKCk7Ci8qKgogKiBBIGNsYXNzIHRvIHBhcnNlIGNvbG9yIHZhbHVlcwogKiBAYXV0aG9yIFN0b3lhbiBTdGVmYW5vdiA8c3N0b29AZ21haWwuY29tPgogKiBAbGluayAgIGh0dHA6Ly93d3cucGhwaWVkLmNvbS9yZ2ItY29sb3ItcGFyc2VyLWluLWphdmFzY3JpcHQvCiAqIEBsaWNlbnNlIFVzZSBpdCBpZiB5b3UgbGlrZSBpdAogKi8K";
+  var logger_worker_default = "data:application/javascript;base64,KCgpID0+IHsKICAvLyBzcmMvbGliL3JnYmNvbG9yLmpzCiAgZnVuY3Rpb24gUkdCQ29sb3IoY29sb3Jfc3RyaW5nKSB7CiAgICB0aGlzLm9rID0gZmFsc2U7CiAgICBpZiAoY29sb3Jfc3RyaW5nLmNoYXJBdCgwKSA9PSAiIyIpIHsKICAgICAgY29sb3Jfc3RyaW5nID0gY29sb3Jfc3RyaW5nLnN1YnN0cigxLCA2KTsKICAgIH0KICAgIGNvbG9yX3N0cmluZyA9IGNvbG9yX3N0cmluZy5yZXBsYWNlKC8gL2csICIiKTsKICAgIGNvbG9yX3N0cmluZyA9IGNvbG9yX3N0cmluZy50b0xvd2VyQ2FzZSgpOwogICAgdmFyIHNpbXBsZV9jb2xvcnMgPSB7CiAgICAgIGFsaWNlYmx1ZTogImYwZjhmZiIsCiAgICAgIGFudGlxdWV3aGl0ZTogImZhZWJkNyIsCiAgICAgIGFxdWE6ICIwMGZmZmYiLAogICAgICBhcXVhbWFyaW5lOiAiN2ZmZmQ0IiwKICAgICAgYXp1cmU6ICJmMGZmZmYiLAogICAgICBiZWlnZTogImY1ZjVkYyIsCiAgICAgIGJpc3F1ZTogImZmZTRjNCIsCiAgICAgIGJsYWNrOiAiMDAwMDAwIiwKICAgICAgYmxhbmNoZWRhbG1vbmQ6ICJmZmViY2QiLAogICAgICBibHVlOiAiMDAwMGZmIiwKICAgICAgYmx1ZXZpb2xldDogIjhhMmJlMiIsCiAgICAgIGJyb3duOiAiYTUyYTJhIiwKICAgICAgYnVybHl3b29kOiAiZGViODg3IiwKICAgICAgY2FkZXRibHVlOiAiNWY5ZWEwIiwKICAgICAgY2hhcnRyZXVzZTogIjdmZmYwMCIsCiAgICAgIGNob2NvbGF0ZTogImQyNjkxZSIsCiAgICAgIGNvcmFsOiAiZmY3ZjUwIiwKICAgICAgY29ybmZsb3dlcmJsdWU6ICI2NDk1ZWQiLAogICAgICBjb3Juc2lsazogImZmZjhkYyIsCiAgICAgIGNyaW1zb246ICJkYzE0M2MiLAogICAgICBjeWFuOiAiMDBmZmZmIiwKICAgICAgZGFya2JsdWU6ICIwMDAwOGIiLAogICAgICBkYXJrY3lhbjogIjAwOGI4YiIsCiAgICAgIGRhcmtnb2xkZW5yb2Q6ICJiODg2MGIiLAogICAgICBkYXJrZ3JheTogImE5YTlhOSIsCiAgICAgIGRhcmtncmVlbjogIjAwNjQwMCIsCiAgICAgIGRhcmtraGFraTogImJkYjc2YiIsCiAgICAgIGRhcmttYWdlbnRhOiAiOGIwMDhiIiwKICAgICAgZGFya29saXZlZ3JlZW46ICI1NTZiMmYiLAogICAgICBkYXJrb3JhbmdlOiAiZmY4YzAwIiwKICAgICAgZGFya29yY2hpZDogIjk5MzJjYyIsCiAgICAgIGRhcmtyZWQ6ICI4YjAwMDAiLAogICAgICBkYXJrc2FsbW9uOiAiZTk5NjdhIiwKICAgICAgZGFya3NlYWdyZWVuOiAiOGZiYzhmIiwKICAgICAgZGFya3NsYXRlYmx1ZTogIjQ4M2Q4YiIsCiAgICAgIGRhcmtzbGF0ZWdyYXk6ICIyZjRmNGYiLAogICAgICBkYXJrdHVycXVvaXNlOiAiMDBjZWQxIiwKICAgICAgZGFya3Zpb2xldDogIjk0MDBkMyIsCiAgICAgIGRlZXBwaW5rOiAiZmYxNDkzIiwKICAgICAgZGVlcHNreWJsdWU6ICIwMGJmZmYiLAogICAgICBkaW1ncmF5OiAiNjk2OTY5IiwKICAgICAgZG9kZ2VyYmx1ZTogIjFlOTBmZiIsCiAgICAgIGZlbGRzcGFyOiAiZDE5Mjc1IiwKICAgICAgZmlyZWJyaWNrOiAiYjIyMjIyIiwKICAgICAgZmxvcmFsd2hpdGU6ICJmZmZhZjAiLAogICAgICBmb3Jlc3RncmVlbjogIjIyOGIyMiIsCiAgICAgIGZ1Y2hzaWE6ICJmZjAwZmYiLAogICAgICBnYWluc2Jvcm86ICJkY2RjZGMiLAogICAgICBnaG9zdHdoaXRlOiAiZjhmOGZmIiwKICAgICAgZ29sZDogImZmZDcwMCIsCiAgICAgIGdvbGRlbnJvZDogImRhYTUyMCIsCiAgICAgIGdyYXk6ICI4MDgwODAiLAogICAgICBncmVlbjogIjAwODAwMCIsCiAgICAgIGdyZWVueWVsbG93OiAiYWRmZjJmIiwKICAgICAgaG9uZXlkZXc6ICJmMGZmZjAiLAogICAgICBob3RwaW5rOiAiZmY2OWI0IiwKICAgICAgaW5kaWFucmVkOiAiY2Q1YzVjIiwKICAgICAgaW5kaWdvOiAiNGIwMDgyIiwKICAgICAgaXZvcnk6ICJmZmZmZjAiLAogICAgICBraGFraTogImYwZTY4YyIsCiAgICAgIGxhdmVuZGVyOiAiZTZlNmZhIiwKICAgICAgbGF2ZW5kZXJibHVzaDogImZmZjBmNSIsCiAgICAgIGxhd25ncmVlbjogIjdjZmMwMCIsCiAgICAgIGxlbW9uY2hpZmZvbjogImZmZmFjZCIsCiAgICAgIGxpZ2h0Ymx1ZTogImFkZDhlNiIsCiAgICAgIGxpZ2h0Y29yYWw6ICJmMDgwODAiLAogICAgICBsaWdodGN5YW46ICJlMGZmZmYiLAogICAgICBsaWdodGdvbGRlbnJvZHllbGxvdzogImZhZmFkMiIsCiAgICAgIGxpZ2h0Z3JleTogImQzZDNkMyIsCiAgICAgIGxpZ2h0Z3JlZW46ICI5MGVlOTAiLAogICAgICBsaWdodHBpbms6ICJmZmI2YzEiLAogICAgICBsaWdodHNhbG1vbjogImZmYTA3YSIsCiAgICAgIGxpZ2h0c2VhZ3JlZW46ICIyMGIyYWEiLAogICAgICBsaWdodHNreWJsdWU6ICI4N2NlZmEiLAogICAgICBsaWdodHNsYXRlYmx1ZTogIjg0NzBmZiIsCiAgICAgIGxpZ2h0c2xhdGVncmF5OiAiNzc4ODk5IiwKICAgICAgbGlnaHRzdGVlbGJsdWU6ICJiMGM0ZGUiLAogICAgICBsaWdodHllbGxvdzogImZmZmZlMCIsCiAgICAgIGxpbWU6ICIwMGZmMDAiLAogICAgICBsaW1lZ3JlZW46ICIzMmNkMzIiLAogICAgICBsaW5lbjogImZhZjBlNiIsCiAgICAgIG1hZ2VudGE6ICJmZjAwZmYiLAogICAgICBtYXJvb246ICI4MDAwMDAiLAogICAgICBtZWRpdW1hcXVhbWFyaW5lOiAiNjZjZGFhIiwKICAgICAgbWVkaXVtYmx1ZTogIjAwMDBjZCIsCiAgICAgIG1lZGl1bW9yY2hpZDogImJhNTVkMyIsCiAgICAgIG1lZGl1bXB1cnBsZTogIjkzNzBkOCIsCiAgICAgIG1lZGl1bXNlYWdyZWVuOiAiM2NiMzcxIiwKICAgICAgbWVkaXVtc2xhdGVibHVlOiAiN2I2OGVlIiwKICAgICAgbWVkaXVtc3ByaW5nZ3JlZW46ICIwMGZhOWEiLAogICAgICBtZWRpdW10dXJxdW9pc2U6ICI0OGQxY2MiLAogICAgICBtZWRpdW12aW9sZXRyZWQ6ICJjNzE1ODUiLAogICAgICBtaWRuaWdodGJsdWU6ICIxOTE5NzAiLAogICAgICBtaW50Y3JlYW06ICJmNWZmZmEiLAogICAgICBtaXN0eXJvc2U6ICJmZmU0ZTEiLAogICAgICBtb2NjYXNpbjogImZmZTRiNSIsCiAgICAgIG5hdmFqb3doaXRlOiAiZmZkZWFkIiwKICAgICAgbmF2eTogIjAwMDA4MCIsCiAgICAgIG9sZGxhY2U6ICJmZGY1ZTYiLAogICAgICBvbGl2ZTogIjgwODAwMCIsCiAgICAgIG9saXZlZHJhYjogIjZiOGUyMyIsCiAgICAgIG9yYW5nZTogImZmYTUwMCIsCiAgICAgIG9yYW5nZXJlZDogImZmNDUwMCIsCiAgICAgIG9yY2hpZDogImRhNzBkNiIsCiAgICAgIHBhbGVnb2xkZW5yb2Q6ICJlZWU4YWEiLAogICAgICBwYWxlZ3JlZW46ICI5OGZiOTgiLAogICAgICBwYWxldHVycXVvaXNlOiAiYWZlZWVlIiwKICAgICAgcGFsZXZpb2xldHJlZDogImQ4NzA5MyIsCiAgICAgIHBhcGF5YXdoaXA6ICJmZmVmZDUiLAogICAgICBwZWFjaHB1ZmY6ICJmZmRhYjkiLAogICAgICBwZXJ1OiAiY2Q4NTNmIiwKICAgICAgcGluazogImZmYzBjYiIsCiAgICAgIHBsdW06ICJkZGEwZGQiLAogICAgICBwb3dkZXJibHVlOiAiYjBlMGU2IiwKICAgICAgcHVycGxlOiAiODAwMDgwIiwKICAgICAgcmVkOiAiZmYwMDAwIiwKICAgICAgcm9zeWJyb3duOiAiYmM4ZjhmIiwKICAgICAgcm95YWxibHVlOiAiNDE2OWUxIiwKICAgICAgc2FkZGxlYnJvd246ICI4YjQ1MTMiLAogICAgICBzYWxtb246ICJmYTgwNzIiLAogICAgICBzYW5keWJyb3duOiAiZjRhNDYwIiwKICAgICAgc2VhZ3JlZW46ICIyZThiNTciLAogICAgICBzZWFzaGVsbDogImZmZjVlZSIsCiAgICAgIHNpZW5uYTogImEwNTIyZCIsCiAgICAgIHNpbHZlcjogImMwYzBjMCIsCiAgICAgIHNreWJsdWU6ICI4N2NlZWIiLAogICAgICBzbGF0ZWJsdWU6ICI2YTVhY2QiLAogICAgICBzbGF0ZWdyYXk6ICI3MDgwOTAiLAogICAgICBzbm93OiAiZmZmYWZhIiwKICAgICAgc3ByaW5nZ3JlZW46ICIwMGZmN2YiLAogICAgICBzdGVlbGJsdWU6ICI0NjgyYjQiLAogICAgICB0YW46ICJkMmI0OGMiLAogICAgICB0ZWFsOiAiMDA4MDgwIiwKICAgICAgdGhpc3RsZTogImQ4YmZkOCIsCiAgICAgIHRvbWF0bzogImZmNjM0NyIsCiAgICAgIHR1cnF1b2lzZTogIjQwZTBkMCIsCiAgICAgIHZpb2xldDogImVlODJlZSIsCiAgICAgIHZpb2xldHJlZDogImQwMjA5MCIsCiAgICAgIHdoZWF0OiAiZjVkZWIzIiwKICAgICAgd2hpdGU6ICJmZmZmZmYiLAogICAgICB3aGl0ZXNtb2tlOiAiZjVmNWY1IiwKICAgICAgeWVsbG93OiAiZmZmZjAwIiwKICAgICAgeWVsbG93Z3JlZW46ICI5YWNkMzIiCiAgICB9OwogICAgZm9yICh2YXIga2V5IGluIHNpbXBsZV9jb2xvcnMpIHsKICAgICAgaWYgKGNvbG9yX3N0cmluZyA9PSBrZXkpIHsKICAgICAgICBjb2xvcl9zdHJpbmcgPSBzaW1wbGVfY29sb3JzW2tleV07CiAgICAgIH0KICAgIH0KICAgIHZhciBjb2xvcl9kZWZzID0gWwogICAgICB7CiAgICAgICAgcmU6IC9ecmdiXCgoXGR7MSwzfSksXHMqKFxkezEsM30pLFxzKihcZHsxLDN9KVwpJC8sCiAgICAgICAgZXhhbXBsZTogWyJyZ2IoMTIzLCAyMzQsIDQ1KSIsICJyZ2IoMjU1LDIzNCwyNDUpIl0sCiAgICAgICAgcHJvY2VzczogZnVuY3Rpb24oYml0czIpIHsKICAgICAgICAgIHJldHVybiBbCiAgICAgICAgICAgIHBhcnNlSW50KGJpdHMyWzFdLCAxMCksCiAgICAgICAgICAgIHBhcnNlSW50KGJpdHMyWzJdLCAxMCksCiAgICAgICAgICAgIHBhcnNlSW50KGJpdHMyWzNdLCAxMCkKICAgICAgICAgIF07CiAgICAgICAgfQogICAgICB9LAogICAgICB7CiAgICAgICAgcmU6IC9eKFx3ezJ9KShcd3syfSkoXHd7Mn0pJC8sCiAgICAgICAgZXhhbXBsZTogWyIjMDBmZjAwIiwgIjMzNjY5OSJdLAogICAgICAgIHByb2Nlc3M6IGZ1bmN0aW9uKGJpdHMyKSB7CiAgICAgICAgICByZXR1cm4gWwogICAgICAgICAgICBwYXJzZUludChiaXRzMlsxXSwgMTYpLAogICAgICAgICAgICBwYXJzZUludChiaXRzMlsyXSwgMTYpLAogICAgICAgICAgICBwYXJzZUludChiaXRzMlszXSwgMTYpCiAgICAgICAgICBdOwogICAgICAgIH0KICAgICAgfSwKICAgICAgewogICAgICAgIHJlOiAvXihcd3sxfSkoXHd7MX0pKFx3ezF9KSQvLAogICAgICAgIGV4YW1wbGU6IFsiI2ZiMCIsICJmMGYiXSwKICAgICAgICBwcm9jZXNzOiBmdW5jdGlvbihiaXRzMikgewogICAgICAgICAgcmV0dXJuIFsKICAgICAgICAgICAgcGFyc2VJbnQoYml0czJbMV0gKyBiaXRzMlsxXSwgMTYpLAogICAgICAgICAgICBwYXJzZUludChiaXRzMlsyXSArIGJpdHMyWzJdLCAxNiksCiAgICAgICAgICAgIHBhcnNlSW50KGJpdHMyWzNdICsgYml0czJbM10sIDE2KQogICAgICAgICAgXTsKICAgICAgICB9CiAgICAgIH0KICAgIF07CiAgICBmb3IgKHZhciBpID0gMCwgY2wgPSBjb2xvcl9kZWZzLmxlbmd0aDsgaSA8IGNsOyBpKyspIHsKICAgICAgdmFyIHJlID0gY29sb3JfZGVmc1tpXS5yZTsKICAgICAgdmFyIHByb2Nlc3NvciA9IGNvbG9yX2RlZnNbaV0ucHJvY2VzczsKICAgICAgdmFyIGJpdHMgPSByZS5leGVjKGNvbG9yX3N0cmluZyk7CiAgICAgIGlmIChiaXRzKSB7CiAgICAgICAgdmFyIGNoYW5uZWxzID0gcHJvY2Vzc29yKGJpdHMpOwogICAgICAgIHRoaXMuciA9IGNoYW5uZWxzWzBdOwogICAgICAgIHRoaXMuZyA9IGNoYW5uZWxzWzFdOwogICAgICAgIHRoaXMuYiA9IGNoYW5uZWxzWzJdOwogICAgICAgIHRoaXMub2sgPSB0cnVlOwogICAgICB9CiAgICB9CiAgICB0aGlzLnIgPSB0aGlzLnIgPCAwIHx8IGlzTmFOKHRoaXMucikgPyAwIDogdGhpcy5yID4gMjU1ID8gMjU1IDogdGhpcy5yOwogICAgdGhpcy5nID0gdGhpcy5nIDwgMCB8fCBpc05hTih0aGlzLmcpID8gMCA6IHRoaXMuZyA+IDI1NSA/IDI1NSA6IHRoaXMuZzsKICAgIHRoaXMuYiA9IHRoaXMuYiA8IDAgfHwgaXNOYU4odGhpcy5iKSA/IDAgOiB0aGlzLmIgPiAyNTUgPyAyNTUgOiB0aGlzLmI7CiAgICB0aGlzLnRvUkdCID0gZnVuY3Rpb24oKSB7CiAgICAgIHJldHVybiAicmdiKCIgKyB0aGlzLnIgKyAiLCAiICsgdGhpcy5nICsgIiwgIiArIHRoaXMuYiArICIpIjsKICAgIH07CiAgICB0aGlzLnRvSGV4ID0gZnVuY3Rpb24oKSB7CiAgICAgIHZhciByID0gdGhpcy5yLnRvU3RyaW5nKDE2KTsKICAgICAgdmFyIGcgPSB0aGlzLmcudG9TdHJpbmcoMTYpOwogICAgICB2YXIgYiA9IHRoaXMuYi50b1N0cmluZygxNik7CiAgICAgIGlmIChyLmxlbmd0aCA9PSAxKSByID0gIjAiICsgcjsKICAgICAgaWYgKGcubGVuZ3RoID09IDEpIGcgPSAiMCIgKyBnOwogICAgICBpZiAoYi5sZW5ndGggPT0gMSkgYiA9ICIwIiArIGI7CiAgICAgIHJldHVybiAiIyIgKyByICsgZyArIGI7CiAgICB9OwogIH0KCiAgLy8gc3JjL3BsdWdpbnMvbG9nZ2VyLndvcmtlci50cwogIGltcG9ydFNjcmlwdHMoImh0dHBzOi8vY2RuLmpzZGVsaXZyLm5ldC9ucG0vbW9tZW50QDIuMzAuMS9tb21lbnQubWluLmpzIik7CiAgdmFyIG9wdGlvbnMgPSB7CiAgICBvZmZsaW5lOiBmYWxzZSwKICAgIGdhZ2dlZDogZmFsc2UsCiAgICBlbmFibGVkOiBmYWxzZSwKICAgIHVuaXF1ZTogdHJ1ZSwKICAgIHByZXBlbmQ6IGZhbHNlLAogICAgbmFtZTogIiIsCiAgICB3aGF0OiAxIC8qIEh0bWwgKi8sCiAgICBkZWJ1ZzogZmFsc2UsCiAgICB0aW1lc3RhbXA6IDAgLyogTm9uZSAqLywKICAgIHRpbWVzdGFtcEZvcm1hdDogIltbXU1NLUREIEhIOm1tOnNzLlNTU1tdXSAiCiAgfTsKICB2YXIgY29ubmVjdGVkID0gZmFsc2U7CiAgdmFyIHRpbWVTdGFtcDsKICB2YXIgZlRpbWVTdGFtcCA9ICIiOwogIHZhciBsb2dnaW5nID0gZmFsc2U7CiAgdmFyIGN1cnJlbnRGaWxlID0gIiI7CiAgdmFyIGNvbG9ycyA9IHt9OwogIHZhciBjb2xvcnNDbnQgPSAwOwogIHZhciBiYWNrZ3JvdW5kcyA9IHt9OwogIHZhciBiYWNrZ3JvdW5kc0NudCA9IDA7CiAgdmFyIGJ1ZmZlciA9IHt9OwogIHZhciBmbHVzaEJ1ZmZlcjsKICB2YXIgX2NvbG9yVGFibGUgPSBudWxsOwogIHNlbGYuYWRkRXZlbnRMaXN0ZW5lcigibWVzc2FnZSIsIChlKSA9PiB7CiAgICBsZXQgYzsKICAgIGlmICghZS5kYXRhKSByZXR1cm47CiAgICBzd2l0Y2ggKGUuZGF0YS5hY3Rpb24pIHsKICAgICAgY2FzZSAib3B0aW9ucyI6CiAgICAgICAgbGV0IG9wdGlvbjsKICAgICAgICBsZXQgb2xkRW5hYmxlZCA9IG9wdGlvbnMuZW5hYmxlZDsKICAgICAgICBmb3IgKG9wdGlvbiBpbiBlLmRhdGEuYXJncykgewogICAgICAgICAgaWYgKCFlLmRhdGEuYXJncy5oYXNPd25Qcm9wZXJ0eShvcHRpb24pKQogICAgICAgICAgICBjb250aW51ZTsKICAgICAgICAgIGlmIChvcHRpb24gPT09ICJjb2xvcnMiKSB7CiAgICAgICAgICAgIGNvbnN0IF9jb2xvcnMgPSBlLmRhdGEuYXJnc1tvcHRpb25dOwogICAgICAgICAgICBpZiAoX2NvbG9ycyAmJiBfY29sb3JzLmxlbmd0aCA+IDApIHsKICAgICAgICAgICAgICBsZXQgY2xyOwogICAgICAgICAgICAgIGNvbnN0IGNsID0gX2NvbG9ycy5sZW5ndGg7CiAgICAgICAgICAgICAgZm9yIChjbHIgPSAwOyBjbHIgPCBjbDsgY2xyKyspIHsKICAgICAgICAgICAgICAgIGlmICghX2NvbG9yc1tjbHJdIHx8IF9jb2xvcnNbY2xyXS5sZW5ndGggPT09IDApIGNvbnRpbnVlOwogICAgICAgICAgICAgICAgU2V0Q29sb3IoY2xyLCBfY29sb3JzW2Nscl0pOwogICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQogICAgICAgICAgICBjb250aW51ZTsKICAgICAgICAgIH0gZWxzZSBpZiAoZmx1c2hCdWZmZXIgJiYgb3B0aW9uID09PSAid2hhdCIgJiYgb3B0aW9uc1tvcHRpb25dICE9PSBlLmRhdGEuYXJnc1tvcHRpb25dKSB7CiAgICAgICAgICAgIGMgPSAwIC8qIE5vbmUgKi87CiAgICAgICAgICAgIGlmICgob3B0aW9uc1tvcHRpb25dICYgMSAvKiBIdG1sICovKSA9PT0gMSAvKiBIdG1sICovICYmIChlLmRhdGEuYXJnc1tvcHRpb25dICYgMSAvKiBIdG1sICovKSAhPT0gMSAvKiBIdG1sICovKQogICAgICAgICAgICAgIGMgfD0gMSAvKiBIdG1sICovOwogICAgICAgICAgICBpZiAoKG9wdGlvbnNbb3B0aW9uXSAmIDIgLyogVGV4dCAqLykgPT09IDIgLyogVGV4dCAqLyAmJiAoZS5kYXRhLmFyZ3Nbb3B0aW9uXSAmIDIgLyogVGV4dCAqLykgIT09IDIgLyogVGV4dCAqLykKICAgICAgICAgICAgICBjIHw9IDIgLyogVGV4dCAqLzsKICAgICAgICAgICAgaWYgKChvcHRpb25zW29wdGlvbl0gJiA0IC8qIFJhdyAqLykgPT09IDQgLyogUmF3ICovICYmIChlLmRhdGEuYXJnc1tvcHRpb25dICYgNCAvKiBSYXcgKi8pICE9PSA0IC8qIFJhdyAqLykKICAgICAgICAgICAgICBjIHw9IDQgLyogUmF3ICovOwogICAgICAgICAgICBpZiAoYyAhPT0gMCAvKiBOb25lICovKSB7CiAgICAgICAgICAgICAgY29uc3QgZk9sZCA9IGZsdXNoQnVmZmVyOwogICAgICAgICAgICAgIGZsdXNoQnVmZmVyLndoYXQgPSBjOwogICAgICAgICAgICAgIGZsdXNoKHRydWUpOwogICAgICAgICAgICAgIGZPbGQud2hhdCA9IG9wdGlvbnNbb3B0aW9uXTsKICAgICAgICAgICAgICBmbHVzaEJ1ZmZlciA9IGZPbGQ7CiAgICAgICAgICAgIH0KICAgICAgICAgICAgb3B0aW9uc1tvcHRpb25dID0gZS5kYXRhLmFyZ3Nbb3B0aW9uXTsKICAgICAgICAgIH0gZWxzZQogICAgICAgICAgICBvcHRpb25zW29wdGlvbl0gPSBlLmRhdGEuYXJnc1tvcHRpb25dOwogICAgICAgIH0KICAgICAgICBpZiAodHlwZW9mIG9wdGlvbnMudGltZXN0YW1wID09PSAiYm9vbGVhbiIpCiAgICAgICAgICBvcHRpb25zLnRpbWVzdGFtcCA9IG9wdGlvbnMudGltZXN0YW1wID8gMiAvKiBGb3JtYXQgKi8gOiAwIC8qIE5vbmUgKi87CiAgICAgICAgaWYgKHRpbWVTdGFtcCAhPT0gMCkgewogICAgICAgICAgZlRpbWVTdGFtcCA9IG5ldyBtb21lbnQodGltZVN0YW1wKS5mb3JtYXQob3B0aW9ucy5mb3JtYXQgfHwgIllZWVlNTURELUhIbW1zcyIpOwogICAgICAgICAgYnVpbGRGaWxlbmFtZSgpOwogICAgICAgICAgZmx1c2godHJ1ZSk7CiAgICAgICAgfQogICAgICAgIGlmIChvbGRFbmFibGVkICE9IG9wdGlvbnMuZW5hYmxlZCkgewogICAgICAgICAgaWYgKCFvbGRFbmFibGVkICYmICFsb2dnaW5nKQogICAgICAgICAgICBwb3N0TWVzc2FnZSh7IGV2ZW50OiAic3RhcnQiIH0pOwogICAgICAgICAgZWxzZSBpZiAob2xkRW5hYmxlZCAmJiBsb2dnaW5nKQogICAgICAgICAgICBzdG9wKCk7CiAgICAgICAgICBlbHNlIGlmIChvcHRpb25zLm9mZmxpbmUpCiAgICAgICAgICAgIHBvc3RNZXNzYWdlKHsgZXZlbnQ6ICJzdGFydCIgfSk7CiAgICAgICAgfSBlbHNlIGlmIChvcHRpb25zLm9mZmxpbmUpCiAgICAgICAgICBwb3N0TWVzc2FnZSh7IGV2ZW50OiAic3RhcnQiIH0pOwogICAgICAgIGJyZWFrOwogICAgICBjYXNlICJuYW1lIjoKICAgICAgICBvcHRpb25zLm5hbWUgPSBlLmRhdGEuYXJnczsKICAgICAgICBpZiAobG9nZ2luZykKICAgICAgICAgIGZpbGVDaGFuZ2VkKCk7CiAgICAgICAgYnJlYWs7CiAgICAgIGNhc2UgImNvbm5lY3RlZCI6CiAgICAgICAgY29ubmVjdGVkID0gZS5kYXRhLmFyZ3M7CiAgICAgICAgYnVpbGRGaWxlbmFtZSgpOwogICAgICAgIGJyZWFrOwogICAgICBjYXNlICJsb2dnaW5nIjoKICAgICAgICBwb3N0TWVzc2FnZSh7IGV2ZW50OiAibG9nZ2luZyIsIGFyZ3M6IGxvZ2dpbmcgfSk7CiAgICAgICAgYnJlYWs7CiAgICAgIGNhc2UgInRvZ2dsZSI6CiAgICAgICAgdG9nZ2xlKCk7CiAgICAgICAgYnJlYWs7CiAgICAgIGNhc2UgInN0b3AiOgogICAgICAgIHN0b3AoKTsKICAgICAgICBicmVhazsKICAgICAgY2FzZSAic3RhcnRJbnRlcm5hbCI6CiAgICAgICAgYyA9IG9wdGlvbnMudW5pcXVlOwogICAgICAgIG9wdGlvbnMudW5pcXVlID0gZmFsc2U7CiAgICAgICAgaWYgKCFlLmRhdGEuYXJncykKICAgICAgICAgIHN0YXJ0KFtdLCBmYWxzZSk7CiAgICAgICAgZWxzZQogICAgICAgICAgc3RhcnQoZS5kYXRhLmFyZ3MubGluZXMsIGUuZGF0YS5hcmdzLmZyYWdtZW50KTsKICAgICAgICBvcHRpb25zLnVuaXF1ZSA9IGM7CiAgICAgICAgYnJlYWs7CiAgICAgIGNhc2UgInN0YXJ0IjoKICAgICAgICBpZiAoIWUuZGF0YS5hcmdzKQogICAgICAgICAgc3RhcnQoW10sIGZhbHNlKTsKICAgICAgICBlbHNlCiAgICAgICAgICBzdGFydChlLmRhdGEuYXJncy5saW5lcywgZS5kYXRhLmFyZ3MuZnJhZ21lbnQpOwogICAgICAgIGJyZWFrOwogICAgICBjYXNlICJmbHVzaCI6CiAgICAgICAgZmx1c2goZS5kYXRhLmFyZ3MpOwogICAgICAgIGJyZWFrOwogICAgICBjYXNlICJhZGQtbGluZSI6CiAgICAgICAgY29uc3QgZGF0YSA9IGUuZGF0YS5hcmdzOwogICAgICAgIGlmIChkYXRhLmZyYWdtZW50KSB7CiAgICAgICAgICBmbHVzaEJ1ZmZlciA9IGRhdGE7CiAgICAgICAgICBmbHVzaEJ1ZmZlci5sb2dnaW5nID0gbG9nZ2luZzsKICAgICAgICAgIGZsdXNoQnVmZmVyLmZpbGUgPSBjdXJyZW50RmlsZTsKICAgICAgICAgIGZsdXNoQnVmZmVyLmNvbm5lY3RlZCA9IGNvbm5lY3RlZDsKICAgICAgICAgIGZsdXNoQnVmZmVyLm9mZmxpbmUgPSBvcHRpb25zLm9mZmxpbmU7CiAgICAgICAgICBmbHVzaEJ1ZmZlci53aGF0ID0gb3B0aW9ucy53aGF0OwogICAgICAgICAgZmx1c2hCdWZmZXIuZ2FnZ2VkID0gZGF0YS5nYWdnZWQgfHwgb3B0aW9ucy5nYWdnZWQgJiYgZGF0YS5nYWdnZWQ7CiAgICAgICAgICByZXR1cm47CiAgICAgICAgfQogICAgICAgIGZsdXNoQnVmZmVyID0gbnVsbDsKICAgICAgICBpZiAoIWxvZ2dpbmcgfHwgIW9wdGlvbnMub2ZmbGluZSAmJiAhY29ubmVjdGVkKSByZXR1cm47CiAgICAgICAgaWYgKGRhdGEuZ2FnZ2VkICYmICFvcHRpb25zLmdhZ2dlZCkgcmV0dXJuOwogICAgICAgIGlmICgob3B0aW9ucy53aGF0ICYgMSAvKiBIdG1sICovKSA9PT0gMSAvKiBIdG1sICovKQogICAgICAgICAgd3JpdGVIdG1sKGNyZWF0ZUxpbmUoeyB0ZXh0OiBkYXRhLmxpbmUsIGZvcm1hdHM6IGRhdGEuZm9ybWF0cywgdGltZXN0YW1wOiBkYXRhLnRpbWVzdGFtcCB8fCBEYXRlLm5vdygpIH0pKTsKICAgICAgICBpZiAoKG9wdGlvbnMud2hhdCAmIDIgLyogVGV4dCAqLykgPT09IDIgLyogVGV4dCAqLyB8fCBvcHRpb25zLndoYXQgPT09IDAgLyogTm9uZSAqLykgewogICAgICAgICAgaWYgKG9wdGlvbnMudGltZXN0YW1wID09PSAyIC8qIEZvcm1hdCAqLykKICAgICAgICAgICAgd3JpdGVUZXh0KG1vbWVudChkYXRhLnRpbWVzdGFtcCkuZm9ybWF0KG9wdGlvbnMudGltZXN0YW1wRm9ybWF0KSk7CiAgICAgICAgICBlbHNlIGlmIChvcHRpb25zLnRpbWVzdGFtcCAhPT0gMCAvKiBOb25lICovKQogICAgICAgICAgICB3cml0ZVRleHQobmV3IERhdGUoZGF0YS50aW1lc3RhbXApLnRvSVNPU3RyaW5nKCkpOwogICAgICAgICAgd3JpdGVUZXh0KGRhdGEubGluZSArICJcbiIpOwogICAgICAgIH0KICAgICAgICBpZiAoKG9wdGlvbnMud2hhdCAmIDQgLyogUmF3ICovKSA9PT0gNCAvKiBSYXcgKi8pIHsKICAgICAgICAgIGlmIChvcHRpb25zLnRpbWVzdGFtcCA9PT0gMiAvKiBGb3JtYXQgKi8pCiAgICAgICAgICAgIHdyaXRlVGV4dCgiXHgxQlstNzstOG0iICsgbW9tZW50KGRhdGEudGltZXN0YW1wKS5mb3JtYXQob3B0aW9ucy50aW1lc3RhbXBGb3JtYXQpICsgIlx4MUJbMG0iKTsKICAgICAgICAgIGVsc2UgaWYgKG9wdGlvbnMudGltZXN0YW1wICE9PSAwIC8qIE5vbmUgKi8pCiAgICAgICAgICAgIHdyaXRlVGV4dCgiXHgxQlstNzstOG0iICsgbmV3IERhdGUoZGF0YS50aW1lc3RhbXApLnRvSVNPU3RyaW5nKCkgKyAiXHgxQlswbSIpOwogICAgICAgICAgd3JpdGVSYXcoZGF0YS5yYXcpOwogICAgICAgIH0KICAgICAgICBicmVhazsKICAgICAgY2FzZSAid3JpdGUtZG9uZSI6CiAgICAgICAgaWYgKCFidWZmZXJbZS5kYXRhLmZpbGVdKSByZXR1cm47CiAgICAgICAgYnVmZmVyW2UuZGF0YS5maWxlXS5zaGlmdCgpOwogICAgICAgIGlmIChidWZmZXJbZS5kYXRhLmZpbGVdLmxlbmd0aCkgewogICAgICAgICAgY29uc3QgdG1wID0gYnVmZmVyW2UuZGF0YS5maWxlXS5zaGlmdCgpOwogICAgICAgICAgYXBwZW5kRmlsZSh0bXAuZmlsZSwgdG1wLmRhdGEsIHRydWUpOwogICAgICAgIH0gZWxzZQogICAgICAgICAgZGVsZXRlIGJ1ZmZlcltlLmRhdGEuZmlsZV07CiAgICAgICAgYnJlYWs7CiAgICB9CiAgfSwgZmFsc2UpOwogIGZ1bmN0aW9uIGZpbGVDaGFuZ2VkKCkgewogICAgY29uc3QgcEZpbGUgPSBjdXJyZW50RmlsZTsKICAgIGJ1aWxkRmlsZW5hbWUoKTsKICAgIGlmIChwRmlsZSA9PT0gY3VycmVudEZpbGUpIHJldHVybjsKICAgIHBvc3RNZXNzYWdlKHsgZXZlbnQ6ICJkZWJ1ZyIsIGFyZ3M6ICdGaWxlIGNoYW5nZWQ6ICInICsgcEZpbGUgKyAnIiB0byAiJyArIGN1cnJlbnRGaWxlICsgJyInIH0pOwogICAgaWYgKGZsdXNoQnVmZmVyICYmIGZsdXNoQnVmZmVyLmN1cnJlbnRGaWxlICE9PSBwRmlsZSkKICAgICAgZmx1c2godHJ1ZSk7CiAgICBlbHNlIGlmIChmbHVzaEJ1ZmZlcikKICAgICAgZmx1c2hCdWZmZXIuY3VycmVudEZpbGUgPSBjdXJyZW50RmlsZTsKICB9CiAgZnVuY3Rpb24gYnVpbGRGaWxlbmFtZSgpIHsKICAgIGNvbnN0IG8gPSBjdXJyZW50RmlsZTsKICAgIGlmIChvcHRpb25zLnByZWZpeCkKICAgICAgY3VycmVudEZpbGUgPSBvcHRpb25zLnByZWZpeCArIGZUaW1lU3RhbXA7CiAgICBlbHNlCiAgICAgIGN1cnJlbnRGaWxlID0gZlRpbWVTdGFtcDsKICAgIGlmIChvcHRpb25zLm5hbWUgJiYgb3B0aW9ucy5uYW1lLmxlbmd0aCA+IDApCiAgICAgIGN1cnJlbnRGaWxlICs9ICIuIiArIG9wdGlvbnMubmFtZTsKICAgIGlmIChvcHRpb25zLnBvc3RmaXgpCiAgICAgIGN1cnJlbnRGaWxlICs9IG9wdGlvbnMucG9zdGZpeDsKICAgIGlmIChvcHRpb25zLmRlYnVnICYmIG8gIT09IGN1cnJlbnRGaWxlKQogICAgICBwb3N0TWVzc2FnZSh7IGV2ZW50OiAiZGVidWciLCBhcmdzOiAnTG9nIGZpbGU6ICInICsgY3VycmVudEZpbGUgKyAnIicgfSk7CiAgfQogIGZ1bmN0aW9uIGFwcGVuZEZpbGUoZmlsZSwgZGF0YSwgZm9yY2UpIHsKICAgIHRyeSB7CiAgICAgIGlmICghYnVmZmVyW2ZpbGVdKSBidWZmZXJbZmlsZV0gPSBbXTsKICAgICAgaWYgKGJ1ZmZlcltmaWxlXS5sZW5ndGggJiYgIWZvcmNlKSB7CiAgICAgICAgYnVmZmVyW2ZpbGVdLnB1c2goeyBmaWxlLCBkYXRhIH0pOwogICAgICAgIHJldHVybjsKICAgICAgfQogICAgICBidWZmZXJbZmlsZV0udW5zaGlmdCh7IGZpbGUsIGRhdGEgfSk7CiAgICAgIHBvc3RNZXNzYWdlKHsgZXZlbnQ6ICJ3cml0ZSIsIGZpbGUsIGRhdGEsIGNoYXJhY3Rlcjogb3B0aW9ucy5uYW1lIHx8ICIiLCB0aW1lU3RhbXAsIHBvc3RmaXg6IG9wdGlvbnMucG9zdGZpeCwgcHJlZml4OiBvcHRpb25zLnByZWZpeCB9KTsKICAgIH0gY2F0Y2ggKGVycikgewogICAgICBwb3N0TWVzc2FnZSh7IGV2ZW50OiAiZXJyb3IiLCBhcmdzOiBlcnIgfSk7CiAgICB9CiAgfQogIGZ1bmN0aW9uIHdyaXRlVGV4dChkYXRhKSB7CiAgICBpZiAoIWxvZ2dpbmcgfHwgIW9wdGlvbnMub2ZmbGluZSAmJiAhY29ubmVjdGVkKSByZXR1cm47CiAgICBpZiAoIWN1cnJlbnRGaWxlIHx8IGN1cnJlbnRGaWxlLmxlbmd0aCA9PT0gMCkKICAgICAgYnVpbGRGaWxlbmFtZSgpOwogICAgYXBwZW5kRmlsZShjdXJyZW50RmlsZSArICIudHh0IiwgZGF0YSk7CiAgfQogIGZ1bmN0aW9uIHdyaXRlSHRtbChkYXRhKSB7CiAgICBpZiAoIWxvZ2dpbmcgfHwgIW9wdGlvbnMub2ZmbGluZSAmJiAhY29ubmVjdGVkKSByZXR1cm47CiAgICBpZiAoIWN1cnJlbnRGaWxlIHx8IGN1cnJlbnRGaWxlLmxlbmd0aCA9PT0gMCkKICAgICAgYnVpbGRGaWxlbmFtZSgpOwogICAgYXBwZW5kRmlsZShjdXJyZW50RmlsZSArICIuaHRtIiwgZGF0YSk7CiAgfQogIGZ1bmN0aW9uIHdyaXRlUmF3KGRhdGEpIHsKICAgIGlmICghbG9nZ2luZyB8fCAhb3B0aW9ucy5vZmZsaW5lICYmICFjb25uZWN0ZWQpIHJldHVybjsKICAgIGlmICghY3VycmVudEZpbGUgfHwgY3VycmVudEZpbGUubGVuZ3RoID09PSAwKQogICAgICBidWlsZEZpbGVuYW1lKCk7CiAgICBhcHBlbmRGaWxlKGN1cnJlbnRGaWxlICsgIi5yYXciLCBkYXRhKTsKICB9CiAgZnVuY3Rpb24gZmx1c2gobmV3bGluZSkgewogICAgaWYgKCFmbHVzaEJ1ZmZlciB8fCAhZmx1c2hCdWZmZXIubG9nZ2luZyB8fCAhZmx1c2hCdWZmZXIub2ZmbGluZSAmJiAhZmx1c2hCdWZmZXIuY29ubmVjdGVkKSByZXR1cm47CiAgICBjb25zdCBjID0gY29ubmVjdGVkOwogICAgY29uc3QgZiA9IGN1cnJlbnRGaWxlOwogICAgY29uc3QgbCA9IGxvZ2dpbmc7CiAgICBsb2dnaW5nID0gZmx1c2hCdWZmZXIubG9nZ2luZzsKICAgIGNvbm5lY3RlZCA9IGZsdXNoQnVmZmVyLmNvbm5lY3RlZDsKICAgIGN1cnJlbnRGaWxlID0gZmx1c2hCdWZmZXIuY3VycmVudEZpbGU7CiAgICBpZiAoIWZsdXNoQnVmZmVyLmdhZ2dlZCkgewogICAgICBsZXQgbmwgPSAiIjsKICAgICAgaWYgKG5ld2xpbmUpCiAgICAgICAgbmwgPSAiXG4iOwogICAgICBpZiAoKGZsdXNoQnVmZmVyLndoYXQgJiAxIC8qIEh0bWwgKi8pID09PSAxIC8qIEh0bWwgKi8pCiAgICAgICAgd3JpdGVIdG1sKGNyZWF0ZUxpbmUoeyB0ZXh0OiBmbHVzaEJ1ZmZlci5saW5lLCBmb3JtYXRzOiBmbHVzaEJ1ZmZlci5mb3JtYXRzLCB0aW1lc3RhbXA6IGZsdXNoQnVmZmVyLnRpbWVzdGFtcCB8fCBEYXRlLm5vdygpIH0pKTsKICAgICAgaWYgKChmbHVzaEJ1ZmZlci53aGF0ICYgMiAvKiBUZXh0ICovKSA9PT0gMiAvKiBUZXh0ICovIHx8IGZsdXNoQnVmZmVyLndoYXQgPT09IDAgLyogTm9uZSAqLykgewogICAgICAgIGlmIChvcHRpb25zLnRpbWVzdGFtcCA9PT0gMiAvKiBGb3JtYXQgKi8pCiAgICAgICAgICB3cml0ZVRleHQobW9tZW50KGZsdXNoQnVmZmVyLnRpbWVzdGFtcCkuZm9ybWF0KG9wdGlvbnMudGltZXN0YW1wRm9ybWF0KSk7CiAgICAgICAgZWxzZSBpZiAob3B0aW9ucy50aW1lc3RhbXAgIT09IDAgLyogTm9uZSAqLykKICAgICAgICAgIHdyaXRlVGV4dChuZXcgRGF0ZShmbHVzaEJ1ZmZlci50aW1lc3RhbXApLnRvSVNPU3RyaW5nKCkpOwogICAgICAgIHdyaXRlVGV4dChmbHVzaEJ1ZmZlci5saW5lICsgbmwpOwogICAgICB9CiAgICAgIGlmICgoZmx1c2hCdWZmZXIud2hhdCAmIDQgLyogUmF3ICovKSA9PT0gNCAvKiBSYXcgKi8pIHsKICAgICAgICBpZiAobW9tZW50ICYmIG9wdGlvbnMudGltZXN0YW1wID09PSAyIC8qIEZvcm1hdCAqLykKICAgICAgICAgIHdyaXRlVGV4dCgiXHgxQlstNzstOG0iICsgbW9tZW50KGZsdXNoQnVmZmVyLnRpbWVzdGFtcCkuZm9ybWF0KG9wdGlvbnMudGltZXN0YW1wRm9ybWF0KSArICJceDFCWzBtIik7CiAgICAgICAgZWxzZSBpZiAob3B0aW9ucy50aW1lc3RhbXAgIT09IDAgLyogTm9uZSAqLykKICAgICAgICAgIHdyaXRlVGV4dCgiXHgxQlstNzstOG0iICsgbmV3IERhdGUoZmx1c2hCdWZmZXIudGltZXN0YW1wKS50b0lTT1N0cmluZygpICsgIlx4MUJbMG0iKTsKICAgICAgICB3cml0ZVJhdyhmbHVzaEJ1ZmZlci5yYXcgKyBubCk7CiAgICAgIH0KICAgIH0KICAgIGxvZ2dpbmcgPSBsOwogICAgY29ubmVjdGVkID0gYzsKICAgIGN1cnJlbnRGaWxlID0gZjsKICAgIGZsdXNoQnVmZmVyID0gbnVsbDsKICB9CiAgZnVuY3Rpb24gc3RhcnQobGluZXMsIGZyYWdtZW50KSB7CiAgICBpZiAoIW9wdGlvbnMuZW5hYmxlZCkgewogICAgICBpZiAobG9nZ2luZykKICAgICAgICBzdG9wKCk7CiAgICAgIHJldHVybjsKICAgIH0KICAgIGxvZ2dpbmcgPSB0cnVlOwogICAgaWYgKG9wdGlvbnMudW5pcXVlIHx8IHRpbWVTdGFtcCA9PT0gMCkgewogICAgICB0aW1lU3RhbXAgPSAoLyogQF9fUFVSRV9fICovIG5ldyBEYXRlKCkpLmdldFRpbWUoKTsKICAgICAgZlRpbWVTdGFtcCA9IG5ldyBtb21lbnQodGltZVN0YW1wKS5mb3JtYXQob3B0aW9ucy5mb3JtYXQgfHwgIllZWVlNTURELUhIbW1zcyIpOwogICAgICBmbHVzaCh0cnVlKTsKICAgIH0KICAgIGJ1aWxkRmlsZW5hbWUoKTsKICAgIGlmIChvcHRpb25zLnByZXBlbmQgJiYgbGluZXMgJiYgbGluZXMubGVuZ3RoID4gMCkgewogICAgICBpZiAoKG9wdGlvbnMud2hhdCAmIDEgLyogSHRtbCAqLykgPT09IDEgLyogSHRtbCAqLykKICAgICAgICB3cml0ZUh0bWwoY3JlYXRlTGluZXMobGluZXMgfHwgW10pKTsKICAgICAgaWYgKChvcHRpb25zLndoYXQgJiAyIC8qIFRleHQgKi8pID09PSAyIC8qIFRleHQgKi8gfHwgb3B0aW9ucy53aGF0ID09PSAwIC8qIE5vbmUgKi8pIHsKICAgICAgICBpZiAob3B0aW9ucy50aW1lc3RhbXAgPT09IDIgLyogRm9ybWF0ICovKQogICAgICAgICAgd3JpdGVUZXh0KGxpbmVzLm1hcCgobCkgPT4gbW9tZW50KGwudGltZXN0YW1wKS5mb3JtYXQob3B0aW9ucy50aW1lc3RhbXBGb3JtYXQpICsgbC50ZXh0KS5qb2luKCJcbiIpICsgKGZyYWdtZW50IHx8IGxpbmVzLmxlbmd0aCA9PT0gMCA/ICIiIDogIlxuIikpOwogICAgICAgIGVsc2UgaWYgKG9wdGlvbnMudGltZXN0YW1wICE9PSAwIC8qIE5vbmUgKi8pCiAgICAgICAgICB3cml0ZVRleHQobGluZXMubWFwKChsKSA9PiBuZXcgRGF0ZShsLnRpbWVzdGFtcCkudG9JU09TdHJpbmcoKSArIGwudGV4dCkuam9pbigiXG4iKSArIChmcmFnbWVudCB8fCBsaW5lcy5sZW5ndGggPT09IDAgPyAiIiA6ICJcbiIpKTsKICAgICAgICBlbHNlCiAgICAgICAgICB3cml0ZVRleHQobGluZXMubWFwKChsKSA9PiBsLnRleHQpLmpvaW4oIlxuIikgKyAoZnJhZ21lbnQgfHwgbGluZXMubGVuZ3RoID09PSAwID8gIiIgOiAiXG4iKSk7CiAgICAgIH0KICAgICAgaWYgKChvcHRpb25zLndoYXQgJiA0IC8qIFJhdyAqLykgPT09IDQgLyogUmF3ICovKSB7CiAgICAgICAgaWYgKG9wdGlvbnMudGltZXN0YW1wID09PSAyIC8qIEZvcm1hdCAqLykKICAgICAgICAgIHdyaXRlVGV4dChsaW5lcy5tYXAoKGwpID0+ICJceDFCWy03Oy04bSIgKyBtb21lbnQobC50aW1lc3RhbXApLmZvcm1hdChvcHRpb25zLnRpbWVzdGFtcEZvcm1hdCkgKyAiXHgxQlswbSIgKyBsLnJhdykuam9pbigiIikpOwogICAgICAgIGVsc2UgaWYgKG9wdGlvbnMudGltZXN0YW1wICE9PSAwIC8qIE5vbmUgKi8pCiAgICAgICAgICB3cml0ZVRleHQobGluZXMubWFwKChsKSA9PiAiXHgxQlstNzstOG0iICsgbmV3IERhdGUobC50aW1lc3RhbXApLnRvSVNPU3RyaW5nKCkgKyAiXHgxQlswbSIgKyBsLnJhdykuam9pbigiIikpOwogICAgICAgIGVsc2UKICAgICAgICAgIHdyaXRlUmF3KGxpbmVzLm1hcCgobCkgPT4gbC5yYXcpLmpvaW4oIiIpKTsKICAgICAgfQogICAgfQogICAgcG9zdE1lc3NhZ2UoeyBldmVudDogInN0YXJ0ZWQiLCBhcmdzOiBsb2dnaW5nIH0pOwogIH0KICBmdW5jdGlvbiBzdG9wKCkgewogICAgbG9nZ2luZyA9IGZhbHNlOwogICAgcG9zdE1lc3NhZ2UoeyBldmVudDogInN0b3BwZWQiLCBhcmdzOiBsb2dnaW5nIH0pOwogIH0KICBmdW5jdGlvbiB0b2dnbGUoKSB7CiAgICBvcHRpb25zLmVuYWJsZWQgPSAhb3B0aW9ucy5lbmFibGVkOwogICAgcG9zdE1lc3NhZ2UoeyBldmVudDogInRvZ2dsZWQiLCBhcmdzOiBvcHRpb25zLmVuYWJsZWQgfSk7CiAgICBjb25zdCBjID0gb3B0aW9ucy51bmlxdWU7CiAgICBvcHRpb25zLnVuaXF1ZSA9IGZhbHNlOwogICAgaWYgKG9wdGlvbnMuZW5hYmxlZCAmJiAhbG9nZ2luZykKICAgICAgcG9zdE1lc3NhZ2UoeyBldmVudDogInN0YXJ0SW50ZXJuYWwiIH0pOwogICAgZWxzZSBpZiAoIW9wdGlvbnMuZW5hYmxlZCAmJiBsb2dnaW5nKQogICAgICBzdG9wKCk7CiAgICBvcHRpb25zLnVuaXF1ZSA9IGM7CiAgfQogIGZ1bmN0aW9uIGNyZWF0ZUxpbmVzKGxpbmVzKSB7CiAgICBjb25zdCB0ZXh0ID0gW107CiAgICBjb25zdCBsbCA9IGxpbmVzLmxlbmd0aDsKICAgIGZvciAobGV0IGwgPSAwOyBsIDwgbGw7IGwrKykKICAgICAgdGV4dC5wdXNoKGNyZWF0ZUxpbmUobGluZXNbbF0pKTsKICAgIHJldHVybiB0ZXh0LmpvaW4oIiIpOwogIH0KICBmdW5jdGlvbiBnZXRDbGFzc05hbWUoc3RyKSB7CiAgICBpZiAoIXN0ciB8fCBzdHIubGVuZ3RoID09PSAwKSByZXR1cm4gbnVsbDsKICAgIHJldHVybiBzdHIucmVwbGFjZSgvWyxdL2csICItIikucmVwbGFjZSgvW1woXClccztdL2csICIiKTsKICB9CiAgZnVuY3Rpb24gY3JlYXRlTGluZShsaW5lKSB7CiAgICBjb25zdCBwYXJ0cyA9IFtdOwogICAgbGV0IG9mZnNldCA9IDA7CiAgICBsZXQgZkNsczsKICAgIGNvbnN0IHRleHQgPSBsaW5lLnRleHQ7CiAgICBjb25zdCBmb3JtYXRzID0gbGluZS5mb3JtYXRzOwogICAgY29uc3QgZkxlbiA9IGZvcm1hdHMubGVuZ3RoOwogICAgbGV0IHJpZ2h0ID0gZmFsc2U7CiAgICBjb25zdCBzdHlsZXMgPSBbXTsKICAgIGlmIChvcHRpb25zLnRpbWVzdGFtcCAhPT0gMCAvKiBOb25lICovKSB7CiAgICAgIGZDbHMgPSBbXTsKICAgICAgbGV0IGNvbG9yID0gR2V0Q29sb3IoLTgpOwogICAgICBpZiAoYmFja2dyb3VuZHNbZ2V0Q2xhc3NOYW1lKGNvbG9yKV0pCiAgICAgICAgZkNscy5wdXNoKCIgYiIsIGJhY2tncm91bmRzW2dldENsYXNzTmFtZShjb2xvcildKTsKICAgICAgZWxzZSB7CiAgICAgICAgYmFja2dyb3VuZHNbZ2V0Q2xhc3NOYW1lKGNvbG9yKV0gPSBiYWNrZ3JvdW5kc0NudDsKICAgICAgICBmQ2xzLnB1c2goIiBiIiwgYmFja2dyb3VuZHNDbnQpOwogICAgICAgIHN0eWxlcy5wdXNoKGAuYiR7YmFja2dyb3VuZHNDbnR9IHsgYmFja2dyb3VuZC1jb2xvcjogJHtjb2xvcn07IH1gKTsKICAgICAgICBiYWNrZ3JvdW5kc0NudCsrOwogICAgICB9CiAgICAgIGNvbG9yID0gR2V0Q29sb3IoLTcpOwogICAgICBpZiAoY29sb3JzW2dldENsYXNzTmFtZShjb2xvcildKQogICAgICAgIGZDbHMucHVzaCgiIGMiLCBjb2xvcnNbZ2V0Q2xhc3NOYW1lKGNvbG9yKV0pOwogICAgICBlbHNlIHsKICAgICAgICBjb2xvcnNbZ2V0Q2xhc3NOYW1lKGNvbG9yKV0gPSBjb2xvcnNDbnQ7CiAgICAgICAgZkNscy5wdXNoKCIgYyIsIGNvbG9yc0NudCk7CiAgICAgICAgc3R5bGVzLnB1c2goYC5jJHtjb2xvcnNDbnR9IHsgY29sb3I6ICR7Y29sb3J9OyB9YCk7CiAgICAgICAgY29sb3JzQ250Kys7CiAgICAgIH0KICAgIH0KICAgIGlmIChvcHRpb25zLnRpbWVzdGFtcCA9PT0gMiAvKiBGb3JtYXQgKi8gJiYgbW9tZW50KQogICAgICBwYXJ0cy5wdXNoKCc8c3BhbiBjbGFzcz0idGltZXN0YW1wJywgLi4uZkNscywgJyInLCAuLi5mQ2xzLCAiPiIsIG1vbWVudChsaW5lLnRpbWVzdGFtcCkuZm9ybWF0KG9wdGlvbnMudGltZXN0YW1wRm9ybWF0KSwgIjwvc3Bhbj4iKTsKICAgIGVsc2UgaWYgKG9wdGlvbnMudGltZXN0YW1wICE9PSAwIC8qIE5vbmUgKi8pIHsKICAgICAgcGFydHMucHVzaCgnPHNwYW4gY2xhc3M9InRpbWVzdGFtcCcsIC4uLmZDbHMsICciJywgLi4uZkNscywgIj4iLCBuZXcgRGF0ZShsaW5lLnRpbWVzdGFtcCkudG9JU09TdHJpbmcoKSwgIiA8L3NwYW4+Iik7CiAgICB9CiAgICBmQ2xzID0gbnVsbDsKICAgIGZvciAobGV0IGYgPSAwOyBmIDwgZkxlbjsgZisrKSB7CiAgICAgIGNvbnN0IGZvcm1hdCA9IGZvcm1hdHNbZl07CiAgICAgIGxldCBuRm9ybWF0OwogICAgICBsZXQgZW5kOwogICAgICBsZXQgY29sb3I7CiAgICAgIGlmIChmIDwgZkxlbiAtIDEpIHsKICAgICAgICBuRm9ybWF0ID0gZm9ybWF0c1tmICsgMV07CiAgICAgICAgaWYgKGZvcm1hdC5vZmZzZXQgPT09IG5Gb3JtYXQub2Zmc2V0ICYmIG5Gb3JtYXQuZm9ybWF0VHlwZSA9PT0gZm9ybWF0LmZvcm1hdFR5cGUpCiAgICAgICAgICBjb250aW51ZTsKICAgICAgICBlbmQgPSBuRm9ybWF0Lm9mZnNldDsKICAgICAgfSBlbHNlCiAgICAgICAgZW5kID0gdGV4dC5sZW5ndGg7CiAgICAgIG9mZnNldCA9IGZvcm1hdC5vZmZzZXQ7CiAgICAgIGlmIChmb3JtYXQuZm9ybWF0VHlwZSA9PT0gMCAvKiBOb3JtYWwgKi8pIHsKICAgICAgICBmQ2xzID0gW107CiAgICAgICAgY29sb3IgPSBmb3JtYXQuYmFja2dyb3VuZDsKICAgICAgICBpZiAodHlwZW9mIGNvbG9yID09PSAibnVtYmVyIikKICAgICAgICAgIGNvbG9yID0gR2V0Q29sb3IoY29sb3IpOwogICAgICAgIGlmIChiYWNrZ3JvdW5kc1tnZXRDbGFzc05hbWUoY29sb3IpXSkKICAgICAgICAgIGZDbHMucHVzaCgiIGIiLCBiYWNrZ3JvdW5kc1tnZXRDbGFzc05hbWUoY29sb3IpXSk7CiAgICAgICAgZWxzZSBpZiAoY29sb3IpIHsKICAgICAgICAgIGJhY2tncm91bmRzW2dldENsYXNzTmFtZShjb2xvcildID0gYmFja2dyb3VuZHNDbnQ7CiAgICAgICAgICBmQ2xzLnB1c2goIiBiIiwgYmFja2dyb3VuZHNDbnQpOwogICAgICAgICAgc3R5bGVzLnB1c2goYC5iJHtiYWNrZ3JvdW5kc0NudH0geyBiYWNrZ3JvdW5kLWNvbG9yOiAke2NvbG9yfTsgfWApOwogICAgICAgICAgYmFja2dyb3VuZHNDbnQrKzsKICAgICAgICB9CiAgICAgICAgY29sb3IgPSBmb3JtYXQuY29sb3I7CiAgICAgICAgaWYgKHR5cGVvZiBjb2xvciA9PT0gIm51bWJlciIpCiAgICAgICAgICBjb2xvciA9IEdldENvbG9yKGNvbG9yKTsKICAgICAgICBpZiAoY29sb3JzW2dldENsYXNzTmFtZShjb2xvcildKQogICAgICAgICAgZkNscy5wdXNoKCIgYyIsIGNvbG9yc1tnZXRDbGFzc05hbWUoY29sb3IpXSk7CiAgICAgICAgZWxzZSBpZiAoY29sb3IpIHsKICAgICAgICAgIGNvbG9yc1tnZXRDbGFzc05hbWUoY29sb3IpXSA9IGNvbG9yc0NudDsKICAgICAgICAgIGZDbHMucHVzaCgiIGMiLCBjb2xvcnNDbnQpOwogICAgICAgICAgc3R5bGVzLnB1c2goYC5jJHtjb2xvcnNDbnR9IHsgY29sb3I6ICR7Y29sb3J9OyB9YCk7CiAgICAgICAgICBjb2xvcnNDbnQrKzsKICAgICAgICB9CiAgICAgICAgaWYgKGNvbG9yc1tnZXRDbGFzc05hbWUoZm9ybWF0LmZvbnQpXSkKICAgICAgICAgIGZDbHMucHVzaCgiIGYiLCBjb2xvcnNbZ2V0Q2xhc3NOYW1lKGZvcm1hdC5mb250KV0pOwogICAgICAgIGVsc2UgaWYgKGZvcm1hdC5mb250KSB7CiAgICAgICAgICBjb2xvcnNbZ2V0Q2xhc3NOYW1lKGZvcm1hdC5mb250KV0gPSBjb2xvcnNDbnQ7CiAgICAgICAgICBmQ2xzLnB1c2goIiBmIiwgY29sb3JzQ250KTsKICAgICAgICAgIHN0eWxlcy5wdXNoKGAuZiR7Y29sb3JzQ250fSB7IGZvbnQtZmFtaWx5OiAke2Zvcm1hdC5mb250fTsgfWApOwogICAgICAgICAgY29sb3JzQ250Kys7CiAgICAgICAgfQogICAgICAgIGlmIChjb2xvcnNbZ2V0Q2xhc3NOYW1lKGZvcm1hdC5zaXplKV0pCiAgICAgICAgICBmQ2xzLnB1c2goIiBmIiwgY29sb3JzW2dldENsYXNzTmFtZShmb3JtYXQuc2l6ZSldKTsKICAgICAgICBlbHNlIGlmIChmb3JtYXQuc2l6ZSkgewogICAgICAgICAgY29sb3JzW2dldENsYXNzTmFtZShmb3JtYXQuc2l6ZSldID0gY29sb3JzQ250OwogICAgICAgICAgZkNscy5wdXNoKCIgZiIsIGNvbG9yc0NudCk7CiAgICAgICAgICBzdHlsZXMucHVzaChgLmYke2NvbG9yc0NudH0geyBmb250LXNpemU6ICR7Zm9ybWF0LnNpemV9OyB9YCk7CiAgICAgICAgICBjb2xvcnNDbnQrKzsKICAgICAgICB9CiAgICAgICAgaWYgKGZvcm1hdC5zdHlsZSAhPT0gMCAvKiBOb25lICovKSB7CiAgICAgICAgICBpZiAoKGZvcm1hdC5zdHlsZSAmIDEgLyogQm9sZCAqLykgPT09IDEgLyogQm9sZCAqLykKICAgICAgICAgICAgZkNscy5wdXNoKCIgYiIpOwogICAgICAgICAgaWYgKChmb3JtYXQuc3R5bGUgJiA0IC8qIEl0YWxpYyAqLykgPT09IDQgLyogSXRhbGljICovKQogICAgICAgICAgICBmQ2xzLnB1c2goIiBpIik7CiAgICAgICAgICBpZiAoKGZvcm1hdC5zdHlsZSAmIDEwMjQgLyogT3ZlcmxpbmUgKi8pID09PSAxMDI0IC8qIE92ZXJsaW5lICovKQogICAgICAgICAgICBmQ2xzLnB1c2goIiBvIik7CiAgICAgICAgICBpZiAoKGZvcm1hdC5zdHlsZSAmIDUxMiAvKiBEb3VibGVVbmRlcmxpbmUgKi8pID09PSA1MTIgLyogRG91YmxlVW5kZXJsaW5lICovIHx8IChmb3JtYXQuc3R5bGUgJiA4IC8qIFVuZGVybGluZSAqLykgPT09IDggLyogVW5kZXJsaW5lICovKQogICAgICAgICAgICBmQ2xzLnB1c2goIiB1Iik7CiAgICAgICAgICBpZiAoKGZvcm1hdC5zdHlsZSAmIDUxMiAvKiBEb3VibGVVbmRlcmxpbmUgKi8pID09PSA1MTIgLyogRG91YmxlVW5kZXJsaW5lICovKQogICAgICAgICAgICBjb2xvciA9IGZvcm1hdC5jb2xvcjsKICAgICAgICAgIGVsc2UKICAgICAgICAgICAgY29sb3IgPSBmb3JtYXQuYmFja2dyb3VuZDsKICAgICAgICAgIGlmICh0eXBlb2YgY29sb3IgPT09ICJudW1iZXIiKQogICAgICAgICAgICBjb2xvciA9IEdldENvbG9yKGNvbG9yKTsKICAgICAgICAgIGlmIChjb2xvcnNbImJiIiArIGdldENsYXNzTmFtZShjb2xvcildKQogICAgICAgICAgICBmQ2xzLnB1c2goIiBiYiIsIGNvbG9yc1siYmIiICsgZ2V0Q2xhc3NOYW1lKGNvbG9yKV0pOwogICAgICAgICAgZWxzZSBpZiAoY29sb3IpIHsKICAgICAgICAgICAgY29sb3JzWyJiYiIgKyBnZXRDbGFzc05hbWUoY29sb3IpXSA9IGNvbG9yc0NudDsKICAgICAgICAgICAgZkNscy5wdXNoKCIgYmIiLCBjb2xvcnNDbnQpOwogICAgICAgICAgICBzdHlsZXMucHVzaChgLmJiJHtjb2xvcnNDbnR9IHsgYm9yZGVyLWJvdHRvbTogMXB4IHNvbGlkICR7Y29sb3J9OyB9YCk7CiAgICAgICAgICAgIGNvbG9yc0NudCsrOwogICAgICAgICAgfQogICAgICAgICAgaWYgKChmb3JtYXQuc3R5bGUgJiAzMiAvKiBSYXBpZCAqLykgPT09IDMyIC8qIFJhcGlkICovIHx8IChmb3JtYXQuc3R5bGUgJiAxNiAvKiBTbG93ICovKSA9PT0gMTYgLyogU2xvdyAqLykgewogICAgICAgICAgICBpZiAodGhpcy5lbmFibGVGbGFzaGluZykKICAgICAgICAgICAgICBmQ2xzLnB1c2goIiBhbnNpLWJsaW5rIik7CiAgICAgICAgICAgIGVsc2UgaWYgKChmb3JtYXQuc3R5bGUgJiA1MTIgLyogRG91YmxlVW5kZXJsaW5lICovKSAhPT0gNTEyIC8qIERvdWJsZVVuZGVybGluZSAqLyAmJiAoZm9ybWF0LnN0eWxlICYgOCAvKiBVbmRlcmxpbmUgKi8pICE9PSA4IC8qIFVuZGVybGluZSAqLykKICAgICAgICAgICAgICBmQ2xzLnB1c2goIiB1Iik7CiAgICAgICAgICB9CiAgICAgICAgICBpZiAoKGZvcm1hdC5zdHlsZSAmIDI1NiAvKiBTdHJpa2VvdXQgKi8pID09PSAyNTYgLyogU3RyaWtlb3V0ICovKQogICAgICAgICAgICBmQ2xzLnB1c2goIiBzIik7CiAgICAgICAgfSBlbHNlIHsKICAgICAgICAgIGNvbG9yID0gZm9ybWF0LmJhY2tncm91bmQ7CiAgICAgICAgICBpZiAodHlwZW9mIGNvbG9yID09PSAibnVtYmVyIikKICAgICAgICAgICAgY29sb3IgPSBHZXRDb2xvcihjb2xvcik7CiAgICAgICAgICBpZiAoY29sb3JzWyJiYiIgKyBnZXRDbGFzc05hbWUoY29sb3IpXSkKICAgICAgICAgICAgZkNscy5wdXNoKCIgYmIiLCBjb2xvcnNbImJiIiArIGdldENsYXNzTmFtZShjb2xvcildKTsKICAgICAgICAgIGVsc2UgaWYgKGNvbG9yKSB7CiAgICAgICAgICAgIGNvbG9yc1siYmIiICsgZ2V0Q2xhc3NOYW1lKGNvbG9yKV0gPSBjb2xvcnNDbnQ7CiAgICAgICAgICAgIGZDbHMucHVzaCgiIGJiIiwgY29sb3JzQ250KTsKICAgICAgICAgICAgc3R5bGVzLnB1c2goYC5iYiR7Y29sb3JzQ250fSB7IGJvcmRlci1ib3R0b206IDFweCBzb2xpZCAke2NvbG9yfTsgfWApOwogICAgICAgICAgICBjb2xvcnNDbnQrKzsKICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgaWYgKGZDbHMubGVuZ3RoICE9PSAwKQogICAgICAgICAgZkNscyA9ICcgY2xhc3M9IicgKyBmQ2xzLmpvaW4oIiIpLnRyaW0oKSArICciJzsKICAgICAgICBlbHNlCiAgICAgICAgICBmQ2xzID0gIiI7CiAgICAgICAgaWYgKGZvcm1hdC5ocikKICAgICAgICAgIHBhcnRzLnB1c2goJzxzcGFuIHN0eWxlPSJtaW4td2lkdGg6MTAwJTt3aWR0aDoxMDAlO3Bvc2l0aW9uOiByZWxhdGl2ZTsiJywgZkNscywgJz48aHIgc3R5bGU9InBvc2l0aW9uOmFic29sdXRlO3RvcDogNTAlO3RyYW5zZm9ybTogdHJhbnNsYXRlWSgtNTAlKTtoZWlnaHQ6NHB4O3dpZHRoOjEwMCU7IGJhY2tncm91bmQtY29sb3I6JywgdHlwZW9mIGZvcm1hdC5jb2xvciA9PT0gIm51bWJlciIgPyBHZXRDb2xvcihmb3JtYXQuY29sb3IpIDogZm9ybWF0LmNvbG9yLCAnIi8+PHNwYW4+LS0tPC9zcGFuPjwvc3Bhbj4nKTsKICAgICAgICBlbHNlIGlmIChlbmQgLSBvZmZzZXQgIT09IDApCiAgICAgICAgICBwYXJ0cy5wdXNoKCI8c3BhbiIsIC4uLmZDbHMsICI+IiwgaHRtbEVuY29kZSh0ZXh0LnN1YnN0cmluZyhvZmZzZXQsIGVuZCkpLCAiPC9zcGFuPiIpOwogICAgICB9IGVsc2UgaWYgKGZvcm1hdC5mb3JtYXRUeXBlID09PSAxIC8qIExpbmsgKi8pIHsKICAgICAgICBwYXJ0cy5wdXNoKCc8YSBkcmFnZ2FibGU9ImZhbHNlIiBjbGFzcz0iVVJMTGluayIgaHJlZj0iamF2YXNjcmlwdDp2b2lkKDApOyIgdGl0bGU9IicpOwogICAgICAgIHBhcnRzLnB1c2goZm9ybWF0LmhyZWYucmVwbGFjZSgvIi9nLCAiJnF1b3Q7IikpOwogICAgICAgIHBhcnRzLnB1c2goJyIgb25jbGljaz0iJywgdGhpcy5saW5rRnVuY3Rpb24sICIoJyIsIGZvcm1hdC5ocmVmLnJlcGxhY2UoL1xcL2csICJcXFxcIikucmVwbGFjZSgvIi9nLCAiJnF1b3Q7IiksIGAnKTtyZXR1cm4gZmFsc2U7Ij5gKTsKICAgICAgICBpZiAoZW5kIC0gb2Zmc2V0ID09PSAwKSBjb250aW51ZTsKICAgICAgICBwYXJ0cy5wdXNoKCI8c3BhbiIsIC4uLmZDbHMsICI+Iik7CiAgICAgICAgcGFydHMucHVzaChodG1sRW5jb2RlKHRleHQuc3Vic3RyaW5nKG9mZnNldCwgZW5kKSkpOwogICAgICAgIHBhcnRzLnB1c2goIjwvc3Bhbj4iKTsKICAgICAgfSBlbHNlIGlmIChmb3JtYXQuZm9ybWF0VHlwZSA9PT0gMiAvKiBMaW5rRW5kICovIHx8IGZvcm1hdC5mb3JtYXRUeXBlID09PSA0IC8qIE1YUExpbmtFbmQgKi8gfHwgZm9ybWF0LmZvcm1hdFR5cGUgPT09IDggLyogTVhQU2VuZEVuZCAqLykgewogICAgICAgIHBhcnRzLnB1c2goIjwvYT4iKTsKICAgICAgfSBlbHNlIGlmIChmb3JtYXQuZm9ybWF0VHlwZSA9PT0gMyAvKiBNWFBMaW5rICovKSB7CiAgICAgICAgcGFydHMucHVzaCgnPGEgZHJhZ2dhYmxlPSJmYWxzZSIgY2xhc3M9Ik1YUExpbmsiIGhyZWY9ImphdmFzY3JpcHQ6dm9pZCgwKTsiIHRpdGxlPSInKTsKICAgICAgICBwYXJ0cy5wdXNoKGZvcm1hdC5ocmVmLnJlcGxhY2UoLyIvZywgIiZxdW90OyIpKTsKICAgICAgICBwYXJ0cy5wdXNoKCciJyk7CiAgICAgICAgaWYgKGZvcm1hdC5leHBpcmUgJiYgZm9ybWF0LmV4cGlyZS5sZW5ndGgpCiAgICAgICAgICBwYXJ0cy5wdXNoKGAgZGF0YS1leHBpcmU9IiR7Zm9ybWF0LmV4cGlyZX0iYCk7CiAgICAgICAgcGFydHMucHVzaCgnIG9uY2xpY2s9IicsIHRoaXMubXhwTGlua0Z1bmN0aW9uLCAiKHRoaXMsICciLCBmb3JtYXQuaHJlZi5yZXBsYWNlKC9cXC9nLCAiXFxcXCIpLnJlcGxhY2UoLyIvZywgIiZxdW90OyIpLCBgJyk7cmV0dXJuIGZhbHNlOyI+YCk7CiAgICAgICAgaWYgKGVuZCAtIG9mZnNldCA9PT0gMCkgY29udGludWU7CiAgICAgICAgcGFydHMucHVzaCgiPHNwYW4iLCAuLi5mQ2xzLCAiPiIpOwogICAgICAgIHBhcnRzLnB1c2goaHRtbEVuY29kZSh0ZXh0LnN1YnN0cmluZyhvZmZzZXQsIGVuZCkpKTsKICAgICAgICBwYXJ0cy5wdXNoKCI8L3NwYW4+Iik7CiAgICAgIH0gZWxzZSBpZiAoZm9ybWF0LmZvcm1hdFR5cGUgPT09IDcgLyogTVhQU2VuZCAqLykgewogICAgICAgIHBhcnRzLnB1c2goJzxhIGRyYWdnYWJsZT0iZmFsc2UiIGNsYXNzPSJNWFBMaW5rIiBocmVmPSJqYXZhc2NyaXB0OnZvaWQoMCk7IiB0aXRsZT0iJyk7CiAgICAgICAgcGFydHMucHVzaChmb3JtYXQuaGludC5yZXBsYWNlKC8iL2csICImcXVvdDsiKSk7CiAgICAgICAgcGFydHMucHVzaCgnIicpOwogICAgICAgIGlmIChmb3JtYXQuZXhwaXJlICYmIGZvcm1hdC5leHBpcmUubGVuZ3RoKQogICAgICAgICAgcGFydHMucHVzaChgIGRhdGEtZXhwaXJlPSIke2Zvcm1hdC5leHBpcmV9ImApOwogICAgICAgIHBhcnRzLnB1c2goJyBvbm1vdXNlb3Zlcj0iJywgdGhpcy5teHBUb29sdGlwRnVuY3Rpb24sICcodGhpcyk7IicpOwogICAgICAgIHBhcnRzLnB1c2goJyBvbmNsaWNrPSInLCB0aGlzLm14cFNlbmRGdW5jdGlvbiwgIihldmVudHx8d2luZG93LmV2ZW50LCB0aGlzLCAiLCBmb3JtYXQuaHJlZi5yZXBsYWNlKC9cXC9nLCAiXFxcXCIpLnJlcGxhY2UoLyIvZywgIiZxdW90OyIpLCAiLCAiLCBmb3JtYXQucHJvbXB0ID8gIjEiIDogIjAiLCAiLCAiLCBmb3JtYXQudHQucmVwbGFjZSgvXFwvZywgIlxcXFwiKS5yZXBsYWNlKC8iL2csICImcXVvdDsiKSwgJyk7cmV0dXJuIGZhbHNlOyI+Jyk7CiAgICAgICAgaWYgKGVuZCAtIG9mZnNldCA9PT0gMCkgY29udGludWU7CiAgICAgICAgcGFydHMucHVzaCgiPHNwYW4iLCAuLi5mQ2xzLCAiPiIpOwogICAgICAgIHBhcnRzLnB1c2goaHRtbEVuY29kZSh0ZXh0LnN1YnN0cmluZyhvZmZzZXQsIGVuZCkpKTsKICAgICAgICBwYXJ0cy5wdXNoKCI8L3NwYW4+Iik7CiAgICAgIH0gZWxzZSBpZiAoZm9ybWF0LmZvcm1hdFR5cGUgPT09IDkgLyogTVhQRXhwaXJlZCAqLyAmJiBlbmQgLSBvZmZzZXQgIT09IDApIHsKICAgICAgICBwYXJ0cy5wdXNoKCI8c3BhbiIsIC4uLmZDbHMsICI+Iik7CiAgICAgICAgcGFydHMucHVzaChodG1sRW5jb2RlKHRleHQuc3Vic3RyaW5nKG9mZnNldCwgZW5kKSkpOwogICAgICAgIHBhcnRzLnB1c2goIjwvc3Bhbj4iKTsKICAgICAgfSBlbHNlIGlmIChmb3JtYXQuZm9ybWF0VHlwZSA9PT0gNSAvKiBJbWFnZSAqLykgewogICAgICAgIGxldCB0bXAgPSAiIjsKICAgICAgICBwYXJ0cy5wdXNoKCc8aW1nIHNyYz0iJyk7CiAgICAgICAgaWYgKGZvcm1hdC51cmwubGVuZ3RoID4gMCkgewogICAgICAgICAgcGFydHMucHVzaChmb3JtYXQudXJsKTsKICAgICAgICAgIHRtcCArPSBmb3JtYXQudXJsOwogICAgICAgICAgaWYgKCFmb3JtYXQudXJsLmVuZHNXaXRoKCIvIikpIHsKICAgICAgICAgICAgcGFydHMucHVzaCgiLyIpOwogICAgICAgICAgICB0bXAgKz0gIi8iOwogICAgICAgICAgfQogICAgICAgIH0KICAgICAgICBpZiAoZm9ybWF0LnQubGVuZ3RoID4gMCkgewogICAgICAgICAgcGFydHMucHVzaChmb3JtYXQudCk7CiAgICAgICAgICB0bXAgKz0gZm9ybWF0LnQ7CiAgICAgICAgICBpZiAoIWZvcm1hdC50LmVuZHNXaXRoKCIvIikpIHsKICAgICAgICAgICAgcGFydHMucHVzaCgiLyIpOwogICAgICAgICAgICB0bXAgKz0gIi8iOwogICAgICAgICAgfQogICAgICAgIH0KICAgICAgICB0bXAgKz0gZm9ybWF0Lm5hbWU7CiAgICAgICAgcGFydHMucHVzaChmb3JtYXQubmFtZSwgJyIgIHN0eWxlPSInKTsKICAgICAgICBpZiAoZm9ybWF0LncubGVuZ3RoID4gMCkKICAgICAgICAgIHBhcnRzLnB1c2goIndpZHRoOiIsIGZvcm1hdFVuaXQoZm9ybWF0LncpLCAiOyIpOwogICAgICAgIGlmIChmb3JtYXQuaC5sZW5ndGggPiAwKQogICAgICAgICAgcGFydHMucHVzaCgiaGVpZ2h0OiIsIGZvcm1hdFVuaXQoZm9ybWF0LmgpLCAiOyIpOwogICAgICAgIHN3aXRjaCAoZm9ybWF0LmFsaWduLnRvTG93ZXJDYXNlKCkpIHsKICAgICAgICAgIGNhc2UgImxlZnQiOgogICAgICAgICAgICBwYXJ0cy5wdXNoKCJmbG9hdDpsZWZ0OyIpOwogICAgICAgICAgICBicmVhazsKICAgICAgICAgIGNhc2UgInJpZ2h0IjoKICAgICAgICAgICAgcGFydHMucHVzaCgiZmxvYXQ6cmlnaHQ7Iik7CiAgICAgICAgICAgIHJpZ2h0ID0gdHJ1ZTsKICAgICAgICAgICAgYnJlYWs7CiAgICAgICAgICBjYXNlICJ0b3AiOgogICAgICAgICAgY2FzZSAibWlkZGxlIjoKICAgICAgICAgIGNhc2UgImJvdHRvbSI6CiAgICAgICAgICAgIHBhcnRzLnB1c2goInZlcnRpY2FsLWFsaWduOiIsIGZvcm1hdC5hbGlnbiwgIjsiKTsKICAgICAgICAgICAgYnJlYWs7CiAgICAgICAgfQogICAgICAgIGlmIChmb3JtYXQuaHNwYWNlLmxlbmd0aCA+IDAgJiYgZm9ybWF0LnZzcGFjZS5sZW5ndGggPiAwKSB7CiAgICAgICAgICBwYXJ0cy5wdXNoKCJtYXJnaW46Iik7CiAgICAgICAgICBwYXJ0cy5wdXNoKGZvcm1hdFVuaXQoZm9ybWF0LnZzcGFjZSksICIgIik7CiAgICAgICAgICBwYXJ0cy5wdXNoKGZvcm1hdFVuaXQoZm9ybWF0LmhzcGFjZSksICI7Iik7CiAgICAgICAgfSBlbHNlIGlmIChmb3JtYXQuaHNwYWNlLmxlbmd0aCA+IDApIHsKICAgICAgICAgIHBhcnRzLnB1c2goIm1hcmdpbjoiKTsKICAgICAgICAgIHBhcnRzLnB1c2goIjBweCAiLCBmb3JtYXRVbml0KGZvcm1hdC5oc3BhY2UpLCAiOyIpOwogICAgICAgIH0gZWxzZSBpZiAoZm9ybWF0LnZzcGFjZS5sZW5ndGggPiAwKSB7CiAgICAgICAgICBwYXJ0cy5wdXNoKCJtYXJnaW46Iik7CiAgICAgICAgICBwYXJ0cy5wdXNoKGZvcm1hdFVuaXQoZm9ybWF0LnZzcGFjZSksICIgMHB4OyIpOwogICAgICAgIH0KICAgICAgICBwYXJ0cy5wdXNoKCciJyk7CiAgICAgICAgaWYgKGZvcm1hdC5pc21hcCkgcGFydHMucHVzaCgnIGlzbWFwIG9uY2xpY2s9InJldHVybiBmYWxzZTsiJyk7CiAgICAgICAgcGFydHMucHVzaChgc3JjPSIke3RtcH0iLz5gKTsKICAgICAgfQogICAgfQogICAgaWYgKHN0eWxlcy5sZW5ndGgpCiAgICAgIHBhcnRzLnB1c2goIjxzdHlsZT4iLCAuLi5zdHlsZXMsICI8L3N0eWxlPiIpOwogICAgaWYgKHJpZ2h0KQogICAgICByZXR1cm4gYDxzcGFuIGNsYXNzPSJsaW5lIiBzdHlsZT0ibWluLXdpZHRoOjEwMCUiPiR7cGFydHMuam9pbigiIil9PGJyPjwvc3Bhbj5gOwogICAgcmV0dXJuIGA8c3BhbiBjbGFzcz0ibGluZSI+JHtwYXJ0cy5qb2luKCIiKX08YnI+PC9zcGFuPmA7CiAgfQogIGZ1bmN0aW9uIGh0bWxFbmNvZGUodGV4dCkgewogICAgaWYgKCF0ZXh0IHx8IHRleHQubGVuZ3RoID09PSAwKQogICAgICByZXR1cm47CiAgICByZXR1cm4gdGV4dC5yZXBsYWNlKC8mL2csICImYW1wOyIpLnJlcGxhY2UoLyIvZywgIiZxdW90OyIpLnJlcGxhY2UoLycvZywgIiYjMzk7IikucmVwbGFjZSgvPC9nLCAiJmx0OyIpLnJlcGxhY2UoLz4vZywgIiZndDsiKTsKICB9CiAgZnVuY3Rpb24gZm9ybWF0VW5pdChzdHIpIHsKICAgIGlmICghc3RyKSByZXR1cm4gc3RyOwogICAgaWYgKC9eXGQrYyQvLnRlc3Qoc3RyKSkKICAgICAgcmV0dXJuIHN0ciArICJoIjsKICAgIGlmICgvXlxkKyQvLnRlc3Qoc3RyKSkKICAgICAgcmV0dXJuIHBhcnNlSW50KHN0ciwgMTApICsgInB4IjsKICAgIHJldHVybiBzdHI7CiAgfQogIGZ1bmN0aW9uIGJ1aWxkQ29sb3JUYWJsZSgpIHsKICAgIGNvbnN0IF9Db2xvclRhYmxlID0gW107CiAgICBsZXQgcjsKICAgIGxldCBnOwogICAgbGV0IGI7CiAgICBsZXQgaWR4OwogICAgZm9yIChyID0gMDsgciA8IDY7IHIrKykgewogICAgICBmb3IgKGcgPSAwOyBnIDwgNjsgZysrKSB7CiAgICAgICAgZm9yIChiID0gMDsgYiA8IDY7IGIrKykgewogICAgICAgICAgaWR4ID0gMTYgKyByICogMzYgKyBnICogNiArIGI7CiAgICAgICAgICBfQ29sb3JUYWJsZVtpZHhdID0gInJnYigiOwogICAgICAgICAgaWYgKHIgPiAwKQogICAgICAgICAgICBfQ29sb3JUYWJsZVtpZHhdICs9IHIgKiA0MCArIDU1OwogICAgICAgICAgZWxzZQogICAgICAgICAgICBfQ29sb3JUYWJsZVtpZHhdICs9ICIwIjsKICAgICAgICAgIF9Db2xvclRhYmxlW2lkeF0gKz0gIiwiOwogICAgICAgICAgaWYgKGcgPiAwKQogICAgICAgICAgICBfQ29sb3JUYWJsZVtpZHhdICs9IGcgKiA0MCArIDU1OwogICAgICAgICAgZWxzZQogICAgICAgICAgICBfQ29sb3JUYWJsZVtpZHhdICs9ICIwIjsKICAgICAgICAgIF9Db2xvclRhYmxlW2lkeF0gKz0gIiwiOwogICAgICAgICAgaWYgKGIgPiAwKQogICAgICAgICAgICBfQ29sb3JUYWJsZVtpZHhdICs9IGIgKiA0MCArIDU1OwogICAgICAgICAgZWxzZQogICAgICAgICAgICBfQ29sb3JUYWJsZVtpZHhdICs9ICIwIjsKICAgICAgICAgIF9Db2xvclRhYmxlW2lkeF0gKz0gIikiOwogICAgICAgIH0KICAgICAgfQogICAgfQogICAgZm9yIChyID0gMjMyOyByIDw9IDI1NTsgcisrKSB7CiAgICAgIGcgPSAociAtIDIzMikgKiAxMCArIDg7CiAgICAgIF9Db2xvclRhYmxlW3JdID0gWyJyZ2IoIiwgZywgIiwiLCBnLCAiLCIsIGcsICIpIl0uam9pbigiIik7CiAgICB9CiAgICBfQ29sb3JUYWJsZVswXSA9ICJyZ2IoMCwwLDApIjsKICAgIF9Db2xvclRhYmxlWzFdID0gInJnYigxMjgsIDAsIDApIjsKICAgIF9Db2xvclRhYmxlWzJdID0gInJnYigwLCAxMjgsIDApIjsKICAgIF9Db2xvclRhYmxlWzNdID0gInJnYigxMjgsIDEyOCwgMCkiOwogICAgX0NvbG9yVGFibGVbNF0gPSAicmdiKDAsIDAsIDIzOCkiOwogICAgX0NvbG9yVGFibGVbNV0gPSAicmdiKDEyOCwgMCwgMTI4KSI7CiAgICBfQ29sb3JUYWJsZVs2XSA9ICJyZ2IoMCwgMTI4LCAxMjgpIjsKICAgIF9Db2xvclRhYmxlWzddID0gInJnYigxODcsIDE4NywgMTg3KSI7CiAgICBfQ29sb3JUYWJsZVs4XSA9ICJyZ2IoMTI4LCAxMjgsIDEyOCkiOwogICAgX0NvbG9yVGFibGVbOV0gPSAicmdiKDI1NSwgMCwgMCkiOwogICAgX0NvbG9yVGFibGVbMTBdID0gInJnYigwLCAyNTUsIDApIjsKICAgIF9Db2xvclRhYmxlWzExXSA9ICJyZ2IoMjU1LCAyNTUsIDApIjsKICAgIF9Db2xvclRhYmxlWzEyXSA9ICJyZ2IoOTIsIDkyLCAyNTUpIjsKICAgIF9Db2xvclRhYmxlWzEzXSA9ICJyZ2IoMjU1LCAwLCAyNTUpIjsKICAgIF9Db2xvclRhYmxlWzE0XSA9ICJyZ2IoMCwgMjU1LCAyNTUpIjsKICAgIF9Db2xvclRhYmxlWzE1XSA9ICJyZ2IoMjU1LCAyNTUsIDI1NSkiOwogICAgX0NvbG9yVGFibGVbMjU2XSA9ICJyZ2IoMCwgMCwgMCkiOwogICAgX0NvbG9yVGFibGVbMjU3XSA9ICJyZ2IoMTE4LCAwLCAwKSI7CiAgICBfQ29sb3JUYWJsZVsyNThdID0gInJnYigwLCAxMDgsIDApIjsKICAgIF9Db2xvclRhYmxlWzI1OV0gPSAicmdiKDE0NSwgMTM2LCAwKSI7CiAgICBfQ29sb3JUYWJsZVsyNjBdID0gInJnYigwLCAwLCAxNjcpIjsKICAgIF9Db2xvclRhYmxlWzI2MV0gPSAicmdiKDEwOCwgMCwgMTA4KSI7CiAgICBfQ29sb3JUYWJsZVsyNjJdID0gInJnYigwLCAxMDgsIDEwOCkiOwogICAgX0NvbG9yVGFibGVbMjYzXSA9ICJyZ2IoMTYxLCAxNjEsIDE2MSkiOwogICAgX0NvbG9yVGFibGVbMjY0XSA9ICJyZ2IoMCwgMCwgMCkiOwogICAgX0NvbG9yVGFibGVbMjY1XSA9ICJyZ2IoMTI4LCAwLCAwKSI7CiAgICBfQ29sb3JUYWJsZVsyNjZdID0gInJnYigwLCAxMjgsIDApIjsKICAgIF9Db2xvclRhYmxlWzI2N10gPSAicmdiKDEyOCwgMTI4LCAwKSI7CiAgICBfQ29sb3JUYWJsZVsyNjhdID0gInJnYigwLCAwLCAyMzgpIjsKICAgIF9Db2xvclRhYmxlWzI2OV0gPSAicmdiKDEyOCwgMCwgMTI4KSI7CiAgICBfQ29sb3JUYWJsZVsyNzBdID0gInJnYigwLCAxMjgsIDEyOCkiOwogICAgX0NvbG9yVGFibGVbMjcxXSA9ICJyZ2IoMTg3LCAxODcsIDE4NykiOwogICAgX0NvbG9yVGFibGVbMjcyXSA9ICJyZ2IoMCwwLDApIjsKICAgIF9Db2xvclRhYmxlWzI3M10gPSAicmdiKDAsIDI1NSwgMjU1KSI7CiAgICBfQ29sb3JUYWJsZVsyNzRdID0gInJnYigwLDAsMCkiOwogICAgX0NvbG9yVGFibGVbMjc1XSA9ICJyZ2IoMjU1LCAyNTUsIDApIjsKICAgIF9Db2xvclRhYmxlWzI3Nl0gPSAicmdiKDAsIDAsIDApIjsKICAgIF9Db2xvclRhYmxlWzI3N10gPSAicmdiKDIyOSwgMjI5LCAyMjkpIjsKICAgIF9Db2xvclRhYmxlWzI3OF0gPSAicmdiKDIwNSwgMCwgMCkiOwogICAgX0NvbG9yVGFibGVbMjc5XSA9ICJyZ2IoMjI5LCAyMjksIDIyOSkiOwogICAgX0NvbG9yVGFibGVbMjgwXSA9ICJyZ2IoMjU1LDI1NSwyNTUpIjsKICAgIF9jb2xvclRhYmxlID0gX0NvbG9yVGFibGU7CiAgfQogIGZ1bmN0aW9uIEdldENvbG9yKGNvZGUpIHsKICAgIGlmIChfY29sb3JUYWJsZSA9PSBudWxsKQogICAgICBidWlsZENvbG9yVGFibGUoKTsKICAgIHN3aXRjaCAoY29kZSkgewogICAgICBjYXNlIC0xMjoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjc5XTsKICAgICAgLy9FcnJvckJhY2sKICAgICAgY2FzZSAtMTE6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzI3OF07CiAgICAgIC8vRXJyb3JGb3JlCiAgICAgIGNhc2UgLTEwOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyODBdOwogICAgICAvL0RlZmF1bHRCcmlnaHRGb3JlCiAgICAgIGNhc2UgLTg6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzI3Ml07CiAgICAgIC8vSW5mb0JhY2tncm91bmQKICAgICAgY2FzZSAtNzoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjczXTsKICAgICAgLy9JbmZvVGV4dAogICAgICBjYXNlIC00OgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNzRdOwogICAgICAvL0xvY2FsRWNob0JhY2tncm91bmQKICAgICAgY2FzZSAtMzoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjc1XTsKICAgICAgLy9Mb2NhbEVjaG9UZXh0CiAgICAgIGNhc2UgNDk6CiAgICAgIGNhc2UgLTI6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzI3Nl07CiAgICAgIC8vRGVmYXVsdEJhY2sKICAgICAgY2FzZSAzOToKICAgICAgY2FzZSAtMToKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjc3XTsKICAgICAgLy9EZWZhdWx0QmFjawogICAgICBjYXNlIDA6CiAgICAgIGNhc2UgMzA6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzBdOwogICAgICBjYXNlIDE6CiAgICAgIGNhc2UgMzE6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzFdOwogICAgICBjYXNlIDI6CiAgICAgIGNhc2UgMzI6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzJdOwogICAgICBjYXNlIDM6CiAgICAgIGNhc2UgMzM6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzNdOwogICAgICBjYXNlIDQ6CiAgICAgIGNhc2UgMzQ6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzRdOwogICAgICBjYXNlIDU6CiAgICAgIGNhc2UgMzU6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzVdOwogICAgICBjYXNlIDY6CiAgICAgIGNhc2UgMzY6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzZdOwogICAgICBjYXNlIDc6CiAgICAgIGNhc2UgMzc6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzddOwogICAgICBjYXNlIDQwOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNjRdOwogICAgICBjYXNlIDQxOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNjVdOwogICAgICBjYXNlIDQyOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNjZdOwogICAgICBjYXNlIDQzOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNjddOwogICAgICBjYXNlIDQ0OgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNjhdOwogICAgICBjYXNlIDQ1OgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNjldOwogICAgICBjYXNlIDQ2OgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNzBdOwogICAgICBjYXNlIDQ3OgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNzFdOwogICAgICBjYXNlIDg6CiAgICAgIGNhc2UgOTA6CiAgICAgIGNhc2UgMTAwOgogICAgICBjYXNlIDMwMDoKICAgICAgLy9zZXQgZm9yZWdyb3VuZCBjb2xvciB0byBibGFjawogICAgICBjYXNlIDQwMDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbOF07CiAgICAgIGNhc2UgOToKICAgICAgY2FzZSA5MToKICAgICAgY2FzZSAxMDE6CiAgICAgIGNhc2UgMzEwOgogICAgICAvL3NldCBmb3JlZ3JvdW5kIGNvbG9yIHRvIHJlZAogICAgICBjYXNlIDQxMDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbOV07CiAgICAgIGNhc2UgMTA6CiAgICAgIGNhc2UgOTI6CiAgICAgIGNhc2UgMTAyOgogICAgICBjYXNlIDMyMDoKICAgICAgLy9zZXQgZm9yZWdyb3VuZCBjb2xvciB0byBncmVlbgogICAgICBjYXNlIDQyMDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMTBdOwogICAgICBjYXNlIDExOgogICAgICBjYXNlIDkzOgogICAgICBjYXNlIDEwMzoKICAgICAgY2FzZSAzMzA6CiAgICAgIC8vc2V0IGZvcmVncm91bmQgY29sb3IgdG8geWVsbG93CiAgICAgIGNhc2UgNDMwOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsxMV07CiAgICAgIGNhc2UgMTI6CiAgICAgIGNhc2UgOTQ6CiAgICAgIGNhc2UgMTA0OgogICAgICBjYXNlIDM0MDoKICAgICAgLy9zZXQgZm9yZWdyb3VuZCBjb2xvciB0byBibHVlCiAgICAgIGNhc2UgNDQwOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsxMl07CiAgICAgIGNhc2UgMTM6CiAgICAgIGNhc2UgOTU6CiAgICAgIGNhc2UgMTA1OgogICAgICBjYXNlIDM1MDoKICAgICAgLy9zZXQgZm9yZWdyb3VuZCBjb2xvciB0byBtYWdlbnRhIChwdXJwbGUpCiAgICAgIGNhc2UgNDUwOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsxM107CiAgICAgIGNhc2UgMTQ6CiAgICAgIGNhc2UgOTY6CiAgICAgIGNhc2UgMTA2OgogICAgICBjYXNlIDM2MDoKICAgICAgLy9zZXQgZm9yZWdyb3VuZCBjb2xvciB0byBjeWFuCiAgICAgIGNhc2UgNDYwOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsxNF07CiAgICAgIGNhc2UgMTU6CiAgICAgIGNhc2UgOTc6CiAgICAgIGNhc2UgMTA3OgogICAgICBjYXNlIDM3MDoKICAgICAgLy9zZXQgZm9yZWdyb3VuZCBjb2xvciB0byB3aGl0ZQogICAgICBjYXNlIDQ3MDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMTVdOwogICAgICBjYXNlIDRlMzoKICAgICAgY2FzZSAzZTM6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzI1Nl07CiAgICAgIGNhc2UgNDEwMDoKICAgICAgY2FzZSAzMTAwOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNTddOwogICAgICBjYXNlIDQyMDA6CiAgICAgIGNhc2UgMzIwMDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjU4XTsKICAgICAgY2FzZSA0MzAwOgogICAgICBjYXNlIDMzMDA6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzI1OV07CiAgICAgIGNhc2UgNDQwMDoKICAgICAgY2FzZSAzNDAwOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNjBdOwogICAgICBjYXNlIDQ1MDA6CiAgICAgIGNhc2UgMzUwMDoKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjYxXTsKICAgICAgY2FzZSA0NjAwOgogICAgICBjYXNlIDM2MDA6CiAgICAgICAgcmV0dXJuIF9jb2xvclRhYmxlWzI2Ml07CiAgICAgIGNhc2UgNDcwMDoKICAgICAgY2FzZSAzNzAwOgogICAgICAgIHJldHVybiBfY29sb3JUYWJsZVsyNjNdOwogICAgICBkZWZhdWx0OgogICAgICAgIGlmIChjb2RlIDw9IC0xNikgewogICAgICAgICAgY29kZSArPSAxNjsKICAgICAgICAgIGNvZGUgKj0gLTE7CiAgICAgICAgfQogICAgICAgIGlmIChjb2RlID49IDAgJiYgY29kZSA8IDI4MSkKICAgICAgICAgIHJldHVybiBfY29sb3JUYWJsZVtjb2RlXTsKICAgICAgICByZXR1cm4gX2NvbG9yVGFibGVbMjc3XTsKICAgIH0KICB9CiAgZnVuY3Rpb24gU2V0Q29sb3IoY29kZSwgY29sb3IpIHsKICAgIGlmIChfY29sb3JUYWJsZSA9PSBudWxsKQogICAgICBidWlsZENvbG9yVGFibGUoKTsKICAgIGlmIChjb2RlIDwgMCB8fCBjb2RlID49IF9jb2xvclRhYmxlLmxlbmd0aCkKICAgICAgcmV0dXJuOwogICAgY29sb3IgPSBuZXcgUkdCQ29sb3IoY29sb3IpOwogICAgaWYgKCFjb2xvci5vaykgcmV0dXJuOwogICAgX2NvbG9yVGFibGVbY29kZV0gPSBjb2xvci50b1JHQigpOwogIH0KfSkoKTsKLyoqCiAqIEEgY2xhc3MgdG8gcGFyc2UgY29sb3IgdmFsdWVzCiAqIEBhdXRob3IgU3RveWFuIFN0ZWZhbm92IDxzc3Rvb0BnbWFpbC5jb20+CiAqIEBsaW5rICAgaHR0cDovL3d3dy5waHBpZWQuY29tL3JnYi1jb2xvci1wYXJzZXItaW4tamF2YXNjcmlwdC8KICogQGxpY2Vuc2UgVXNlIGl0IGlmIHlvdSBsaWtlIGl0CiAqLwo=";
 
   // src/html/log.header.html
-  var log_header_default = `<style>body{font-family:'Courier New',Courier,monospace;text-align:left;font-size:1em;white-space:pre;background-color:#000}@-webkit-keyframes blinker{0%{opacity:1}50%{opacity:0}100%{opacity:1}}@keyframes blinker{0%{opacity:1}50%{opacity:0}100%{opacity:1}}.animate .ansi-blink{text-decoration:blink;animation-name:blinker;animation-iteration-count:infinite;animation-timing-function:cubic-bezier(1,0,0,1);animation-duration:1s;-webkit-animation-name:blinker;-webkit-animation-iteration-count:infinite;-webkit-animation-timing-function:cubic-bezier(1,0,0,1);-webkit-animation-duration:1s}.line>span{padding:0;margin:0;display:inline-block;cursor:text;padding-bottom:1px}.ansi{padding:0;margin:0;display:inline-block;padding-bottom:1px;cursor:text;line-height:normal}.line{word-wrap:break-word;word-break:break-all;min-width:100%;display:block;clear:both;line-height:normal}.line hr{border:0}.line a,.line a:link,.line a:link span{color:inherit;font-weight:inherit;text-decoration:underline}.URLLink,.URLLink:link,.URLLink:link span{text-decoration:underline;cursor:pointer}a.MXPLink:link,a.MXPLink:link span{font-weight:400;color:inherit;text-decoration:underline}a.MXPLink:visited,a.MXPLink:visited span{text-decoration:underline}a.MXPLink:active,a.MXPLink:active span{text-decoration:underline}a.MXPLink:hover,a.MXPLink:hover span{text-decoration:underline}.line .b{font-weight:700}.line .i{font-style:italic}.line .o{text-decoration:overline}.line .u{text-decoration:underline}.line .du{text-decoration:underline;border-bottom:1px solid currentColor;padding-bottom:1px}.line .s{text-decoration:line-through}.line .o.du{text-decoration:underline overline}.line .u.o{text-decoration:underline overline}.line .o.s{text-decoration:overline line-through}.line .du.s{text-decoration:underline line-through}.line .s.u{text-decoration:underline line-through}.line .du.u.o{text-decoration:underline overline}.line .du.s.u{text-decoration:underline line-through}.line .du.o.s{text-decoration:underline overline line-through}.line .u.s.o{text-decoration:underline overline line-through}.line .du.o.s.u{text-decoration:underline overline line-through}</style><script type="text/javascript">function doLink(url) {
+  var log_header_default = `<style>body{font-family:'Courier New',Courier,monospace;text-align:left;font-size:1em;white-space:pre;background-color:#000}@-webkit-keyframes blinker{0%{opacity:1}50%{opacity:0}100%{opacity:1}}@keyframes blinker{0%{opacity:1}50%{opacity:0}100%{opacity:1}}.animate .ansi-blink{text-decoration:blink;animation-name:blinker;animation-iteration-count:infinite;animation-timing-function:cubic-bezier(1,0,0,1);animation-duration:1s;-webkit-animation-name:blinker;-webkit-animation-iteration-count:infinite;-webkit-animation-timing-function:cubic-bezier(1,0,0,1);-webkit-animation-duration:1s}.line>span{padding:0;margin:0;display:inline-block;cursor:text;padding-bottom:1px}.ansi{padding:0;margin:0;display:inline-block;padding-bottom:1px;cursor:text;line-height:normal}.line{word-wrap:break-word;word-break:break-all;min-width:100%;display:block;clear:both;line-height:normal}.line hr{border:0;opacity:1;margin:0;height:4px}.line a,.line a:link,.line a:link span{color:inherit;font-weight:inherit;text-decoration:underline}.URLLink,.URLLink:link,.URLLink:link span{text-decoration:underline;cursor:pointer}a.MXPLink:link,a.MXPLink:link span{font-weight:400;color:inherit;text-decoration:underline}a.MXPLink:visited,a.MXPLink:visited span{text-decoration:underline}a.MXPLink:active,a.MXPLink:active span{text-decoration:underline}a.MXPLink:hover,a.MXPLink:hover span{text-decoration:underline}.line .b{font-weight:700}.line .i{font-style:italic}.line .o{text-decoration:overline}.line .u{text-decoration:underline}.line .du{text-decoration:underline;border-bottom:1px solid currentColor;padding-bottom:1px}.line .s{text-decoration:line-through}.line .o.du{text-decoration:underline overline}.line .u.o{text-decoration:underline overline}.line .o.s{text-decoration:overline line-through}.line .du.s{text-decoration:underline line-through}.line .s.u{text-decoration:underline line-through}.line .du.u.o{text-decoration:underline overline}.line .du.s.u{text-decoration:underline line-through}.line .du.o.s{text-decoration:underline overline line-through}.line .u.s.o{text-decoration:underline overline line-through}.line .du.o.s.u{text-decoration:underline overline line-through}</style><script type="text/javascript">function doLink(url) {
         if (confirm('Open \\'' + url + '\\'?') === true)
             window.open(encodeURI(url), '_blank');
     }
@@ -37365,7 +38280,7 @@ ${pre}`);
           if (!pages[1].endsWith(".txt") && !pages[1].endsWith(".raw"))
             this._setContents(log_header_default + (value || "").replace(/\n/g, ""));
           else
-            this._setContents("<style>body {font-family: 'Courier New', Courier, monospace;text-align: left;font-size: 1em;white-space: pre;background-color: white;}</style>" + (value || ""));
+            this._setContents("<style>body {font-family: 'Courier New', Courier, monospace;text-align: left;font-size: 1em;white-space: pre;background-color: white;}</style>" + htmlEncode(value || ""));
         });
         this.footer.querySelector(`#${this.id}-back`).style.display = "";
         this._splitter.panel2Collapsed = false;
@@ -37380,14 +38295,17 @@ ${pre}`);
         });
       }
     }
-    _setContents(contents) {
+    _setContents(contents, text) {
       if (!this._contents.contentWindow || !this._contents.contentWindow.document || !this._contents.contentWindow.document.body) {
         setTimeout(() => {
-          this._setContents(contents);
+          this._setContents(contents, text);
         }, 10);
         return;
       }
-      this._contents.contentWindow.document.body.innerHTML = contents;
+      if (text)
+        this._contents.contentWindow.document.body.textContent = contents;
+      else
+        this._contents.contentWindow.document.body.innerHTML = contents;
       this._contents.contentWindow.scroll(0, 0);
       this.emit("content-changed");
     }
@@ -37637,9 +38555,10 @@ ${pre}`);
         }
         if (this._noCapture || this._noCaptureStore > 0) return;
         if (this.client.getOption("chat.CaptureOnlyOpen")) {
-          if (!(this._isWindowOpen || this._isDialogOpen)) {
+          let evt = { open: !(this._isWindowOpen || this._isDialogOpen) };
+          this.emit("chat-only-open", evt);
+          if (!evt.open)
             return;
-          }
         }
         if (this._capture > 0 && data.line.startsWith("    ")) {
           data.gagged |= this.client.getOption("chat.gag");
@@ -37725,6 +38644,7 @@ ${pre}`);
         }
       });
       this.client.on("options-loaded", () => {
+        this._buildCaptures();
         this._loadOptions();
       });
       this.client.on("option-changed", (name2, value) => {
@@ -38166,28 +39086,30 @@ ${pre}`);
       this._logger.postMessage(data);
     }
     _loadDisplayOptions(display) {
-      display.updateFont(client.getOption("chat.font"), client.getOption("chat.fontSize"));
-      display.maxLines = client.getOption("chat.bufferSize");
-      display.enableFlashing = client.getOption("chat.flashing");
-      display.showTimestamp = client.getOption("chat.showTimestamp");
-      display.timestampFormat = client.getOption("chat.timestampFormat");
-      display.enableMXP = client.getOption("enableMXP");
-      display.enableURLDetection = client.getOption("enableURLDetection");
-      display.showInvalidMXPTags = client.getOption("display.showInvalidMXPTags");
-      display.hideTrailingEmptyLine = client.getOption("display.hideTrailingEmptyLine");
-      display.enableColors = client.getOption("chat.enableColors");
-      display.enableBackgroundColors = client.getOption("chat.enableBackgroundColors");
-      display.tabWidth = client.getOption("chat.tabWidth");
-      display.displayControlCodes = client.getOption("chat.displayControlCodes");
-      display.emulateTerminal = client.getOption("chat.emulateTerminal");
-      display.emulateControlCodes = client.getOption("chat.emulateControlCodes");
-      display.wordWrap = client.getOption("chat.wordWrap");
-      display.wrapAt = client.getOption("chat.wordWrapAt");
-      display.indent = client.getOption("chat.indent");
-      display.scrollLock = client.getOption("chat.scrollLocked");
-      display.enableSplit = client.getOption("chat.split");
-      display.splitLive = client.getOption("chat.splitLive");
-      display.splitHeight = client.getOption("chat.splitHeight");
+      display.updateFont(this.client.getOption("chat.font"), this.client.getOption("chat.fontSize"));
+      display.maxLines = this.client.getOption("chat.bufferSize");
+      display.enableFlashing = this.client.getOption("chat.flashing");
+      display.showTimestamp = this.client.getOption("chat.showTimestamp");
+      display.timestampFormat = this.client.getOption("chat.timestampFormat");
+      display.enableMXP = this.client.getOption("enableMXP");
+      display.enableURLDetection = this.client.getOption("enableURLDetection");
+      display.showInvalidMXPTags = this.client.getOption("display.showInvalidMXPTags");
+      display.hideTrailingEmptyLine = this.client.getOption("display.hideTrailingEmptyLine");
+      display.enableColors = this.client.getOption("chat.enableColors");
+      display.enableBackgroundColors = this.client.getOption("chat.enableBackgroundColors");
+      display.tabWidth = this.client.getOption("chat.tabWidth");
+      display.displayControlCodes = this.client.getOption("chat.displayControlCodes");
+      display.emulateTerminal = this.client.getOption("chat.emulateTerminal");
+      display.emulateControlCodes = this.client.getOption("chat.emulateControlCodes");
+      display.wordWrap = this.client.getOption("chat.wordWrap");
+      display.wrapAt = this.client.getOption("chat.wordWrapAt");
+      display.indent = this.client.getOption("chat.indent");
+      display.scrollLock = this.client.getOption("chat.scrollLocked");
+      display.enableSplit = this.client.getOption("chat.split");
+      display.splitLive = this.client.getOption("chat.splitLive");
+      display.splitHeight = this.client.getOption("chat.splitHeight");
+      display.customSelection = this.client.getOption("chat.customSelection");
+      display.customScrollbars = this.client.getOption("customScrollbars");
       display.scrollDisplay();
     }
     _loadWindowOptions(target) {
@@ -39463,6 +40385,10 @@ ${pre}`);
             this._chatDisplay.model.appendLines([data]);
         }
       }, this);
+      this._chat.on("chat-only-open", (e) => {
+        if (this._chatDisplay && (this.client.getOption("panelBar.panels") & 4 /* chat */) === 4 /* chat */)
+          e.open = true;
+      }, this);
     }
     _initMapper() {
       if (!this._mapper) return;
@@ -39537,6 +40463,7 @@ ${pre}`);
         this._panel.style.display = "none";
         document.getElementById("panel-bar-drag-bar").style.display = "none";
         this.emit("updated-interface");
+        client.emit("updated-interface", "panel-bar", this);
         return;
       }
       if (this._panelLocation === 1 /* top */) {
@@ -39555,6 +40482,7 @@ ${pre}`);
       this._panel.style.display = "";
       document.getElementById("panel-bar-drag-bar").style.display = "";
       this.emit("updated-interface");
+      client.emit("updated-interface", "panel-bar", this);
     }
     _loadDisplayOptions(display) {
       if (!display) return;
@@ -39577,6 +40505,7 @@ ${pre}`);
       display.wrapAt = client.getOption("chat.wrapAt");
       display.indent = client.getOption("chat.indent");
       display.scrollLock = client.getOption("chat.scrollLocked");
+      display.customScrollbars = this.client.getOption("customScrollbars");
       display.scrollDisplay();
     }
     _loadOptions() {
@@ -39709,9 +40638,6 @@ ${pre}`);
       });
       this.display.on("split-move-done", (h) => {
         this.setOption("display.splitHeight", h);
-      });
-      this.display.on("update-window", (width, height) => {
-        this.telnet.updateWindow(width, height);
       });
       this.display.on("update-window", (width, height) => {
         this.telnet.updateWindow(width, height);
@@ -40308,6 +41234,33 @@ ${pre}`);
       return new Promise((resolve) => {
         ProfileCollection.load().then((profiles) => {
           this._profiles = profiles;
+          let enabled = getParameterByName("profiles");
+          if (enabled && enabled.length !== 0) {
+            enabled = enabled.split(",");
+            if (enabled.length) {
+              const keys = this.profiles.keys;
+              let k = 0;
+              const kl = keys.length;
+              let old = [];
+              for (; k < kl; k++) {
+                if (this.profiles.items[keys[k]].enabled)
+                  old.push(keys[k]);
+                this.profiles.items[keys[k]].enabled = false;
+              }
+              k = 0;
+              for (let e = 0, el = enabled.length; e < el; e++) {
+                if (this.profiles.contains(enabled[e])) {
+                  this.profiles.items[enabled[e]].enabled = true;
+                  k++;
+                }
+              }
+              if (k === 0) {
+                for (let e = 0, el = old.length; e < el; e++)
+                  this.profiles.items[old[e]].enabled = true;
+              } else if (this.getOption("saveDynamicProfiles"))
+                this.saveProfiles();
+            }
+          }
           if (!this.profiles.contains("default")) {
             this.profiles.add(Profile.Default);
             this.saveProfiles();
@@ -40690,6 +41643,9 @@ ${pre}`);
       this.display.splitHeight = this._options["display.splitHeight"];
       this.display.enableSplit = this._options["display.split"];
       this.display.splitLive = this._options["display.splitLive"];
+      this.display.customSelection = this._options["display.customSelection"];
+      this.display.defaultMXPState = this._options["display.defaultMXPState"];
+      this.display.customScrollbars = this._options["customScrollbars"];
       const colors = this.getOption("colors");
       if (colors && colors.length > 0) {
         let c;
@@ -40753,7 +41709,7 @@ ${pre}`);
       else if (typeof err === "string" && err.length === 0)
         err = new Error("Unknown");
       if (err.stack && this.getOption("showErrorsExtended"))
-        msg = err.stack;
+        msg = err.name + ": " + err.message + "\n" + err.stack;
       else if (err instanceof Error || err instanceof TypeError)
         msg = err.name + ": " + err.message;
       else if (err.message)
@@ -40767,14 +41723,14 @@ ${pre}`);
       if (this.getOption("logErrors")) {
         if (!this.getOption("showErrorsExtended")) {
           if (err.stack)
-            msg = err.stack;
+            msg += "\n" + err.stack;
           else {
             err = new Error(err || msg);
-            msg = err.stack;
+            msg += "\n" + err.stack;
           }
         } else if (!err.stack) {
           err = new Error(err || msg);
-          msg = err.stack;
+          msg += "\n" + err.stack;
         }
         window.console.log((/* @__PURE__ */ new Date()).toLocaleString());
         window.console.log(msg);
@@ -40796,11 +41752,14 @@ ${pre}`);
       str = "" + str;
       if (str.endsWith("\n"))
         str = str.substr(0, str.length - 1);
+      let mxp = this._display.enableMXP;
+      this._display.enableMXP = false;
       if (this.telnet.prompt && forceLine) {
         this.print("\n\x1B[" + fore + ";" + back + "m" + str + codes, newline);
         this.telnet.prompt = false;
       } else
         this.print("\x1B[" + fore + ";" + back + "m" + str + codes, newline);
+      this._display.enableMXP = mxp;
     }
     print(txt, newline) {
       this._printInternal(txt, newline, false, true);
@@ -40815,12 +41774,15 @@ ${pre}`);
       this._parseInternal(txt, remote, false, prependSplit);
     }
     send(data, echo) {
+      let p = this.telnet.prompt;
       this.telnet.sendData(data);
       this.lastSendTime = Date.now();
       if (echo && this.telnet.echo && this.getOption("commandEcho"))
         this.echo(data);
       else if (echo)
         this.echo("\n");
+      else
+        this.telnet.prompt = p;
     }
     sendRaw(data) {
       this.telnet.sendData(data, true);

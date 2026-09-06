@@ -53,6 +53,10 @@ a.MXPLink:hover span {
   z-index: 0;
 }
 
+#display:focus-visible {
+  outline: none;
+}
+
 .display-split-view {
   position: absolute;
   overflow: hidden;

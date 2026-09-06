@@ -1,6 +1,6 @@
 import { EventEmitter } from './events';
 import { MacroModifiers, MacroDisplay, Alias, Trigger, Button, Profile, TriggerType, TriggerTypes, SubTriggerTypes, convertPattern } from './profile';
-import { getTimeSpan, FilterArrayByKeyValue, SortItemArrayByPriority, clone, StringToUint8Array, splitQuoted, isValidIdentifier, getCursor, insertValue, openFileDialog, readFile } from './library';
+import { getTimeSpan, FilterArrayByKeyValue, SortItemArrayByPriority, clone, StringToUint8Array, splitQuoted, isValidIdentifier, getCursor, insertValue, openFileDialog, readFile, keyCodeToChar } from './library';
 import { Client } from './client';
 import { NewLineType, TabCompletion, FunctionEvent } from './types';
 import { SettingList } from './settings';
@@ -30,7 +30,7 @@ const WindowVariables = ['$selectedword', '$selword', '$selectedurl', '$selurl',
  * @param {string} str - The string to proper capitalize each word of
  * @returns {string}
  */
-function ProperCase(str) {
+function _ProperCase(str) {
     return str.replace(/\w*\S*/g, (txt) => { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
 }
 
@@ -38,7 +38,7 @@ function ProperCase(str) {
  * Return a fudge dice random value
  * @returns {number} Returns -1, 1 or 0 randomly
  */
-function fudgeDice() {
+function _fudgeDice() {
     switch (~~(Math.random() * 6) + 1) {
         case 1:
         case 4:
@@ -96,6 +96,13 @@ enum TriggerTypeFilter {
     All = 3
 }
 
+enum ParseTriggerType {
+    trigger = 0,
+    temporary = 1,
+    subTrigger = 2,
+    event = 3
+}
+
 class ArgumentInvalidError extends Error {
     constructor(name: string) {
         super(`Invalid arguments \'${name}\'`);
@@ -113,7 +120,6 @@ class ArgumentMissingError extends Error {
         super(`Missing arguments for ${name}`);
     }
 }
-
 
 class ArgumentTooManyError extends Error {
     constructor(name: string) {
@@ -154,6 +160,18 @@ class ProfileNotFound extends Error {
 class TriggerNotFound extends Error {
     constructor(trigger?, profile?) {
         super(`Trigger not found${trigger ? `: ${trigger}` : ''}${profile ? ` in profile: ${profile}` : ''}`)
+    }
+}
+
+class InvalidOption extends Error {
+    constructor(type, option?) {
+        super(`Invalid ${type ? (type + ' ') : ''}option${option ? (' ' + option.trim()) : ''}`);
+    }
+}
+
+class InvalidOptions extends Error {
+    constructor(type) {
+        super(`Invalid ${type ? (type + ' ') : ''}options`);
     }
 }
 
@@ -567,7 +585,7 @@ export class Input extends EventEmitter {
                 let sum = 0;
                 for (let i = 0; i < c; i++) {
                     if (sides === 'F' || sides === 'f')
-                        sum += fudgeDice();
+                        sum += _fudgeDice();
                     else if (sides === '%')
                         sum += ~~(Math.random() * 100.0) + 1.0;
                     else
@@ -705,7 +723,7 @@ export class Input extends EventEmitter {
             if: (args, math, scope) => {
                 if (args.length < 3)
                     throw new ArgumentMissingError('if');
-                if (args.length !== 3)
+                if (args.length > 3)
                     throw new ArgumentTooManyError('if');
 
                 if (args[0].compile().evaluate(scope))
@@ -1179,7 +1197,7 @@ export class Input extends EventEmitter {
                     if (kl === 0)
                         return null;
                     if (kl === 1) {
-                        if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                        if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                             throw Error('No enabled profiles found!');
                         trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                         trigger = trigger.find(t => {
@@ -1188,7 +1206,7 @@ export class Input extends EventEmitter {
                     }
                     else {
                         for (; k < kl; k++) {
-                            if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                            if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                                 continue;
                             trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                             trigger = trigger.find(t => {
@@ -1946,61 +1964,11 @@ export class Input extends EventEmitter {
             case 'untrigger':
             case 'unt':
                 this._echoRaw(raw);
-                profile = null;
-                name = null;
-                if (args.length < 1 || args.length > 2)
+                if (args.length === 0 || args.length > 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'unt\x1b[0;-11;-12mrigger {pattern|name} \x1b[3mprofile\x1b[0;-11;-12m');
-                if (args[0].length === 0)
-                    throw new Error('Invalid name or pattern');
-                //{pattern} {commands} profile
-                if (args[0].match(/^\{.*\}$/g))
-                    args[0] = this.parseInline(args[0].substr(1, args[0].length - 2));
-                else
-                    args[0] = this.parseInline(this.stripQuotes(args[0]));
-                if (args.length === 2) {
-                    profile = this.stripQuotes(args[2]);
-                    profile = this.parseInline(profile);
-                }
-                if (!profile || profile.length === 0) {
-                    const keys = this._profiles.keys;
-                    let k = 0;
-                    const kl = keys.length;
-                    if (kl === 0)
-                        return null;
-                    if (kl === 1) {
-                        if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
-                            throw Error('No enabled profiles found!');
-                        item = this._profiles.items[keys[k]].findAny('triggers', { name: args[0], pattern: args[0] });
-                    }
-                    else {
-                        for (; k < kl; k++) {
-                            if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
-                                continue;
-                            item = this._profiles.items[keys[k]].findAny('triggers', { name: args[0], pattern: args[0] });
-                            if (item) {
-                                profile = this._profiles.items[keys[k]];
-                                break;
-                            }
-                        }
-                    }
-                    if (!item)
-                        throw new Error('Trigger \'' + args[0] + '\' not found in \'' + profile.name + '\'!');
-                    this._client.removeTrigger(item);
-                    this._echo('Trigger \'' + args[0] + '\' removed from \'' + profile.name + '\'.', -7, -8, true, true);
-                }
-                else {
-                    profile = this.parseInline(profile);
-                    if (this._profiles.contains(profile)) {
-                        profile = this._profiles.items[profile.toLowerCase()];
-                        item = profile.findAny('triggers', { name: args[0], pattern: args[0] });
-                        if (!item)
-                            throw new Error('Trigger \'' + args[0] + '\' not found in \'' + profile.name + '\'!');
-                        this._client.removeTrigger(item);
-                        this._echo('Trigger \'' + args[0] + '\' removed from \'' + profile.name + '\'.', -7, -8, true, true);
-                    }
-                    else
-                        throw new ProfileNotFound(profile);
-                }
+                profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias name or \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias {name} \x1b[3mprofile\x1b[0;-11;-12m', true);
+                this._removeItem(profile.results, profile.profile ? profile.profiles.triggers : this._client.triggers, 'trigger', ['name', 'pattern'], profile.profile);
+                profile = null;
                 return null;
             case 'suspend':
             case 'sus':
@@ -2099,115 +2067,16 @@ export class Input extends EventEmitter {
                             args[0] = args[0].substr(1, args[0].length - 2);
                         else
                             args[0] = this.stripQuotes(args[0]);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nocr':
-                                    case 'prompt':
-                                    case 'case':
-                                    case 'verbatim':
-                                    case 'disable':
-                                    case 'enable':
-                                    case 'cmd':
-                                    case 'temporary':
-                                    case 'temp':
-                                    case 'raw':
-                                    case 'pattern':
-                                    case 'regular':
-                                    case 'alarm':
-                                    case 'event':
-                                    case 'cmdpattern':
-                                    case 'loopexpression':
-                                        //case 'expression':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('param=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`param option '${o.trim()}'`);
-                                            item.options['params'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('type=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`type option '${o.trim()}'`);
-                                            if (!this._isTriggerType(tmp[1], TriggerTypeFilter.Main))
-                                                throw new InvalidTrigger('type');
-                                            item.options['type'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new InvalidTrigger('priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new InvalidTrigger(`option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseTriggerOptions(args[0]);
                         else
                             throw new InvalidTrigger('options');
                     }
                     else if (args.length === 2) {
                         if (args[0].match(/^\{[\s\S]*\}$/g))
                             args[0] = args[0].substr(1, args[0].length - 2);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nocr':
-                                    case 'prompt':
-                                    case 'case':
-                                    case 'verbatim':
-                                    case 'disable':
-                                    case 'enable':
-                                    case 'cmd':
-                                    case 'temporary':
-                                    case 'temp':
-                                    case 'raw':
-                                    case 'pattern':
-                                    case 'regular':
-                                    case 'alarm':
-                                    case 'event':
-                                    case 'cmdpattern':
-                                    case 'loopexpression':
-                                        //case 'expression':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('param=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`param option '${o.trim()}'`);
-                                            item.options['params'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('type=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`type option '${o.trim()}'`);
-                                            if (!this._isTriggerType(tmp[1], TriggerTypeFilter.Main))
-                                                throw new InvalidTrigger('type');
-
-                                            item.options['type'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new InvalidTrigger('priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new InvalidTrigger(`option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseTriggerOptions(args[0]);
                         else
                             throw new InvalidTrigger('options');
                         item.profile = this.stripQuotes(args[1]);
@@ -2249,68 +2118,18 @@ export class Input extends EventEmitter {
                     throw new Error('Missing commands');
                 if (args.length === 1) {
                     args[0] = args[0].substr(1, args[0].length - 2);
-                    if (args[0].length !== 0) {
-                        this.parseInline(args[0]).split(',').forEach(o => {
-                            switch (o.trim()) {
-                                case 'nocr':
-                                case 'prompt':
-                                case 'case':
-                                case 'verbatim':
-                                case 'disable':
-                                case 'temporary':
-                                case 'temp':
-                                    item.options[o.trim()] = true;
-                                    break;
-                                default:
-                                    if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                        tmp = o.trim().split('=');
-                                        if (tmp.length !== 2)
-                                            throw new Error(`Invalid event priority option '${o.trim()}'`);
-                                        i = parseInt(tmp[1], 10);
-                                        if (isNaN(i))
-                                            throw new Error('Invalid event priority value \'' + tmp[1] + '\' must be a number');
-                                        item.options['priority'] = i;
-                                    }
-                                    else
-                                        throw new Error(`Invalid event option '${o.trim()}'`);
-                            }
-                        });
-                    }
+                    if (args[0].length !== 0)
+                        item.options = this._parseTriggerOptions(args[0], ParseTriggerType.event);
                     else
-                        throw new Error('Invalid event options');
+                        throw new InvalidOptions('event');
                 }
                 else if (args.length === 2) {
                     if (args[0].match(/^\{[\s\S]*\}$/g))
                         args[0] = args[0].substr(1, args[0].length - 2);
-                    if (args[0].length !== 0) {
-                        this.parseInline(args[0]).split(',').forEach(o => {
-                            switch (o.trim()) {
-                                case 'nocr':
-                                case 'prompt':
-                                case 'case':
-                                case 'verbatim':
-                                case 'disable':
-                                case 'temporary':
-                                case 'temp':
-                                    item.options[o.trim()] = true;
-                                    break;
-                                default:
-                                    if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                        tmp = o.trim().split('=');
-                                        if (tmp.length !== 2)
-                                            throw new Error(`Invalid event priority option '${o.trim()}'`);
-                                        i = parseInt(tmp[1], 10);
-                                        if (isNaN(i))
-                                            throw new Error('Invalid event priority value \'' + tmp[1] + '\' must be a number');
-                                        item.options['priority'] = i;
-                                    }
-                                    else
-                                        throw new Error(`Invalid event option '${o.trim()}'`);
-                            }
-                        });
-                    }
+                    if (args[0].length !== 0)
+                        item.options = this._parseTriggerOptions(args[0], ParseTriggerType.event);
                     else
-                        throw new Error('Invalid event options');
+                        throw new InvalidOptions('event');
                     item.profile = this.stripQuotes(args[1]);
                     if (item.profile.length !== 0)
                         item.profile = this.parseInline(item.profile);
@@ -2323,7 +2142,7 @@ export class Input extends EventEmitter {
                     if (kl === 0)
                         return null;
                     if (kl === 1) {
-                        if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                        if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                             throw Error('No enabled profiles found!');
                         profile = this._profiles.items[keys[0]];
                         tmp = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers.filter(t => t.type === TriggerType.Event));
@@ -2333,7 +2152,7 @@ export class Input extends EventEmitter {
                     }
                     else {
                         for (; k < kl; k++) {
-                            if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                            if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                                 continue;
                             tmp = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers.filter(t => t.type === TriggerType.Event));
                             trigger = tmp.find(t => {
@@ -2370,23 +2189,23 @@ export class Input extends EventEmitter {
                 if (item.commands !== null)
                     trigger.value = item.commands;
                 trigger.type = TriggerType.Event;
-                if (item.options.prompt)
-                    trigger.triggerPrompt = true;
-                if (item.options.nocr)
-                    trigger.triggerNewline = false;
-                if (item.options.case)
-                    trigger.caseSensitive = true;
-                if (item.options.raw)
-                    trigger.raw = true;
+                if (item.options.hasOwnProperty('prompt'))
+                    trigger.triggerPrompt = item.options.prompt;
+                if (item.options.hasOwnProperty('nocr'))
+                    trigger.triggerNewline = !item.options.nocr;
+                if (item.options.hasOwnProperty('case'))
+                    trigger.caseSensitive = item.options.case;
+                if (item.options.hasOwnProperty('raw'))
+                    trigger.raw = item.options.raw;
 
-                if (item.options.verbatim)
-                    trigger.verbatim = true;
-                if (item.options.disable)
-                    trigger.enabled = false;
-                else if (item.options.enable)
-                    trigger.enabled = true;
-                if (item.options.temporary || item.options.temp)
-                    trigger.temp = true;
+                if (item.options.hasOwnProperty('verbatim'))
+                    trigger.verbatim = item.options.verbatim;
+                if (item.options.hasOwnProperty('disable'))
+                    trigger.enabled = !item.options.disable;
+                else if (item.options.hasOwnProperty('enable'))
+                    trigger.enabled = item.options.enable;
+                if (item.options.hasOwnProperty('temporary') || item.options.hasOwnProperty('temp'))
+                    trigger.temp = item.options.temporary || item.options.temp;
                 trigger.priority = item.options.priority;
                 this._client.saveProfiles();
                 this._client.clearCache();
@@ -2401,25 +2220,11 @@ export class Input extends EventEmitter {
             case 'une':
                 this._echoRaw(raw);
                 //#region unevent
-                if (args.length === 0)
+                if (args.length === 0 || args.length > 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'une\x1b[0;-11;-12mvent name or \x1b[4m' + cmdChar + 'une\x1b[0;-11;-12mvent {name} \x1b[3mprofile\x1b[0;-11;-12m');
-                else {
-                    profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'une\x1b[0;-11;-12mvent name or \x1b[4m' + cmdChar + 'une\x1b[0;-11;-12mvent {name} \x1b[3mprofile\x1b[0;-11;-12m');
-                    n = profile.results;
-                    profile = profile.profile;
-                    items = SortItemArrayByPriority(profile.triggers.filter(t => t.type === TriggerType.Event));
-                    n = this.stripQuotes(n);
-                    tmp = n;
-                    n = items.findIndex(i => i.pattern === n || i.name === n);
-                    f = n !== -1;
-                    if (!f)
-                        this._echo('Event \'' + tmp + '\' not found.', -7, -8, true, true);
-                    else {
-                        this._echo('Event \'' + (items[n].name || items[n].pattern) + '\' removed.', -7, -8, true, true);
-                        this._client.removeTrigger(items[n]);
-                        profile = null;
-                    }
-                }
+                profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'une\x1b[0;-11;-12mvent name or \x1b[4m' + cmdChar + 'une\x1b[0;-11;-12mvent {name} \x1b[3mprofile\x1b[0;-11;-12m', true);
+                this._removeItem(profile.results, SortItemArrayByPriority((profile.profile ? profile.profile.triggers : this._client.triggers).filter(t => t.type === TriggerType.Event)), 'event', ['pattern', 'name'], profile.profile, false);
+                profile = null;
                 //#endregion
                 return null;
             case 'button':
@@ -2488,66 +2293,18 @@ export class Input extends EventEmitter {
                             args[0] = args[0].substr(1, args[0].length - 2);
                         else
                             args[0] = this.stripQuotes(args[0]);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nosend':
-                                    case 'chain':
-                                    case 'append':
-                                    case 'stretch':
-                                    case 'disable':
-                                    case 'enable':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new Error(`Invalid button priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new Error('Invalid button priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new Error(`Invalid button option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseButtonOptions(args[0]);
                         else
-                            throw new Error('Invalid button options');
+                            throw new InvalidOptions('button');
                     }
                     else if (args.length === 2) {
                         if (args[0].match(/^\{[\s\S]*\}$/g))
                             args[0] = args[0].substr(1, args[0].length - 2);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nosend':
-                                    case 'chain':
-                                    case 'append':
-                                    case 'stretch':
-                                    case 'disable':
-                                    case 'enable':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new Error(`Invalid button priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new Error('Invalid button priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new Error(`Invalid button option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseButtonOptions(args[0]);
                         else
-                            throw new Error('Invalid button options');
+                            throw new InvalidOptions('button');
                         item.profile = this.stripQuotes(args[1]);
                         if (item.profile.length !== 0)
                             item.profile = this.parseInline(item.profile);
@@ -2560,7 +2317,7 @@ export class Input extends EventEmitter {
                     if (kl === 0)
                         return null;
                     if (kl === 1) {
-                        if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                        if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                             throw Error('No enabled profiles found!');
                         profile = this._profiles.items[keys[0]];
                         if (item.name !== null)
@@ -2570,7 +2327,7 @@ export class Input extends EventEmitter {
                     }
                     else {
                         for (; k < kl; k++) {
-                            if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                            if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                                 continue;
                             if (item.name !== null)
                                 trigger = this._profiles.items[keys[k]].find('buttons', 'name', item.name);
@@ -2613,20 +2370,20 @@ export class Input extends EventEmitter {
                 if (item.commands !== null)
                     trigger.value = item.commands;
 
-                if (item.options.icon)
+                if (item.options.hasOwnProperty('icon'))
                     trigger.icon = item.options.icon;
-                if (item.options.nosend)
-                    trigger.send = false;
-                if (item.options.chain)
-                    trigger.chain = true;
-                if (item.options.append)
-                    trigger.append = true;
-                if (item.options.stretch)
-                    trigger.stretch = true;
-                if (item.options.disable)
-                    trigger.enabled = false;
-                else if (item.options.enable)
-                    trigger.enabled = true;
+                if (item.options.hasOwnProperty('nosend'))
+                    trigger.send = !item.options.nosend;
+                if (item.options.hasOwnProperty('chain'))
+                    trigger.chain = item.options.chain;
+                if (item.options.hasOwnProperty('append'))
+                    trigger.append = item.options.append;
+                if (item.options.hasOwnProperty('stretch'))
+                    trigger.stretch = item.options.stretch;
+                if (item.options.hasOwnProperty('disable'))
+                    trigger.enabled = !item.options.disable;
+                else if (item.options.hasOwnProperty('enable'))
+                    trigger.enabled = item.options.enable;
                 trigger.priority = item.options.priority;
                 this._client.saveProfiles();
                 this._client.clearCache();
@@ -2641,41 +2398,51 @@ export class Input extends EventEmitter {
             case 'unb':
                 this._echoRaw(raw);
                 //#region unbutton
-                if (args.length === 0)
+                if (args.length === 0 || args.length > 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'unb\x1b[0;-11;-12mtton name or \x1b[4m' + cmdChar + 'unb\x1b[0;-11;-12mtton {name} \x1b[3mprofile\x1b[0;-11;-12m');
-                else {
-                    profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'unb\x1b[0;-11;-12mtton name or \x1b[4m' + cmdChar + 'unb\x1b[0;-11;-12mtton {name} \x1b[3mprofile\x1b[0;-11;-12m');
-                    n = profile.results;
-                    profile = profile.profile;
-                    items = SortItemArrayByPriority(profile.buttons);
-                    tmp = n;
-                    if (/^\s*?\d+\s*?$/.exec(n)) {
-                        n = parseInt(n, 10);
-                        if (n < 0 || n >= items.length)
-                            throw new Error('Button index must be >= 0 and < ' + items.length);
-                        f = true;
-                    }
-                    else {
-                        n = this.stripQuotes(n);
-                        n = items.findIndex(i => i.name === n || i.caption === n);
-                        f = n !== -1;
-                    }
-                    if (!f)
-                        this._echo('Button \'' + tmp + '\' not found.', -7, -8, true, true);
-                    else {
-                        if (items[n].name.length === 0 && items[n].caption.length === 0)
-                            this._echo('Button \'' + tmp + '\' removed.', -7, -8, true, true);
-                        else
-                            this._echo('Button \'' + (items[n].name || items[n].caption) + '\' removed.', -7, -8, true, true);
-                        trigger = items[n];
-                        n = profile.buttons.indexOf(items[n]);
-                        profile.buttons.splice(n, 1);
-                        this._client.saveProfiles();
-                        this._client.clearCache();
-                        this.emit('item-removed', 'button', profile.name, n, trigger);
-                        profile = null;
-                    }
-                }
+                profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'unb\x1b[0;-11;-12mtton name or \x1b[4m' + cmdChar + 'unb\x1b[0;-11;-12mtton {name} \x1b[3mprofile\x1b[0;-11;-12m', true);
+                this._removeItem(profile.results, profile.profile ? SortItemArrayByPriority(profile.profile.buttons) : this._client.buttons, 'button', ['name', 'caption'], profile.profile);
+                profile = null;
+                //#endregion
+                return null;
+            case 'unkey':
+            case 'unk':
+            case 'unmacro':
+            case 'unm':
+                this._echoRaw(raw);
+                //#region unbutton
+                if (args.length === 0 || args.length > 2)
+                    throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'unm\x1b[0;-11;-12macro name or \x1b[4m' + cmdChar + 'unm\x1b[0;-11;-12macro {name} \x1b[3mprofile\x1b[0;-11;-12m');
+                profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'unm\x1b[0;-11;-12macro name or \x1b[4m' + cmdChar + 'unm\x1b[0;-11;-12macro {name} \x1b[3mprofile\x1b[0;-11;-12m', true);
+                this._removeItem(profile.results, profile.profile ? profile.profile.macros : this._client.macros, 'macro', (item, value) => {
+                    if (item.gamepad)
+                        return item.key === parseInt(value, 10);
+                    let v = value.split('+');
+                    let key;
+                    let m = MacroModifiers.None;
+                    v.forEach(v => {
+                        switch (v.toLowerCase()) {
+                            case 'alt':
+                                m |= MacroModifiers.Alt;
+                                break;
+                            case 'cmd':
+                            case 'ctrl':
+                                m |= MacroModifiers.Ctrl;
+                                break;
+                            case 'shift':
+                                m |= MacroModifiers.Shift;
+                                break;
+                            case 'meta':
+                            case 'win':
+                                m |= MacroModifiers.Meta;
+                                break;
+                            default:
+                                key = v.toLowerCase();
+                        }
+                    });
+                    return keyCodeToChar[item.key].toLowerCase() === key && item.modifiers === m;
+                }, profile.profile);
+                profile = null;
                 //#endregion
                 return null;
             case 'alarm':
@@ -2702,7 +2469,6 @@ export class Input extends EventEmitter {
                         profile = this.stripQuotes(args[2]);
                         profile = this.parseInline(profile);
                     }
-
                     if (!profile || profile.length === 0)
                         profile = this._client.activeProfile;
                     else {
@@ -2753,7 +2519,7 @@ export class Input extends EventEmitter {
                     if (kl === 0)
                         return null;
                     if (kl === 1) {
-                        if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                        if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                             throw Error('No enabled profiles found!');
                         profile = this._profiles.items[keys[0]];
                         trigger = profile.find('triggers', 'name', name);
@@ -2771,7 +2537,7 @@ export class Input extends EventEmitter {
                     }
                     else {
                         for (; k < kl; k++) {
-                            if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                            if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                                 continue;
                             trigger = this._profiles.items[keys[k]].find('triggers', 'name', name);
                             if (trigger) {
@@ -2823,9 +2589,9 @@ export class Input extends EventEmitter {
                     this.emit('item-added', 'trigger', profile.name, profile.triggers.length - 1, trigger);
                 else
                     this.emit('item-updated', 'trigger', profile.name, profile.triggers.indexOf(trigger), trigger);
-                profile = null;
                 this._lastSuspend = -1;
                 this._client.updateAlarms();
+                profile = null;
                 //#endregion
                 return null;
             case 'ungag':
@@ -3184,40 +2950,11 @@ export class Input extends EventEmitter {
             case 'unalias':
             case 'una':
                 this._echoRaw(raw);
-                if (args.length === 0)
+                if (args.length === 0 || args.length > 2)
                     throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias name or \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias {name} \x1b[3mprofile\x1b[0;-11;-12m');
-                else {
-                    profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias name or \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias {name} \x1b[3mprofile\x1b[0;-11;-12m');
-                    n = profile.results;
-                    profile = profile.profile;
-                    items = profile.aliases;
-                    n = this.stripQuotes(n);
-                    if (/^\s*?\d+\s*?$/.exec(n)) {
-                        tmp = n;
-                        n = parseInt(n, 10);
-                        if (n < 0 || n >= items.length)
-                            throw new Error('Alias index must be >= 0 and < ' + items.length);
-                        else
-                            f = true;
-                    }
-                    else {
-                        tmp = n;
-                        n = items.findIndex(i => i.pattern === n);
-                        f = n !== -1;
-                    }
-                    if (!f)
-                        this._echo('Alias \'' + tmp + '\' not found.', -7, -8, true, true);
-                    else {
-                        this._echo('Alias \'' + items[n].pattern + '\' removed.', -7, -8, true, true);
-                        trigger = items[n];
-                        items.splice(n, 1);
-                        profile.aliases = items;
-                        this._client.saveProfiles();
-                        this._client.clearCache();
-                        this.emit('item-removed', 'alias', profile.name, n, trigger);
-                        profile = null;
-                    }
-                }
+                profile = this._processCommandItemArgs(args, 'Invalid syntax use \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias name or \x1b[4m' + cmdChar + 'una\x1b[0;-11;-12mlias {name} \x1b[3mprofile\x1b[0;-11;-12m', true);
+                this._removeItem(profile.results, profile.profile ? profile.profile.aliases : this._client.aliases, 'alias', ['pattern'], profile.profile);
+                profile = null;
                 return null;
             case 'setsetting':
             case 'sets':
@@ -3379,7 +3116,7 @@ export class Input extends EventEmitter {
                 const files = this._profiles.keys;
                 al = files.length;
                 for (i = 0; i < al; i++) {
-                    if (this._profiles.items[files[i]] && this._profiles.items[files[i]].enabled)
+                    if (this._isProfileEnabled(files[i]))
                         this._echo('   ' + this._profiles.keys[i] + ' is enabled', -7, -8, true, true);
                     else
                         this._echo('   ' + files[i] + ' is disabled', -7, -8, true, true);
@@ -3399,7 +3136,7 @@ export class Input extends EventEmitter {
                         throw new Error(args[0] + ' can not be disabled as it is the only one enabled');
                     if (!this._profiles.contains(args[0].toLowerCase()))
                         args = 'Profile not found';
-                    else if (this._profiles.items[args[0].toLowerCase()].enabled)
+                    else if (this._isProfileEnabled(args[0].toLowerCase()))
                         args = args[0] + ' is enabled';
                     else
                         args = args[0] + ' is disabled';
@@ -3415,11 +3152,11 @@ export class Input extends EventEmitter {
                         case 'enable':
                         case 'on':
                         case 'yes':
-                            if (this._profiles.items[args[0].toLowerCase()].enabled)
+                            if (this._isProfileEnabled(args[0].toLowerCase()))
                                 args = args[0] + ' is already enabled';
                             else {
                                 this._client.toggleProfile(args[0]);
-                                if (this._profiles.items[args[0].toLowerCase()].enabled !== -1)
+                                if (this._isProfileEnabled(args[0].toLowerCase()))
                                     args = args[0] + ' is enabled';
                                 else
                                     args = args[0] + ' remains disabled';
@@ -3428,7 +3165,7 @@ export class Input extends EventEmitter {
                         case 'disable':
                         case 'off':
                         case 'no':
-                            if (!this._profiles.items[args[0].toLowerCase()].enabled)
+                            if (!this._isProfileEnabled(args[0].toLowerCase()))
                                 args = args[0] + ' is already disabled';
                             else {
                                 if (this._profiles.length === 1)
@@ -4339,13 +4076,13 @@ export class Input extends EventEmitter {
                             this._display.scrollUp();
                     }
                     else
-                        this._display.scrollDisplay();
+                        this._display.scrollDisplay(this._display.splitVisible);
                 }
                 else if (args.length === 1) {
                     if (args[0] === '0' || args[0] === 'false') {
                         if (this.scrollLock) {
                             this.scrollLock = false;
-                            this._display.scrollDisplay();
+                            this._display.scrollDisplay(this._display.splitVisible);
                         }
                     }
                     else if (!this.scrollLock) {
@@ -4414,7 +4151,7 @@ export class Input extends EventEmitter {
                             if (kl === 0)
                                 return null;
                             if (kl === 1) {
-                                if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                                if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                                     throw Error('No enabled profiles found!');
                                 trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                                 trigger = trigger.find(t => {
@@ -4423,7 +4160,7 @@ export class Input extends EventEmitter {
                             }
                             else {
                                 for (; k < kl; k++) {
-                                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                                    if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                                         continue;
                                     trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                                     trigger = trigger.find(t => {
@@ -4450,7 +4187,7 @@ export class Input extends EventEmitter {
                             if (kl === 0)
                                 return null;
                             if (kl === 1) {
-                                if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                                if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                                     throw Error('No enabled profiles found!');
                                 trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                                 trigger = trigger.find(t => {
@@ -4459,7 +4196,7 @@ export class Input extends EventEmitter {
                             }
                             else {
                                 for (; k < kl; k++) {
-                                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                                    if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                                         continue;
                                     trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                                     trigger = trigger.find(t => {
@@ -4588,7 +4325,7 @@ export class Input extends EventEmitter {
                             if (kl === 0)
                                 return null;
                             if (kl === 1) {
-                                if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                                if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                                     throw Error('No enabled profiles found!');
                                 trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                                 trigger = trigger.find(t => {
@@ -4597,7 +4334,7 @@ export class Input extends EventEmitter {
                             }
                             else {
                                 for (; k < kl; k++) {
-                                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                                    if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                                         continue;
                                     trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                                     trigger = trigger.find(t => {
@@ -4656,7 +4393,7 @@ export class Input extends EventEmitter {
                             if (kl === 0)
                                 return null;
                             if (kl === 1) {
-                                if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                                if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                                     throw Error('No enabled profiles found!');
                                 trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                                 trigger = trigger.find(t => {
@@ -4665,7 +4402,7 @@ export class Input extends EventEmitter {
                             }
                             else {
                                 for (; k < kl; k++) {
-                                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                                    if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                                         continue;
                                     trigger = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                                     trigger = trigger.find(t => {
@@ -4770,133 +4507,16 @@ export class Input extends EventEmitter {
                             args[0] = args[0].substr(1, args[0].length - 2);
                         else
                             args[0] = this.stripQuotes(args[0]);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nocr':
-                                    case 'prompt':
-                                    case 'case':
-                                    case 'verbatim':
-                                    case 'disable':
-                                    case 'enable':
-                                    case 'cmd':
-                                    case 'temporary':
-                                    case 'temp':
-                                    case 'raw':
-                                    case 'pattern':
-                                    case 'regular':
-                                    case 'alarm':
-                                    case 'event':
-                                    case 'cmdpattern':
-                                    case 'loopexpression':
-                                    //case 'expression':
-                                    case 'reparse':
-                                    case 'reparsepattern':
-                                    case 'manual':
-                                    case 'skip':
-                                    case 'looplines':
-                                    case 'looppattern':
-                                    case 'wait':
-                                    case 'duration':
-                                    case 'withinlines':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('param=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`param option '${o.trim()}'`);
-                                            item.options['params'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('type=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`type option '${o.trim()}'`);
-                                            if (!this._isTriggerType(tmp[1]))
-                                                throw new InvalidTrigger('type');
-                                            item.options['type'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new InvalidTrigger('priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new InvalidTrigger(`option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseTriggerOptions(args[0], ParseTriggerType.subTrigger);
                         else
                             throw new InvalidTrigger('options');
                     }
                     else if (args.length === 2) {
                         if (args[0].match(/^\{[\s\S]*\}$/g))
                             args[0] = args[0].substr(1, args[0].length - 2);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nocr':
-                                    case 'prompt':
-                                    case 'case':
-                                    case 'verbatim':
-                                    case 'disable':
-                                    case 'enable':
-                                    case 'cmd':
-                                    case 'temporary':
-                                    case 'temp':
-                                    case 'raw':
-                                    case 'pattern':
-                                    case 'regular':
-                                    case 'alarm':
-                                    case 'event':
-                                    case 'cmdpattern':
-                                    case 'loopexpression':
-                                    //case 'expression':
-                                    case 'reparse':
-                                    case 'reparsepattern':
-                                    case 'manual':
-                                    case 'skip':
-                                    case 'looplines':
-                                    case 'looppattern':
-                                    case 'wait':
-                                    case 'duration':
-                                    case 'withinlines':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('param=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`param option '${o.trim()}'`);
-                                            item.options['params'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('type=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`type option '${o.trim()}'`);
-                                            if (!this._isTriggerType(tmp[1]))
-                                                throw new InvalidTrigger('type');
-
-                                            item.options['type'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTrigger(`priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new InvalidTrigger('priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new InvalidTrigger(`option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseTriggerOptions(args[0], ParseTriggerType.subTrigger);
                         else
                             throw new InvalidTrigger('options');
                         item.profile = this.stripQuotes(args[1]);
@@ -5068,111 +4688,16 @@ export class Input extends EventEmitter {
                             args[0] = args[0].substr(1, args[0].length - 2);
                         else
                             args[0] = this.stripQuotes(args[0]);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nocr':
-                                    case 'prompt':
-                                    case 'case':
-                                    case 'verbatim':
-                                    case 'disable':
-                                    case 'enable':
-                                    case 'cmd':
-                                    case 'raw':
-                                    case 'pattern':
-                                    case 'regular':
-                                    case 'alarm':
-                                    case 'event':
-                                    case 'cmdpattern':
-                                    case 'loopexpression':
-                                        //case 'expression':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('param=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTemporaryTrigger(`param option '${o.trim()}'`);
-                                            item.options['params'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('type=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTemporaryTrigger(`type option '${o.trim()}'`);
-                                            if (!this._isTriggerType(tmp[1], TriggerTypeFilter.Main))
-                                                throw new InvalidTemporaryTrigger('type');
-                                            item.options['type'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTemporaryTrigger(`priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new InvalidTemporaryTrigger('priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new InvalidTemporaryTrigger(`option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseTriggerOptions(args[0], ParseTriggerType.temporary);
                         else
                             throw new InvalidTemporaryTrigger('options');
                     }
                     else if (args.length === 2) {
                         if (args[0].match(/^\{[\s\S]*\}$/g))
                             args[0] = args[0].substr(1, args[0].length - 2);
-                        if (args[0].length !== 0) {
-                            this.parseInline(args[0]).split(',').forEach(o => {
-                                switch (o.trim()) {
-                                    case 'nocr':
-                                    case 'prompt':
-                                    case 'case':
-                                    case 'verbatim':
-                                    case 'disable':
-                                    case 'enable':
-                                    case 'cmd':
-                                    case 'raw':
-                                    case 'pattern':
-                                    case 'regular':
-                                    case 'alarm':
-                                    case 'event':
-                                    case 'cmdpattern':
-                                    case 'loopexpression':
-                                        //case 'expression':
-                                        item.options[o.trim()] = true;
-                                        break;
-                                    default:
-                                        if (o.trim().startsWith('param=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTemporaryTrigger(`param option '${o.trim()}'`);
-                                            item.options['params'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('type=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTemporaryTrigger(`type option '${o.trim()}'`);
-                                            if (!this._isTriggerType(tmp[1], TriggerTypeFilter.Main))
-                                                throw new InvalidTemporaryTrigger('type');
-
-                                            item.options['type'] = tmp[1];
-                                        }
-                                        else if (o.trim().startsWith('pri=') || o.trim().startsWith('priority=')) {
-                                            tmp = o.trim().split('=');
-                                            if (tmp.length !== 2)
-                                                throw new InvalidTemporaryTrigger(`priority option '${o.trim()}'`);
-                                            i = parseInt(tmp[1], 10);
-                                            if (isNaN(i))
-                                                throw new InvalidTemporaryTrigger('priority value \'' + tmp[1] + '\' must be a number');
-                                            item.options['priority'] = i;
-                                        }
-                                        else
-                                            throw new InvalidTemporaryTrigger(`option '${o.trim()}'`);
-                                }
-                            });
-                        }
+                        if (args[0].length !== 0)
+                            item.options = this._parseTriggerOptions(args[0], ParseTriggerType.temporary);
                         else
                             throw new InvalidTemporaryTrigger('options');
                         item.profile = this.stripQuotes(args[1]);
@@ -5234,6 +4759,93 @@ export class Input extends EventEmitter {
                     else
                         this._client.variables[i] = args;
                 }
+                return null;
+            case 'fullscreen':
+            case 'full':
+                this._echoRaw(raw);
+                //#region fullscreen
+                if (args.length === 0) {
+                    //@ts-ignore
+                    if (document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+                        // If already in fullscreen, exit fullscreen
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen();
+                            //@ts-ignore
+                        } else if (document.msExitFullscreen) {
+                            //@ts-ignore
+                            document.msExitFullscreen();
+                            //@ts-ignore
+                        } else if (document.mozCancelFullScreen) {
+                            //@ts-ignore
+                            document.mozCancelFullScreen();
+                            //@ts-ignore
+                        } else if (document.webkitExitFullscreen) {
+                            //@ts-ignore
+                            document.webkitExitFullscreen();
+                        }
+                    } else {
+                        // If not in fullscreen, request fullscreen for the specified element
+                        if (document.documentElement.requestFullscreen) {
+                            document.documentElement.requestFullscreen();
+                            //@ts-ignore
+                        } else if (document.documentElement.mozRequestFullScreen) { // Firefox
+                            //@ts-ignore
+                            document.documentElement.mozRequestFullScreen();
+                            //@ts-ignore
+                        } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari, Edge
+                            //@ts-ignore
+                            document.documentElement.webkitRequestFullscreen();
+                            //@ts-ignore
+                        } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+                            //@ts-ignore
+                            document.documentElement.msRequestFullscreen();
+                        }
+                    }
+                }
+                else if (args.length === 1) {
+                    if (args[0] === '0' || args[0] === 'false') {
+                        //@ts-ignore
+                        if (document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+                            if (document.exitFullscreen) {
+                                document.exitFullscreen();
+                                //@ts-ignore
+                            } else if (document.msExitFullscreen) {
+                                //@ts-ignore
+                                document.msExitFullscreen();
+                                //@ts-ignore
+                            } else if (document.mozCancelFullScreen) {
+                                //@ts-ignore
+                                document.mozCancelFullScreen();
+                                //@ts-ignore
+                            } else if (document.webkitExitFullscreen) {
+                                //@ts-ignore
+                                document.webkitExitFullscreen();
+                            }
+                        }
+                    }
+                    //@ts-ignore
+                    else if (!(document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || document.mozFullScreenElement || document.msFullscreenElement)) {
+                        // If not in fullscreen, request fullscreen for the specified element
+                        if (document.documentElement.requestFullscreen) {
+                            document.documentElement.requestFullscreen();
+                            //@ts-ignore
+                        } else if (document.documentElement.mozRequestFullScreen) { // Firefox
+                            //@ts-ignore
+                            document.documentElement.mozRequestFullScreen();
+                            //@ts-ignore
+                        } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari, Edge
+                            //@ts-ignore
+                            document.documentElement.webkitRequestFullscreen();
+                            //@ts-ignore
+                        } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+                            //@ts-ignore
+                            document.documentElement.msRequestFullscreen();
+                        }
+                    }
+                }
+                else if (args.length > 1)
+                    throw new Error('Invalid syntax use \x1b[4m' + cmdChar + 'fr\x1b[0;-11;-12meeze \x1b[3mnumber\x1b[0;-11;-12m');
+                //#endregion   
                 return null;
         }
         if (fun.match(/^[-|+]?\d+$/)) {
@@ -6591,7 +6203,7 @@ export class Input extends EventEmitter {
             case 'copied.upper':
                 return window.$copied.toUpperCase();
             case 'copied.proper':
-                return ProperCase(window.$copied);
+                return _ProperCase(window.$copied);
             case 'i':
                 return this.loops[0];
             case 'repeatnum':
@@ -6603,7 +6215,7 @@ export class Input extends EventEmitter {
             case 'character.upper':
                 return window.$character.toUpperCase();
             case 'character.proper':
-                return ProperCase(window.$character);
+                return _ProperCase(window.$character);
             case 'selected':
             case 'selectedurl':
             case 'selectedline':
@@ -6637,7 +6249,7 @@ export class Input extends EventEmitter {
             case 'selurl.proper':
             case 'selline.proper':
             case 'selword.proper':
-                return ProperCase(this.vStack['$' + text.substr(0, text.length - 7)] || window['$' + text.substr(0, text.length - 7)]);
+                return _ProperCase(this.vStack['$' + text.substr(0, text.length - 7)] || window['$' + text.substr(0, text.length - 7)]);
             case 'random':
                 return mathjs().randomInt(0, 100);
         }
@@ -6680,7 +6292,7 @@ export class Input extends EventEmitter {
             case 'upper':
                 return this.stripQuotes(this.parseInline(res[2]).toUpperCase());
             case 'proper':
-                return ProperCase(this.stripQuotes(this.parseInline(res[2])));
+                return _ProperCase(this.stripQuotes(this.parseInline(res[2])));
             case 'eval':
                 args = this.evaluate(this.parseInline(res[2]));
                 if (this._getOption('ignoreEvalUndefined') && typeof args === 'undefined')
@@ -6714,7 +6326,7 @@ export class Input extends EventEmitter {
                 let sum = 0;
                 for (let i = 0; i < c; i++) {
                     if (sides === 'F' || sides === 'f')
-                        sum += fudgeDice();
+                        sum += _fudgeDice();
                     else if (sides === '%')
                         sum += ~~(Math.random() * 100.0) + 1.0;
                     else
@@ -6986,7 +6598,7 @@ export class Input extends EventEmitter {
                 args = this.splitByQuotes(this.parseInline(res[2]), ',');
                 if (args.length < 3)
                     throw new ArgumentMissingError('if');
-                if (args.length !== 3)
+                if (args.length > 3)
                     throw new ArgumentTooManyError('if');
                 if (this.evaluate(args[0]))
                     return this.stripQuotes(args[1].trim());
@@ -7181,9 +6793,9 @@ export class Input extends EventEmitter {
                     return parseInt(args[0], 10);
                 else if (args[0].match(/^\s*?[-|+]?\d+\.\d+\s*?$/))
                     return parseFloat(args[0]);
-                else if (args[0] === "true")
+                else if (args[0] === 'true')
                     return 1;
-                else if (args[0] === "false")
+                else if (args[0] === 'false')
                     return 0;
                 return 0;
             case 'isfloat'://isfloat(value)
@@ -7468,8 +7080,7 @@ export class Input extends EventEmitter {
                     if (kl === 0)
                         return null;
                     if (kl === 1) {
-
-                        if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                        if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                             throw Error('No enabled profiles found!');
                         sides = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                         sides = sides.find(t => {
@@ -7478,7 +7089,7 @@ export class Input extends EventEmitter {
                     }
                     else {
                         for (; k < kl; k++) {
-                            if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                            if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                                 continue;
                             sides = SortItemArrayByPriority(this._profiles.items[keys[k]].triggers);
                             sides = sides.find(t => {
@@ -8780,7 +8391,7 @@ export class Input extends EventEmitter {
             if (kl === 0)
                 return;
             if (kl === 1) {
-                if (!this._profiles.items[keys[0]].enabled || !this._profiles.items[keys[0]].enableTriggers)
+                if (!this._isProfileEnabled(keys[0]) || !this._profiles.items[keys[0]].enableTriggers)
                     throw Error('No enabled profiles found!');
                 profile = this._profiles.items[keys[0]];
                 if (subTrigger) {
@@ -8799,7 +8410,7 @@ export class Input extends EventEmitter {
             }
             else {
                 for (; k < kl; k++) {
-                    if (!this._profiles.items[keys[k]].enabled || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
+                    if (!this._isProfileEnabled(keys[k]) || !this._profiles.items[keys[k]].enableTriggers || this._profiles.items[keys[k]].triggers.length === 0)
                         continue;
                     if (subTrigger) {
                         if (!name) {
@@ -8890,23 +8501,23 @@ export class Input extends EventEmitter {
                 if (options.withinlines)
                     sTrigger.type = SubTriggerTypes.WithinLines;
 
-                if (options.prompt)
-                    sTrigger.triggerPrompt = true;
-                if (options.nocr)
-                    sTrigger.triggerNewline = false;
-                if (options.case)
-                    sTrigger.caseSensitive = true;
-                if (options.raw)
-                    sTrigger.raw = true;
-                if (options.verbatim)
-                    sTrigger.verbatim = true;
-                if (options.disable)
-                    sTrigger.enabled = false;
-                else if (options.enable)
-                    sTrigger.enabled = true;
-                if (options.temporary || options.temp)
-                    sTrigger.temp = true;
-                if (options.params)
+                if (options.hasOwnProperty('prompt'))
+                    sTrigger.triggerPrompt = options.prompt;
+                if (options.hasOwnProperty('nocr'))
+                    sTrigger.triggerNewline = !options.nocr;
+                if (options.hasOwnProperty('case'))
+                    sTrigger.caseSensitive = options.case;
+                if (options.hasOwnProperty('raw'))
+                    sTrigger.raw = options.raw;
+                if (options.hasOwnProperty('verbatim'))
+                    sTrigger.verbatim = options.verbatim;
+                if (options.hasOwnProperty('disable'))
+                    sTrigger.enabled = !options.disable;
+                else if (options.hasOwnProperty('enable'))
+                    sTrigger.enabled = options.enable;
+                if (options.hasOwnProperty('temporary') || options.hasOwnProperty('temp'))
+                    sTrigger.temp = options.temporary || options.temp;
+                if (options.hasOwnProperty('params'))
                     sTrigger.params = options.params;
                 if (options.type) {
                     if (this._isTriggerType(options.type))
@@ -8953,23 +8564,23 @@ export class Input extends EventEmitter {
                 //if(options.expression)
                 //trigger.type = TriggerType.Expression;
 
-                if (options.prompt)
-                    trigger.triggerPrompt = true;
-                if (options.nocr)
-                    trigger.triggerNewline = false;
-                if (options.case)
-                    trigger.caseSensitive = true;
-                if (options.raw)
-                    trigger.raw = true;
-                if (options.verbatim)
-                    trigger.verbatim = true;
-                if (options.disable)
-                    trigger.enabled = false;
-                else if (options.enable)
-                    trigger.enabled = true;
-                if (options.temporary || options.temp)
-                    trigger.temp = true;
-                if (options.params)
+                if (options.hasOwnProperty('prompt'))
+                    trigger.triggerPrompt = options.prompt;
+                if (options.hasOwnProperty('nocr'))
+                    trigger.triggerNewline = !options.nocr;
+                if (options.hasOwnProperty('case'))
+                    trigger.caseSensitive = options.case;
+                if (options.hasOwnProperty('raw'))
+                    trigger.raw = options.raw;
+                if (options.hasOwnProperty('verbatim'))
+                    trigger.verbatim = options.verbatim;
+                if (options.hasOwnProperty('disable'))
+                    trigger.enabled = !options.disable;
+                else if (options.hasOwnProperty('enable'))
+                    trigger.enabled = options.enable;
+                if (options.hasOwnProperty('temporary') || options.hasOwnProperty('temp'))
+                    trigger.temp = options.temporary || options.temp;
+                if (options.hasOwnProperty('params'))
                     trigger.params = options.params;
                 if (options.type) {
                     if (this._isTriggerType(options.type, TriggerTypeFilter.Main))
@@ -8990,6 +8601,99 @@ export class Input extends EventEmitter {
         else
             this.emit('item-updated', 'trigger', (<Profile>profile).name, (<Profile>profile).triggers.indexOf(trigger), trigger);
         profile = null;
+    }
+
+    private _parseTriggerOptions(data, type?: ParseTriggerType) {
+        let options = { priority: 0 };
+        this.parseInline(data).split(',').forEach(o => {
+            let field = o.toLowerCase().split('=').map(m => m.trim());
+            if (field.length > 2) {
+                if (type === ParseTriggerType.temporary)
+                    throw new Error(`Invalid temporary trgger option '${field[0]}' format, must be in KEY=VALUE format`);
+                if (type === ParseTriggerType.event)
+                    throw new Error(`Invalid event option '${field[0]}' format, must be in KEY=VALUE format`);
+                throw new Error(`Invalid trgger option '${field[0]}' format, must be in KEY=VALUE format`);
+            }
+            if (!field[0].length) {
+                if (type === ParseTriggerType.temporary)
+                    throw new InvalidTemporaryTrigger(`option'`);
+                else if (type === ParseTriggerType.event)
+                    throw new InvalidOption('event');
+                throw new InvalidTrigger(`option`);
+            }
+            switch (field[0]) {
+                case 'nocr':
+                case 'prompt':
+                case 'case':
+                case 'verbatim':
+                case 'disable':
+                case 'enable':
+                case 'temporary':
+                case 'temp':
+                    options[field[0]] = field.length === 2 ? (field[1] === 'true' || field[1] === 'on' || field[1] === 'yes') : true;
+                    break;
+                case 'cmd':
+                case 'raw':
+                case 'pattern':
+                case 'regular':
+                case 'alarm':
+                case 'event':
+                case 'cmdpattern':
+                case 'loopexpression':
+                    if (type === ParseTriggerType.event)
+                        throw new InvalidOption('event', o);
+                    //case 'expression':
+                    options[field[0]] = field.length === 2 ? (field[1] === 'true' || field[1] === 'on' || field[1] === 'yes') : true;
+                    break;
+                case 'reparse':
+                case 'reparsepattern':
+                case 'manual':
+                case 'skip':
+                case 'looplines':
+                case 'looppattern':
+                case 'wait':
+                case 'duration':
+                case 'withinlines':
+                    if (type === ParseTriggerType.temporary)
+                        throw new InvalidTemporaryTrigger(`option '${field[0]}'`);
+                    else if (type === ParseTriggerType.event)
+                        throw new InvalidOption('event', o);
+                    else if (type !== ParseTriggerType.subTrigger)
+                        throw new InvalidTrigger(`option '${field[0]}'`);
+                    options[field[0]] = field.length === 2 ? (field[1] === 'true' || field[1] === 'on' || field[1] === 'yes') : true;
+                    break;
+                case 'pri':
+                case 'priority':
+                    if (field.length !== 2)
+                        throw new InvalidTrigger(`priority option '${field[0]}'`);
+                    let i = parseInt(field[1], 10);
+                    if (isNaN(i))
+                        throw new InvalidTrigger(`priority value '${field[1]}' must be a number`);
+                    options['priority'] = i;
+                    break;
+                case 'param':
+                case 'params':
+                    if (field.length !== 2)
+                        throw new InvalidTrigger(`param option '${field[0]}'`);
+                    options['params'] = field[1];
+                    break;
+                case 'type':
+                    if (field.length !== 2)
+                        throw new InvalidTrigger(`type option '${field[0]}'`);
+                    if (!this._isTriggerType(field[1]))
+                        throw new InvalidTrigger('type');
+                    options['type'] = field[1];
+                    break;
+                default:
+                    if (type === ParseTriggerType.temporary)
+                        throw new InvalidTemporaryTrigger(`option '${field[0]}'`);
+                    else if (type === ParseTriggerType.event)
+                        throw new InvalidOption('event', o);
+                    else
+                        throw new InvalidTrigger(`option '${field[0]}'`);
+            }
+        });
+        return options;
     }
 
     private _isTriggerType(type, filter?: TriggerTypeFilter) {
@@ -9104,6 +8808,39 @@ export class Input extends EventEmitter {
         }
     }
 
+    private _parseButtonOptions(data) {
+        let options = { priority: 0 };
+        this.parseInline(data).split(',').forEach(o => {
+            let field = o.toLowerCase().split('=').map(m => m.trim());
+            if (field.length > 2)
+                throw new Error(`Invalid button option '${field[0]}' format, must be in KEY=VALUE format`);
+            if (!field[0].length)
+                throw new Error(`Missing button option`);
+            switch (field[0]) {
+                case 'nosend':
+                case 'chain':
+                case 'append':
+                case 'stretch':
+                case 'disable':
+                case 'enable':
+                    options[field[0]] = field.length === 2 ? (field[1] === 'true' || field[1] === 'on' || field[1] === 'yes') : true;
+                    break;
+                case 'pri':
+                case 'priority':
+                    if (field.length !== 2)
+                        throw new InvalidOption('button', o + ' value');
+                    let i = parseInt(field[1], 10);
+                    if (isNaN(i))
+                        throw new Error('Invalid button priority value \'' + field[1] + '\' must be a number');
+                    options['priority'] = i;
+                    break;
+                default:
+                    throw new InvalidOption('button', o);
+            }
+        });
+        return options;
+    }
+
     private _getOption(option) {
         return this._client.getOption(option);
     }
@@ -9116,7 +8853,7 @@ export class Input extends EventEmitter {
         this._client.echo(str, fore, back, newline, forceLine);
     }
 
-    private _processCommandItemArgs(args, syntax) {
+    private _processCommandItemArgs(args, syntax, noActiveProfile?) {
         let profile = null;
         let n;
         if (args[0].match(/^\{.*\}$/g) || args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g)) {
@@ -9129,7 +8866,7 @@ export class Input extends EventEmitter {
                 else
                     throw new ProfileNotFound(profile);
             }
-            else
+            else if (!noActiveProfile)
                 profile = this._client.activeProfile;
             if (args[0].match(/^".*"$/g) || args[0].match(/^'.*'$/g))
                 n = this.parseInline(this.stripQuotes(args[0]));
@@ -9138,7 +8875,8 @@ export class Input extends EventEmitter {
         }
         else {
             n = this.parseInline(args.join(' '));
-            profile = this._client.activeProfile;
+            if (!noActiveProfile)
+                profile = this._client.activeProfile;
         }
         return { profile: profile, results: n };
     }
@@ -9146,5 +8884,59 @@ export class Input extends EventEmitter {
     private _echoRaw(raw) {
         if ((this._getOption('echo') & 4) === 4)
             this._echo(raw, -3, -4, true, true);
+    }
+
+    private _removeItem(selector, items, type, fields, profile?: Profile, index?) {
+        selector = this.stripQuotes(selector);
+        if (selector.length === 0) {
+            if (!Array.isArray(fields))
+                throw new Error('Invalid selector');
+            if (fields.length > 1)
+                throw new Error('Invalid ' + fields.slice(0, -1).join(', ') + ' or ' + fields.pop());
+            throw new Error('Invalid ' + fields[0]);
+        }
+        let tmp = selector;
+        let item;
+        if (index && /^\s*?\d+\s*?$/.exec(selector)) {
+            selector = parseInt(selector, 10);
+            if (selector < 0 || selector >= items.length)
+                throw new Error(_ProperCase(type) + ' index must be >= 0 and < ' + items.length);
+            item = items[selector];
+            profile = profile || item.profile;
+        }
+        else if (!profile) {
+            const keys = this._profiles.keys;
+            for (let k = 0, kl = this._profiles.keys.length; k < kl; k++) {
+                item = this._profiles[keys[k]].findAny(type === 'alias' ? 'aliases' : (type + 's'), fields, selector);
+                if (item) {
+                    profile = this._profiles[keys[k]];
+                    break;
+                }
+            }
+        }
+        else
+            item = profile.findAny(type === 'alias' ? 'aliases' : (type + 's'), fields, selector);
+        if (!item)
+            this._echo(_ProperCase(type) + ' \'' + tmp + '\' not found.', -7, -8, true, true);
+        else {
+            if (Array.isArray(fields))
+                fields.forEach(field => tmp = items[selector][field] || tmp);
+            this._echo(_ProperCase(type) + ' \'' + tmp + '\' removed.', -7, -8, true, true);
+            if (type === 'trigger' || type === 'event')
+                this._client.removeTrigger(items[selector]);
+            else {
+                let collection = type === 'alias' ? 'aliases' : (type + 's');
+                selector = profile[collection].indexOf(item);
+                profile[collection].splice(selector, 1);
+                this._client.saveProfiles();
+                this._client.clearCache();
+                this.emit('item-removed', type, profile.name, selector, item);
+            }
+        }
+    }
+
+    private _isProfileEnabled(profile) {
+        if (!this._profiles || !this._profiles.items[profile]) return false;
+        return this._profiles.items[profile].enabled;
     }
 }

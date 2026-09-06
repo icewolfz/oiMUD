@@ -135,9 +135,10 @@ export class Chat extends Plugin {
             if (this._noCapture || this._noCaptureStore > 0) return;
 
             if (this.client.getOption('chat.CaptureOnlyOpen')) {
-                if (!(this._isWindowOpen || this._isDialogOpen)) {
+                let evt = { open: !(this._isWindowOpen || this._isDialogOpen) };
+                this.emit('chat-only-open', evt);
+                if (!evt.open)
                     return;
-                }
             }
 
             //capture indented text
@@ -240,6 +241,7 @@ export class Chat extends Plugin {
             }
         })
         this.client.on('options-loaded', () => {
+            this._buildCaptures();
             this._loadOptions();
         });
         this.client.on('option-changed', (name: string, value) => {
@@ -500,7 +502,7 @@ export class Chat extends Plugin {
                 (<any>this._window).display = new Display(el);
                 (<any>this._window).display.on('split-move-done', (h) => {
                     this.client.setOption('chat.splitHeight', h);
-                });   
+                });
                 this._loadDisplayOptions((<any>this._window).display);
                 this._loadWindowOptions(this._window.document);
                 const toolbar = this._buildToolbar(this._window.document, (<any>this._window).display);
@@ -523,7 +525,7 @@ export class Chat extends Plugin {
             (<any>this._dialog).display = new Display(el);
             (<any>this._dialog).display.on('split-move-done', (h) => {
                 this.client.setOption('chat.splitHeight', h);
-            });             
+            });
             this._loadDisplayOptions((<any>this._dialog).display);
             this._loadWindowOptions(this._dialog.body);
             const toolbar = this._buildToolbar(document, (<any>this._dialog).display);
@@ -695,28 +697,30 @@ export class Chat extends Plugin {
     }
 
     private _loadDisplayOptions(display) {
-        display.updateFont(client.getOption('chat.font'), client.getOption('chat.fontSize'));
-        display.maxLines = client.getOption('chat.bufferSize');
-        display.enableFlashing = client.getOption('chat.flashing');
-        display.showTimestamp = client.getOption('chat.showTimestamp');
-        display.timestampFormat = client.getOption('chat.timestampFormat');
-        display.enableMXP = client.getOption('enableMXP');
-        display.enableURLDetection = client.getOption('enableURLDetection');
-        display.showInvalidMXPTags = client.getOption('display.showInvalidMXPTags');
-        display.hideTrailingEmptyLine = client.getOption('display.hideTrailingEmptyLine');
-        display.enableColors = client.getOption('chat.enableColors');
-        display.enableBackgroundColors = client.getOption('chat.enableBackgroundColors');
-        display.tabWidth = client.getOption('chat.tabWidth');
-        display.displayControlCodes = client.getOption('chat.displayControlCodes');
-        display.emulateTerminal = client.getOption('chat.emulateTerminal');
-        display.emulateControlCodes = client.getOption('chat.emulateControlCodes');
-        display.wordWrap = client.getOption('chat.wordWrap');
-        display.wrapAt = client.getOption('chat.wordWrapAt');
-        display.indent = client.getOption('chat.indent');
-        display.scrollLock = client.getOption('chat.scrollLocked');
-        display.enableSplit = client.getOption('chat.split');
-        display.splitLive = client.getOption('chat.splitLive');
-        display.splitHeight = client.getOption('chat.splitHeight');        
+        display.updateFont(this.client.getOption('chat.font'), this.client.getOption('chat.fontSize'));
+        display.maxLines = this.client.getOption('chat.bufferSize');
+        display.enableFlashing = this.client.getOption('chat.flashing');
+        display.showTimestamp = this.client.getOption('chat.showTimestamp');
+        display.timestampFormat = this.client.getOption('chat.timestampFormat');
+        display.enableMXP = this.client.getOption('enableMXP');
+        display.enableURLDetection = this.client.getOption('enableURLDetection');
+        display.showInvalidMXPTags = this.client.getOption('display.showInvalidMXPTags');
+        display.hideTrailingEmptyLine = this.client.getOption('display.hideTrailingEmptyLine');
+        display.enableColors = this.client.getOption('chat.enableColors');
+        display.enableBackgroundColors = this.client.getOption('chat.enableBackgroundColors');
+        display.tabWidth = this.client.getOption('chat.tabWidth');
+        display.displayControlCodes = this.client.getOption('chat.displayControlCodes');
+        display.emulateTerminal = this.client.getOption('chat.emulateTerminal');
+        display.emulateControlCodes = this.client.getOption('chat.emulateControlCodes');
+        display.wordWrap = this.client.getOption('chat.wordWrap');
+        display.wrapAt = this.client.getOption('chat.wordWrapAt');
+        display.indent = this.client.getOption('chat.indent');
+        display.scrollLock = this.client.getOption('chat.scrollLocked');
+        display.enableSplit = this.client.getOption('chat.split');
+        display.splitLive = this.client.getOption('chat.splitLive');
+        display.splitHeight = this.client.getOption('chat.splitHeight');
+        display.customSelection = this.client.getOption('chat.customSelection');
+        display.customScrollbars = this.client.getOption('customScrollbars');
         display.scrollDisplay();
     }
 

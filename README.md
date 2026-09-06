@@ -90,6 +90,6 @@ Basic questions answered about oiMUD
 - `All browsers` ensure you do not have clear cookies or site data on close enabled or you will lose profiles and map data unless backed up to the mud or locally as text files
 - `Text selection` 
   - Firefox
-    - Split scroll text selection hs some issues due to issues in firefox and mouse events
     - Custom selection highlight is not visible before version 135 due to not supporting the highlight api
   - All browsers, not matter custom or normal text selection may jump when mouse is moved outside of display control
+- Auto hiding scrollbars may cause gaps when split view enabled due to unable to calculate scrollbar with and if visible or not, to fix you can disable auto hiding scrollbars in browser if supported or in operating system, if you do not wish to disable them you can the [Custom scrollbars for display controls](dist/docs/preferences.md#advanced) preference that will add custom scrollbars to all custom displays

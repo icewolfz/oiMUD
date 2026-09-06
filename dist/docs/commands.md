@@ -23,6 +23,9 @@
 <u>#FR</u>EEZE *state*
 >Scroll lock the display, if state is omitted it will toggle the scroll lock, if state is 0 or false it will disable scroll lock, if state is anything else it will lock the scroll back
 
+<u>#FULL</u>SCREEN *state*
+>Enable fullscreen mode, if state is omitted it will toggle fullscreen, if state is 0 or false it will disable fullscreen, if state is anything else it will enable fullscreen
+
 <u>#HI</u>GHLIGHT *pattern*
 >make last line or line with matching pattern bold or brighter color if already bold, or makes the color brighter
 
@@ -148,8 +151,14 @@ Display text to the screen, and the display text will not fire triggers
 #PROFILELIST
 >display a list of all profiles and current state
 
-<u>#UNB</u>UTTON name|index|caption
+<u>#UNB</u>UTTON name|index|caption *profile*
 >remove a button, if index it is the position in order of buttons in profile manager
+
+[<u>#UNK</u>EY](commands/UNMACRO.md) key|index *profile*
+>remove a macro
+
+[<u>#UNM</u>ACRO](commands/UNMACRO.md) key|index *profile*
+>remove a macro
 
 <u>#VA</u>RIABLE *name value*
 >Set, get, or display all user set variables
@@ -229,7 +238,7 @@ Display text to the screen, and the display text will not fire triggers
 <u>#CHAR</u>ACTER
 >Send current character name to the mud, without echoing to the screen
 
-<u>#CL</u>OSE *name *
+<u>#CL</u>OSE *name*
 >Close named window
 >Supported names: about, prefs, mapper, editor, profiles, chat, help, history, log-viewer, skills
 
@@ -384,6 +393,9 @@ Test commands allow you to debug or test features of the client
 #TESTSTATUS
 >Test the status display
 
+#TESTSCREEN
+>Display data about display sizes
+
 **Note:** All italic arguments are optional and can be left out
 
 **Note:** All quoted arguments will be processed based on [scripting quote preference](preferences.md#scripting) when required
@@ -445,6 +457,8 @@ Explain what each argument does and if it is optional
 - `reparsepattern` create reparse pattern trigger, sub triggers only, may be used instead of type=
 - `manual` create manual trigger, sub triggers only,  may be used instead of type=
 
+Allow options that are simple toggle allow explicit setting by doing option=true or option=false to toggle state
+
 2.Button options
 
 - `nosend` do not send to mud
@@ -454,3 +468,5 @@ Explain what each argument does and if it is optional
 - `disable` disable button
 - `enable` enable button
 - `priority=#` set the priority of button
+
+Allow options that are simple toggle allow explicit setting by doing option=true or option=false to toggle state

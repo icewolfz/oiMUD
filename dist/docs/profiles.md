@@ -31,6 +31,8 @@ The navigation breadcrumb to allow easier jumping to other pages
 - `Export current profile` Export current profile
 - `Export profiles` Export all profiles as one file
 - `Import` import profiles
+- `Copy profile url` Copies the url to open client using the enabled profiles from manager
+- `Open profile url` Opens the url to open client using enabled profiles in a new window or tab
 - `Refresh` Refresh manager
 - `Reload` Reload profiles
 

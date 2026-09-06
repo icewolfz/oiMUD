@@ -447,6 +447,35 @@ export class Client extends EventEmitter {
         return new Promise((resolve) => {
             ProfileCollection.load().then((profiles: ProfileCollection) => {
                 this._profiles = profiles;
+                let enabled: string | string[] = getParameterByName('profiles');
+                if (enabled && enabled.length !== 0) {
+                    enabled = enabled.split(',');
+                    if (enabled.length) {
+                        const keys = this.profiles.keys;
+                        let k = 0;
+                        const kl = keys.length;
+                        let old = [];
+                        //disable old profiles
+                        for (; k < kl; k++) {
+                            if (this.profiles.items[keys[k]].enabled)
+                                old.push(keys[k]);
+                            this.profiles.items[keys[k]].enabled = false;
+                        }
+                        k = 0;
+                        for (let e = 0, el = enabled.length; e < el; e++) {
+                            if (this.profiles.contains(enabled[e])) {
+                                this.profiles.items[enabled[e]].enabled = true;
+                                k++;
+                            }
+                        }
+                        if (k === 0) {
+                            for (let e = 0, el = old.length; e < el; e++)
+                                this.profiles.items[old[e]].enabled = true;
+                        }
+                        else if (this.getOption('saveDynamicProfiles'))
+                            this.saveProfiles();
+                    }
+                }
                 //ensure default exist and is loaded
                 if (!this.profiles.contains('default')) {
                     this.profiles.add(Profile.Default);
@@ -886,11 +915,7 @@ export class Client extends EventEmitter {
         });
         this.display.on('split-move-done', (h) => {
             this.setOption('display.splitHeight', h);
-        });        
-        this.display.on('update-window', (width, height) => {
-            this.telnet.updateWindow(width, height);
         });
-
         this.display.on('update-window', (width, height) => {
             this.telnet.updateWindow(width, height);
         });
@@ -1190,6 +1215,9 @@ export class Client extends EventEmitter {
         this.display.splitHeight = this._options['display.splitHeight'];
         this.display.enableSplit = this._options['display.split'];
         this.display.splitLive = this._options['display.splitLive'];
+        this.display.customSelection = this._options['display.customSelection'];
+        this.display.defaultMXPState = this._options['display.defaultMXPState'];
+        this.display.customScrollbars = this._options['customScrollbars'];
 
         const colors = this.getOption('colors');
         if (colors && colors.length > 0) {
@@ -1264,7 +1292,7 @@ export class Client extends EventEmitter {
         else if (typeof err === 'string' && err.length === 0)
             err = new Error('Unknown');
         if (err.stack && this.getOption('showErrorsExtended'))
-            msg = err.stack;
+            msg = err.name + ': ' + err.message + '\n' + err.stack;
         else if (err instanceof Error || err instanceof TypeError)
             msg = err.name + ': ' + err.message;
         else if (err.message)
@@ -1280,15 +1308,15 @@ export class Client extends EventEmitter {
         if (this.getOption('logErrors')) {
             if (!this.getOption('showErrorsExtended')) {
                 if (err.stack)
-                    msg = err.stack;
+                    msg += '\n' + err.stack;
                 else {
                     err = new Error(err || msg);
-                    msg = err.stack;
+                    msg += '\n' + err.stack;
                 }
             }
             else if (!err.stack) {
                 err = new Error(err || msg);
-                msg = err.stack;
+                msg += '\n' + err.stack;
             }
             window.console.log(new Date().toLocaleString());
             window.console.log(msg);
@@ -1312,12 +1340,15 @@ export class Client extends EventEmitter {
         str = '' + str;
         if (str.endsWith('\n'))
             str = str.substr(0, str.length - 1);
+        let mxp = this._display.enableMXP;
+        this._display.enableMXP = false;
         if (this.telnet.prompt && forceLine) {
             this.print('\n\x1b[' + fore + ';' + back + 'm' + str + codes, newline);
             this.telnet.prompt = false;
         }
         else
             this.print('\x1b[' + fore + ';' + back + 'm' + str + codes, newline);
+        this._display.enableMXP = mxp;
     }
 
     public print(txt: string, newline?: boolean) {
@@ -1335,12 +1366,15 @@ export class Client extends EventEmitter {
     }
 
     public send(data, echo?: boolean) {
+        let p = this.telnet.prompt;
         this.telnet.sendData(data);
         this.lastSendTime = Date.now();
         if (echo && this.telnet.echo && this.getOption('commandEcho'))
             this.echo(data);
         else if (echo)
             this.echo('\n');
+        else //if no echo lets reset prompt so next true echo will display correctly
+            this.telnet.prompt = p;
     }
 
     public sendRaw(data) {

@@ -137,8 +137,26 @@ export function initializeInterface() {
     initMenu();
     //#region global scripting functions
     //not supported bu add stubs to prevent errors from imported scripts
-    window.readClipboard = () => pasteText();
-    window.readClipboardHTML = () => pasteText();
+    window.readClipboard = () => {
+        pasteText().catch(err => {
+            if (client.enableDebug)
+                client.debug(err);
+            if (err.message && err.message === 'Permission not granted!')
+                client.echo('Paste permission not granted.', -7, -8, true, true);
+            else
+                client.echo('Paste not supported.', -7, -8, true, true);
+        })
+    };
+    window.readClipboardHTML = () => {
+        pasteText().catch(err => {
+            if (client.enableDebug)
+                client.debug(err);
+            if (err.message && err.message === 'Permission not granted!')
+                client.echo('Paste permission not granted.', -7, -8, true, true);
+            else
+                client.echo('Paste not supported.', -7, -8, true, true);
+        });
+    }
     (client as any).readClipboard = window.readClipboard;
     (client as any).readClipboardHTML = window.readClipboardHTML;
 

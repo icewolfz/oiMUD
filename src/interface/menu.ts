@@ -120,7 +120,14 @@ export function initMenu() {
     });
     document.querySelector('#menu-paste a').addEventListener('click', e => {
         if (isPasteSupported())
-            pasteText().then(doPasteSpecial);
+            pasteText().then(doPasteSpecial).catch(err => {
+                if (client.enableDebug)
+                    client.debug(err);
+                if (err.message && err.message === 'Permission not granted!')
+                    client.echo('Paste permission not granted.', -7, -8, true, true);
+                else
+                    client.echo('Paste not supported.', -7, -8, true, true);
+            });
         else {
             document.querySelector('#menu-paste').classList.toggle('active');
             client.commandInput.focus();

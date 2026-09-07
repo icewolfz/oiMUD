@@ -2183,7 +2183,7 @@ export function pasteText() {
                     else {
                         reject(new Error('Permission not granted!'));
                     }
-                });
+                }).catch(reject);
             }
             else if (document.queryCommandSupported && document.queryCommandSupported('paste')) {
                 let textarea = _createTextarea();
@@ -2231,7 +2231,7 @@ export function pasteType(type, fallBack?) {
                     else {
                         reject(new Error('Permission not granted!'));
                     }
-                });
+                }).catch(reject);
             }
             else if (document.queryCommandSupported && document.queryCommandSupported('paste')) {
                 let textarea = _createTextarea();

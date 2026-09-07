@@ -3623,7 +3623,7 @@
             } else {
               reject(new Error("Permission not granted!"));
             }
-          });
+          }).catch(reject);
         } else if (document.queryCommandSupported && document.queryCommandSupported("paste")) {
           let textarea = _createTextarea();
           try {
@@ -3664,7 +3664,7 @@
             } else {
               reject(new Error("Permission not granted!"));
             }
-          });
+          }).catch(reject);
         } else if (document.queryCommandSupported && document.queryCommandSupported("paste")) {
           let textarea = _createTextarea();
           try {
@@ -29379,7 +29379,14 @@ Devanagari
     });
     document.querySelector("#menu-paste a").addEventListener("click", (e) => {
       if (isPasteSupported())
-        pasteText().then(doPasteSpecial);
+        pasteText().then(doPasteSpecial).catch((err) => {
+          if (client.enableDebug)
+            client.debug(err);
+          if (err.message && err.message === "Permission not granted!")
+            client.echo("Paste permission not granted.", -7, -8, true, true);
+          else
+            client.echo("Paste not supported.", -7, -8, true, true);
+        });
       else {
         document.querySelector("#menu-paste").classList.toggle("active");
         client.commandInput.focus();
@@ -34500,8 +34507,26 @@ Devanagari
     let options;
     _setIcon(0);
     initMenu();
-    window.readClipboard = () => pasteText();
-    window.readClipboardHTML = () => pasteText();
+    window.readClipboard = () => {
+      pasteText().catch((err) => {
+        if (client.enableDebug)
+          client.debug(err);
+        if (err.message && err.message === "Permission not granted!")
+          client.echo("Paste permission not granted.", -7, -8, true, true);
+        else
+          client.echo("Paste not supported.", -7, -8, true, true);
+      });
+    };
+    window.readClipboardHTML = () => {
+      pasteText().catch((err) => {
+        if (client.enableDebug)
+          client.debug(err);
+        if (err.message && err.message === "Permission not granted!")
+          client.echo("Paste permission not granted.", -7, -8, true, true);
+        else
+          client.echo("Paste not supported.", -7, -8, true, true);
+      });
+    };
     client.readClipboard = window.readClipboard;
     client.readClipboardHTML = window.readClipboardHTML;
     window.writeClipboard = (txt, html) => copyText(txt);

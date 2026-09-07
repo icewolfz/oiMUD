@@ -119,7 +119,8 @@ export function initMenu() {
         closeMenu();
     });
     document.querySelector('#menu-paste a').addEventListener('click', e => {
-        if (isPasteSupported())
+        if (isPasteSupported()) {
+            document.querySelector('#menu-paste').classList.add('active');
             pasteText().then(doPasteSpecial).catch(err => {
                 if (client.enableDebug)
                     client.debug(err);
@@ -127,9 +128,12 @@ export function initMenu() {
                     client.echo('Paste permission not granted.', -7, -8, true, true);
                 else
                     client.echo('Paste not supported.', -7, -8, true, true);
+                document.querySelector('#menu-paste').classList.remove('active');
             });
+        }
         else {
-            document.querySelector('#menu-paste').classList.toggle('active');
+            client.echo('Paste not supported.', -7, -8, true, true);
+            //document.querySelector('#menu-paste').classList.toggle('active');
             client.commandInput.focus();
         }
         closeMenu();

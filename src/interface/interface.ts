@@ -1592,8 +1592,8 @@ export async function doPasteSpecial(txt, showDisable?) {
         insertValue(client.commandInput, txt);
         client.commandInput.dataset.selectionStart = '';
         client.commandInput.dataset.selectionEnd = '';
-        if (results.options.disable)
-            document.querySelector('#menu-paste').classList.remove('active');
+        //if (results.options.disable)
+        document.querySelector('#menu-paste').classList.remove('active');
     }
     client.commandInput.focus();
 }

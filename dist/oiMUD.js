@@ -29378,7 +29378,8 @@ Devanagari
       closeMenu();
     });
     document.querySelector("#menu-paste a").addEventListener("click", (e) => {
-      if (isPasteSupported())
+      if (isPasteSupported()) {
+        document.querySelector("#menu-paste").classList.add("active");
         pasteText().then(doPasteSpecial).catch((err) => {
           if (client.enableDebug)
             client.debug(err);
@@ -29386,9 +29387,10 @@ Devanagari
             client.echo("Paste permission not granted.", -7, -8, true, true);
           else
             client.echo("Paste not supported.", -7, -8, true, true);
+          document.querySelector("#menu-paste").classList.remove("active");
         });
-      else {
-        document.querySelector("#menu-paste").classList.toggle("active");
+      } else {
+        client.echo("Paste not supported.", -7, -8, true, true);
         client.commandInput.focus();
       }
       closeMenu();
@@ -35844,8 +35846,7 @@ ${pre}`);
       insertValue(client.commandInput, txt);
       client.commandInput.dataset.selectionStart = "";
       client.commandInput.dataset.selectionEnd = "";
-      if (results.options.disable)
-        document.querySelector("#menu-paste").classList.remove("active");
+      document.querySelector("#menu-paste").classList.remove("active");
     }
     client.commandInput.focus();
   }
